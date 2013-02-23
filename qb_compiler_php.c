@@ -1213,7 +1213,18 @@ static void ZEND_FASTCALL qb_translate_function_call_init(qb_compiler_context *c
 	*stack_item = *name;
 
 	stack_item = qb_push_stack_item(cxt);	// object
+
+#if !ZEND_ENGINE_2_3
 	*stack_item = *object;
+#else
+	// for some reason in Zend Engine 2.3, the name of the function would show up here
+	if(object->type == QB_OPERAND_ZVAL && object->constant->type == IS_OBJECT) {
+		*stack_item = *object;
+	} else {
+		stack_item->type = QB_OPERAND_NONE;
+		stack_item->address = NULL;
+	}
+#endif
 }
 
 static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, qb_translator *t, qb_operand *name, qb_operand *object, uint32_t result_flags) {

@@ -1935,7 +1935,7 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 		memset(&user_op, 0, sizeof(zend_op));
 		user_op.opcode = qb_user_opcode;
 		Z_OPERAND_TYPE(user_op.op1) = Z_OPERAND_CONST;
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 		Z_OPERAND_ZV(user_op.op1) = &name;
 #else
 		memset(Z_OPERAND_ZV(user_op.op1), &name, sizeof(zval));
