@@ -297,7 +297,7 @@ static void ZEND_FASTCALL qb_translate_incdec_post(qb_compiler_context *cxt, qb_
 // when the module is compiled as dynamically linked library
 #ifdef COMPILE_DL_QB
 
-#if ZEND_ENGINE_2_4
+#if !ZEND_ENGINE_2_3 || !ZEND_ENGINE_2_2 || !ZEND_ENGINE_2_1
 static int zend_get_special_constant(const char *name, uint name_len, zend_constant **c TSRMLS_DC)
 {
 	int ret;

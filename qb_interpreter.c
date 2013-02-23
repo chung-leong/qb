@@ -1679,7 +1679,11 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 			ALLOC_INIT_ZVAL(value);
 			qb_transfer_value_to_debug_zval(cxt, qvar->address, value);
 			zend_hash_quick_update(ex->symbol_table, qvar->name, qvar->name_length + 1, qvar->hash_value, &value, sizeof(zval *), (void **) &var);
+#ifndef ZEND_ENGINE_2_4 || ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+			*EX_CV_NUM(ex, j) = var;
+#else
 			ex->CVs[j++] = var;
+#endif
 		}
 	}
 }
@@ -1691,7 +1695,12 @@ static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) 
 	for(i = 0, j = 0; i < cxt->function->variable_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-			qb_transfer_value_to_debug_zval(cxt, qvar->address, *ex->CVs[j++]);
+#ifndef ZEND_ENGINE_2_4 || ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+			zval *zvalue = *EX_CV_NUM(ex, j);
+#else
+			zval *zvalue = *ex->CVs[j++];
+#endif
+			qb_transfer_value_to_debug_zval(cxt, qvar->address, zvalue);
 		}
 	}
 
