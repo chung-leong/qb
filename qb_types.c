@@ -440,7 +440,17 @@ double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
 	seconds = (double) count.QuadPart / (double) frequency.QuadPart;
 	return seconds;
 }
-#else 
+#elif defined(__MACH__)
+#include <mach/mach_time.h>
+double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
+	double seconds;
+	uint64_t abs_time = mach_absolute_time();
+	mach_timebase_info_data_t info;
+	mach_timebase_info(&info);
+	seconds = abs_time * ((double) info.numer / info.denom) / 1000000000.0;
+	return seconds;
+}
+#else
 #include <time.h>
 double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
 	double seconds;

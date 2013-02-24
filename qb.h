@@ -37,14 +37,18 @@
 #include "../standard/php_math.h"
 #include "../pcre/pcrelib/pcre.h"
 
+// ZEND_VERSION is a C-string and it isn't possible to do string comparison in the preprocessor
+// detect the version of Zend Engines by checking for the absence of certain macros instead
 #if !defined(ZEND_FETCH_RESOURCE_NO_RETURN)
 	#define ZEND_ENGINE_2_1		1
 #elif !defined(PHP_FE_END)
 	#define ZEND_ENGINE_2_2		1
 #elif !defined(Z_HASH_P)
 	#define ZEND_ENGINE_2_3		1
-#else
+#elif !defined(EX_CV_NUM)
 	#define ZEND_ENGINE_2_4		1
+#else
+	#define ZEND_ENGINE_2_5		1
 #endif
 
 #ifdef ZTS
