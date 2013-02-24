@@ -970,6 +970,9 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBInArrayHandler("AFIND", $elementTypeNoSign, $addressMode);
 			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBSubarrayPositionHandler("APOS", $elementTypeNoSign, $addressMode);
+			}
 		}
 	}
 	

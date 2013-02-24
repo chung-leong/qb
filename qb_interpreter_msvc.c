@@ -427,6 +427,25 @@ static int32_t ZEND_FASTCALL qb_find_elements_I32(int32_t *elements, uint32_t co
 	return -1;
 }
 
+static int32_t ZEND_FASTCALL qb_find_subarray_I32(int32_t *elements, uint32_t count, int32_t *needle, uint32_t needle_width) {
+	if(needle_width > 0) {
+		uint32_t i, j;
+		for(i = 0; i < count - needle_width; i++) {
+			if(elements[i] == needle[0]) {
+				for(j = 1; j < needle_width; j++) {
+					if(elements[i + j] != needle[j]) {
+						break;
+					}
+				}
+				if(j == needle_width) {
+					return i;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 static int32_t ZEND_FASTCALL qb_compare_array_U32(uint32_t *op1_start, uint32_t *op1_end, uint32_t *op2_start, uint32_t *op2_end) {
 	if(op1_start != op1_end && op2_start != op2_end) {
 		uint32_t *op1_ptr = op1_start, *op2_ptr = op2_start;
@@ -766,6 +785,25 @@ static int32_t ZEND_FASTCALL qb_find_elements_I08(int8_t *elements, uint32_t cou
 	return -1;
 }
 
+static int32_t ZEND_FASTCALL qb_find_subarray_I08(int8_t *elements, uint32_t count, int8_t *needle, uint32_t needle_width) {
+	if(needle_width > 0) {
+		uint32_t i, j;
+		for(i = 0; i < count - needle_width; i++) {
+			if(elements[i] == needle[0]) {
+				for(j = 1; j < needle_width; j++) {
+					if(elements[i + j] != needle[j]) {
+						break;
+					}
+				}
+				if(j == needle_width) {
+					return i;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 static int32_t ZEND_FASTCALL qb_compare_array_U08(uint8_t *op1_start, uint8_t *op1_end, uint8_t *op2_start, uint8_t *op2_end) {
 	if(op1_start != op1_end && op2_start != op2_end) {
 		uint8_t *op1_ptr = op1_start, *op2_ptr = op2_start;
@@ -1009,6 +1047,25 @@ static int32_t ZEND_FASTCALL qb_find_elements_I16(int16_t *elements, uint32_t co
 			}
 			if(k == needle_width) {
 				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+static int32_t ZEND_FASTCALL qb_find_subarray_I16(int16_t *elements, uint32_t count, int16_t *needle, uint32_t needle_width) {
+	if(needle_width > 0) {
+		uint32_t i, j;
+		for(i = 0; i < count - needle_width; i++) {
+			if(elements[i] == needle[0]) {
+				for(j = 1; j < needle_width; j++) {
+					if(elements[i + j] != needle[j]) {
+						break;
+					}
+				}
+				if(j == needle_width) {
+					return i;
+				}
 			}
 		}
 	}
@@ -1289,6 +1346,25 @@ static int32_t ZEND_FASTCALL qb_find_elements_I64(int64_t *elements, uint32_t co
 	return -1;
 }
 
+static int32_t ZEND_FASTCALL qb_find_subarray_I64(int64_t *elements, uint32_t count, int64_t *needle, uint32_t needle_width) {
+	if(needle_width > 0) {
+		uint32_t i, j;
+		for(i = 0; i < count - needle_width; i++) {
+			if(elements[i] == needle[0]) {
+				for(j = 1; j < needle_width; j++) {
+					if(elements[i + j] != needle[j]) {
+						break;
+					}
+				}
+				if(j == needle_width) {
+					return i;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 static int32_t ZEND_FASTCALL qb_compare_array_U64(uint64_t *op1_start, uint64_t *op1_end, uint64_t *op2_start, uint64_t *op2_end) {
 	if(op1_start != op1_end && op2_start != op2_end) {
 		uint64_t *op1_ptr = op1_start, *op2_ptr = op2_start;
@@ -1532,6 +1608,25 @@ static int32_t ZEND_FASTCALL qb_find_elements_F32(float32_t *elements, uint32_t 
 			}
 			if(k == needle_width) {
 				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+static int32_t ZEND_FASTCALL qb_find_subarray_F32(float32_t *elements, uint32_t count, float32_t *needle, uint32_t needle_width) {
+	if(needle_width > 0) {
+		uint32_t i, j;
+		for(i = 0; i < count - needle_width; i++) {
+			if(elements[i] == needle[0]) {
+				for(j = 1; j < needle_width; j++) {
+					if(elements[i + j] != needle[j]) {
+						break;
+					}
+				}
+				if(j == needle_width) {
+					return i;
+				}
 			}
 		}
 	}
@@ -2017,6 +2112,25 @@ static int32_t ZEND_FASTCALL qb_find_elements_F64(float64_t *elements, uint32_t 
 			}
 			if(k == needle_width) {
 				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+static int32_t ZEND_FASTCALL qb_find_subarray_F64(float64_t *elements, uint32_t count, float64_t *needle, uint32_t needle_width) {
+	if(needle_width > 0) {
+		uint32_t i, j;
+		for(i = 0; i < count - needle_width; i++) {
+			if(elements[i] == needle[0]) {
+				for(j = 1; j < needle_width; j++) {
+					if(elements[i + j] != needle[j]) {
+						break;
+					}
+				}
+				if(j == needle_width) {
+					return i;
+				}
 			}
 		}
 	}
@@ -11445,6 +11559,194 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					res_ptr = ((int32_t *) segment0) + index3;
 					
 					res = qb_find_elements_I32(op1_ptr, op1_count, op2_ptr, op2_count) != -1;
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I32_I32_I32_VAR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I32(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I32_I32_I32_ELC:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I32(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I32_I32_I32_ELV:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I32(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I32_I32_I32_ARR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I32(op1_ptr, op1_count, op2_ptr, op2_count);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -23493,6 +23795,194 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					res_ptr = ((int32_t *) segment0) + index3;
 					
 					res = qb_find_elements_I08(op1_ptr, op1_count, op2_ptr, op2_count) != -1;
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I08_I08_I32_VAR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int8_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int8_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int8_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int8_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I08(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I08_I08_I32_ELC:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int8_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int8_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int8_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int8_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I08(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I08_I08_I32_ELV:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int8_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int8_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int8_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int8_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I08(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I08_I08_I32_ARR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int8_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int8_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int8_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int8_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I08(op1_ptr, op1_count, op2_ptr, op2_count);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -36416,6 +36906,194 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				instruction_pointer += sizeof(qb_instruction_3_lineno);
 				break;
 				
+				case QB_APOS_I16_I16_I32_VAR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int16_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int16_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int16_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int16_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I16(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I16_I16_I32_ELC:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int16_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int16_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int16_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int16_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I16(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I16_I16_I32_ELV:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int16_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int16_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int16_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int16_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I16(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I16_I16_I32_ARR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int16_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int16_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int16_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int16_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I16(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
 				case QB_IF_LT_U16_U16_VAR:
 				op_handler = ((qb_instruction_branch_2 *) instruction_pointer)->next_handler1;
 				{
@@ -49195,6 +49873,194 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					res_ptr = ((int32_t *) segment0) + index3;
 					
 					res = qb_find_elements_I64(op1_ptr, op1_count, op2_ptr, op2_count) != -1;
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I64_I64_I32_VAR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I64(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I64_I64_I32_ELC:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I64(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I64_I64_I32_ELV:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I64(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_I64_I64_I32_ARR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					int64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					int64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((int64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((int64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_I64(op1_ptr, op1_count, op2_ptr, op2_count);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -67731,6 +68597,194 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					res_ptr = ((int32_t *) segment0) + index3;
 					
 					res = qb_find_elements_F32(op1_ptr, op1_count, op2_ptr, op2_count) != -1;
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F32_F32_I32_VAR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F32(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F32_F32_I32_ELC:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F32(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F32_F32_I32_ELV:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F32(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F32_F32_I32_ARR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float32_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float32_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float32_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float32_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F32(op1_ptr, op1_count, op2_ptr, op2_count);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -86305,6 +87359,194 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					res_ptr = ((int32_t *) segment0) + index3;
 					
 					res = qb_find_elements_F64(op1_ptr, op1_count, op2_ptr, op2_count) != -1;
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F64_F64_I32_VAR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F64(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F64_F64_I32_ELC:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F64(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F64_F64_I32_ELV:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F64(op1_ptr, op1_count, op2_ptr, op2_count);
+#undef PHP_LINE_NUMBER
+				}
+				instruction_pointer += sizeof(qb_instruction_3_lineno);
+				break;
+				
+				case QB_APOS_F64_F64_I32_ARR:
+				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
+				{
+#define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
+					uint32_t arr_operand1, selector1, index_index1, size_index1;
+					uint32_t op1_start_index, op1_count;
+					float64_t *__restrict op1_ptr;
+					
+					uint32_t arr_operand2, selector2, index_index2, size_index2;
+					uint32_t op2_start_index, op2_count;
+					float64_t *__restrict op2_ptr;
+					
+					uint32_t var_operand3, index3;
+					int32_t *__restrict res_ptr;
+					
+					arr_operand1 = ((qb_instruction_3_lineno *) instruction_pointer)->operand1;
+					selector1 = arr_operand1 & 0x00FF;
+					index_index1 = (arr_operand1 >> 8) & 0x03FF;
+					size_index1 = arr_operand1 >> 20;
+					op1_start_index = ((uint32_t *) segment0)[index_index1];
+					op1_count = ((uint32_t *) segment0)[size_index1];
+					if(UNEXPECTED(op1_start_index + op1_count > segment_element_counts[selector1])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector1], op1_start_index + op1_count - 1, PHP_LINE_NUMBER);
+					}
+					op1_ptr = ((float64_t *) segments[selector1]) + op1_start_index;
+					
+					arr_operand2 = ((qb_instruction_3_lineno *) instruction_pointer)->operand2;
+					selector2 = arr_operand2 & 0x00FF;
+					index_index2 = (arr_operand2 >> 8) & 0x03FF;
+					size_index2 = arr_operand2 >> 20;
+					op2_start_index = ((uint32_t *) segment0)[index_index2];
+					op2_count = ((uint32_t *) segment0)[size_index2];
+					if(UNEXPECTED(op2_start_index + op2_count > segment_element_counts[selector2])) {
+						qb_abort_range_error(cxt, &cxt->storage->segments[selector2], op2_start_index + op2_count - 1, PHP_LINE_NUMBER);
+					}
+					op2_ptr = ((float64_t *) segments[selector2]) + op2_start_index;
+					
+					var_operand3 = ((qb_instruction_3_lineno *) instruction_pointer)->operand3;
+					index3 = var_operand3;
+					res_ptr = ((int32_t *) segment0) + index3;
+					
+					res = qb_find_subarray_F64(op1_ptr, op1_count, op2_ptr, op2_count);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_3_lineno);

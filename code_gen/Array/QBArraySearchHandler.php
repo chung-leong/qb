@@ -3,20 +3,17 @@
 class QBArraySearchHandler extends QBHandler {
 
 	public function getOperandAddressMode($i) {
-		if($i == 1) {
-			return "ARR";
-		} else if($i == 3) {
-			return "VAR";
-		} else {
-			return $this->addressMode;
+		switch($i) {
+			case 1: return "ARR";
+			case 3: return "VAR";
+			default: return $this->addressMode;
 		}
 	}
 	
 	public function getOperandType($i) {
-		if($i == 3) {
-			return "I32";
-		} else {
-			return $this->operandType;
+		switch($i) {
+			case 3: return "I32";
+			default: return $this->operandType;
 		}
 	}
 
