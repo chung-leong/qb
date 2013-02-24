@@ -1,5 +1,23 @@
 #include "qb.h"
 
+/* liblzma is the source of the following code  */
+
+///////////////////////////////////////////////////////////////////////////////
+//
+/// \file       crc64.c
+/// \brief      CRC64 calculation
+///
+/// Calculate the CRC64 using the slice-by-four algorithm. This is the same
+/// idea that is used in crc32_fast.c, but for CRC64 we use only four tables
+/// instead of eight to avoid increasing CPU cache usage.
+//
+//  Author:     Lasse Collin
+//
+//  This file has been put into the public domain.
+//  You can do whatever you want with this file.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 #ifdef QB_BIG_ENDIAN
 
 #	define A(x) ((x) >> 24)

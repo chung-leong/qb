@@ -24,25 +24,31 @@ function autoload($className) {
 spl_autoload_register('autoload');
 
 error_reporting(E_ALL | E_STRICT);
+set_time_limit(0);
 
+$copyright = file_get_contents("$scriptFolder/copyright.txt");
 $generator = new QBCodeGenerator;
 
 echo "Creating qb_interpreter_gcc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_gcc.c", "w");
+fwrite($handle, $copyright);
 $generator->generate($handle, 'GCC', 'DECLARATIONS');
 $generator->generate($handle, 'GCC', 'HANDLERS');
 
 echo "Creating qb_interpreter_msvc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
+fwrite($handle, $copyright);
 $generator->generate($handle, 'MSVC', 'DECLARATIONS');
 $generator->generate($handle, 'MSVC', 'HANDLERS');
 
 echo "Creating qb_opcodes.h\n";
 $handle = fopen("$targetFolder/qb_opcodes.h", "w");
+fwrite($handle, $copyright);
 $generator->generate($handle, 'GCC', 'CODES');
 
 echo "Creating qb_data_tables.c\n";
 $handle = fopen("$targetFolder/qb_data_tables.c", "w");
+fwrite($handle, $copyright);
 fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'GCC', 'FLAGS');
 $generator->generate($handle, 'GCC', 'NAMES');
@@ -50,6 +56,7 @@ $generator->generate($handle, 'GCC', 'NATIVE CODE');
 
 echo "Creating qb_interpreter_symbols.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_symbols.c", "w");
+fwrite($handle, $copyright);
 $generator->generate($handle, 'GCC', 'NATIVE SYMBOLS');
 
 ?>
