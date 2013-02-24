@@ -437,7 +437,8 @@ static void ZEND_FASTCALL qb_translate_array_search(qb_compiler_context *cxt, qb
 static void ZEND_FASTCALL qb_translate_subarray_search(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, uint32_t result_flags) {
 	qb_operand *container = &arguments[0];
 	qb_operand *needle = &arguments[1];
-	qb_address *result_address;
+	qb_operand *offset = &arguments[2];
+	qb_address *result_address, *offset_address;
 	uint32_t expr_type;
 
 	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
@@ -449,13 +450,29 @@ static void ZEND_FASTCALL qb_translate_subarray_search(qb_compiler_context *cxt,
 	if(needle->address->dimension_count > 1) {
 		qb_abort("%s expects a one-dimensional array as the second parameter", f->name);
 	}
+	if(argument_count >= 3) {
+		qb_do_type_coercion(cxt, offset, QB_TYPE_S32);
+		if(!IS_SCALAR(offset->address)) {
+			qb_abort("%s expects a scalar as the third parameter", f->name);
+		}
+		if(offset->address->segment_offset == QB_OFFSET_INVALID) {
+			// need to copy the index value to a temporary variable first
+			offset_address = qb_obtain_temporary_variable(cxt, QB_TYPE_S32, NULL);
+			qb_do_copy(cxt, offset_address, offset->address);
+		} else {
+			offset_address = offset->address;
+		}
+	} else {
+		offset_address = qb_obtain_constant_S32(cxt, 0);
+	}
 	result_address = qb_push_temporary_variable(cxt, QB_TYPE_S32, NULL);
 	if(!cxt->resolving_result_type) {
 		uint32_t *opcode_list = f->extra, opcode = opcode_list[expr_type];
-		qb_op *qop = qb_append_op_with_three_addresses(cxt, opcode, container->address, needle->address, result_address);
+		qb_op *qop = qb_append_op_with_four_addresses(cxt, opcode, container->address, needle->address, offset_address, result_address);
 		qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
 		qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
 		qop->operands[2].type = QB_OPERAND_ADDRESS_VAR;
+		qop->operands[3].type = QB_OPERAND_ADDRESS_VAR;
 	}
 }
 
@@ -869,8 +886,10 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_product",		NULL,		qb_translate_array_aggregate,			1,		1,		array_product_opcodes		},
 	{	0,	"array_search",			NULL,		qb_translate_array_search,				2,		2,		array_search_opcodes		},
 	{	0,	"in_array",				NULL,		qb_translate_array_search,				2,		2,		in_array_opcodes			},
-	{	0,	"array_pos",			NULL,		qb_translate_subarray_search,			2,		2,		subarray_pos_opcodes		},
-	{	0,	"strpos",				NULL,		qb_translate_subarray_search,			2,		2,		subarray_pos_opcodes		},
+	{	0,	"array_pos",			NULL,		qb_translate_subarray_search,			2,		3,		subarray_pos_opcodes		},
+	{	0,	"strpos",				NULL,		qb_translate_subarray_search,			2,		3,		subarray_pos_opcodes		},
+	{	0,	"array_rpos",			NULL,		qb_translate_subarray_search,			2,		3,		subarray_rpos_opcodes		},
+	{	0,	"strrpos",				NULL,		qb_translate_subarray_search,			2,		3,		subarray_rpos_opcodes		},
 	{	0,	"sort",					NULL,		qb_translate_sort,						1,		1,		sort_opcodes				},
 	{	0,	"rsort",				NULL,		qb_translate_sort,						1,		1,		rsort_opcodes				},
 	{	0,	"utf8_decode",			NULL,		qb_translate_utf8_decode,				1,		1,		NULL						},

@@ -410,28 +410,52 @@ int32_t qb_find_elements_I64_wrapper(int64_t *elements, uint32_t count, int64_t 
 	return qb_find_elements_I64(elements, count, needle, needle_width);
 }
 
-int32_t qb_find_subarray_F32_wrapper(float32_t *elements, uint32_t count, float32_t *needle, uint32_t needle_width) {
-	return qb_find_subarray_F32(elements, count, needle, needle_width);
+int32_t qb_find_subarray_F32_wrapper(float32_t *elements, uint32_t count, float32_t *needle, uint32_t needle_width, uint32_t start_index) {
+	return qb_find_subarray_F32(elements, count, needle, needle_width, start_index);
 }
 
-int32_t qb_find_subarray_F64_wrapper(float64_t *elements, uint32_t count, float64_t *needle, uint32_t needle_width) {
-	return qb_find_subarray_F64(elements, count, needle, needle_width);
+int32_t qb_find_subarray_F64_wrapper(float64_t *elements, uint32_t count, float64_t *needle, uint32_t needle_width, uint32_t start_index) {
+	return qb_find_subarray_F64(elements, count, needle, needle_width, start_index);
 }
 
-int32_t qb_find_subarray_I08_wrapper(int8_t *elements, uint32_t count, int8_t *needle, uint32_t needle_width) {
-	return qb_find_subarray_I08(elements, count, needle, needle_width);
+int32_t qb_find_subarray_I08_wrapper(int8_t *elements, uint32_t count, int8_t *needle, uint32_t needle_width, uint32_t start_index) {
+	return qb_find_subarray_I08(elements, count, needle, needle_width, start_index);
 }
 
-int32_t qb_find_subarray_I16_wrapper(int16_t *elements, uint32_t count, int16_t *needle, uint32_t needle_width) {
-	return qb_find_subarray_I16(elements, count, needle, needle_width);
+int32_t qb_find_subarray_I16_wrapper(int16_t *elements, uint32_t count, int16_t *needle, uint32_t needle_width, uint32_t start_index) {
+	return qb_find_subarray_I16(elements, count, needle, needle_width, start_index);
 }
 
-int32_t qb_find_subarray_I32_wrapper(int32_t *elements, uint32_t count, int32_t *needle, uint32_t needle_width) {
-	return qb_find_subarray_I32(elements, count, needle, needle_width);
+int32_t qb_find_subarray_I32_wrapper(int32_t *elements, uint32_t count, int32_t *needle, uint32_t needle_width, uint32_t start_index) {
+	return qb_find_subarray_I32(elements, count, needle, needle_width, start_index);
 }
 
-int32_t qb_find_subarray_I64_wrapper(int64_t *elements, uint32_t count, int64_t *needle, uint32_t needle_width) {
-	return qb_find_subarray_I64(elements, count, needle, needle_width);
+int32_t qb_find_subarray_I64_wrapper(int64_t *elements, uint32_t count, int64_t *needle, uint32_t needle_width, uint32_t start_index) {
+	return qb_find_subarray_I64(elements, count, needle, needle_width, start_index);
+}
+
+int32_t qb_find_subarray_from_end_F32_wrapper(float32_t *elements, uint32_t count, float32_t *needle, uint32_t needle_width, int32_t start_index) {
+	return qb_find_subarray_from_end_F32(elements, count, needle, needle_width, start_index);
+}
+
+int32_t qb_find_subarray_from_end_F64_wrapper(float64_t *elements, uint32_t count, float64_t *needle, uint32_t needle_width, int32_t start_index) {
+	return qb_find_subarray_from_end_F64(elements, count, needle, needle_width, start_index);
+}
+
+int32_t qb_find_subarray_from_end_I08_wrapper(int8_t *elements, uint32_t count, int8_t *needle, uint32_t needle_width, int32_t start_index) {
+	return qb_find_subarray_from_end_I08(elements, count, needle, needle_width, start_index);
+}
+
+int32_t qb_find_subarray_from_end_I16_wrapper(int16_t *elements, uint32_t count, int16_t *needle, uint32_t needle_width, int32_t start_index) {
+	return qb_find_subarray_from_end_I16(elements, count, needle, needle_width, start_index);
+}
+
+int32_t qb_find_subarray_from_end_I32_wrapper(int32_t *elements, uint32_t count, int32_t *needle, uint32_t needle_width, int32_t start_index) {
+	return qb_find_subarray_from_end_I32(elements, count, needle, needle_width, start_index);
+}
+
+int32_t qb_find_subarray_from_end_I64_wrapper(int64_t *elements, uint32_t count, int64_t *needle, uint32_t needle_width, int32_t start_index) {
+	return qb_find_subarray_from_end_I64(elements, count, needle, needle_width, start_index);
 }
 
 uint32_t qb_get_utf8_codepoint_count_wrapper(qb_interpreter_context *cxt, uint8_t *utf8_chars, uint32_t utf8_length) {
@@ -898,6 +922,12 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_find_subarray_I16",	qb_find_subarray_I16_wrapper	},
 	{	0,	"qb_find_subarray_I32",	qb_find_subarray_I32_wrapper	},
 	{	0,	"qb_find_subarray_I64",	qb_find_subarray_I64_wrapper	},
+	{	0,	"qb_find_subarray_from_end_F32",	qb_find_subarray_from_end_F32_wrapper	},
+	{	0,	"qb_find_subarray_from_end_F64",	qb_find_subarray_from_end_F64_wrapper	},
+	{	0,	"qb_find_subarray_from_end_I08",	qb_find_subarray_from_end_I08_wrapper	},
+	{	0,	"qb_find_subarray_from_end_I16",	qb_find_subarray_from_end_I16_wrapper	},
+	{	0,	"qb_find_subarray_from_end_I32",	qb_find_subarray_from_end_I32_wrapper	},
+	{	0,	"qb_find_subarray_from_end_I64",	qb_find_subarray_from_end_I64_wrapper	},
 	{	0,	"qb_get_utf8_codepoint_count",	qb_get_utf8_codepoint_count_wrapper	},
 	{	0,	"qb_get_utf8_encoded_length_U16",	qb_get_utf8_encoded_length_U16_wrapper	},
 	{	0,	"qb_get_utf8_encoded_length_U32",	qb_get_utf8_encoded_length_U32_wrapper	},
