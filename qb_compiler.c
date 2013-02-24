@@ -1713,7 +1713,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_tab
 	for(p = ht->pListHead; p; p = p->pListNext) {
 		if(p->nKeyLength) {
 			zval **p_element = p->pData, *element = *p_element;
-			ulong h = zend_inline_hash_func(p->arKey, p->nKeyLength + 1);
+			ulong h = zend_inline_hash_func(p->arKey, p->nKeyLength);
 			uint32_t i, match = 0;
 			for(i = 1; i < sizeof(func_decl_hashes) / sizeof(ulong); i++) {
 				if(func_decl_hashes[i] == h) {
@@ -1767,7 +1767,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_tab
 					}
 					if(var_type) {
 						for(q = value_ht->pListHead; q; q = q->pListNext) {
-							zval **p_inner_element = p->pData, *inner_element = *p_inner_element;
+							zval **p_inner_element = q->pData, *inner_element = *p_inner_element;
 							if(Z_TYPE_P(inner_element) == IS_STRING) {
 								const char *data = Z_STRVAL_P(inner_element);
 								uint32_t data_len = Z_STRLEN_P(inner_element);
@@ -4446,7 +4446,7 @@ static zend_function * ZEND_FASTCALL qb_get_function(qb_build_context *cxt, zval
 	}
 #endif
 	zfunc = fcc.function_handler;
-	if(!zfunc->type != ZEND_USER_FUNCTION) {
+	if(zfunc->type != ZEND_USER_FUNCTION) {
 		if(qb_is_compiled_function(zfunc)) {
 			return NULL;
 		} else {
