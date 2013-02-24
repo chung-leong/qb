@@ -1,0 +1,256 @@
+/*
+*   petri(dot)leskinen[at]aalto(dot)fi 
+*   Espoo, Finland, May 2011 
+*/
+
+#define distanceSquared(a) ((a.x*a.x)+(a.y*a.y))
+
+//  Derivative for parametric function:
+//  f  = fx.x +t*fx.y +t*t*fx.z +t*t*t*fx[3] 
+//  f' = fx.y +2*fx.z*t +3*fx[3]*t*t
+#define derivative(f) float4(f.y, 2.0*f.z, 3.0*f[3], 0.0)
+
+//  Get a single coordinate for t
+#define eval(f,t) (f.x +t*(f.y +t*(f.z + t*f[3])))
+
+//  Returns  a point on spline at t as a coordinate pair (x,y)
+#define spline2(t) float2(eval(fx,t),eval(fy,t))
+
+//  Returns 'direction' (x'(t),y'(t)) at point t
+#define splinederivative2(t) float2(eval(dfx,t),eval(dfy,t))
+
+//  ds for approximating the length integral:
+#define ds(t) length(splinederivative2(t))
+
+//  no loops when inside flash player, therefore these definitions:
+#define repeat1(a) a;
+#define repeat2(a) a;a;
+#define repeat3(a) a;a;a;
+#define repeat4(a) a;a;a;a;
+#define repeat6(a) repeat4(a);a;a;
+
+
+<languageVersion: 1.0;>
+kernel BezierAligner
+<   namespace : "BezierAligner";
+    vendor : "Petri Leskinen";
+    version : 1;
+    description : "Draws an Image along a Bezier Curve";
+>
+
+{
+    
+    parameter float2 startpoint
+    <
+        minValue: float2(-300,-300);
+        maxValue: float2(900, 900);
+        //  defaultValue: float4(140,222, 0,0);
+        defaultValue: float2(50,200);
+        description: "start point for bezier sequence";
+    >;
+    parameter float2 control1
+    <
+        minValue: float2(-300,-300);
+        maxValue: float2(900, 900);
+        //  defaultValue: float4(140,222, 0,0);
+        defaultValue: float2(200,100);
+        description: "first control point for bezier sequence";
+    >;
+    parameter float2 control2
+    <
+        minValue: float2(-300,-300);
+        maxValue: float2(900, 900);
+        //  defaultValue: float4(140,222, 0,0);
+        defaultValue: float2(400,300);
+        description: "first control point for bezier sequence";
+    >;
+    
+    parameter float2 endpoint
+    <
+        minValue: float2(-300,-300);
+        maxValue: float2(900, 900);
+        //  defaultValue: float4(140,222, 0,0);
+        defaultValue: float2(550,200);
+        description: "end point for bezier sequence";
+    >;
+
+
+    parameter float2 scale
+    <
+        minValue: float2(0.5,0.5);
+        maxValue: float2(2.5,2.5);
+        defaultValue: float2(1,1);
+        description: "Scales the texture image";
+    >;
+
+    parameter float imagewidth
+    <
+        minValue: float(0);
+        maxValue: float(500);
+        defaultValue: float(200.0);
+        description: "imagewidth: how wide the repeating part is";
+    >;
+    
+    
+    parameter float2 offset
+    <
+        minValue: float2(-300,-300);
+        maxValue: float2(300, 300);
+        defaultValue: float2(0,0);
+        description: "offset.x=Displacement along the curve, offset.y=Displacement perpendicular to the curve";
+    >;
+    
+    parameter float tstart
+    <
+        minValue: float(0);
+        maxValue: float(1);
+        defaultValue: float(0.0);
+        description: "the default 0 means that the curve starts from the startpoint";
+    >;
+    
+    parameter float tend
+    <
+        minValue: float(0);
+        maxValue: float(1);
+        defaultValue: float(1.0);
+        description: "the default 1 means that the curve ends at the endpoint";
+    >;
+    
+    
+    parameter float2x2 rotation 
+    <
+        minValue: float2x2(-1,-1,-1,-1);
+        maxValue: float2x2(1,1,1,1);
+        defaultValue: float2x2(1,0,0,1);
+        description: "Rotation around the axis";
+    >;
+    
+    //  Kernel takes two input images:
+    //  Background Image
+    input image4 background;
+    //  Curved Texture
+    input image4 texture;
+    
+    output pixel4 dst;
+    
+    
+    void evaluatePixel()
+    {
+        float2 p = outCoord();
+        
+        //  Sample the background image:
+        dst = sampleLinear(background, p);
+        
+        //  parametric functions x(t) and y(t) for a Bezier curve, 
+        //  with t=0 returns startpoint
+        //  when t=1 returns endpoint
+        float4 fx = float4(startpoint.x, 3.0*(control1.x-startpoint.x), 3.0*(startpoint.x-2.0*control1.x+control2.x), endpoint.x-startpoint.x+3.0*(control1.x-control2.x));
+        float4 fy = float4(startpoint.y, 3.0*(control1.y-startpoint.y), 3.0*(startpoint.y-2.0*control1.y+control2.y), endpoint.y-startpoint.y+3.0*(control1.y-control2.y));
+        
+        /*
+        //  Equations for a quadratic spline: control2 not used
+        fx = float4(startpoint.x, 2.0*(control1.x-startpoint.x), startpoint.x+endpoint.x -2.0*control1.x, 0.0);
+        fy = float4(startpoint.y, 2.0*(control1.y-startpoint.y), startpoint.y+endpoint.y -2.0*control1.y, 0.0);
+        */
+        
+        //  derivate functions for x and y:
+        float4 dfx = derivative(fx);
+        float4 dfy = derivative(fy);
+        
+        //  lower and upper bound for interpolation:
+        float ta = tstart;
+        float tb = tend;
+        
+        //  get the coordinates in a orientation rotated by spline's start direction:
+        float2 d = rotation*splinederivative2(ta);
+        d /= length(d);
+        
+        float2 p0 = float2x2(d.x,-d.y, d.y,d.x)*(p-spline2(ta));
+        
+        //  get the coordinates in a orientation rotated by spline's end direction:
+        d =  rotation*splinederivative2(tb);
+        float2 p1 = float2x2(d.x, -d.y, d.y,d.x)*(p-spline2(tb));
+        
+        //  check if coordinates x have different signs, meaning current point is somewhere in between:
+        if ((p0.x<0.0 && p1.x>0.0) || (p0.x>0.0 && p1.x<0.0) ) {
+            
+            p1 /= length(d);
+            
+            float t;
+            float tmp;
+            float2 p2;
+        
+            repeat2(
+                //	interpolate new t by situations at start and end: 
+                t = ta +p0.x/(p0.x-p1.x)*(tb-ta); 
+                
+                //  check the orientation at the new point t:
+                d = rotation*splinederivative2(t); 
+                d /= length(d);
+                
+                p2 = float2x2(d.x,-d.y, d.y,d.x)*(p-spline2(t));
+                
+                //	check to update upper or lower bound by sign:
+                if (sign(p2.x)==sign(p0.x)) {
+                    p0=p2;
+                    ta=t;
+                } else {
+                    p1=p2;
+                    tb=t;
+                }
+            );
+            
+            //  apply one more iteration, code has to be the same as inside the loop:
+            t = ta +p0.x/(p0.x-p1.x)*(tb-ta); 
+            d = rotation*splinederivative2(t); 
+            d /= length(d);
+            //  after this p2.y holds the approximated distance from the curve:
+            p2 = float2x2(d.x,-d.y, d.y,d.x)*(p-spline2(t));
+            
+            //  we still need the x coordinate, e.g. the distance from startpoint along the curve
+            //  Using Simpson rule to approximate the distance from t=0 to t=t:
+            //  The simpliest case, count the value at four points, weigths 1 at start and end, 3 in between
+            tmp = ds(0.0)+
+                3.0*(ds(0.33333333*t)+
+                    ds(0.66666666*t))+
+                ds(t);
+            
+            p2.x = 0.125*t*tmp;
+            
+            /*
+            //  a more precise approximation using 7 points,
+            //  for both performance and output quality the method with 4 points seemed adequate
+            tmp = ds(0.0)+
+                3.0*(ds(0.16666666*t)+
+                    ds(0.33333333*t)+
+                    ds(0.66666666*t)+
+                    ds(0.83333333*t))+
+                2.0*ds(0.5*t)+
+                ds(t);
+            p2.x = 0.0625*t*tmp;
+            */
+            
+            //  Apply the effects of scaling and offsetting the image:
+            p2 /= scale;
+            p2 += offset;
+            
+            //  This makes the texture repeat itself along the spline:
+            if (imagewidth>0.1) p2.x = mod(p2.x,imagewidth);
+            
+            //  Sample the found pixel, and mix with values sampled earlier from the background image:
+            pixel4 dst2 = sampleLinear(texture, p2);
+            dst += dst2.a*(dst2-dst);
+        } 
+        
+        /*
+        //  for testing the point locations:
+        if (length(startpoint-p)<5.0 ||
+            length(control1-p)<5.0 ||
+            length(control2-p)<5.0 ||
+            length(endpoint-p)<5.0
+            ) dst = pixel4(1,0,0,1);
+        */
+    }
+    
+}
+

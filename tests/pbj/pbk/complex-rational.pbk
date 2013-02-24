@@ -1,0 +1,75 @@
+<languageVersion : 1.0;>
+kernel modPixelation
+< 
+	namespace : "complex rational"; 
+	vendor : "pixelero";
+	version : 1;
+	description : "complex mapping f(z)= (az2+b)/(cz2+d)";
+>
+// also an example of using preprocessor directive #define in pb-code:
+// defining complex multiplication, division and square:
+// 
+// multiply: a*b = (a0+i a1)(b0+i b1) = a0b0-a1b1 + i(a1b0+a0b1)
+#define complexMult(a,b) float2(a.x*b.x-a.y*b.y, a.x*b.y+a.y*b.x)
+#define complexSquared(a) float2(a.x*a.x-a.y*a.y, 2.0*a.x*a.y)
+// division: a/b =
+// (a0+i a1)/(b0+i b1) = 
+// (a0+i a1)*(b0-i b1)/[ (b0+i b1) * (b0-ib1)] =
+// (a0+i a1)*(b0-i b1) / (b02 + b12)
+// 
+#define complexDiv(a,b) float2(a.x*b.x+a.y*b.y, -a.x*b.y+a.y*b.x)/(b.x*b.x+b.y*b.y)
+{
+	parameter float2 a
+	<
+		minValue:float2(-10,-10);
+		maxValue:float2(10.0,10.0);
+		defaultValue:float2(1.0,0.62);
+	>;
+	parameter float2 b
+	<
+		minValue:float2(-500.0,-500.0);
+		maxValue:float2(500.0,500.0);
+		defaultValue:float2(-86,22);
+	>;
+	parameter float2 c
+	<
+		minValue:float2(-1,-1);
+		maxValue:float2(1.0,1.0);
+		defaultValue:float2(-0.02,-0.02);
+	>;
+	parameter float2 d
+	<
+		minValue:float2(-100.0,-100.0);
+		maxValue:float2(100.0,100.0);
+		defaultValue:float2(-2,10.0);
+	>;
+	parameter float2 size
+	<
+		minValue:float2(1,1);
+		maxValue:float2(1000.0,1000.0);
+		defaultValue:float2(368,285);
+	>;
+	parameter float2 center
+	<
+		minValue:float2(1,1);
+		maxValue:float2(1000.0,1000.0);
+		defaultValue:float2(168,185);
+	>;
+
+	input image4 src;
+	output pixel4 dst;
+
+	void evaluatePixel() {
+		float2 po= outCoord()-center;
+		/*
+		new point:
+		z2 = (az2+b)/(cz2+d)
+		*/
+		po = complexSquared(po);
+		float2 po2 = d+complexMult(c,po);
+		po = b+complexMult(a,po);
+		po = complexDiv(po, po2);
+		
+		dst = sample(src,size*fract(po/size));
+	}
+}

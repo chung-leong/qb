@@ -1,0 +1,48 @@
+    <languageVersion : 1.0;>
+    kernel Distort
+    <  
+        namespace : "net.nicoptere.filters";
+        vendor : "nicoptere";
+        version : 1;
+        description : "jitter";
+    >
+    {
+    input image4 src;
+    output pixel4 dst;
+
+    parameter float2 center
+    <
+        minValue: float2( 0.0, 0.0 );
+        maxValue: float2( 4096.0, 4096.0 );
+        defaultValue: float2( 0.0, 0.0 );
+    >;
+    parameter float amplitude
+    <
+        minValue: 0.01;
+        maxValue: 2.0;
+        defaultValue: 0.1;
+    >;
+
+    void
+    evaluatePixel() 
+    {
+
+        float2 coord = outCoord();
+		
+        float dx = coord.x - center.x;
+        float dy = coord.y - center.y;
+		
+        float a = atan( dy , dx );
+        float r = sqrt( dx*dx + dy*dy );
+        
+        a = a + mod( a , amplitude ) - amplitude / 2.0;
+		
+        float2 dest = float2( center.x + cos( a ) * r,center.y + sin( a ) * r );
+        dst = sampleNearest( src, dest );
+
+    }
+}
+
+
+
+

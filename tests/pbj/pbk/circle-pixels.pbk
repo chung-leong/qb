@@ -1,0 +1,66 @@
+<languageVersion : 1.0;>
+ 
+kernel CirclePixels
+<   namespace : "be.neuroproductions";
+    vendor : "Neuro Productions";
+    version : 1;
+    description : "circlePixels";
+>
+{
+ 
+    parameter float dist
+    <
+        minValue: float(1);
+        maxValue: float(300);
+        defaultValue: float(100);
+        description: "distance";
+    >;
+ 
+ parameter float size
+    <
+        minValue: float(0.0);
+        maxValue: float(2.0);
+        defaultValue: float(1.0);
+        description: "size";
+    >;
+ parameter float edgeAlpha
+    <
+        minValue: float(0.0);
+        maxValue: float(300.0);
+        defaultValue: float(2.0);
+        description: "edgeAlpha";
+    >;
+ 
+    input image4 src;
+    output pixel4 dst;
+ 
+    void evaluatePixel()
+    {
+        float2 inP= outCoord();
+        float xPos = (floor((inP.x)/dist)*dist);
+        float yPos = (floor((inP.y)/dist)*dist);
+ 
+        float difX = inP.x -xPos;
+        float difY = inP.y -yPos;
+ 
+ 
+ 
+        float2 newP;
+        newP.x =xPos;
+        newP.y = yPos;
+ 
+        float distt = distance(inP-(dist/2.0),newP);
+        dst = sampleNearest(src,newP);
+        float   ssize  =size* dst.a;
+            if (2.0* distt/ssize> dist)
+            {
+                dst.a =0.0;
+            }
+            else if (2.0* (distt)/(ssize)>dist-edgeAlpha)
+            {
+                dst.a=( dist-( 2.0* (distt)/(ssize)))* dst.a/edgeAlpha ;
+            }
+ 
+ 
+    }
+}

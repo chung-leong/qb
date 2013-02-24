@@ -1,0 +1,45 @@
+/*****************************************************************************
+ *
+ * ADOBE SYSTEMS INCORPORATED
+ * Copyright (C) 2010 Adobe Systems Incorporated
+ * All Rights Reserved.
+ *
+ * NOTICE:  Adobe permits you to use, modify, and distribute this file in 
+ * accordance with the terms of the Adobe license agreement accompanying it.  
+ * If you have received this file from a source other than Adobe, then your 
+ * use, modification, or distribution of it requires the prior written 
+ * permission of Adobe.
+ *
+ *****************************************************************************/
+<languageVersion: 1.0;>
+
+kernel AlphaFromMaxColor
+<
+	namespace: "AfterEffects";
+	vendor : "Adobe Systems Incorporated";
+	version : 2;
+    description : "Estimate alpha based on color channels.";
+	displayname: "Alpha From Max Color";
+	category: "Utility";
+>
+{
+	
+	input image4 src;
+	output pixel4 dst;
+	
+    void
+    evaluatePixel()
+    {
+		dst = sampleNearest(src, outCoord());
+		dst.rgb *= dst.a;							// premultiply first. does nothing on opaque
+		
+		dst.a = max(max(dst.r, dst.g), dst.b);		// take max of color components
+		dst.a *= 254.0/255.0;						// and scale slightly.
+		
+		// assume incoming colors are premultiplied against black
+		// alpha. unmultiply if dst.a != 0 [otherwise div/0]
+		if (dst.a != 0.0) {
+			dst.rgb /= dst.a;
+		}
+	}
+}

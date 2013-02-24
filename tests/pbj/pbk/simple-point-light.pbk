@@ -1,0 +1,48 @@
+<languageVersion : 1.0;>
+
+kernel SimplePointLight
+<   namespace : "navhali";
+    vendor : "John Engler";
+    version : 0;
+    description : "Simple point light--playing with PixelBender";
+>
+{
+    parameter float2 center
+    <
+        minValue: float2(0.0,0.0);
+        maxValue: float2(4096.0,4096.0);
+        defaultValue: float2(0.0,0.0);
+    >;
+    
+    parameter float attenuationDelta
+    <
+            minValue: float(0.0);
+            maxValue: float(2000.0);
+            defaultValue: float(175.0);
+    >;
+    
+    parameter float attenuationSpeed
+    <
+            minValue: float(0.0);
+            maxValue: float(2.0);
+            defaultValue: float(1.0);
+    >;
+    
+    parameter float attenuationDecay
+    <
+            minValue: float(0.0);
+            maxValue: float(2.0);
+            defaultValue: float(1.0);
+    >;
+
+    input image4 src;
+    output pixel4 dst;
+
+    void
+    evaluatePixel()
+    {
+        float2 out_pixel_coord = outCoord();
+        float attenuation = pow(attenuationDelta/pow(distance(out_pixel_coord, center), attenuationDecay), attenuationSpeed);
+        dst = attenuation * sampleNearest(src, out_pixel_coord);
+    }
+}

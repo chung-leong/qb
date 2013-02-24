@@ -1,0 +1,133 @@
+<languageVersion : 1.0;>
+kernel CirclePacking
+<   namespace : "CirclePattern";
+    vendor : "Petri Leskinen";
+    version : 1;
+    description : "CirclePattern";
+>
+
+
+{
+
+//  factor how much a circle will fill of its area
+parameter float fill
+    <
+    minValue:float(0.0);
+    maxValue:float(0.33);
+    defaultValue:float(0.23);
+    >;
+
+//  manages how concentrated the circles are around the center
+parameter float scale
+    <
+    minValue:float(1.0);
+    maxValue:float(20.0);
+    defaultValue:float(1.0);
+    >;
+
+//  pattern scaling, default=circle, otherwise ellipses
+parameter float2 distort
+    <
+    minValue:float2(0.1,0.1);
+    maxValue:float2(8,8);
+    defaultValue:float2(3,1.7320508);
+    >;
+
+//  point of focus
+parameter float2 center
+    <
+    minValue:float2(-20.0, -20.0);
+    maxValue:float2(400.0, 400.0);
+    defaultValue:float2(120.0,130.0);
+>;
+
+//  these parameters are to avoid some ugly moire-effects,
+//  in parts of image where the pattern gets too dense
+parameter float minSolid
+    <
+    minValue:float(0.001);
+    maxValue:float(0.1);
+    defaultValue:float(0.005);
+    >;
+
+parameter float maxSolid
+    <
+    minValue:float(0.001);
+    maxValue:float(1.0);
+    defaultValue:float(0.05);
+    >;
+
+const float sqr3 = 1.7320508;
+const float2 halfPixel = float2(0.5,0.5);
+
+input image4 src;
+output pixel4 dst;
+
+void evaluatePixel() {
+
+    float2 z= scale*0.001*(outCoord()-center);
+    
+    //  inverse size, divide by distanceSquared
+    float pixelCheck = z.x*z.x+z.y*z.y;
+    z /= pixelCheck;
+    
+    float2 znew = distort*z;
+    z = fract(znew);
+    z.y *= sqr3; // cell size 1 by sqr(3)
+    
+    znew = floor(znew);
+    
+    float tmp = z.x*z.x + z.y*z.y;
+    
+    // alpha value, 1 if inside circle, 0 otherwise
+    float alf = 0.0; 
+    
+    //  rectangular to hexagonal 
+    //  division pattern: 
+    //  O O
+    //   O
+    //  O O
+    
+    if (tmp<fill) { 
+        // lower left circle,znew = coordinates for new center point for pixel to be sampled
+        alf = 1.0;
+        znew -= halfPixel;
+        
+    } else if ((tmp=z.x-0.5)*tmp +(tmp=z.y-0.5*sqr3)*tmp <fill) { 
+        // center circle
+        alf = 1.0; 
+    
+    } else if (z.x*z.x +(tmp=z.y-sqr3)*tmp <fill) {
+        // upper left circle
+        alf = 1.0;
+        znew.x -= 0.5;
+        znew.y += 0.5;
+        
+    } else if ((tmp=z.x-1.0)*tmp +(tmp=z.y-sqr3)*tmp <fill) {
+        // upper right circle
+        alf = 1.0;
+        znew += halfPixel;
+        
+    } else if ((tmp=z.x-1.0)*tmp +z.y*z.y <fill) {
+        // lower right circle
+        alf = 1.0;
+        znew.x += 0.5;
+        znew.y += -0.5;
+    }
+    
+    //  re-inverse size, divide by distanceSquared
+    z = znew/distort*scale*0.001;
+    z /= z.x*z.x+z.y*z.y;
+    
+    // 
+    tmp = 1.0-smoothStep(minSolid, maxSolid, pixelCheck/scale);
+    alf =max(tmp,alf);
+    
+    dst= sampleNearest(src,z+center);
+    dst.a *= alf;
+    
+    }
+}
+
+
+

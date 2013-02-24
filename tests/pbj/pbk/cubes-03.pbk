@@ -1,0 +1,117 @@
+<languageVersion: 1.0;>
+kernel sphereSection
+<   namespace : "AIF";
+    vendor : "omino.com";
+    version : 2;
+    description : "spheresection"; >
+{
+    parameter float3 xAxisColor<defaultValue:float3(1,.3,.4);>;
+    parameter float3 yAxisColor<defaultValue:float3(.3, .8,.4);>;
+    parameter float3 zAxisColor<defaultValue:float3(.1,.3,1);>;
+    
+    parameter float2 center <minValue:float2(0,0);maxValue:float2(800,800);defaultValue:float2(300,300);>;
+
+    parameter float3 spin<minValue:float3(-10,-10,-10);maxValue:float3(10,10,10);defaultValue:float3(.1,.02,.3);>;
+    parameter float plunge <minValue : 0.0 ; maxValue : 20.0 ; defaultValue : 0.0;>;
+
+
+    parameter float cellDensity <minValue : 0.005 ; maxValue : 0.1 ; defaultValue : .03;>;
+
+    parameter float radius <minValue : 5.0 ; maxValue : 200.0 ; defaultValue : 100.0;>;
+    input image3 unused; // only to establish the input size
+    output pixel4 dst;
+
+    // evaluatePixel(): The function of the filter that actually does the 
+    //                  processing of the image.  This function is called once 
+    //                  for each pixel of the output image.
+    void
+    evaluatePixel()
+    {
+        float3 axis1 = float3(1.0,0.0,0.0);
+        float3 axis2 = float3(0.0,1.0,0.0);
+
+        float3x3 elevR = float3x3(1,0,0,0,cos(spin.x),sin(spin.x),0,-sin(spin.x),cos(spin.x));
+        float3x3 bearR = float3x3(cos(spin.y), sin(spin.y), 0,-sin(spin.y), cos(spin.y), 0, 0, 0, 1 );
+        float3x3 yamR = float3x3(cos(spin.z),0,sin(spin.z),0,1,0,-sin(spin.z),0,cos(spin.z));
+        
+        axis1 *= elevR * bearR * yamR;
+        axis2 *= elevR * bearR * yamR;
+        
+        
+        float2 oc = (outCoord() - center) * cellDensity;
+        
+        //oc -= outSize/2.0;
+        float3 p = oc.x * axis1 + oc.y * axis2;
+        
+        
+        float3 perp = cross(axis1,axis2);
+        
+
+        float plungeMore = radius * radius * cellDensity * cellDensity - oc.x * oc.x - oc.y * oc.y;
+        if(plungeMore < 0.0)
+            plungeMore = 0.0;
+        plungeMore = sqrt(plungeMore);
+        
+        // some other optional variations on "plungemore" that are pretty cool.
+//        plungeMore = sin(oc.x / radius) * sin(oc.y / radius) + 1.01;
+//        plungeMore = sin(oc.x * oc.y) + 1.01;
+        
+        p += (plunge - plungeMore) * perp;
+        
+
+        float3 pCell = floor(p);
+        
+        
+        p = mod(p,1.0);
+        
+        /*
+        Our cell size, here, is 1x1x1. Perp is a unit vector representing
+        the direction we're now looking, the ray cast if you will. We like
+        to cast to the planes x=0, y=0, z=0, because it's easy. So first
+        we'll see if each element of perp is negative, and, if so, flip
+        it and reposition our starting point, like p.x := 1-p.x.
+        */
+
+        /* this is the cleanest way, but Flash doesn't allow bools,
+           and ?: doesn't seem to work in this mixed-dimension way
+           either
+
+        bool3 perpNeg = lessThan(perp,float3(0,0,0));
+        p = perpNeg ? 1.0 - p : p;
+        perp = abs(perp);
+        */
+        
+        /* We can be clever with step and abs, though. */
+        float3 perpStep = 1.0 - step(0.0,perp);
+        p = perpStep - p;
+        p = abs(p);
+        perp = abs(perp);
+        
+        
+        float3 t = p / perp; // casts from p, in direction of perp, to zero. T is how far to each plane (x,y, or z)
+        float3 co = float3(0,0,0);
+        float z;
+        
+        if(t.x >= 0.0)
+        {
+            co = xAxisColor;
+            z = t.x;
+        }
+        if(t.y >= 0.0 && t.y < t.x)
+        {
+            co = yAxisColor;
+            z = t.y;
+        }
+        if(t.z >= 0.0 && t.z < t.x && t.z < t.y)
+        {
+            co = zAxisColor;
+            z = t.z;
+        }
+        
+        dst.rgb = co * (1.0 - z/1.2);
+        dst.a = 1.0;
+        
+        if(plungeMore == 0.0)
+            dst.xyz *= 0.0;
+    }
+}

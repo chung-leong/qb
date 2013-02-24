@@ -1,0 +1,61 @@
+<languageVersion : 1.0;>
+
+kernel CrossStitch
+<   namespace : "net.ghostradio.pb";
+    vendor : "ghostRadio.net";
+    version : 1;
+    description : "Cross-stitch effect";
+>
+{
+    parameter int size
+    <
+    minValue : 1;
+    maxValue : 10;
+    defaultValue : 5;
+    description : "size of the stitching";
+    >;
+
+    input image4 src;
+    output pixel4 outputPx;
+
+    void
+    evaluatePixel()
+    {
+        float2 cPos = outCoord();
+        
+        // get the pixel at the top-left of the square
+        float2 tlPos = floor(cPos / float2(size, size));
+        tlPos *= float(size);
+        
+        int remX = int(mod(cPos.x, float(size)));
+        int remY = int(mod(cPos.y, float(size)));
+        
+        if (remX == 0 && remY == 0)
+        {
+            tlPos = cPos;
+        }
+        
+        // also save the bottom-left
+        float2 blPos = tlPos;
+        blPos.y += float(size - 1);
+        
+                   
+        // if it's a diagonal from the top-left to bottom-right, or bottom-left to top-right,
+        // draw it the same color as the top-left
+        if ((remX == remY) || // TL to BR
+            (((int(cPos.x) - int(blPos.x)) == (int(blPos.y) - int(cPos.y))))) // BL to TR
+        {
+             outputPx = sampleNearest(src, tlPos);
+        }
+        else
+        {
+            // otherwise, erase it
+            outputPx = pixel4 (0, 0, 0, 0);
+        }
+        // highlight the bottom left pixel (for debugging only)
+        /*if ((int(cPos.y) == int(blPos.y)) && (int(cPos.x) == int(blPos.x)))
+        {
+            outputPx = pixel4 (0, 1, 0, .5);
+        }*/
+    }
+}

@@ -1,0 +1,65 @@
+/*  Radial Caleidoscope
+*   Pixel Bender -code for Adobe CS4 Flash, After Effects and Photoshop
+*
+*   by Petri Leskinen, November 2008, Espoo, Finland
+*   blog: http://pixelero.wordpress.com
+*/
+
+<languageVersion : 1.0;>
+
+# define PI 3.141592
+# define DOUPLEPI 6.28318531
+
+kernel RadialCaleidoscope
+<   namespace : "RadialCaleidoscope";
+    vendor : "Petri Leskinen";
+    version : 1;
+    description : "Caleidoscope -effect for radial reflection";
+>
+{
+    parameter float angle
+        //  in radians,
+        // best results with values like 2*PI/n, where integer n >3
+        <
+        minValue:float(0.0001);
+        maxValue:float(PI);
+        defaultValue:float(0.628318531); 
+        >;
+    parameter float direction
+        <
+        minValue:float(0.0);
+        maxValue:float(DOUPLEPI);
+        defaultValue:float(0.0001);
+        >;     
+    parameter float2 basepoint 
+        // or 'centerpoint'
+        <
+        minValue:float2(0.01);
+        maxValue:float2(496.01,496.01);
+        defaultValue:float2(150.01,150.01);
+        >;
+
+    input image4 src;
+    output pixel4 dst;
+    
+    void
+    evaluatePixel()
+    {
+        //  position relatively to center(base)point
+        float2 po = outCoord() - basepoint;
+        //  polar angle and radius, constant 4.0*PI added to keep the angle
+        //  always in the positive range
+        float theta = atan(po.y,po.x)-direction +2.0*DOUPLEPI;
+        float radius = sqrt(po.x*po.x+po.y*po.y);
+        
+        //  use modulo-operation to convert angle to the correct section
+        float newAngle = mod(theta,angle);
+        float section = floor(theta/angle);
+        
+        //  every 'odd' section is mirrored
+        if (mod(section,2.0)>0.5) newAngle = angle-newAngle;
+        
+        //  convert polar angle and radius back to cartesian system and get the sample
+        dst = sampleLinear(src,basepoint+float2(radius *cos(newAngle += direction), radius *sin(newAngle)));
+    }
+}

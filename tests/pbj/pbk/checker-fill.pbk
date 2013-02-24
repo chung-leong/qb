@@ -1,0 +1,36 @@
+<languageVersion : 1.0;>
+
+kernel CheckerFill
+<   namespace : "com.adobe.example";
+    vendor : "Adobe Systems Inc.";
+    version : 1;
+    description : "A checkered field generator";
+>
+{
+    output pixel4 dst;
+    
+    parameter float checkerSize
+    <
+        defaultValue : 10.0;
+        minValue : 1.0;
+        maxValue : 75.0;
+    >;
+    
+    parameter pixel4 colorA
+    <
+        defaultValue : pixel4(0.0, 1.0, 1.0, 1.0);
+    >;
+    
+    parameter pixel4 colorB
+    <
+        defaultValue : pixel4( 0.0, 0.0, 0.0, 1.0 );
+    >;
+    
+    void evaluatePixel()
+    {        
+        float2 position = outCoord();
+        float vertical   = mod(position.x, checkerSize * 2.0);
+        float horizontal = mod(position.y, checkerSize * 2.0);
+        dst = (( vertical < checkerSize ) ^^ ( horizontal < checkerSize )) ? colorA : colorB;
+    }
+}

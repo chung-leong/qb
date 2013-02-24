@@ -1,0 +1,183 @@
+<languageVersion : 1.0;>
+kernel modPixelation
+<   namespace : "complex rational 3";
+    vendor : "pixelero";
+    version : 1;
+    description : "complex mapping z = d/[(z-a)(z-b)(z-c)]";
+>
+
+//  examples of using #define in pb-code
+//  defining complex multiplication, division and square:
+//  
+//  multiply: a*b = (a0+i a1)(b0+i b1) = a0b0-a1b1 + i(a1b0+a0b1)
+#define complexMult(a,b) float2(a.x*b.x-a.y*b.y, a.x*b.y+a.y*b.x)
+#define complexSquared(a) float2(a.x*a.x-a.y*a.y, 2.0*a.x*a.y)
+
+// 
+#define complexCubed(a) complexMult(complexSquared(a),a)
+
+//  division: a/b =
+//  (a0+i a1)/(b0+i b1) = 
+//  (a0+i a1)*(b0-i b1)/[ (b0+i b1) * (b0-ib1)] =
+//  (a0+i a1)*(b0-i b1) / (b0² + b1²)
+//  
+#define complexDiv(a,b) float2(a.x*b.x+a.y*b.y, -a.x*b.y+a.y*b.x)/(b.x*b.x+b.y*b.y+focus)
+#define complexInverse(b) float2(b.x, -b.y)/(b.x*b.x+b.y*b.y)
+
+{
+
+parameter float2 a
+<
+minValue:float2(-5,-5);
+maxValue:float2(5.0,5.0);
+defaultValue:float2(-0.3,-1.1);
+>;
+parameter float2 b
+<
+minValue:float2(-5.0,-5.0);
+maxValue:float2(5.0,5.0);
+defaultValue:float2(2.1,0.1);
+>;
+
+parameter float2 c
+<
+minValue:float2(-5.0,-5.0);
+maxValue:float2(5.0,5.0);
+defaultValue:float2(0.6,0.0);
+>;
+
+parameter float2 d
+<
+minValue:float2(-2.0,-2.0);
+maxValue:float2(2.0,2.0);
+defaultValue:float2(0.2,-1.12);
+>;
+
+parameter float2 distort
+<
+minValue:float2(0.1,0.1);
+maxValue:float2(20,20);
+defaultValue:float2(3,1.7320508);
+>;
+parameter float2 imagesize
+<
+minValue:float2(1,1);
+maxValue:float2(500,400);
+defaultValue:float2(250,188);
+>;
+parameter float2 center
+<
+minValue:float2(1,1);
+maxValue:float2(1000.0,1000.0);
+defaultValue:float2(220,380);
+>;
+
+parameter float focus
+<
+minValue:float(-6);
+maxValue:float(10);
+defaultValue:float(0);
+>;
+
+parameter float scale
+<
+minValue:float(1);
+maxValue:float(1000);
+defaultValue:float(200);
+>;
+
+parameter float fill
+<
+minValue:float(0.01);
+maxValue:float(0.5);
+defaultValue:float(0.2);
+>;
+
+
+parameter pixel4 bgcolor
+<
+minValue:pixel4(0,0,0,0);
+maxValue:pixel4(1,1,1,1);
+defaultValue:pixel4(0,0,0,0);
+>;
+
+input image4 src;
+output pixel4 dst;
+
+const float sqr3 = 1.7320508;
+const float2 halfPixel = float2(0.5,0.5);
+
+#if !AIF_FLASH_TARGET
+region generated()
+    {
+        return region(float4(0, 0, 800, 600));
+    }
+#endif
+
+void evaluatePixel() {
+    
+    float2 po= (outCoord()-center)/scale;
+    
+    //  z = d/[(z-a)(z-b)(z-c)]
+    float2 po2 = po-a;
+    float2 po3 = po-b;
+    po2 = complexMult(po2,po3);
+    po3 = po-c;
+    po2 = complexMult(po2,po3);
+    
+    po = complexDiv(d,po2); 
+    
+    // normal b&w art
+    /*
+    po = floor(po);
+    if (fract((po.x+po.y)/2.0)>0.40) {
+        dst = pixel4(1,1,1,1);
+    } else {
+         dst = pixel4(0,0,0,1);
+    }
+    */
+    
+    float tmp;
+    float alf=0.0;
+    //float radius=fill;
+    float sqr3 = 1.732;
+    
+    po = (distort*po);
+    float2 z=fract(po);
+    po=floor(po);
+   
+    z.y *=sqr3;
+    tmp = z.x*z.x + z.y*z.y;
+    if (tmp<fill) { 
+        alf = 1.0;
+        po -= halfPixel;
+            
+    } else if ((tmp=(tmp=z.x-0.5)*tmp +1.0*(tmp=z.y-0.5*sqr3)*tmp) <fill) {
+        alf = 1.0; 
+        
+    
+    } else if (z.x*z.x +(tmp=z.y-sqr3)*tmp <fill) {
+        alf = 1.0;
+        po.x -= 0.5;
+        po.y += 0.5;
+        
+    } else if ((tmp=z.x-1.0)*tmp +(tmp=z.y-sqr3)*tmp <fill) {
+        alf = 1.0;
+        po += halfPixel;
+        
+    } else if ((tmp=z.x-1.0)*tmp +z.y*z.y <fill) {
+        alf = 1.0;
+        po.x += 0.5;
+        po.y += -0.5;
+    }
+  
+    //dst = pixel4(1,1,1,alf);
+    
+    po = mod(po,imagesize);
+    dst = sampleNearest(src,po); 
+    
+    dst = mix(bgcolor,dst,alf);
+    //dst.a*=alf;
+
+}
+}

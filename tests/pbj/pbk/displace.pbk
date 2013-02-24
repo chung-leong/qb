@@ -1,0 +1,58 @@
+    <languageVersion : 1.0;>
+    kernel Distort
+    <  
+        namespace : "net.nicoptere.filters";
+        vendor : "nicoptere";
+        version : 1;
+        description : "displace";
+    >
+    {
+    input image4 src;
+    input image4 src1;
+    output pixel4 dst;
+
+    parameter float2 amplitude
+    <
+        minValue: float2( -100.0, -100.0 );
+        maxValue: float2( 100.0, 100.0 );
+        defaultValue: float2( 0.0, 0.0 );
+    >;
+
+    parameter int2 channels
+    <
+        minValue: int2( 0,0 );
+        maxValue: int2( 3,3 );
+        defaultValue: int2( 0,1 );
+    >;
+    
+    void
+    evaluatePixel()  
+    {
+		
+        float2 coord = outCoord();
+		float4 pix = sampleNearest( src1, coord );
+        
+        float dx;
+        if( channels.x == 0 )    dx = coord.x + ( .5 - pix[ 0 ] ) * amplitude.x;
+        if( channels.x == 1 )    dx = coord.x + ( .5 - pix[ 1 ] ) * amplitude.x;
+        if( channels.x == 2 )    dx = coord.x + ( .5 - pix[ 2 ] ) * amplitude.x;
+        if( channels.x == 3 )    dx = coord.x + ( .5 - pix[ 3 ] ) * amplitude.x;
+        
+        float dy;
+        if( channels.y == 0 )    dy = coord.y + ( .5 - pix[ 0 ] ) * amplitude.y;
+        if( channels.y == 1 )    dy = coord.y + ( .5 - pix[ 1 ] ) * amplitude.y;
+        if( channels.y == 2 )    dy = coord.y + ( .5 - pix[ 2 ] ) * amplitude.y;
+        if( channels.y == 3 )    dy = coord.y + ( .5 - pix[ 3 ] ) * amplitude.y;
+        
+        
+        pixel4 Opix =  sampleNearest( src, float2( dx,dy ) );
+        Opix.a = pix.a;
+        
+        dst = Opix;
+		
+    }
+}
+
+
+
+

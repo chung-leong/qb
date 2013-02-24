@@ -1,0 +1,73 @@
+//
+// petri­(dot)le­skinen[a­t]aalto­(dot)­fi
+// Espoo, Finland, 25 Feb, 2008 – June 2008
+//
+<languageVersion: 1.0;>
+kernel HexCells
+< 
+namespace : "Hex cells – not just pixels";
+vendor : "Petri Leskinen";
+version : 1;
+description : "Hexagonal Tiling";
+>
+
+{
+
+parameter float size
+<
+minValue: float(1);
+maxValue: float(200);
+defaultValue: float(50);
+description: "Hexagon Size";
+>;
+parameter float2 base
+<
+minValue: float2(-200,-200);
+maxValue: float2(800,500);
+defaultValue: float2(400,250);
+description: "base point";
+>;
+
+// some constants needed for hexagon maths
+const float sqrt3 = 1.7320508076;
+const float halfSqrt3 = 0.866025404;
+
+input image4 img;
+output pixel4 pxl;
+void evaluatePixel()
+{
+// Tiling by counting a distance to two regular grids,
+// and choosing the sample point of the closer one
+// Scales of this transformation are ‘size’ in x-direction
+// and sqrt(3)*size in y-direction
+float2 grid = float2(size,sqrt3*size);
+
+// First grid ( like red dots in the above image )
+// to get regular ‘pixelation’ we first divide by grid size,
+// apply ‘floor’ and then multiply back
+
+float2 po1 = floor((outCoord()-base)/grid+0.5);
+po1 = po1*grid +base -outCoord();
+
+// squared distance to a center point of that
+// (we only compare the distances, so no reason applying ‘heavy’ sqrt-operation )
+float dst1 = po1.x*po1.x + po1.y*po1.y;
+
+// Same thing with the Second grid (blue dots):
+// base point here is in the middle of first grid
+float2 base2 = base+size*float2(0.5,halfSqrt3);
+
+float2 po2 = floor((outCoord()-base2)/grid+0.5);
+po2 = po2*grid +base2 -outCoord();
+
+// second distance
+float dst2 = po2.x*po2.x + po2.y*po2.y;
+
+// pick the closer point for sampling :
+
+po1= (dst1<dst2) ? po1 : po2;
+pxl= sampleNearest(img, po1+outCoord());
+
+}
+
+}

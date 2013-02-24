@@ -1,0 +1,115 @@
+/*****************************************************************************
+ *
+ * ADOBE SYSTEMS INCORPORATED
+ * Copyright (C) 2010 Adobe Systems Incorporated
+ * All Rights Reserved.
+ *
+ * NOTICE:  Adobe permits you to use, modify, and distribute this file in 
+ * accordance with the terms of the Adobe license agreement accompanying it.  
+ * If you have received this file from a source other than Adobe, then your 
+ * use, modification, or distribution of it requires the prior written 
+ * permission of Adobe.
+ *
+ *****************************************************************************/
+
+<languageVersion: 1.0;>
+
+// simpleBoxBlur: A simple example to demonstrate how to implement a simple 
+//                blur filter.  This filter is a good demonstration on how to
+//                access pixels in addition to the one at the current output
+//                coordinate.
+kernel SimpleBoxBlur
+<   namespace : "AIF";
+    vendor : "Adobe Systems";
+    version : 2;
+    description : "A simple fixed-size box blur"; >
+{
+    input image4 src;
+    output float4 dst;
+    
+// Region functions are not available in Flash targets, so we only define 
+// the functions if we are executing on a different backend.
+#if !AIF_FLASH_TARGET
+
+    // needed(): Indicates what area of the input is needed to fulfill the
+    //           requested output region.  In this case, we consider a
+    //           radius = 1.0 area of the input for each output pixel, so we 
+    //           need to outset the area by one.
+    region needed(region outputRegion, imageRef inputRef)
+    {
+        float2 singlePixel = pixelSize(src);
+        return outset(outputRegion, float2(singlePixel.x, singlePixel.y));
+    }
+
+    // changed(): Indicates what area of the output is affected by the 
+    //            specified input.  In this case, we will blur out the image 
+    //            by exactly one pixel, so the output is the input outset by 
+    //            one.
+    region changed(region inputRegion, imageRef inputRef)
+    {
+        float2 singlePixel = pixelSize(src);
+        return outset(inputRegion, float2(singlePixel.x, singlePixel.y));
+    }
+
+#endif
+    
+    // evaluatePixel(): The function of the filter that actually does the 
+    //                  processing of the image.  This function is called once 
+    //                  for each pixel of the output image.
+    void
+    evaluatePixel()
+    {
+        float denominator = 0.0;
+        float4 colorAccumulator = float4(0.0, 0.0, 0.0, 0.0);      
+        
+        float2 singlePixel = pixelSize(src);
+        
+        // Access the nine pixels surrounding the current coordinate location.
+        // We access the pixels in the following order assuming that the 
+        // current coordinate is located in the center of the matrix:
+        //      1  4  7
+        //      2  5  8
+        //      3  6  9
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(-singlePixel.x, -singlePixel.y));
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(-singlePixel.x, 0.0));
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(-singlePixel.x, singlePixel.y));
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(0.0, -singlePixel.y));
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord());
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(0.0, singlePixel.y));
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(singlePixel.x, -singlePixel.y));
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(singlePixel.x, 0.0));
+        denominator++;
+
+        colorAccumulator += sampleNearest(src, 
+            outCoord() + float2(singlePixel.x, singlePixel.y));
+        denominator++;
+
+        // calculate the resultant pixel value which is the accumulated color
+        // divided by the total number of pixels.  
+        // In this case, the denominator is 9.
+        dst = colorAccumulator / denominator;
+    }
+}
+

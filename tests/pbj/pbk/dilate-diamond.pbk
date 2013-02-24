@@ -1,0 +1,40 @@
+<languageVersion : 1.0;>
+
+kernel Dilate_diamond
+<   namespace : "com.gasubasu";
+    vendor : "gasubasu";
+    version : 1;
+    description : "flash compatible dilate filter 'diamond'";
+>
+{
+    input image4 i;
+    output pixel4 o;
+
+    void
+    evaluatePixel()
+    {
+      float2 c = outCoord();
+      float2 p;
+      pixel4 n;
+      
+      o=pixel4(0.0,0.0,0.0,1.0);
+      
+      p=float2(-1,-1);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2(-1, 0);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2(-1, 1);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 0,-1);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 0, 0);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 0, 1);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 1,-1);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 1, 0);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 1, 1);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+ 
+      p=float2(-2, 0);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 2, 0);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 0,-2);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+      p=float2( 0, 2);n=sampleNearest(i,c+p);if(o.r<n.r)o.r=n.r;if(o.g<n.g)o.g=n.g;if(o.b<n.b)o.b=n.b;
+ 
+    }
+
+        
+}

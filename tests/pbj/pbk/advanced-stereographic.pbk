@@ -1,0 +1,163 @@
+
+/////////////////////////////////////////////////////
+//
+//  advanced stereographic projection
+//
+//	author 	   : frank reitberger
+//	blog 	   : http://www.prinzipiell.com
+//  copyright 2009
+//
+/////////////////////////////////////////////////////
+
+<languageVersion: 1.0;>
+
+kernel stereographics
+
+<
+   namespace :   "advanced stereographic projection";
+   vendor :      "frank reitberger";
+   version :     1;
+   description : "enhanced by warp(s), turn(s), scale(s) & zoom(s)";
+
+>  
+
+{
+
+# define PI 3.141592
+# define DOUPLEPI 6.28318531
+
+
+   parameter float2 center
+   <
+       minValue:     float2( 0.0, 0.0 );
+       maxValue:     float2( 2000.0, 2000.0 );
+       defaultValue: float2( 180.0, 180.0 );
+       description:  "set input image center";
+   >;
+   
+   
+   parameter float2 xy_replication
+   <
+       minValue:     float2(1.0, 1.0);
+       maxValue:     float2(181.0, 181.0);
+       defaultValue: float2(28.0, 28.0);
+       description: "xy.replicate map";
+   >;  
+   
+   parameter float radius
+   <
+       minValue:     float(0.0);
+       maxValue:     float(100.0);
+       defaultValue: float(72.0);
+       description:  "set radius";
+   >;
+    
+ 
+   parameter float scale
+   <
+       minValue:     float(0.1);
+       maxValue:     float(4.0);
+       defaultValue: float(2.3);
+       description:  "set aspect ratio";
+   >; 
+   
+    parameter float zoom
+   <
+       minValue:     float(0.10);
+       maxValue:     float(5.00);
+       defaultValue: float(1.00);
+       description:  "set zoom";
+   >;    
+   
+    parameter float turn
+   <
+       minValue:     float(0.00);
+       maxValue:     float(1.00);
+       defaultValue: float(1.00);
+       description:  "set rotation";
+   >;
+   
+   parameter float warp
+   <
+       minValue:     float(0.1);
+       maxValue:     float(PI);
+       defaultValue: float(2.3);
+       description:  "set warp";
+   >;    
+   
+   
+   input image4 src;
+   output pixel4 dst;
+
+
+   void evaluatePixel()
+   {
+      
+        ///////////////////////////////////
+        // actual xy.position
+        // referred to xy.center.point
+        ///////////////////////////////////	
+       
+        float2 pos     = outCoord()-center; 
+
+
+        ///////////////////////////////////
+        // cartesian- to polar.coordinates
+        // first value distance (r)
+        ///////////////////////////////////	
+			       
+        float r        = sqrt( pos.x * pos.x + pos.y * pos.y );
+       
+       
+        ///////////////////////////////////
+        // cartesian- to polar.coordinates
+        // second value angle (a)
+        ///////////////////////////////////        
+       
+        float theta    = atan( pos.y / pos.x );     
+        
+        
+        ///////////////////////////////////
+        // spectral radius
+        ///////////////////////////////////  
+        
+        float spectral = scale * r;
+       
+        ///////////////////////////////////
+        // damping ratio
+        /////////////////////////////////// 
+        
+        float damp     = -sin( warp ) * 1.0 + cos( warp ); 
+        
+        float rad      = xy_replication.y * zoom;
+        float maxpi    = 2.0 * atan( scale );
+       
+        float edgewise = 2.0 * atan( spectral / rad );
+        float meridian = theta + DOUPLEPI * turn;
+       
+       
+        ///////////////////////////////////
+        // calculate new xy-position(s)
+        ///////////////////////////////////        
+
+        float ny       = (  xy_replication.y ) * ( 2.0 * edgewise / maxpi ) - (  xy_replication.y );
+        float nx       = (  xy_replication.x - 1.0 )* meridian / PI - (  xy_replication.x );
+       
+       
+        ///////////////////////////////////
+        // polar- to cartesian.coordinates
+        ///////////////////////////////////	
+        
+        float vx       = radius * cos( nx );
+        float vy       = radius * sin( ny );
+
+       
+        ///////////////////////////////////
+        // sample
+        ///////////////////////////////////
+       
+        dst = sampleLinear(src, center +  float2( vx, vy * damp ) );
+        
+   }
+
+} 

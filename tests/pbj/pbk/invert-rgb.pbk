@@ -1,0 +1,44 @@
+/*****************************************************************************
+ *
+ * ADOBE SYSTEMS INCORPORATED
+ * Copyright (C) 2010 Adobe Systems Incorporated
+ * All Rights Reserved.
+ *
+ * NOTICE:  Adobe permits you to use, modify, and distribute this file in 
+ * accordance with the terms of the Adobe license agreement accompanying it.  
+ * If you have received this file from a source other than Adobe, then your 
+ * use, modification, or distribution of it requires the prior written 
+ * permission of Adobe.
+ *
+ *****************************************************************************/
+
+<languageVersion: 1.0;>
+ 
+// InvertRGB: A simple example to demonstrate how to invert the RGB color 
+//            space.
+kernel InvertRGB
+<   namespace : "AIF";
+    vendor : "Adobe Systems, Inc.";
+    version : 2;
+    description : "Invert the Red, Green and Blue channels of an image"; >
+{
+    input image4 src;
+    output float4 dst;
+    
+    // evaluatePixel(): The function of the kernel that actually does the 
+    //                  processing of the image.  This function is called once 
+    //                  for each pixel of the output image.
+    void
+    evaluatePixel()
+    {
+        // Obtain the input pixel color
+        float4 inputColor = sampleNearest(src, outCoord());
+
+        // Calculate (1 - channel) for each of the RGB channels
+        dst.rgb = float3(1.0, 1.0, 1.0) - inputColor.rgb;
+        
+        // set the alpha value equal to the alpha of the input
+        dst.a = inputColor.a;
+    }
+}
+

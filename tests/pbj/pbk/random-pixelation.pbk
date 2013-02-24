@@ -1,0 +1,64 @@
+<languageVersion : 1.0;>
+
+kernel randomPixelation
+< 
+namespace : "random size pixelation"; 
+vendor : "pixelero";
+version : 1;
+description : "random size pixelation";
+>
+{
+	parameter float n0
+	<
+		minValue:float(1);
+		maxValue:float(100.0); 
+		defaultValue:float(13);
+	>;
+	parameter float n1
+	<
+		minValue:float(1);
+		maxValue:float(100.0); 
+		defaultValue:float(17);
+	>;
+	parameter float n2
+	<
+		minValue:float(1);
+		maxValue:float(100.0); 
+		defaultValue:float(19);
+	>;
+	
+	parameter float n3
+	<
+		minValue:float(1);
+		maxValue:float(100.0);
+		defaultValue:float(21);
+	>;
+	
+	parameter float n4
+	<
+		minValue:float(1);
+		maxValue:float(100.0);
+		defaultValue:float(23);
+	>;
+	
+	parameter float2 randomPoint
+	<
+		minValue:float2(-100,-100);
+		maxValue:float2(1000,1000);
+		defaultValue:float2(217.5,781.6);
+	>;
+	
+	input image4 src;
+	output pixel4 dst;
+	
+	void
+	evaluatePixel()
+	{
+		float2 p = outCoord() +randomPoint;
+		p += mod(p,n4) - mod(p,n3); // Subtracting modulos 
+		
+		float2 ds= mod(p,n0) +mod(p,n1) +mod(p,n2) -0.5*(n0+n1+n2); // Adding modulos
+		
+		dst = sample(src,outCoord() -0.333333*ds);
+	}
+}

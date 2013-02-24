@@ -1,0 +1,80 @@
+/*
+* 
+  petri(dot)leskinen[at]aalto(dot)fi 
+  Espoo, Finland, May 2011           
+*  
+*/
+
+<languageVersion: 1.0; >
+kernel Tiling
+<   namespace : "CircularDisks";
+    vendor : "Petri Leskinen";
+    version : 1;
+    description : "Disk tiling";
+>
+{   
+    
+    parameter float size
+    <
+        minValue:      float(1);
+        maxValue:      float(100);
+        defaultValue:  float(30);
+        description: "Pattern Size";
+    >;
+    
+    parameter float radius 
+    <
+        minValue:      float(0.0);
+        maxValue:      float(1.0);
+        defaultValue:  float(0.42);
+        description: "Radius: how much a disks fills up its space";
+    >;
+    
+    parameter float2 base 
+    <
+        minValue:     float2(-200,-200);
+        maxValue:     float2(800,500);
+        defaultValue: float2(350.2,100.2);
+        description: "Base Point";
+    >;
+    
+    
+    const float DOUBLEPI = 6.2831846; 
+    
+    input image4 src;  
+    output pixel4 dst; 
+    
+    
+    void evaluatePixel() 
+    {   
+        //  a point relative to center:  
+        float2 po = outCoord()-base;     
+        
+        //  switch to polar coordinates: 
+        float2 polar = float2(length(po),atan(po.y,po.x)); 
+        
+        //  radius to 'rings' on regular distances: 
+        polar.x = size*floor(0.5+polar.x/size); 
+        
+        //  distribute points along the rings: 
+        float phi = floor(DOUBLEPI*polar.x/size); 
+        if (phi>0.1) { 
+            phi = DOUBLEPI/phi; 
+            polar.y = phi*floor(0.5+polar.y/phi); 
+        } 
+        
+        //  switch to regular coordinates: 
+        po = base+polar.x*float2(cos(polar.y),sin(polar.y)); 
+        
+        dst = pixel4(0,0,0,0); 
+        //  inside the circle: 
+        if (radius*size>length(po-outCoord())) { 
+            dst = sample(src,po); 
+        } 
+        
+        
+    }
+    
+}
+
+

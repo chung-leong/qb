@@ -1,0 +1,118 @@
+
+/////////////////////////////////////////////////////
+//
+//  cassini pattern
+//
+//	author 	   : frank reitberger
+//	blog 	   : http://www.prinzipiell.com
+//  copyright 2009
+//
+/////////////////////////////////////////////////////
+
+<languageVersion: 1.0;>
+
+kernel cassini
+
+<
+
+   namespace :   "cassini pattern";
+   vendor :      "frank reitberger";
+   version :     1;
+   description : "cassini pattern";
+
+> 
+
+{
+
+# define PI 3.141592
+# define DOUPLEPI 6.28318531 
+   
+   
+   parameter float2 imageWH
+   <
+       minValue:     float2( 1.0, 1.0 );
+       maxValue:     float2( 2000.0, 2000.0 );
+       defaultValue: float2( 362.0, 362.0 );
+       description:  "input image width- and height";
+   >;
+   
+    parameter float2 poi
+   <
+       minValue:     float2( 100.0, 100.0 );
+       maxValue:     float2( 500.0, 500.0 );
+       defaultValue: float2( 362.0, 362.0 );
+       description:  "region(s)";
+   >;  
+ 
+   parameter float zoom
+   <
+       minValue:     float( 1.0);
+       maxValue:     float( 100.0);
+       defaultValue: float(5.0);
+       description:  "zooming";
+   >;
+   
+   parameter float lambda
+   <
+       minValue:     float( 0.0);
+       maxValue:     float( 6.28);
+       defaultValue: float(0.0);
+       description:  "rotation(s)";
+   >;  
+      
+
+   
+   input image4 src;
+   output pixel4 dst;
+
+
+   void evaluatePixel()
+   {
+   
+        ///////////////////////////////////
+        // set image centerpoint
+        // imageWH / 2.0
+        ///////////////////////////////////	
+        
+        float2 center = float2( imageWH.x / 2.0, imageWH.y / 2.0 );
+
+
+        ///////////////////////////////////
+        // actual xy.position
+        // referred to xy.center.point
+        ///////////////////////////////////	
+        
+        float2 po     = outCoord() - center;
+
+
+        ///////////////////////////////////
+        // calculate
+        ///////////////////////////////////
+       
+        float radius  = sqrt( po.x * po.x + po.y * po.y );  //r
+        float zm      = 10.0 / zoom;
+        float l1      = lambda;
+        float xx      = zm * (po.x) / ( imageWH.x / 2.0) * (PI);
+        float d       = zm * po.y / ( poi.y / 2.0 ) * ( PI /2.0 );
+        
+        float phi     = asin( sin( d ) * cos( xx ) );
+        float l       = l1 + atan( tan( xx ), cos( d ) );
+        
+        
+        ///////////////////////////////////
+        // set position(s)
+        ///////////////////////////////////  
+        
+        float nx     = mod( ( l * ( poi.x / 2.0 ) / PI + ( poi.x / 2.0 ) ), ( poi.x - 1.0) - ( poi.x / 2.0 ) );
+        float ny     = phi *( ( poi.y / 2.0 ) ) / ( PI / 2.0 ); 
+        
+        
+        ///////////////////////////////////
+        // draw 
+        /////////////////////////////////// 
+        
+        dst = sampleLinear(src, center + float2(  nx,   ny ));
+
+    }
+
+} 

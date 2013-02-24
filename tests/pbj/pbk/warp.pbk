@@ -1,0 +1,122 @@
+
+/////////////////////////////////////////////////////
+//
+//  warp filter
+//
+//	author 	   : frank reitberger
+//	blog 	   : http://www.prinzipiell.com
+//  copyright 2009
+//
+/////////////////////////////////////////////////////
+
+<languageVersion: 1.0;>
+
+kernel warp
+
+<
+   namespace :   "warp filter";
+   vendor :      "frank reitberger";
+   version :     1;
+   description : "warps image vice versa and back";
+
+> 
+
+{
+
+# define PI 3.141592
+# define DOUPLEPI 6.28318531 
+
+   parameter float image_h
+   <
+       minValue     : float( 1.0 );
+       maxValue     : float( 2000.0 );
+       defaultValue : float (362.0 );
+       description  : "input image height";
+   >;
+   
+   parameter float2 center
+   <
+       minValue     : float2( 0.0, 0.0 );
+       maxValue     : float2( 2000.0, 2000.0 );
+       defaultValue : float2( 181.0, 181.0 );
+       description  : "half width image input width/-height";       
+   >;
+   
+   parameter float tick
+   <
+       minValue     : float( 0.0001 );
+       maxValue     : float( 2.0000 );
+       defaultValue : float( 0.5001 );
+       description  : "movement momentum"; 
+   >;   
+       
+   parameter float spread
+   <
+       minValue     : float( 0.0 );
+       maxValue     : float( 1000.0 );
+       defaultValue : float( 300.0 );
+       description  : "wrap expansion"; 
+   >;          
+
+        
+      
+   input image4 src;
+   output pixel4 dst;
+
+
+   void evaluatePixel()
+   {
+       ///////////////////////////////////
+       // actual xy.position
+       // referred to xy.center.point
+       ///////////////////////////////////	
+       
+       float2 pos  = outCoord() - center;       
+    
+    
+       ///////////////////////////////////
+       // calculate warp
+       ///////////////////////////////////	
+       
+       float d     = tick *( image_h + spread ) - ( image_h / 2.0 );
+       float vx    = d - spread;
+       float angle = PI /2.0 + DOUPLEPI *( pos.x - vx ) / spread;
+        
+        
+       ///////////////////////////////////
+       // warp
+       ///////////////////////////////////
+       
+       if ( pos.x >= vx ) {
+        
+            if ( pos.x < d ) {
+            
+                 if ( ( sign( pos.y ) * pos.y ) > ( image_h ) * sign( sin( angle ) ) * sin( angle ) ) {
+                
+                      dst.r = 0.0;
+                      dst.g = 0.0;
+                      dst.b = 0.0;
+                      dst.a = 0.0;
+                
+                 } else {
+                             
+                      float ny = pos.y/sin(angle);
+                      dst = sampleLinear(src, center + float2(pos.x, ny) );
+                    
+                 }
+            
+            } else {
+            
+               dst = sampleLinear(src, outCoord());
+            
+            }
+        
+        } else {
+        
+          dst = sampleLinear(src, outCoord());
+        
+        }
+
+    }
+    
+}

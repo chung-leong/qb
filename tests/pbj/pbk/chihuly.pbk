@@ -1,0 +1,122 @@
+
+
+<languageVersion: 1.0;>
+ 
+// Chihuly: This filter is inspired by the work of one of my favorite artists, Dale Chihuly 
+//           The shapes are meant to echo the shapes used in his chandelier form.  I created  
+//           the filter as an image transition for a Flash Player 10 demo at Adobe MAX.  The 
+//           demo showed the latest photos of Chihuly's work that users have uploaded to Flickr.
+kernel chihuly
+<   namespace : "com.everett-church.justin";
+    vendor : "Justin Everett-Church";
+    version : 1;
+    description : "chihuly themed transition"; >
+{
+    parameter float line
+    <minValue: -1000.0;
+     maxValue: 1000.0;
+     defaultValue: 200.0;>;
+    parameter float height
+    <minValue: -1000.0;
+     maxValue: 1000.0;
+     defaultValue: 100.0;>;
+         parameter float stemScale
+    <minValue: .01;
+     maxValue: 10.0;
+     defaultValue: 1.0;>;
+     parameter float squiggleScale
+    <minValue: .01;
+     maxValue: 100.0;
+     defaultValue: 1.0;>;
+    parameter float animationIndex
+    <minValue: .0;
+     maxValue: 6.28;
+     defaultValue: 0.0;>;
+     
+    input image4 inputImage;
+    output pixel4 outputPixel;
+
+    
+    
+    void
+    evaluatePixel()
+    {
+        float2 coord = outCoord();
+        pixel4 px = sampleNearest(inputImage, coord);
+        pixel4 blankPx = pixel4(0.0);
+        if(coord.y < line){
+            outputPixel=px;
+        } else if (coord.y<(line+height)){
+            //Layer 1   
+            //pseudo parameters: Modify at will to adjust the look of the tendril/stem appearance
+            float stemWidth = 30.0*stemScale; 
+            float stemHeight = .8*height;
+            float period = 8.0;
+            float amplitude = 10.0*squiggleScale;
+            float phase = coord.x/stemWidth;
+            float slope = 0.0;
+            float shift = line/10.0;
+            
+            //derived values, don't touch unless you are wanting to crate a new effect (which could be fun too)
+            float invTaperRatio = (coord.y-line)/stemHeight;
+            float taperRatio = 1.0-invTaperRatio;
+            float pxOffset = invTaperRatio*(amplitude*((sin((phase+coord.y/period)+animationIndex)+slope)));
+            float taperPx = stemWidth*taperRatio;
+            float cutRatio = mod(shift+coord.x+pxOffset+taperPx/2.0, stemWidth)/stemWidth;
+            float ratioPerPixel = 1.0/stemWidth;
+            pixel4 tpx1 = sampleNearest(inputImage, coord+float2(pxOffset,0.0));
+            //tpx1.a =  tpx1.a*max(min((taperRatio-cutRatio)/ratioPerPixel, 1.0), 0.0);
+            tpx1 = cutRatio<taperRatio?tpx1:blankPx;
+            
+            //Layer 2   
+            //pseudo parameters: Modify at will to adjust the look of the tendril/stem appearance
+            stemWidth = 35.0*stemScale;
+            stemHeight = 1.0*height;
+            period = 10.0;
+            amplitude = 10.0*squiggleScale;
+            phase = coord.x/stemWidth;
+            slope = 0.0;
+            shift = -line/8.0;
+            
+            //derived values, don't touch unless you are wanting to crate a new effect (which could be fun too)
+            invTaperRatio = (coord.y-line)/stemHeight;
+            taperRatio = 1.0-invTaperRatio;
+            pxOffset = invTaperRatio*(amplitude*((sin(((phase+coord.y/period)+animationIndex)*1.5)+slope)));
+            taperPx = stemWidth*taperRatio;
+            cutRatio = mod(shift+coord.x+pxOffset+taperPx/2.0, stemWidth)/stemWidth;
+            ratioPerPixel = 1.0/stemWidth;
+            pixel4 tpx2 = sampleNearest(inputImage, coord+float2(pxOffset,0.0));
+            //tpx2.a =  tpx2.a*max(min((taperRatio-cutRatio)/ratioPerPixel, 1.0), 0.0);
+            tpx2 = cutRatio<taperRatio?tpx2:blankPx;
+            
+            //Layer 3   
+            //pseudo parameters: Modify at will to adjust the look of the tendril/stem appearance
+            stemWidth = 25.0*stemScale;
+            stemHeight = .5*height;
+            period = 8.0;
+            amplitude = 10.0*squiggleScale;
+            phase = coord.x/stemWidth;
+            slope = 0.0;
+            shift = line/4.0;
+            
+            //derived values, don't touch unless you are wanting to crate a new effect (which could be fun too)
+            invTaperRatio = (coord.y-line)/stemHeight;
+            taperRatio = 1.0-invTaperRatio;
+            pxOffset = invTaperRatio*(amplitude*((sin((phase+coord.y/period)+animationIndex*2.0)+slope)));
+            taperPx = stemWidth*taperRatio;
+            cutRatio = mod(shift+coord.x+pxOffset+taperPx/2.0, stemWidth)/stemWidth;
+            ratioPerPixel = 1.0/stemWidth;
+            pixel4 tpx3 = sampleNearest(inputImage, coord+float2(pxOffset,0.0));
+            //tpx3.a =  tpx3.a*max(min((taperRatio-cutRatio)/ratioPerPixel, 1.0), 0.0);            
+            tpx3 = cutRatio<taperRatio?tpx3:blankPx;
+           
+            outputPixel = (tpx1+ tpx2 +tpx3)/(tpx1.a+tpx2.a+tpx3.a+.000001);
+           
+            
+            
+        } else {
+            outputPixel= pixel4(0.0);
+            
+        }
+    }
+}

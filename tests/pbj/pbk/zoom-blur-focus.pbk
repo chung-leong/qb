@@ -1,0 +1,129 @@
+<languageVersion : 1.0;>
+kernel ZoomBlurFocus
+<
+    namespace : "com.abril";
+    vendor : "Daniel Allegretti";
+    version : 1;
+    description : "Ajustable zoom blur, you can control focal size, edge hardness and light. Based on ZoomBlur by Ryan Phelan.";
+>
+{
+
+    parameter float amount
+    <
+        minValue:0.0;
+        maxValue:0.5;
+        defaultValue:0.25;
+    >;
+
+    parameter float2 center
+    <
+    minValue: float2(0.0);
+    maxValue: float2(900.0);
+    defaultValue: float2(200.0);
+    >;
+
+    parameter float focalSize
+    <
+    minValue: 0.0;
+    maxValue: 500.0;
+    defaultValue: 100.0;
+    >;
+    /*
+    parameter bool invert           // TODO: nada de boolean
+    <
+    defaultValue: false;
+    >;
+    */
+    
+    parameter int invert
+    <
+    minValue: 0;
+    maxValue: 1;
+    defaultValue: 0;
+    >;
+    
+    parameter float vignette
+    <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.6;
+    >;
+
+    parameter float edgeHardness
+    <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+
+    input image4 src;
+    output pixel4 dst;
+    
+    void evaluatePixel() {
+    
+        float str = 1.0 - vignette;
+        float2 coord = outCoord();
+        float cur_radius = length(coord - center);
+        pixel4 color = sampleNearest(src, coord);
+        int cond1 = (cur_radius > focalSize) ? 1 : 0;
+        
+        if(invert == 1) {
+            //cond1 = !cond1;
+            if(cond1 == 0) {
+                cond1 = 1;
+            } else {
+                cond1 = 0;
+            }
+        }
+        
+        float strength;
+        if(invert == 1) {
+            strength = cur_radius / focalSize;
+        } else {
+            strength = focalSize / cur_radius;
+        }
+        
+        float tmpAmount = strength * amount;
+        coord -= center;
+        pixel4 tmpDst = float4(0.0);
+        float scale;
+        scale = 1.0;
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (1.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (2.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (3.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (4.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (5.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (6.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (7.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (8.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (9.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (10.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (11.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (12.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (13.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        scale = 1.0 + tmpAmount * (14.0/14.0);
+        tmpDst += sampleNearest( src, coord*scale + center );
+        tmpDst /= 15.0;
+        if (cond1 == 1) {
+            dst = ((1.0 - edgeHardness) * ((color * strength) + (tmpDst * (1.0 - strength)))) + (tmpDst * edgeHardness);
+            dst.rgb = ( vignette * dst.rgb * strength ) + ( dst.rgb * (1.0 - vignette) );
+        } else {
+            dst = color;
+        }
+        dst.a = color.a;
+    }
+}

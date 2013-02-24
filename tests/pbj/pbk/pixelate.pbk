@@ -1,0 +1,92 @@
+/*****************************************************************************
+ *
+ * ADOBE SYSTEMS INCORPORATED
+ * Copyright (C) 2010 Adobe Systems Incorporated
+ * All Rights Reserved.
+ *
+ * NOTICE:  Adobe permits you to use, modify, and distribute this file in 
+ * accordance with the terms of the Adobe license agreement accompanying it.  
+ * If you have received this file from a source other than Adobe, then your 
+ * use, modification, or distribution of it requires the prior written 
+ * permission of Adobe.
+ *
+ *****************************************************************************/
+
+<languageVersion: 1.0;>
+ 
+// Pixelate: A simple example to demonstrate the use of the sampling 
+//           function to yield an interesting effect.  The filter uses the 
+//           floor built-in function on the current output coordinate to 
+//           determine the sampling location.
+kernel Pixelate
+<   namespace : "AIF";
+    vendor : "Adobe Systems";
+    version : 2;
+    description : "pixelate an image"; >
+{
+    // An input parameter used to specify the width and height of the 
+    // pixelation.  The parameters come directly from the user by way of the 
+    // UI that gets created for the filter.
+    parameter int dimension
+    <minValue: 1;
+     maxValue: 100;
+     defaultValue: 1;>;
+
+    input image4 inputImage;
+    output pixel4 outputPixel;
+
+// Region functions are not available in Flash targets, so we only define 
+// the functions if we are executing on a different backend.
+#if !AIF_FLASH_TARGET
+
+    // needed(): Indicates what area of the input is needed to fulfill the
+    //           requested output region.
+    region needed(region outputRegion, imageRef inputRef)
+    {
+        float dimAsFloat = float( dimension );
+        float4 regionBounds = bounds( outputRegion );
+        regionBounds = floor( regionBounds / dimAsFloat ) * dimAsFloat;
+
+        return region( regionBounds );
+    }
+
+    // changed(): Indicates what area of the output is affected by the 
+    //            specified input.
+    region changed(region inputRegion, imageRef inputRef)
+    {
+        // This calculation will slightly over-estimate the affected region in 
+        // some cases (i.e. it errs on the side of safety), however it is much 
+        // simpler than the exact calculation and therefore much more 
+        // likely to be correct
+        
+        float dimAsFloat = float( dimension );
+        float4 regionBounds = bounds( inputRegion );
+        regionBounds.zw += float2( dimAsFloat );
+        
+        return region( regionBounds );
+    }
+
+#endif
+
+    // evaluatePixel(): The function of the filter that actually does the 
+    //                  processing of the image.  This function is called once 
+    //                  for each pixel of the output image.
+    void
+    evaluatePixel()
+    {
+        // Convert the dimension into a floating point value for use in 
+        // arithmetic.  To avoid sinister issues, all type conversions are 
+        // required to be explicit.
+        float dimAsFloat = float(dimension);
+
+    
+        // Truncate the pixel location to the value at the top left corner of 
+        // the square.
+        float2 sc = floor(outCoord() / float2(dimAsFloat, dimAsFloat));
+        sc *= dimAsFloat;
+        
+        // sample the input at the location and set the output to the sampled 
+        // value.
+        outputPixel = sampleNearest(inputImage, sc);
+    }
+}

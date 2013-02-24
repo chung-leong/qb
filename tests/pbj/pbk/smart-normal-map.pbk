@@ -1,0 +1,73 @@
+<languageVersion : 1.0;>
+
+kernel SmartNormalMap <
+    
+    namespace   : "com.smartpage.filters";
+    vendor      : "smart-page.net - Jan-C. Frischmuth";
+    version     : 1;
+    description : "Generates a normalmap using condensed or sobel-edge.";
+>
+{
+    input  image4 src;
+    output pixel4 dst;
+    
+    parameter int soft_sobel <
+    
+       minValue     : int(0);
+       maxValue     : int(1);
+       defaultValue : int(0);
+    >;
+       
+    parameter float amount <
+    
+        minValue     : float(0);
+        maxValue     : float(5);
+        defaultValue : float(1);
+    >;
+    
+    parameter float invert_red <
+    
+        minValue     : float(-1);
+        maxValue     : float(1);
+        defaultValue : float(1);
+    >;
+    
+    parameter float invert_green<
+    
+        minValue     : float(-1);
+        maxValue     : float(1);
+        defaultValue : float(1);
+    >;
+
+    void evaluatePixel(){  
+    
+        float dx;
+        float dy;
+                
+        if (soft_sobel==0) {
+            dx=sampleNearest(src, float2(outCoord().x + 1.0, outCoord().y)).r-sampleNearest(src,float2(outCoord().x - 1.0, outCoord().y)).r;
+            dy=sampleNearest(src,float2(outCoord().x, outCoord().y - 1.0 )).r-sampleNearest(src,float2(outCoord().x, outCoord().y + 1.0)).r;        
+        }else{
+            dx =sampleNearest(src, float2(outCoord().x -1.0, outCoord().y -1.0)).r/-1.0;
+            dx+=sampleNearest(src, float2(outCoord().x -1.0, outCoord().y     )).r/-2.0;
+            dx+=sampleNearest(src, float2(outCoord().x -1.0, outCoord().y +1.0)).r/-1.0;
+            dx+=sampleNearest(src, float2(outCoord().x +1.0, outCoord().y -1.0)).r/+1.0;
+            dx+=sampleNearest(src, float2(outCoord().x +1.0, outCoord().y     )).r/+2.0;
+            dx+=sampleNearest(src, float2(outCoord().x +1.0, outCoord().y +1.0)).r/+1.0;
+        
+            dy =sampleNearest(src, float2(outCoord().x -1.0, outCoord().y +1.0)).r/-1.0;
+            dy+=sampleNearest(src, float2(outCoord().x     , outCoord().y +1.0)).r/-2.0;
+            dy+=sampleNearest(src, float2(outCoord().x +1.0, outCoord().y +1.0)).r/-1.0;
+            dy+=sampleNearest(src, float2(outCoord().x -1.0, outCoord().y -1.0)).r/1.0;
+            dy+=sampleNearest(src, float2(outCoord().x     , outCoord().y -1.0)).r/2.0;
+            dy+=sampleNearest(src, float2(outCoord().x +1.0, outCoord().y -1.0)).r/1.0;       
+        }
+               
+        float3 normal=float3(dx*(invert_red)*(amount/(1.0+float(soft_sobel))), -(dy*invert_green)*(amount/(1.0+float(soft_sobel))), 1.0);
+        
+        normalize(normal);
+        normal=((normal + 1.0)/2.0 );
+        
+        dst=float4(normal.r, normal.g, normal.b, 1.0);
+    }
+}

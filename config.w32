@@ -1,0 +1,10 @@
+// $Id$
+// vim:ft=javascript
+
+ARG_ENABLE("qb", "enable qb support", "no");
+
+if (PHP_QB != "no") {
+	EXTENSION("qb", "qb.c qb_compiler.c qb_interpreter.c qb_native_compiler.c qb_types.c qb_compat.c qb_data_tables.c", null, null, "php_qb.dll");
+	AC_DEFINE('HAVE_QB', 1, 'Have qb');
+}
+

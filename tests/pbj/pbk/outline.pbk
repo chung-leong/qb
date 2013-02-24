@@ -1,0 +1,73 @@
+<languageVersion : 1.0;>
+
+kernel outline
+<   namespace : "outline";
+    vendor : "Shogo Kimura";
+    version : 1;
+    description : "";
+>
+{
+    input image4 src;
+    output pixel4 dst;
+
+    parameter float2 difference
+    <
+        defaultValue : float2( 0.1, 0.01);
+        minValue :   float2( 0.0, 0.0);     
+        maxValue :  float2( 1.0, 1.0);
+        description : "1:max difference 2:min difference";
+    >;
+
+    parameter pixel4 color
+    <
+        defaultValue : pixel4( 0.0, 0.0, 0.0, 1.0);     
+        minValue :   pixel4( 0.0, 0.0, 0.0, 0.0);     
+        maxValue :  pixel4( 1.0, 1.0, 1.0, 1.0);
+        description : "foreground color";
+    >;
+    parameter pixel4 bgcolor
+    <
+        defaultValue : pixel4( 1.0, 1.0, 1.0, 1.0);     
+        minValue :   pixel4( 0.0, 0.0, 0.0, 0.0);     
+        maxValue :  pixel4( 1.0, 1.0, 1.0, 1.0);
+        description : "background color";
+    >;
+
+    void
+    evaluatePixel()
+    {
+        float2 srcpos = outCoord();
+        pixel4 dst0 = sampleNearest(src, float2(srcpos.x, srcpos.y));
+        pixel4 dst1 = sampleNearest(src, float2(srcpos.x + 1.0, srcpos.y));
+        pixel4 dst2 = sampleNearest(src, float2(srcpos.x, srcpos.y + 1.0));
+        pixel4 dst3 = sampleNearest(src, float2(srcpos.x + 1.0, srcpos.y + 1.0));
+        pixel4 dst4 = sampleNearest(src, float2(srcpos.x - 1.0, srcpos.y + 1.0));
+        
+        float distance1 = 0.0;
+        float distance2 = 0.0;
+        float distance3 = 0.0;
+        float distance4 = 0.0;
+        if (dst1.a != 0.0) {
+            distance1 = distance(dst0, dst1);
+        }
+        if (dst2.a != 0.0) {
+            distance2 = distance(dst0, dst2);
+        }
+        if (dst3.a != 0.0) {
+            distance3 = distance(dst0, dst3);
+        }
+        if (dst4.a != 0.0) {
+            distance4 = distance(dst0, dst4);
+        }
+        
+        float maxdistance = max(max(distance1, distance2), max(distance3, distance4));
+        
+        if (maxdistance > difference.x) {
+            dst = color;
+        } else if (maxdistance > difference.y) {
+            dst = bgcolor + (color - bgcolor) * ((maxdistance - difference.y) / (difference.x - difference.y));
+        } else {
+            dst = bgcolor;
+        }
+    }
+}

@@ -1,0 +1,44 @@
+<languageVersion : 1.0;>
+    kernel Distort
+    <  
+    namespace : "net.nicoptere.filters";
+    vendor : "nicoptere";
+    version : 1;
+    description : "slices";
+    >
+    {
+    input image4 src;
+    output pixel4 dst;
+    
+    /**
+    * horizontal block size (should remain lower than image width)
+    */
+    parameter float horizontal
+        <
+        minValue: 0.0;
+        maxValue: 2880.0;
+        defaultValue: 10.0;
+        >;
+    /**
+    * vertical block size (should remain lower than image height)
+    */
+    parameter float vertical
+        <
+        minValue: 0.0;
+        maxValue: 2880.0;
+        defaultValue: 10.0;
+        >;
+
+    void
+    evaluatePixel() 
+    {
+
+        float2 coord = outCoord();
+        
+        coord.x += vertical * ( ( cos( coord[ 1 ] / vertical) > 0.0 ) ? 1.0 : -1.0 );
+        coord.y += horizontal * ( ( cos( coord[ 0 ] / horizontal ) > 0.0 ) ? 1.0 : -1.0 );
+
+        dst = sampleNearest( src, coord );
+
+    }
+}
