@@ -9,7 +9,7 @@
 #define QB_VERSION_H_
 
 #define QB_MAJOR_VERSION			1
-#define QB_MINOR_VERSION			1
+#define QB_MINOR_VERSION			0
 
 #define QB_RELEASE_NAME_1			"Agnieszka"
 #define QB_RELEASE_NAME_2			"Basia"
@@ -25,7 +25,7 @@
 #define QB_RELEASE_NAME_12			"Luiza"
 #define QB_RELEASE_NAME_13			"Malgosia"
 #define QB_RELEASE_NAME_14			"Natasza"
-#define QB_RELEASE_NAME_15			"Otylia"
+#define QB_RELEASE_NAME_15			"Olenka"
 #define QB_RELEASE_NAME_16			"Paulina"
 #define QB_RELEASE_NAME_17			"Renata"
 #define QB_RELEASE_NAME_18			"Sonia"
@@ -47,7 +47,7 @@
 #define QB_RELEASE_NAME_34			"Lena"
 #define QB_RELEASE_NAME_35			"Marysia"
 #define QB_RELEASE_NAME_36			"Nina"
-#define QB_RELEASE_NAME_37			"Olga"
+#define QB_RELEASE_NAME_37			"Otylia"
 #define QB_RELEASE_NAME_38			"Patrycja"
 #define QB_RELEASE_NAME_39			"Rebeka"
 #define QB_RELEASE_NAME_40			"Sylwia"
@@ -60,6 +60,7 @@
 #define _QB_RELEASE_NAME(n)			__QB_RELEASE_NAME(n)
 #define QB_RELEASE_NAME				_QB_RELEASE_NAME(QB_MAJOR_VERSION)
 
+#define QB_REVISION_INITIAL_0		""
 #define QB_REVISION_INITIAL_1		"A."
 #define QB_REVISION_INITIAL_2		"B."
 #define QB_REVISION_INITIAL_3		"C."

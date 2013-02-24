@@ -374,6 +374,46 @@ static void ZEND_FASTCALL qb_translate_array_aggregate(qb_compiler_context *cxt,
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_array_search(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, uint32_t result_flags) {
+	qb_operand *container = &arguments[0];
+	qb_operand *needle = &arguments[1];
+	qb_address *result_address;
+	uint32_t expr_type;
+
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
+	expr_type = container->address->type;
+	qb_do_type_coercion(cxt, needle, expr_type);
+	if(IS_SCALAR(container->address)) {
+		qb_abort("%s expects an array as parameter", f->name);
+	}
+	if(container->address->dimension_count == 1) {
+		if(needle->address->dimension_count != 0) {
+			qb_abort("%s expects a scalar as the second parameter", f->name);
+		}
+	} else {
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as the second parameter when given a multidimensional array", f->name);
+		} else {
+			if(IS_VARIABLE_LENGTH_ARRAY(needle->address)) {
+				qb_abort("%s expects a fixed-length array as the second parameter", f->name);
+			} else {
+				uint32_t needle_length = ARRAY_SIZE(needle->address);
+				uint32_t subarray_length = VALUE(U32, container->address->array_size_addresses[1]);
+				if(needle_length != subarray_length) {
+					qb_abort("%s expects an array with %d elements as the second parameter", f->name, subarray_length);
+				}
+			}
+		}
+	}
+	result_address = qb_push_temporary_variable(cxt, QB_TYPE_S32, NULL);
+	if(!cxt->resolving_result_type) {
+		uint32_t *opcode_list = f->extra, opcode = opcode_list[expr_type];
+		qb_op *qop = qb_append_op_with_three_addresses(cxt, opcode, container->address, needle->address, result_address);
+		qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[2].type = QB_OPERAND_ADDRESS_VAR;
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_sort(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, uint32_t result_flags) {
 	qb_operand *container = &arguments[0];
 	uint32_t *opcodes = f->extra;
@@ -782,6 +822,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"substr",				NULL,		qb_translate_array_slice,				2,		3,		NULL						},
 	{	0,	"array_sum",			NULL,		qb_translate_array_aggregate,			1,		1,		array_sum_opcodes			},
 	{	0,	"array_product",		NULL,		qb_translate_array_aggregate,			1,		1,		array_product_opcodes		},
+	{	0,	"array_search",			NULL,		qb_translate_array_search,				2,		2,		array_search_opcodes		},
+	{	0,	"in_array",				NULL,		qb_translate_array_search,				2,		2,		in_array_opcodes			},
 	{	0,	"sort",					NULL,		qb_translate_sort,						1,		1,		sort_opcodes				},
 	{	0,	"rsort",				NULL,		qb_translate_sort,						1,		1,		rsort_opcodes				},
 	{	0,	"utf8_decode",			NULL,		qb_translate_utf8_decode,				1,		1,		NULL						},

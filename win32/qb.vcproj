@@ -862,6 +862,10 @@
 				RelativePath="..\qb_types.h"
 				>
 			</File>
+			<File
+				RelativePath="..\qb_version.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

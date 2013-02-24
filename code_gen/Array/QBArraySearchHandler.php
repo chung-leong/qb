@@ -5,10 +5,10 @@ class QBArraySearchHandler extends QBHandler {
 	public function getOperandAddressMode($i) {
 		if($i == 1) {
 			return "ARR";
-		} else if($i == 2) {
-			return $this->addressMode;
 		} else if($i == 3) {
 			return "VAR";
+		} else {
+			return $this->addressMode;
 		}
 	}
 	
@@ -20,12 +20,51 @@ class QBArraySearchHandler extends QBHandler {
 		}
 	}
 
+	public function getHelperFunctions() {
+		$type = $this->getOperandType(1);
+		$cType = $this->getOperandCType(1);
+		$functions = array(
+			array(
+				"static int32_t ZEND_FASTCALL qb_find_element_$type($cType *elements, uint32_t count, $cType needle) {",
+					"uint32_t i;",
+					"for(i = 0; i < count; i++) {",
+						"if(elements[i] == needle) {",
+							"return i;",
+						"}",
+					"}",
+					"return -1;",
+				"}",
+			),
+			array(
+				"static int32_t ZEND_FASTCALL qb_find_elements_$type($cType *elements, uint32_t count, $cType *needle, uint32_t needle_width) {",
+					"uint32_t i, j, k;",
+					"for(i = 0, j = 0; j < count; i++, j += needle_width) {",
+						"if(elements[j] == needle[0]) {",
+							"for(k = 1; k < needle_width; k++) {",
+								"if(elements[j + k] != needle[k]) {",
+									"break;",
+								"}",
+							"}",
+							"if(k == needle_width) {",
+								"return i;",
+							"}",
+						"}",
+					"}",
+					"return -1;",
+				"}",
+			),
+		);
+		return $functions;
+	}
+	
 	protected function getArrayExpression() {
-		return "res = qb_find_{$this->operandType}(op1_ptr, op1_count, op2_ptr, op2_count);";
+		$type = $this->getOperandType(1);
+		return "res = qb_find_elements_$type(op1_ptr, op1_count, op2_ptr, op2_count);";
 	}
 	
 	protected function getScalarExpression() {
-		return "res = qb_find_{$this->operandType}(op1_ptr, op1_count, op2_ptr, 1);";
+		$type = $this->getOperandType(1);
+		return "res = qb_find_element_$type(op1_ptr, op1_count, op2);";
 	}
 }
 

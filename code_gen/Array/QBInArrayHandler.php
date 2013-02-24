@@ -3,11 +3,13 @@
 class QBInArrayHandler extends QBArraySearchHandler {
 	
 	protected function getArrayExpression() {
-		return "res = qb_find_{$this->operandType}(op1_ptr, op1_count, op2_ptr, op2_count) != -1;";
+		$type = $this->getOperandType(1);
+		return "res = qb_find_elements_$type(op1_ptr, op1_count, op2_ptr, op2_count) != -1;";
 	}
 	
 	protected function getScalarExpression() {
-		return "res = qb_find_{$this->operandType}(op1_ptr, op1_count, op2_ptr, 1) != -1;";
+		$type = $this->getOperandType(1);
+		return "res = qb_find_element_$type(op1_ptr, op1_count, op2) != -1;";
 	}
 }
 

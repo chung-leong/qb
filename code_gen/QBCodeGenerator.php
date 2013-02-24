@@ -953,6 +953,8 @@ class QBCodeGenerator {
 	}
 	
 	protected function addArrayHandlers($elementType) {
+		$unsigned = preg_match('/^U/', $elementType);
+		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
 		$this->handlers[] = new QBScalarSortHandler("SORT", $elementType);
 		$this->handlers[] = new QBReverseScalarSortHandler("RSORT", $elementType);
 		foreach($this->scalarAddressModes as $addressMode) {
@@ -960,6 +962,14 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBArrayMaxHandler("AMAX", $elementType, $addressMode);
 			$this->handlers[] = new QBArrayProductHandler("APROD", $elementType, $addressMode);
 			$this->handlers[] = new QBArraySumHandler("ASUM", $elementType, $addressMode);
+		}
+		if(!$unsigned) {
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBArraySearchHandler("AFIND_IDX", $elementTypeNoSign, $addressMode);
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBInArrayHandler("AFIND", $elementTypeNoSign, $addressMode);
+			}
 		}
 	}
 	
