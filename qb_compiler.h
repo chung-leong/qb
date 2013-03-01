@@ -45,11 +45,6 @@ struct qb_type_declaration {
 };
 
 enum {
-	QB_RESULT_EXPECT_TEMPORARY		= 0x00000001,
-	QB_RESULT_EXPECT_VARIABLE		= 0x00000002,
-};
-
-enum {
 	QB_OPERAND_NONE					= 0,
 	QB_OPERAND_ADDRESS_VAR			= 1,
 	QB_OPERAND_ADDRESS_ELC			= 2,
@@ -116,10 +111,12 @@ enum {
 	QB_OP_ISSET 					= 0x01000000,
 	QB_OP_UNSET 					= 0x02000000,
 	QB_OP_PERFORM_WRAP_AROUND		= 0x04000000,
+	QB_OP_VECTORIZED				= 0x08000000,
+	QB_OP_NEED_MATRIX_DIMENSIONS	= 0x00100000,
 
 	// compile time properties
-	QB_OP_JUMP_TARGET 				= 0x00100000,
-	QB_OP_CANNOT_REMOVE				= 0x00200000,
+	QB_OP_JUMP_TARGET 				= 0x00001000,
+	QB_OP_CANNOT_REMOVE				= 0x00002000,
 };
 
 struct qb_op {
@@ -128,6 +125,7 @@ struct qb_op {
 	uint32_t operand_count;
 	qb_operand *operands;
 	uint32_t instruction_offset;
+	uint32_t matrix_dimensions;
 	uint32_t line_number;
 };
 
@@ -314,7 +312,9 @@ enum {
 #define QB_RESULT_TYPE(flags)			(flags & 0xFF)
 
 enum {
-	QB_RESULT_SIZE_MATCH_OPERAND		= 0x00000100,
+	QB_RESULT_SIZE_OPERAND			= 0x80000000,
+	QB_RESULT_SIZE_VECTOR_COUNT		= 0x40000000,
+	QB_RESULT_SIZE_MATRIX_PRODUCT	= 0x20000000,
 };
 
 enum {

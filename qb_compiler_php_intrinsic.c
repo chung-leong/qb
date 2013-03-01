@@ -628,6 +628,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"mix",					NULL,		NULL,										3,		3,		&factory_mix				},
 	{	0,	"smooth_step",			NULL,		NULL,										3,		3,		&factory_smooth_step		},
 	{	0,	"mmult",				NULL,		NULL,										2,		2,		NULL						},
+	{	0,	"normalize",			NULL,		NULL,										1,		1,		&factory_normalize			},
 	{	0,	"array_pop",			NULL,		qb_translate_array_pop,						1,		1,		NULL						},
 	{	0,	"array_shift",			NULL,		qb_translate_array_shift,					1,		1,		NULL						},
 	{	0,	"array_push",			NULL,		qb_translate_array_push,					2,		2,		NULL						},

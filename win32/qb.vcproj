@@ -53,7 +53,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="2"
 				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="2"
 				FloatingPointModel="0"
 				PrecompiledHeaderFile="..\Debug_TS/qb.pch"
 				AssemblerListingLocation="..\Debug_TS/"

@@ -306,6 +306,126 @@ float64_t qb_calculate_dot_product_F64_wrapper(float64_t *v1, float64_t *v2, uin
 	return qb_calculate_dot_product_F64(v1, v2, size);
 }
 
+void qb_calculate_face_forward_1x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_face_forward_1x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_1x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_face_forward_1x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_2x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_face_forward_2x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_2x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_face_forward_2x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_3x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_face_forward_3x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_3x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_face_forward_3x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_4x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_face_forward_4x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_4x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_face_forward_4x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_face_forward_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr, uint32_t size) {
+	qb_calculate_face_forward_F32(v1, v2, res_ptr, size);
+}
+
+void qb_calculate_face_forward_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr, uint32_t size) {
+	qb_calculate_face_forward_F64(v1, v2, res_ptr, size);
+}
+
+void qb_calculate_reflect_1x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_reflect_1x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_1x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_reflect_1x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_2x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_reflect_2x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_2x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_reflect_2x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_3x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_reflect_3x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_3x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_reflect_3x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_4x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_reflect_4x_F32(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_4x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_reflect_4x_F64(v1, v2, res_ptr);
+}
+
+void qb_calculate_reflect_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr, uint32_t size) {
+	qb_calculate_reflect_F32(v1, v2, res_ptr, size);
+}
+
+void qb_calculate_reflect_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr, uint32_t size) {
+	qb_calculate_reflect_F64(v1, v2, res_ptr, size);
+}
+
+void qb_calculate_refract_1x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t eta, float32_t *res_ptr) {
+	qb_calculate_refract_1x_F32(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_1x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t eta, float64_t *res_ptr) {
+	qb_calculate_refract_1x_F64(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_2x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t eta, float32_t *res_ptr) {
+	qb_calculate_refract_2x_F32(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_2x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t eta, float64_t *res_ptr) {
+	qb_calculate_refract_2x_F64(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_3x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t eta, float32_t *res_ptr) {
+	qb_calculate_refract_3x_F32(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_3x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t eta, float64_t *res_ptr) {
+	qb_calculate_refract_3x_F64(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_4x_F32_wrapper(float32_t *v1, float32_t *v2, float32_t eta, float32_t *res_ptr) {
+	qb_calculate_refract_4x_F32(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_4x_F64_wrapper(float64_t *v1, float64_t *v2, float64_t eta, float64_t *res_ptr) {
+	qb_calculate_refract_4x_F64(v1, v2, eta, res_ptr);
+}
+
+void qb_calculate_refract_F32_wrapper(float32_t *v1, float32_t *v2, float32_t eta, float32_t *res_ptr, uint32_t size) {
+	qb_calculate_refract_F32(v1, v2, eta, res_ptr, size);
+}
+
+void qb_calculate_refract_F64_wrapper(float64_t *v1, float64_t *v2, float64_t eta, float64_t *res_ptr, uint32_t size) {
+	qb_calculate_refract_F64(v1, v2, eta, res_ptr, size);
+}
+
 int32_t qb_compare_array_F32_wrapper(float32_t *op1_start, float32_t *op1_end, float32_t *op2_start, float32_t *op2_end) {
 	return qb_compare_array_F32(op1_start, op1_end, op2_start, op2_end);
 }
@@ -926,6 +1046,36 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_calculate_dot_product_4x_F64",	qb_calculate_dot_product_4x_F64_wrapper	},
 	{	0,	"qb_calculate_dot_product_F32",	qb_calculate_dot_product_F32_wrapper	},
 	{	0,	"qb_calculate_dot_product_F64",	qb_calculate_dot_product_F64_wrapper	},
+	{	0,	"qb_calculate_face_forward_1x_F32",	qb_calculate_face_forward_1x_F32_wrapper	},
+	{	0,	"qb_calculate_face_forward_1x_F64",	qb_calculate_face_forward_1x_F64_wrapper	},
+	{	0,	"qb_calculate_face_forward_2x_F32",	qb_calculate_face_forward_2x_F32_wrapper	},
+	{	0,	"qb_calculate_face_forward_2x_F64",	qb_calculate_face_forward_2x_F64_wrapper	},
+	{	0,	"qb_calculate_face_forward_3x_F32",	qb_calculate_face_forward_3x_F32_wrapper	},
+	{	0,	"qb_calculate_face_forward_3x_F64",	qb_calculate_face_forward_3x_F64_wrapper	},
+	{	0,	"qb_calculate_face_forward_4x_F32",	qb_calculate_face_forward_4x_F32_wrapper	},
+	{	0,	"qb_calculate_face_forward_4x_F64",	qb_calculate_face_forward_4x_F64_wrapper	},
+	{	0,	"qb_calculate_face_forward_F32",	qb_calculate_face_forward_F32_wrapper	},
+	{	0,	"qb_calculate_face_forward_F64",	qb_calculate_face_forward_F64_wrapper	},
+	{	0,	"qb_calculate_reflect_1x_F32",	qb_calculate_reflect_1x_F32_wrapper	},
+	{	0,	"qb_calculate_reflect_1x_F64",	qb_calculate_reflect_1x_F64_wrapper	},
+	{	0,	"qb_calculate_reflect_2x_F32",	qb_calculate_reflect_2x_F32_wrapper	},
+	{	0,	"qb_calculate_reflect_2x_F64",	qb_calculate_reflect_2x_F64_wrapper	},
+	{	0,	"qb_calculate_reflect_3x_F32",	qb_calculate_reflect_3x_F32_wrapper	},
+	{	0,	"qb_calculate_reflect_3x_F64",	qb_calculate_reflect_3x_F64_wrapper	},
+	{	0,	"qb_calculate_reflect_4x_F32",	qb_calculate_reflect_4x_F32_wrapper	},
+	{	0,	"qb_calculate_reflect_4x_F64",	qb_calculate_reflect_4x_F64_wrapper	},
+	{	0,	"qb_calculate_reflect_F32",	qb_calculate_reflect_F32_wrapper	},
+	{	0,	"qb_calculate_reflect_F64",	qb_calculate_reflect_F64_wrapper	},
+	{	0,	"qb_calculate_refract_1x_F32",	qb_calculate_refract_1x_F32_wrapper	},
+	{	0,	"qb_calculate_refract_1x_F64",	qb_calculate_refract_1x_F64_wrapper	},
+	{	0,	"qb_calculate_refract_2x_F32",	qb_calculate_refract_2x_F32_wrapper	},
+	{	0,	"qb_calculate_refract_2x_F64",	qb_calculate_refract_2x_F64_wrapper	},
+	{	0,	"qb_calculate_refract_3x_F32",	qb_calculate_refract_3x_F32_wrapper	},
+	{	0,	"qb_calculate_refract_3x_F64",	qb_calculate_refract_3x_F64_wrapper	},
+	{	0,	"qb_calculate_refract_4x_F32",	qb_calculate_refract_4x_F32_wrapper	},
+	{	0,	"qb_calculate_refract_4x_F64",	qb_calculate_refract_4x_F64_wrapper	},
+	{	0,	"qb_calculate_refract_F32",	qb_calculate_refract_F32_wrapper	},
+	{	0,	"qb_calculate_refract_F64",	qb_calculate_refract_F64_wrapper	},
 	{	0,	"qb_compare_array_F32",	qb_compare_array_F32_wrapper	},
 	{	0,	"qb_compare_array_F64",	qb_compare_array_F64_wrapper	},
 	{	0,	"qb_compare_array_S08",	qb_compare_array_S08_wrapper	},

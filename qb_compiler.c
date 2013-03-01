@@ -2634,12 +2634,14 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 			if(ip != cxt->instructions + qop->instruction_offset) {
 				qb_op *prev_qop;
 				const char *op_name;
+				uint32_t op_length;
 				j = i;
 				do {
 					prev_qop = cxt->ops[--j];
 				} while(prev_qop->opcode == QB_NOP);
 				op_name = qb_get_op_name(cxt, prev_qop->opcode);
-				qb_abort("Incorrect instruction offset (previous op: %s)", op_name);
+				op_length = qb_get_op_encoded_length(cxt, prev_qop);
+				qb_abort("Incorrect instruction offset (previous op: %s, length = %d)", op_name, op_length);
 			}
 #endif
 

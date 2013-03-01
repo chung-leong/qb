@@ -1009,6 +1009,12 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, null);
 			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, "ARR");
+			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, null);
+			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, "ARR");
+			$this->handlers[] = new QBReflectHandler("REFL", $elementType, null);
+			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR");
+			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null);
+			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR");
 
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_4X4", $elementType, null, 4);
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_4X4", $elementType, "ARR", 4);
@@ -1027,14 +1033,30 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_4X", $elementType, null, 4);
 			$this->handlers[] = new QBNormalizeHandler("NORM_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBFaceForwardHandler("FORE_4X", $elementType, null, 4);
+			$this->handlers[] = new QBFaceForwardHandler("FORE_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBReflectHandler("REFL_4X", $elementType, null, 4);
+			$this->handlers[] = new QBReflectHandler("REFL_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBRefractHandler("REFR_4X", $elementType, null, 4);
+			$this->handlers[] = new QBRefractHandler("REFR_4X", $elementType, "ARR", 4);
+			
+			$this->handlers[] = new QBCopyHandler("MOV_4X", $elementType, null, 4);
 			$this->handlers[] = new QBCopyHandler("MOV_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBAddHandler("ADD_4X", $elementType, null, 4);
 			$this->handlers[] = new QBAddHandler("ADD_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBSubtractHandler("SUB_4X", $elementType, null, 4);
 			$this->handlers[] = new QBSubtractHandler("SUB_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBMultiplyHandler("MUL_4X", $elementType, null, 4);
 			$this->handlers[] = new QBMultiplyHandler("MUL_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBDivideHandler("DIV_4X", $elementType, null, 4);
 			$this->handlers[] = new QBDivideHandler("DIV_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBModuloHandler("MOD_4X", $elementType, null, 4);
 			$this->handlers[] = new QBModuloHandler("MOD_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBNegateHandler("NEG_4X", $elementType, null, 4);
 			$this->handlers[] = new QBNegateHandler("NEG_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBIncrementHandler("INC_4X", $elementType, null, 4);
 			$this->handlers[] = new QBIncrementHandler("INC_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBDecrementHandler("DEC_4X", $elementType, null, 4);
 			$this->handlers[] = new QBDecrementHandler("DEC_4X", $elementType, "ARR", 4);
 
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3", $elementType, null, 3);
@@ -1059,14 +1081,30 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBNormalizeHandler("NORM_3X", $elementType, "ARR", 3);
 			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, null);
 			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, "ARR");
+			$this->handlers[] = new QBFaceForwardHandler("FORE_3X", $elementType, null, 3);
+			$this->handlers[] = new QBFaceForwardHandler("FORE_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBReflectHandler("REFL_3X", $elementType, null, 3);
+			$this->handlers[] = new QBReflectHandler("REFL_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBRefractHandler("REFR_3X", $elementType, null, 3);
+			$this->handlers[] = new QBRefractHandler("REFR_3X", $elementType, "ARR", 3);
+			
+			$this->handlers[] = new QBCopyHandler("MOV_3X", $elementType, null, 3);
 			$this->handlers[] = new QBCopyHandler("MOV_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBAddHandler("ADD_3X", $elementType, null, 3);
 			$this->handlers[] = new QBAddHandler("ADD_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBSubtractHandler("SUB_3X", $elementType, null, 3);
 			$this->handlers[] = new QBSubtractHandler("SUB_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBMultiplyHandler("MUL_3X", $elementType, null, 3);
 			$this->handlers[] = new QBMultiplyHandler("MUL_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBDivideHandler("DIV_3X", $elementType, null, 3);
 			$this->handlers[] = new QBDivideHandler("DIV_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBModuloHandler("MOD_3X", $elementType, null, 3);
 			$this->handlers[] = new QBModuloHandler("MOD_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBNegateHandler("NEG_3X", $elementType, null, 3);
 			$this->handlers[] = new QBNegateHandler("NEG_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBIncrementHandler("INC_3X", $elementType, null, 3);
 			$this->handlers[] = new QBIncrementHandler("INC_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBDecrementHandler("DEC_3X", $elementType, null, 3);
 			$this->handlers[] = new QBDecrementHandler("DEC_3X", $elementType, "ARR", 3);
 			
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_2X2", $elementType, null, 2);
@@ -1086,14 +1124,30 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_2X", $elementType, null, 2);
 			$this->handlers[] = new QBNormalizeHandler("NORM_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBFaceForwardHandler("FORE_2X", $elementType, null, 2);
+			$this->handlers[] = new QBFaceForwardHandler("FORE_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBReflectHandler("REFL_2X", $elementType, null, 2);
+			$this->handlers[] = new QBReflectHandler("REFL_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBRefractHandler("REFR_2X", $elementType, null, 2);
+			$this->handlers[] = new QBRefractHandler("REFR_2X", $elementType, "ARR", 2);
+			
+			$this->handlers[] = new QBCopyHandler("MOV_2X", $elementType, null, 2);
 			$this->handlers[] = new QBCopyHandler("MOV_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBAddHandler("ADD_2X", $elementType, null, 2);
 			$this->handlers[] = new QBAddHandler("ADD_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBSubtractHandler("SUB_2X", $elementType, null, 2);
 			$this->handlers[] = new QBSubtractHandler("SUB_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBMultiplyHandler("MUL_2X", $elementType, null, 2);
 			$this->handlers[] = new QBMultiplyHandler("MUL_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBDivideHandler("DIV_2X", $elementType, null, 2);
 			$this->handlers[] = new QBDivideHandler("DIV_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBModuloHandler("MOD_2X", $elementType, null, 2);
 			$this->handlers[] = new QBModuloHandler("MOD_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBNegateHandler("NEG_2X", $elementType, null, 2);
 			$this->handlers[] = new QBNegateHandler("NEG_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBIncrementHandler("INC_2X", $elementType, null, 2);
 			$this->handlers[] = new QBIncrementHandler("INC_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, null, 2);
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, "ARR", 2);
 
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_1X1", $elementType, null, 1);
@@ -1113,6 +1167,12 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_1X", $elementType, null, 1);
 			$this->handlers[] = new QBNormalizeHandler("NORM_1X", $elementType, "ARR", 1);
+			$this->handlers[] = new QBFaceForwardHandler("FORE_1X", $elementType, null, 1);
+			$this->handlers[] = new QBFaceForwardHandler("FORE_1X", $elementType, "ARR", 1);
+			$this->handlers[] = new QBReflectHandler("REFL_1X", $elementType, null, 1);
+			$this->handlers[] = new QBReflectHandler("REFL_1X", $elementType, "ARR", 1);
+			$this->handlers[] = new QBRefractHandler("REFR_1X", $elementType, null, 1);
+			$this->handlers[] = new QBRefractHandler("REFR_1X", $elementType, "ARR", 1);
 		}
 	}
 	

@@ -859,7 +859,7 @@ static void ZEND_FASTCALL qb_translate_basic_op(qb_compiler_context *cxt, void *
 	}
 
 	if(result->type != QB_OPERAND_NONE) {
-		if(result_flags & QB_RESULT_SIZE_MATCH_OPERAND) {
+		if(result_flags & QB_RESULT_SIZE_OPERAND) {
 			result_size_address = qb_get_largest_array_size(cxt, operands, operand_count);
 		}
 		if(result_type == QB_TYPE_OPERAND) {

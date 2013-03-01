@@ -25,6 +25,7 @@ class QBHandler {
 	const IS_ISSET								= 0x0008;
 	const IS_UNSET								= 0x0010;
 	const WRAP_AROUND_HANDLING					= 0x0020;
+	const IS_VECTORIZED							= 0x0040;
 	const NEED_MATRIX_DIMENSIONS				= 0x0080;
 
 	const SEARCHING_FOR_OPERANDS				= 0x1000;
@@ -58,14 +59,19 @@ class QBHandler {
 		self::$compiler = $compiler;
 	}
 	
-	public function __construct($baseName, $operandType = NULL, $addressMode = NULL, $operandSize = 1) {
-		if($operandSize == "variable") {
-			$this->flags |= self::NEED_MATRIX_DIMENSIONS;
-		} 
+	public function __construct($baseName, $operandType = NULL, $addressMode = NULL, $vectorWidth = null) {
 		$this->baseName = $baseName;
 		$this->operandType = $operandType;
 		$this->addressMode = $addressMode;
-		$this->operandSize = $operandSize;
+		if($vectorWidth) {
+			$this->flags |= self::IS_VECTORIZED;
+			if($vectorWidth == "variable") {
+				$this->flags |= self::NEED_MATRIX_DIMENSIONS;
+			}
+			$this->operandSize = $vectorWidth;
+		} else {
+			$this->operandSize = 1;
+		}
 		$this->initialize();
 		$this->scanCode();
 	}
@@ -215,9 +221,16 @@ class QBHandler {
 	
 	public function getOpFlags() {
 		$flags = array();
-		if($this->addressMode) {
-			// op can be employed in different address modes
-			$flags[] = "QB_OP_MULTI_ADDRESS";
+		if($this->flags & self::IS_VECTORIZED) {
+			$flags[] = "QB_OP_VECTORIZED";
+			if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+				$flags[] = "QB_OP_NEED_MATRIX_DIMENSIONS";
+			}
+		} else {
+			if($this->addressMode) {
+				// op can be employed in different address modes
+				$flags[] = "QB_OP_MULTI_ADDRESS";
+			}
 		}
 		if($this->flags & self::WILL_JUMP) {
 			// the op will redirect execution to another location 
@@ -251,7 +264,13 @@ class QBHandler {
 	// return the address mode of operand $i
 	// by default, all operands use the same address mode
 	public function getOperandAddressMode($i) {
-		return $this->addressMode;
+		if($this->addressMode) {
+			return $this->addressMode;
+		} else {
+			if($this->flags & self::IS_VECTORIZED) {
+				return "ARR";
+			}
+		}
 	}
 
 	// called by constructor so we can avoid overriding the constructor itself
@@ -632,9 +651,16 @@ class QBHandler {
 	
 	// multiple a scalar operation multiple times
 	protected function getUnrolledCode($expression, $count) {
+		$arrayOperands = array();
+		for($i = 1; $i <= $this->srcCount; $i++) {
+			if($this->getOperandAddressMode($i) == "ARR") {
+				$arrayOperands[] = $i;
+			}
+		}
+		$nums = implode("|", $arrayOperands);
 		$lines = array();
 		for($i = 0; $i < $count; $i++) {
-			$patterns = array('/\bres\b/', '/\bop(\d)\b/');
+			$patterns = array('/\bres\b/', '/\bop(' . $nums . ')\b/');
 			$replacements = array("res_ptr[{$i}]", "op\\1_ptr[{$i}]");
 			$lines[] = preg_replace($patterns, $replacements, $expression);
 		}
@@ -648,7 +674,9 @@ class QBHandler {
 		$conditions = array();
 		if($this->srcCount > 0) {
 			for($i = 1; $i <= $this->srcCount; $i++) {
-				$conditions[] = "op{$i}_count != 0";
+				if($this->getOperandAddressMode($i) == "ARR") {
+					$conditions[] = "op{$i}_count != 0";
+				}
 			}
 			$conditions = implode(" && ", $conditions);
 			$lines[] = "if($conditions) {";
@@ -657,10 +685,12 @@ class QBHandler {
 		$lines[] = 		$expression;
 		for($i = 1; $i <= $this->srcCount; $i++) {
 			$operandSize = $this->getOperandSize($i);
-			$lines[] = 	"op{$i}_ptr += $operandSize;";
-			$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
-			$lines[] = 		"op{$i}_ptr = op{$i}_start;";
-			$lines[] = 	"}";
+			if($this->getOperandAddressMode($i) == "ARR") {
+				$lines[] = 	"op{$i}_ptr += $operandSize;";
+				$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
+				$lines[] = 		"op{$i}_ptr = op{$i}_start;";
+				$lines[] = 	"}";
+			}
 		}
 		$operandSize = $this->getOperandSize($this->srcCount + 1);
 		$lines[] = 		"res_ptr += $operandSize;";
@@ -681,7 +711,7 @@ class QBHandler {
 	protected function getArrayExpression() {
 		$expr = $this->getScalarExpression();
 		if($expr) {
-			if($this->operandSize > 1) {
+			if($this->flags & self::IS_VECTORIZED) {
 				// turn a basic op into a SIMD-like op
 				$expr = $this->getUnrolledCode($expr, $this->operandSize);
 			}
@@ -697,16 +727,16 @@ class QBHandler {
 	// return codes that perform what the op is supposed to do
 	// the default implementation calls getArrayExpression() or $this->getScalarExpression()
 	public function getAction() {
-		if(!isset($this->addressMode)) {
+		if(!isset($this->addressMode) && !($this->operandSize > 1)) {
 			$opName = $this->baseName;
 			$className = get_class($this);
-			throw new Exception("$opName ($className) is not a multi-address operation; the default implementation of getAction() cannot be used");
+			throw new Exception("$opName ($className) is neither a multi-address or a vector operation; the default implementation of getAction() cannot be used");
 		}
 		if($this->addressMode == "ARR") {
 			return $this->getArrayExpression();
 		} else {
 			$expr = $this->getScalarExpression();
-			if($this->operandSize > 1) {
+			if($this->flags & self::IS_VECTORIZED) {
 				$expr = $this->getUnrolledCode($expr, $this->operandSize);
 			}
 			return $expr;

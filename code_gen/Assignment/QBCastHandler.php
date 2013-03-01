@@ -4,10 +4,10 @@ class QBCastHandler extends QBHandler {
 	public $operandType1;
 	public $operandType2;
 
-	public function __construct($name, $operandType1, $operandType2, $addressMode, $inElementCount = 1, $outElementCount = null) {
+	public function __construct($name, $operandType1, $operandType2, $addressMode, $vectorWidth = null) {
 		$this->operandType1 = $operandType1;
 		$this->operandType2 = $operandType2;
-		parent::__construct($name, NULL, $addressMode, $inElementCount, $outElementCount);
+		parent::__construct($name, NULL, $addressMode, $vectorWidth);
 	}
 
 	public function getOperandType($i) {

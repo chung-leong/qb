@@ -14,9 +14,9 @@ class QBRefractHandler extends QBSIMDHandler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_refract_1x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
+				"static void ZEND_FASTCALL qb_calculate_refract_1x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
 					"$cType dot_product = qb_calculate_dot_product_1x_$type(v1, v2);",
-					"$cType k = 1.0 - (eta * eta) * (1.0 - dot_product * dot_product);",
+					"$cType k = ($cType) (1.0 - (eta * eta) * (1.0 - dot_product * dot_product));",
 					"if(k < 0.0) {",
 						"res_ptr[0] = 0.0;",
 					"} else {",
@@ -26,9 +26,9 @@ class QBRefractHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_refract_2x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
+				"static void ZEND_FASTCALL qb_calculate_refract_2x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
 					"$cType dot_product = qb_calculate_dot_product_2x_$type(v1, v2);",
-					"$cType k = 1.0 - (eta * eta) * (1.0 - dot_product * dot_product);",
+					"$cType k = ($cType) (1.0 - (eta * eta) * (1.0 - dot_product * dot_product));",
 					"if(k < 0.0) {",
 						"res_ptr[0] = ",
 						"res_ptr[1] = 0.0;",
@@ -40,9 +40,9 @@ class QBRefractHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_refract_3x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
+				"static void ZEND_FASTCALL qb_calculate_refract_3x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
 					"$cType dot_product = qb_calculate_dot_product_3x_$type(v1, v2);",
-					"$cType k = 1.0 - (eta * eta) * (1.0 - dot_product * dot_product);",
+					"$cType k = ($cType) (1.0 - (eta * eta) * (1.0 - dot_product * dot_product));",
 					"if(k < 0.0) {",
 						"res_ptr[0] = ",
 						"res_ptr[1] = ",
@@ -56,9 +56,9 @@ class QBRefractHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_refract_4x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
+				"static void ZEND_FASTCALL qb_calculate_refract_4x_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr) {",
 					"$cType dot_product = qb_calculate_dot_product_4x_$type(v1, v2);",
-					"$cType k = 1.0 - (eta * eta) * (1.0 - dot_product * dot_product);",
+					"$cType k = ($cType) (1.0 - (eta * eta) * (1.0 - dot_product * dot_product));",
 					"if(k < 0.0) {",
 						"res_ptr[0] = ",
 						"res_ptr[1] = ",
@@ -74,9 +74,9 @@ class QBRefractHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_refract_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr, uint32_t size) {",
-					"$cType dot_product = qb_calculate_dot_product_$type(op1_ptr, v2, size);",
-					"$cType k = 1.0 - (eta * eta) * (1.0 - dot_product * dot_product);",
+				"static void ZEND_FASTCALL qb_calculate_refract_$type($cType *v1, $cType *v2, $cType eta, $cType *res_ptr, uint32_t size) {",
+					"$cType dot_product = qb_calculate_dot_product_$type(v1, v2, size);",
+					"$cType k = ($cType) (1.0 - (eta * eta) * (1.0 - dot_product * dot_product));",
 					"uint32_t i;",
 					"if(k < 0.0) {",
 						"for(i = 0; i < size; i++) {",
