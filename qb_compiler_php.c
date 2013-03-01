@@ -2185,10 +2185,12 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 	if(cxt->zend_op->opcode != ZEND_OP_DATA) {
 		qb_operand operands[2], result;
 		qb_translator *t;
+		uint32_t operand_count;
 
 		// retrieve operands (second one first)
 		qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op2), &cxt->zend_op->op2, &operands[1]);
 		qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0]);
+		operand_count = (operands[0].type != QB_OPERAND_NONE) + (operands[1].type != QB_OPERAND_NONE);
 
 		// see whether the op returns a value
 		if(RETURN_VALUE_USED(cxt->zend_op)) {
@@ -2207,7 +2209,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 		t = &op_translators[cxt->zend_op->opcode];
 		if(t->translate) {
 			cxt->line_number = cxt->zend_op->lineno;
-			t->translate(cxt, t->extra, operands, 2, &result);
+			t->translate(cxt, t->extra, operands, operand_count, &result);
 		}
 
 		if(result.type != QB_OPERAND_NONE) {
