@@ -2280,7 +2280,9 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 					// will likely trip the address-mode check down below
 					//
 					// note that QB_ADDRESS_MODE_VAR = 0
-					qop->opcode += required_address_mode;
+					if(required_address_mode) {
+						qop->opcode += required_address_mode;
+					}
 				}
 
 				// get new set of flags

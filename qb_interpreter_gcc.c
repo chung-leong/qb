@@ -68402,12 +68402,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / MATRIX1_SIZE;
-			matrix2_count = op2_count / MATRIX2_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * (MATRIX1_ROWS * MATRIX2_COLS);
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -68485,7 +68479,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / MATRIX1_SIZE;
 			matrix2_count = op2_count / MATRIX2_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * (MATRIX1_ROWS * MATRIX2_COLS);
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * (MATRIX1_ROWS * MATRIX2_COLS);
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -68576,12 +68570,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / MATRIX1_SIZE;
-			vector_count = op2_count / VECTOR_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * MATRIX1_ROWS;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -68750,12 +68738,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / VECTOR_SIZE;
-			matrix1_count = op2_count / MATRIX1_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * MATRIX1_COLS;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -69695,12 +69677,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 16;
-			matrix2_count = op2_count / 16;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 16;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -69766,7 +69742,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 16;
 			matrix2_count = op2_count / 16;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 16;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 16;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -69845,12 +69821,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 16;
-			vector_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -69995,12 +69965,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 4;
-			matrix1_count = op2_count / 16;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -71411,12 +71375,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 9;
-			matrix2_count = op2_count / 9;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 9;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -71482,7 +71440,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 9;
 			matrix2_count = op2_count / 9;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 9;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 9;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -71561,12 +71519,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 9;
-			vector_count = op2_count / 3;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 3;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -71711,12 +71663,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 3;
-			matrix1_count = op2_count / 9;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 3;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -71861,12 +71807,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 12;
-			matrix2_count = op2_count / 12;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 12;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -71878,7 +71818,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector3]) + res_start_index;
 			
-			qb_multiply_matrix_by_matrix_3x3_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_multiply_matrix_by_matrix_3x3_padded_F32(op1_ptr, op2_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -71928,12 +71868,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 12;
-			vector_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -71945,7 +71879,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector3]) + res_start_index;
 			
-			qb_multiply_matrix_by_vector_3x3_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_multiply_matrix_by_vector_3x3_padded_F32(op1_ptr, op2_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -71995,12 +71929,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 4;
-			matrix1_count = op2_count / 12;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -72012,7 +71940,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector3]) + res_start_index;
 			
-			qb_multiply_vector_by_matrix_3x3_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_multiply_vector_by_matrix_3x3_padded_F32(op1_ptr, op2_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -73469,12 +73397,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 4;
-			matrix2_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -73540,7 +73462,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 4;
 			matrix2_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 4;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -73619,12 +73541,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 4;
-			vector_count = op2_count / 2;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 2;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -73769,12 +73685,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 2;
-			matrix1_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 2;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -75167,12 +75077,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 1;
-			matrix2_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -75238,7 +75142,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 1;
 			matrix2_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 1;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -75317,12 +75221,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 1;
-			vector_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -75467,12 +75365,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 1;
-			matrix1_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -91248,12 +91140,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / MATRIX1_SIZE;
-			matrix2_count = op2_count / MATRIX2_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * (MATRIX1_ROWS * MATRIX2_COLS);
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -91331,7 +91217,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / MATRIX1_SIZE;
 			matrix2_count = op2_count / MATRIX2_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * (MATRIX1_ROWS * MATRIX2_COLS);
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * (MATRIX1_ROWS * MATRIX2_COLS);
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -91422,12 +91308,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / MATRIX1_SIZE;
-			vector_count = op2_count / VECTOR_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * MATRIX1_ROWS;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -91596,12 +91476,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / VECTOR_SIZE;
-			matrix1_count = op2_count / MATRIX1_SIZE;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * MATRIX1_COLS;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -92541,12 +92415,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 16;
-			matrix2_count = op2_count / 16;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 16;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -92612,7 +92480,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 16;
 			matrix2_count = op2_count / 16;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 16;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 16;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -92691,12 +92559,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 16;
-			vector_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -92841,12 +92703,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 4;
-			matrix1_count = op2_count / 16;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -94257,12 +94113,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 9;
-			matrix2_count = op2_count / 9;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 9;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -94328,7 +94178,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 9;
 			matrix2_count = op2_count / 9;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 9;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 9;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -94407,12 +94257,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 9;
-			vector_count = op2_count / 3;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 3;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -94557,12 +94401,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 3;
-			matrix1_count = op2_count / 9;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 3;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -94707,12 +94545,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 12;
-			matrix2_count = op2_count / 12;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 12;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -94724,7 +94556,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector3]) + res_start_index;
 			
-			qb_multiply_matrix_by_matrix_3x3_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_multiply_matrix_by_matrix_3x3_padded_F64(op1_ptr, op2_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -94774,12 +94606,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 12;
-			vector_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -94791,7 +94617,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector3]) + res_start_index;
 			
-			qb_multiply_matrix_by_vector_3x3_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_multiply_matrix_by_vector_3x3_padded_F64(op1_ptr, op2_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -94841,12 +94667,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 4;
-			matrix1_count = op2_count / 12;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -94858,7 +94678,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector3]) + res_start_index;
 			
-			qb_multiply_vector_by_matrix_3x3_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_multiply_vector_by_matrix_3x3_padded_F64(op1_ptr, op2_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -96315,12 +96135,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 4;
-			matrix2_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -96386,7 +96200,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 4;
 			matrix2_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 4;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 4;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -96465,12 +96279,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 4;
-			vector_count = op2_count / 2;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 2;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -96615,12 +96423,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 2;
-			matrix1_count = op2_count / 4;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 2;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -98013,12 +97815,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 1;
-			matrix2_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -98084,7 +97880,7 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
 			matrix1_count = op1_count / 1;
 			matrix2_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
+			mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * 1;
 			if(mmult_res_count > res_count) {
 				res_count = mmult_res_count;
 			}
@@ -98163,12 +97959,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			matrix1_count = op1_count / 1;
-			vector_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);
@@ -98313,12 +98103,6 @@ static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			size_index3 = arr_operand3 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index3];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index3];
-			vector_count = op1_count / 1;
-			matrix1_count = op2_count / 1;
-			mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * 1;
-			if(mmult_res_count > res_count) {
-				res_count = mmult_res_count;
-			}
 			if(segment_expandable[selector3]) {
 				if(res_start_index + res_count > segment_element_counts[selector3]) {
 					qb_enlarge_segment(cxt, &cxt->storage->segments[selector3], res_start_index + res_count);

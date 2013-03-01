@@ -1,6 +1,7 @@
 #OS junk files
 [Tt]humbs.db
 *.DS_Store
+.directory
 
 #gcc files
 *.o
@@ -34,11 +35,3 @@ obj/
 [Dd]ebug*/
 [Rr]elease*/
 Ankh.NoLoad
-
-#PHP test files
-*.php
-*.log
-*.diff
-*.sh
-*.exp
-*.out

@@ -87,18 +87,22 @@ class QBMultiplyVectorByMatrixHandler extends QBSIMDHandler {
 	}
 
 	public function getResultSizePossibilities() {
-		return "mmult_res_count";
+		if($this->addressMode == "ARR") {
+			return "mmult_res_count";
+		}
 	}
 	
 	public function getResultSizeCalculation() {
-		$lines = array();
-		$vectorSize = $this->getOperandSize(1);
-		$matrixSize = $this->getOperandSize(2); 
-		$outputSize = $this->getOperandSize(3);
-		$lines[] = "vector_count = op1_count / $vectorSize;";
-		$lines[] = "matrix1_count = op2_count / $matrixSize;";
-		$lines[] = "mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * $outputSize;";
-		return $lines;
+		if($this->addressMode == "ARR") {
+			$lines = array();
+			$vectorSize = $this->getOperandSize(1);
+			$matrixSize = $this->getOperandSize(2); 
+			$outputSize = $this->getOperandSize(3);
+			$lines[] = "vector_count = op1_count / $vectorSize;";
+			$lines[] = "matrix1_count = op2_count / $matrixSize;";
+			$lines[] = "mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * $outputSize;";
+			return $lines;
+		}
 	}
 	
 	public function getSIMDExpression() {
@@ -106,7 +110,11 @@ class QBMultiplyVectorByMatrixHandler extends QBSIMDHandler {
 		if($this->operandSize == "variable") {
 			return "qb_multiply_vector_by_matrix_$type(op1_ptr, VECTOR_SIZE, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);";
 		} else {
-			return "qb_multiply_vector_by_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, op2_ptr, res_ptr);";
+			if($this->operandPadding) {
+				return "qb_multiply_vector_by_matrix_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, op2_ptr, res_ptr);";
+			} else {
+				return "qb_multiply_vector_by_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, op2_ptr, res_ptr);";
+			}
 		}
 	}
 }

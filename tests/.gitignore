@@ -1,0 +1,12 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+.directory
+
+#PHP test files
+*.php
+*.log
+*.diff
+*.sh
+*.exp
+*.out
