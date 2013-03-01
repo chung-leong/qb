@@ -478,7 +478,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\qb_compiler_opcodes.c"
+				RelativePath="..\qb_compiler_op_factories.c"
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"

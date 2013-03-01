@@ -67,6 +67,7 @@ enum {
 	QB_OPERAND_ADDRESS_EXT_VAR,
 	QB_OPERAND_ADDRESS_EXT_ELV,
 	QB_OPERAND_ADDRESS_EXT_ARR,
+	QB_OPERAND_GLOBAL_STATIC,
 
 	QB_OPERAND_WRITABLE				= 0x08
 };
@@ -204,6 +205,7 @@ struct qb_compiler_context {
 	uint32_t external_symbol_count;
 
 	zend_function *zend_function;
+	zend_function *zend_function_being_called;
 	zval *zend_this_object;
 	zval *zend_class_name;
 	zend_class_entry *zend_class;
@@ -297,11 +299,22 @@ struct qb_diagnostics {
 };
 
 enum {
-	QB_COERCE_TO_INTEGER			= 0x00000001,
-	QB_COERCE_TO_FLOATING_POINT		= 0x00000002,
-	QB_COERCE_TO_INTEGER_TO_DOUBLE	= 0x00000004,
-	QB_COERCE_TO_UNSIGNED			= 0x00000008,
-	QB_COERCE_TO_SIGNED				= 0x00000010,
+	QB_COERCE_TO_HIGHEST_RANK			= 0x00000001,
+	QB_COERCE_TO_LVALUE_TYPE			= 0x00000002,
+	QB_COERCE_TO_FIRST_OPERAND_TYPE		= 0x00000004,
+	QB_COERCE_TO_SECOND_OPERAND_TYPE	= 0x00000008,
+	QB_COERCE_TO_INTEGER				= 0x00000010,
+	QB_COERCE_TO_FLOATING_POINT			= 0x00000020,
+	QB_COERCE_TO_INTEGER_TO_DOUBLE		= 0x00000040,
+	QB_COERCE_TO_BOOLEAN				= 0x00000080,
+	QB_COERCE_TO_SIGNED					= 0x00000100,
+	QB_COERCE_TO_UNSIGNED				= 0x00000200,
+};
+
+#define QB_RESULT_TYPE(flags)			(flags & 0xFF)
+
+enum {
+	QB_RESULT_SIZE_MATCH_OPERAND		= 0x00000100,
 };
 
 enum {

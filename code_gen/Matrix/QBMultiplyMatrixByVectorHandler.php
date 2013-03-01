@@ -1,61 +1,112 @@
 <?php
 
-class QBMultiplyMatrixByVectorHandler extends QBHandler {
-
-	public function getOperandType($i) {
-		switch($i) {
-			case 1: return $this->operandType;
-			case 2:	return "U32";	// number of rows in M
-			case 3:	return "U32";	// number of columns in M
-			case 4: return $this->operandType;
-			case 5: return $this->operandType;
-		}
-	}
-
-	public function getOperandAddressMode($i) {
-		switch($i) {
-			case 1: return "ARR";
-			case 2: return "VAR";
-			case 3: return "VAR";
-			case 4: return "ARR";
-			case 5: return "ARR";
-		}
-	}
+class QBMultiplyMatrixByVectorHandler extends QBSIMDHandler {
 
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_$type(qb_interpreter_context *cxt, $cType *m, uint32_t m_row, uint32_t m_col, $cType *v, uint32_t v_row, $cType *res_ptr) {",
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_1x1_$type($cType *m, $cType *v, $cType *res_ptr) {",
+					"res_ptr[0] = m[0] * v[0];",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_2x2_$type($cType *m, $cType *v, $cType *res_ptr) {",
+					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[2 + 0] * v[1]);",
+					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[2 + 1] * v[1]);",
+					"res_ptr[0] = dot_product0;",
+					"res_ptr[1] = dot_product1;",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_3x3_$type($cType *m, $cType *v, $cType *res_ptr) {",
+					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[3 + 0] * v[1]) + (m[6 + 0] * v[2]);",
+					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[3 + 1] * v[1]) + (m[6 + 1] * v[2]);",
+					"$cType dot_product2 = (m[0 + 2] * v[0]) + (m[3 + 2] * v[1]) + (m[6 + 2] * v[2]);",
+					"res_ptr[0] = dot_product0;",
+					"res_ptr[1] = dot_product1;",
+					"res_ptr[2] = dot_product2;",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_3x3_padded_$type($cType *m, $cType *v, $cType *res_ptr) {",
+					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[4 + 0] * v[1]) + (m[8 + 0] * v[2]);",
+					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[4 + 1] * v[1]) + (m[8 + 1] * v[2]);",
+					"$cType dot_product2 = (m[0 + 2] * v[0]) + (m[4 + 2] * v[1]) + (m[8 + 2] * v[2]);",
+					"res_ptr[0] = dot_product0;",
+					"res_ptr[1] = dot_product1;",
+					"res_ptr[2] = dot_product2;",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_4x4_$type($cType *m, $cType *v, $cType *res_ptr) {",
+					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[4 + 0] * v[1]) + (m[8 + 0] * v[2]) + (m[12 + 0] * v[3]);",
+					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[4 + 1] * v[1]) + (m[8 + 1] * v[2]) + (m[12 + 1] * v[3]);",
+					"$cType dot_product2 = (m[0 + 2] * v[0]) + (m[4 + 2] * v[1]) + (m[8 + 2] * v[2]) + (m[12 + 2] * v[3]);",
+					"$cType dot_product3 = (m[0 + 3] * v[0]) + (m[4 + 3] * v[1]) + (m[8 + 3] * v[2]) + (m[12 + 3] * v[3]);",
+					"res_ptr[0] = dot_product0;",
+					"res_ptr[1] = dot_product1;",
+					"res_ptr[2] = dot_product2;",
+					"res_ptr[3] = dot_product3;",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_$type($cType *m, uint32_t m_row, uint32_t m_col, $cType *v, uint32_t v_row, $cType *res_ptr) {",
 					"uint32_t i, j, k;",
+					"$cType buffer[4096];",
 					"for(i = 0, k = 0; i < m_row; ++i) {",
 						"$cType dot_product = 0;",
 						"for(j = 0; j < m_col; ++j) {",
 							"dot_product += m[k++] * v[j];",
 						"}",
-						"res_ptr[i] = dot_product;",
+						"buffer[i] = dot_product;",
 					"}",
+					"memcpy(res_ptr, buffer, m_row * sizeof($cType));",
 				"}",
 			),
 		);
 		return $functions;
 	}
+	
+	public function getOperandSize($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "MATRIX1_SIZE";
+				case 2: return "VECTOR_SIZE";
+				case 3: return "MATRIX1_ROWS";
+			}
+		} else {
+			switch($i) {
+				case 1: return ($this->operandSize + $this->operandPadding) * $this->operandSize;
+				case 2: return $this->operandSize + $this->operandPadding;
+				case 3: return $this->operandSize + $this->operandPadding;
+			}
+		}
+	}
 
 	public function getResultSizePossibilities() {
-		return "op4_count";
+		return "mmult_res_count";
 	}
 	
-	public function getAction() {
-		$type = $this->getOperandType(1);
-		$instr = $this->getInstructionStructure();
+	public function getResultSizeCalculation() {
 		$lines = array();
-		$lines[] = "if(op3 != op4_count) {";
-		$lines[] = 		"*cxt->line_number_pointer = PHP_LINE_NUMBER;";
-		$lines[] = 		"qb_abort(\"Number of columns in matrix (%d) does not match size of vector (%d)\", op3, op4_count);";
-		$lines[] = "}";
-		$lines[] = "qb_multiply_matrix_by_vector_$type(cxt, op1_ptr, op2, op3, op4_ptr, op4_count, res_ptr);";
+		$matrixSize = $this->getOperandSize(1); 
+		$vectorSize = $this->getOperandSize(2);
+		$outputSize = $this->getOperandSize(3);
+		$lines[] = "matrix1_count = op1_count / $matrixSize;";
+		$lines[] = "vector_count = op2_count / $vectorSize;";
+		$lines[] = "mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * $outputSize;";
 		return $lines;
+	}
+	
+	public function getSIMDExpression() {
+		$type = $this->getOperandType(1);
+		if($this->operandSize == "variable") {
+			return "qb_multiply_matrix_by_vector_$type(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, op2_ptr, VECTOR_SIZE, res_ptr);";
+		} else {
+			return "qb_multiply_matrix_by_vector_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, op2_ptr, res_ptr);";
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 --TEST--
-Vector greater-than-equal test
+Vector greater-than test
 --FILE--
 <?php
 

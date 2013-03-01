@@ -22,7 +22,8 @@
 #define __QB_COMPAT_H
 
 #if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	#define znode_op		znode
+	#define znode_op				znode
+	#define ZEND_FETCH_CLASS_MASK	0x0f
 #endif
 
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1

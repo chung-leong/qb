@@ -9,7 +9,8 @@ class QBHandler {
 	protected $srcCount = 0;
 	protected $dstCount = 0;
 	
-	protected $fixedLength;
+	protected $operandSize;
+	protected $outElementCount;
 
 	protected $baseName;
 	protected $operandType;
@@ -24,6 +25,7 @@ class QBHandler {
 	const IS_ISSET								= 0x0008;
 	const IS_UNSET								= 0x0010;
 	const WRAP_AROUND_HANDLING					= 0x0020;
+	const NEED_MATRIX_DIMENSIONS				= 0x0080;
 
 	const SEARCHING_FOR_OPERANDS				= 0x1000;
 	const SEARCHING_FOR_LINE_NUMBER				= 0x2000;
@@ -56,16 +58,16 @@ class QBHandler {
 		self::$compiler = $compiler;
 	}
 	
-	public function __construct($baseName, $operandType = NULL, $addressMode = NULL, $fixedLength = null) {
+	public function __construct($baseName, $operandType = NULL, $addressMode = NULL, $operandSize = 1) {
+		if($operandSize == "variable") {
+			$this->flags |= self::NEED_MATRIX_DIMENSIONS;
+		} 
 		$this->baseName = $baseName;
 		$this->operandType = $operandType;
 		$this->addressMode = $addressMode;
-		$this->fixedLength = $fixedLength;
+		$this->operandSize = $operandSize;
 		$this->initialize();
 		$this->scanCode();
-		if($fixedLength > 1 && $addressMode != "ARR") {
-			throw new Exception("A scalar op handler does not work with arrays");
-		}
 	}
 	
 	public function getBaseName() {
@@ -105,6 +107,15 @@ class QBHandler {
 		if($this->flags & self::NEED_LINE_NUMBER) {
 			$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
 		}
+		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+			$lines[] = "#define MATRIX1_ROWS			((($instr *) instruction_pointer)->matrix_dimensions >> 20)";
+			$lines[] = "#define MATRIX1_COLS			(((($instr *) instruction_pointer)->matrix_dimensions >> 10) & 0x03FF)";
+			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
+			$lines[] = "#define MATRIX2_COLS			((($instr *) instruction_pointer)->matrix_dimensions & 0x03FF)";
+			$lines[] = "#define MATRIX1_SIZE			(MATRIX1_ROWS * MATRIX1_COLS)";
+			$lines[] = "#define MATRIX2_SIZE			(MATRIX2_ROWS * MATRIX2_COLS)";
+			$lines[] = "#define VECTOR_SIZE				MATRIX2_ROWS";
+		}
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] = $this->getOperandDeclaration($i);
 		}
@@ -114,6 +125,13 @@ class QBHandler {
 		$lines[] = $action;
 		if($this->flags & self::NEED_LINE_NUMBER) {
 			$lines[] = "#undef PHP_LINE_NUMBER";
+		}
+		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+			$lines[] = "#undef MATRIX1_ROWS";
+			$lines[] = "#undef MATRIX1_COLS";
+			$lines[] = "#undef MATRIX2_ROWS";
+			$lines[] = "#undef MATRIX2_COLS";
+			$lines[] = "#undef VECTOR_SIZE";
 		}
 		$lines[] = "}";
 		$lines[] = "instruction_pointer += sizeof($instr);";
@@ -132,6 +150,9 @@ class QBHandler {
 			return "INSTRUCTION_STRUCTURE";
 		}
 		$instr = "qb_instruction_$this->opCount";
+		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+			$instr .= "_matrix";
+		}
 		if($this->flags & self::NEED_LINE_NUMBER) {
 			$instr .= "_lineno";
 		}
@@ -140,6 +161,9 @@ class QBHandler {
 			$lines[] = "void *next_handler;";
 			for($i = 1; $i <= $this->opCount; $i++) {
 				$lines[] = "uint32_t operand{$i};";
+			}
+			if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+				$lines[] = "uint32_t matrix_dimensions;";
 			}
 			if($this->flags & self::NEED_LINE_NUMBER) {
 				$lines[] = "uint32_t line_number;";
@@ -169,6 +193,11 @@ class QBHandler {
 	// by default, all operands have the same type
 	public function getOperandType($i) {
 		return $this->operandType;
+	}
+	
+	// return the number of elements that consist an operand 
+	public function getOperandSize($i) {
+		return $this->operandSize;
 	}
 	
 	public function getOperandFlags() {
@@ -273,7 +302,7 @@ class QBHandler {
 		
 		$this->opCount = $this->srcCount + $this->dstCount;
 		$this->flags &= ~self::SEARCHING_FOR_OPERANDS;
-			
+		
 		// scan again now that the operand count is set to see if the handler needs the line number (for error output)
 		$this->flags |= self::SEARCHING_FOR_LINE_NUMBER;
 		$lines = $this->getCode();
@@ -281,7 +310,6 @@ class QBHandler {
 		foreach($lines as $line) {
 			if(preg_match('/\bPHP_LINE_NUMBER\b/', $line)) {
 				$this->flags |= self::NEED_LINE_NUMBER;
-				break;
 			}
 		}
 		$this->flags &= ~self::SEARCHING_FOR_LINE_NUMBER;
@@ -583,7 +611,7 @@ class QBHandler {
 	// the default implementation returns the sizes of all array operands
 	public function getResultSizePossibilities() {
 		if($this->dstCount) {
-			$dstMode = $this->getOperandAddressMode($this->srcCount);
+			$dstMode = $this->getOperandAddressMode($this->srcCount + 1);
 			if($dstMode == "ARR") {
 				$list = array();
 				for($i = 1; $i <= $this->srcCount; $i++) {
@@ -606,7 +634,9 @@ class QBHandler {
 	protected function getUnrolledCode($expression, $count) {
 		$lines = array();
 		for($i = 0; $i < $count; $i++) {
-			$lines[] = preg_replace(array('/\bres\b/', '/\bop(\d)\b/'), array("res_ptr[{$i}]", "op\\1_ptr[{$i}]"), $expression);
+			$patterns = array('/\bres\b/', '/\bop(\d)\b/');
+			$replacements = array("res_ptr[{$i}]", "op\\1_ptr[{$i}]");
+			$lines[] = preg_replace($patterns, $replacements, $expression);
 		}
 		return $lines;
 	}
@@ -623,15 +653,17 @@ class QBHandler {
 			$conditions = implode(" && ", $conditions);
 			$lines[] = "if($conditions) {";
 		}
-		$lines[] = "while(res_ptr != res_end) {";
+		$lines[] = "while(res_ptr < res_end) {";
 		$lines[] = 		$expression;
 		for($i = 1; $i <= $this->srcCount; $i++) {
-			$lines[] = 	"op{$i}_ptr++;";
-			$lines[] = 	"if(op{$i}_ptr == op{$i}_end) {";
+			$operandSize = $this->getOperandSize($i);
+			$lines[] = 	"op{$i}_ptr += $operandSize;";
+			$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
 			$lines[] = 		"op{$i}_ptr = op{$i}_start;";
 			$lines[] = 	"}";
 		}
-		$lines[] = 		"res_ptr++;";
+		$operandSize = $this->getOperandSize($this->srcCount + 1);
+		$lines[] = 		"res_ptr += $operandSize;";
 		$lines[] = "}";
 		if($this->srcCount > 0) {
 			$lines[] = "}"; // end if
@@ -645,15 +677,15 @@ class QBHandler {
 	}
 	
 	// return an expression for handling array operands
-	// the default implementation either create a loop or repeats the scalar expression a fixed number of times
+	// the default implementation creates basic a loop 
 	protected function getArrayExpression() {
 		$expr = $this->getScalarExpression();
 		if($expr) {
-			if($this->fixedLength) {
-				return $this->getUnrolledCode($expr, $this->fixedLength);
-			} else {
-				return $this->getIterationCode($expr);
+			if($this->operandSize > 1) {
+				// turn a basic op into a SIMD-like op
+				$expr = $this->getUnrolledCode($expr, $this->operandSize);
 			}
+			return $this->getIterationCode($expr);
 		}
 	}
 
@@ -670,7 +702,15 @@ class QBHandler {
 			$className = get_class($this);
 			throw new Exception("$opName ($className) is not a multi-address operation; the default implementation of getAction() cannot be used");
 		}
-		return ($this->addressMode == "ARR") ? $this->getArrayExpression() : $this->getScalarExpression();
+		if($this->addressMode == "ARR") {
+			return $this->getArrayExpression();
+		} else {
+			$expr = $this->getScalarExpression();
+			if($this->operandSize > 1) {
+				$expr = $this->getUnrolledCode($expr, $this->operandSize);
+			}
+			return $expr;
+		}
 	}
 }
 

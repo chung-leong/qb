@@ -1,6 +1,6 @@
 <?php
 
-class QBDotProductHandler extends QBHandler {
+class QBDotProductHandler extends QBSIMDHandler {
 
 	public function getOperandAddressMode($i) {
 		switch($i) {
@@ -15,7 +15,31 @@ class QBDotProductHandler extends QBHandler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_dot_product_$type(qb_interpreter_context *__restrict cxt, $cType *v1, $cType *v2, uint32_t size) {",
+				"static $cType ZEND_FASTCALL qb_calculate_dot_product_1x_$type($cType *v1, $cType *v2) {",
+					"$cType sum = (v1[0] * v2[0]);",
+					"return sum;",
+				"}",
+			),
+			array(
+				"static $cType ZEND_FASTCALL qb_calculate_dot_product_2x_$type($cType *v1, $cType *v2) {",
+					"$cType sum = (v1[0] * v2[0]) + (v1[1] * v2[1]);",
+					"return sum;",
+				"}",
+			),
+			array(
+				"static $cType ZEND_FASTCALL qb_calculate_dot_product_3x_$type($cType *v1, $cType *v2) {",
+					"$cType sum = (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]);",
+					"return sum;",
+				"}",
+			),
+			array(
+				"static $cType ZEND_FASTCALL qb_calculate_dot_product_4x_$type($cType *v1, $cType *v2) {",
+					"$cType sum = (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]) + (v1[3] * v2[3]);",
+					"return sum;",
+				"}",
+			),
+			array(
+				"static $cType ZEND_FASTCALL qb_calculate_dot_product_$type($cType *v1, $cType *v2, uint32_t size) {",
 					"uint32_t i;",
 					"$cType sum = 0;",
 					"for(i = 0; i < size; i++) {",
@@ -27,19 +51,36 @@ class QBDotProductHandler extends QBHandler {
 		);
 		return $functions;
 	}
-	
-	public function getAction() {
-		$type = $this->getOperandType(1);
-		$instr = $this->getInstructionStructure();
-		$lines = array();
-		$lines[] = "if(op1_count != op2_count) {";
-		$lines[] = 		"*cxt->line_number_pointer = PHP_LINE_NUMBER;";
-		$lines[] = 		"qb_abort(\"Size of first array (%d) does not match size of second array (%d)\", op1_count, op2_count);";
-		$lines[] = "}";
-		$lines[] = "res = qb_calculate_dot_product_$type(cxt, op1_ptr, op2_ptr, op1_count);";
-		return $lines;
+		
+	public function getResultSizePossibilities() {
+		return "vector_count";
 	}
-
+	
+	public function getResultSizeCalculation() {
+		$vectorSize = $this->getOperandSize(1);
+		return "vector_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
+	}
+	
+	public function getOperandSize($i) {
+		if($i == 3) {
+			return 1;
+		} else {
+			if($this->operandSize == "variable") {
+				return "VECTOR_SIZE";
+			} else {
+				return $this->operandSize;
+			}
+		}
+	}
+	
+	public function getSIMDExpression() {
+		$type = $this->getOperandType(1);
+		if($this->operandSize == "variable") {
+			return "res = qb_calculate_dot_product_$type(op1_ptr, op2_ptr, VECTOR_SIZE);";
+		} else {
+			return "res = qb_calculate_dot_product_{$this->operandSize}x_$type(op1_ptr, op2_ptr);";
+		}
+	}
 }
 
 ?>

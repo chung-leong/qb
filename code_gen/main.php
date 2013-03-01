@@ -15,6 +15,7 @@ foreach(array_merge(glob("$scriptFolder/QB*.php"), glob("$scriptFolder/*/QB*.php
 function autoload($className) {
 	global $classPaths;
 	if(!$classPaths[$className]) {
+		debug_print_backtrace();
 		die("No implementation for $className");
 	}
 	$classPath = $classPaths[$className];

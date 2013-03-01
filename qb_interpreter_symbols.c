@@ -18,68 +18,84 @@
 
 /* $Id$ */
 
-float32_t qb_calculate_array_distance_2x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2) {
-	return qb_calculate_array_distance_2x_F32(cxt, v1, v2);
+float32_t qb_calculate_array_distance_1x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_array_distance_1x_F32(v1, v2);
 }
 
-float64_t qb_calculate_array_distance_2x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2) {
-	return qb_calculate_array_distance_2x_F64(cxt, v1, v2);
+float64_t qb_calculate_array_distance_1x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_array_distance_1x_F64(v1, v2);
 }
 
-float32_t qb_calculate_array_distance_3x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2) {
-	return qb_calculate_array_distance_3x_F32(cxt, v1, v2);
+float32_t qb_calculate_array_distance_2x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_array_distance_2x_F32(v1, v2);
 }
 
-float64_t qb_calculate_array_distance_3x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2) {
-	return qb_calculate_array_distance_3x_F64(cxt, v1, v2);
+float64_t qb_calculate_array_distance_2x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_array_distance_2x_F64(v1, v2);
 }
 
-float32_t qb_calculate_array_distance_4x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2) {
-	return qb_calculate_array_distance_4x_F32(cxt, v1, v2);
+float32_t qb_calculate_array_distance_3x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_array_distance_3x_F32(v1, v2);
 }
 
-float64_t qb_calculate_array_distance_4x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2) {
-	return qb_calculate_array_distance_4x_F64(cxt, v1, v2);
+float64_t qb_calculate_array_distance_3x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_array_distance_3x_F64(v1, v2);
 }
 
-float32_t qb_calculate_array_distance_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2, uint32_t count) {
-	return qb_calculate_array_distance_F32(cxt, v1, v2, count);
+float32_t qb_calculate_array_distance_4x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_array_distance_4x_F32(v1, v2);
 }
 
-float64_t qb_calculate_array_distance_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2, uint32_t count) {
-	return qb_calculate_array_distance_F64(cxt, v1, v2, count);
+float64_t qb_calculate_array_distance_4x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_array_distance_4x_F64(v1, v2);
 }
 
-float32_t qb_calculate_array_length_2x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v) {
-	return qb_calculate_array_length_2x_F32(cxt, v);
+float32_t qb_calculate_array_distance_F32_wrapper(float32_t *v1, float32_t *v2, uint32_t count) {
+	return qb_calculate_array_distance_F32(v1, v2, count);
 }
 
-float64_t qb_calculate_array_length_2x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v) {
-	return qb_calculate_array_length_2x_F64(cxt, v);
+float64_t qb_calculate_array_distance_F64_wrapper(float64_t *v1, float64_t *v2, uint32_t count) {
+	return qb_calculate_array_distance_F64(v1, v2, count);
 }
 
-float32_t qb_calculate_array_length_3x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v) {
-	return qb_calculate_array_length_3x_F32(cxt, v);
+float32_t qb_calculate_array_length_1x_F32_wrapper(float32_t *v) {
+	return qb_calculate_array_length_1x_F32(v);
 }
 
-float64_t qb_calculate_array_length_3x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v) {
-	return qb_calculate_array_length_3x_F64(cxt, v);
+float64_t qb_calculate_array_length_1x_F64_wrapper(float64_t *v) {
+	return qb_calculate_array_length_1x_F64(v);
 }
 
-float32_t qb_calculate_array_length_4x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v) {
-	return qb_calculate_array_length_4x_F32(cxt, v);
+float32_t qb_calculate_array_length_2x_F32_wrapper(float32_t *v) {
+	return qb_calculate_array_length_2x_F32(v);
 }
 
-float64_t qb_calculate_array_length_4x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v) {
-	return qb_calculate_array_length_4x_F64(cxt, v);
+float64_t qb_calculate_array_length_2x_F64_wrapper(float64_t *v) {
+	return qb_calculate_array_length_2x_F64(v);
 }
 
-float32_t qb_calculate_array_length_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v, uint32_t count) {
-	return qb_calculate_array_length_F32(cxt, v, count);
+float32_t qb_calculate_array_length_3x_F32_wrapper(float32_t *v) {
+	return qb_calculate_array_length_3x_F32(v);
 }
 
-float64_t qb_calculate_array_length_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v, uint32_t count) {
-	return qb_calculate_array_length_F64(cxt, v, count);
+float64_t qb_calculate_array_length_3x_F64_wrapper(float64_t *v) {
+	return qb_calculate_array_length_3x_F64(v);
+}
+
+float32_t qb_calculate_array_length_4x_F32_wrapper(float32_t *v) {
+	return qb_calculate_array_length_4x_F32(v);
+}
+
+float64_t qb_calculate_array_length_4x_F64_wrapper(float64_t *v) {
+	return qb_calculate_array_length_4x_F64(v);
+}
+
+float32_t qb_calculate_array_length_F32_wrapper(float32_t *v, uint32_t size) {
+	return qb_calculate_array_length_F32(v, size);
+}
+
+float64_t qb_calculate_array_length_F64_wrapper(float64_t *v, uint32_t size) {
+	return qb_calculate_array_length_F64(v, size);
 }
 
 float32_t qb_calculate_array_max_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *elements, uint32_t count) {
@@ -242,44 +258,52 @@ uint64_t qb_calculate_array_sum_U64_wrapper(qb_interpreter_context *__restrict c
 	return qb_calculate_array_sum_U64(cxt, elements, count);
 }
 
-void qb_calculate_cross_product_F32_wrapper(qb_interpreter_context *cxt, float32_t *v1, float32_t *v2, float32_t *res_ptr) {
-	qb_calculate_cross_product_F32(cxt, v1, v2, res_ptr);
+void qb_calculate_cross_product_F32_wrapper(float32_t *v1, float32_t *v2, float32_t *res_ptr) {
+	qb_calculate_cross_product_F32(v1, v2, res_ptr);
 }
 
-void qb_calculate_cross_product_F64_wrapper(qb_interpreter_context *cxt, float64_t *v1, float64_t *v2, float64_t *res_ptr) {
-	qb_calculate_cross_product_F64(cxt, v1, v2, res_ptr);
+void qb_calculate_cross_product_F64_wrapper(float64_t *v1, float64_t *v2, float64_t *res_ptr) {
+	qb_calculate_cross_product_F64(v1, v2, res_ptr);
 }
 
-float32_t qb_calculate_dot_product_2x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2) {
-	return qb_calculate_dot_product_2x_F32(cxt, v1, v2);
+float32_t qb_calculate_dot_product_1x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_dot_product_1x_F32(v1, v2);
 }
 
-float64_t qb_calculate_dot_product_2x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2) {
-	return qb_calculate_dot_product_2x_F64(cxt, v1, v2);
+float64_t qb_calculate_dot_product_1x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_dot_product_1x_F64(v1, v2);
 }
 
-float32_t qb_calculate_dot_product_3x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2) {
-	return qb_calculate_dot_product_3x_F32(cxt, v1, v2);
+float32_t qb_calculate_dot_product_2x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_dot_product_2x_F32(v1, v2);
 }
 
-float64_t qb_calculate_dot_product_3x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2) {
-	return qb_calculate_dot_product_3x_F64(cxt, v1, v2);
+float64_t qb_calculate_dot_product_2x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_dot_product_2x_F64(v1, v2);
 }
 
-float32_t qb_calculate_dot_product_4x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2) {
-	return qb_calculate_dot_product_4x_F32(cxt, v1, v2);
+float32_t qb_calculate_dot_product_3x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_dot_product_3x_F32(v1, v2);
 }
 
-float64_t qb_calculate_dot_product_4x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2) {
-	return qb_calculate_dot_product_4x_F64(cxt, v1, v2);
+float64_t qb_calculate_dot_product_3x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_dot_product_3x_F64(v1, v2);
 }
 
-float32_t qb_calculate_dot_product_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v1, float32_t *v2, uint32_t size) {
-	return qb_calculate_dot_product_F32(cxt, v1, v2, size);
+float32_t qb_calculate_dot_product_4x_F32_wrapper(float32_t *v1, float32_t *v2) {
+	return qb_calculate_dot_product_4x_F32(v1, v2);
 }
 
-float64_t qb_calculate_dot_product_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v1, float64_t *v2, uint32_t size) {
-	return qb_calculate_dot_product_F64(cxt, v1, v2, size);
+float64_t qb_calculate_dot_product_4x_F64_wrapper(float64_t *v1, float64_t *v2) {
+	return qb_calculate_dot_product_4x_F64(v1, v2);
+}
+
+float32_t qb_calculate_dot_product_F32_wrapper(float32_t *v1, float32_t *v2, uint32_t size) {
+	return qb_calculate_dot_product_F32(v1, v2, size);
+}
+
+float64_t qb_calculate_dot_product_F64_wrapper(float64_t *v1, float64_t *v2, uint32_t size) {
+	return qb_calculate_dot_product_F64(v1, v2, size);
 }
 
 int32_t qb_compare_array_F32_wrapper(float32_t *op1_start, float32_t *op1_end, float32_t *op2_start, float32_t *op2_end) {
@@ -482,156 +506,188 @@ uint64_t qb_mt_rand_U64_wrapper(qb_interpreter_context *cxt, uint64_t lower_limi
 	return qb_mt_rand_U64(cxt, lower_limit, upper_limit);
 }
 
-void qb_multiply_matrix_by_matrix_2x2_F32_wrapper(qb_interpreter_context *cxt, float32_t *m1, float32_t *m2, float32_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_2x2_F32(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_1x1_F32_wrapper(float32_t *m1, float32_t *m2, float32_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_1x1_F32(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_2x2_F64_wrapper(qb_interpreter_context *cxt, float64_t *m1, float64_t *m2, float64_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_2x2_F64(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_1x1_F64_wrapper(float64_t *m1, float64_t *m2, float64_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_1x1_F64(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_3x3_F32_wrapper(qb_interpreter_context *cxt, float32_t *m1, float32_t *m2, float32_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_3x3_F32(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_2x2_F32_wrapper(float32_t *m1, float32_t *m2, float32_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_2x2_F32(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_3x3_F64_wrapper(qb_interpreter_context *cxt, float64_t *m1, float64_t *m2, float64_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_3x3_F64(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_2x2_F64_wrapper(float64_t *m1, float64_t *m2, float64_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_2x2_F64(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_3x3_padded_F32_wrapper(qb_interpreter_context *cxt, float32_t *m1, float32_t *m2, float32_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_3x3_padded_F32(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_3x3_F32_wrapper(float32_t *m1, float32_t *m2, float32_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_3x3_F32(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_3x3_padded_F64_wrapper(qb_interpreter_context *cxt, float64_t *m1, float64_t *m2, float64_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_3x3_padded_F64(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_3x3_F64_wrapper(float64_t *m1, float64_t *m2, float64_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_3x3_F64(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_4x4_F32_wrapper(qb_interpreter_context *cxt, float32_t *m1, float32_t *m2, float32_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_4x4_F32(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_3x3_padded_F32_wrapper(float32_t *m1, float32_t *m2, float32_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_3x3_padded_F32(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_4x4_F64_wrapper(qb_interpreter_context *cxt, float64_t *m1, float64_t *m2, float64_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_4x4_F64(cxt, m1, m2, res_ptr);
+void qb_multiply_matrix_by_matrix_3x3_padded_F64_wrapper(float64_t *m1, float64_t *m2, float64_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_3x3_padded_F64(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_F32_wrapper(qb_interpreter_context *cxt, float32_t *m1, uint32_t m1_row, uint32_t m1_col, float32_t *m2, uint32_t m2_row, uint32_t m2_col, float32_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_F32(cxt, m1, m1_row, m1_col, m2, m2_row, m2_col, res_ptr);
+void qb_multiply_matrix_by_matrix_4x4_F32_wrapper(float32_t *m1, float32_t *m2, float32_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_4x4_F32(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_matrix_F64_wrapper(qb_interpreter_context *cxt, float64_t *m1, uint32_t m1_row, uint32_t m1_col, float64_t *m2, uint32_t m2_row, uint32_t m2_col, float64_t *res_ptr) {
-	qb_multiply_matrix_by_matrix_F64(cxt, m1, m1_row, m1_col, m2, m2_row, m2_col, res_ptr);
+void qb_multiply_matrix_by_matrix_4x4_F64_wrapper(float64_t *m1, float64_t *m2, float64_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_4x4_F64(m1, m2, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_2x2_F32_wrapper(qb_interpreter_context *cxt, float32_t *m, float32_t *v, float32_t *res_ptr) {
-	qb_multiply_matrix_by_vector_2x2_F32(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_matrix_F32_wrapper(float32_t *m1, uint32_t m1_row, uint32_t m1_col, float32_t *m2, uint32_t m2_row, uint32_t m2_col, float32_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_F32(m1, m1_row, m1_col, m2, m2_row, m2_col, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_2x2_F64_wrapper(qb_interpreter_context *cxt, float64_t *m, float64_t *v, float64_t *res_ptr) {
-	qb_multiply_matrix_by_vector_2x2_F64(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_matrix_F64_wrapper(float64_t *m1, uint32_t m1_row, uint32_t m1_col, float64_t *m2, uint32_t m2_row, uint32_t m2_col, float64_t *res_ptr) {
+	qb_multiply_matrix_by_matrix_F64(m1, m1_row, m1_col, m2, m2_row, m2_col, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_3x3_F32_wrapper(qb_interpreter_context *cxt, float32_t *m, float32_t *v, float32_t *res_ptr) {
-	qb_multiply_matrix_by_vector_3x3_F32(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_vector_1x1_F32_wrapper(float32_t *m, float32_t *v, float32_t *res_ptr) {
+	qb_multiply_matrix_by_vector_1x1_F32(m, v, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_3x3_F64_wrapper(qb_interpreter_context *cxt, float64_t *m, float64_t *v, float64_t *res_ptr) {
-	qb_multiply_matrix_by_vector_3x3_F64(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_vector_1x1_F64_wrapper(float64_t *m, float64_t *v, float64_t *res_ptr) {
+	qb_multiply_matrix_by_vector_1x1_F64(m, v, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_3x3_padded_F32_wrapper(qb_interpreter_context *cxt, float32_t *m, float32_t *v, float32_t *res_ptr) {
-	qb_multiply_matrix_by_vector_3x3_padded_F32(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_vector_2x2_F32_wrapper(float32_t *m, float32_t *v, float32_t *res_ptr) {
+	qb_multiply_matrix_by_vector_2x2_F32(m, v, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_3x3_padded_F64_wrapper(qb_interpreter_context *cxt, float64_t *m, float64_t *v, float64_t *res_ptr) {
-	qb_multiply_matrix_by_vector_3x3_padded_F64(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_vector_2x2_F64_wrapper(float64_t *m, float64_t *v, float64_t *res_ptr) {
+	qb_multiply_matrix_by_vector_2x2_F64(m, v, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_4x4_F32_wrapper(qb_interpreter_context *cxt, float32_t *m, float32_t *v, float32_t *res_ptr) {
-	qb_multiply_matrix_by_vector_4x4_F32(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_vector_3x3_F32_wrapper(float32_t *m, float32_t *v, float32_t *res_ptr) {
+	qb_multiply_matrix_by_vector_3x3_F32(m, v, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_4x4_F64_wrapper(qb_interpreter_context *cxt, float64_t *m, float64_t *v, float64_t *res_ptr) {
-	qb_multiply_matrix_by_vector_4x4_F64(cxt, m, v, res_ptr);
+void qb_multiply_matrix_by_vector_3x3_F64_wrapper(float64_t *m, float64_t *v, float64_t *res_ptr) {
+	qb_multiply_matrix_by_vector_3x3_F64(m, v, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_F32_wrapper(qb_interpreter_context *cxt, float32_t *m, uint32_t m_row, uint32_t m_col, float32_t *v, uint32_t v_row, float32_t *res_ptr) {
-	qb_multiply_matrix_by_vector_F32(cxt, m, m_row, m_col, v, v_row, res_ptr);
+void qb_multiply_matrix_by_vector_3x3_padded_F32_wrapper(float32_t *m, float32_t *v, float32_t *res_ptr) {
+	qb_multiply_matrix_by_vector_3x3_padded_F32(m, v, res_ptr);
 }
 
-void qb_multiply_matrix_by_vector_F64_wrapper(qb_interpreter_context *cxt, float64_t *m, uint32_t m_row, uint32_t m_col, float64_t *v, uint32_t v_row, float64_t *res_ptr) {
-	qb_multiply_matrix_by_vector_F64(cxt, m, m_row, m_col, v, v_row, res_ptr);
+void qb_multiply_matrix_by_vector_3x3_padded_F64_wrapper(float64_t *m, float64_t *v, float64_t *res_ptr) {
+	qb_multiply_matrix_by_vector_3x3_padded_F64(m, v, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_2x2_F32_wrapper(qb_interpreter_context *cxt, float32_t *v, float32_t *m, float32_t *res_ptr) {
-	qb_multiply_vector_by_matrix_2x2_F32(cxt, v, m, res_ptr);
+void qb_multiply_matrix_by_vector_4x4_F32_wrapper(float32_t *m, float32_t *v, float32_t *res_ptr) {
+	qb_multiply_matrix_by_vector_4x4_F32(m, v, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_2x2_F64_wrapper(qb_interpreter_context *cxt, float64_t *v, float64_t *m, float64_t *res_ptr) {
-	qb_multiply_vector_by_matrix_2x2_F64(cxt, v, m, res_ptr);
+void qb_multiply_matrix_by_vector_4x4_F64_wrapper(float64_t *m, float64_t *v, float64_t *res_ptr) {
+	qb_multiply_matrix_by_vector_4x4_F64(m, v, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_3x3_F32_wrapper(qb_interpreter_context *cxt, float32_t *v, float32_t *m, float32_t *res_ptr) {
-	qb_multiply_vector_by_matrix_3x3_F32(cxt, v, m, res_ptr);
+void qb_multiply_matrix_by_vector_F32_wrapper(float32_t *m, uint32_t m_row, uint32_t m_col, float32_t *v, uint32_t v_row, float32_t *res_ptr) {
+	qb_multiply_matrix_by_vector_F32(m, m_row, m_col, v, v_row, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_3x3_F64_wrapper(qb_interpreter_context *cxt, float64_t *v, float64_t *m, float64_t *res_ptr) {
-	qb_multiply_vector_by_matrix_3x3_F64(cxt, v, m, res_ptr);
+void qb_multiply_matrix_by_vector_F64_wrapper(float64_t *m, uint32_t m_row, uint32_t m_col, float64_t *v, uint32_t v_row, float64_t *res_ptr) {
+	qb_multiply_matrix_by_vector_F64(m, m_row, m_col, v, v_row, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_3x3_padded_F32_wrapper(qb_interpreter_context *cxt, float32_t *v, float32_t *m, float32_t *res_ptr) {
-	qb_multiply_vector_by_matrix_3x3_padded_F32(cxt, v, m, res_ptr);
+void qb_multiply_vector_by_matrix_1x1_F32_wrapper(float32_t *v, float32_t *m, float32_t *res_ptr) {
+	qb_multiply_vector_by_matrix_1x1_F32(v, m, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_3x3_padded_F64_wrapper(qb_interpreter_context *cxt, float64_t *v, float64_t *m, float64_t *res_ptr) {
-	qb_multiply_vector_by_matrix_3x3_padded_F64(cxt, v, m, res_ptr);
+void qb_multiply_vector_by_matrix_1x1_F64_wrapper(float64_t *v, float64_t *m, float64_t *res_ptr) {
+	qb_multiply_vector_by_matrix_1x1_F64(v, m, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_4x4_F32_wrapper(qb_interpreter_context *cxt, float32_t *v, float32_t *m, float32_t *res_ptr) {
-	qb_multiply_vector_by_matrix_4x4_F32(cxt, v, m, res_ptr);
+void qb_multiply_vector_by_matrix_2x2_F32_wrapper(float32_t *v, float32_t *m, float32_t *res_ptr) {
+	qb_multiply_vector_by_matrix_2x2_F32(v, m, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_4x4_F64_wrapper(qb_interpreter_context *cxt, float64_t *v, float64_t *m, float64_t *res_ptr) {
-	qb_multiply_vector_by_matrix_4x4_F64(cxt, v, m, res_ptr);
+void qb_multiply_vector_by_matrix_2x2_F64_wrapper(float64_t *v, float64_t *m, float64_t *res_ptr) {
+	qb_multiply_vector_by_matrix_2x2_F64(v, m, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_F32_wrapper(qb_interpreter_context *cxt, float32_t *v, uint32_t v_col, float32_t *m, uint32_t m_row, uint32_t m_col, float32_t *res_ptr) {
-	qb_multiply_vector_by_matrix_F32(cxt, v, v_col, m, m_row, m_col, res_ptr);
+void qb_multiply_vector_by_matrix_3x3_F32_wrapper(float32_t *v, float32_t *m, float32_t *res_ptr) {
+	qb_multiply_vector_by_matrix_3x3_F32(v, m, res_ptr);
 }
 
-void qb_multiply_vector_by_matrix_F64_wrapper(qb_interpreter_context *cxt, float64_t *v, uint32_t v_col, float64_t *m, uint32_t m_row, uint32_t m_col, float64_t *res_ptr) {
-	qb_multiply_vector_by_matrix_F64(cxt, v, v_col, m, m_row, m_col, res_ptr);
+void qb_multiply_vector_by_matrix_3x3_F64_wrapper(float64_t *v, float64_t *m, float64_t *res_ptr) {
+	qb_multiply_vector_by_matrix_3x3_F64(v, m, res_ptr);
 }
 
-void qb_normalize_array_2x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v, float32_t *res_ptr) {
-	qb_normalize_array_2x_F32(cxt, v, res_ptr);
+void qb_multiply_vector_by_matrix_3x3_padded_F32_wrapper(float32_t *v, float32_t *m, float32_t *res_ptr) {
+	qb_multiply_vector_by_matrix_3x3_padded_F32(v, m, res_ptr);
 }
 
-void qb_normalize_array_2x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v, float64_t *res_ptr) {
-	qb_normalize_array_2x_F64(cxt, v, res_ptr);
+void qb_multiply_vector_by_matrix_3x3_padded_F64_wrapper(float64_t *v, float64_t *m, float64_t *res_ptr) {
+	qb_multiply_vector_by_matrix_3x3_padded_F64(v, m, res_ptr);
 }
 
-void qb_normalize_array_3x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v, float32_t *res_ptr) {
-	qb_normalize_array_3x_F32(cxt, v, res_ptr);
+void qb_multiply_vector_by_matrix_4x4_F32_wrapper(float32_t *v, float32_t *m, float32_t *res_ptr) {
+	qb_multiply_vector_by_matrix_4x4_F32(v, m, res_ptr);
 }
 
-void qb_normalize_array_3x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v, float64_t *res_ptr) {
-	qb_normalize_array_3x_F64(cxt, v, res_ptr);
+void qb_multiply_vector_by_matrix_4x4_F64_wrapper(float64_t *v, float64_t *m, float64_t *res_ptr) {
+	qb_multiply_vector_by_matrix_4x4_F64(v, m, res_ptr);
 }
 
-void qb_normalize_array_4x_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v, float32_t *res_ptr) {
-	qb_normalize_array_4x_F32(cxt, v, res_ptr);
+void qb_multiply_vector_by_matrix_F32_wrapper(float32_t *v, uint32_t v_col, float32_t *m, uint32_t m_row, uint32_t m_col, float32_t *res_ptr) {
+	qb_multiply_vector_by_matrix_F32(v, v_col, m, m_row, m_col, res_ptr);
 }
 
-void qb_normalize_array_4x_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v, float64_t *res_ptr) {
-	qb_normalize_array_4x_F64(cxt, v, res_ptr);
+void qb_multiply_vector_by_matrix_F64_wrapper(float64_t *v, uint32_t v_col, float64_t *m, uint32_t m_row, uint32_t m_col, float64_t *res_ptr) {
+	qb_multiply_vector_by_matrix_F64(v, v_col, m, m_row, m_col, res_ptr);
 }
 
-void qb_normalize_array_F32_wrapper(qb_interpreter_context *__restrict cxt, float32_t *v, uint32_t count, float32_t *res_ptr) {
-	qb_normalize_array_F32(cxt, v, count, res_ptr);
+void qb_normalize_array_1x_F32_wrapper(float32_t *v, float32_t *res_ptr) {
+	qb_normalize_array_1x_F32(v, res_ptr);
 }
 
-void qb_normalize_array_F64_wrapper(qb_interpreter_context *__restrict cxt, float64_t *v, uint32_t count, float64_t *res_ptr) {
-	qb_normalize_array_F64(cxt, v, count, res_ptr);
+void qb_normalize_array_1x_F64_wrapper(float64_t *v, float64_t *res_ptr) {
+	qb_normalize_array_1x_F64(v, res_ptr);
+}
+
+void qb_normalize_array_2x_F32_wrapper(float32_t *v, float32_t *res_ptr) {
+	qb_normalize_array_2x_F32(v, res_ptr);
+}
+
+void qb_normalize_array_2x_F64_wrapper(float64_t *v, float64_t *res_ptr) {
+	qb_normalize_array_2x_F64(v, res_ptr);
+}
+
+void qb_normalize_array_3x_F32_wrapper(float32_t *v, float32_t *res_ptr) {
+	qb_normalize_array_3x_F32(v, res_ptr);
+}
+
+void qb_normalize_array_3x_F64_wrapper(float64_t *v, float64_t *res_ptr) {
+	qb_normalize_array_3x_F64(v, res_ptr);
+}
+
+void qb_normalize_array_4x_F32_wrapper(float32_t *v, float32_t *res_ptr) {
+	qb_normalize_array_4x_F32(v, res_ptr);
+}
+
+void qb_normalize_array_4x_F64_wrapper(float64_t *v, float64_t *res_ptr) {
+	qb_normalize_array_4x_F64(v, res_ptr);
+}
+
+void qb_normalize_array_F32_wrapper(float32_t *v, float32_t *res_ptr, uint32_t size) {
+	qb_normalize_array_F32(v, res_ptr, size);
+}
+
+void qb_normalize_array_F64_wrapper(float64_t *v, float64_t *res_ptr, uint32_t size) {
+	qb_normalize_array_F64(v, res_ptr, size);
 }
 
 int64_t qb_rand_S64_wrapper(qb_interpreter_context *cxt, int64_t lower_limit, uint64_t upper_limit) {
@@ -798,6 +854,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"pow",	pow	},
 	{	0,	"qb_abort",	qb_abort	},
 	{	0,	"qb_abort_range_error",	qb_abort_range_error	},
+	{	0,	"qb_calculate_array_distance_1x_F32",	qb_calculate_array_distance_1x_F32_wrapper	},
+	{	0,	"qb_calculate_array_distance_1x_F64",	qb_calculate_array_distance_1x_F64_wrapper	},
 	{	0,	"qb_calculate_array_distance_2x_F32",	qb_calculate_array_distance_2x_F32_wrapper	},
 	{	0,	"qb_calculate_array_distance_2x_F64",	qb_calculate_array_distance_2x_F64_wrapper	},
 	{	0,	"qb_calculate_array_distance_3x_F32",	qb_calculate_array_distance_3x_F32_wrapper	},
@@ -806,6 +864,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_calculate_array_distance_4x_F64",	qb_calculate_array_distance_4x_F64_wrapper	},
 	{	0,	"qb_calculate_array_distance_F32",	qb_calculate_array_distance_F32_wrapper	},
 	{	0,	"qb_calculate_array_distance_F64",	qb_calculate_array_distance_F64_wrapper	},
+	{	0,	"qb_calculate_array_length_1x_F32",	qb_calculate_array_length_1x_F32_wrapper	},
+	{	0,	"qb_calculate_array_length_1x_F64",	qb_calculate_array_length_1x_F64_wrapper	},
 	{	0,	"qb_calculate_array_length_2x_F32",	qb_calculate_array_length_2x_F32_wrapper	},
 	{	0,	"qb_calculate_array_length_2x_F64",	qb_calculate_array_length_2x_F64_wrapper	},
 	{	0,	"qb_calculate_array_length_3x_F32",	qb_calculate_array_length_3x_F32_wrapper	},
@@ -856,6 +916,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_calculate_array_sum_U64",	qb_calculate_array_sum_U64_wrapper	},
 	{	0,	"qb_calculate_cross_product_F32",	qb_calculate_cross_product_F32_wrapper	},
 	{	0,	"qb_calculate_cross_product_F64",	qb_calculate_cross_product_F64_wrapper	},
+	{	0,	"qb_calculate_dot_product_1x_F32",	qb_calculate_dot_product_1x_F32_wrapper	},
+	{	0,	"qb_calculate_dot_product_1x_F64",	qb_calculate_dot_product_1x_F64_wrapper	},
 	{	0,	"qb_calculate_dot_product_2x_F32",	qb_calculate_dot_product_2x_F32_wrapper	},
 	{	0,	"qb_calculate_dot_product_2x_F64",	qb_calculate_dot_product_2x_F64_wrapper	},
 	{	0,	"qb_calculate_dot_product_3x_F32",	qb_calculate_dot_product_3x_F32_wrapper	},
@@ -934,6 +996,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_initialize_function_call",	qb_initialize_function_call_wrapper	},
 	{	0,	"qb_mt_rand_S64",	qb_mt_rand_S64_wrapper	},
 	{	0,	"qb_mt_rand_U64",	qb_mt_rand_U64_wrapper	},
+	{	0,	"qb_multiply_matrix_by_matrix_1x1_F32",	qb_multiply_matrix_by_matrix_1x1_F32_wrapper	},
+	{	0,	"qb_multiply_matrix_by_matrix_1x1_F64",	qb_multiply_matrix_by_matrix_1x1_F64_wrapper	},
 	{	0,	"qb_multiply_matrix_by_matrix_2x2_F32",	qb_multiply_matrix_by_matrix_2x2_F32_wrapper	},
 	{	0,	"qb_multiply_matrix_by_matrix_2x2_F64",	qb_multiply_matrix_by_matrix_2x2_F64_wrapper	},
 	{	0,	"qb_multiply_matrix_by_matrix_3x3_F32",	qb_multiply_matrix_by_matrix_3x3_F32_wrapper	},
@@ -944,6 +1008,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_multiply_matrix_by_matrix_4x4_F64",	qb_multiply_matrix_by_matrix_4x4_F64_wrapper	},
 	{	0,	"qb_multiply_matrix_by_matrix_F32",	qb_multiply_matrix_by_matrix_F32_wrapper	},
 	{	0,	"qb_multiply_matrix_by_matrix_F64",	qb_multiply_matrix_by_matrix_F64_wrapper	},
+	{	0,	"qb_multiply_matrix_by_vector_1x1_F32",	qb_multiply_matrix_by_vector_1x1_F32_wrapper	},
+	{	0,	"qb_multiply_matrix_by_vector_1x1_F64",	qb_multiply_matrix_by_vector_1x1_F64_wrapper	},
 	{	0,	"qb_multiply_matrix_by_vector_2x2_F32",	qb_multiply_matrix_by_vector_2x2_F32_wrapper	},
 	{	0,	"qb_multiply_matrix_by_vector_2x2_F64",	qb_multiply_matrix_by_vector_2x2_F64_wrapper	},
 	{	0,	"qb_multiply_matrix_by_vector_3x3_F32",	qb_multiply_matrix_by_vector_3x3_F32_wrapper	},
@@ -954,6 +1020,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_multiply_matrix_by_vector_4x4_F64",	qb_multiply_matrix_by_vector_4x4_F64_wrapper	},
 	{	0,	"qb_multiply_matrix_by_vector_F32",	qb_multiply_matrix_by_vector_F32_wrapper	},
 	{	0,	"qb_multiply_matrix_by_vector_F64",	qb_multiply_matrix_by_vector_F64_wrapper	},
+	{	0,	"qb_multiply_vector_by_matrix_1x1_F32",	qb_multiply_vector_by_matrix_1x1_F32_wrapper	},
+	{	0,	"qb_multiply_vector_by_matrix_1x1_F64",	qb_multiply_vector_by_matrix_1x1_F64_wrapper	},
 	{	0,	"qb_multiply_vector_by_matrix_2x2_F32",	qb_multiply_vector_by_matrix_2x2_F32_wrapper	},
 	{	0,	"qb_multiply_vector_by_matrix_2x2_F64",	qb_multiply_vector_by_matrix_2x2_F64_wrapper	},
 	{	0,	"qb_multiply_vector_by_matrix_3x3_F32",	qb_multiply_vector_by_matrix_3x3_F32_wrapper	},
@@ -964,6 +1032,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_multiply_vector_by_matrix_4x4_F64",	qb_multiply_vector_by_matrix_4x4_F64_wrapper	},
 	{	0,	"qb_multiply_vector_by_matrix_F32",	qb_multiply_vector_by_matrix_F32_wrapper	},
 	{	0,	"qb_multiply_vector_by_matrix_F64",	qb_multiply_vector_by_matrix_F64_wrapper	},
+	{	0,	"qb_normalize_array_1x_F32",	qb_normalize_array_1x_F32_wrapper	},
+	{	0,	"qb_normalize_array_1x_F64",	qb_normalize_array_1x_F64_wrapper	},
 	{	0,	"qb_normalize_array_2x_F32",	qb_normalize_array_2x_F32_wrapper	},
 	{	0,	"qb_normalize_array_2x_F64",	qb_normalize_array_2x_F64_wrapper	},
 	{	0,	"qb_normalize_array_3x_F32",	qb_normalize_array_3x_F32_wrapper	},

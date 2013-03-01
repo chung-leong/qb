@@ -743,7 +743,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_compiler_con
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *source_address = bundle->addresses[i];
 				qb_address *channel_address = qb_get_array_slice(cxt, address, offset_address, length_address);
-				qb_do_copy(cxt, source_address, channel_address);
+				qb_do_assignment(cxt, source_address, channel_address);
 			}
 		}
 		bundle->temporary_address = address;
@@ -761,7 +761,7 @@ static void ZEND_FASTCALL qb_pbj_release_temporary_vector(qb_compiler_context *c
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *destination_address = bundle->addresses[i];
 				qb_address *channel_address = qb_get_array_slice(cxt, bundle->temporary_address, offset_address, length_address);
-				qb_do_copy(cxt, channel_address, destination_address);
+				qb_do_assignment(cxt, channel_address, destination_address);
 			}
 		}
 		qb_remove_reference(cxt, bundle->temporary_address);
@@ -912,7 +912,7 @@ static void zend_always_inline qb_pbj_create_output_bundle(qb_compiler_context *
 	qb_pbj_create_address_bundles(cxt, NULL, 0, output, NULL, output_bundle);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_copy(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_copy(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundle, output_bundle;
 	qb_address *op_address, *result_address;
 	uint32_t i;
@@ -921,95 +921,73 @@ static void ZEND_FASTCALL qb_pbj_translate_copy(qb_compiler_context *cxt, qb_pbj
 	for(i = 0; i < output_bundle.address_count; i++) {
 		op_address = input_bundle.addresses[i];
 		result_address = output_bundle.addresses[i];
-		qb_do_copy(cxt, op_address, result_address);
+		qb_do_assignment(cxt, op_address, result_address);
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_bool(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_bool(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundle, output_bundle;
-	qb_address *op_address, *result_address, *zero_address;
-	uint32_t i, opcode;
+	qb_address *zero_address = (inputs[0]->register_id & PBJ_REGISTER_INT) ? cxt->pbj_int_numerals[0] : cxt->pbj_float_numerals[0];
+	uint32_t i;
 
 	qb_pbj_create_address_bundles(cxt, inputs, 1, output, &input_bundle, &output_bundle);
 	for(i = 0; i < output_bundle.address_count; i++) {
-		op_address = input_bundle.addresses[i];
-		result_address = output_bundle.addresses[i];
-		opcode = not_equal_opcodes[op_address->type];
-		zero_address = (op_address->type == QB_TYPE_F32) ? cxt->pbj_float_numerals[0] : cxt->pbj_int_numerals[0];
-		qb_append_op_with_three_addresses(cxt, opcode, op_address, zero_address, result_address);
+		qb_create_binary_op(cxt, t->extra, input_bundle.addresses[i], zero_address, output_bundle.addresses[i]);
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_unary_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_reciprocal(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundle, output_bundle;
-	qb_address *op_address, *result_address;
-	uint32_t i, opcode, *opcode_list = t->extra;
-
-	qb_pbj_create_address_bundles(cxt, inputs, 1, output, &input_bundle, &output_bundle);
-	for(i = 0; i < output_bundle.address_count; i++) {
-		op_address = input_bundle.addresses[i];
-		result_address = output_bundle.addresses[i];
-		opcode = opcode_list[op_address->type];
-		qb_append_op_with_two_addresses(cxt, opcode, op_address, result_address);
-	}
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_reciprocal(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundle, output_bundle;
-	qb_address *op1_address, *op2_address, *result_address;
-	uint32_t i, opcode, *opcode_list = divide_opcodes;
+	uint32_t i;
 
 	qb_pbj_create_address_bundles(cxt, inputs, 1, output, &input_bundle, &output_bundle);
 	for(i = 0; i < output_bundle.address_count; i++) {
 		// pbj_float_numerals[2] is 1, cxt->pbj_float_numerals[1] is 0.5
-		op1_address = cxt->pbj_float_numerals[2];
-		op2_address = input_bundle.addresses[i];
-		result_address = output_bundle.addresses[i];
-		opcode = opcode_list[op1_address->type];
-		qb_append_op_with_three_addresses(cxt, opcode, op1_address, op2_address, result_address);
+		qb_create_binary_op(cxt, t->extra, cxt->pbj_float_numerals[2], input_bundle.addresses[i], output_bundle.addresses[i]);
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_binary_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_basic_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *op1_address, *op2_address, *result_address;
-	uint32_t i, opcode, *opcode_list = t->extra;
+	qb_operand operands[2], result;
+	uint32_t i, j;
 
-	qb_pbj_create_address_bundles(cxt, inputs, 2, output, input_bundles, &output_bundle);
+	qb_pbj_create_address_bundles(cxt, inputs, input_count, output, input_bundles, &output_bundle);
 	for(i = 0; i < output_bundle.address_count; i++) {
-		op1_address = input_bundles[0].addresses[i];
-		op2_address = input_bundles[1].addresses[i];
-		result_address = output_bundle.addresses[i];
-		opcode = opcode_list[op1_address->type];
-		qb_append_op_with_three_addresses(cxt, opcode, op1_address, op2_address, result_address);
+		for(j = 0; j < input_count; j++) {
+			operands[j].type = QB_OPERAND_ADDRESS;
+			operands[j].address = input_bundles[j].addresses[i];
+		}
+		result.type = QB_OPERAND_ADDRESS;
+		result.address = output_bundle.addresses[i];
+		qb_create_op(cxt, t->extra, operands, input_count, &result);
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_comparison_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_basic_vector_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *op1_address, *op2_address, *result_address;
-	uint32_t opcode, *opcode_list = t->extra;
+	qb_operand operands[2], result;
+	uint32_t j;
 
-	qb_pbj_create_input_bundle(cxt, inputs[0], &input_bundles[0]);
-	qb_pbj_create_input_bundle(cxt, inputs[1], &input_bundles[1]);
-	qb_pbj_create_output_bundle(cxt, output, &output_bundle);
-	op1_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[0]);
-	op2_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[1]);
-	result_address = qb_pbj_obtain_temporary_vector(cxt, &output_bundle);
-	if(output->channel_count > 1) {
-		// op code for set comparison
-		opcode = opcode_list[op1_address->type + QB_TYPE_COUNT];
-		qb_append_op_with_three_addresses(cxt, opcode, op1_address, op2_address, result_address);
-	} else {
-		opcode = opcode_list[op1_address->type];
-		qb_append_op_with_three_addresses(cxt, opcode, op1_address, op2_address, result_address);
+	for(j = 0; j < input_count; j++) {
+		qb_pbj_create_input_bundle(cxt, inputs[j], &input_bundles[j]);
+		operands[j].type = QB_OPERAND_ADDRESS;
+		operands[j].address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[j]);
 	}
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[0]);
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[1]);
+
+	qb_pbj_create_output_bundle(cxt, output, &output_bundle);
+	result.type = QB_OPERAND_ADDRESS;
+	result.address = qb_pbj_obtain_temporary_vector(cxt, &output_bundle);
+
+	qb_create_op(cxt, t->extra, operands, input_count, &result);
+
+	for(j = 0; j < input_count; j++) {
+		qb_pbj_release_temporary_vector(cxt, &input_bundles[j]);
+	}
 	qb_pbj_release_temporary_vector(cxt, &output_bundle);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_load_constant(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_load_constant(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_address *constant_address, *result_address, *expected_result_address = NULL;
 	qb_pbj_register *reg;
 	uint32_t current_index, previous_index, current_int_flag, int_flag;
@@ -1102,267 +1080,74 @@ static void ZEND_FASTCALL qb_pbj_translate_load_constant(qb_compiler_context *cx
 			}
 		}
 	}
-	qb_append_op_with_two_addresses(cxt, copy_opcodes[type][type], constant_address, result_address);
+	qb_do_assignment(cxt, constant_address, result_address);
 
 	// jump over ops which are processed already
 	cxt->jump_target_index1 = cxt->pbj_op_index + constant_count;
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_sample(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_sample(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle output_bundle;
 	qb_pbj_texture *texture = qb_pbj_find_texture_by_id(cxt, cxt->pbj_op->image_id);
 	qb_pbj_address *coord = inputs[0];
-	qb_address *image_address, *x_address, *y_address, *result_address;
-	uint32_t *opcode_list = t->extra;
-	qb_address *addresses[6];
-	qb_op *qop;
+	qb_address *x_address, *y_address, *result_address;
 
 	qb_pbj_create_address_bundles(cxt, NULL, 0, output, NULL, &output_bundle);
 	x_address = qb_pbj_obtain_channel_address(cxt, coord->register_id, coord->channels[0], 1);
 	y_address = qb_pbj_obtain_channel_address(cxt, coord->register_id, coord->channels[1], 1);
 	result_address = qb_pbj_obtain_temporary_vector(cxt, &output_bundle);
-	image_address = texture->address;
-	addresses[0] = image_address;
-	addresses[1] = image_address->dimension_addresses[1];
-	addresses[2] = image_address->dimension_addresses[0];
-	addresses[3] = x_address;
-	addresses[4] = y_address;
-	addresses[5] = result_address;
-	qop = qb_append_op_with_multiple_addresses(cxt, opcode_list[image_address->type], addresses, 6);
-	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
-	qop->operands[5].type = QB_OPERAND_ADDRESS_ARR;
+	qb_create_ternary_op(cxt, t->extra, texture->address, x_address, y_address, result_address);
 	qb_pbj_release_temporary_vector(cxt, &output_bundle);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_matrix_matrix_multiply(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *m1_address, *m2_address, *result_address;
-	uint32_t *opcode_list;
-
-	qb_pbj_create_address_bundles(cxt, inputs, 2, output, input_bundles, &output_bundle);
-	m2_address = input_bundles[0].addresses[0];
-	m1_address = input_bundles[1].addresses[0];
-	result_address = output_bundle.addresses[0];
-	switch(inputs[1]->dimension) {
-		case 2: opcode_list = mm_multiply_2x2_opcodes; break;
-		case 3:	opcode_list = mm_multiply_3x3_padded_opcodes; break;
-		case 4: opcode_list = mm_multiply_4x4_opcodes; break;
-	}
-	qb_append_op_with_three_addresses(cxt, opcode_list[QB_TYPE_F32], m1_address, m2_address, result_address);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_matrix_vector_multiply(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *v_address, *m_address, *result_address;
-	uint32_t *opcode_list;
-
-	qb_pbj_create_address_bundles(cxt, inputs, 2, output, input_bundles, &output_bundle);
-	v_address = input_bundles[0].addresses[0];
-	m_address = input_bundles[1].addresses[0];
-	result_address = output_bundle.addresses[0];
-	switch(inputs[1]->dimension) {
-		case 2: opcode_list = mv_multiply_2x2_opcodes; break;
-		case 3:	opcode_list = mv_multiply_3x3_padded_opcodes; break;
-		case 4: opcode_list = mv_multiply_4x4_opcodes; break;
-	}
-	qb_append_op_with_three_addresses(cxt, opcode_list[QB_TYPE_F32], m_address, v_address, result_address);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_vector_matrix_multiply(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *v_address, *m_address, *result_address;
-	uint32_t *opcode_list;
-
-	qb_pbj_create_address_bundles(cxt, inputs, 2, output, input_bundles, &output_bundle);
-	v_address = input_bundles[0].addresses[0];
-	m_address = input_bundles[1].addresses[0];
-	result_address = output_bundle.addresses[0];
-	switch(inputs[1]->dimension) {
-		case 2: opcode_list = vm_multiply_2x2_opcodes; break;
-		case 3:	opcode_list = vm_multiply_3x3_padded_opcodes; break;
-		case 4: opcode_list = vm_multiply_4x4_opcodes; break;
-	}
-	qb_append_op_with_three_addresses(cxt, opcode_list[QB_TYPE_F32], v_address, m_address, result_address);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_length(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundle, output_bundle;
-	qb_address *op_address, *result_address;
-	uint32_t opcode, *opcode_list;
-
-	qb_pbj_create_input_bundle(cxt, inputs[0], &input_bundle);
-	qb_pbj_create_output_bundle(cxt, output, &output_bundle);
-	op_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundle);
-	result_address = output_bundle.addresses[0];
-	switch(inputs[0]->channel_count) {
-		case 1: opcode_list = length_1x_opcodes; break;
-		case 2: opcode_list = length_2x_opcodes; break;
-		case 3: opcode_list = length_3x_opcodes; break;
-		case 4: opcode_list = length_4x_opcodes; break;
-	}
-	opcode = opcode_list[result_address->type];
-	qb_append_op_with_two_addresses(cxt, opcode, op_address, result_address);
-	qb_pbj_release_temporary_vector(cxt, &input_bundle);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_distance(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *op1_address, *op2_address, *result_address;
-	uint32_t opcode, *opcode_list;
-
-	qb_pbj_create_input_bundle(cxt, inputs[0], &input_bundles[0]);
-	qb_pbj_create_input_bundle(cxt, inputs[1], &input_bundles[1]);
-	qb_pbj_create_output_bundle(cxt, output, &output_bundle);
-	op1_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[0]);
-	op2_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[1]);
-	result_address = qb_pbj_obtain_temporary_vector(cxt, &output_bundle);
-	switch(inputs[0]->channel_count) {
-		case 1: opcode_list = distance_1x_opcodes; break;
-		case 2: opcode_list = distance_2x_opcodes; break;
-		case 3: opcode_list = distance_3x_opcodes; break;
-		case 4: opcode_list = distance_4x_opcodes; break;
-	}
-	opcode = opcode_list[result_address->type];
-	qb_append_op_with_three_addresses(cxt, opcode, op1_address, op2_address, result_address);
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[0]);
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[1]);
-	qb_pbj_release_temporary_vector(cxt, &output_bundle);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_dot_product(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *op1_address, *op2_address, *result_address;
-	uint32_t opcode, *opcode_list;
-
-	qb_pbj_create_input_bundle(cxt, inputs[0], &input_bundles[0]);
-	qb_pbj_create_input_bundle(cxt, inputs[1], &input_bundles[1]);
-	qb_pbj_create_output_bundle(cxt, output, &output_bundle);
-	op1_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[0]);
-	op2_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[1]);
-	result_address = output_bundle.addresses[0];
-	switch(inputs[0]->channel_count) {
-		case 1: opcode_list = dot_product_1x_opcodes; break;
-		case 2: opcode_list = dot_product_2x_opcodes; break;
-		case 3: opcode_list = dot_product_3x_opcodes; break;
-		case 4: opcode_list = dot_product_4x_opcodes; break;
-	}
-	opcode = opcode_list[result_address->type];
-	qb_append_op_with_three_addresses(cxt, opcode, op1_address, op2_address, result_address);
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[0]);
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[1]);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_cross_product(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundles[2], output_bundle;
-	qb_address *op1_address, *op2_address, *result_address;
-	uint32_t opcode, *opcode_list = cross_product_opcodes;
-
-	qb_pbj_create_address_bundles(cxt, inputs, 2, output, input_bundles, &output_bundle);
-	op1_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[0]);
-	op2_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundles[1]);
-	result_address = output_bundle.addresses[0];
-	if(inputs[0]->channel_count != 3) {
-		qb_abort("Illegal operation");
-	}
-	opcode = opcode_list[result_address->type];
-	qb_append_op_with_three_addresses(cxt, opcode, op1_address, op2_address, result_address);
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[0]);
-	qb_pbj_release_temporary_vector(cxt, &input_bundles[1]);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_normalize(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundle, output_bundle;
-	qb_address *op_address, *result_address;
-	uint32_t opcode, *opcode_list;
-
-	qb_pbj_create_address_bundles(cxt, inputs, 1, output, &input_bundle, &output_bundle);
-	op_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundle);
-	result_address = output_bundle.addresses[0];
-	switch(inputs[0]->channel_count) {
-		case 1: opcode_list = normalize_1x_opcodes; break;
-		case 2: opcode_list = normalize_2x_opcodes; break;
-		case 3: opcode_list = normalize_3x_opcodes; break;
-		case 4: opcode_list = normalize_4x_opcodes; break;
-	}
-	opcode = opcode_list[result_address->type];
-	qb_append_op_with_two_addresses(cxt, opcode, op_address, result_address);
-	qb_pbj_release_temporary_vector(cxt, &input_bundle);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_smooth_step(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundles[3], output_bundle;
-	qb_address *x_address, *edge0_address, *edge1_address, *result_address;
-	uint32_t i, opcode, *opcode_list = t->extra;
-
-	qb_pbj_create_address_bundles(cxt, inputs, 3, output, input_bundles, &output_bundle);
-	for(i = 0; i < output_bundle.address_count; i++) {
-		x_address = input_bundles[0].addresses[i];
-		edge0_address = input_bundles[1].addresses[i];
-		edge1_address = input_bundles[2].addresses[i];
-		result_address = output_bundle.addresses[i];
-		opcode = opcode_list[result_address->type];
-		qb_append_op_with_four_addresses(cxt, opcode, edge0_address, edge1_address, x_address, result_address);
-	}
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_any_all(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
-	qb_pbj_address_bundle input_bundle;
-	qb_address *op_address, *result_address;
-	uint32_t opcode = *((uint32_t *) t->extra);
-	qb_op *qop;
-
-	qb_pbj_create_input_bundle(cxt, inputs[0], &input_bundle);
-	op_address = qb_pbj_obtain_temporary_vector(cxt, &input_bundle);
-	result_address = qb_pbj_obtain_channel_address(cxt, output->register_id, output->channels[0], 1);
-	qop = qb_append_op_with_two_addresses(cxt, opcode, op_address, result_address);
-	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
-	qb_pbj_release_temporary_vector(cxt, &input_bundle);
-}
-
-static void ZEND_FASTCALL qb_pbj_translate_select(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_select(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address *condition = inputs[0];
 	qb_address *condition_address;
 	qb_op *if_qop, *jmp_qop;
 	uint32_t if_index, jmp_index, target_t_index, target_f_index, end_index;
 
-	condition_address = qb_pbj_obtain_channel_address(cxt, condition->register_id, condition->channels[0], 1);
 	// fall into true block if non-zero, else branch to false block
+	condition_address = qb_pbj_obtain_channel_address(cxt, condition->register_id, condition->channels[0], 1);
 	if_index = cxt->op_count;
-	if_qop = qb_append_op_with_branch_targets_plus_one_address(cxt, QB_IF_T_I32, QB_INSTRUCTION_NEXT, 0, condition_address);
+	if_qop = qb_create_branch_op(cxt,  &factory_branch_on_true, QB_INSTRUCTION_NEXT, QB_OP_INDEX_NONE, condition_address);
+
 	target_t_index = cxt->op_count;
-	qb_pbj_translate_copy(cxt, t, &inputs[1], output);
+	qb_pbj_translate_copy(cxt, t, &inputs[1], 1, output);
+
 	// jump over the false block
 	jmp_index = cxt->op_count;
-	jmp_qop = qb_append_op_with_jump_target(cxt, QB_JMP, 0);
+	jmp_qop = qb_create_jump_op(cxt, &factory_jump, QB_OP_INDEX_NONE);
+
 	target_f_index = cxt->op_count;
-	if_qop->operands[1].jump_target_index = (target_f_index - if_index) | QB_INSTRUCTION_OFFSET;
-	qb_pbj_translate_copy(cxt, t, &inputs[2], output);
+	qb_pbj_translate_copy(cxt, t, &inputs[2], 1, output);
 	end_index = cxt->op_count;
+
+	// set the jump target indices now that we know what they are
+	if_qop->operands[1].jump_target_index = (target_f_index - if_index) | QB_INSTRUCTION_OFFSET;
 	jmp_qop->operands[0].jump_target_index = (end_index - jmp_index) | QB_INSTRUCTION_OFFSET;
+
+	// flags the ops as jump targets
 	cxt->ops[target_t_index]->flags |= QB_OP_JUMP_TARGET;
 	cxt->ops[target_f_index]->flags |= QB_OP_JUMP_TARGET;
 	cxt->jump_target_index1 = cxt->pbj_op_index + 2;
 	cxt->op_translations[cxt->pbj_op_offset + cxt->jump_target_index1] = QB_OP_INDEX_JUMP_TARGET;
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_if(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_if(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address *condition = inputs[0];
 	qb_address *condition_address;
-	uint32_t target_index;
 
-	condition_address = qb_pbj_obtain_channel_address(cxt, condition->register_id, condition->channels[0], 1);
 	// jump to the instruction immediately following the else or end-if if the condition is false
-	target_index = cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1;
-	qb_append_op_with_branch_targets_plus_one_address(cxt, QB_IF_F_I32, target_index, QB_INSTRUCTION_NEXT, condition_address);
+	condition_address = qb_pbj_obtain_channel_address(cxt, condition->register_id, condition->channels[0], 1);
+	qb_create_branch_op(cxt, &factory_branch_on_false, cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1, QB_INSTRUCTION_NEXT, condition_address);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_else(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_else(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	// jump over the else block
-	uint32_t target_index = cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1;
-	qb_append_op_with_jump_target(cxt, QB_JMP, target_index);
+	qb_create_jump_op(cxt, &factory_jump, cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_end_if(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_end_if(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	// do nothing
 }
 
@@ -1375,72 +1160,71 @@ static void ZEND_FASTCALL qb_pbj_translate_end_if(qb_compiler_context *cxt, qb_p
 #define PBJ_RS_RS2_RS3_WD	(PBJ_READ_SOURCE | PBJ_READ_SOURCE2 | PBJ_READ_SOURCE3 | PBJ_WRITE_DESTINATION)
 
 static qb_pbj_translator pbj_op_translators[] = {
-	{	NULL,										0,					NULL					},	// PBJ_NOP
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		add_opcodes				},	// PBJ_ADD
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		subtract_opcodes		},	// PBJ_SUBTRACT
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		multiply_opcodes		},	// PBJ_MULTIPLY
-	{	qb_pbj_translate_reciprocal,				PBJ_RS_WD,			NULL					},	// PBJ_RECIPROCAL
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		divide_opcodes			},	// PBJ_DIVIDE
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		atan2_opcodes			},	// PBJ_ATAN2
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		pow_opcodes				},	// PBJ_POW
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		floor_modulo_opcodes	},	// PBJ_MOD
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		min_opcodes				},	// PBJ_MIN
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		max_opcodes				},	// PBJ_MAX
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		step_opcodes			},	// PBJ_STEP
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			sin_opcodes				},	// PBJ_SIN
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			cos_opcodes				},	// PBJ_COS
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			tan_opcodes				},	// PBJ_TAN
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			asin_opcodes			},	// PBJ_ASIN
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			acos_opcodes			},	// PBJ_ACOS
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			atan_opcodes			},	// PBJ_ATAN
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			exp_opcodes				},	// PBJ_EXP
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			exp2_opcodes			},	// PBJ_EXP2
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			log_opcodes				},	// PBJ_LOG
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			log2_opcodes			},	// PBJ_LOG2
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			sqrt_opcodes			},	// PBJ_SQRT
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			inv_sqrt_opcodes		},	// PBJ_RSQRT
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			abs_opcodes				},	// PBJ_ABS
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			sign_opcodes			},	// PBJ_SIGN
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			floor_opcodes			},	// PBJ_FLOOR
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			ceil_opcodes			},	// PBJ_CEIL
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			fract_opcodes			},	// PBJ_FRACT
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			NULL					},	// PBJ_COPY
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			NULL					},	// PBJ_FLOAT_TO_INT
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			NULL					},	// PBJ_INT_TO_FLOAT
-	{	qb_pbj_translate_matrix_matrix_multiply,	PBJ_RS_RD_WD,		NULL					},	// PBJ_MATRIX_MATRIX_MULTIPLY
-	{	qb_pbj_translate_vector_matrix_multiply,	PBJ_RS_RD_WD,		NULL					},	// PBJ_VECTOR_MATRIX_MULTIPLY
-	{	qb_pbj_translate_matrix_vector_multiply,	PBJ_RS_RD_WD,		NULL					},	// PBJ_MATRIX_VECTOR_MULTIPLY
-	{	qb_pbj_translate_normalize,					PBJ_RS_RD_WD,		NULL					},	// PBJ_NORMALIZE
-	{	qb_pbj_translate_length,					PBJ_RS_WD,			NULL					},	// PBJ_LENGTH
-	{	qb_pbj_translate_distance,					PBJ_RS_RD_WD1,		NULL					},	// PBJ_DISTANCE
-	{	qb_pbj_translate_dot_product,				PBJ_RS_RD_WD1,		NULL					},	// PBJ_DOT_PRODUCT
-	{	qb_pbj_translate_cross_product,				PBJ_RS_RD_WD,		NULL					},	// PBJ_CROSS_PRODUCT
-	{	qb_pbj_translate_comparison_op,				PBJ_RS_RD_WB,		equal_opcodes			},	// PBJ_EQUAL
-	{	qb_pbj_translate_comparison_op,				PBJ_RS_RD_WB,		not_equal_opcodes		},	// PBJ_NOT_EQUAL
-	{	qb_pbj_translate_comparison_op,				PBJ_RS_RD_WB,		less_than_opcodes		},	// PBJ_LESS_THAN
-	{	qb_pbj_translate_comparison_op,				PBJ_RS_RD_WB,		less_or_equal_opcodes	},	// PBJ_LESS_THAN_EQUAL
-	{	qb_pbj_translate_unary_op,					PBJ_RS_WD,			logical_not_opcodes		},	// PBJ_LOGICAL_NOT
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		logical_and_opcodes		},	// PBJ_LOGICAL_AND
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		logical_or_opcodes		},	// PBJ_LOGICAL_OR
-	{	qb_pbj_translate_binary_op,					PBJ_RS_RD_WD,		logical_xor_opcodes		},	// PBJ_LOGICAL_XOR
-	{	qb_pbj_translate_sample,					PBJ_RS_WD,			sample_nearest_opcodes	},	// PBJ_SAMPLE_NEAREST
-	{	qb_pbj_translate_sample,					PBJ_RS_WD,			sample_bilinear_opcodes	},	// PBJ_SAMPLE_BILINEAR
-	{	qb_pbj_translate_load_constant,				PBJ_WD,				NULL,					},	// PBJ_LOAD_CONSTANT
-	{	qb_pbj_translate_select,					PBJ_RS_RS2_RS3_WD,	NULL,					},	// PBJ_SELECT
-	{	qb_pbj_translate_if,						PBJ_RS,				NULL,					},	// PBJ_IF
-	{	qb_pbj_translate_else,						0,					NULL,					},	// PBJ_ELSE
-	{	qb_pbj_translate_end_if,					0,					NULL					},	// PBJ_END_IF
-	{	qb_pbj_translate_bool,						0,					NULL					},	// PBJ_FLOAT_TO_BOOL
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			NULL					},	// PBJ_BOOL_TO_FLOAT
-	{	qb_pbj_translate_bool,						0,					NULL					},	// PBJ_INT_TO_BOOL
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			NULL					},	// PBJ_BOOL_TO_INT
-	{	qb_pbj_translate_comparison_op,				PBJ_RS_RD_WB,		NULL					},	// PBJ_VECTOR_EQUAL
-	{	qb_pbj_translate_comparison_op,				PBJ_RS_RD_WB,		NULL					},	// PBJ_VECTOR_NOT_EQUAL
-	{	qb_pbj_translate_any_all,					PBJ_RS_WD,			&any_opcode				},	// PBJ_ANY
-	{	qb_pbj_translate_any_all,					PBJ_RS_WD,			&all_opcode				},	// PBJ_ALL
-	{	qb_pbj_translate_smooth_step,				PBJ_RS_RS2_RS3_WD,	smooth_step_opcodes		},	// PBJ_SMOOTH_STEP
+	{	NULL,										0,					NULL						},	// PBJ_NOP
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_add				},	// PBJ_ADD
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_subtract			},	// PBJ_SUBTRACT
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_multiply			},	// PBJ_MULTIPLY
+	{	qb_pbj_translate_reciprocal,				PBJ_RS_WD,			&factory_divide				},	// PBJ_RECIPROCAL
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_divide				},	// PBJ_DIVIDE
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_atan2				},	// PBJ_ATAN2
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_pow				},	// PBJ_POW
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_floor_modulo		},	// PBJ_MOD
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_min				},	// PBJ_MIN
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_max				},	// PBJ_MAX
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_step				},	// PBJ_STEP
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sin				},	// PBJ_SIN
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_cos				},	// PBJ_COS
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_tan				},	// PBJ_TAN
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_asin				},	// PBJ_ASIN
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_acos				},	// PBJ_ACOS
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_atan				},	// PBJ_ATAN
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_exp				},	// PBJ_EXP
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_exp2				},	// PBJ_EXP2
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_log				},	// PBJ_LOG
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_log2				},	// PBJ_LOG2
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sqrt				},	// PBJ_SQRT
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_inv_sqrt			},	// PBJ_RSQRT
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_abs				},	// PBJ_ABS
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sign				},	// PBJ_SIGN
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_floor				},	// PBJ_FLOOR
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_ceil				},	// PBJ_CEIL
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_fract				},	// PBJ_FRACT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_COPY
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_FLOAT_TO_INT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_INT_TO_FLOAT
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_mm_multiply		},	// PBJ_MATRIX_MATRIX_MULTIPLY
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_vm_multiply		},	// PBJ_VECTOR_MATRIX_MULTIPLY
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_mv_multiply		},	// PBJ_MATRIX_VECTOR_MULTIPLY
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_normalize			},	// PBJ_NORMALIZE
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_length				},	// PBJ_LENGTH
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD1,		&factory_distance			},	// PBJ_DISTANCE
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD1,		&factory_dot_product		},	// PBJ_DOT_PRODUCT
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_cross_product		},	// PBJ_CROSS_PRODUCT
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_equal				},	// PBJ_EQUAL
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_not_equal			},	// PBJ_NOT_EQUAL
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_less_than			},	// PBJ_LESS_THAN
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_less_equal			},	// PBJ_LESS_THAN_EQUAL
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_logical_not		},	// PBJ_LOGICAL_NOT
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_logical_and		},	// PBJ_LOGICAL_AND
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_logical_or			},	// PBJ_LOGICAL_OR
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_logical_xor		},	// PBJ_LOGICAL_XOR
+	{	qb_pbj_translate_sample,					PBJ_RS_WD,			&factory_sample_nearest		},	// PBJ_SAMPLE_NEAREST
+	{	qb_pbj_translate_sample,					PBJ_RS_WD,			&factory_sample_bilinear	},	// PBJ_SAMPLE_BILINEAR
+	{	qb_pbj_translate_load_constant,				PBJ_WD,				NULL,						},	// PBJ_LOAD_CONSTANT
+	{	qb_pbj_translate_select,					PBJ_RS_RS2_RS3_WD,	NULL,						},	// PBJ_SELECT
+	{	qb_pbj_translate_if,						PBJ_RS,				NULL,						},	// PBJ_IF
+	{	qb_pbj_translate_else,						0,					NULL,						},	// PBJ_ELSE
+	{	qb_pbj_translate_end_if,					0,					NULL						},	// PBJ_END_IF
+	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_FLOAT_TO_BOOL
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_BOOL_TO_FLOAT
+	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_INT_TO_BOOL
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_BOOL_TO_INT
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_equal				},	// PBJ_VECTOR_EQUAL
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_not_equal			},	// PBJ_VECTOR_NOT_EQUAL
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_any				},	// PBJ_ANY
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_all				},	// PBJ_ALL
+	{	qb_pbj_translate_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step		},	// PBJ_SMOOTH_STEP
 };
-
 
 static void ZEND_FASTCALL qb_pbj_translate_current_instruction(qb_compiler_context *cxt) {
 	qb_pbj_translator *t;
@@ -1496,7 +1280,7 @@ static void ZEND_FASTCALL qb_pbj_translate_current_instruction(qb_compiler_conte
 			}
 
 			cxt->line_number = cxt->pbj_op_index + 1;
-			t->translate(cxt, t, inputs, output);
+			t->translate(cxt, t, inputs, input_count, output);
 		}
 	}
 }
@@ -2189,43 +1973,43 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 				qb_address *input_height_address = input_image_address->dimension_addresses[0];
 				qb_address *input_size_x_address = qb_pbj_obtain_channel_address(cxt, parameter->destination.register_id, parameter->destination.channels[0], 1);
 				qb_address *input_size_y_address = qb_pbj_obtain_channel_address(cxt, parameter->destination.register_id, parameter->destination.channels[1], 1);
-				qb_do_copy(cxt, input_width_address, input_size_x_address);
-				qb_do_copy(cxt, input_height_address, input_size_y_address);
+				qb_do_assignment(cxt, input_width_address, input_size_x_address);
+				qb_do_assignment(cxt, input_height_address, input_size_y_address);
 			} else if(parameter->address) {
 				qb_address *dst_address;
 				qb_address *src_address = parameter->address;
 				qb_pbj_address *dst = &parameter->destination;
 				dst_address = qb_pbj_obtain_address(cxt, dst);
-				qb_do_copy(cxt, src_address, dst_address);
+				qb_do_assignment(cxt, src_address, dst_address);
 			} else if(parameter->default_value.type) {
 				// use default value if parameter isn't mapped to an argument
 				qb_address *value_address = qb_pbj_obtain_value_address(cxt, &parameter->default_value);
 				qb_address *param_address = qb_pbj_obtain_address(cxt, &parameter->destination);
 				if(value_address) {
-					qb_do_copy(cxt, value_address, param_address);
+					qb_do_assignment(cxt, value_address, param_address);
 				}
 			}
 		}
 	}
 
 	// set pixel index to zero
-	qb_do_copy(cxt, cxt->pbj_int_numerals[0], pixel_index_address);
+	qb_do_assignment(cxt, cxt->pbj_int_numerals[0], pixel_index_address);
 
 	// set y to zero, but _OutCoord.y to 0.5, as that's the center of the grid
-	qb_do_copy(cxt, cxt->pbj_int_numerals[0], y_address);
-	qb_do_copy(cxt, cxt->pbj_float_numerals[1], out_coord_y_address);
+	qb_do_assignment(cxt, cxt->pbj_int_numerals[0], y_address);
+	qb_do_assignment(cxt, cxt->pbj_float_numerals[1], out_coord_y_address);
 
 	// set x to zero, but _OutCoord.x to 0.5
 	// the outer loop starts here
 	cxt->op_translations[OUTER_LOOK_JUMP_TARGET_INDEX] = cxt->op_count;
-	qb_do_copy(cxt, cxt->pbj_int_numerals[0], x_address);
+	qb_do_assignment(cxt, cxt->pbj_int_numerals[0], x_address);
 	qop = cxt->ops[cxt->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
-	qb_do_copy(cxt, cxt->pbj_float_numerals[1], out_coord_x_address);
+	qb_do_assignment(cxt, cxt->pbj_float_numerals[1], out_coord_x_address);
 
 	// initialize the output pixel to zero--the inner loop starts here
 	cxt->op_translations[INNER_LOOP_JUMP_TARGET_INDEX] = cxt->op_count;
-	qb_do_copy(cxt, cxt->pbj_float_numerals[0], output_address);
+	qb_do_assignment(cxt, cxt->pbj_float_numerals[0], output_address);
 	qop = cxt->ops[cxt->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
 
@@ -2243,7 +2027,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 		// add a nop if new one wasn't generated
 		if(current_op_count == cxt->op_count) {
-			qb_append_simple_op(cxt, QB_NOP);
+			qb_create_nop(cxt);
 		}
 
 		// flag new op as a jump target if there's a placeholder in the position
@@ -2268,12 +2052,11 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	qb_do_assignment(cxt, output_address, pixel_address);
 
 	// move the pixel index forward
-	qb_append_op_with_three_addresses(cxt, QB_ADD_I32_I32_I32, pixel_index_address, channel_count_address, pixel_index_address);
-	//qb_append_op_with_one_address(cxt, QB_INC_I32_VAR, pixel_index_address);
+	qb_create_binary_op(cxt, &factory_add, pixel_index_address, channel_count_address, pixel_index_address);
 
 	// increment x and _OutCoord.x
-	qb_append_op_with_one_address(cxt, QB_INC_I32_VAR, x_address);
-	qb_append_op_with_one_address(cxt, QB_INC_F32_VAR, out_coord_x_address);
+	qb_create_nullary_op(cxt, &factory_increment, x_address);
+	qb_create_nullary_op(cxt, &factory_increment, out_coord_x_address);
 
 	// if there's an jump to the end of the PB program, mark the instruction as a jump target
 	if(cxt->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] == QB_OP_INDEX_JUMP_TARGET) {
@@ -2283,16 +2066,15 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	}
 
 	// jump to beginning of inner loop if x is less than width
-	qb_append_op_with_branch_targets_plus_two_addresses(cxt, QB_IF_LT_U32_U32, INNER_LOOP_JUMP_TARGET_INDEX, QB_INSTRUCTION_NEXT, x_address, width_address);
+	qb_create_comparison_branch_op(cxt, &factory_branch_on_less_than, INNER_LOOP_JUMP_TARGET_INDEX, QB_INSTRUCTION_NEXT, x_address, width_address);
 
 	// increment y and _OutCoord.y
-	qb_append_op_with_one_address(cxt, QB_INC_I32_VAR, y_address);
-	qb_append_op_with_one_address(cxt, QB_INC_F32_VAR, out_coord_y_address);
+	qb_create_nullary_op(cxt, &factory_increment, y_address);
+	qb_create_nullary_op(cxt, &factory_increment, out_coord_y_address);
 
 	// jump to beginning of outer loop if y is less than height
-	qb_append_op_with_branch_targets_plus_two_addresses(cxt, QB_IF_LT_U32_U32, OUTER_LOOK_JUMP_TARGET_INDEX, QB_INSTRUCTION_NEXT, y_address, height_address);
-
-	qb_append_simple_op(cxt, return_opcode);
+	qb_create_comparison_branch_op(cxt, &factory_branch_on_less_than, OUTER_LOOK_JUMP_TARGET_INDEX, QB_INSTRUCTION_NEXT, y_address, height_address);
+	qb_create_op(cxt, &factory_return, NULL, 0, NULL);
 
 	// allocate memory space for the registers
 	if(cxt->pbj_float_register_count > 0) {

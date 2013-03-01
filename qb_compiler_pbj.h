@@ -31,7 +31,7 @@ typedef struct qb_pbj_texture			qb_pbj_texture;
 typedef struct qb_pbj_op				qb_pbj_op;
 typedef struct qb_pbj_translator		qb_pbj_translator;
 
-typedef void (ZEND_FASTCALL *qb_pbj_translator_proc)(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, qb_pbj_address *output);
+typedef void (ZEND_FASTCALL *qb_pbj_translator_proc)(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t intput_count, qb_pbj_address *output);
 
 struct qb_pbj_address {
 	uint32_t dimension;

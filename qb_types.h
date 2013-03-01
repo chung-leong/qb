@@ -71,6 +71,8 @@ enum {
 	QB_TYPE_F32						= 8,
 	QB_TYPE_F64						= 9,
 
+	QB_TYPE_BOOLEAN					= QB_TYPE_I32,
+
 	QB_TYPE_COUNT					= 10,
 };
 
@@ -79,6 +81,7 @@ enum {
 	QB_TYPE_VOID					= 100,
 	QB_TYPE_UNKNOWN,
 	QB_TYPE_ANY,
+	QB_TYPE_OPERAND,
 };
 
 enum {
