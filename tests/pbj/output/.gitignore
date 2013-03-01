@@ -1,0 +1,6 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+#PHP test files
+*.incorrect.png
