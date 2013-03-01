@@ -24,7 +24,7 @@
 typedef struct qb_translator			qb_translator;
 typedef struct qb_intrinsic_function	qb_intrinsic_function;
 
-typedef void (ZEND_FASTCALL *qb_translator_proc)(qb_compiler_context *cxt, qb_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+typedef void (ZEND_FASTCALL *qb_translator_proc)(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 typedef void (ZEND_FASTCALL *qb_intrinsic_coercion_proc)(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *argument, uint32_t argument_index);
 typedef void (ZEND_FASTCALL *qb_intrinsic_translate_proc)(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result);
 

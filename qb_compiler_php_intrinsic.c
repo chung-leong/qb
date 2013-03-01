@@ -82,7 +82,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt,
 
 static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	qb_address *result_size_address = NULL, *min_address, *max_address;
-	uint32_t operand_flags = qb_get_coercion_flags(cxt, f->extra);
 	uint32_t expr_type;
 
 	if(argument_count != 0 && argument_count != 2) {
@@ -301,7 +300,6 @@ static void ZEND_FASTCALL qb_translate_subarray_search(qb_compiler_context *cxt,
 
 static void ZEND_FASTCALL qb_translate_sort(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	qb_operand *container = &arguments[0];
-	uint32_t *opcodes = f->extra;
 	if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address) || container->address->dimension_count > 1) {
 		qb_abort("%s expects a one-dimensional array as parameter", f->name);
 	}
@@ -373,7 +371,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_pack(qb_compiler_context *cxt, 
 static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	qb_operand *array = &arguments[0], *offset = &arguments[1], *type = &arguments[2];
 	qb_address *slice_address, *offset_address, *length_address;
-	uint32_t *opcode_list = f->extra;
 	uint32_t result_type;
 
 	qb_do_type_coercion(cxt, array, QB_TYPE_U08);

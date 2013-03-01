@@ -1084,12 +1084,6 @@ static void ZEND_FASTCALL qb_push_address(qb_compiler_context *cxt, qb_address *
 	qb_add_reference(cxt, address);
 }
 
-static void ZEND_FASTCALL qb_push_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer) {
-	qb_operand *stack_item = qb_push_stack_item(cxt);
-	stack_item->type = QB_OPERAND_ARRAY_INITIALIZER;
-	stack_item->array_initializer = initializer;
-}
-
 static qb_operand * ZEND_FASTCALL qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index) {
 	int32_t addition = (required_index + 1) - initializer->element_count;
 	if(addition > 0) {

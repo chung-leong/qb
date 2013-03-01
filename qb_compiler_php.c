@@ -39,12 +39,6 @@ static void ZEND_FASTCALL qb_print_zend_ops(qb_compiler_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_push_constant_zval(qb_compiler_context *cxt, zval *constant) {
-	qb_operand *stack_item = qb_push_stack_item(cxt);
-	stack_item->type = QB_OPERAND_ZVAL;
-	stack_item->constant = constant;
-}
-
 static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, int32_t element_type) {
 	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
 		HashTable *ht = Z_ARRVAL_P(zvalue);
