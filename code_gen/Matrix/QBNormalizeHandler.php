@@ -56,7 +56,7 @@ class QBNormalizeHandler extends QBSIMDHandler {
 	public function getSIMDExpression() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "qb_normalize_array_$type(op1_ptr, res_ptr, VECTOR_SIZE);";
+			return "qb_normalize_array_$type(op1_ptr, res_ptr, MATRIX2_ROWS);";
 		} else {
 			return "qb_normalize_array_{$this->operandSize}x_$type(op1_ptr, res_ptr);";
 		}

@@ -51,30 +51,30 @@ class QBLengthHandler extends QBSIMDHandler {
 	}
 	
 	public function getResultSizePossibilities() {
-		return "vector_count";
+		if($this->addressMode == "ARR") {
+			return "vector_count";
+		}
 	}
 	
 	public function getResultSizeCalculation() {
-		$vectorSize = $this->getOperandSize(1);
-		return "vector_count = op1_count / $vectorSize;";
+		if($this->addressMode == "ARR") {
+			$vectorSize = $this->getOperandSize(1);
+			return "vector_count = op1_count / $vectorSize;";
+		}
 	}
 	
 	public function getOperandSize($i) {
 		if($i == 2) {
 			return 1;
 		} else {
-			if($this->operandSize == "variable") {
-				return "VECTOR_SIZE";
-			} else {
-				return $this->operandSize;
-			}
+			return parent::getOperandSize($i);
 		}
 	}
 	
 	protected function getSIMDExpression() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "res = qb_calculate_array_length_$type(op1_ptr, VECTOR_SIZE);";
+			return "res = qb_calculate_array_length_$type(op1_ptr, MATRIX2_ROWS);";
 		} else {
 			return "res = qb_calculate_array_length_{$this->operandSize}x_$type(op1_ptr);";
 		}

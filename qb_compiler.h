@@ -119,6 +119,11 @@ enum {
 	QB_OP_CANNOT_REMOVE				= 0x00002000,
 };
 
+#define MM_DIMENSIONS(m1_rows, m1_cols, m2_rows, m2_cols)		(((m1_rows & 0x000003FF) << 20) | ((m1_cols & 0x000003FF) << 10) | (m2_cols & 0x000003FF))
+#define MV_DIMENSIONS(m_rows, m_cols, v_width)					MM_DIMENSIONS(m_rows, m_cols, v_width, 1)
+#define VM_DIMENSIONS(v_width, m_rows, m_cols)					MM_DIMENSIONS(1, v_width, m_rows, m_cols)
+#define V_DIMENSIONS(v_width)									MM_DIMENSIONS(1, v_width, v_width, 1)
+
 struct qb_op {
 	uint32_t flags;
 	uint32_t opcode;
@@ -315,6 +320,8 @@ enum {
 	QB_RESULT_SIZE_OPERAND			= 0x80000000,
 	QB_RESULT_SIZE_VECTOR_COUNT		= 0x40000000,
 	QB_RESULT_SIZE_MATRIX_PRODUCT	= 0x20000000,
+
+	QB_RESULT_FROM_PURE_FUNCTION	= 0x00100000,
 };
 
 enum {

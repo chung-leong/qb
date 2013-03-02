@@ -1001,10 +1001,10 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT", $elementType, $addressMode);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBLengthHandler("LEN", $elementType, $addressMode);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDistanceHandler("DIS", $elementType, $addressMode);
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, null);
@@ -1025,10 +1025,10 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT_4X", $elementType, $addressMode, 4);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBLengthHandler("LEN_4X", $elementType, $addressMode, 4);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDistanceHandler("DIS_4X", $elementType, $addressMode, 4);
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_4X", $elementType, null, 4);
@@ -1071,10 +1071,10 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT_3X", $elementType, $addressMode, 3);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBLengthHandler("LEN_3X", $elementType, $addressMode, 3);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDistanceHandler("DIS_3X", $elementType, $addressMode, 3);
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_3X", $elementType, null, 3);
@@ -1116,10 +1116,10 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT_2X", $elementType, $addressMode, 2);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {			
+			foreach($this->addressModes as $addressMode) {			
 				$this->handlers[] = new QBLengthHandler("LEN_2X", $elementType, $addressMode, 2);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDistanceHandler("DIS_2X", $elementType, $addressMode, 2);
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_2X", $elementType, null, 2);
@@ -1159,10 +1159,10 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT_1X", $elementType, $addressMode, 1);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {			
+			foreach($this->addressModes as $addressMode) {			
 				$this->handlers[] = new QBLengthHandler("LEN_1X", $elementType, $addressMode, 1);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDistanceHandler("DIS_1X", $elementType, $addressMode, 1);
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_1X", $elementType, null, 1);

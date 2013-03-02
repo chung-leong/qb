@@ -2169,15 +2169,13 @@ static qb_address * ZEND_FASTCALL qb_get_named_element(qb_compiler_context *cxt,
 	return value_address;
 }
 
-// can't use fastcall
-static qb_address * qb_get_largest_array_size(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
+static qb_address * ZEND_FASTCALL qb_get_largest_array_size(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
 	uint32_t i, array_size = 0;
 	qb_address *array_size_address = NULL;
 	for(i = 0; i < operand_count; i++) {
 		qb_address *address = operands[i].address;
 		if(IS_VARIABLE_LENGTH_ARRAY(address)) {
-			array_size_address = address->array_size_address;
-			break;
+			return address->array_size_address;
 		} else if(!IS_SCALAR(address)) {
 			if(!array_size_address || array_size < ARRAY_SIZE(address)) {
 				array_size = ARRAY_SIZE(address);
@@ -2187,6 +2185,29 @@ static qb_address * qb_get_largest_array_size(qb_compiler_context *cxt, qb_opera
 	}
 	return array_size_address;
 }
+
+static qb_address * ZEND_FASTCALL qb_get_largest_vector_count(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
+	qb_address *array_size_address = qb_get_largest_array_size(cxt, operands, operand_count);
+	qb_address *vector_address;
+	uint32_t element_count, vector_width, vector_count;
+	if(!(array_size_address->flags & QB_ADDRESS_CONSTANT)) {
+		// return the variable to indicate variable-length
+		return array_size_address;
+	}
+	vector_address = operands[0].address;
+	vector_width = VALUE(U32, vector_address->dimension_addresses[vector_address->dimension_count - 1]);
+	element_count = VALUE(U32, array_size_address);
+	if(element_count > vector_width) {
+		vector_count = element_count / vector_width;
+		return qb_obtain_constant_U32(cxt, vector_count);
+	}
+	return NULL;
+}
+
+static qb_address * ZEND_FASTCALL qb_get_matrix_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
+	return NULL;
+}
+
 
 static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
 	if(qop->opcode > QB_OPCODE_COUNT) {
@@ -2281,6 +2302,7 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 					//
 					// note that QB_ADDRESS_MODE_VAR = 0
 					if(required_address_mode) {
+						const char *op_name = qb_get_op_name(cxt, qop->opcode);
 						qop->opcode += required_address_mode;
 					}
 				}
@@ -2499,6 +2521,9 @@ static uint32_t ZEND_FASTCALL qb_get_op_encoded_length(qb_compiler_context *cxt,
 				length += sizeof(uint32_t);
 			}
 		}
+		if(flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
+			length += sizeof(uint32_t);
+		}
 		if(flags & QB_OP_NEED_LINE_NUMBER) {
 			length += sizeof(uint32_t);
 		}
@@ -2713,6 +2738,9 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 #endif
 				}
 			}
+			if(qop->flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
+				*((uint32_t *) ip) = qop->matrix_dimensions; ip += sizeof(uint32_t);
+			}
 			// put the line number at the end if it's needed (unless it's a variable length op)
 			if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
 				if(!(qop->flags & QB_OP_VARIABLE_LENGTH)) {
@@ -2803,6 +2831,9 @@ static void ZEND_FASTCALL qb_relocate_instruction_range(qb_compiler_context *cxt
 				ip += total_operand_length;
 			} else {
 				for(i = 0; (operand_flags = qb_get_operand_flags(cxt, current_opcode, i)); i++) {
+					ip += sizeof(uint32_t);
+				}
+				if(op_flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
 					ip += sizeof(uint32_t);
 				}
 				if(op_flags & QB_OP_NEED_LINE_NUMBER) {

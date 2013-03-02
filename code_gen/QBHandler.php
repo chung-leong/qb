@@ -118,9 +118,6 @@ class QBHandler {
 			$lines[] = "#define MATRIX1_COLS			(((($instr *) instruction_pointer)->matrix_dimensions >> 10) & 0x03FF)";
 			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
 			$lines[] = "#define MATRIX2_COLS			((($instr *) instruction_pointer)->matrix_dimensions & 0x03FF)";
-			$lines[] = "#define MATRIX1_SIZE			(MATRIX1_ROWS * MATRIX1_COLS)";
-			$lines[] = "#define MATRIX2_SIZE			(MATRIX2_ROWS * MATRIX2_COLS)";
-			$lines[] = "#define VECTOR_SIZE				MATRIX2_ROWS";
 		}
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] = $this->getOperandDeclaration($i);
@@ -137,7 +134,6 @@ class QBHandler {
 			$lines[] = "#undef MATRIX1_COLS";
 			$lines[] = "#undef MATRIX2_ROWS";
 			$lines[] = "#undef MATRIX2_COLS";
-			$lines[] = "#undef VECTOR_SIZE";
 		}
 		$lines[] = "}";
 		$lines[] = "instruction_pointer += sizeof($instr);";
@@ -226,11 +222,10 @@ class QBHandler {
 			if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
 				$flags[] = "QB_OP_NEED_MATRIX_DIMENSIONS";
 			}
-		} else {
-			if($this->addressMode) {
-				// op can be employed in different address modes
-				$flags[] = "QB_OP_MULTI_ADDRESS";
-			}
+		}
+		if($this->addressMode == "VAR") {
+			// op can be employed in different address modes
+			$flags[] = "QB_OP_MULTI_ADDRESS";
 		}
 		if($this->flags & self::WILL_JUMP) {
 			// the op will redirect execution to another location 

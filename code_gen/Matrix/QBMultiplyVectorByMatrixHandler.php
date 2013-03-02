@@ -1,6 +1,6 @@
 <?php
 
-class QBMultiplyVectorByMatrixHandler extends QBSIMDHandler {
+class QBMultiplyVectorByMatrixHandler extends QBMultiplyMatrixByMatrixHandler {
 
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
@@ -73,42 +73,23 @@ class QBMultiplyVectorByMatrixHandler extends QBSIMDHandler {
 	public function getOperandSize($i) {
 		if($this->operandSize == "variable") {
 			switch($i) {
-				case 1: return "VECTOR_SIZE";
-				case 2: return "MATRIX1_SIZE";
-				case 3: return "MATRIX1_COLS";
+				case 1: return "(1 * MATRIX1_COLS)";
+				case 2: return "(MATRIX2_ROWS * MATRIX2_COLS)";
+				case 3: return "(1 * MATRIX2_COLS)";
 			}
 		} else {
 			switch($i) {
-				case 1: return $this->operandSize + $this->operandPadding;
+				case 1: return $this->operandSize;
 				case 2: return ($this->operandSize + $this->operandPadding) * $this->operandSize;
-				case 3: return $this->operandSize + $this->operandPadding;
+				case 3: return $this->operandSize;
 			}
 		}
 	}
-
-	public function getResultSizePossibilities() {
-		if($this->addressMode == "ARR") {
-			return "mmult_res_count";
-		}
-	}
-	
-	public function getResultSizeCalculation() {
-		if($this->addressMode == "ARR") {
-			$lines = array();
-			$vectorSize = $this->getOperandSize(1);
-			$matrixSize = $this->getOperandSize(2); 
-			$outputSize = $this->getOperandSize(3);
-			$lines[] = "vector_count = op1_count / $vectorSize;";
-			$lines[] = "matrix1_count = op2_count / $matrixSize;";
-			$lines[] = "mmult_res_count = ((matrix1_count > vector_count) ? matrix1_count : vector_count) * $outputSize;";
-			return $lines;
-		}
-	}
-	
+		
 	public function getSIMDExpression() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "qb_multiply_vector_by_matrix_$type(op1_ptr, VECTOR_SIZE, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);";
+			return "qb_multiply_vector_by_matrix_$type(op1_ptr, MATRIX1_COLS, op2_ptr, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);";
 		} else {
 			if($this->operandPadding) {
 				return "qb_multiply_vector_by_matrix_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, op2_ptr, res_ptr);";

@@ -127,15 +127,15 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 	public function getOperandSize($i) {
 		if($this->operandSize == "variable") {
 			switch($i) {
-				case 1: return "MATRIX1_SIZE";
-				case 2: return "MATRIX2_SIZE";
+				case 1: return "(MATRIX1_ROWS * MATRIX1_COLS)";
+				case 2: return "(MATRIX2_ROWS * MATRIX2_COLS)";
 				case 3: return "(MATRIX1_ROWS * MATRIX2_COLS)";
 			}
 		} else {
 			return ($this->operandSize + $this->operandPadding) * $this->operandSize;
 		}
 	}
-
+	
 	public function getResultSizePossibilities() {
 		if($this->addressMode == "ARR") {
 			return "mmult_res_count";

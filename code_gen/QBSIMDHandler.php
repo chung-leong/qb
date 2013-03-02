@@ -20,7 +20,7 @@ class QBSIMDHandler extends QBHandler {
 
 	public function getOperandSize($i) {
 		if($this->operandSize == "variable") {
-			return "VECTOR_SIZE";
+			return "MATRIX2_ROWS";
 		} else {
 			return $this->operandSize;
 		}

@@ -52,9 +52,9 @@ class QBReflectHandler extends QBSIMDHandler {
 	public function getSIMDExpression() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "qb_calculate_face_forward_$type(op1_ptr, op2_ptr, res_ptr, VECTOR_SIZE);";
+			return "qb_calculate_reflect_$type(op1_ptr, op2_ptr, res_ptr, MATRIX2_ROWS);";
 		} else {
-			return "qb_calculate_face_forward_{$this->operandSize}x_$type(op1_ptr, op2_ptr, res_ptr);";
+			return "qb_calculate_reflect_{$this->operandSize}x_$type(op1_ptr, op2_ptr, res_ptr);";
 		}
 	}
 }

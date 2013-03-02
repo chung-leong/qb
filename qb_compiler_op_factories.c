@@ -136,15 +136,26 @@ static zend_always_inline uint32_t qb_get_result_flags(qb_compiler_context *cxt,
 	return f->result_flags;
 }
 
+static void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
+
 static qb_op * ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	if(!cxt->resolving_result_type) {
 		qb_basic_op_factory *f = factory;
+		uint32_t initial_op_count = cxt->op_count;
 		qb_op *qop = f->append(cxt, factory, operands, operand_count, result);
 
 		if(result && result->type == QB_OPERAND_ADDRESS) {
-			// mark result address as writable, unless it's a constant (its value being set by
-			// the interpreter at compile time) 
-			if(!(result->address->flags & QB_ADDRESS_CONSTANT)) {
+			if(result->address->flags & QB_ADDRESS_CONSTANT) {
+				// evalulate the expression at compile-time
+				qb_execute_op(cxt, qop);
+
+				// roll back the op counter
+				cxt->op_count = initial_op_count;
+
+				// make it a NOP
+				qop->opcode = QB_NOP;
+			} else {
+				// mark result address as writable
 				qb_mark_as_writable(cxt, result->address);
 			}
 		}
@@ -230,22 +241,6 @@ static qb_op * ZEND_FASTCALL qb_create_comparison_branch_op(qb_compiler_context 
 	return qb_create_op(cxt, factory, operands, 4, NULL);
 }
 
-static void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
-
-static void ZEND_FASTCALL qb_evaluate_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	// save the op count
-	uint32_t op_count = cxt->op_count;
-
-	// create the op
-	qb_op *qop = qb_create_op(cxt, factory, operands, operand_count, result);
-
-	// run the op
-	qb_execute_op(cxt, qop);
-
-	// restore the op count
-	cxt->op_count = op_count;
-}
-
 static uint32_t ZEND_FASTCALL qb_get_minimum_width(qb_compiler_context *cxt, qb_operand *operand) {
 	qb_address *address = operand->address;
 	uint32_t i, width = 0;
@@ -302,7 +297,10 @@ static qb_op * ZEND_FASTCALL qb_append_copy_op(qb_compiler_context *cxt, void *f
 	qb_op *qop = qb_append_op(cxt, opcode, 2);
 	qop->operands[0] = operands[0];
 	qop->operands[1] = *result;
-	qb_vectorize_op(cxt, qop, f->vector_opcodes);
+	if(src_address->type == dst_address->type) {
+		// vectorized instructions are available only for copying between variables of the same type
+		qb_vectorize_op(cxt, qop, f->vector_opcodes);
+	}
 	return qop;
 }
 
@@ -1326,7 +1324,7 @@ static uint32_t ZEND_FASTCALL qb_get_matrix_column_count(qb_compiler_context *cx
 	return 1;
 }
 
-static zend_always_inline uint32_t qb_get_vector_length(qb_compiler_context *cxt, qb_address *address) {
+static zend_always_inline uint32_t qb_get_vector_width(qb_compiler_context *cxt, qb_address *address) {
 	return qb_get_matrix_column_count(cxt, address);
 }
 
@@ -1334,7 +1332,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_op(qb_compiler_context *cxt, void 
 	qb_vector_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = (operand_count >= 2) ? operands[1].address : NULL;
-	uint32_t dimension1 = qb_get_vector_length(cxt, address1);
+	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
 	qb_op *qop;
 	uint32_t opcode;
 	uint32_t i;
@@ -1345,8 +1343,11 @@ static qb_op * ZEND_FASTCALL qb_append_vector_op(qb_compiler_context *cxt, void 
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
 	if(address1->dimension_count > 1 || (address2 && address2->dimension_count > 1)) {
-		// handling multiple vectors
-		opcode = opcode + 1;
+		// handling multiple input vectors
+		uint32_t op_flags = qb_get_op_flags(cxt, opcode);
+		if(!(op_flags & QB_OP_MULTI_ADDRESS)) {
+			opcode = opcode + 1;
+		}
 	}
 	qop = qb_append_op(cxt, opcode, operand_count + 1);
 	for(i = 0; i < operand_count; i++) {
@@ -1354,6 +1355,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_op(qb_compiler_context *cxt, void 
 		qop->operands[i].address = operands[i].address;
 	}
 	qop->operands[operand_count] = *result;
+	qop->matrix_dimensions = V_DIMENSIONS(dimension1);
 	return qop;
 }
 
@@ -1377,9 +1379,9 @@ static qb_vector_op_factory factory_length = {
 	{	QB_LEN_F64_F64,			QB_LEN_F32_F32,	},
 	{
 		{	QB_LEN_1X_F64_F64,		QB_LEN_1X_F32_F32,	},
-		{	QB_LEN_1X_F64_F64,		QB_LEN_2X_F32_F32,	},
-		{	QB_LEN_1X_F64_F64,		QB_LEN_3X_F32_F32,	},
-		{	QB_LEN_1X_F64_F64,		QB_LEN_4X_F32_F32,	},
+		{	QB_LEN_2X_F64_F64,		QB_LEN_2X_F32_F32,	},
+		{	QB_LEN_3X_F64_F64,		QB_LEN_3X_F32_F32,	},
+		{	QB_LEN_4X_F64_F64,		QB_LEN_4X_F32_F32,	},
 	},
 };
 
@@ -1485,6 +1487,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt
 	qop->operands[1].address = operands[1].address;
 	qop->operands[2].type = QB_OPERAND_ADDRESS_ARR;
 	qop->operands[2].address = result->address;
+	qop->matrix_dimensions = MM_DIMENSIONS(m1_rows, m1_cols, m2_rows, m2_cols);
 	return qop;
 }	
 
@@ -1509,6 +1512,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt
 	int32_t use_padding = TRUE;
 	uint32_t m_rows = qb_get_matrix_row_count(cxt, address1);
 	uint32_t m_cols = qb_get_matrix_column_count(cxt, address1);
+	uint32_t v_width = qb_get_vector_width(cxt, address1);
 	qb_op *qop;
 	uint32_t opcode;
 
@@ -1530,6 +1534,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt
 	qop->operands[1].address = operands[1].address;
 	qop->operands[2].type = QB_OPERAND_ADDRESS_ARR;
 	qop->operands[2].address = result->address;
+	qop->matrix_dimensions = MV_DIMENSIONS(m_rows, m_cols, v_width);
 	return qop;
 }	
 
@@ -1552,6 +1557,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
 	int32_t use_padding = TRUE;
+	uint32_t v_width = qb_get_vector_width(cxt, address1);
 	uint32_t m_rows = qb_get_matrix_row_count(cxt, address2);
 	uint32_t m_cols = qb_get_matrix_column_count(cxt, address2);
 	qb_op *qop;
@@ -1574,6 +1580,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt
 	qop->operands[1].address = operands[1].address;
 	qop->operands[2].type = QB_OPERAND_ADDRESS_ARR;
 	qop->operands[2].address = result->address;
+	qop->matrix_dimensions = VM_DIMENSIONS(v_width, m_rows, m_cols);
 	return qop;
 }	
 

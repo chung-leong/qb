@@ -53,30 +53,30 @@ class QBDotProductHandler extends QBSIMDHandler {
 	}
 		
 	public function getResultSizePossibilities() {
-		return "vector_count";
+		if($this->addressMode == "ARR") {
+			return "vector_count";
+		}
 	}
 	
 	public function getResultSizeCalculation() {
-		$vectorSize = $this->getOperandSize(1);
-		return "vector_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
+		if($this->addressMode == "ARR") {
+			$vectorSize = $this->getOperandSize(1);
+			return "vector_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
+		}
 	}
 	
 	public function getOperandSize($i) {
 		if($i == 3) {
 			return 1;
 		} else {
-			if($this->operandSize == "variable") {
-				return "VECTOR_SIZE";
-			} else {
-				return $this->operandSize;
-			}
+			return parent::getOperandSize($i);
 		}
 	}
 	
 	public function getSIMDExpression() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "res = qb_calculate_dot_product_$type(op1_ptr, op2_ptr, VECTOR_SIZE);";
+			return "res = qb_calculate_dot_product_$type(op1_ptr, op2_ptr, MATRIX2_ROWS);";
 		} else {
 			return "res = qb_calculate_dot_product_{$this->operandSize}x_$type(op1_ptr, op2_ptr);";
 		}
