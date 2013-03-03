@@ -857,8 +857,12 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 		result_size_address = qb_get_largest_array_size(cxt, operands, operand_count);
 	} else if(result_flags & QB_RESULT_SIZE_VECTOR_COUNT) {
 		result_size_address = qb_get_largest_vector_count(cxt, operands, operand_count);
-	} else if(result_flags & QB_RESULT_SIZE_MATRIX_PRODUCT) {
-		result_size_address = qb_get_matrix_product_size(cxt, &operands[0], &operands[1]);
+	} else if(result_flags & QB_RESULT_SIZE_MM_PRODUCT) {
+		result_size_address = qb_get_matrix_matrix_product_size(cxt, &operands[0], &operands[1]);
+	} else if(result_flags & QB_RESULT_SIZE_MV_PRODUCT) {
+		result_size_address = qb_get_matrix_vector_product_size(cxt, &operands[0], &operands[1]);
+	} else if(result_flags & QB_RESULT_SIZE_VM_PRODUCT) {
+		result_size_address = qb_get_vector_matrix_product_size(cxt, &operands[0], &operands[1]);
 	}
 	if(result_type == QB_TYPE_OPERAND) {
 		result_type = expr_type;

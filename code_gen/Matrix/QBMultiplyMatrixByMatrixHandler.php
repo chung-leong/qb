@@ -106,7 +106,8 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 			array(
 				"static void ZEND_FASTCALL qb_multiply_matrix_by_matrix_$type($cType *m1, uint32_t m1_row, uint32_t m1_col, $cType *m2, uint32_t m2_row, uint32_t m2_col, $cType *res_ptr) {",
 					"uint32_t i, j, k, p, q, res_index = 0;",
-					"$cType buffer[4096 * 4096];",
+					"int32_t use_heap;",
+					"$cType *buffer = do_alloca(m1_row * m2_col * sizeof($cType), use_heap);",
 					"for(i = 0, q = 0; i < m1_row; ++i) {",
 						"for(j = 0; j < m2_col; ++j) {",
 							"$cType dot_product = 0;",
@@ -118,6 +119,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 						"q += m1_col;",
 					"}",
 					"memcpy(res_ptr, buffer, m1_row * m2_col * sizeof($cType));",
+					"free_alloca(buffer, use_heap);",
 				"}",
 			),
 		);

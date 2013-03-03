@@ -2204,10 +2204,90 @@ static qb_address * ZEND_FASTCALL qb_get_largest_vector_count(qb_compiler_contex
 	return NULL;
 }
 
-static qb_address * ZEND_FASTCALL qb_get_matrix_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
+static qb_address * ZEND_FASTCALL qb_get_matrix_matrix_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
+	qb_address *m1_address = operand1->address;
+	qb_address *m2_address = operand2->address;
+	if(IS_EXPANDABLE_ARRAY(m1_address)) {
+		// return the none-constant address to indicate the result will be variable-length
+		// the value at the address wouldn't actually be correct
+		return m1_address->array_size_address;
+	} else if(IS_EXPANDABLE_ARRAY(m2_address)) {
+		return m2_address->array_size_address;
+	} else {
+		uint32_t m1_rows = qb_get_matrix_row_count(cxt, m1_address);
+		uint32_t m1_cols = qb_get_matrix_column_count(cxt, m1_address);
+		uint32_t m2_rows = qb_get_matrix_row_count(cxt, m1_address);
+		uint32_t m2_cols = qb_get_matrix_column_count(cxt, m2_address);
+		uint32_t m1_count = 1, m2_count = 1, res_count, res_size;
+		if(m1_address->dimension_count > 2) {
+			m1_count = ARRAY_SIZE(m1_address) / (m1_rows * m1_cols);
+		}
+		if(m2_address->dimension_count > 2) {
+			m2_count = ARRAY_SIZE(m2_address) / (m2_rows * m2_cols);
+		}
+		res_count = max(m1_count, m2_count);
+		res_size = (m1_rows * m2_cols) * res_count;
+		if(res_size > 1) {
+			return qb_obtain_constant_U32(cxt, res_size);
+		}
+	}
 	return NULL;
 }
 
+static qb_address * ZEND_FASTCALL qb_get_vector_matrix_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
+	qb_address *v_address = operand1->address;
+	qb_address *m_address = operand2->address;
+	if(IS_EXPANDABLE_ARRAY(m_address)) {
+		return m_address->array_size_address;
+	} else if(IS_EXPANDABLE_ARRAY(v_address)) {
+		return v_address->array_size_address;
+	} else {
+		// both are fixed-length
+		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
+		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
+		uint32_t v_width = qb_get_vector_width(cxt, v_address);
+		uint32_t m_count = 1, v_count = 1, res_count, res_size;
+		if(m_address->dimension_count > 2) {
+			m_count = ARRAY_SIZE(m_address) / (m_rows * m_cols);
+		}
+		if(v_address->dimension_count > 1) {
+			v_count = ARRAY_SIZE(v_address) / v_width;
+		}
+		res_count = max(m_count, v_count);
+		res_size = (m_rows * 1) * res_count;
+		if(res_size > 1) {
+			return qb_obtain_constant_U32(cxt, res_size);
+		}
+	}
+	return NULL;
+}
+
+static qb_address * ZEND_FASTCALL qb_get_matrix_vector_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
+	qb_address *m_address = operand1->address;
+	qb_address *v_address = operand2->address;
+	if(IS_EXPANDABLE_ARRAY(v_address)) {
+		return v_address->array_size_address;
+	} else if(IS_EXPANDABLE_ARRAY(m_address)) {
+		return m_address->array_size_address;
+	} else {
+		uint32_t v_width = qb_get_vector_width(cxt, v_address);
+		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
+		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
+		uint32_t m_count = 1, v_count = 1, res_count, res_size;
+		if(v_address->dimension_count > 1) {
+			v_count = ARRAY_SIZE(v_address) / v_width;
+		}
+		if(m_address->dimension_count > 2) {
+			m_count = ARRAY_SIZE(m_address) / (m_rows * m_cols);
+		}
+		res_count = max(v_count, m_count);
+		res_size = (1 * m_cols) * res_count;
+		if(res_size > 1) {
+			return qb_obtain_constant_U32(cxt, res_size);
+		}
+	}
+	return NULL;
+}
 
 static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
 	if(qop->opcode > QB_OPCODE_COUNT) {
