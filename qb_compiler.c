@@ -3588,7 +3588,7 @@ static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address 
 				qb_print_value(cxt, ARRAY(I08, address), address->type);
 			}
 		}
-	} else if(address->flags & QB_ADDRESS_TEMPORARY) {
+	} else if(address->flags & (QB_ADDRESS_TEMPORARY | QB_ADDRESS_QM_TEMPORARY)) {
 		const char *type_name = type_names[address->type], letter = type_name[0];
 		uint32_t id = address->segment_selector * 1000 + address->segment_offset / 4;
 		if(IS_SCALAR(address)) {

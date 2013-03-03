@@ -761,9 +761,9 @@ static void ZEND_FASTCALL qb_translate_assign_ref(qb_compiler_context *cxt, void
 
 static void ZEND_FASTCALL qb_translate_assign_temp(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_operand *value = &operands[0];
-	int32_t variable_type = qb_get_lvalue_type(cxt, QB_TYPE_I32);
-	qb_do_type_coercion(cxt, value, variable_type);
-	result->address = qb_obtain_qm_temporary_variable(cxt, variable_type, value->address->array_size_address);
+	int32_t lvalue_type = qb_get_lvalue_type(cxt, QB_TYPE_I32);
+	qb_do_type_coercion(cxt, value, lvalue_type);
+	result->address = qb_obtain_qm_temporary_variable(cxt, lvalue_type, value->address->array_size_address);
 	qb_do_assignment(cxt, value->address, result->address);
 }
 
@@ -1249,7 +1249,27 @@ static void ZEND_FASTCALL qb_translate_jump(qb_compiler_context *cxt, void *op_f
 }
 
 static void ZEND_FASTCALL qb_translate_jump_set(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	// TODO
+	qb_operand *value = &operands[0];
+	zend_op *target_op = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
+	uint32_t target_index = ZEND_OP_INDEX(target_op);
+	uint32_t type = qb_get_operand_type(cxt, value, 0);
+	uint32_t lvalue_type = qb_get_lvalue_type(cxt, QB_TYPE_I32);
+	qb_address *zero_address = qb_obtain_constant(cxt, 0, type);
+	qb_do_type_coercion(cxt, value, type);
+
+	// copy value to qm temporary
+	result->address = qb_obtain_qm_temporary_variable(cxt, lvalue_type, value->address->array_size_address);
+	qb_do_assignment(cxt, value->address, result->address);
+
+	// remove the reference so the address will be picked up again by the false clause
+	qb_remove_reference(cxt, result->address);
+
+	// if value is not zero, then jump over the false clause 
+	qb_create_comparison_branch_op(cxt, &factory_branch_on_not_equal, target_index, QB_INSTRUCTION_NEXT, value->address, zero_address);
+
+	// process the false clause, then the reconverge at target address
+	cxt->jump_target_index1 = cxt->zend_op_index + 1;
+	cxt->jump_target_index2 = target_index;
 }
 
 static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
