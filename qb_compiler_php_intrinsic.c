@@ -35,12 +35,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_co
 	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count);
 	qb_address *address1 = arguments[0].address;
 	qb_address *address2 = arguments[1].address;
+	uint32_t vector_width1 = qb_get_vector_width(cxt, address1);
+	uint32_t vector_width2 = qb_get_vector_width(cxt, address2);
 
 	if((address1->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address1))
 	|| (address2->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address2))) {
 		qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
 	}
-	if(qb_get_vector_width(cxt, address1) != qb_get_vector_width(cxt, address2)) {
+	if(vector_width1 != vector_width2) {
 		qb_abort("Dimension of first parameter does not match dimension of second parameter");
 	}
 	if(result->type != QB_OPERAND_NONE) {
@@ -49,9 +51,27 @@ static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_co
 	}
 }
 
-static void ZEND_FASTCALL qb_translate_intrinsic_refract(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
+static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
+	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count);
+	qb_address *address1 = arguments[0].address;
+	qb_address *address2 = arguments[1].address;
+	uint32_t vector_width1 = qb_get_vector_width(cxt, address1);
+	uint32_t vector_width2 = qb_get_vector_width(cxt, address2);
 
-
+	if((address1->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address1))
+	|| (address2->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address2))) {
+		qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
+	}
+	if(vector_width1 != vector_width2) {
+		qb_abort("Dimension of first parameter does not match dimension of second parameter");
+	}
+	if(vector_width1 != 3) {
+		qb_abort("%s() only accepts three-dimensional vectors");
+	}
+	if(result->type != QB_OPERAND_NONE) {
+		result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+		qb_create_op(cxt, f->extra, arguments, argument_count, result);
+	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
@@ -679,10 +699,10 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"length",				NULL,		qb_translate_intrinsic_unary_vector_op,		1,		1,		&factory_length				},
 	{	0,	"distance",				NULL,		qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_distance			},
 	{	0,	"dot",					NULL,		qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_dot_product		},
-	{	0,	"cross",				NULL,		qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_cross_product		},
+	{	0,	"cross",				NULL,		qb_translate_intrinsic_cross,				2,		2,		&factory_cross_product		},
 	{	0,	"faceforward",			NULL,		qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_faceforward		},
 	{	0,	"reflect",				NULL,		qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_reflect			},
-	{	0,	"refract",				NULL,		qb_translate_intrinsic_refract,				3,		3,		&factory_refract			},
+	{	0,	"refract",				NULL,		qb_translate_intrinsic_binary_vector_op,	3,		3,		&factory_refract			},
 	{	0,	"mm_mult",				NULL,		qb_translate_intrinsic_mm_mult,				2,		2,		&factory_mm_multiply		},
 	{	0,	"mv_mult",				NULL,		qb_translate_intrinsic_mv_mult,				2,		2,		&factory_mv_multiply		},
 	{	0,	"vm_mult",				NULL,		qb_translate_intrinsic_vm_mult,				2,		2,		&factory_vm_multiply		},

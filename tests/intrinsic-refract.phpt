@@ -1,5 +1,5 @@
 --TEST--
-Reflection test
+Refraction test
 --FILE--
 <?php
 
@@ -25,9 +25,9 @@ function test_function() {
 	$e = array(array(1, 1), array(2, 3), array(0, -4), array(5, 0));
 	$f = array(1, -1);
 	
-	echo reflect($a, $b), "\n";
-	echo reflect($c, $d), "\n";
-	echo reflect($e, $f), "\n";
+	echo refract($a, $b, 0.5), "\n";
+	echo refract($c, $d, 0.2), "\n";
+	echo refract($e, $f, 0.9), "\n";
 }
 
 qb_compile();
@@ -36,6 +36,6 @@ test_function();
 
 ?>
 --EXPECT--
-[-5.5, -11.5, -17.5]
-[-20, -25]
-[1, 1, 4, 1, -8, 4, -5, 10]
+[-2.982051, -6.214102, -9.446153]
+[2.1559467676119, 1.1559467676119]
+[0.46411010564593, 1.3358898943541, 1.7, 2.8, -7.2262928728937, 3.6262928728937, -4.5210618221829, 9.0210618221829]

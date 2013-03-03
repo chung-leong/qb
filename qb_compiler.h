@@ -331,6 +331,7 @@ enum {
 };
 
 #define IS_SCALAR(address)						(address->dimension_count == 0)
+#define IS_SCALAR_VARIABLE(address)				(address->dimension_count == 0 && address->segment_selector == QB_SELECTOR_VARIABLE && address->segment_offset != QB_OFFSET_INVALID)
 #define IS_FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && address->array_size_address->flags & QB_ADDRESS_CONSTANT)
 #define IS_VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_CONSTANT))
 #define IS_EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_READ_ONLY))

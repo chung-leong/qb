@@ -1437,8 +1437,48 @@ static qb_vector_op_factory factory_reflect = {
 	},
 };
 
+static qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, uint32_t desired_type);
+
+static qb_op * ZEND_FASTCALL qb_append_refract(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_vector_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	qb_address *address2 = operands[1].address;
+	qb_address *eta_address = operands[2].address;
+	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
+	qb_op *qop;
+	uint32_t opcode;
+
+	if(dimension1 >= 1 && dimension1 <= 4) {
+		opcode = f->opcodes_fixed_size[dimension1 - 1][QB_TYPE_F64 - address1->type];
+	} else {
+		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
+	}
+	if(address1->dimension_count > 1 || (address2 && address2->dimension_count > 1)) {
+		// handling multiple input vectors
+		opcode = opcode + 1;
+	}
+	// the third operand must be compatible with VAR address mode
+	if(!IS_SCALAR_VARIABLE(eta_address)) {
+		// copy it to a temp variable
+		qb_address *temp_address = qb_obtain_temporary_scalar(cxt, eta_address->type);
+		qb_create_unary_op(cxt, &factory_copy, eta_address, temp_address);
+		temp_address = eta_address;
+	}
+
+	qop = qb_append_op(cxt, opcode, operand_count + 1);
+	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[0].address = address1;
+	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[1].address = address2;
+	qop->operands[2].type = QB_OPERAND_ADDRESS_VAR;
+	qop->operands[2].address = eta_address;
+	qop->operands[3] = *result;
+	qop->matrix_dimensions = V_DIMENSIONS(dimension1);
+	return qop;
+}
+
 static qb_vector_op_factory factory_refract = { 
-	qb_append_vector_op,
+	qb_append_refract,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	QB_REFR_F64_F64_F64_F64,		QB_REFR_F32_F32_F32_F32,	},
@@ -1450,8 +1490,25 @@ static qb_vector_op_factory factory_refract = {
 	},
 };
 
+static qb_op * ZEND_FASTCALL qb_append_cross(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	qb_address *address2 = operands[1].address;
+	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	if(address1->dimension_count > 1 || address2->dimension_count > 1) {
+		opcode = opcode + 1;
+	}
+	qb_op *qop = qb_append_op(cxt, opcode, 3);
+	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[0].address = address1;
+	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[1].address = address2;
+	qop->operands[2] = *result;
+	return qop;
+}
+
 static qb_float_op_factory factory_cross_product = {
-	qb_append_binary_op,
+	qb_append_cross,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	QB_CROSS_F64_F64_F64,		QB_CROSS_F32_F32_F32,	},

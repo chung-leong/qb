@@ -1987,7 +1987,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 	if(length_address && !IS_SCALAR(length_address)) {
 		qb_abort("Cannot use an array as length");
 	}
-	if(offset_address->segment_offset == QB_OFFSET_INVALID) {
+	if(!IS_SCALAR_VARIABLE(offset_address)) {
 		// need to copy the offset value to a temporary variable first
 		qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
 		qb_create_unary_op(cxt, &factory_copy, offset_address, new_address);
@@ -1995,7 +1995,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 	}
 	qb_add_reference(cxt, offset_address);
 	if(length_address) {
-		if(length_address->segment_offset == QB_OFFSET_INVALID) {
+		if(!IS_SCALAR_VARIABLE(length_address)) {
 			qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
 			qb_create_unary_op(cxt, &factory_copy, length_address, new_address);
 			length_address = new_address;
@@ -2061,7 +2061,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 		qb_abort("Cannot use an array as an index");
 	}
 
-	if(index_address->segment_offset == QB_OFFSET_INVALID) {
+	if(!IS_SCALAR_VARIABLE(index_address)) {
 		// need to copy the index value to a temporary variable first
 		qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
 		qb_do_assignment(cxt, index_address, new_address);
