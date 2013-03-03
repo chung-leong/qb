@@ -1065,9 +1065,12 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_3X3", $elementType, "ARR", 3);
 			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_3X3", $elementType, null, 3);
 			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_3X3", $elementType, "ARR", 3);
-			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3P", $elementType, null, "3+P");
-			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_3X3P", $elementType, null, "3+P");
-			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_3X3P", $elementType, null, "3+P");
+			if($elementType == "F32") {
+				// this is used by Pixel Bender only
+				$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3P", $elementType, null, "3+P");
+				$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_3X3P", $elementType, null, "3+P");
+				$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_3X3P", $elementType, null, "3+P");
+			}
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT_3X", $elementType, $addressMode, 3);
 			}
@@ -1149,30 +1152,6 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBIncrementHandler("INC_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, null, 2);
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, "ARR", 2);
-
-			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_1X1", $elementType, null, 1);
-			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_1X1", $elementType, "ARR", 1);
-			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_1X1", $elementType, null, 1);
-			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_1X1", $elementType, "ARR", 1);
-			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_1X1", $elementType, null, 1);
-			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_1X1", $elementType, "ARR", 1);
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBDotProductHandler("DOT_1X", $elementType, $addressMode, 1);
-			}
-			foreach($this->addressModes as $addressMode) {			
-				$this->handlers[] = new QBLengthHandler("LEN_1X", $elementType, $addressMode, 1);
-			}
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBDistanceHandler("DIS_1X", $elementType, $addressMode, 1);
-			}
-			$this->handlers[] = new QBNormalizeHandler("NORM_1X", $elementType, null, 1);
-			$this->handlers[] = new QBNormalizeHandler("NORM_1X", $elementType, "ARR", 1);
-			$this->handlers[] = new QBFaceForwardHandler("FORE_1X", $elementType, null, 1);
-			$this->handlers[] = new QBFaceForwardHandler("FORE_1X", $elementType, "ARR", 1);
-			$this->handlers[] = new QBReflectHandler("REFL_1X", $elementType, null, 1);
-			$this->handlers[] = new QBReflectHandler("REFL_1X", $elementType, "ARR", 1);
-			$this->handlers[] = new QBRefractHandler("REFR_1X", $elementType, null, 1);
-			$this->handlers[] = new QBRefractHandler("REFR_1X", $elementType, "ARR", 1);
 		}
 	}
 	

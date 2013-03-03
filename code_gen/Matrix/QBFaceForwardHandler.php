@@ -7,16 +7,6 @@ class QBFaceForwardHandler extends QBSIMDHandler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_calculate_face_forward_1x_$type($cType *v1, $cType *v2, $cType *res_ptr) {",
-					"$cType dot_product = qb_calculate_dot_product_1x_$type(v1, v2);",
-					"if(dot_product > 0) {",
-						"res_ptr[0] = v1[0];",
-					"} else {",
-						"res_ptr[0] = -v1[0];",
-					"}",
-				"}",
-			),
-			array(
 				"static void ZEND_FASTCALL qb_calculate_face_forward_2x_$type($cType *v1, $cType *v2, $cType *res_ptr) {",
 					"$cType dot_product = qb_calculate_dot_product_2x_$type(v1, v2);",
 					"if(dot_product > 0) {",

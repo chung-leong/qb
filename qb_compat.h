@@ -134,6 +134,23 @@ double _php_math_round(double value, int places, int mode);
 
 #ifdef _MSC_VER
 	#define strtoull	_strtoui64
+
+	// not sure why Zend doesn't use alloca in win32
+	#undef ALLOCA_FLAG
+	#undef SET_ALLOCA_FLAG
+	#undef do_alloca
+	#undef free_alloca
+	#define ZEND_ALLOCA_MAX_SIZE (32 * 1024)
+	#define ALLOCA_FLAG(name) \
+		zend_bool name;
+	#define SET_ALLOCA_FLAG(name) \
+		name = 1
+	#define do_alloca_ex(size, limit, use_heap) \
+		((use_heap = (UNEXPECTED((size) > (limit)))) ? emalloc(size) : alloca(size))
+	#define do_alloca(size, use_heap) \
+		do_alloca_ex(size, ZEND_ALLOCA_MAX_SIZE, use_heap)
+	#define free_alloca(p, use_heap) \
+		do { if (UNEXPECTED(use_heap)) efree(p); } while (0)
 #endif
 
 #if ZEND_ENGINE_2_1

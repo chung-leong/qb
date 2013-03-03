@@ -15,11 +15,6 @@ class QBDistanceHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_distance_1x_$type($cType *v1, $cType *v2) {",
-					"return ($cType) fabs(v1[0] - v2[0]);",
-				"}",
-			),
-			array(
 				"static $cType ZEND_FASTCALL qb_calculate_array_distance_2x_$type($cType *v1, $cType *v2) {",
 					"$cType sum = (v1[0] - v2[0]) * (v1[0] - v2[0]) + (v1[1] - v2[1]) * (v1[1] - v2[1]);",
 					"return ($cType) sqrt(sum);",

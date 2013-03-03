@@ -241,6 +241,7 @@ struct qb_compiler_context {
 	qb_pbj_address pbj_comparison_register;
 	uint8_t *pbj_data;
 	uint8_t *pbj_data_end;
+	int32_t matrix_padding;
 
 	char *external_code;
 	uint32_t external_code_length;

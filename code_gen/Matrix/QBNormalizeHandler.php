@@ -11,12 +11,6 @@ class QBNormalizeHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_normalize_array_1x_$type($cType *v, $cType *res_ptr) {",
-					"$cType len = qb_calculate_array_length_1x_$type(v);",
-					"res_ptr[0] = v[0] / len;",
-				"}",
-			),
-			array(
 				"static void ZEND_FASTCALL qb_normalize_array_2x_$type($cType *v, $cType *res_ptr) {",
 					"$cType len = qb_calculate_array_length_2x_$type(v);",
 					"res_ptr[0] = v[0] / len;",

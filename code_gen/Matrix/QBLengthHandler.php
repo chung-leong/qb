@@ -14,11 +14,6 @@ class QBLengthHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_length_1x_$type($cType *v) {",
-					"return ($cType) fabs(v[0]);",
-				"}",
-			),
-			array(
 				"static $cType ZEND_FASTCALL qb_calculate_array_length_2x_$type($cType *v) {",
 					"$cType sum = (v[0] * v[0]) + (v[1] * v[1]);",
 					"return ($cType) sqrt(sum);",

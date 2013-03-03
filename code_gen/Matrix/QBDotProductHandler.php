@@ -15,12 +15,6 @@ class QBDotProductHandler extends QBSIMDHandler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_dot_product_1x_$type($cType *v1, $cType *v2) {",
-					"$cType sum = (v1[0] * v2[0]);",
-					"return sum;",
-				"}",
-			),
-			array(
 				"static $cType ZEND_FASTCALL qb_calculate_dot_product_2x_$type($cType *v1, $cType *v2) {",
 					"$cType sum = (v1[0] * v2[0]) + (v1[1] * v2[1]);",
 					"return sum;",

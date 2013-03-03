@@ -1927,6 +1927,9 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	qb_op *qop;
 	uint32_t i, end_index;
 
+	// interpret 3x4 matrix as 3x3 with padded element
+	cxt->matrix_padding = TRUE;
+
 	// coordinates for looping 
 	x_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
 	qb_add_reference(cxt, x_address);

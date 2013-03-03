@@ -114,7 +114,7 @@ struct qb_vector_op_factory {
 	uint32_t coercion_flags;
 	uint32_t result_flags;
 	uint32_t opcodes_any_size[2];
-	uint32_t opcodes_fixed_size[4][2];
+	uint32_t opcodes_fixed_size[3][2];
 };
 
 struct qb_matrix_op_factory {
@@ -122,7 +122,7 @@ struct qb_matrix_op_factory {
 	uint32_t coercion_flags;
 	uint32_t result_flags;
 	uint32_t opcodes_any_size[2];
-	uint32_t opcodes_fixed_size[4][2];
+	uint32_t opcodes_fixed_size[3][2];
 	uint32_t opcode_3x3_padded;
 };
 
@@ -1337,8 +1337,8 @@ static qb_op * ZEND_FASTCALL qb_append_vector_op(qb_compiler_context *cxt, void 
 	uint32_t opcode;
 	uint32_t i;
 
-	if(dimension1 >= 1 && dimension1 <= 4) {
-		opcode = f->opcodes_fixed_size[dimension1 - 1][QB_TYPE_F64 - address1->type];
+	if(2 <= dimension1 && dimension1 <= 4) {
+		opcode = f->opcodes_fixed_size[dimension1 - 2][QB_TYPE_F64 - address1->type];
 	} else {
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
@@ -1365,7 +1365,6 @@ static qb_vector_op_factory factory_dot_product = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VECTOR_COUNT | QB_TYPE_OPERAND,
 	{	QB_DOT_F64_F64_F64,		QB_DOT_F32_F32_F32,	},
 	{
-		{	QB_DOT_1X_F64_F64_F64,	QB_DOT_1X_F32_F32_F32,	},
 		{	QB_DOT_2X_F64_F64_F64,	QB_DOT_2X_F32_F32_F32,	},
 		{	QB_DOT_3X_F64_F64_F64,	QB_DOT_3X_F32_F32_F32,	},
 		{	QB_DOT_4X_F64_F64_F64,	QB_DOT_4X_F32_F32_F32,	},
@@ -1378,7 +1377,6 @@ static qb_vector_op_factory factory_length = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VECTOR_COUNT | QB_TYPE_OPERAND,
 	{	QB_LEN_F64_F64,			QB_LEN_F32_F32,	},
 	{
-		{	QB_LEN_1X_F64_F64,		QB_LEN_1X_F32_F32,	},
 		{	QB_LEN_2X_F64_F64,		QB_LEN_2X_F32_F32,	},
 		{	QB_LEN_3X_F64_F64,		QB_LEN_3X_F32_F32,	},
 		{	QB_LEN_4X_F64_F64,		QB_LEN_4X_F32_F32,	},
@@ -1391,7 +1389,6 @@ static qb_vector_op_factory factory_distance = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VECTOR_COUNT | QB_TYPE_OPERAND,
 	{	QB_DIS_F64_F64_F64,		QB_DIS_F32_F32_F32,	},
 	{
-		{	QB_DIS_1X_F64_F64_F64,	QB_DIS_1X_F32_F32_F32,	},
 		{	QB_DIS_2X_F64_F64_F64,	QB_DIS_2X_F32_F32_F32,	},
 		{	QB_DIS_3X_F64_F64_F64,	QB_DIS_3X_F32_F32_F32,	},
 		{	QB_DIS_4X_F64_F64_F64,	QB_DIS_4X_F32_F32_F32,	},
@@ -1404,7 +1401,6 @@ static qb_vector_op_factory factory_normalize = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	QB_NORM_F64_F64,		QB_NORM_F32_F32,	},
 	{
-		{	QB_NORM_1X_F64_F64,		QB_NORM_1X_F32_F32,	},
 		{	QB_NORM_2X_F64_F64,		QB_NORM_2X_F32_F32,	},
 		{	QB_NORM_3X_F64_F64,		QB_NORM_3X_F32_F32,	},
 		{	QB_NORM_4X_F64_F64,		QB_NORM_4X_F32_F32,	},
@@ -1417,7 +1413,6 @@ static qb_vector_op_factory factory_faceforward = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	QB_FORE_F64_F64_F64,		QB_FORE_F32_F32_F32,	},
 	{
-		{	QB_FORE_1X_F64_F64_F64,		QB_FORE_1X_F32_F32_F32,	},
 		{	QB_FORE_2X_F64_F64_F64,		QB_FORE_2X_F32_F32_F32,	},
 		{	QB_FORE_3X_F64_F64_F64,		QB_FORE_3X_F32_F32_F32,	},
 		{	QB_FORE_4X_F64_F64_F64,		QB_FORE_4X_F32_F32_F32,	},
@@ -1430,7 +1425,6 @@ static qb_vector_op_factory factory_reflect = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	QB_REFL_F64_F64_F64,		QB_REFL_F32_F32_F32,	},
 	{
-		{	QB_REFL_1X_F64_F64_F64,		QB_REFL_1X_F32_F32_F32,	},
 		{	QB_REFL_2X_F64_F64_F64,		QB_REFL_2X_F32_F32_F32,	},
 		{	QB_REFL_3X_F64_F64_F64,		QB_REFL_3X_F32_F32_F32,	},
 		{	QB_REFL_4X_F64_F64_F64,		QB_REFL_4X_F32_F32_F32,	},
@@ -1448,8 +1442,8 @@ static qb_op * ZEND_FASTCALL qb_append_refract(qb_compiler_context *cxt, void *f
 	qb_op *qop;
 	uint32_t opcode;
 
-	if(dimension1 >= 1 && dimension1 <= 4) {
-		opcode = f->opcodes_fixed_size[dimension1 - 1][QB_TYPE_F64 - address1->type];
+	if(2 <= dimension1 && dimension1 <= 4) {
+		opcode = f->opcodes_fixed_size[dimension1 - 2][QB_TYPE_F64 - address1->type];
 	} else {
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
@@ -1483,7 +1477,6 @@ static qb_vector_op_factory factory_refract = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	QB_REFR_F64_F64_F64_F64,		QB_REFR_F32_F32_F32_F32,	},
 	{
-		{	QB_REFR_1X_F64_F64_F64_F64,		QB_REFR_1X_F32_F32_F32_F32,	},
 		{	QB_REFR_2X_F64_F64_F64_F64,		QB_REFR_2X_F32_F32_F32_F32,	},
 		{	QB_REFR_3X_F64_F64_F64_F64,		QB_REFR_3X_F32_F32_F32_F32,	},
 		{	QB_REFR_4X_F64_F64_F64_F64,		QB_REFR_4X_F32_F32_F32_F32,	},
@@ -1495,10 +1488,11 @@ static qb_op * ZEND_FASTCALL qb_append_cross(qb_compiler_context *cxt, void *fac
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
 	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_op *qop;
 	if(address1->dimension_count > 1 || address2->dimension_count > 1) {
 		opcode = opcode + 1;
 	}
-	qb_op *qop = qb_append_op(cxt, opcode, 3);
+	qop = qb_append_op(cxt, opcode, 3);
 	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
 	qop->operands[0].address = address1;
 	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
@@ -1518,7 +1512,6 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	int32_t use_padding = TRUE;
 	uint32_t m1_rows = qb_get_matrix_row_count(cxt, address1);
 	uint32_t m1_cols = qb_get_matrix_column_count(cxt, address1);
 	uint32_t m2_rows = qb_get_matrix_row_count(cxt, address2);
@@ -1526,10 +1519,10 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt
 	qb_op *qop;
 	uint32_t opcode;
 
-	if(use_padding && m1_rows == 3 && m1_cols == 4 && m2_rows == 4 && m2_cols == 3) {
+	if(cxt->matrix_padding && m1_rows == 3 && m1_cols == 4 && m2_rows == 3 && m2_cols == 4) {
 		opcode = f->opcode_3x3_padded;
-	} else if((m1_rows == m1_cols) && (m2_rows == m2_cols) && (1 <= m1_rows && m1_rows <= 4)) {
-		opcode = f->opcodes_fixed_size[m1_rows - 1][QB_TYPE_F64 - address1->type];
+	} else if((m1_rows == m1_cols) && (m2_rows == m2_cols) && (2 <= m1_rows && m1_rows <= 4)) {
+		opcode = f->opcodes_fixed_size[m1_rows - 2][QB_TYPE_F64 - address1->type];
 	} else {
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
@@ -1554,7 +1547,6 @@ static qb_matrix_op_factory factory_mm_multiply = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
 	{	QB_MUL_MM_F64_F64_F64,			QB_MUL_MM_F32_F32_F32,	},
 	{
-		{	QB_MUL_MM_1X1_F64_F64_F64,		QB_MUL_MM_1X1_F32_F32_F32,	},
 		{	QB_MUL_MM_2X2_F64_F64_F64,		QB_MUL_MM_2X2_F32_F32_F32,	},
 		{	QB_MUL_MM_3X3_F64_F64_F64,		QB_MUL_MM_3X3_F32_F32_F32,	},
 		{	QB_MUL_MM_4X4_F64_F64_F64,		QB_MUL_MM_4X4_F32_F32_F32,	},
@@ -1566,17 +1558,16 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	int32_t use_padding = TRUE;
 	uint32_t m_rows = qb_get_matrix_row_count(cxt, address1);
 	uint32_t m_cols = qb_get_matrix_column_count(cxt, address1);
 	uint32_t v_width = qb_get_vector_width(cxt, address1);
 	qb_op *qop;
 	uint32_t opcode;
 
-	if(use_padding && m_rows == 3 && m_cols == 4) {
+	if(cxt->matrix_padding && m_rows == 3 && m_cols == 4) {
 		opcode = f->opcode_3x3_padded;
-	} else if((m_rows == m_cols) && (1 <= m_rows && m_rows <= 4)) {
-		opcode = f->opcodes_fixed_size[m_rows - 1][QB_TYPE_F64 - address1->type];
+	} else if((m_rows == m_cols) && (2 <= m_rows && m_rows <= 4)) {
+		opcode = f->opcodes_fixed_size[m_rows - 2][QB_TYPE_F64 - address1->type];
 	} else {
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
@@ -1601,7 +1592,6 @@ static qb_matrix_op_factory factory_mv_multiply = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
 	{	QB_MUL_MV_F64_F64_F64,			QB_MUL_MV_F32_F32_F32,	},
 	{
-		{	QB_MUL_MV_1X1_F64_F64_F64,		QB_MUL_MV_1X1_F32_F32_F32,	},
 		{	QB_MUL_MV_2X2_F64_F64_F64,		QB_MUL_MV_2X2_F32_F32_F32,	},
 		{	QB_MUL_MV_3X3_F64_F64_F64,		QB_MUL_MV_3X3_F32_F32_F32,	},
 		{	QB_MUL_MV_4X4_F64_F64_F64,		QB_MUL_MV_4X4_F32_F32_F32,	},
@@ -1613,17 +1603,16 @@ static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	int32_t use_padding = TRUE;
 	uint32_t v_width = qb_get_vector_width(cxt, address1);
 	uint32_t m_rows = qb_get_matrix_row_count(cxt, address2);
 	uint32_t m_cols = qb_get_matrix_column_count(cxt, address2);
 	qb_op *qop;
 	uint32_t opcode;
 
-	if(use_padding && m_rows == 3 && m_cols == 4) {
+	if(cxt->matrix_padding && m_rows == 3 && m_cols == 4) {
 		opcode = f->opcode_3x3_padded;
-	} else if((m_rows == m_cols) && (1 <= m_rows && m_rows <= 4)) {
-		opcode = f->opcodes_fixed_size[m_rows - 1][QB_TYPE_F64 - address1->type];
+	} else if((m_rows == m_cols) && (2 <= m_rows && m_rows <= 4)) {
+		opcode = f->opcodes_fixed_size[m_rows - 2][QB_TYPE_F64 - address1->type];
 	} else {
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
@@ -1647,7 +1636,6 @@ static qb_matrix_op_factory factory_vm_multiply = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_TYPE_OPERAND,
 	{	QB_MUL_VM_F64_F64_F64,			QB_MUL_VM_F32_F32_F32,	},
 	{
-		{	QB_MUL_VM_1X1_F64_F64_F64,		QB_MUL_VM_1X1_F32_F32_F32,	},
 		{	QB_MUL_VM_2X2_F64_F64_F64,		QB_MUL_VM_2X2_F32_F32_F32,	},
 		{	QB_MUL_VM_3X3_F64_F64_F64,		QB_MUL_VM_3X3_F32_F32_F32,	},
 		{	QB_MUL_VM_4X4_F64_F64_F64,		QB_MUL_VM_4X4_F32_F32_F32,	},

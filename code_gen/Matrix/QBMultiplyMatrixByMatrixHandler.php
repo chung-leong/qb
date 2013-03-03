@@ -7,11 +7,6 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_multiply_matrix_by_matrix_1x1_$type($cType *m1, $cType *m2, $cType *res_ptr) {",
-					"res_ptr[0] = m1[0] * m2[0];",
-				"}",
-			),
-			array(
 				"static void ZEND_FASTCALL qb_multiply_matrix_by_matrix_2x2_$type($cType *m1, $cType *m2, $cType *res_ptr) {",
 					"$cType dot_product0 = (m1[0 + 0] * m2[0 + 0]) + (m1[1 + 0] * m2[2 + 0]);",
 					"$cType dot_product1 = (m1[0 + 0] * m2[0 + 1]) + (m1[1 + 0] * m2[2 + 1]);",
@@ -106,7 +101,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 			array(
 				"static void ZEND_FASTCALL qb_multiply_matrix_by_matrix_$type($cType *m1, uint32_t m1_row, uint32_t m1_col, $cType *m2, uint32_t m2_row, uint32_t m2_col, $cType *res_ptr) {",
 					"uint32_t i, j, k, p, q, res_index = 0;",
-					"int32_t use_heap;",
+					"ALLOCA_FLAG(use_heap)",
 					"$cType *buffer = do_alloca(m1_row * m2_col * sizeof($cType), use_heap);",
 					"for(i = 0, q = 0; i < m1_row; ++i) {",
 						"for(j = 0; j < m2_col; ++j) {",
