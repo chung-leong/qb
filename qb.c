@@ -270,6 +270,10 @@ PHP_FUNCTION(qb_execute)
 	zend_function *zfunc = EG(current_execute_data)->function_state.function;
 	zval ***args = emalloc(ZEND_NUM_ARGS() * sizeof(zval **));
 	zval *this = EG(This);
+#ifdef ZEND_DEBUG
+	double start_time, end_time, duration;
+	start_time = qb_get_high_res_timestamp();
+#endif
 
 	if (zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE) {
 		return;
@@ -277,6 +281,19 @@ PHP_FUNCTION(qb_execute)
 
 	qb_execute(zfunc, this, return_value, args, ZEND_NUM_ARGS() TSRMLS_CC);
 	efree(args);
+
+#ifdef ZEND_DEBUG
+	end_time = qb_get_high_res_timestamp();
+	duration = end_time - start_time;
+	if(duration > 0) {
+		qb_function *qfunc = zfunc->op_array.reserved[0];
+		FILE *log_file = fopen("log.txt", "a");
+		if(log_file) {
+			fprintf(log_file, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
+			fclose(log_file);
+		}
+	}
+#endif
 }
 /* }}} */
 /* The previous line is meant for vim and emacs, so it can correctly fold and 

@@ -561,8 +561,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 
 		for(i = 0; i < argument_count; i++) {
 			qb_do_type_coercion(cxt, &arguments[i], expr_type);
-			// put a reference on any temporary variable so it won't be reused 
-			qb_add_reference(cxt, arguments[i].address);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->address = qb_obtain_temporary_variable(cxt, expr_type, NULL);
@@ -570,10 +568,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 			for(i = 2; i < argument_count; i++) {
 				qb_create_binary_op(cxt, f->extra, result->address, arguments[i].address, result->address);
 			}
-		}
-		for(i = 0; i < argument_count; i++) {
-			// now temporary variables from casting can be freed
-			qb_remove_reference(cxt, arguments[i].address);
 		}
 	}
 }

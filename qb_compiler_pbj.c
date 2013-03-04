@@ -736,7 +736,6 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_compiler_con
 		// the channels are not in order then we need to use a temporary variable
 		uint32_t i, channel, type = bundle->addresses[0]->type;
 		address = qb_obtain_temporary_fixed_length_array(cxt, type, bundle->total_channel_count);
-		qb_add_reference(cxt, address);
 		if(bundle->access == PBJ_READ_SOURCE) {
 			for(i = 0, channel = 0; i < bundle->address_count; i++, channel += bundle->channel_counts[i]) {
 				qb_address *offset_address = cxt->pbj_int_numerals[channel];
@@ -764,7 +763,6 @@ static void ZEND_FASTCALL qb_pbj_release_temporary_vector(qb_compiler_context *c
 				qb_create_unary_op(cxt, &factory_copy, channel_address, destination_address);
 			}
 		}
-		qb_remove_reference(cxt, bundle->temporary_address);
 	} 
 }
 
@@ -1932,9 +1930,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 	// coordinates for looping 
 	x_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-	qb_add_reference(cxt, x_address);
 	y_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-	qb_add_reference(cxt, y_address);
 	image_address = cxt->pbj_out_pixel->address;
 	width_address = image_address->dimension_addresses[1];
 	height_address = image_address->dimension_addresses[0];
@@ -1942,7 +1938,6 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 	// index into output image array
 	pixel_index_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-	qb_add_reference(cxt, pixel_index_address);
 
 	// sub-array representing the pixel
 	pixel_address = qb_allocate_address(cxt->pool);
@@ -1955,7 +1950,6 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	pixel_address->flags = QB_ADDRESS_INITIALIZED;
 	pixel_address->array_size_address = channel_count_address;
 	pixel_address->array_size_addresses = pixel_address->dimension_addresses = &pixel_address->array_size_address;
-	pixel_address->ref_count = 1;
 	pixel_address->source_address = image_address;
 
 	// the pixel produced by the PB routine

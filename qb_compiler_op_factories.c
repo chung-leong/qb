@@ -142,8 +142,15 @@ static qb_op * ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factor
 	if(!cxt->resolving_result_type) {
 		qb_basic_op_factory *f = factory;
 		uint32_t initial_op_count = cxt->op_count;
+		uint32_t i;
 		qb_op *qop = f->append(cxt, factory, operands, operand_count, result);
 
+		for(i = 0; i < operand_count; i++) {
+			qb_operand *operand = &operands[i];
+			if(operand->type == QB_OPERAND_ADDRESS) {
+				qb_unlock_address(cxt, operand->address);
+			}
+		}
 		if(result && result->type == QB_OPERAND_ADDRESS) {
 			if(result->address->flags & QB_ADDRESS_CONSTANT) {
 				// evalulate the expression at compile-time
@@ -382,14 +389,14 @@ static qb_basic_op_factory factory_bitwise_not = {
 static qb_basic_op_factory factory_logical_not = {
 	qb_append_unary_op,
 	QB_COERCE_TO_BOOLEAN,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	0,	0,	0,	0,	QB_NOT_I32_I32,	QB_NOT_I32_I32,	0,	0,	0,	0,	}
 };
 
 static qb_basic_op_factory factory_isset = { 
 	qb_append_unary_op,
 	0,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_ISSET_F64_I32_ELV ,	QB_ISSET_F32_I32_ELV,	QB_ISSET_I64_I32_ELV,	QB_ISSET_I64_I32_ELV,	QB_ISSET_I32_I32_ELV,	QB_ISSET_I32_I32_ELV,	QB_ISSET_I16_I32_ELV,	QB_ISSET_I16_I32_ELV,	QB_ISSET_I08_I32_ELV,	QB_ISSET_I08_I32_ELV,	},
 };
 
@@ -459,21 +466,21 @@ static qb_basic_op_factory factory_bitwise_xor = {
 static qb_basic_op_factory factory_logical_and = {
 	qb_append_binary_op,
 	QB_COERCE_TO_BOOLEAN,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	0,	0,	0,	0,	QB_AND_I32_I32_I32,	QB_AND_I32_I32_I32,	0,	0,	0,	0,	},
 };
 
 static qb_basic_op_factory factory_logical_or = {
 	qb_append_binary_op,
 	QB_COERCE_TO_BOOLEAN,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	0,	0,	0,	0,	QB_OR_I32_I32_I32,	QB_OR_I32_I32_I32,	0,	0,	0,	0,	},
 };
 
 static qb_basic_op_factory factory_logical_xor = {
 	qb_append_binary_op,
 	QB_COERCE_TO_BOOLEAN,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	0,	0,	0,	0,	QB_XOR_I32_I32_I32,	QB_XOR_I32_I32_I32,	0,	0,	0,	0,	},
 };
 
@@ -557,6 +564,13 @@ static qb_float_op_factory factory_floor_modulo = {
 	{	QB_MOD_FLR_F64_F64_F64,	QB_MOD_FLR_F32_F32_F32,	},
 };
 
+static qb_basic_op_factory factory_boolean = {
+	qb_append_unary_op,
+	0,
+	QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
+	{	QB_BOOL_F64_I32,	QB_BOOL_F32_I32,	QB_BOOL_I64_I32,	QB_BOOL_I64_I32,	QB_BOOL_I32_I32,	QB_BOOL_I32_I32,	QB_BOOL_I16_I32,	QB_BOOL_I16_I32,	QB_BOOL_I08_I32,	QB_BOOL_I08_I32,	},
+};
+
 static qb_comparison_branch_op_factory factory_branch_on_equal;
 static qb_comparison_branch_op_factory factory_branch_on_not_equal;
 static qb_comparison_branch_op_factory factory_branch_on_less_equal;
@@ -567,7 +581,7 @@ static qb_comparison_branch_op_factory factory_branch_on_greater_than;
 static qb_comparison_op_factory factory_equal = {
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_EQ_F64_F64_I32,	QB_EQ_F32_F32_I32,	QB_EQ_I64_I64_I32,	QB_EQ_I64_I64_I32,	QB_EQ_I32_I32_I32,	QB_EQ_I32_I32_I32,	QB_EQ_I16_I16_I32,	QB_EQ_I16_I16_I32,	QB_EQ_I08_I08_I32,	QB_EQ_I08_I08_I32,	},
 	&factory_branch_on_equal,
 };
@@ -575,21 +589,21 @@ static qb_comparison_op_factory factory_equal = {
 static qb_comparison_op_factory factory_not_equal = { 
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_NE_F64_F64_I32,	QB_NE_F32_F32_I32,	QB_NE_I64_I64_I32,	QB_NE_I64_I64_I32,	QB_NE_I32_I32_I32,	QB_NE_I32_I32_I32,	QB_NE_I16_I16_I32,	QB_NE_I16_I16_I32,	QB_NE_I08_I08_I32,	QB_NE_I08_I08_I32,	},
 };
 
 static qb_comparison_op_factory factory_less_than = {
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_LT_F64_F64_I32,	QB_LT_F32_F32_I32,	QB_LT_U64_U64_I32,	QB_LT_S64_S64_I32,	QB_LT_U32_U32_I32,	QB_LT_S32_S32_I32,	QB_LT_U16_U16_I32,	QB_LT_S16_S16_I32,	QB_LT_U08_U08_I32,	QB_LT_S08_S08_I32,	},
 };
 
 static qb_comparison_op_factory factory_less_equal = {
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_LE_F64_F64_I32,	QB_LE_F32_F32_I32,	QB_LE_U64_U64_I32,	QB_LE_S64_S64_I32,	QB_LE_U32_U32_I32,	QB_LE_S32_S32_I32,	QB_LE_U16_U16_I32,	QB_LE_S16_S16_I32,	QB_LE_U08_U08_I32,	QB_LE_S08_S08_I32,	},
 };
 
@@ -661,28 +675,28 @@ static qb_comparison_branch_op_factory factory_branch_on_greater_equal = {
 static qb_basic_op_factory factory_set_equal = {
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_EQ_SET_F64_F64_I32,	QB_EQ_SET_F32_F32_I32,	QB_EQ_SET_I64_I64_I32,	QB_EQ_SET_I64_I64_I32,	QB_EQ_SET_I32_I32_I32,	QB_EQ_SET_I32_I32_I32,	QB_EQ_SET_I16_I16_I32,	QB_EQ_SET_I16_I16_I32,	QB_EQ_SET_I08_I08_I32,	QB_EQ_SET_I08_I08_I32,	},
 };
 
 static qb_basic_op_factory factory_set_not_equal = {
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_NE_SET_F64_F64_I32,	QB_NE_SET_F32_F32_I32,	QB_NE_SET_I64_I64_I32,	QB_NE_SET_I64_I64_I32,	QB_NE_SET_I32_I32_I32,	QB_NE_SET_I32_I32_I32,	QB_NE_SET_I16_I16_I32,	QB_NE_SET_I16_I16_I32,	QB_NE_SET_I08_I08_I32,	QB_NE_SET_I08_I08_I32,	},
 };
 
 static qb_basic_op_factory factory_set_less_than = {
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_LT_SET_F64_F64_I32,	QB_LT_SET_F32_F32_I32,	QB_LT_SET_U64_U64_I32,	QB_LT_SET_S64_S64_I32,	QB_LT_SET_U32_U32_I32,	QB_LT_SET_S32_S32_I32,	QB_LT_SET_U16_U16_I32,	QB_LT_SET_S16_S16_I32,	QB_LT_SET_U08_U08_I32,	QB_LT_SET_S08_S08_I32,	},
 };
 
 static qb_basic_op_factory factory_set_less_equal = {
 	qb_append_binary_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_LE_SET_F64_F64_I32,	QB_LE_SET_F32_F32_I32,	QB_LE_SET_U64_U64_I32,	QB_LE_SET_S64_S64_I32,	QB_LE_SET_U32_U32_I32,	QB_LE_SET_S32_S32_I32,	QB_LE_SET_U16_U16_I32,	QB_LE_SET_S16_S16_I32,	QB_LE_SET_U08_U08_I32,	QB_LE_SET_S08_S08_I32,	},
 };
 
@@ -696,35 +710,35 @@ static qb_op * ZEND_FASTCALL qb_append_binary_reverse_op(qb_compiler_context *cx
 static qb_basic_op_factory factory_set_greater_equal = {
 	qb_append_binary_reverse_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_LE_SET_F64_F64_I32,	QB_LE_SET_F32_F32_I32,	QB_LE_SET_U64_U64_I32,	QB_LE_SET_S64_S64_I32,	QB_LE_SET_U32_U32_I32,	QB_LE_SET_S32_S32_I32,	QB_LE_SET_U16_U16_I32,	QB_LE_SET_S16_S16_I32,	QB_LE_SET_U08_U08_I32,	QB_LE_SET_S08_S08_I32,	},
 };
 
 static qb_basic_op_factory factory_set_greater_than = {
 	qb_append_binary_reverse_op,
 	QB_COERCE_TO_HIGHEST_RANK,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_LT_SET_F64_F64_I32,	QB_LT_SET_F32_F32_I32,	QB_LT_SET_U64_U64_I32,	QB_LT_SET_S64_S64_I32,	QB_LT_SET_U32_U32_I32,	QB_LT_SET_S32_S32_I32,	QB_LT_SET_U16_U16_I32,	QB_LT_SET_S16_S16_I32,	QB_LT_SET_U08_U08_I32,	QB_LT_SET_S08_S08_I32,	},
 };
 
 static qb_basic_op_factory factory_set_not = {
 	qb_append_unary_op,
 	QB_COERCE_TO_BOOLEAN,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	0,	0,	0,	0,	QB_NOT_SET_I32_I32,	QB_NOT_SET_I32_I32,	0,	0,	0,	0,	},
 };
 
 static qb_basic_op_factory factory_all = {
 	qb_append_unary_op,
 	QB_COERCE_TO_BOOLEAN,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_I32,
 	{	0,	0,	0,	0,	QB_ALL_I32_I32,	QB_ALL_I32_I32,	0,	0,	0,	0,	},
 };
 
 static qb_basic_op_factory factory_any = {
 	qb_append_unary_op,
 	QB_COERCE_TO_BOOLEAN,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	0,	0,	0,	0,	QB_ANY_I32_I32,	QB_ANY_I32_I32,	0,	0,	0,	0,	},
 };
 
@@ -845,14 +859,14 @@ static qb_op * ZEND_FASTCALL qb_append_branch_op(qb_compiler_context *cxt, void 
 
 static qb_simple_op_factory factory_branch_on_true = {
 	qb_append_branch_op,
-	0,
+	QB_COERCE_TO_BOOLEAN,
 	0,
 	QB_IF_T_I32,
 };
 
 static qb_simple_op_factory factory_branch_on_false = {
 	qb_append_branch_op,
-	0,
+	QB_COERCE_TO_BOOLEAN,
 	0,
 	QB_IF_F_I32,
 };
@@ -1187,21 +1201,21 @@ static qb_float_op_factory factory_rad2deg = {
 static qb_float_op_factory factory_is_finite = {
 	qb_append_unary_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_FIN_F64_I32,		QB_FIN_F32_I32,	},
 };
 
 static qb_float_op_factory factory_is_infinite = {
 	qb_append_unary_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_INF_F64_I32,		QB_INF_F32_I32,	},
 };
 
 static qb_float_op_factory factory_is_nan = {
 	qb_append_unary_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_BOOLEAN,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
 	{	QB_NAN_F64_I32,		QB_NAN_F32_I32,	},
 };	
 

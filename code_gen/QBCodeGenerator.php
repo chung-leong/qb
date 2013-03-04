@@ -706,9 +706,9 @@ class QBCodeGenerator {
 	}
 
 	protected function addCastHandlers($elementType) {
+		$elementUnsigned = preg_match('/^U/', $elementType);
+		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
 		foreach($this->elementTypes as $destElementType) {
-			$elementUnsigned = preg_match('/^U/', $elementType);
-			$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
 			$destUnsigned = preg_match('/^U/', $destElementType);
 			$destTypeNoSign = preg_replace('/^S/', "I", $destElementType);
 			if($elementType != $destElementType && $elementTypeNoSign != $destTypeNoSign) {
@@ -730,6 +730,11 @@ class QBCodeGenerator {
 						$this->handlers[] = new QBCastHandler("MOV", $elementTypeNoSign, $destTypeNoSign, $addressMode);
 					}
 				}
+			}
+		}
+		if(!$elementUnsigned) {
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBBooleanCastHandler("BOOL", $elementTypeNoSign, $addressMode);
 			}
 		}
 	}

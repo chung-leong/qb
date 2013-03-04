@@ -915,9 +915,10 @@ static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_co
 	USE_TSRM
 	qb_variable *qvar = import->variable;
 
-	if(import->previous_copy) {
+	if(import->previous_copy_index != -1) {
 		// copy value from qb caller
-		qb_transfer_value_from_caller_storage(cxt, import->previous_copy->storage, import->previous_copy->variable->address, qvar->address, QB_TRANSFER_CAN_BORROW_MEMORY);
+		qb_variable_import *previous_copy = &cxt->variable_imports[import->previous_copy_index];
+		qb_transfer_value_from_caller_storage(cxt, previous_copy->storage, previous_copy->variable->address, qvar->address, QB_TRANSFER_CAN_BORROW_MEMORY);
 	} else {
 		zval *zvalue = NULL, **p_zvalue = NULL;
 		if(import->value_pointer) {
@@ -981,14 +982,13 @@ static void ZEND_FASTCALL qb_import_variable(qb_interpreter_context *cxt, qb_var
 	int32_t i;
 	qb_variable_import *import;
 
-	if(cxt->variable_import_count + 1 > cxt->variable_import_buffer_size) {
-		cxt->variable_import_buffer_size += 8;
-		cxt->variable_imports = erealloc(cxt->variable_imports, sizeof(qb_variable_import) * cxt->variable_import_buffer_size);
+	if(!cxt->variable_imports) {
+		qb_create_array(&cxt->variable_imports, &cxt->variable_import_count, sizeof(qb_variable_import), 8);
 	}
-	import = &cxt->variable_imports[cxt->variable_import_count++];
+	import = qb_enlarge_array(&cxt->variable_imports, 1);
 	import->variable = qvar;
 	import->storage = cxt->storage;
-	import->previous_copy = NULL;
+	import->previous_copy_index = -1;
 	import->value_pointer = NULL;
 
 	for(i = cxt->variable_import_count - 2; i >= 0; i--) {
@@ -999,7 +999,7 @@ static void ZEND_FASTCALL qb_import_variable(qb_interpreter_context *cxt, qb_var
 			if(previous_qvar->address->type != qvar->address->type) {
 				qb_abort("Redeclaring %s, which was previously declared as %s, as %s", qvar->name, type_names[previous_qvar->address->type], type_names[qvar->address->type]);
 			}
-			import->previous_copy = previous_import;
+			import->previous_copy_index = i;
 		}
 	}
 
@@ -1420,9 +1420,10 @@ static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_cont
 
 	// do the transfer only if it the variable could have been changed
 	if(!(import->variable->address->flags & QB_ADDRESS_READ_ONLY)) {
-		if(import->previous_copy) {
+		if(import->previous_copy_index != -1) {
 			// copy value to caller storage
-			qb_transfer_value_to_caller_storage(cxt, qvar->address, import->previous_copy->storage, import->previous_copy->variable->address);
+			qb_variable_import *previous_copy = &cxt->variable_imports[import->previous_copy_index];
+			qb_transfer_value_to_caller_storage(cxt, qvar->address, previous_copy->storage, previous_copy->variable->address);
 		} else {
 			zval *zvalue = NULL;
 			if(import->value_pointer) {
@@ -1496,12 +1497,8 @@ static void ZEND_FASTCALL qb_free_context(qb_interpreter_context *cxt) {
 		efree(cxt->zend_arguments);
 		efree(cxt->zend_argument_pointers);
 	}
-	if(cxt->variable_imports) {
-		efree(cxt->variable_imports);
-	}
-	if(cxt->call_stack) {
-		efree(cxt->call_stack);
-	}
+	qb_destroy_array(&cxt->variable_imports);
+	qb_destroy_array(&cxt->call_stack);
 }
 
 static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt);
@@ -1740,11 +1737,10 @@ static qb_storage * ZEND_FASTCALL qb_find_previous_storage(qb_interpreter_contex
 static void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number) {
 	qb_call_stack_item *caller = NULL;
 	if(cxt->function) {
-		if(cxt->call_stack_height + 1 > cxt->call_stack_buffer_size) {
-			cxt->call_stack_buffer_size += 8;
-			cxt->call_stack = erealloc(cxt->call_stack, sizeof(qb_call_stack_item) * cxt->call_stack_buffer_size);
+		if(!cxt->call_stack) {
+			qb_create_array(&cxt->call_stack, &cxt->call_stack_height, sizeof(qb_call_stack_item), 8);
 		}
-		caller = &cxt->call_stack[cxt->call_stack_height++];
+		caller = qb_enlarge_array(&cxt->call_stack, 1);
 		caller->function = cxt->function;
 		caller->storage = cxt->storage;
 		caller->function_call_line_number = cxt->function_call_line_number;
