@@ -424,6 +424,26 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sort(qb_compiler_context *cxt, 
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
+	qb_operand *container = &arguments[0];
+
+	if(IS_SCALAR(container->address)) {
+		qb_abort("%s expects an array as the first parameter", f->name);
+	}
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
+	if(result->type != QB_OPERAND_NONE) {
+		qb_address *count_address = container->address->dimension_addresses[0];
+		qb_address *width_address;
+		if(container->address->dimension_count > 1) {
+			width_address = container->address->array_size_addresses[1];
+		} else {
+			width_address = qb_obtain_constant_U32(cxt, 1);
+		}
+		result->address = qb_obtain_temporary_variable(cxt, container->address->type, container->address->array_size_address);
+		qb_create_ternary_op(cxt, f->extra, container->address, count_address, width_address, result->address);
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	qb_operand *source = &arguments[0];
 	uint32_t result_type = qb_get_lvalue_type(cxt, QB_TYPE_U16);
@@ -768,6 +788,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"strrpos",				NULL,		qb_translate_intrinsic_subarray_search,		2,		3,		&factory_subarray_rpos		},
 	{	0,	"sort",					NULL,		qb_translate_intrinsic_sort,				1,		1,		&factory_sort				},
 	{	0,	"rsort",				NULL,		qb_translate_intrinsic_sort,				1,		1,		&factory_rsort				},
+	{	0,	"array_reverse",		NULL,		qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_reverse		},
 	{	0,	"utf8_decode",			NULL,		qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			NULL,		qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
 };

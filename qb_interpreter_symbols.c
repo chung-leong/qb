@@ -742,6 +742,30 @@ void qb_resync_argument_wrapper(qb_interpreter_context *cxt, uint32_t argument_i
 	qb_resync_argument(cxt, argument_index);
 }
 
+void qb_reverse_array_elements_F32_wrapper(float32_t *elements, uint32_t count, uint32_t width, float32_t *res_ptr) {
+	qb_reverse_array_elements_F32(elements, count, width, res_ptr);
+}
+
+void qb_reverse_array_elements_F64_wrapper(float64_t *elements, uint32_t count, uint32_t width, float64_t *res_ptr) {
+	qb_reverse_array_elements_F64(elements, count, width, res_ptr);
+}
+
+void qb_reverse_array_elements_I08_wrapper(int8_t *elements, uint32_t count, uint32_t width, int8_t *res_ptr) {
+	qb_reverse_array_elements_I08(elements, count, width, res_ptr);
+}
+
+void qb_reverse_array_elements_I16_wrapper(int16_t *elements, uint32_t count, uint32_t width, int16_t *res_ptr) {
+	qb_reverse_array_elements_I16(elements, count, width, res_ptr);
+}
+
+void qb_reverse_array_elements_I32_wrapper(int32_t *elements, uint32_t count, uint32_t width, int32_t *res_ptr) {
+	qb_reverse_array_elements_I32(elements, count, width, res_ptr);
+}
+
+void qb_reverse_array_elements_I64_wrapper(int64_t *elements, uint32_t count, uint32_t width, int64_t *res_ptr) {
+	qb_reverse_array_elements_I64(elements, count, width, res_ptr);
+}
+
 void qb_run_zend_extension_op_wrapper(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
 	qb_run_zend_extension_op(cxt, zend_opcode, line_number);
 }
@@ -1095,6 +1119,12 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_rand_S64",	qb_rand_S64_wrapper	},
 	{	0,	"qb_rand_U64",	qb_rand_U64_wrapper	},
 	{	0,	"qb_resync_argument",	qb_resync_argument_wrapper	},
+	{	0,	"qb_reverse_array_elements_F32",	qb_reverse_array_elements_F32_wrapper	},
+	{	0,	"qb_reverse_array_elements_F64",	qb_reverse_array_elements_F64_wrapper	},
+	{	0,	"qb_reverse_array_elements_I08",	qb_reverse_array_elements_I08_wrapper	},
+	{	0,	"qb_reverse_array_elements_I16",	qb_reverse_array_elements_I16_wrapper	},
+	{	0,	"qb_reverse_array_elements_I32",	qb_reverse_array_elements_I32_wrapper	},
+	{	0,	"qb_reverse_array_elements_I64",	qb_reverse_array_elements_I64_wrapper	},
 	{	0,	"qb_run_zend_extension_op",	qb_run_zend_extension_op_wrapper	},
 	{	0,	"qb_sample_bilinear_F32",	qb_sample_bilinear_F32_wrapper	},
 	{	0,	"qb_sample_bilinear_F64",	qb_sample_bilinear_F64_wrapper	},
