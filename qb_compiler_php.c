@@ -1617,7 +1617,14 @@ static void ZEND_FASTCALL qb_translate_isset_element(qb_compiler_context *cxt, v
 }
 
 static void ZEND_FASTCALL qb_translate_unset(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	// TODO
+	qb_operand *variable = &operands[0], *value = &operands[1];
+
+	if(cxt->zend_op->opcode == ZEND_UNSET_DIM) {
+		qb_do_array_element_retrieval(cxt, variable, value);
+	} else if(cxt->zend_op->opcode == ZEND_UNSET_OBJ) {
+		qb_do_object_property_retrieval(cxt, variable, value);
+	}
+	qb_create_nullary_op(cxt, op_factory, variable->address); 
 }
 
 static void ZEND_FASTCALL qb_translate_begin_silence(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -2216,7 +2223,7 @@ static qb_translator op_translators[] = {
 	{	qb_translate_user_opcode,			NULL						},	// ZEND_USER_OPCODE
 	{	NULL,								NULL						},	// 151
 	{	qb_translate_jump_set,				NULL						},	// ZEND_JMP_SET
-	{	NULL,								NULL						},	// TODO: ZEND_DECLARE_LAMBDA_FUNCTION
+	{	NULL,								NULL						},	// ZEND_DECLARE_LAMBDA_FUNCTION
 	{	NULL,								NULL						},	// ZEND_ADD_TRAIT
 	{	NULL,								NULL						},	// ZEND_BIND_TRAITS
 	{	NULL,								NULL						},	// ZEND_SEPARATE

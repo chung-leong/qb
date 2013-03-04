@@ -40,10 +40,13 @@ class QBConcatVariableHandler extends QBHandler {
 		$sprintf = $this->getPrintExpression();
 		$lines = array();
 		if($this->addressMode == "ARR") {
-			$lines[] = "string_length = 0;";
+			$lines[] = "string_length = 2;";			
 			$lines[] = "while(op1_ptr != op1_end) {";
-			$lines[] = 		"string_length += $sprintf + 2;";
+			$lines[] = 		"string_length += $sprintf;";
 			$lines[] =		"op1_ptr++;";
+			$lines[] =		"if(op1_ptr != op1_end) {";
+			$lines[] =			"string_length += 2;";
+			$lines[] =		"}";
 			$lines[] = "}";
 		} else {
 			$lines[] = "string_length = $sprintf;";
