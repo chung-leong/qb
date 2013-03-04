@@ -1296,10 +1296,11 @@ enum {
 	TYPE_DECL_DIMENSIONS,
 };
 
-#define TYPE_DIM_REGEXP				"\\[\\s*(?:(0x[0-9a-f]+|\\d*)|(\\*?))\\s*\\]\\s*"
+#define TYPE_DIM_REGEXP				"\\[\\s*(?:(0x[0-9a-f]+|\\d*)|([A-Z_][A-Z0-9_]*)|(\\*?))\\s*\\]\\s*"
 
 enum {
 	TYPE_DIM_INT = 1,
+	TYPE_DIM_CONSTANT,
 	TYPE_DIM_ASTERISK,
 };
 
@@ -1413,6 +1414,31 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 					if(FOUND_GROUP(TYPE_DIM_INT)) {
 						const char *number = dimension_string + GROUP_OFFSET(TYPE_DIM_INT);
 						dimension = strtol(number, NULL, 0);
+					} else if(FOUND_GROUP(TYPE_DIM_CONSTANT)) {
+						TSRMLS_FETCH();
+						zend_constant *zconst;
+						uint32_t name_len = GROUP_LENGTH(TYPE_DIM_CONSTANT);
+						ALLOCA_FLAG(use_heap)
+						char *name = do_alloca(name_len + 1, use_heap);
+						memcpy(name, dimension_string + GROUP_OFFSET(TYPE_DIM_CONSTANT), name_len);
+						name[name_len] = '\0';
+						if(zend_hash_find(EG(zend_constants), name, name_len + 1, (void **) &zconst) != FAILURE) {
+							if(Z_TYPE(zconst->value) == IS_LONG) {
+								long const_value = Z_LVAL(zconst->value);
+								if(const_value <= 0) {
+									qb_abort("Constant '%s' is not a positive integer", name);
+								}
+								dimension = const_value;
+							} else if(Z_TYPE(zconst->value) == IS_STRING && Z_STRLEN(zconst->value) == 1 && Z_STRVAL(zconst->value)[0] == '*') {
+								decl->flags |= QB_TYPE_DECL_EXPANDABLE;
+								dimension = 0;
+							} else {
+								qb_abort("Constant '%s' is neither an integer or '*'", name);
+							}
+						} else {
+							qb_abort("Undefined constant '%s'", name);
+						}
+						free_alloca(name, use_heap);
 					} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
 						if(dimension_index == 0) {
 							decl->flags |= QB_TYPE_DECL_EXPANDABLE;
