@@ -144,7 +144,6 @@ class RayTracer {
      * @local float32[3]		$l				normalized light vector
 	 * @local float32[3]		$lReflect		reflected off surface
 	 * @local float32[3]		$dirReflect
-	 * @local float32			$shadow
 	 * @local float32[3]		$colorScale
 	 * @local float32[3]		$sphereColor
 	 * @local float32[ambient, diffuse, specular, reflectivity]	$sphereMaterial
@@ -153,7 +152,7 @@ class RayTracer {
 	 * @local float32			$lightVal
 	 * @local bool				$hit
 	 * @local float32[3]		$hitPoint
-	 * @local float				$t
+	 * @local float32			$t
 	 * @local uint32			$sphereNum
 	 * @local bool				$shadowTest
 	 * @local float32[3]		$temp
@@ -208,19 +207,19 @@ class RayTracer {
 						$this->shootRay($hitPoint, $l, $shadowTest, $temp, $t, $temp2);
 		                
 						if(!$shadowTest) {					// if we didn't hit anything, we can see the light
-							$shadow = 1;
+							$shadowTest = 1;
 						} else if($t < $lightVectorLen)	{	// if we hit something before the light, we are in shadow
-							$shadow = 0;
+							$shadowTest = 0;
 						}
 		                
 		                $diffuse = dot($l, $n);
 		
 						$lReflect = $l - 2.0 * $diffuse * $n;	// reflect the light vector
 						$specular = dot($dir, $lReflect);
-		                
+						
 		                $diffuse = max($diffuse, 0.0);
 						$specular = pow(max($specular, 0.0), self::SPECULAR_EXPONENT);
-		                
+						
 		                // ground checkboard texture
 						if($sphereNum == 1) {
 							$phi = acos(-dot(array(1.0, 0.0, 0.0), $n));
@@ -232,7 +231,7 @@ class RayTracer {
 		                }
 		                
 						// finally, blend our color into this pixel
-						$lightVal = $sphereMaterial->ambient + $shadow * (($diffuse * $sphereMaterial->diffuse) + ($specular * $sphereMaterial->specular));
+						$lightVal = $sphereMaterial->ambient + float32($shadowTest) * (($diffuse * $sphereMaterial->diffuse) + ($specular * $sphereMaterial->specular));
 						$dst += $colorScale * $lightVal * $sphereColor;
 		                
 		                // reflection
@@ -269,6 +268,54 @@ qb_compile();
 $rayTracer = new RayTracer;
 $rayTracer->generate($output);
 
-imagepng($output, $incorrect_path);
+ob_start();
+imagesavealpha($output, true);
+imagepng($output);
+$output_png = ob_get_clean();
+
+/**
+ * @engine qb
+ *
+ * @param image	$img2;
+ * @param image	$img1;
+ * @return float32
+ */
+function image_diff($img1, $img2) {
+	$img2 -= $img1;
+	return array_sum($img2);
+}
+
+if(file_exists($correct_path)) {
+	$correct_md5 = md5_file($correct_path);
+	$output_md5 = md5($output_png);
+	if($correct_md5 == $output_md5) {
+		// exact match
+		$match = true;
+	} else {
+		$correct_output = imagecreatefrompng($correct_path);
+		$diff = image_diff($output, $correct_output);
+		if($diff < 0.05) {
+			// the output is different ever so slightly
+			$match = true;
+		} else {
+			$match = false;
+		}
+	}
+	if($match) {
+		echo "CORRECT\n";
+		if(file_exists($incorrect_path)) {
+			unlink($incorrect_path);
+		}
+	} else {
+		echo "INCORRECT\n";
+		file_put_contents($incorrect_path, $output_png);
+	}
+} else {
+	// reference image not yet available--save image and inspect it for correctness by eye
+	file_put_contents($correct_path, $output_png);
+}
+
 
 ?>
+--EXPECT--
+CORRECT
