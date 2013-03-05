@@ -983,9 +983,9 @@ static void ZEND_FASTCALL qb_import_variable(qb_interpreter_context *cxt, qb_var
 	qb_variable_import *import;
 
 	if(!cxt->variable_imports) {
-		qb_create_array(&cxt->variable_imports, &cxt->variable_import_count, sizeof(qb_variable_import), 8);
+		qb_create_array((void **) &cxt->variable_imports, &cxt->variable_import_count, sizeof(qb_variable_import), 8);
 	}
-	import = qb_enlarge_array(&cxt->variable_imports, 1);
+	import = qb_enlarge_array((void**) &cxt->variable_imports, 1);
 	import->variable = qvar;
 	import->storage = cxt->storage;
 	import->previous_copy_index = -1;
@@ -1497,8 +1497,8 @@ static void ZEND_FASTCALL qb_free_context(qb_interpreter_context *cxt) {
 		efree(cxt->zend_arguments);
 		efree(cxt->zend_argument_pointers);
 	}
-	qb_destroy_array(&cxt->variable_imports);
-	qb_destroy_array(&cxt->call_stack);
+	qb_destroy_array((void **) &cxt->variable_imports);
+	qb_destroy_array((void **) &cxt->call_stack);
 }
 
 static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt);
@@ -1738,9 +1738,9 @@ static void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cx
 	qb_call_stack_item *caller = NULL;
 	if(cxt->function) {
 		if(!cxt->call_stack) {
-			qb_create_array(&cxt->call_stack, &cxt->call_stack_height, sizeof(qb_call_stack_item), 8);
+			qb_create_array((void **) &cxt->call_stack, &cxt->call_stack_height, sizeof(qb_call_stack_item), 8);
 		}
-		caller = qb_enlarge_array(&cxt->call_stack, 1);
+		caller = qb_enlarge_array((void **) &cxt->call_stack, 1);
 		caller->function = cxt->function;
 		caller->storage = cxt->storage;
 		caller->function_call_line_number = cxt->function_call_line_number;

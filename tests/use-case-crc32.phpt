@@ -94,9 +94,7 @@ $data = str_repeat("Hello world", 5000);
 qb_compile();
 
 echo crc32_qb($data), "\n";
-echo crc32($data), "\n";
 
 ?>
 --EXPECT--
--1470825132
 -1470825132
