@@ -114,7 +114,7 @@ static void ZEND_FASTCALL qb_check_pixel_array(qb_interpreter_context *cxt, gdIm
 	qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
 	if(last_dimension_address->flags & QB_ADDRESS_CONSTANT) {
 		uint32_t dimension = VALUE(U32, last_dimension_address);
-		if(dimension != 4) {
+		if(!(dimension == 4 || (dimension == 3 && address->type >= QB_TYPE_F32))) {
 			qb_abort("Invalid dimension for a pixel (%d): %s", dimension, qb_get_address_name(cxt, address));
 		}
 	} else {
@@ -179,7 +179,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_image(qb_interpreter_
 	} else if(address->dimension_count == 2) {
 		// allow either int32, representing each pixel (if the image is true color)
 		// or int8, representing representing each pixel (if the image uses a palette )
-		// or int8, float32, and float64, with the last dimension being four (if the image is true color)
+		// or int8, float32, and float64, with the last dimension being three or four (if the image is true color)
 		if(image->trueColor) {
 			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
 				qb_set_image_dimensions(cxt, image, address);
@@ -508,6 +508,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 		int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
 		uint32_t element_count = VALUE(U32, address->array_size_address);
 		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+		// TODO: wrap-around
 		memcpy(ARRAY(I08, address), memory, byte_count);
 	} else if(Z_TYPE_P(zvalue) == IS_NULL) {
 		// clear the bytes 
@@ -516,6 +517,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 		memset(ARRAY(I08, address), 0, byte_count);
 	} else if(Z_TYPE_P(zvalue) == IS_LONG || Z_TYPE_P(zvalue) == IS_DOUBLE) {
 		uint32_t element_count = VALUE(U32, address->array_size_address);
+		// TODO: fill the array with the value
 		if(element_count > 1) {
 			// clear whole array first
 			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
@@ -532,6 +534,9 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 		php_stream_seek(stream, position, SEEK_SET);
 	} else if((image = qb_get_gd_image(cxt, zvalue))) {
 		if(image->trueColor) {
+			qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
+			uint32_t dimension = VALUE(U32, last_dimension_address);
+
 			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08 || (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
 				CTYPE(I32) *elements = ARRAY(I32, address);
 				uint32_t offset = 0;
@@ -548,22 +553,34 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 				uint32_t offset = 0;
 				int tpixel;
 
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						if(gdTrueColorGetAlpha(tpixel) != gdAlphaTransparent) {
+				if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							tpixel = gdImageTrueColorPixel(image, j, i);
 							elements[offset + 0] = (float32_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
 							elements[offset + 1] = (float32_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
 							elements[offset + 2] = (float32_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-							elements[offset + 3] = (float32_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-						} else {
-							// transparent pixels are assumed to be black
-							elements[offset + 0] = 
-							elements[offset + 1] =
-							elements[offset + 2] = 
-							elements[offset + 3] = 0;
+							offset += 3;
 						}
-						offset += 4;
+					}
+				} else {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							tpixel = gdImageTrueColorPixel(image, j, i);
+							if(gdTrueColorGetAlpha(tpixel) != gdAlphaTransparent) {
+								elements[offset + 0] = (float32_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+								elements[offset + 1] = (float32_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+								elements[offset + 2] = (float32_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+								elements[offset + 3] = (float32_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
+							} else {
+								// transparent pixels are assumed to be black
+								elements[offset + 0] = 
+								elements[offset + 1] =
+								elements[offset + 2] = 
+								elements[offset + 3] = 0;
+							}
+							offset += 4;
+						}
 					}
 				}
 			} else if(address->type == QB_TYPE_F64) {
@@ -571,21 +588,33 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 				uint32_t offset = 0;
 				int tpixel;
 
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						if(gdTrueColorGetAlpha(tpixel) != gdAlphaTransparent) {
+				if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							tpixel = gdImageTrueColorPixel(image, j, i);
 							elements[offset + 0] = (float64_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
 							elements[offset + 1] = (float64_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
 							elements[offset + 2] = (float64_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-							elements[offset + 3] = (float64_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-						} else {
-							elements[offset + 0] = 
-							elements[offset + 1] =
-							elements[offset + 2] = 
-							elements[offset + 3] = 0;
+							offset += 3;
 						}
-						offset += 4;
+					}
+				} else {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							tpixel = gdImageTrueColorPixel(image, j, i);
+							if(gdTrueColorGetAlpha(tpixel) != gdAlphaTransparent) {
+								elements[offset + 0] = (float64_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+								elements[offset + 1] = (float64_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+								elements[offset + 2] = (float64_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+								elements[offset + 3] = (float64_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
+							} else {
+								elements[offset + 0] = 
+								elements[offset + 1] =
+								elements[offset + 2] = 
+								elements[offset + 3] = 0;
+							}
+							offset += 4;
+						}
 					}
 				}
 			}
@@ -1260,6 +1289,9 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 		php_stream_seek(stream, position, SEEK_SET);
 	} else if((image = qb_get_gd_image(cxt, zvalue))) {
 		if(image->trueColor) {
+			qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
+			uint32_t dimension = VALUE(U32, last_dimension_address);
+
 			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08 || (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
 				CTYPE(I32) *elements = ARRAY(I32, address);
 				uint32_t offset = 0;
@@ -1276,14 +1308,28 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 				uint32_t offset = 0;
 				int32_t tpixel, r, g, b, a;
 
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float32(elements[offset++], gdRedMax);
-						g = qb_clamp_float32(elements[offset++], gdGreenMax);
-						b = qb_clamp_float32(elements[offset++], gdBlueMax);
-						a = gdAlphaTransparent - qb_clamp_float32(elements[offset++], gdAlphaMax);
-						tpixel = gdTrueColorAlpha(r, g, b, a);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
+				if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
+							g = qb_clamp_float32(elements[offset + 1], gdGreenMax);
+							b = qb_clamp_float32(elements[offset + 2], gdBlueMax);
+							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 3;
+						}
+					}
+				} else {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
+							g = qb_clamp_float32(elements[offset + 1], gdGreenMax);
+							b = qb_clamp_float32(elements[offset + 2], gdBlueMax);
+							a = gdAlphaTransparent - qb_clamp_float32(elements[offset + 3], gdAlphaMax);
+							tpixel = gdTrueColorAlpha(r, g, b, a);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 4;
+						}
 					}
 				}
 			} else if(address->type == QB_TYPE_F64) {
@@ -1291,14 +1337,28 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 				uint32_t offset = 0;
 				int32_t tpixel, r, g, b, a;
 
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float64(elements[offset++], gdRedMax);
-						g = qb_clamp_float64(elements[offset++], gdGreenMax);
-						b = qb_clamp_float64(elements[offset++], gdBlueMax);
-						a = gdAlphaTransparent - qb_clamp_float64(elements[offset++], gdAlphaMax);
-						tpixel = gdTrueColorAlpha(r, g, b, a);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
+				if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
+							g = qb_clamp_float64(elements[offset + 1], gdGreenMax);
+							b = qb_clamp_float64(elements[offset + 2], gdBlueMax);
+							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 3;
+						}
+					}
+				} else {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
+							g = qb_clamp_float64(elements[offset + 1], gdGreenMax);
+							b = qb_clamp_float64(elements[offset + 2], gdBlueMax);
+							a = gdAlphaTransparent - qb_clamp_float64(elements[offset + 3], gdAlphaMax);
+							tpixel = gdTrueColorAlpha(r, g, b, a);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 4;
+						}
 					}
 				}
 			}

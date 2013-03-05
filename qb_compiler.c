@@ -1272,7 +1272,7 @@ enum {
 
 ulong func_decl_hashes[10];
 
-#define TYPE_DECL_REGEXP			"^\\s*(?:(?:(u?int(\\d*))|(float(\\d*)))|(void)|(integer)|(double)|(char)|(bool|boolean)|(string)|(image)|(array)|(object)|(resource)|(mixed)|(callback))\\s*((?:\\[.*?\\])*)\\s*"
+#define TYPE_DECL_REGEXP			"^\\s*(?:(?:(u?int(\\d*))|(float(\\d*)))|(void)|(integer)|(double)|(char)|(bool|boolean)|(string)|(image[34]?)|(array)|(object)|(resource)|(mixed)|(callback))\\s*((?:\\[.*?\\])*)\\s*"
 
 enum {
 	TYPE_DECL_INT = 1,
@@ -1381,12 +1381,18 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 			decl->dimensions[0] = 0;
 			decl->flags |= QB_TYPE_DECL_EXPANDABLE | QB_TYPE_DECL_STRING;
 		} else if(FOUND_GROUP(TYPE_DECL_IMAGE) && !FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
+			uint32_t identifier_len = GROUP_LENGTH(TYPE_DECL_IMAGE);
 			decl->type = QB_TYPE_F32;
 			decl->dimension_count = 3;
 			decl->dimensions = qb_allocate_indices(pool, 3);
 			decl->dimensions[0] = 0;
 			decl->dimensions[1] = 0;
-			decl->dimensions[2] = 4;
+			if(identifier_len == 6) {
+				const char *identifier = s + GROUP_OFFSET(TYPE_DECL_IMAGE);
+				decl->dimensions[2] = (identifier[identifier_len - 1] == '3') ? 3 : 4;
+			} else {
+				decl->dimensions[2] = 4;
+			}
 		} else {
 			return NULL;
 		}

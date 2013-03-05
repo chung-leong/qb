@@ -89,13 +89,12 @@ class RayTracer {
 	 *
 	 * @engine qb
 	 *
-	 * @param image				$image
+	 * @param image3			$image
 	 *
 	 * @local uint32			$width
 	 * @local uint32			$height
 	 * @local uint32			$x
 	 * @local uint32			$y	 
-	 * @local float32[4]		$pixel
 	 * @local float32[3]		$dst
 	 * @local float32[x, y, z]	$origin
 	 * @local float32[x, y, z]	$dir
@@ -134,8 +133,6 @@ class RayTracer {
 		// obtain dimension of output image
 		$height = count($image);
 		$width = count($image[0]);
-		
-		$pixel = array(0, 0, 0, 1);
 		
 		for($y = 0; $y < $height; $y++) {
 			for($x = 0; $x < $width; $x++) {
@@ -252,11 +249,7 @@ class RayTracer {
 						$rayShots = 0;
 					}
 		        }
-		        
-		        $pixel[0] = $dst[0];
-		        $pixel[1] = $dst[1];
-		        $pixel[2] = $dst[2];
-		        $image[$y][$x] = $pixel;
+		        $image[$y][$x] = $dst;
 		    }
 		}
 	}
