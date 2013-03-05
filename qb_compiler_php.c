@@ -756,7 +756,7 @@ static void ZEND_FASTCALL qb_translate_assign(qb_compiler_context *cxt, void *op
 }
 
 static void ZEND_FASTCALL qb_translate_assign_ref(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_operand *variable = &operands[0], *target = &operands[1];
+	qb_operand *target = &operands[1];
 
 	if(target->type == QB_OPERAND_GLOBAL_STATIC) {
 		// initialization of static or global variable
@@ -818,7 +818,7 @@ static void ZEND_FASTCALL qb_translate_cast(qb_compiler_context *cxt, void *op_f
 	}
 }
 
-static uint32_t ZEND_FASTCALL qb_coerce_to_boolean(qb_compiler_context *cxt, qb_operand *operand) {
+static void ZEND_FASTCALL qb_coerce_to_boolean(qb_compiler_context *cxt, qb_operand *operand) {
 	if(!(operand->address->flags & QB_ADDRESS_BOOLEAN)) {
 		if(operand->address->flags & QB_ADDRESS_CONSTANT) {
 			int32_t is_true;
@@ -1221,7 +1221,6 @@ static void ZEND_FASTCALL qb_translate_fetch_property(qb_compiler_context *cxt, 
 }
 
 static void ZEND_FASTCALL qb_translate_fetch_class(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_operand *class = &operands[0], *name = &operands[1];
 	int32_t fetch_type = cxt->zend_op->extended_value & ZEND_FETCH_CLASS_MASK;
 
 	if(fetch_type == ZEND_FETCH_CLASS_SELF) {
@@ -2108,8 +2107,11 @@ static void ZEND_FASTCALL qb_translate_extension_op(qb_compiler_context *cxt, vo
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_nop(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+}
+
 static qb_translator op_translators[] = {
-	{	NULL,								NULL						},	// ZEND_NOP
+	{	qb_translate_nop,					NULL						},	// ZEND_NOP
 	{	qb_translate_basic_op,				&factory_add				},	// ZEND_ADD
 	{	qb_translate_basic_op,				&factory_subtract			},	// ZEND_SUB
 	{	qb_translate_basic_op,				&factory_multiply			},	// ZEND_MUL
@@ -2315,6 +2317,8 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 					qb_lock_address(cxt, result.address);
 				}
 			}
+		} else {
+			qb_abort("Unsupported language feature");
 		}
 	}
 }
