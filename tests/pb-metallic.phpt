@@ -5,11 +5,11 @@ Pixel Bender test: Metallic
 
 $filter_name = "metallic";
 $folder = dirname(__FILE__);
-$image = imagecreatefrompng("$folder/pbj/input/qb.png");
+$image = imagecreatefrompng("$folder/input/qb.png");
 $output = imagecreatetruecolor(imagesx($image), imagesy($image));
-$stripe = imagecreatefrompng("$folder/pbj/input/stripe.png");
-$correct_path = "$folder/pbj/output/$filter_name.correct.png";
-$incorrect_path = "$folder/pbj/output/$filter_name.incorrect.png";
+$stripe = imagecreatefrompng("$folder/input/stripe.png");
+$correct_path = "$folder/output/$filter_name.correct.png";
+$incorrect_path = "$folder/output/$filter_name.incorrect.png";
 
 /**
  * @engine qb

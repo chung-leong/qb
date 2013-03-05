@@ -5,11 +5,11 @@ Pixel Bender test: Bezier Aligner
 
 $filter_name = "bezier-aligner";
 $folder = dirname(__FILE__);
-$image = imagecreatefrompng("$folder/pbj/input/malgorzata_socha.png");
-$texture = imagecreatefrompng("$folder/pbj/input/telephone_cord.png");
+$image = imagecreatefrompng("$folder/input/malgorzata_socha.png");
+$texture = imagecreatefrompng("$folder/input/telephone_cord.png");
 $output = imagecreatetruecolor(imagesx($image), imagesy($image));
-$correct_path = "$folder/pbj/output/$filter_name.correct.png";
-$incorrect_path = "$folder/pbj/output/$filter_name.incorrect.png";
+$correct_path = "$folder/output/$filter_name.correct.png";
+$incorrect_path = "$folder/output/$filter_name.incorrect.png";
 
 /**
  * @engine qb

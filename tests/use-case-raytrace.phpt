@@ -3,10 +3,14 @@ Use case: Ray Tracer
 --FILE--
 <?php
 
+// Ported from Pixel Bender
+// Raytracer by mrwelsh 
+// Url: http://www.adobe.com/cfusion/exchange/index.cfm?event=extensionDetail&loc=en_us&extid=1634018
+
 $folder = dirname(__FILE__);
 $output = imagecreatetruecolor(512, 512);
-$correct_path = "$folder/pbj/output/raytrace.correct.png";
-$incorrect_path = "$folder/pbj/output/raytrace.incorrect.png";
+$correct_path = "$folder/output/raytrace.correct.png";
+$incorrect_path = "$folder/output/raytrace.incorrect.png";
 
 define('NUM_SPHERES', 35);
 
@@ -214,7 +218,7 @@ class RayTracer {
 		                
 		                $diffuse = dot($l, $n);
 		
-						$lReflect = $l - 2.0 * $diffuse * $n;	// reflect the light vector
+						$lReflect = reflect($l, $n);		// reflect the light vector
 						$specular = dot($dir, $lReflect);
 						
 		                $diffuse = max($diffuse, 0.0);
@@ -222,8 +226,8 @@ class RayTracer {
 						
 		                // ground checkboard texture
 						if($sphereNum == 1) {
-							$phi = acos(-dot(array(1.0, 0.0, 0.0), $n));
-							$u = acos(dot(array(0.0, 0.0, 1.0), $n) / sin($phi)) / (2.0 * M_PI);
+							$phi = acos(-$n[0]);
+							$u = acos($n[2] / sin($phi)) / (2.0 * M_PI);
 							$v = $phi / M_PI;
 		                 
 							// we could do sample_linear here to do some actual texturing. :)
@@ -236,7 +240,7 @@ class RayTracer {
 		                
 		                // reflection
 						if($sphereMaterial->reflectivity > 0.0) {
-							$dirReflect = $dir - 2.0 * dot($dir, $n) * $n;		// reflect our view vector
+							$dirReflect = reflect($dir, $n);		// reflect our view vector
 							$dirReflect = normalize($dirReflect);
 							
 		                    // originate at our hit position, fire at reflected angle

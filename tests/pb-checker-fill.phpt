@@ -6,8 +6,8 @@ Pixel Bender test: Checker Fill
 $filter_name = "checker-fill";
 $folder = dirname(__FILE__);
 $output = imagecreatetruecolor(512, 384);
-$correct_path = "$folder/pbj/output/$filter_name.correct.png";
-$incorrect_path = "$folder/pbj/output/$filter_name.incorrect.png";
+$correct_path = "$folder/output/$filter_name.correct.png";
+$incorrect_path = "$folder/output/$filter_name.incorrect.png";
 
 /**
  * @engine qb

@@ -5,10 +5,10 @@ Pixel Bender test: Dilate Filter 'Diamond'
 
 $filter_name = "dilate-diamond";
 $folder = dirname(__FILE__);
-$image = imagecreatefrompng("$folder/pbj/input/malgorzata_socha.png");
+$image = imagecreatefrompng("$folder/input/malgorzata_socha.png");
 $output = imagecreatetruecolor(imagesx($image), imagesy($image));
-$correct_path = "$folder/pbj/output/$filter_name.correct.png";
-$incorrect_path = "$folder/pbj/output/$filter_name.incorrect.png";
+$correct_path = "$folder/output/$filter_name.correct.png";
+$incorrect_path = "$folder/output/$filter_name.incorrect.png";
 
 /**
  * @engine qb
