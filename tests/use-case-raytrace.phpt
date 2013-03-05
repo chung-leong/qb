@@ -85,48 +85,6 @@ class RayTracer {
 	}
 
 	/** 
-	/* shootRay():  fires a ray from origin, toward dir
-	/*              returns first intersection
-	/* @engine qb
-	 *
-	 * @param float32[3]	$origin
-	 * @param float32[3]	$dir
-	 * @param bool			$hit
-	 * @param float32[3]	$pos
-	 * @param float32		$t
-	 * @param uint32		$sphereNum
-	 *
-	 * @local float32 		$curT
-	 * @local float32		$B
-	 * @local float32		$C
-	 * @local float32		$disc
-	 * @local float32[3]	$sphereToOrigin
-	 * @local uint32		$i
-	 */
-    private function shootRay($origin, $dir, &$hit, &$pos, &$t, &$sphereNum) {
-		$hit = false;
-		$t = 99999.0;
-        
-        // cycle through all spheres and find the smallest t>0 that we hit
-		for($i = 0; $i < NUM_SPHERES; $i++) {
-			$sphereToOrigin = $origin - $this->spherePositions[$i];
-			$B = dot($sphereToOrigin, $dir);
-			$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
-		
-			$disc = $B * $B - $C;
-			if($disc > 0.0) {
-				$curT = -$B - sqrt($disc);
-				if($curT > 0.0 && $curT < $t) {
-					$sphereNum = $i;
-					$t = $curT;
-					$hit = true;
-				}
-			}
-		}
-		$pos = $origin + $dir * $t;
-    }
-
-	/** 
 	 * generate():	generate raytraced image
 	 *
 	 * @engine qb
@@ -159,12 +117,16 @@ class RayTracer {
 	 * @local float32			$t
 	 * @local uint32			$sphereNum
 	 * @local bool				$shadowTest
-	 * @local float32[3]		$temp
-	 * @local uint32			$temp2
 	 * @local int32				$rayShots
 	 * @local float32			$phi
 	 * @local float32			$u
 	 * @local float32			$v
+	 * @local float32 			$curT
+	 * @local float32			$B
+	 * @local float32			$C
+	 * @local float32			$disc
+	 * @local float32[3]		$sphereToOrigin
+	 * @local uint32			$i
 	 */
 	public function generate(&$image) {
 		$this->initialize();
@@ -194,12 +156,30 @@ class RayTracer {
 		            
 					// INTERSECTION TEST
 					// find the first sphere we intersect with
-					$this->shootRay($origin, $dir, $hit, $hitPoint, $t, $sphereNum);
-		                        
+					$hit = false;
+					$t = 99999.0;
+			        
+			        // cycle through all spheres and find the smallest t>0 that we hit
+					for($i = 0; $i < NUM_SPHERES; $i++) {
+						$sphereToOrigin = $origin - $this->spherePositions[$i];
+						$B = dot($sphereToOrigin, $dir);
+						$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
+					
+						$disc = $B * $B - $C;
+						if($disc > 0.0) {
+							$curT = -$B - sqrt($disc);
+							if($curT > 0.0 && $curT < $t) {
+								$sphereNum = $i;
+								$t = $curT;
+								$hit = true;
+							}
+						}
+					}
+					
 					if($hit) {
+						$hitPoint = $origin + $dir * $t;
 		                $sphereColor = $this->sphereColors[$sphereNum];
 		                $sphereMaterial = $this->sphereMaterials[$sphereNum];
-		                
 						$sphereHit = $hitPoint - $this->spherePositions[$sphereNum];
 						$n = $sphereHit / $this->sphereRadii[$sphereNum];				// normal at the point we hit
 		                $lightVector = $this->lightPos - $hitPoint;						// hit point to light
@@ -208,7 +188,22 @@ class RayTracer {
 		                
 						// SHADOW TEST
 						// fire a ray from our hit position towards the light
-						$this->shootRay($hitPoint, $l, $shadowTest, $temp, $t, $temp2);
+						$shadowTest = false;
+						$t = 99999.0;
+						for($i = 0; $i < NUM_SPHERES; $i++) {
+							$sphereToOrigin = $hitPoint - $this->spherePositions[$i];
+							$B = dot($sphereToOrigin, $l);
+							$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
+						
+							$disc = $B * $B - $C;
+							if($disc > 0.0) {
+								$curT = -$B - sqrt($disc);
+								if($curT > 0.0 && $curT < $t) {
+									$t = $curT;
+									$shadowTest = true;
+								}
+							}
+						}
 		                
 						if(!$shadowTest) {					// if we didn't hit anything, we can see the light
 							$shadowTest = 1;
