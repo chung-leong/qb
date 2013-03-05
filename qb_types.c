@@ -22,13 +22,17 @@
 
 #include "qb_crc64.c"
 
+void ZEND_FASTCALL qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
+	while(filled_byte_count < required_byte_count) {
+		uint32_t gap = (required_byte_count - filled_byte_count);
+		uint32_t copy_count = (gap > filled_byte_count) ? filled_byte_count : gap;
+		memcpy(memory + filled_byte_count, memory, copy_count);
+		filled_byte_count += copy_count;
+	}
+}
+
 void ZEND_FASTCALL qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count) {
 	uint32_t i, count = min(source_count, dest_count);
-	if(source_count < dest_count) {
-		uint32_t offset = BYTE_COUNT(source_count, dest_type);
-		uint32_t byte_count = BYTE_COUNT((dest_count - source_count), dest_type);
-		memset(dest_memory + offset, 0, byte_count);
-	}
 	switch(dest_type) {
 		case QB_TYPE_S08: {
 			switch(source_type) {
@@ -170,6 +174,9 @@ void ZEND_FASTCALL qb_copy_elements(uint32_t source_type, int8_t *restrict sourc
 				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(F64) *) source_memory)[i]; break;
 			}
 		}	break;
+	}
+	if(source_count < dest_count) {
+		qb_copy_wrap_around(dest_memory, BYTE_COUNT(source_count, dest_type), BYTE_COUNT(dest_count, dest_type));
 	}
 }
 

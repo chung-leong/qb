@@ -106,6 +106,8 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_bytes(qb_interpreter_
 			// set the array size as well (since it's not the same as the dimension)
 			VALUE(U32, address->array_size_address) = element_count;
 		}
+	} else if(dimension < dimension_expected) {
+		element_count = VALUE(U32, address->array_size_address);
 	}
 	return element_count;
 }
@@ -257,21 +259,23 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_caller_address(qb_int
 		for(i = address->dimension_count - 1; i >= 0; i--) {
 			qb_address *dimension_address = address->dimension_addresses[i];
 			qb_address *caller_dimension_address = caller_address->dimension_addresses[i];
+			qb_address *array_size_address = address->array_size_addresses[i];
 			uint32_t dimension = VALUE_IN(caller_storage, U32, caller_dimension_address);
 			uint32_t dimension_expected = VALUE(U32, dimension_address);
 
 			array_size *= dimension;
 
-			if(dimension != dimension_expected) {
+			if(dimension > dimension_expected) {
 				if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
-					qb_abort("Number of elements (%d) does not match the declared size of the array (%d): %s", dimension, dimension_expected, qb_get_address_name(cxt, address));
+					qb_abort("Number of elements (%d) exceeds declared size of array (%d): %s", dimension, dimension_expected, qb_get_address_name(cxt, address));
 				} else {
 					VALUE(U32, dimension_address) = dimension;
 				}
 				if(i != address->dimension_count - 1) {
-					qb_address *array_size_address = address->array_size_addresses[i];
 					VALUE(U32, array_size_address) = array_size;
 				}
+			} else if(dimension < dimension_expected) {
+				array_size = VALUE(U32, array_size_address);
 			}
 		}
 		return array_size;
@@ -462,7 +466,8 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 
 		if(Z_TYPE_P(zvalue) == IS_ARRAY) {
 			HashTable *ht = Z_ARRVAL_P(zvalue);
-			for(i = 0; i < dimension; i++) {
+			uint32_t array_size = ht->nNextFreeElement;
+			for(i = 0; i < array_size; i++) {
 				zval **p_item;
 				if(zend_hash_index_find(ht, i, (void **) &p_item) == SUCCESS) {
 					if(item_address->dimension_count > 0) {
@@ -474,6 +479,9 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 					memset(ARRAY(I08, item_address), 0, item_byte_count);
 				}
 				item_address->segment_offset += item_byte_count;
+			}
+			if(array_size < dimension) {
+				qb_copy_wrap_around(ARRAY(I08, address), array_size * item_byte_count, dimension * item_byte_count);
 			}
 		} else {
 			qb_index_alias_scheme *scheme = address->index_alias_schemes[0];
@@ -508,8 +516,10 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 		int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
 		uint32_t element_count = VALUE(U32, address->array_size_address);
 		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
-		// TODO: wrap-around
 		memcpy(ARRAY(I08, address), memory, byte_count);
+		if((uint32_t) Z_STRLEN_P(zvalue) < byte_count) {
+			qb_copy_wrap_around(ARRAY(I08, address), Z_STRLEN_P(zvalue), byte_count);
+		}
 	} else if(Z_TYPE_P(zvalue) == IS_NULL) {
 		// clear the bytes 
 		uint32_t element_count = VALUE(U32, address->array_size_address);
@@ -517,14 +527,12 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 		memset(ARRAY(I08, address), 0, byte_count);
 	} else if(Z_TYPE_P(zvalue) == IS_LONG || Z_TYPE_P(zvalue) == IS_DOUBLE) {
 		uint32_t element_count = VALUE(U32, address->array_size_address);
-		// TODO: fill the array with the value
-		if(element_count > 1) {
-			// clear whole array first
-			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
-			memset(ARRAY(I08, address), 0, byte_count);
-		}
 		// copy the one element
 		qb_copy_element_from_zval(cxt, zvalue, address);
+		if(element_count > 1) {
+			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+			qb_copy_wrap_around(ARRAY(I08, address), BYTE_COUNT(1, address->type), byte_count);
+		}
 	} else if((stream = qb_get_file_stream(cxt, zvalue))) {
 		// copy the content from the file 
 		uint32_t position = php_stream_tell(stream);
@@ -837,16 +845,18 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 			if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
 				php_stream *stream;
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
-					// use memory from the string
-					qb_free_segment(cxt, segment);
-					segment->memory = *segment->stack_ref_memory = (int8_t *) Z_STRVAL_P(zvalue);
-					segment->current_allocation = element_count;
-					if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
-						segment->flags |= QB_SEGMENT_BORROWED;
-					} else {
-						Z_TYPE_P(zvalue) = IS_NULL;
+					// use memory from the string if it's long enough
+					if((uint32_t) Z_STRLEN_P(zvalue) >= BYTE_COUNT(element_count, address->type)) {
+						qb_free_segment(cxt, segment);
+						segment->memory = *segment->stack_ref_memory = (int8_t *) Z_STRVAL_P(zvalue);
+						segment->current_allocation = element_count;
+						if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
+							segment->flags |= QB_SEGMENT_BORROWED;
+						} else {
+							Z_TYPE_P(zvalue) = IS_NULL;
+						}
+						return;
 					}
-					return;
 				}
 				if((stream = qb_get_file_stream(cxt, zvalue))) {
 					// use memory mapped file if possible
@@ -906,23 +916,25 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 		// see if we can just point to the memory in the caller storage
 		if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
 			if(STORAGE_TYPE_MATCH(address->type, caller_address->type)) {
-				// use memory from the caller
-				if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-					if(IS_EXPANDABLE_ARRAY(caller_address)) {
-						qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
-						segment->memory = *segment->stack_ref_memory = caller_segment->memory;
-						segment->stream = caller_segment->stream;
-						segment->current_allocation = caller_segment->current_allocation;
+				// use memory from the caller if it's larger enough
+				if(ARRAY_SIZE_IN(caller_storage, caller_address) >= ARRAY_SIZE(address)) {
+					if(segment->flags & QB_SEGMENT_EXPANDABLE) {
+						if(IS_EXPANDABLE_ARRAY(caller_address)) {
+							qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
+							segment->memory = *segment->stack_ref_memory = caller_segment->memory;
+							segment->stream = caller_segment->stream;
+							segment->current_allocation = caller_segment->current_allocation;
+							segment->element_count = element_count;
+							segment->flags |= (caller_segment->flags & QB_SEGMENT_MAPPED) | QB_SEGMENT_BORROWED;
+							return;
+						}
+					} else {
+						segment->memory = *segment->stack_ref_memory = ARRAY_IN(caller_storage, I08, caller_address);
+						segment->current_allocation = element_count;
 						segment->element_count = element_count;
-						segment->flags |= (caller_segment->flags & QB_SEGMENT_MAPPED) | QB_SEGMENT_BORROWED;
+						segment->flags |= QB_SEGMENT_BORROWED;
 						return;
 					}
-				} else {
-					segment->memory = *segment->stack_ref_memory = ARRAY_IN(caller_storage, I08, caller_address);
-					segment->current_allocation = element_count;
-					segment->element_count = element_count;
-					segment->flags |= QB_SEGMENT_BORROWED;
-					return;
 				}
 			}
 		}
