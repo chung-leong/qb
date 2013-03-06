@@ -343,7 +343,7 @@ enum {
 #define IS_EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_READ_ONLY))
 
 #define IS_ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
-#define IS_CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count)
+#define IS_CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
 
 #define ARRAY_IN(storage, type, address)		((CTYPE(type) *) (storage->segments[address->segment_selector].memory + address->segment_offset))
 #define VALUE_IN(storage, type, address)		*ARRAY_IN(storage, type, address)

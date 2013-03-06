@@ -357,7 +357,6 @@ static void ZEND_FASTCALL qb_print_typedefs(qb_native_compiler_context *cxt) {
 
 	qb_print(cxt, "\
 struct qb_address {\
-	uint32_t ref_count;\
 	uint32_t mode;\
 	uint32_t type;\
 	uint32_t flags;\
@@ -435,10 +434,8 @@ struct qb_interpreter_context {\
 	uint32_t flags;\
 	qb_call_stack_item *call_stack;\
 	uint32_t call_stack_height;\
-	uint32_t call_stack_buffer_size;\
 	qb_variable_import *variable_imports;\
 	uint32_t variable_import_count;\
-	uint32_t variable_import_buffer_size;\
 	int32_t exception_encountered;\
 	uint32_t function_call_line_number;\
 	uint32_t *line_number_pointer;\

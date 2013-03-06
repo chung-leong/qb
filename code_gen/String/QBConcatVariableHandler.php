@@ -17,21 +17,21 @@ class QBConcatVariableHandler extends QBHandler {
 
 		if($type == "F32") {		
 			$format = '"%.*G"';
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision / 2, *ptr)";
+			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision / 2, v)";
 		} else if($type == "F64") {
 			$format = '"%.*G"';
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision, *ptr)";
+			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision, v)";
 		} else {
 			// use macros in inttypes.h
 			$size = intval(substr($type, 1));
 			$sign = ($type[0] == 'U') ? 'u' : 'd';
 			$format = '"%" PRI' . $sign . $size;
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, *ptr)";
+			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, v)";
 		}
 		
 		$functions = array(
 			array(
-				"static uint32_t ZEND_FASTCALL qb_convert_scalar_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, uint8_t *res_ptr) {",
+				"static uint32_t ZEND_FASTCALL qb_convert_scalar_to_string_$type(qb_interpreter_context *cxt, $cType v, uint8_t *res_ptr) {",
 					"char sprintf_buffer[64];",
 					"uint32_t len = $sprintf;",
 					"if(res_ptr) {",
@@ -42,20 +42,18 @@ class QBConcatVariableHandler extends QBHandler {
 			),
 			array(
 				"static uint32_t ZEND_FASTCALL qb_convert_array_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint8_t *res_ptr) {",
-					"char sprintf_buffer[64];",
 					"uint32_t len, total = 2;",
 					"if(res_ptr) {",
 						"*res_ptr = '[';",
 						"res_ptr++;",
 					"}",
 					"while(ptr != end) {",
-						"len = $sprintf;",
+						"len = qb_convert_scalar_to_string_$type(cxt, *ptr, res_ptr);",
 						"total += len;",
-						"ptr++;",
 						"if(res_ptr) {",
-							"memcpy(res_ptr, sprintf_buffer, len);",
 							"res_ptr += len;",
 						"}",
+						"ptr++;",
 						"if(ptr != end) {",
 							"total += 2;",
 							"if(res_ptr) {",
@@ -85,7 +83,7 @@ class QBConcatVariableHandler extends QBHandler {
 		if($this->addressMode == "ARR") {
 			return "string_length = qb_convert_array_to_string_$type(cxt, op1_ptr, op1_end, NULL);";
 		} else {
-			return "string_length = qb_convert_scalar_to_string_$type(cxt, op1_ptr, NULL);";
+			return "string_length = qb_convert_scalar_to_string_$type(cxt, op1, NULL);";
 		}		 
 	}
 	
@@ -94,7 +92,7 @@ class QBConcatVariableHandler extends QBHandler {
 		if($this->addressMode == "ARR") {
 			return "qb_convert_array_to_string_$type(cxt, op1_ptr, op1_end, res_ptr + res_count_before);";
 		} else {
-			return "qb_convert_scalar_to_string_$type(cxt, op1_ptr, res_ptr + res_count_before);";
+			return "qb_convert_scalar_to_string_$type(cxt, op1, res_ptr + res_count_before);";
 		}		 
 	}
 }

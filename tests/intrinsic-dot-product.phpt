@@ -1,5 +1,5 @@
 --TEST--
-Do product test
+Dot product test
 --FILE--
 <?php
 
