@@ -91,6 +91,7 @@ struct qb_string_op_factory {
 	uint32_t coercion_flags;
 	uint32_t result_flags;
 	uint32_t opcodes[10];
+	uint32_t multidim_opcodes[10];
 	uint32_t text_opcode;
 }; 
 
@@ -742,20 +743,33 @@ static qb_basic_op_factory factory_any = {
 	{	0,	0,	0,	0,	QB_ANY_I32_I32,	QB_ANY_I32_I32,	0,	0,	0,	0,	},
 };
 
+static qb_address *ZEND_FASTCALL qb_get_subarray_sizes(qb_compiler_context *cxt, qb_address *address);
+
 static qb_op *ZEND_FASTCALL qb_append_concat_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *f = factory;
 	qb_address *addition = operands[0].address;
 	uint32_t opcode;
 	qb_op *qop;
 
-	if(addition->flags & QB_ADDRESS_STRING) {
-		opcode = f->text_opcode;
+	if(addition->dimension_count > 1) {
+		qb_address *subarray_sizes_address = qb_get_subarray_sizes(cxt, addition);
+		opcode = f->multidim_opcodes[QB_TYPE_F64 - addition->type];
+		qop = qb_append_op(cxt, opcode, 3);
+		qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[0].address = addition;
+		qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[1].address = subarray_sizes_address;
+		qop->operands[2] = *result;
 	} else {
-		opcode = f->opcodes[QB_TYPE_F64 - addition->type];
+		if(addition->flags & QB_ADDRESS_STRING) {
+			opcode = f->text_opcode;
+		} else {
+			opcode = f->opcodes[QB_TYPE_F64 - addition->type];
+		}
+		qop = qb_append_op(cxt, opcode, 2);
+		qop->operands[0] = operands[0];
+		qop->operands[1] = *result;
 	}
-	qop = qb_append_op(cxt, opcode, 2);
-	qop->operands[0] = operands[0];
-	qop->operands[1] = *result;
 	return qop;
 }
 
@@ -764,6 +778,7 @@ static qb_string_op_factory factory_concat = {
 	0,
 	0,
 	{	QB_CAT_F64_U08,	QB_CAT_F32_U08,	QB_CAT_U64_U08,	QB_CAT_S64_U08,	QB_CAT_U32_U08,	QB_CAT_S32_U08,	QB_CAT_U16_U08,	QB_CAT_S16_U08,	QB_CAT_U08_U08,	QB_CAT_S08_U08,	},
+	{	QB_CAT_DIM_F64_U32_U08,	QB_CAT_DIM_F32_U32_U08,	QB_CAT_DIM_U64_U32_U08,	QB_CAT_DIM_S64_U32_U08,	QB_CAT_DIM_U32_U32_U08,	QB_CAT_DIM_S32_U32_U08,	QB_CAT_DIM_U16_U32_U08,	QB_CAT_DIM_S16_U32_U08,	QB_CAT_DIM_U08_U32_U08,	QB_CAT_DIM_S08_U32_U08,	},
 	QB_CAT_STR_U08_U08,
 };
 
@@ -773,13 +788,23 @@ static qb_op *ZEND_FASTCALL qb_append_print_op(qb_compiler_context *cxt, void *f
 	uint32_t opcode;
 	qb_op *qop = NULL;
 
-	if(address->flags & QB_ADDRESS_STRING) {
-		opcode = f->text_opcode;
+	if(address->dimension_count > 1) {
+		qb_address *subarray_sizes_address = qb_get_subarray_sizes(cxt, address);
+		opcode = f->multidim_opcodes[QB_TYPE_F64 - address->type];
+		qop = qb_append_op(cxt, opcode, 2);
+		qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[0].address = address;
+		qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[1].address = subarray_sizes_address;
 	} else {
-		opcode = f->opcodes[QB_TYPE_F64 - address->type];
+		if(address->flags & QB_ADDRESS_STRING) {
+			opcode = f->text_opcode;
+		} else {
+			opcode = f->opcodes[QB_TYPE_F64 - address->type];
+		}
+		qop = qb_append_op(cxt, opcode, 1);
+		qop->operands[0] = operands[0];
 	}
-	qop = qb_append_op(cxt, opcode, 1);
-	qop->operands[0] = operands[0];
 	return qop;
 }
 
@@ -788,6 +813,7 @@ static qb_string_op_factory factory_print = {
 	0,
 	0,
 	{	QB_PRN_F64,	QB_PRN_F32,	QB_PRN_U64,	QB_PRN_S64,	QB_PRN_U32,	QB_PRN_S32,	QB_PRN_U16,	QB_PRN_S16,	QB_PRN_U08,	QB_PRN_S08,	},
+	{	QB_PRN_DIM_F64_U32,	QB_PRN_DIM_F32_U32,	QB_PRN_DIM_U64_U32,	QB_PRN_DIM_S64_U32,	QB_PRN_DIM_U32_U32,	QB_PRN_DIM_S32_U32,	QB_PRN_DIM_U16_U32,	QB_PRN_DIM_S16_U32,	QB_PRN_DIM_U08_U32,	QB_PRN_DIM_S08_U32,	},
 	QB_PRN_STR_U08,
 };
 

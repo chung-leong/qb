@@ -21,9 +21,6 @@
 #include "qb.h"
 #include <math.h>
 #include "zend_variables.h"
-#include "../standard/php_rand.h"
-#include "../standard/php_lcg.h"
-#include "../standard/php_math.h"
 #include "../gd/libgd/gd.h"
 
 static const char * ZEND_FASTCALL qb_get_address_name(qb_interpreter_context *cxt, qb_address *address) {
@@ -712,7 +709,7 @@ static void ZEND_FASTCALL qb_resize_segment(qb_interpreter_context *cxt, qb_memo
 	}
 }
 
-static void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size) {
+void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size) {
 	int8_t *current_data_end;
 
 	if(segment->increment_pointer) {
@@ -745,7 +742,7 @@ static void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_mem
 	*segment->array_size_pointer = *segment->stack_ref_element_count = segment->element_count = desired_size;
 }
 
-static void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
+void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
 	uint32_t current_size = *segment->array_size_pointer;
 	uint32_t desired_size = current_size - count;
 	uint32_t bytes_to_move, bytes_to_remove;
@@ -788,7 +785,7 @@ static void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt
 	}
 }
 
-static NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t line_number) {
+NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t line_number) {
 	USE_TSRM
 	qb_function *func = cxt->function;
 	const char *var_name = "(unknown)";
@@ -1573,7 +1570,7 @@ static void ZEND_FASTCALL qb_free_context(qb_interpreter_context *cxt) {
 	qb_destroy_array((void **) &cxt->call_stack);
 }
 
-static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt);
+void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt);
 
 static void ZEND_FASTCALL qb_initialize_context(qb_interpreter_context *cxt TSRMLS_DC) {
 	uint32_t i;
@@ -1806,7 +1803,7 @@ static qb_storage * ZEND_FASTCALL qb_find_previous_storage(qb_interpreter_contex
 	return qfunc->local_storage;
 }
 
-static void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number) {
+void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number) {
 	qb_call_stack_item *caller = NULL;
 	if(cxt->function) {
 		if(!cxt->call_stack) {
@@ -1906,7 +1903,7 @@ extern zend_module_entry qb_module_entry;
 #include "zend_extensions.h"
 #include "zend_vm.h"
 
-static void ZEND_FASTCALL qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
+void ZEND_FASTCALL qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
 	// see if a handler for the op exists before doing any of the hard work
 	USE_TSRM
 	int32_t handler_exists = FALSE;
@@ -2086,7 +2083,7 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
+void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 	if(cxt->function) {
 		uint32_t i;
 		if(cxt->argument_count != cxt->function->argument_count) {
@@ -2199,7 +2196,7 @@ static void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) 
 	}
 }
 
-static void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt) {
+void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt) {
 	if(cxt->function) {
 		if(cxt->storage != cxt->function->local_storage) {
 			// make sure change to scalar static variables are copied back into the caller's memory 
@@ -2253,7 +2250,7 @@ static void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt)
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
+void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
 	if(cxt->function) {
 		if(argument_index < cxt->function->argument_count) {
 			qb_variable *qvar = cxt->function->variables[argument_index];
@@ -2279,7 +2276,7 @@ static void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t
 	}
 }
 
-static void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
+void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
 	if(cxt->function) {
 		qb_variable *qvar = (argument_index < cxt->function->argument_count) ? cxt->function->variables[argument_index] : cxt->function->return_variable;
 		qb_call_stack_item *caller = &cxt->call_stack[cxt->call_stack_height - 1];
@@ -2357,23 +2354,7 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 	return SUCCESS;
 }
 
-#ifdef _MSC_VER
-	#include "qb_interpreter_msvc.c"
-#endif
-#ifdef __GNUC__
-	#include "qb_interpreter_gcc.c"
-#endif
-
 #ifdef NATIVE_COMPILE_ENABLED
-
-#ifdef _MSC_VER
-double __floor(double v) {
-	return floor(v);
-}
-#define	floor		__floor
-#endif
-
-#include "qb_interpreter_symbols.c"
 
 #if ZEND_DEBUG
 #include "qb_native_proc_debug.c"
@@ -2386,7 +2367,5 @@ uint32_t native_proc_table_size = 0;
 #endif
 
 #endif
-
-uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);
 
 #endif

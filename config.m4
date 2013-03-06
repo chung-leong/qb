@@ -12,7 +12,7 @@ if test "$PHP_QB" != "no"; then
     sse_flags="-msse$PHP_SSE"  
   fi
 
-  extra_sources="qb_compiler.c qb_interpreter.c qb_native_compiler.c qb_types.c qb_data_tables.c"
+  extra_sources="qb_compiler.c qb_interpreter.c qb_interpreter_gcc.c qb_native_compiler.c qb_types.c qb_data_tables.c"
 
   PHP_NEW_EXTENSION(qb, qb.c $extra_sources, $ext_shared, , $sse_flags)
 fi

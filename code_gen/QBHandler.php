@@ -419,9 +419,9 @@ class QBHandler {
 		$instr = $this->getInstructionStructure();
 		$cType = $this->getOperandCType($i);
 		$addressMode = $this->getOperandAddressMode($i);
+		$lines = array();
 		if($addressMode == "VAR") {
 			// selector is fixed to QB_SEGMENT_SCALAR
-			$lines[] = "uint32_t var_operand{$i}, index{$i};";
 			if($i <= $this->srcCount) {
 				$lines[] = $this->declareVariables($cType, array("op{$i}_ptr" => "*__restrict op{$i}_ptr"));
 			} else {
@@ -429,7 +429,6 @@ class QBHandler {
 			}
 		} else if($addressMode == "ELC") {
 			// segment selector is encoded, along with a fixed offset
-			$lines[] = "uint32_t elc_operand{$i}, selector{$i}, index{$i};";
 			if($i <= $this->srcCount) {
 				$lines[] = $this->declareVariables($cType, array("op{$i}_ptr" => "*__restrict op{$i}_ptr"));
 			} else {
@@ -438,7 +437,6 @@ class QBHandler {
 		} else if($addressMode == "ELV") {
 			// segment selector plus the index of a variable in segment 0 (i.e. QB_SEGMENT_SCALAR)
 			// which will serve as the index for the array element
-			$lines[] = "uint32_t elv_operand{$i}, selector{$i}, index_selector{$i}, index_index{$i}, index{$i};";
 			if($i <= $this->srcCount) {
 				$lines[] = $this->declareVariables($cType, array("op{$i}_ptr" => "*__restrict op{$i}_ptr"));
 			} else {
@@ -447,7 +445,6 @@ class QBHandler {
 		} else if($addressMode == "ARR") {
 			// a array address, containing two indices besides the segment selector
 			// both points to variable in segment 0--one is the offset and the other the size
-			$lines[] = "uint32_t arr_operand{$i}, selector{$i}, index_index{$i}, size_index{$i};";
 			if($i <= $this->srcCount) {
 				$lines[] = $this->declareVariables("uint32_t", array("op{$i}_start_index" => "op{$i}_start_index", "op{$i}_count" => "op{$i}_count"));
 				$lines[] = $this->declareVariables($cType, array("op{$i}_start" => "*op{$i}_start", "op{$i}_end" => "*op{$i}_end", "op{$i}_ptr" => "*__restrict op{$i}_ptr"));
@@ -486,83 +483,79 @@ class QBHandler {
 		$cType = $this->getOperandCType($i);
 		$addressMode = $this->getOperandAddressMode($i);
 		if($addressMode == "VAR") {
-			$lines[] = "var_operand{$i} = (($instr *) instruction_pointer)->operand{$i};";
-			$lines[] = "index{$i} = var_operand{$i};";
+			$lines[] = "index = (($instr *) instruction_pointer)->operand{$i};";
 			if($i <= $this->srcCount) {
-				$lines[] = "op{$i}_ptr = (($cType *) segment0) + index{$i};";
+				$lines[] = "op{$i}_ptr = (($cType *) segment0) + index;";
 			} else {
 				$j = $i - $this->srcCount;
-				$lines[] = "res_ptr = (($cType *) segment0) + index{$i};";
+				$lines[] = "res_ptr = (($cType *) segment0) + index;";
 			}
 		} else if($addressMode == "ELC" || $addressMode == "ELV") {
 			if($addressMode == "ELC") {
-				$lines[] = "elc_operand{$i} = (($instr *) instruction_pointer)->operand{$i};";
-				$lines[] = "selector{$i} = elc_operand{$i} & 0x00FF;";
-				$lines[] = "index{$i} = elc_operand{$i} >> 8;";
+				$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
+				$lines[] = "index = (($instr *) instruction_pointer)->operand{$i} >> 8;";
 			} else {
-				$lines[] = "elv_operand{$i} = (($instr *) instruction_pointer)->operand{$i};";
-				$lines[] = "selector{$i} = elv_operand{$i} & 0x00FF;";
-				$lines[] = "index_selector{$i} = (elv_operand{$i} >> 8) & 0x00FF;";
-				$lines[] = "index_index{$i} = elv_operand{$i} >> 16;";
-				$lines[] = "index{$i} = ((uint32_t *) segments[index_selector{$i}])[index_index{$i}];";
+				$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
+				$lines[] = "index_selector = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x00FF;";
+				$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 16;";
+				$lines[] = "index = ((uint32_t *) segments[index_selector])[index_index];";
 			}
 			if($i <= $this->srcCount) {				
 				if(!($this->flags & self::IS_ISSET)) {
 					// abort on out-of-bound
-					$lines[] = "if(UNEXPECTED(index{$i} >= segment_element_counts[selector{$i}])) {";
-					$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector{$i}], index{$i}, PHP_LINE_NUMBER);";
+					$lines[] = "if(UNEXPECTED(index >= segment_element_counts[selector])) {";
+					$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, PHP_LINE_NUMBER);";
 					$lines[] = "}";
 				} else {
 					// set pointer to null
-					$lines[] = "if(index{$i} >= segment_element_counts[selector{$i}]) {";
+					$lines[] = "if(index >= segment_element_counts[selector]) {";
 					$lines[] = 		"op{$i}_ptr = NULL;";
 					$lines[] = "} else {";
 				}
-				$lines[] = "op{$i}_ptr = (($cType *) segments[selector{$i}]) + index{$i};";				
+				$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + index;";				
 				if($this->flags & self::IS_ISSET) {
 					$lines[] = "}"; // end else
 				}
 			} else {
 				if(!($this->flags & self::IS_UNSET)) {
 					// expand the segment or abort
-					$lines[] = "if(segment_expandable[selector{$i}]) {";
-					$lines[] = 		"if(index{$i} >= segment_element_counts[selector{$i}]) {";
-					$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector{$i}], index{$i} + 1);";
+					$lines[] = "if(segment_expandable[selector]) {";
+					$lines[] = 		"if(index >= segment_element_counts[selector]) {";
+					$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], index + 1);";
 					$lines[] = 		"}";
 					$lines[] = 	"} else {";
-					$lines[] = 		"if(UNEXPECTED(index{$i} >= segment_element_counts[selector{$i}])) {";
-					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector{$i}], index{$i}, PHP_LINE_NUMBER);";
+					$lines[] = 		"if(UNEXPECTED(index >= segment_element_counts[selector])) {";
+					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, PHP_LINE_NUMBER);";
 					$lines[] = 		"}";
 					$lines[] = "}";
-					$lines[] = "res_ptr = (($cType *) segments[selector{$i}]) + index{$i};";
+					$lines[] = "res_ptr = (($cType *) segments[selector]) + index;";
 				} else {
 					// shrink the segment at index
-					$lines[] = "if(index{$i} < segment_element_counts[selector{$i}]) {";
-					$lines[] = 		"qb_shrink_segment(cxt, &cxt->storage->segments[selector{$i}], index{$i}, 1);";
+					$lines[] = "if(index < segment_element_counts[selector]) {";
+					$lines[] = 		"qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, 1);";
 					$lines[] = "}";
 				}
 			}
 		} else if($addressMode == "ARR") {
-			$lines[] = "arr_operand{$i} = (($instr *) instruction_pointer)->operand{$i};";
-			$lines[] = "selector{$i} = arr_operand{$i} & 0x00FF;";
-			$lines[] = "index_index{$i} = (arr_operand{$i} >> 8) & 0x03FF;";
-			$lines[] = "size_index{$i} = arr_operand{$i} >> 20;";
+			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
+			$lines[] = "index_index = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x03FF;";
+			$lines[] = "size_index = (($instr *) instruction_pointer)->operand{$i} >> 20;";
 			if($i <= $this->srcCount) {
-				$lines[] = "op{$i}_start_index = ((uint32_t *) segment0)[index_index{$i}];";
-				$lines[] = "op{$i}_count = ((uint32_t *) segment0)[size_index{$i}];";
+				$lines[] = "op{$i}_start_index = ((uint32_t *) segment0)[index_index];";
+				$lines[] = "op{$i}_count = ((uint32_t *) segment0)[size_index];";
 				if(!($this->flags & self::IS_ISSET)) {
-					$lines[] = "if(UNEXPECTED(op{$i}_start_index + op{$i}_count > segment_element_counts[selector{$i}])) {";
-					$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector{$i}], op{$i}_start_index + op{$i}_count - 1, PHP_LINE_NUMBER);";
+					$lines[] = "if(UNEXPECTED(op{$i}_start_index + op{$i}_count > segment_element_counts[selector] || op{$i}_start_index + op{$i}_count < op{$i}_start_index)) {";
+					$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], op{$i}_start_index + op{$i}_count - 1, PHP_LINE_NUMBER);";
 					$lines[] = "}";
 				} else {
-					$lines[] = "if(op{$i}_start_index + op{$i}_count > segment_element_counts[selector{$i}]) {";
+					$lines[] = "if(op{$i}_start_index + op{$i}_count > segment_element_counts[selector]) {";
 					$lines[] = 		"op{$i}_ptr = NULL;";
 					$lines[] = "} else {";
 				}
 				if(isset($this->variableUsed["op{$i}_start"])) {
-					$lines[] = "op{$i}_ptr = op{$i}_start = (($cType *) segments[selector{$i}]) + op{$i}_start_index;";
+					$lines[] = "op{$i}_ptr = op{$i}_start = (($cType *) segments[selector]) + op{$i}_start_index;";
 				} else {
-					$lines[] = "op{$i}_ptr = (($cType *) segments[selector{$i}]) + op{$i}_start_index;";
+					$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + op{$i}_start_index;";
 				}
 				if(isset($this->variableUsed["op{$i}_end"])) {
 					$lines[] = "op{$i}_end = op{$i}_ptr + op{$i}_count;";
@@ -571,8 +564,8 @@ class QBHandler {
 					$lines[] = "}";	// end else
 				}
 			} else {
-				$lines[] = "res_start_index = ((uint32_t *) segment0)[index_index{$i}];";
-				$lines[] = "res_count = res_count_before = ((uint32_t *) segment0)[size_index{$i}];";				
+				$lines[] = "res_start_index = ((uint32_t *) segment0)[index_index];";
+				$lines[] = "res_count = res_count_before = ((uint32_t *) segment0)[size_index];";				
 				if(!($this->flags & self::IS_UNSET)) {
 					$result_size_possiblities = $this->getResultSizePossibilities();
 					if(!is_array($result_size_possiblities)) {
@@ -590,26 +583,28 @@ class QBHandler {
 							$lines[] = "}";
 						}
 					}
-					$lines[] = "if(segment_expandable[selector{$i}]) {";
-					$lines[] = 		"if(res_start_index + res_count > segment_element_counts[selector{$i}]) {";
-					$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector{$i}], res_start_index + res_count);";
-					$lines[] = 		"}";
+					$lines[] = "if(segment_expandable[selector]) {";
+					$lines[] = 		"if(res_start_index + res_count > segment_element_counts[selector]) {";
+					$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);";
+					$lines[] = 		"} else if(res_start_index + res_count < res_start_index) {";
+					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index + res_count, PHP_LINE_NUMBER);";
+					$lines[] =		"}";
 					$lines[] = "} else {";
-					$lines[] = 		"if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector{$i}])) {";
-					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector{$i}], res_start_index + res_count, PHP_LINE_NUMBER);";
+					$lines[] = 		"if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {";
+					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index + res_count, PHP_LINE_NUMBER);";
 					$lines[] = 		"}";
 					$lines[] = "}";
 					if(isset($this->variableUsed["res_start"])) {
-						$lines[] = "res_ptr = res_start = (($cType *) segments[selector{$i}]) + res_start_index;";
+						$lines[] = "res_ptr = res_start = (($cType *) segments[selector]) + res_start_index;";
 					} else {
-						$lines[] = "res_ptr = (($cType *) segments[selector{$i}]) + res_start_index;";
+						$lines[] = "res_ptr = (($cType *) segments[selector]) + res_start_index;";
 					}
 					if(isset($this->variableUsed["res_end"])) {
 						$lines[] = "res_end = res_ptr + res_count;";
 					}
 				} else {
-					$lines[] = "if(res_start_index + res_count <= segment_element_counts[selector{$i}]) {";
-					$lines[] = 		"qb_shrink_segment(cxt, &cxt->storage->segments[selector1], res_start_index, res_count);";
+					$lines[] = "if(res_start_index + res_count <= segment_element_counts[selector] && res_start_index + res_count >= res_start_index) {";
+					$lines[] = 		"qb_shrink_segment(cxt, &cxt->storage->segments[selector], res_start_index, res_count);";
 					$lines[] = "}";
 				}
 			}

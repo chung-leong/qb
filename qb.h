@@ -48,6 +48,8 @@
 
 #include "php.h"
 #include "../standard/php_math.h"
+#include "../standard/php_rand.h"
+#include "../standard/php_lcg.h"
 #include "../pcre/pcrelib/pcre.h"
 
 // ZEND_VERSION is a C-string and it isn't possible to do string comparison in the preprocessor

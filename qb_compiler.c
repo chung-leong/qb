@@ -2172,6 +2172,17 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 	return result_address;
 }
 
+static qb_address *ZEND_FASTCALL qb_get_subarray_sizes(qb_compiler_context *cxt, qb_address *address) {
+	qb_address *subarray_sizes_address = qb_obtain_temporary_fixed_length_array(cxt, QB_TYPE_U32, address->dimension_count - 1);
+	uint32_t i;
+	for(i = 1; i < address->dimension_count; i++) {
+		qb_address *index_address = qb_obtain_constant_U32(cxt, i - 1);
+		qb_address *src_array_size_address = address->array_size_addresses[i];
+		qb_address *dst_array_size_address = qb_get_array_element(cxt, subarray_sizes_address, index_address);
+		qb_create_unary_op(cxt, &factory_copy, src_array_size_address, dst_array_size_address);
+	}
+	return subarray_sizes_address;
+}
 
 static int32_t ZEND_FASTCALL qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, const char *name, uint32_t name_length) {
 	uint32_t i;

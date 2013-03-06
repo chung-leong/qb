@@ -28,6 +28,8 @@
 #include "php_qb.h"
 #include "qb.h"
 
+#define QB_LOG_FUNCTION_CALL
+
 ZEND_DECLARE_MODULE_GLOBALS(qb)
 
 /* True global resources - no need for thread safety here */
@@ -270,7 +272,7 @@ PHP_FUNCTION(qb_execute)
 	zend_function *zfunc = EG(current_execute_data)->function_state.function;
 	zval ***args = emalloc(ZEND_NUM_ARGS() * sizeof(zval **));
 	zval *this = EG(This);
-#ifdef ZEND_DEBUG
+#ifdef QB_LOG_FUNCTION_CALL
 	double start_time, end_time, duration;
 	start_time = qb_get_high_res_timestamp();
 #endif
@@ -282,7 +284,7 @@ PHP_FUNCTION(qb_execute)
 	qb_execute(zfunc, this, return_value, args, ZEND_NUM_ARGS() TSRMLS_CC);
 	efree(args);
 
-#ifdef ZEND_DEBUG
+#ifdef QB_LOG_FUNCTION_CALL
 	end_time = qb_get_high_res_timestamp();
 	duration = end_time - start_time;
 	if(duration > 0) {

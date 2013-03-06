@@ -123,4 +123,14 @@ extern void *op_handlers[];
 	#define Z_ADDREF_P(zv)			zv->refcount++
 #endif
 
+void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number);
+void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt);
+void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index);
+void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index);
+void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt);
+void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size);
+void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count);
+void ZEND_FASTCALL qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
+NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t line_number);
+
 #endif

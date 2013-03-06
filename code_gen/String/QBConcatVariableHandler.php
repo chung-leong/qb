@@ -3,7 +3,6 @@
 class QBConcatVariableHandler extends QBHandler {
 
 	public function getOperandType($i) {
-		// for now, $this->operandType should be going to be U08 as well
 		return ($i == 2) ? "U08" : $this->operandType;
 	}
 
@@ -12,79 +11,91 @@ class QBConcatVariableHandler extends QBHandler {
 		return ($i == 2) ? "ARR" : $this->addressMode;
 	}
 	
-	protected function getPrintExpression() {
-		// use explicit cast to ensure any literal values are correctly pushed onto call stack
+	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
+
 		if($type == "F32") {		
 			$format = '"%.*G"';
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision / 2, ($cType) op1)";
+			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision / 2, *ptr)";
 		} else if($type == "F64") {
 			$format = '"%.*G"';
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision, ($cType) op1)";
+			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision, *ptr)";
 		} else {
 			// use macros in inttypes.h
 			$size = intval(substr($type, 1));
 			$sign = ($type[0] == 'U') ? 'u' : 'd';
 			$format = '"%" PRI' . $sign . $size;
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, ($cType) op1)";
+			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, *ptr)";
 		}
-		return $sprintf;
-	}
+		
+		$functions = array(
+			array(
+				"static uint32_t ZEND_FASTCALL qb_convert_scalar_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, uint8_t *res_ptr) {",
+					"char sprintf_buffer[64];",
+					"uint32_t len = $sprintf;",
+					"if(res_ptr) {",
+						"memcpy(res_ptr, sprintf_buffer, len);",
+					"}",
+					"return len;",
+				"}",
+			),
+			array(
+				"static uint32_t ZEND_FASTCALL qb_convert_array_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint8_t *res_ptr) {",
+					"char sprintf_buffer[64];",
+					"uint32_t len, total = 2;",
+					"if(res_ptr) {",
+						"*res_ptr = '[';",
+						"res_ptr++;",
+					"}",
+					"while(ptr != end) {",
+						"len = $sprintf;",
+						"total += len;",
+						"ptr++;",
+						"if(res_ptr) {",
+							"memcpy(res_ptr, sprintf_buffer, len);",
+							"res_ptr += len;",
+						"}",
+						"if(ptr != end) {",
+							"total += 2;",
+							"if(res_ptr) {",
+								"*res_ptr = ',';",
+								"res_ptr++;",
+								"*res_ptr = ' ';",
+								"res_ptr++;",
+							"}",
+						"}",
+					"}",
+					"if(res_ptr) {",
+						"*res_ptr = ']';",
+					"}",
+					"return total;",
+				"}",
+			),
+		);
+		return $functions;
+	}	
 	
 	public function getResultSizePossibilities() {
 		return "res_count + string_length";
 	}
 
 	public function getResultSizeCalculation() {
-		$sprintf = $this->getPrintExpression();
-		$lines = array();
+		$type = $this->getOperandType(1);
 		if($this->addressMode == "ARR") {
-			$lines[] = "string_length = 2;";			
-			$lines[] = "while(op1_ptr != op1_end) {";
-			$lines[] = 		"string_length += $sprintf;";
-			$lines[] =		"op1_ptr++;";
-			$lines[] =		"if(op1_ptr != op1_end) {";
-			$lines[] =			"string_length += 2;";
-			$lines[] =		"}";
-			$lines[] = "}";
+			return "string_length = qb_convert_array_to_string_$type(cxt, op1_ptr, op1_end, NULL);";
 		} else {
-			$lines[] = "string_length = $sprintf;";
+			return "string_length = qb_convert_scalar_to_string_$type(cxt, op1_ptr, NULL);";
 		}		 
-		return $lines;
 	}
 	
 	public function getAction() {
-		$sprintf = $this->getPrintExpression();
-		$lines = array();
+		$type = $this->getOperandType(1);
 		if($this->addressMode == "ARR") {
-			$lines[] = "op1_ptr = op1_start;";
-			$lines[] = "res_ptr += res_count_before;";
-			$lines[] = "*res_ptr = '[';";
-			$lines[] = "res_ptr++;";
-			$lines[] = "while(op1_ptr != op1_end) {";
-			$lines[] = 		"string_length = $sprintf;";
-			$lines[] = 		"memcpy(res_ptr, sprintf_buffer, string_length);";
-			$lines[] =		"res_ptr += string_length;";
-			$lines[] =		"op1_ptr++;";
-			$lines[] =		"if(op1_ptr != op1_end) {";
-			$lines[] = 			"*res_ptr = ',';";
-			$lines[] = 			"res_ptr++;";
-			$lines[] = 			"*res_ptr = ' ';";
-			$lines[] = 			"res_ptr++;";
-			$lines[] =		"}";
-			$lines[] = "}";
-			$lines[] = "*res_ptr = ']';";
+			return "qb_convert_array_to_string_$type(cxt, op1_ptr, op1_end, res_ptr + res_count_before);";
 		} else {
-			if($this->flags & self::SEARCHING_FOR_OPERANDS) {
-				// since sprintf() is called in getResultSizeCalculation(), we don't need to do it again
-				// during the initial operand scan though, getResultSizeCalculation() isn't invoked
-				// need to add the line so the operands are picked up
-				$lines[] = "// string_length = $sprintf;";
-			}
-			$lines[] = "memcpy(res_ptr + res_count_before, sprintf_buffer, string_length);";
-		}
-		return $lines;
+			return "qb_convert_scalar_to_string_$type(cxt, op1_ptr, res_ptr + res_count_before);";
+		}		 
 	}
 }
 

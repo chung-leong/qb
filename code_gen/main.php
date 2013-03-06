@@ -33,14 +33,18 @@ $generator = new QBCodeGenerator;
 echo "Creating qb_interpreter_gcc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_gcc.c", "w");
 fwrite($handle, $copyright);
+fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'GCC', 'DECLARATIONS');
 $generator->generate($handle, 'GCC', 'HANDLERS');
+$generator->generate($handle, 'MSVC', 'NATIVE SYMBOLS');
 
 echo "Creating qb_interpreter_msvc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
 fwrite($handle, $copyright);
+fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'MSVC', 'DECLARATIONS');
 $generator->generate($handle, 'MSVC', 'HANDLERS');
+$generator->generate($handle, 'MSVC', 'NATIVE SYMBOLS');
 
 echo "Creating qb_opcodes.h\n";
 $handle = fopen("$targetFolder/qb_opcodes.h", "w");
@@ -54,10 +58,5 @@ fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'GCC', 'FLAGS');
 $generator->generate($handle, 'GCC', 'NAMES');
 $generator->generate($handle, 'GCC', 'NATIVE CODE');
-
-echo "Creating qb_interpreter_symbols.c\n";
-$handle = fopen("$targetFolder/qb_interpreter_symbols.c", "w");
-fwrite($handle, $copyright);
-$generator->generate($handle, 'GCC', 'NATIVE SYMBOLS');
 
 ?>

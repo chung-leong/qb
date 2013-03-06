@@ -36,7 +36,7 @@ class QBCodeGenerator {
 			}
 		
 			$lines = array();
-			$lines[] = "static void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
+			$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
 			$lines[] =		QBHandler::getMacroDefinitions();
 			$lines[] =		"";
 			$lines[] = 		"if(cxt) {";
@@ -46,7 +46,7 @@ class QBCodeGenerator {
 			$lines[] = 			"int8_t *__restrict segment0;";
 			$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
 			$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
-			$lines[] = 			"char sprintf_buffer[64];";
+			$lines[] =			"uint32_t selector, index, index_selector, index_index, size_index;";
 			$lines[] = 			"uint32_t string_length;";
 			$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
 			
@@ -360,12 +360,21 @@ class QBCodeGenerator {
 			ksort($functionDecls);
 			
 			// print out wrappers
+			$wrappers = array();
 			foreach($functionDecls as $decl) {
-				if($decl->fastcall || $decl->static) {
+				$needWrapper = ($decl->fastcall || $decl->static);
+				if($compiler == "MSVC") {
+					if($decl->name == "floor") {
+						$needWrapper = true;
+					}
+				}
+				if($needWrapper) {
 					$parameterDecls = implode(", ", $decl->parameterDecls);
 					$parameters = implode(", ", $decl->parameters);
 					$fcall = "{$decl->name}($parameters)";
-					fwrite($handle, "{$decl->returnType} {$decl->name}_wrapper($parameterDecls) {\n");
+					$wrapper = "{$decl->name}_wrapper";
+					$wrappers[$decl->name] = $wrapper;
+					fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
 					if($decl->returnType != 'void') {
 						fwrite($handle, "	return $fcall;\n");
 					} else {
@@ -392,14 +401,15 @@ class QBCodeGenerator {
 			
 			fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
 			foreach($functionDecls as $name => $decl) {
-				if($decl->fastcall || $decl->static) {
-					$symbol = "{$name}_wrapper";
+				if(isset($wrappers[$decl->name])) {
+					$symbol = $wrappers[$decl->name];
 				} else {
 					$symbol = $name;
 				}
 				fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
 			}
-			fwrite($handle, "};\n");
+			fwrite($handle, "};\n\n");
+			fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n");
 		}
 	}
 
@@ -938,11 +948,14 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBUTF8EncodeHandler("UTF8_ENC", $elementType);
 		}
 		foreach($this->addressModes as $addressMode) {
-			$this->handlers[] = new QBPrintHandler("PRN", $elementType, $addressMode);
+			$this->handlers[] = new QBPrintVariableHandler("PRN", $elementType, $addressMode);
 		}
+		$this->handlers[] = new QBPrintMultidimensionalVariableHandler("PRN_DIM", $elementType);
 		foreach($this->addressModes as $addressMode) {
 			$this->handlers[] = new QBConcatVariableHandler("CAT", $elementType, $addressMode);
 		}
+		$this->handlers[] = new QBConcatMultidimensionalVariableHandler("CAT_DIM", $elementType);
+		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
 			foreach($this->scalarAddressModes as $addressMode) {		
 				$this->handlers[] = new QBPackHandler("PACK_LE", $elementTypeNoSign, $addressMode, "LITTLE_ENDIAN");

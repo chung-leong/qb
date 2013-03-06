@@ -158,7 +158,7 @@
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="false"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="false"
 				PrecompiledHeaderFile="..\Release_TS/qb.pch"
 				AssemblerListingLocation="..\Release_TS/"
@@ -188,6 +188,7 @@
 				AdditionalLibraryDirectories="..\..\..\Release_TS,..\..\Release_TS_Inline"
 				ProgramDatabaseFile="..\Release_TS/php_qb.pdb"
 				SubSystem="2"
+				OptimizeForWindows98="0"
 				LinkTimeCodeGeneration="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -706,7 +707,6 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -714,43 +714,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_TS_VC6|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS_VC6|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\qb_interpreter_symbols.c"
-				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

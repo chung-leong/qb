@@ -23,11 +23,15 @@
 #include "qb_crc64.c"
 
 void ZEND_FASTCALL qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
-	while(filled_byte_count < required_byte_count) {
-		uint32_t gap = (required_byte_count - filled_byte_count);
-		uint32_t copy_count = (gap > filled_byte_count) ? filled_byte_count : gap;
-		memcpy(memory + filled_byte_count, memory, copy_count);
-		filled_byte_count += copy_count;
+	if(filled_byte_count) {
+		while(filled_byte_count < required_byte_count) {
+			uint32_t gap = (required_byte_count - filled_byte_count);
+			uint32_t copy_count = (gap > filled_byte_count) ? filled_byte_count : gap;
+			memcpy(memory + filled_byte_count, memory, copy_count);
+			filled_byte_count += copy_count;
+		}
+	} else {
+		memset(memory, 0, required_byte_count);
 	}
 }
 
