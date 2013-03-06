@@ -9,6 +9,7 @@ abstract class QBSampleHandler extends QBHandler {
 				return "ARR";
 			case 2:	// width
 			case 3:	// height
+				return "VAR";
 			case 4: // x
 			case 5: // y
 				return $this->addressMode;
@@ -27,9 +28,24 @@ abstract class QBSampleHandler extends QBHandler {
 				return "U32";
 		}
 	}
+
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: 
+			case 2:
+			case 3: return 0;
+			case 4: 
+			case 5: return 1;
+			default: return $this->operandSize;
+		}
+	}
 	
 	public function getResultSizePossibilities() {
-		return 4;
+		if($this->addressMode == "ARR") {
+			return array("op4_count * {$this->operandSize}", "op5_count * {$this->operandSize}");
+		} else {
+			return $this->operandSize;
+		}
 	}
 	
 	protected function getOperandBoundCheckingType($i) {

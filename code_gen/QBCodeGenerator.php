@@ -999,11 +999,17 @@ class QBCodeGenerator {
 	protected function addSamplingHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new QBSampleNearestHandler("SAMPLE_NN", $elementType, $addressMode);
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBSampleNearestHandler("SAMPLE_4X_NN", $elementType, $addressMode, 4);
 			}
-			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new QBSampleBilinearHandler("SAMPLE_BL", $elementType, $addressMode);
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBSampleNearestHandler("SAMPLE_3X_NN", $elementType, $addressMode, 3);
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBSampleBilinearHandler("SAMPLE_4X_BL", $elementType, $addressMode, 4);
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBSampleBilinearHandler("SAMPLE_3X_BL", $elementType, $addressMode, 3);
 			}
 		}
 	}

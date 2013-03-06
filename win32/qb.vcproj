@@ -706,20 +706,6 @@
 				RelativePath="..\qb_interpreter_msvc.c"
 				>
 				<FileConfiguration
-					Name="Debug_TS|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug_TS_VC6|Win32"
 					ExcludedFromBuild="true"
 					>

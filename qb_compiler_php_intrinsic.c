@@ -174,6 +174,41 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
+	qb_operand *image = &arguments[0], *x = &arguments[1], *y = &arguments[2];
+	uint32_t channel_count;
+
+	qb_do_type_coercion(cxt, image, QB_TYPE_ANY);
+	channel_count = qb_get_vector_width(cxt, image->address);
+	if(!(image->address->type >= QB_TYPE_F32 && image->address->dimension_count == 3 && (channel_count == 3 || channel_count == 4))) {
+		qb_abort("%s() expects an image in floating-point representation", f->name);
+	}
+
+	qb_do_type_coercion(cxt, x, image->address->type);
+	qb_do_type_coercion(cxt, y, image->address->type);
+
+	if(result->type != QB_OPERAND_NONE) {
+		qb_address *result_size_address;
+		if(IS_SCALAR(x->address) && IS_SCALAR(y->address)) {
+			result_size_address = qb_obtain_constant_U32(cxt, channel_count);
+		} else {
+			if(IS_EXPANDABLE_ARRAY(x->address)) {
+				// indicate the length of result is variable 
+				result_size_address = x->address->array_size_address;
+			} else if(IS_EXPANDABLE_ARRAY(y->address)) {
+				result_size_address = y->address->array_size_address;
+			} else {
+				uint32_t x_count = IS_SCALAR(x->address) ? 1: ARRAY_SIZE(x->address);
+				uint32_t y_count = IS_SCALAR(y->address) ? 1 : ARRAY_SIZE(y->address);
+				uint32_t total_channel_count = max(x_count, y_count) * channel_count;
+				result_size_address = qb_obtain_constant_U32(cxt, total_channel_count);
+			}
+		}
+		result->address = qb_obtain_temporary_variable(cxt, image->address->type, result_size_address);
+		qb_create_op(cxt, f->extra, arguments, argument_count, result);
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	int32_t recursive = 0;
 	qb_address *count_address, *address = arguments[0].address;
@@ -767,6 +802,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"mm_mult",				NULL,		qb_translate_intrinsic_mm_mult,				2,		2,		&factory_mm_multiply		},
 	{	0,	"mv_mult",				NULL,		qb_translate_intrinsic_mv_mult,				2,		2,		&factory_mv_multiply		},
 	{	0,	"vm_mult",				NULL,		qb_translate_intrinsic_vm_mult,				2,		2,		&factory_vm_multiply		},
+	{	0,	"sample_nearest",		NULL,		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_nearest		},
+	{	0,	"sample_bilinear",		NULL,		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_bilinear	},
 	{	0,	"array_pop",			NULL,		qb_translate_intrinsic_array_pop,			1,		1,		NULL						},
 	{	0,	"array_shift",			NULL,		qb_translate_intrinsic_array_shift,			1,		1,		NULL						},
 	{	0,	"array_push",			NULL,		qb_translate_intrinsic_array_push,			2,		2,		NULL						},

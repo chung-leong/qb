@@ -665,7 +665,10 @@ class QBHandler {
 		if($this->srcCount > 0) {
 			for($i = 1; $i <= $this->srcCount; $i++) {
 				if($this->getOperandAddressMode($i) == "ARR") {
-					$conditions[] = "op{$i}_count != 0";
+					$operandSize = $this->getOperandSize($i);
+					if($operandSize) {	
+						$conditions[] = "op{$i}_count != 0";
+					}
 				}
 			}
 			$conditions = implode(" && ", $conditions);
@@ -676,14 +679,18 @@ class QBHandler {
 		for($i = 1; $i <= $this->srcCount; $i++) {
 			$operandSize = $this->getOperandSize($i);
 			if($this->getOperandAddressMode($i) == "ARR") {
-				$lines[] = 	"op{$i}_ptr += $operandSize;";
-				$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
-				$lines[] = 		"op{$i}_ptr = op{$i}_start;";
-				$lines[] = 	"}";
+				if($operandSize) {
+					$lines[] = 	"op{$i}_ptr += $operandSize;";
+					$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
+					$lines[] = 		"op{$i}_ptr = op{$i}_start;";
+					$lines[] = 	"}";
+				}
 			}
 		}
 		$operandSize = $this->getOperandSize($this->srcCount + 1);
-		$lines[] = 		"res_ptr += $operandSize;";
+		if($operandSize) {
+			$lines[] = 	"res_ptr += $operandSize;";
+		}
 		$lines[] = "}";
 		if($this->srcCount > 0) {
 			$lines[] = "}"; // end if
