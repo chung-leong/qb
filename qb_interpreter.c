@@ -1704,51 +1704,77 @@ static void ZEND_FASTCALL qb_transfer_value_to_debug_zval(qb_interpreter_context
 			zval_dtor(zvalue);
 			ZVAL_STRINGL(zvalue, (char *) ARRAY(I08, address), ARRAY_SIZE(address), TRUE);
 		} else {
-			uint32_t item_element_count, item_byte_count, i;
-			uint32_t dimension = VALUE(U32, address->dimension_addresses[0]);
-			qb_address _item_address, *item_address = &_item_address;
+			uint32_t element_count = ARRAY_SIZE(address);
+			if(element_count > 1024) {
+				// too many elements--just show the number
+				USE_TSRM
+				zval **p_value;
+				char buffer[64];
+				uint32_t len = snprintf(buffer, sizeof(buffer), "(%d elements)", element_count);
 
-			item_address->flags = address->flags;
-			item_address->type = address->type;
-			item_address->segment_selector = address->segment_selector;
-			item_address->segment_offset = address->segment_offset;
-			item_address->dimension_count = address->dimension_count - 1;
-			item_address->array_index_address = NULL;
-			if(item_address->dimension_count > 0) {
-				item_address->mode = QB_ADDRESS_MODE_ARR;
-				item_address->dimension_addresses = address->dimension_addresses + 1;
-				item_address->array_size_addresses = address->array_size_addresses + 1;
-				item_address->array_size_address = item_address->array_size_addresses[0];
-				if(address->index_alias_schemes) {
-					item_address->index_alias_schemes = address->index_alias_schemes + 1;
+				if(Z_TYPE_P(zvalue) != IS_OBJECT) {
+					// create an object and add a property by the name of "value"
+					zval *name = qb_string_to_zval("value", 5);
+					zend_class_entry *ce = qb_get_value_type_debug_class(cxt, address->type);
+					object_init_ex(zvalue, ce);
+					p_value = Z_OBJ_GET_PROP_PTR_PTR(zvalue, name);
+
+					SEPARATE_ZVAL(p_value);
 				} else {
-					item_address->index_alias_schemes = NULL;
+					// we know the object has only one property
+					HashTable *ht = Z_OBJ_HT_P(zvalue)->get_properties(zvalue TSRMLS_CC);
+					Bucket *p = ht->pListHead;
+					p_value = (zval **) p->pData;
 				}
-				item_element_count = VALUE(U32, item_address->array_size_address);
+				zval_dtor(*p_value);
+				ZVAL_STRINGL(*p_value, buffer, len, TRUE);
 			} else {
-				item_address->mode = QB_ADDRESS_MODE_ELC;
-				item_address->dimension_addresses = NULL;
-				item_address->array_size_addresses = NULL;
-				item_address->array_size_address = NULL;
-				item_address->array_index_address = NULL;
-				item_address->index_alias_schemes = NULL;
-				item_element_count = 1;
-			}
-			item_byte_count = BYTE_COUNT(item_element_count, address->type);
+				uint32_t item_element_count, item_byte_count, i;
+				uint32_t dimension = VALUE(U32, address->dimension_addresses[0]);
+				qb_address _item_address, *item_address = &_item_address;
 
-			if(Z_TYPE_P(zvalue) != IS_ARRAY) {
-				array_init_size(zvalue, dimension);
-			}
-			for(i = 0; i < dimension; i++) {
-				zval *item, **p_item;
-				if(zend_hash_index_find(Z_ARRVAL_P(zvalue), i, (void **) &p_item) == SUCCESS) {
-					item = *p_item;
+				item_address->flags = address->flags;
+				item_address->type = address->type;
+				item_address->segment_selector = address->segment_selector;
+				item_address->segment_offset = address->segment_offset;
+				item_address->dimension_count = address->dimension_count - 1;
+				item_address->array_index_address = NULL;
+				if(item_address->dimension_count > 0) {
+					item_address->mode = QB_ADDRESS_MODE_ARR;
+					item_address->dimension_addresses = address->dimension_addresses + 1;
+					item_address->array_size_addresses = address->array_size_addresses + 1;
+					item_address->array_size_address = item_address->array_size_addresses[0];
+					if(address->index_alias_schemes) {
+						item_address->index_alias_schemes = address->index_alias_schemes + 1;
+					} else {
+						item_address->index_alias_schemes = NULL;
+					}
+					item_element_count = VALUE(U32, item_address->array_size_address);
 				} else {
-					ALLOC_INIT_ZVAL(item);
-					zend_hash_index_update(Z_ARRVAL_P(zvalue), i, (void **) &item, sizeof(zval *), NULL);
+					item_address->mode = QB_ADDRESS_MODE_ELC;
+					item_address->dimension_addresses = NULL;
+					item_address->array_size_addresses = NULL;
+					item_address->array_size_address = NULL;
+					item_address->array_index_address = NULL;
+					item_address->index_alias_schemes = NULL;
+					item_element_count = 1;
 				}
-				qb_transfer_value_to_debug_zval(cxt, item_address, item);
-				item_address->segment_offset += item_byte_count;
+				item_byte_count = BYTE_COUNT(item_element_count, address->type);
+
+				if(Z_TYPE_P(zvalue) != IS_ARRAY) {
+					array_init_size(zvalue, dimension);
+				}
+				for(i = 0; i < dimension; i++) {
+					zval *item, **p_item;
+					if(zend_hash_index_find(Z_ARRVAL_P(zvalue), i, (void **) &p_item) == SUCCESS) {
+						item = *p_item;
+					} else {
+						ALLOC_INIT_ZVAL(item);
+						zend_hash_index_update(Z_ARRVAL_P(zvalue), i, (void **) &item, sizeof(zval *), NULL);
+					}
+					qb_transfer_value_to_debug_zval(cxt, item_address, item);
+					item_address->segment_offset += item_byte_count;
+				}
 			}
 		}
 	}
@@ -1768,8 +1794,9 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 			*EX_CV_NUM(ex, j) = var;
 #else
-			ex->CVs[j++] = var;
+			ex->CVs[j] = var;
 #endif
+			j++;
 		}
 	}
 }
@@ -1784,12 +1811,40 @@ static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) 
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 			zval *zvalue = **EX_CV_NUM(ex, j);
 #else
-			zval *zvalue = *ex->CVs[j++];
+			zval *zvalue = *ex->CVs[j];
 #endif
 			qb_transfer_value_to_debug_zval(cxt, qvar->address, zvalue);
+			j++;
 		}
 	}
+}
 
+static void ZEND_FASTCALL qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
+	// Zend will actually perform the clean-up
+	// the only thing we need to do here is to put arguments that were passed by reference
+	// back into the symbol table
+	USE_TSRM
+	uint32_t i, j;
+	zend_execute_data *ex = EG(current_execute_data);
+	void **p = ex->prev_execute_data->function_state.arguments;
+	uint32_t arg_count = (uint32_t) (zend_uintptr_t) *p;
+	zval **arguments = (zval **) (p - arg_count);
+	for(i = 0, j = 0; i < arg_count; i++) {
+		qb_variable *qvar = cxt->function->variables[i];
+		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
+			if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
+				zval **var, *argument = arguments[i];
+				Z_ADDREF_P(argument);
+				zend_hash_quick_update(ex->symbol_table, qvar->name, qvar->name_length + 1, qvar->hash_value, &argument, sizeof(zval *), (void **) &var);
+#if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+				*EX_CV_NUM(ex, j) = var;
+#else
+				ex->CVs[j] = var;
+#endif
+			}
+			j++;
+		}
+	}
 }
 
 static qb_storage * ZEND_FASTCALL qb_find_previous_storage(qb_interpreter_context *cxt, qb_function *qfunc) {
@@ -1874,7 +1929,6 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 			cxt->zend_argument_buffer_size = new_buffer_size;
 		}
 		cxt->function = NULL;
-		cxt->debug_fcall_arguments = NULL;
 	}
 }
 
@@ -1998,6 +2052,10 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	// enter the QB virtual machine
 	qb_enter_vm(cxt);
 
+	if(cxt->flags & QB_EMPLOY_SHADOW_VARIABLES) {
+		qb_destroy_shadow_variables(cxt);
+	}
+
 	// make it look like a user function before exiting, just in case
 	zfunc->type = ZEND_USER_FUNCTION;
 	zfunc->op_array.opcodes = zop;
@@ -2011,7 +2069,7 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 	USE_TSRM
 	qb_function *qfunc = cxt->function;
 	zend_function *zfunc = qfunc->zend_function;
-	zend_op user_op;
+	zend_op user_op, **opline_ptr;
 	zval name;
 	if(qb_user_opcode == -1) {
 		// choose a user opcode that isn't in use
@@ -2065,7 +2123,9 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 			zfunc->op_array.last_var = local_var_count;
 		}
 
+		opline_ptr = EG(opline_ptr);
 		zend_execute(&zfunc->op_array TSRMLS_CC);
+		EG(opline_ptr) = opline_ptr;
 
 		// revert back to internal function
 		zfunc->type = ZEND_INTERNAL_FUNCTION;
@@ -2264,10 +2324,6 @@ void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argume
 				transfer_flags = 0;
 			}
 			qb_transfer_value_from_caller_storage(cxt, caller->storage, cxt->argument_address, qvar->address, transfer_flags);
-
-			if(cxt->debug_fcall_arguments) {
-				qb_transfer_value_to_debug_zval(cxt, qvar->address, cxt->debug_fcall_arguments[argument_index]);
-			}
 		}
 	} else {
 		zval **p_zvalue = &cxt->zend_arguments[argument_index];
