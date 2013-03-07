@@ -211,7 +211,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 
 static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	int32_t recursive = 0;
-	qb_address *count_address, *address = arguments[0].address;
+	qb_address *address = arguments[0].address;
 	qb_do_type_coercion(cxt, &arguments[0], QB_TYPE_ANY);
 	if(argument_count == 2) {
 		qb_do_type_coercion(cxt, &arguments[1], QB_TYPE_I32);
@@ -222,12 +222,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt,
 		}
 	}
 
-	if(!IS_SCALAR(address)) {
-		count_address = (recursive) ? address->array_size_addresses[0] : address->dimension_addresses[0];
-	} else {
-		count_address = qb_obtain_constant_U32(cxt, 1);
+	if(result->type != QB_OPERAND_NONE) {
+		if(!IS_SCALAR(address)) {
+			result->address = (recursive) ? address->array_size_addresses[0] : address->dimension_addresses[0];
+		} else {
+			result->address = qb_obtain_constant_U32(cxt, 1);
+		}
 	}
-	result->address = count_address;
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
@@ -620,21 +621,27 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cast(qb_compiler_context *cxt, 
 				uint64_t hi = VALUE(U32, hi_dword->address);
 				uint64_t lo = VALUE(U32, lo_dword->address);
 				uint64_t value = hi << 32 | lo;
-				if(type == QB_TYPE_S64) {
-					result->address = qb_obtain_constant_S64(cxt, (int64_t) value);
-				} else {
-					result->address = qb_obtain_constant_U64(cxt, value);
+				if(result->type != QB_OPERAND_NONE) {
+					if(type == QB_TYPE_S64) {
+						result->address = qb_obtain_constant_S64(cxt, (int64_t) value);
+					} else {
+						result->address = qb_obtain_constant_U64(cxt, value);
+					}
 				}
 			} else {
 				qb_abort("%s() expects two constant scalar expressions when called with two parameters", f->name);
 			}
 		} else {
-			// just put something there
-			result->address = qb_obtain_temporary_variable(cxt, type, NULL);
+			if(result->type != QB_OPERAND_NONE) {
+				// just put something there
+				result->address = qb_obtain_temporary_variable(cxt, type, NULL);
+			}
 		}
 	} else {
 		qb_do_type_coercion(cxt, expr, type);
-		result->address = expr->address;
+		if(result->type != QB_OPERAND_NONE) {
+			result->address = expr->address;
+		}
 	}
 }
 
@@ -645,15 +652,17 @@ static void ZEND_FASTCALL qb_translate_intrinsic_defined(qb_compiler_context *cx
 		zval c;
 		char *name_str = Z_STRVAL_P(name->constant);
 		uint32_t name_len = Z_STRLEN_P(name->constant);
+		if(result->type != QB_OPERAND_NONE) {
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(zend_get_constant_ex(name_str, name_len, &c, NULL, ZEND_FETCH_CLASS_SILENT TSRMLS_CC)) {
+			if(zend_get_constant_ex(name_str, name_len, &c, NULL, ZEND_FETCH_CLASS_SILENT TSRMLS_CC)) {
 #else
-		if(zend_get_constant(name_str, name_len, &c TSRMLS_CC)) {
+			if(zend_get_constant(name_str, name_len, &c TSRMLS_CC)) {
 #endif
-			zval_dtor(&c);
-			result->address = qb_obtain_constant_S32(cxt, 1);
-		} else {
-			result->address = qb_obtain_constant_S32(cxt, 0);
+				zval_dtor(&c);
+				result->address = qb_obtain_constant_S32(cxt, 1);
+			} else {
+				result->address = qb_obtain_constant_S32(cxt, 0);
+			}
 		}
 	} else {
 		qb_abort("%s() expects a constant string", f->name);
@@ -668,6 +677,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 		zend_constant c;
 		char *name_str = Z_STRVAL_P(name->constant);
 		uint32_t name_len = Z_STRLEN_P(name->constant);
+		int registration_result;
 		if(zend_memnstr(name_str, "::", sizeof("::") - 1, name_str + name_len)) {
 			qb_abort("Class constants cannot be defined or redefined");
 		}
@@ -707,10 +717,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 		c.name = zend_strndup(name_str, name_len);
 		c.name_len = name_len + 1;
 		c.module_number = PHP_USER_CONSTANT;
-		if(zend_register_constant(&c TSRMLS_CC) == SUCCESS) {
-			result->address = qb_obtain_constant_S32(cxt, TRUE);
-		} else {
-			result->address = qb_obtain_constant_S32(cxt, FALSE);
+		registration_result = zend_register_constant(&c TSRMLS_CC);
+		if(result->type != QB_OPERAND_NONE) {
+			if(result == SUCCESS) {
+				result->address = qb_obtain_constant_S32(cxt, TRUE);
+			} else {
+				result->address = qb_obtain_constant_S32(cxt, FALSE);
+			}
 		}
 	} else {
 		qb_abort("%s() expects a constant string as the first parameter", f->name);
