@@ -2429,7 +2429,6 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 					//
 					// note that QB_ADDRESS_MODE_VAR = 0
 					if(required_address_mode) {
-						const char *op_name = qb_get_op_name(cxt, qop->opcode);
 						qop->opcode += required_address_mode;
 					}
 				}
@@ -3744,7 +3743,7 @@ static void ZEND_FASTCALL qb_print_ops(qb_compiler_context *cxt) {
 
 static void ZEND_FASTCALL qb_load_external_code(qb_compiler_context *cxt) {
 	USE_TSRM
-	php_stream *stream = php_stream_open_wrapper_ex((char *) cxt->function_declaration->import_path, "rb", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS,	NULL, NULL);
+	php_stream *stream = php_stream_open_wrapper_ex((char *) cxt->function_declaration->import_path, "rb", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
 	if(stream) {
 		char *data = NULL;
 		size_t len = php_stream_copy_to_mem(stream, &data, PHP_STREAM_COPY_ALL, FALSE);

@@ -253,19 +253,79 @@ static qb_address * ZEND_FASTCALL qb_obtain_zval_constant(qb_compiler_context *c
 	return NULL;
 }
 
-static void qb_abort_doc_comment_unexpected_error(const char *s, int matches, int *offsets, uint32_t line_number) {
+static uint32_t qb_find_doc_comment_line_number(const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
+	// load the file
+	uint32_t line_number = 0;
+	if(filepath) {
+		php_stream *stream = php_stream_open_wrapper_ex((char *) filepath, "rb", 0, NULL, NULL);
+		if(stream) {
+			char *data = NULL;
+			size_t data_len = php_stream_copy_to_mem(stream, &data, PHP_STREAM_COPY_ALL, FALSE);
+			php_stream_close(stream);
+
+			// find where the comment is
+			if(data) {
+				uint32_t current_line_number = 1;
+				const char *p = data, *end = data + (data_len - comment_length);
+				while(p < end) {
+					if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
+						current_line_number++;
+						if(current_line_number >= line_number_max) {
+							break;
+						}
+					} else {
+						if(memcmp(p, comment, comment_length) == 0) {
+							line_number = current_line_number;
+						}
+					}
+					p++;
+				}
+				efree(data);
+			}
+		}
+	}
+
+	if(line_number) {
+		const char *p = comment, *end = comment + offset;
+		while(p < end) {
+			if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
+				line_number++;
+			}
+			p++;
+		}
+	} else {
+		const char *p = comment + comment_length -1, *start = comment + offset;
+		line_number = line_number_max;
+		while(p >= start) {
+			if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
+				line_number--;
+			}
+			p--;
+		}
+	}
+	return line_number;
+}
+
+static void qb_abort_doc_comment_unexpected_error(const char *comment, uint32_t comment_length, int matches, int *offsets, const char *filepath, uint32_t line_number_max) {
 	int i;
 	for(i = 1; i < matches; i++) {
 		if(FOUND_GROUP(i)) {
 			uint32_t tag_len = GROUP_LENGTH(i);
 			uint32_t start_index = GROUP_OFFSET(i);
-			const char *tag = s + start_index;
-			qb_abort("Use of @%.*s is unexpected here", tag_len, tag);
+			uint32_t line_number = qb_find_doc_comment_line_number(comment, comment_length, start_index, filepath, line_number_max);
+			const char *tag = comment + start_index;
+
+			QB_G(current_filename) = filepath;
+			QB_G(current_line_number) = line_number;
+			qb_abort("Unexpected use of @%.*s", tag_len, tag);
 		}
 	}
 }
 
-static void qb_abort_doc_comment_syntax_error(void) {
+static void qb_abort_doc_comment_syntax_error(const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
+	uint32_t line_number = qb_find_doc_comment_line_number(comment, comment_length, offset, filepath, line_number_max);
+	QB_G(current_filename) = filepath;
+	QB_G(current_line_number) = line_number;
 	qb_abort("Syntax error encountered while parsing Doc Comments for type information");
 }
 
@@ -382,8 +442,8 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_
 		for(start_index = 0; start_index < len; start_index = offsets[1]) {
 			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
 			if(matches != -1) {
-				const char *data = s + GROUP_OFFSET(FUNC_DECL_DATA);
-				uint32_t data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
+				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
+				const char *data = s + data_offset;
 				qb_type_declaration *decl;
 
 				if(FOUND_GROUP(FUNC_DECL_ENGINE)) {
@@ -413,13 +473,13 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_
 					} else if(FOUND_GROUP(FUNC_DECL_RETURN)) {
 						var_type = QB_VARIABLE_RETURN_VALUE;
 					} else {
-						qb_abort_doc_comment_unexpected_error(s, matches, offsets, zfunc->op_array.line_start);
+						qb_abort_doc_comment_unexpected_error(s, len, matches, offsets, zfunc->op_array.filename, zfunc->op_array.line_start);
 					}
 					decl = qb_parse_type_declaration(pool, data, data_len, var_type);
 					if(decl) {
 						qb_add_variable_declaration(function_decl, decl);
 					} else {
-						qb_abort_doc_comment_syntax_error();
+						qb_abort_doc_comment_syntax_error(s, len, data_offset, zfunc->op_array.filename, zfunc->op_array.line_start);
 					}
 				}
 			} else {
@@ -448,8 +508,8 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 		for(start_index = 0; start_index < len; start_index = offsets[1]) {
 			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
 			if(matches != -1) {
-				const char *data = s + GROUP_OFFSET(FUNC_DECL_DATA);
-				uint32_t data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
+				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
+				const char *data = s + data_offset;
 				qb_type_declaration *decl;
 
 				if(FOUND_GROUP(FUNC_DECL_PROPERTY)) {
@@ -457,13 +517,13 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 				} else if(FOUND_GROUP(FUNC_DECL_STATIC)) {
 					var_type = QB_VARIABLE_CLASS;
 				} else {
-					qb_abort_doc_comment_unexpected_error(s, matches, offsets, Z_CLASS_INFO(ce, line_start));
+					qb_abort_doc_comment_unexpected_error(s, len, matches, offsets, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_start));
 				} 
 				decl = qb_parse_type_declaration(pool, data, data_len, var_type);
 				if(decl) {
 					qb_add_class_variable_declaration(class_decl, decl);
 				} else {
-					qb_abort_doc_comment_syntax_error();
+					qb_abort_doc_comment_syntax_error(s, len, data_offset, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_start));
 				}
 			} else {
 				break;
@@ -481,8 +541,8 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 		for(start_index = 0; start_index < len; start_index = offsets[1]) {
 			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
 			if(matches != -1) {
-				const char *data = s + GROUP_OFFSET(FUNC_DECL_DATA);
-				uint32_t data_len = GROUP_LENGTH(FUNC_DECL_DATA);
+				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA);
+				const char *data = s + data_offset;
 				qb_type_declaration *decl;
 
 				if(FOUND_GROUP(FUNC_DECL_VAR)) {
@@ -505,10 +565,10 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 						qb_add_class_variable_declaration(class_decl, decl);
 	
 					} else {
-						qb_abort_doc_comment_syntax_error();
+						qb_abort_doc_comment_syntax_error(s, len, data_offset, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
 					}
 				} else {
-					qb_abort_doc_comment_unexpected_error(s, matches, offsets, 0);
+					qb_abort_doc_comment_unexpected_error(s, len, matches, offsets, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
 				}
 			}
 		}
