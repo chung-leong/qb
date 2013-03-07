@@ -4137,7 +4137,6 @@ int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 	qb_build_context _cxt, *cxt = &_cxt;
 	qb_compiler_context *compiler_cxt;
 	uint32_t i;
-	double loop_overhead = 0;
 
 	qb_initialize_build_context(cxt TSRMLS_CC);
 
@@ -4151,11 +4150,6 @@ int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 		qb_run_diagnostic_loop(compiler_cxt);
 		end_time = qb_get_high_res_timestamp();
 		duration = end_time - start_time;
-		if(i == 0) {
-			loop_overhead = duration;
-		} else {
-			duration -= loop_overhead;
-		}
 		if(duration > 0) {
 			instruction_per_sec = DIAGNOSTIC_ITERATION / duration;
 		} else {

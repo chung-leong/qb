@@ -203,16 +203,23 @@ PHP_MINFO_FUNCTION(qb)
 	php_info_print_table_row(2, "Version", buffer);
 	php_info_print_table_row(2, "Release Name", QB_FULL_RELEASE_NAME);
 
-#if __SSE_4_2__
+#if __SSE4_2__
 	php_info_print_table_row(2, "SSE version", "4.2");
-#elif __SSE_4_1__
+#elif __SSE4_1__
 	php_info_print_table_row(2, "SSE version", "4.1");
-#elif __SSE_3__
+#elif __SSE3__
 	php_info_print_table_row(2, "SSE version", "3");
-#elif __SSE_2__
+#elif __SSE2__
 	php_info_print_table_row(2, "SSE version", "2");
 #elif __SSE__
 	php_info_print_table_row(2, "SSE version", "1");
+#endif
+
+#if __AVX__
+	php_info_print_table_row(2, "AVX version", "1");
+#endif
+#if __AVX2__
+	php_info_print_table_row(2, "AVX version", "2");
 #endif
 
 	qb_run_diagnostics(&diag TSRMLS_CC);

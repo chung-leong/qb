@@ -1782,7 +1782,7 @@ static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) 
 		qb_variable *qvar = cxt->function->variables[i];
 		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-			zval *zvalue = *EX_CV_NUM(ex, j);
+			zval *zvalue = **EX_CV_NUM(ex, j);
 #else
 			zval *zvalue = *ex->CVs[j++];
 #endif
