@@ -361,6 +361,49 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_slice(qb_compiler_context
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
+	qb_operand *container = &arguments[0], *offset = &arguments[1], *length = &arguments[2], *replacement = &arguments[3];
+	qb_address *slice_address;
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
+	if(IS_SCALAR(container->address)) {
+		qb_abort("%s expects an array as parameter", f->name);
+	}
+	qb_do_type_coercion(cxt, offset, QB_TYPE_U32);
+	if(argument_count >= 3) {
+		qb_do_type_coercion(cxt, length, QB_TYPE_U32);
+	}
+	if(argument_count >= 4) {
+		qb_do_type_coercion(cxt, replacement, container->address->type);
+	}
+	slice_address = qb_get_array_slice(cxt, container->address, offset->address, (argument_count >= 3) ? length->address : NULL);
+	if(result->type != QB_OPERAND_NONE) {
+		result->address = qb_obtain_temporary_variable(cxt, slice_address->type, slice_address->array_size_address);
+		qb_create_unary_op(cxt, &factory_copy, slice_address, result->address);
+	}
+	if(argument_count >= 4) {
+		if(IS_FIXED_LENGTH_ARRAY(replacement->address) && IS_FIXED_LENGTH_ARRAY(slice_address) && ARRAY_SIZE(replacement->address) == ARRAY_SIZE(slice_address)) {
+			qb_create_unary_op(cxt, &factory_copy, replacement->address, slice_address);
+		} else {
+			qb_address *insert_offset_address;
+			// clear the span (unless its length is zero)
+			if(!(slice_address->array_size_address->flags & QB_ADDRESS_CONSTANT && ARRAY_SIZE(slice_address) == 0)) {
+				qb_create_nullary_op(cxt, &factory_unset, slice_address);
+			}
+
+			// insert the replacement 
+			if(slice_address->array_index_address) {
+				insert_offset_address = slice_address->array_index_address;
+			} else {
+				uint32_t insert_offset = ELEMENT_COUNT(slice_address->segment_offset, slice_address->type);
+				insert_offset_address = qb_obtain_constant_U32(cxt, insert_offset);
+			}
+			qb_create_binary_op(cxt, &factory_array_insert, replacement->address, insert_offset_address, container->address);
+		}
+	} else {
+		qb_create_nullary_op(cxt, &factory_unset, slice_address);
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_array_aggregate(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	qb_operand *container = &arguments[0];
 	uint32_t expr_type;
@@ -833,6 +876,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"sort",					NULL,		qb_translate_intrinsic_sort,				1,		1,		&factory_sort				},
 	{	0,	"rsort",				NULL,		qb_translate_intrinsic_sort,				1,		1,		&factory_rsort				},
 	{	0,	"array_reverse",		NULL,		qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_reverse		},
+	{	0,	"array_splice",			NULL,		qb_translate_intrinsic_array_splice,		2,		4,		NULL						},
 	{	0,	"utf8_decode",			NULL,		qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			NULL,		qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
 };

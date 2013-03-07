@@ -363,6 +363,28 @@ static qb_copy_op_factory factory_copy = {
 	},
 };
 
+static qb_op * ZEND_FASTCALL qb_append_array_insert(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *f = factory;
+	qb_address *address = operands[0].address;
+	qb_address *offset_address = operands[1].address;
+	qb_op *qop = NULL;
+	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qop = qb_append_op(cxt, opcode, 3);
+	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[0].address = address;
+	qop->operands[1].type = QB_OPERAND_ADDRESS_VAR;
+	qop->operands[1].address = offset_address;
+	qop->operands[2] = *result;
+	return qop;
+}
+
+static qb_basic_op_factory factory_array_insert = {
+	qb_append_array_insert,
+	0,
+	0,
+	{	QB_AINS_F64_U32_F64,	QB_AINS_F32_U32_F32,	QB_AINS_I64_U32_I64,	QB_AINS_I64_U32_I64,	QB_AINS_I32_U32_I32,	QB_AINS_I32_U32_I32,	QB_AINS_I16_U32_I16,	QB_AINS_I16_U32_I16,	QB_AINS_I08_U32_I08,	QB_AINS_I08_U32_I08,	},
+};
+
 static qb_op * ZEND_FASTCALL qb_append_incdec_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_arithmetic_op_factory *f = factory;
 	qb_address *address = result->address;

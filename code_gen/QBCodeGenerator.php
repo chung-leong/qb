@@ -993,6 +993,7 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBSubarrayPositionHandler("APOS", $elementTypeNoSign);
 			$this->handlers[] = new QBSubarrayPositionFromEndHandler("ARPOS", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayReverseHandler("AREV", $elementTypeNoSign);
+			$this->handlers[] = new QBArrayInsertHandler("AINS", $elementTypeNoSign);
 		}
 	}
 	
