@@ -170,6 +170,14 @@ PHP_MSHUTDOWN_FUNCTION(qb)
  */
 PHP_RINIT_FUNCTION(qb)
 {
+	uint32_t i;
+	for(i = 0; i < sizeof(QB_G(static_zvals)) / sizeof(zval); i++) {
+		zval *value = &QB_G(static_zvals)[i];
+		value->refcount__gc = 1;
+		value->is_ref__gc = 0;
+		value->type = IS_STRING;
+	}
+
 	QB_G(current_filename) = NULL;
 	QB_G(current_line_number) = 0;
 	QB_G(build_context) = NULL;

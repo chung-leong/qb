@@ -153,6 +153,9 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	qb_build_context *build_context;
 	qb_interpreter_context *interpreter_context;
 
+	zval static_zvals[8];
+	uint32_t static_zval_index;
+
 	HashTable function_table;						// keeps track of functions so we can free them
 ZEND_END_MODULE_GLOBALS(qb)
 

@@ -24,11 +24,19 @@
 #include "../gd/libgd/gd.h"
 
 static const char * ZEND_FASTCALL qb_get_address_name(qb_interpreter_context *cxt, qb_address *address) {
-	uint32_t i;
-	// TODO: go through the call stack
+	uint32_t i, j;
 	if(cxt->function) {
 		for(i = 0; i < cxt->function->variable_count; i++) {
 			qb_variable *qvar = cxt->function->variables[i];
+			if(qvar->address == address) {
+				return qvar->name;
+			}
+		}
+	}
+	for(j = cxt->call_stack_height - 1; (int32_t) j >= 0; j++) {
+		qb_call_stack_item *item = &cxt->call_stack[j];
+		for(i = 0; i < item->function->variable_count; i++) {
+			qb_variable *qvar = item->function->variables[i];
 			if(qvar->address == address) {
 				return qvar->name;
 			}

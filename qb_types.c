@@ -247,29 +247,18 @@ int64_t ZEND_FASTCALL qb_zval_array_to_int64(zval *zvalue) {
 	return (hi_dword & 0xFFFFFFFF) << 32 | (lo_dword & 0xFFFFFFFF);
 }
 
-zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len) {
-	static zval values[] = {
-		{ { 0 }, 1, IS_STRING, 0 },
-		{ { 0 }, 1, IS_STRING, 0 },
-		{ { 0 }, 1, IS_STRING, 0 },
-		{ { 0 }, 1, IS_STRING, 0 },
-		{ { 0 }, 1, IS_STRING, 0 },
-		{ { 0 }, 1, IS_STRING, 0 },
-		{ { 0 }, 1, IS_STRING, 0 },
-		{ { 0 }, 1, IS_STRING, 0 },
-	};
-	static uint32_t index = 0;
-	zval *value = &values[index++];
-	if(index >= sizeof(values) / sizeof(zval)) {
-		index = 0;
+zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {
+	zval *value = &QB_G(static_zvals)[ QB_G(static_zval_index)++ ];
+	if(QB_G(static_zval_index) >= sizeof(QB_G(static_zvals)) / sizeof(zval)) {
+		QB_G(static_zval_index) = 0;
 	}
 	value->value.str.val = (char *) s;
 	value->value.str.len = len;
 	return value;
 }
 
-zval * ZEND_FASTCALL qb_cstring_to_zval(const char *s) {
-	return qb_string_to_zval(s, strlen(s));
+zval * ZEND_FASTCALL qb_cstring_to_zval(const char *s TSRMLS_DC) {
+	return qb_string_to_zval(s, strlen(s) TSRMLS_CC);
 }
 
 uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type) {
