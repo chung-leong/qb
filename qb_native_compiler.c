@@ -524,11 +524,11 @@ static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt,
 	if(address->flags & QB_ADDRESS_CONSTANT) {
 		switch(address->type) {
 			case QB_TYPE_S08: sprintf(buffer, "%" PRId8, VALUE(S08, address)); break;
-			case QB_TYPE_U08: sprintf(buffer, "%" PRIu8, VALUE(U08, address)); break;
+			case QB_TYPE_U08: sprintf(buffer, "%" PRIu8"U", VALUE(U08, address)); break;
 			case QB_TYPE_S16: sprintf(buffer, "%" PRId16, VALUE(S16, address)); break;
-			case QB_TYPE_U16: sprintf(buffer, "%" PRIu16, VALUE(U16, address)); break;
+			case QB_TYPE_U16: sprintf(buffer, "%" PRIu16"U", VALUE(U16, address)); break;
 			case QB_TYPE_S32: sprintf(buffer, "%" PRId32, VALUE(S32, address)); break;
-			case QB_TYPE_U32: sprintf(buffer, "%" PRIu32, VALUE(U32, address)); break;
+			case QB_TYPE_U32: sprintf(buffer, "%" PRIu32"U", VALUE(U32, address)); break;
 			case QB_TYPE_S64: sprintf(buffer, "%" PRId64"LL", VALUE(S64, address)); break;
 			case QB_TYPE_U64: sprintf(buffer, "%" PRIu64"ULL", VALUE(U64, address)); break;
 			case QB_TYPE_F32: sprintf(buffer, "%.11G", VALUE(F32, address)); break;
@@ -702,7 +702,6 @@ static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_contex
 	qb_printf(cxt, "if(%s + %s > segment_element_count%d) {\n", index, size, address->segment_selector);
 	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s + %s - 1, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
-
 }
 
 static void ZEND_FASTCALL qb_print_segment_enlargement(qb_native_compiler_context *cxt, qb_address *address, const char *new_size) {
@@ -761,11 +760,10 @@ static zend_always_inline const char * qb_get_op_result_size_variables(qb_native
 #define POST_FUNCTION_CALL		2
 
 static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context *cxt, qb_address *address, int32_t context) {
-	if(IS_SCALAR(address)) {
-		if(IS_ARRAY_MEMBER(address)) {
-			// update the container's dimensions if necessary
-			qb_print_resynchronization(cxt, address->source_address, context);
-		} else {
+	if(address->source_address) {
+		qb_print_resynchronization(cxt, address->source_address, context);
+	} else {
+		if(IS_SCALAR(address)) {
 			if(!(address->flags & QB_ADDRESS_CONSTANT)) {
 				if((address->flags & QB_ADDRESS_AUTO_INCREMENT) || (context == POST_FUNCTION_CALL)) {
 					// transfer the value from the segment
@@ -775,10 +773,6 @@ static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context 
 					qb_printf(cxt, "%s[0] = %s;\n", qb_get_segment_pointer(cxt, address), qb_get_scalar(cxt, address));
 				}
 			}
-		}
-	} else {
-		if(IS_ARRAY_MEMBER(address)) {
-			qb_print_resynchronization(cxt, address->source_address, context);
 		} else {
 			// make sure the size variable is up-to-date
 			qb_print_resynchronization(cxt, address->array_size_address, context);
@@ -822,7 +816,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 						qb_printf(cxt, "cxt->array_address.type = %d;\n", address->type);
 						qb_printf(cxt, "cxt->array_address.flags = 0x%X;\n", address->flags);
 						qb_printf(cxt, "cxt->array_address.segment_selector = %d;\n", address->segment_selector);
-						qb_printf(cxt, "cxt->array_address.segment_offset = %s;\n", qb_get_segment_index(cxt, address));
+						qb_printf(cxt, "cxt->array_address.segment_offset = %s;\n", qb_get_segment_offset(cxt, address));
 						qb_printf(cxt, "cxt->array_address.dimension_count = %d;\n", address->dimension_count);
 						for(k = 0; k < address->dimension_count; k++) {
 							qb_address *dimension_address = address->dimension_addresses[k];
@@ -901,6 +895,12 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 			if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
 				qb_printf(cxt, "#define PHP_LINE_NUMBER	%d\n", qop->line_number);
 			}
+			if(qop->flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
+				qb_printf(cxt, "#define MATRIX1_ROWS	%d\n", qop->matrix_dimensions >> 20);
+				qb_printf(cxt, "#define MATRIX1_COLS	%d\n", (qop->matrix_dimensions >> 10) & 0x03FF);
+				qb_printf(cxt, "#define MATRIX2_ROWS	MATRIX1_COLS\n");
+				qb_printf(cxt, "#define MATRIX2_COLS	%d\n", qop->matrix_dimensions & 0x03FF);
+			}
 			for(i = 0; i < qop->operand_count; i++) {
 				operand = &qop->operands[i];
 				operand_flags = qb_get_operand_flags(cxt, qop->opcode, i);
@@ -961,18 +961,18 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 								result_size = qb_get_array_size(cxt, address);
 								qb_printf(cxt, "res_count = res_count_before = %s;\n", result_size);
 
-								// run any code needed to find out how large the result ought to be
-								result_size_code = qb_get_op_result_size_code(cxt, qop->opcode);
-								if(result_size_code) {
-									qb_print(cxt, result_size_code);
-								}
-
 								// check a list of variables too see if they're bigger
 								result_size_variables = qb_get_op_result_size_variables(cxt, qop->opcode);
 								if(result_size_variables) {
 									const char *var;
 									uint32_t var_len, new_element_count;
 									int32_t need_expansion_check = FALSE;
+
+									// run any code needed to find out how large the result ought to be
+									result_size_code = qb_get_op_result_size_code(cxt, qop->opcode);
+									if(result_size_code) {
+										qb_print(cxt, result_size_code);
+									}
 
 									for(var = result_size_variables; var[0] != '\0'; var += var_len) {
 										uint32_t number;
@@ -1126,8 +1126,14 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					operand_number++;
 				}
 			}
+			if(qop->flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
+				qb_print(cxt, "#undef MATRIX1_ROWS\n");
+				qb_print(cxt, "#undef MATRIX1_COLS\n");
+				qb_print(cxt, "#undef MATRIX2_ROWS\n");
+				qb_print(cxt, "#undef MATRIX2_COLS\n");
+			}
 			if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
-				qb_printf(cxt, "#undef PHP_LINE_NUMBER\n");
+				qb_print(cxt, "#undef PHP_LINE_NUMBER\n");
 			}
 			qb_print(cxt, "\n");
 #endif
@@ -1156,7 +1162,7 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	}
 
 	qb_print(cxt, "\n");
-	qb_print(cxt, "char sprintf_buffer[64];\n");
+	qb_print(cxt, "uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;\n");
 	qb_print(cxt, "uint32_t string_length, string_end_index, symbol_index;\n");
 	qb_print(cxt, "uint32_t condition, res_count, res_count_before;\n");
 	qb_print(cxt, "zend_function *function;\n");

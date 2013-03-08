@@ -2082,6 +2082,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 		slice_address->dimension_addresses = slice_address->array_size_addresses = &slice_address->array_size_address;
 		slice_address->array_size_address = length_address;
 	}
+	slice_address->source_address = container_address;
 	return slice_address;
 }
 
@@ -2169,6 +2170,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 			result_address->mode = QB_ADDRESS_MODE_ELV;
 		}
 	}
+	result_address->source_address = container_address;
 	return result_address;
 }
 

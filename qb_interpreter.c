@@ -896,7 +896,6 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 }
 
 static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address, uint32_t transfer_flags) {
-
 	// make sure the address is in bound in the caller segment
 	if(caller_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
 		qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];

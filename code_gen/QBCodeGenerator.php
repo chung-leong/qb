@@ -218,13 +218,15 @@ class QBCodeGenerator {
 		} else if($output == "NATIVE CODE") {
 			$actions = array();
 			foreach($this->handlers as $index => $handler) {
+				$code = null;
 				try {
 					$lines = $handler->getAction();
 					if($lines) {
-						$actions[$index] = $this->formatCode($lines);
+						$code = $this->formatCode($lines);
 					}
 				} catch(Exception $e) {
 				}
+				$actions[$index] = $code;
 			}
 
 			$resultSizePossibilities = array();
@@ -250,6 +252,8 @@ class QBCodeGenerator {
 				$lines = $handler->getResultSizeCalculation();
 				if($lines) {
 					$resultSizeCalculations[$index] = $this->formatCode($lines);
+				} else {
+					$resultSizeCalculations[$index] = null;
 				}
 			}
 			
