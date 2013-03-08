@@ -31,6 +31,8 @@ typedef struct qb_memory_segment		qb_memory_segment;
 typedef struct qb_storage				qb_storage;
 typedef struct qb_index_alias_scheme	qb_index_alias_scheme;
 typedef struct qb_external_symbol		qb_external_symbol;
+typedef struct qb_native_code_bundle	qb_native_code_bundle;
+typedef struct qb_block_allocator 		qb_block_allocator;
 
 #define MAX_SEGMENT_COUNT			256
 #define MAX_DIMENSION				64
@@ -395,7 +397,6 @@ static zend_always_inline int32_t qb_quick_round(double f) {
 
 int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent);
 
-typedef struct qb_block_allocator qb_block_allocator;
 struct qb_block_allocator {
 	uint32_t count;
 	uint32_t capacity;
@@ -403,6 +404,11 @@ struct qb_block_allocator {
 	qb_block_allocator *previous_block;
 	char *top;
 	char data[4];
+};
+
+struct qb_native_code_bundle {
+	void *memory;
+	uint32_t size;
 };
 
 void ZEND_FASTCALL qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);

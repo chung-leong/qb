@@ -410,14 +410,14 @@ typedef struct qb_array_attributes {
 
 #define GET_ARRAY_ATTRIBUTES(p)		((qb_array_attributes *) ((char *) (p) - offsetof(qb_array_attributes, data)))
 
-void ZEND_FASTCALL qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initialize_capacity) {
-	uint32_t total_size = offsetof(qb_array_attributes, data) + (item_size * initialize_capacity);
+void ZEND_FASTCALL qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initial_capacity) {
+	uint32_t total_size = offsetof(qb_array_attributes, data) + (item_size * initial_capacity);
 	qb_array_attributes *a = emalloc(total_size);
 	a->item_size = item_size;
-	a->capacity = initialize_capacity;
-	a->increment = (initialize_capacity > 16) ? initialize_capacity / 4 : 4;
+	a->capacity = initial_capacity;
+	a->increment = (initial_capacity > 16) ? initial_capacity / 4 : 4;
 	a->p_count = p_count;
-	memset(a->data, 0, item_size * initialize_capacity);
+	memset(a->data, 0, item_size * initial_capacity);
 	*p_count = 0;
 	*p_array = a->data;
 }

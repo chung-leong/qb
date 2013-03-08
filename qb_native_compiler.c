@@ -2084,6 +2084,15 @@ static void ZEND_FASTCALL qb_free_context(qb_native_compiler_context *cxt) {
 #endif
 }
 
+void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle) {
+#ifdef __GNUC__
+	munmap(bundle->memory, bundle->size);
+#endif
+#ifdef _MSC_VER
+	UnmapViewOfFile(bundle->memory);
+#endif
+}
+
 static void ZEND_FASTCALL qb_create_cache_folder(qb_native_compiler_context *cxt) {
 	int len = strlen(cxt->cache_folder_path);
 	if(len == 0) {
@@ -2196,6 +2205,13 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 		if(qb_load_object_file(cxt)) {
 			// parse the object file and find pointers to the compiled functions
 			if(qb_parse_object_file(cxt)) {
+				qb_native_code_bundle *bundle;
+				if(!QB_G(native_code_bundles)) {
+					qb_create_array((void **) &QB_G(native_code_bundles), &QB_G(native_code_bundle_count), sizeof(qb_native_code_bundle), 8);
+				}
+				bundle = qb_enlarge_array((void **) &QB_G(native_code_bundles), 1);
+				bundle->memory = cxt->binary;
+				bundle->size = cxt->binary_size;
 				cxt->binary = NULL;
 				result = SUCCESS;
 				break;
@@ -2211,6 +2227,9 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 
 int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	return FAILURE;
+}
+
+void ZEND_FASTCALL qb_free_native_code(void *bundle) {
 }
 
 #endif	// NATIVE_COMPILE_ENABLED

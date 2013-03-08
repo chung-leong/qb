@@ -157,7 +157,11 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	zval static_zvals[8];
 	uint32_t static_zval_index;
 
-	HashTable function_table;						// keeps track of functions so we can free them
+	qb_function **compiled_functions;
+	uint32_t compiled_function_count;
+
+	qb_native_code_bundle *native_code_bundles;
+	uint32_t native_code_bundle_count;
 ZEND_END_MODULE_GLOBALS(qb)
 
 #ifdef ZTS
@@ -177,7 +181,8 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D);
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);
 
-void qb_function_dtor(void *pDest);
+void ZEND_FASTCALL qb_free_function(qb_function *qfunc);
+void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle);
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

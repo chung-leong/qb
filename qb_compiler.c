@@ -3222,7 +3222,7 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 	// see how much memory is needed for storing everything except for the instructions
 	uint32_t total_size, storage_size, func_name_len, filename_len, fn_flags, i;
 	uint8_t *memory, *p;
-	qb_function *qfunc;
+	qb_function *qfunc, **p_qfunc;
 	qb_storage *storage;
 	char *func_name, *filename;
 	zend_arg_info *arg_info;
@@ -3395,7 +3395,11 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 	memset(&zfunc->op_array, 0, sizeof(zend_op_array));
 
 	// add the function to the global table so we can free it afterward
-	zend_hash_next_index_insert(&QB_G(function_table), &qfunc, sizeof(qb_function *), NULL);
+	if(!QB_G(compiled_functions)) {
+		qb_create_array((void **) &QB_G(compiled_functions), &QB_G(compiled_function_count), sizeof(qb_function *), 16);
+	}
+	p_qfunc = qb_enlarge_array((void **) &QB_G(compiled_functions), 1);
+	*p_qfunc = qfunc;
 
 	// make the function internal function
 	zfunc->type = ZEND_INTERNAL_FUNCTION;
@@ -4194,9 +4198,8 @@ int ZEND_FASTCALL qb_initialize_compiler(TSRMLS_D) {
 	return (doc_comment_function_regexp && type_decl_regexp && type_dim_regexp && type_dim_alias_regexp && identifier_regexp) ? SUCCESS : FAILURE;
 }
 
-void qb_function_dtor(void *pDest) {
+void ZEND_FASTCALL qb_free_function(qb_function *qfunc) {
 	uint32_t i;
-	qb_function *qfunc = *((qb_function **) pDest);
 
 	// set the type to a invalid value so clean_non_persistent_function() doesn't return ZEND_HASH_APPLY_STOP
 	// when user functions are removed at the end of the request
