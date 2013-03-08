@@ -4,8 +4,8 @@ class QBPackHandler extends QBHandler {
 	protected $byteOrder;
 
 	public function __construct($name, $operandType, $addressMode, $byteOrder) {
-		parent::__construct($name, $operandType, $addressMode);
 		$this->byteOrder = $byteOrder;
+		parent::__construct($name, $operandType, $addressMode);
 	}
 
 	public function getOperandType($i) {
@@ -31,29 +31,19 @@ class QBPackHandler extends QBHandler {
 	protected function getScalarExpression() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
-		$lines = array();
-		static $msvcMacros = array(
-			16 => '_byteswap_ushort',
-			32 => '_byteswap_ulong',
-			64 => '_byteswap_uint64',
-		);
-		static $gccMacros = array(
-			16 => '__builtin_bswap16',
-			32 => '__builtin_bswap32',
-			64 => '__builtin_bswap64',
-		);
 		$width = intval(substr($type, 1));
-		$macro = (self::$compiler == 'MSVC') ? $msvcMacros[$width] : $gccMacros[$width];
-		$lines = array();
-		$lines[] = "#ifdef QB_{$this->byteOrder}";
-		$lines[] = "*(($cType *) &res) = op1;";
-		$lines[] = "#else";
-		$lines[] = "{";
-		$lines[] = "$cType v = op1;\n";
-		$lines[] = "*((uint{$width}_t *) &res) = $macro(*((uint{$width}_t *) &v));";
-		$lines[] = "}";
-		$lines[] = "#endif";
-		return $lines;
+		$macro = "SWAP_{$this->byteOrder}_I{$width}";
+		if($type[0] == 'F') {
+			// accommodate native compiler, for which op1 might be a macro defined as a literal
+			$lines = array();
+			$lines[] = "{";
+			$lines[] = 		"$cType v = op1;";
+			$lines[] = 		"*((uint{$width}_t *) res_ptr) = $macro(*((uint{$width}_t *) &v));";
+			$lines[] = "}";
+			return $lines;
+		} else {
+			return "*((uint{$width}_t *) res_ptr) = $macro(op1);";
+		}
 	}
 }
 

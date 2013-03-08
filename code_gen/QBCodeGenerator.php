@@ -361,6 +361,15 @@ class QBCodeGenerator {
 					$functionDecls[$decl->name] = $decl;
 				}
 			}
+			if($compiler == "MSVC") {
+				$list = file("$folder/function_prototypes_msvc.txt", FILE_IGNORE_NEW_LINES);
+				foreach($list as $line) {
+					$decl = $this->parseFunctionDeclaration($line);
+					if($decl) {
+						$functionDecls[$decl->name] = $decl;
+					}
+				}
+			}
 			ksort($functionDecls);
 			
 			// print out wrappers
@@ -962,16 +971,16 @@ class QBCodeGenerator {
 		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
 			foreach($this->scalarAddressModes as $addressMode) {		
-				$this->handlers[] = new QBPackHandler("PACK_LE", $elementTypeNoSign, $addressMode, "LITTLE_ENDIAN");
+				$this->handlers[] = new QBPackHandler("PACK_LE", $elementTypeNoSign, $addressMode, "LE");
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new QBPackHandler("PACK_BE", $elementTypeNoSign, $addressMode, "BIG_ENDIAN");
+				$this->handlers[] = new QBPackHandler("PACK_BE", $elementTypeNoSign, $addressMode, "BE");
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new QBUnpackHandler("UNPACK_LE", $elementTypeNoSign, $addressMode, "LITTLE_ENDIAN");
+				$this->handlers[] = new QBUnpackHandler("UNPACK_LE", $elementTypeNoSign, $addressMode, "LE");
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new QBUnpackHandler("UNPACK_BE", $elementTypeNoSign, $addressMode, "BIG_ENDIAN");
+				$this->handlers[] = new QBUnpackHandler("UNPACK_BE", $elementTypeNoSign, $addressMode, "BE");
 			} 
 		}
 	}

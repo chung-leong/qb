@@ -307,6 +307,14 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define PRIu32	"STRING(PRIu32)"\n");
 	qb_print(cxt, "#define PRIu64	"STRING(PRIu64)"\n");
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
+
+	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
+	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");
+	qb_print(cxt, "#define SWAP_BE_I64(v)	"STRING(SWAP_BE_I64(v))"\n");
+	qb_print(cxt, "#define SWAP_LE_I16(v)	"STRING(SWAP_LE_I16(v))"\n");
+	qb_print(cxt, "#define SWAP_LE_I32(v)	"STRING(SWAP_LE_I32(v))"\n");
+	qb_print(cxt, "#define SWAP_LE_I64(v)	"STRING(SWAP_LE_I64(v))"\n");
+
 #ifdef __GNUC__
 #ifndef __builtin_bswap16
 	qb_print(cxt, "#define __builtin_bswap16(n)	((n >> 8) | (n << 8))\n");
@@ -1207,9 +1215,6 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	qb_print(cxt, "\n");
 #ifdef ZTS
 		qb_print(cxt, STRING(USE_TSRM)"\n");
-#endif
-#ifdef ZEND_WIN32
-		qb_print(cxt, "unsigned char *windows_timed_out_pointer = cxt->windows_timed_out_pointer;\n");
 #endif
 	qb_print(cxt, "\n");
 	// sanity check

@@ -202,4 +202,10 @@ int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void);
 
 #endif
 
+#ifdef _MSC_VER
+	void _ftol2(void);
+	void _allshr(void);
+	void _allshl(void);
+#endif
+
 #endif

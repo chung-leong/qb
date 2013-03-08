@@ -344,6 +344,12 @@ class QBHandler {
 					case 'sizeof':
 					case 'QB_G':
 					case 'EG':
+					case 'SWAP_LE_I16':
+					case 'SWAP_LE_I32':
+					case 'SWAP_LE_I64':
+					case 'SWAP_BE_I16':
+					case 'SWAP_BE_I32':
+					case 'SWAP_BE_I64':
 						break;
 					default:
 						$functionFound[$token] = true;
