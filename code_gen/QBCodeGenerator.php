@@ -51,7 +51,7 @@ class QBCodeGenerator {
 			$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
 			
 			if($compiler == "MSVC") {
-				$lines[] = 		"zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
+				$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
 			}
 			$lines[] =			"USE_TSRM";
 			$lines[] = 			"";

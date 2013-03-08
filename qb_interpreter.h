@@ -58,7 +58,7 @@ struct qb_interpreter_context {
 	int32_t exception_encountered;
 	uint32_t function_call_line_number;
 	uint32_t *line_number_pointer;
-	unsigned char *windows_timed_out_pointer;
+	volatile unsigned char *windows_timed_out_pointer;
 	int floating_point_precision;
 	void ***tsrm_ls;
 

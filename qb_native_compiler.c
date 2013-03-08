@@ -440,7 +440,7 @@ struct qb_interpreter_context {\
 	int32_t exception_encountered;\
 	uint32_t function_call_line_number;\
 	uint32_t *line_number_pointer;\
-	unsigned char *windows_timed_out_pointer;\
+	volatile unsigned char *windows_timed_out_pointer;\
 	int floating_point_precision;\
 	void ***tsrm_ls;\
 	zend_function *zend_function;\
@@ -456,7 +456,6 @@ struct qb_interpreter_context {\
 	qb_address *array_size_address_pointers[MAX_DIMENSION];\
 	qb_address dimension_addresses[MAX_DIMENSION];\
 	qb_address array_size_addresses[MAX_DIMENSION];\
-	zval **debug_fcall_arguments;\
 };\
 \n");
 
