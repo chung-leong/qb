@@ -20,7 +20,7 @@
 
 #include "qb.h"
 
-#ifdef NATIVE_COMPILE_ENABLED
+#if NATIVE_COMPILE_ENABLED
 
 #ifdef __GNUC__
 	#include <sys/types.h>
@@ -526,6 +526,7 @@ static qb_address * ZEND_FASTCALL qb_get_root_container(qb_native_compiler_conte
 
 static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address);
 static const char * ZEND_FASTCALL qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address);
+static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_address *address);
 
 static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
 	char *buffer = qb_get_buffer(cxt);
@@ -543,14 +544,7 @@ static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt,
 			case QB_TYPE_F64: snprintf(buffer, 128, "%.17G", VALUE(F64, address)); break;
 		}
 	} else if(IS_ARRAY_MEMBER(address)) {
-		if(address->array_index_address) {
-			snprintf(buffer, 128, "%s[%s]", qb_get_pointer(cxt, address->source_address), qb_get_scalar(cxt, address->array_index_address));
-		} else {
-			// if the location of the element is fixed, then the container's is going to be too
-			uint32_t offset = address->segment_offset - address->source_address->segment_offset;
-			uint32_t index = ELEMENT_COUNT(offset, address->type);
-			snprintf(buffer, 128, "%s[%d]", qb_get_pointer(cxt, address->source_address), index);
-		}
+		snprintf(buffer, 128, "%s[0]", qb_get_segment_pointer(cxt, address));
 	} else if(IS_CAST(address)) {
 		const char *ctype = type_cnames[address->type];
 		snprintf(buffer, 128, "((%s) %s)", ctype, qb_get_scalar(cxt, address->source_address));
@@ -1171,7 +1165,7 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 
 	qb_print(cxt, "\n");
 	qb_print(cxt, "uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;\n");
-	qb_print(cxt, "uint32_t string_length, string_end_index, symbol_index;\n");
+	qb_print(cxt, "uint32_t string_length, symbol_index;\n");
 	qb_print(cxt, "uint32_t condition, res_count, res_count_before;\n");
 	qb_print(cxt, "zend_function *function;\n");
 	qb_print(cxt, "\n");
@@ -1247,6 +1241,9 @@ static void ZEND_FASTCALL qb_print_exit_section(qb_native_compiler_context *cxt)
 
 static void ZEND_FASTCALL qb_print_function(qb_native_compiler_context *cxt) {
 	uint32_t i;
+	if(cxt->print_source) {
+		qb_printf(cxt, "\n// Handle for %s()\n", cxt->function_name);
+	}
 	qb_printf(cxt, STRING(QB_NATIVE_FUNCTION_RET QB_NATIVE_FUNCTION_ATTR) " QBN_%" PRIX64 "(" STRING(QB_NATIVE_FUNCTION_ARGS) ")\n{\n", cxt->instruction_crc64);
 	qb_print_local_variables(cxt);
 	for(i = 0; i < cxt->op_count; i++) {
@@ -1284,6 +1281,7 @@ static void ZEND_FASTCALL qb_print_functions(qb_native_compiler_context *cxt) {
 				cxt->external_symbol_count = compiler_cxt->external_symbol_count;
 				cxt->storage = compiler_cxt->storage;
 				cxt->instruction_crc64 = compiler_cxt->instruction_crc64;
+				cxt->function_name = compiler_cxt->zend_function->common.function_name;
 
 				// print the function
 				qb_print_function(cxt);
@@ -1300,7 +1298,7 @@ static void ZEND_FASTCALL qb_print_function_records(qb_native_compiler_context *
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
 		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
-			qb_printf(cxt, "	{ 0x%" PRIX64 "ULL, QBN_%" PRIX64 " },\n", cxt->instruction_crc64, cxt->instruction_crc64);
+			qb_printf(cxt, "	{ 0x%" PRIX64 "ULL, QBN_%" PRIX64 " },\n", compiler_cxt->instruction_crc64, compiler_cxt->instruction_crc64);
 		}
 	}
 	qb_print(cxt, "};\n");
@@ -2158,7 +2156,7 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	}
 	spprintf(&cxt->obj_file_path, 0, "%s%cQB%" PRIX64 ".o", cxt->cache_folder_path, PHP_DIR_SEPARATOR, cxt->file_id);
 
-	for(attempt = 2; attempt <= 2; attempt++) {
+	for(attempt = 1; attempt <= 2; attempt++) {
 		// first, try to load a previously created object file
 		if(attempt == 2) {
 			// launch compiler

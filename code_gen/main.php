@@ -37,6 +37,7 @@ fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'GCC', 'DECLARATIONS');
 $generator->generate($handle, 'GCC', 'HANDLERS');
 $generator->generate($handle, 'MSVC', 'NATIVE SYMBOLS');
+$generator->generate($handle, 'MSVC', 'NATIVE DEBUG');
 
 echo "Creating qb_interpreter_msvc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
@@ -45,6 +46,7 @@ fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'MSVC', 'DECLARATIONS');
 $generator->generate($handle, 'MSVC', 'HANDLERS');
 $generator->generate($handle, 'MSVC', 'NATIVE SYMBOLS');
+$generator->generate($handle, 'MSVC', 'NATIVE DEBUG');
 
 echo "Creating qb_opcodes.h\n";
 $handle = fopen("$targetFolder/qb_opcodes.h", "w");

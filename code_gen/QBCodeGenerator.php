@@ -422,7 +422,18 @@ class QBCodeGenerator {
 				fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
 			}
 			fwrite($handle, "};\n\n");
-			fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n");
+			fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n\n");
+		} else if($output == "NATIVE DEBUG") {
+			fwrite($handle, "#if NATIVE_COMPILE_ENABLED && ZEND_DEBUG\n");
+			fwrite($handle, "#include \"qb_native_proc_debug.c\"\n");
+			fwrite($handle, "#ifdef HAVE_NATIVE_PROC_RECORDS\n");
+			fwrite($handle, "qb_native_proc_record *native_proc_table = native_proc_records;\n");
+			fwrite($handle, "uint32_t native_proc_table_size = sizeof(native_proc_records) / sizeof(qb_native_proc_record);\n");
+			fwrite($handle, "#else\n");
+			fwrite($handle, "qb_native_proc_record *native_proc_table = NULL;\n");
+			fwrite($handle, "uint32_t native_proc_table_size = 0;\n");
+			fwrite($handle, "#endif\n");
+			fwrite($handle, "#endif\n");
 		}
 	}
 

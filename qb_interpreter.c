@@ -1495,7 +1495,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_cont
 	qb_variable *qvar = import->variable;
 
 	// do the transfer only if it the variable could have been changed
-	if(!(import->variable->address->flags & QB_ADDRESS_READ_ONLY)) {
+	if(!(qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
 		if(import->previous_copy_index != -1) {
 			// copy value to caller storage
 			qb_variable_import *previous_copy = &cxt->variable_imports[import->previous_copy_index];
@@ -2416,19 +2416,3 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 	qb_run(NULL);
 	return SUCCESS;
 }
-
-#ifdef NATIVE_COMPILE_ENABLED
-
-#if ZEND_DEBUG
-#include "qb_native_proc_debug.c"
-#ifdef HAVE_NATIVE_PROC_RECORDS
-qb_native_proc_record *native_proc_table = native_proc_records;
-uint32_t native_proc_table_size = sizeof(native_proc_records) / sizeof(qb_native_proc_record);
-#else
-qb_native_proc_record *native_proc_table = NULL;
-uint32_t native_proc_table_size = 0;
-#endif
-
-#endif
-
-#endif

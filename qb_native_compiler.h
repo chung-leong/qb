@@ -51,6 +51,7 @@ struct qb_native_compiler_context {
 	uint64_t instruction_crc64;
 	uint32_t options;
 	qb_storage *storage;
+	const char *function_name;
 
 	char * const *op_names;
 	char * const *op_actions;

@@ -87,17 +87,18 @@
 #ifdef __GNUC__
 	#ifdef __linux__
 		#if defined(__i386__) || defined(__x86_64__)
-			#define NATIVE_COMPILE_ENABLED
+			#define NATIVE_COMPILE_ENABLED	1
 		#endif
 	#elif defined(__MACH__)
 		#if defined(__i386__) || defined(__x86_64__)
-			#define NATIVE_COMPILE_ENABLED
+			#define NATIVE_COMPILE_ENABLED	1
+
 		#endif
 	#endif
 #endif
 
 #ifdef _MSC_VER
-	#define NATIVE_COMPILE_ENABLED
+	#define NATIVE_COMPILE_ENABLED	1
 #endif
 
 #ifndef ZEND_FASTCALL
