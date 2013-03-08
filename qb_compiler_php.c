@@ -254,6 +254,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_zval_constant(qb_compiler_context *c
 }
 
 static uint32_t qb_find_doc_comment_line_number(const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
+	TSRMLS_FETCH();
 	// load the file
 	uint32_t line_number = 0;
 	if(filepath) {
@@ -307,6 +308,7 @@ static uint32_t qb_find_doc_comment_line_number(const char *comment, uint32_t co
 }
 
 static void qb_abort_doc_comment_unexpected_error(const char *comment, uint32_t comment_length, int matches, int *offsets, const char *filepath, uint32_t line_number_max) {
+	TSRMLS_FETCH();
 	int i;
 	for(i = 1; i < matches; i++) {
 		if(FOUND_GROUP(i)) {
@@ -323,6 +325,7 @@ static void qb_abort_doc_comment_unexpected_error(const char *comment, uint32_t 
 }
 
 static void qb_abort_doc_comment_syntax_error(const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
+	TSRMLS_FETCH();
 	uint32_t line_number = qb_find_doc_comment_line_number(comment, comment_length, offset, filepath, line_number_max);
 	QB_G(current_filename) = filepath;
 	QB_G(current_line_number) = line_number;
@@ -1760,7 +1763,7 @@ static zend_function * ZEND_FASTCALL qb_find_function(qb_compiler_context *cxt, 
 			// no good way to get the class entry to zend_is_callable_ex() except by creating an array
 			zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
 
-			class_name = qb_string_to_zval(class->name, class->name_length);
+			class_name = qb_string_to_zval(class->name, class->name_length TSRMLS_CC);
 
 			Z_ARRVAL_P(array_callable) = &ht;
 			Z_TYPE_P(array_callable) = IS_ARRAY;

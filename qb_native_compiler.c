@@ -190,7 +190,7 @@ static int32_t ZEND_FASTCALL qb_launch_cl(qb_native_compiler_context *cxt) {
 	PROCESS_INFORMATION pi;
 	SECURITY_ATTRIBUTES sa;
 	int cpu_flags[4], file_descriptor;
-	HANDLE pipe_error_write, pipe_err_read, null_pipe;
+	HANDLE pipe_error_write, pipe_err_read;
 
 	// open temporary c file for writing (Visual C doesn't accept input from stdin)
 	spprintf(&cxt->c_file_path, 0, "%s%cQB%" PRIX64 ".c", cxt->cache_folder_path, PHP_DIR_SEPARATOR, cxt->file_id);
@@ -210,9 +210,6 @@ static int32_t ZEND_FASTCALL qb_launch_cl(qb_native_compiler_context *cxt) {
 	}
 	file_descriptor = _open_osfhandle((intptr_t) pipe_err_read, 0);
 	cxt->error_stream = _fdopen(file_descriptor, "r");
-
-	// open NUL for stdout
-	null_pipe = CreateFile("NUL", GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, 0, NULL);
 
 	if(strlen(compiler_path) == 0) {
 		compiler_path = "cl";
@@ -251,7 +248,9 @@ static int32_t ZEND_FASTCALL qb_launch_cl(qb_native_compiler_context *cxt) {
 	memset(&pi, 0, sizeof(PROCESS_INFORMATION));
 	si.cb = sizeof(STARTUPINFO);
 	si.dwFlags = STARTF_USESTDHANDLES;
-	si.hStdOutput = null_pipe;
+
+	// cl.exe outputs compilation errors to stdout, so we need to capture both stderr and stdout
+	si.hStdOutput = pipe_error_write;
 	si.hStdError = pipe_error_write;
 	if(CreateProcess(NULL, command_line, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &si, &pi)) {
 		cxt->msc_thread = pi.hThread;
@@ -295,8 +294,10 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define QB_BIG_ENDIAN\n");
 #endif
 	qb_print(cxt, "#define QB_STORAGE_STATIC_INITIALIZED	0x0002\n");
-	qb_print(cxt, "#define TSRMLS_C	"STRING(TSRMLS_C)"\n");
+	qb_print(cxt, "#define TSRMLS_C		"STRING(TSRMLS_C)"\n");
 	qb_print(cxt, "#define TSRMLS_CC	"STRING(TSRMLS_CC)"\n");
+	qb_print(cxt, "#define TSRMLS_D		"STRING(TSRMLS_D)"\n");
+	qb_print(cxt, "#define TSRMLS_DC	"STRING(TSRMLS_DC)"\n");
 	qb_print(cxt, "#define PRId8	"STRING(PRId8)"\n");
 	qb_print(cxt, "#define PRId16	"STRING(PRId16)"\n");
 	qb_print(cxt, "#define PRId32	"STRING(PRId32)"\n");
@@ -523,33 +524,33 @@ static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt,
 	char *buffer = qb_get_buffer(cxt);
 	if(address->flags & QB_ADDRESS_CONSTANT) {
 		switch(address->type) {
-			case QB_TYPE_S08: sprintf(buffer, "%" PRId8, VALUE(S08, address)); break;
-			case QB_TYPE_U08: sprintf(buffer, "%" PRIu8"U", VALUE(U08, address)); break;
-			case QB_TYPE_S16: sprintf(buffer, "%" PRId16, VALUE(S16, address)); break;
-			case QB_TYPE_U16: sprintf(buffer, "%" PRIu16"U", VALUE(U16, address)); break;
-			case QB_TYPE_S32: sprintf(buffer, "%" PRId32, VALUE(S32, address)); break;
-			case QB_TYPE_U32: sprintf(buffer, "%" PRIu32"U", VALUE(U32, address)); break;
-			case QB_TYPE_S64: sprintf(buffer, "%" PRId64"LL", VALUE(S64, address)); break;
-			case QB_TYPE_U64: sprintf(buffer, "%" PRIu64"ULL", VALUE(U64, address)); break;
-			case QB_TYPE_F32: sprintf(buffer, "%.11G", VALUE(F32, address)); break;
-			case QB_TYPE_F64: sprintf(buffer, "%.17G", VALUE(F64, address)); break;
+			case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
+			case QB_TYPE_U08: snprintf(buffer, 128, "%" PRIu8"U", VALUE(U08, address)); break;
+			case QB_TYPE_S16: snprintf(buffer, 128, "%" PRId16, VALUE(S16, address)); break;
+			case QB_TYPE_U16: snprintf(buffer, 128, "%" PRIu16"U", VALUE(U16, address)); break;
+			case QB_TYPE_S32: snprintf(buffer, 128, "%" PRId32, VALUE(S32, address)); break;
+			case QB_TYPE_U32: snprintf(buffer, 128, "%" PRIu32"U", VALUE(U32, address)); break;
+			case QB_TYPE_S64: snprintf(buffer, 128, "%" PRId64"LL", VALUE(S64, address)); break;
+			case QB_TYPE_U64: snprintf(buffer, 128, "%" PRIu64"ULL", VALUE(U64, address)); break;
+			case QB_TYPE_F32: snprintf(buffer, 128, "%.11G", VALUE(F32, address)); break;
+			case QB_TYPE_F64: snprintf(buffer, 128, "%.17G", VALUE(F64, address)); break;
 		}
 	} else if(IS_ARRAY_MEMBER(address)) {
 		if(address->array_index_address) {
-			sprintf(buffer, "%s[%s]", qb_get_pointer(cxt, address->source_address), qb_get_scalar(cxt, address->array_index_address));
+			snprintf(buffer, 128, "%s[%s]", qb_get_pointer(cxt, address->source_address), qb_get_scalar(cxt, address->array_index_address));
 		} else {
 			// if the location of the element is fixed, then the container's is going to be too
 			uint32_t offset = address->segment_offset - address->source_address->segment_offset;
 			uint32_t index = ELEMENT_COUNT(offset, address->type);
-			sprintf(buffer, "%s[%d]", qb_get_pointer(cxt, address->source_address), index);
+			snprintf(buffer, 128, "%s[%d]", qb_get_pointer(cxt, address->source_address), index);
 		}
 	} else if(IS_CAST(address)) {
 		const char *ctype = type_cnames[address->type];
-		sprintf(buffer, "((%s) %s)", ctype, qb_get_scalar(cxt, address->source_address));
+		snprintf(buffer, 128, "((%s) %s)", ctype, qb_get_scalar(cxt, address->source_address));
 	} else {
 		const char *type = type_names[address->type];
 		uint32_t id = address->segment_offset / 4;
-		sprintf(buffer, "var_%s_%d", type, id);
+		snprintf(buffer, 128, "var_%s_%d", type, id);
 	}
 	return buffer;
 }
@@ -559,12 +560,12 @@ static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_cont
 	char *buffer = qb_get_buffer(cxt);
 	if(address->array_index_address) {
 		// note: the cast is applied to the pointer first, and then the index is added
-		sprintf(buffer, "((%s *) segment%d + %s)", ctype, address->segment_selector, qb_get_scalar(cxt, address->array_index_address));
+		snprintf(buffer, 128, "((%s *) segment%d + %s)", ctype, address->segment_selector, qb_get_scalar(cxt, address->array_index_address));
 	} else if(address->segment_offset) {
 		// note: the offset is added before the cast is applied
-		sprintf(buffer, "((%s *) (segment%d + %d))", ctype, address->segment_selector, address->segment_offset);
+		snprintf(buffer, 128, "((%s *) (segment%d + %d))", ctype, address->segment_selector, address->segment_offset);
 	} else {
-		sprintf(buffer, "((%s *) segment%d)", ctype, address->segment_selector);
+		snprintf(buffer, 128, "((%s *) segment%d)", ctype, address->segment_selector);
 	}
 	return buffer;
 }
@@ -574,9 +575,9 @@ static const char * ZEND_FASTCALL qb_get_pointer(qb_native_compiler_context *cxt
 		char *buffer = qb_get_buffer(cxt);
 		if(IS_CAST(address)) {
 			const char *ctype = type_cnames[address->type];
-			sprintf(buffer, "((%s *) &%s)", ctype, qb_get_scalar(cxt, address->source_address));
+			snprintf(buffer, 128, "((%s *) &%s)", ctype, qb_get_scalar(cxt, address->source_address));
 		} else {
-			sprintf(buffer, "&%s", qb_get_scalar(cxt, address));
+			snprintf(buffer, 128, "&%s", qb_get_scalar(cxt, address));
 		}
 		return buffer;
 	} else {
@@ -597,7 +598,7 @@ static const char * ZEND_FASTCALL qb_get_segment_index(qb_native_compiler_contex
 		return qb_get_scalar(cxt, address->array_index_address);
 	} else if(address->segment_offset) {
 		char *buffer = qb_get_buffer(cxt);
-		sprintf(buffer, "%d", ELEMENT_COUNT(address->segment_offset, address->type));
+		snprintf(buffer, 128, "%d", ELEMENT_COUNT(address->segment_offset, address->type));
 		return buffer;
 	} else {
 		return "0";
@@ -607,11 +608,11 @@ static const char * ZEND_FASTCALL qb_get_segment_index(qb_native_compiler_contex
 static const char * ZEND_FASTCALL qb_get_segment_offset(qb_native_compiler_context *cxt, qb_address *address) {
 	if(address->array_index_address) {
 		char *buffer = qb_get_buffer(cxt);
-		sprintf(buffer, "%s << %d", qb_get_scalar(cxt, address->array_index_address), type_size_shifts[address->type]);
+		snprintf(buffer, 128, "%s << %d", qb_get_scalar(cxt, address->array_index_address), type_size_shifts[address->type]);
 		return buffer;
 	} else if(address->segment_offset) {
 		char *buffer = qb_get_buffer(cxt);
-		sprintf(buffer, "%d", address->segment_offset);
+		snprintf(buffer, 128, "%d", address->segment_offset);
 		return buffer;
 	} else {
 		return "0";
@@ -648,7 +649,7 @@ static const char * ZEND_FASTCALL qb_get_jump(qb_native_compiler_context *cxt, u
 		}
 		if(target_qop_index != next_qop_index) {
 			char *buffer = qb_get_buffer(cxt);
-			sprintf(buffer, "goto L%04d", target_qop_index);
+			snprintf(buffer, 128, "goto L%04d", target_qop_index);
 			return buffer;
 		}
 	}
@@ -1205,13 +1206,15 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 		}
 	}
 	qb_print(cxt, "\n");
-
+#ifdef ZTS
+		qb_print(cxt, STRING(USE_TSRM)"\n");
+#endif
 #ifdef ZEND_WIN32
 		qb_print(cxt, "unsigned char *windows_timed_out_pointer = cxt->windows_timed_out_pointer;\n");
 #endif
 	qb_print(cxt, "\n");
 	// sanity check
-	qb_printf(cxt, "if(cxt->function->instruction_crc64 != 0x%" PRIX64 "LL) {\n", cxt->instruction_crc64);
+	qb_printf(cxt, "if(cxt->function->instruction_crc64 != 0x%" PRIX64 "ULL) {\n", cxt->instruction_crc64);
 	qb_print( cxt, "	return " STRING(FAILURE) ";\n");
 	qb_print( cxt, "}\n");
 
@@ -1894,12 +1897,9 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 	IMAGE_FILE_HEADER *header;
 	IMAGE_SECTION_HEADER *sections;
 	IMAGE_SYMBOL *symbols;
-	IMAGE_RELOCATION *relocations;
-	uint32_t relocation_count = 0;
-	char *text_section = NULL;
 	char *string_section;
 	uint32_t count = 0;
-	uint32_t i;
+	uint32_t i, j;
 
 	if(cxt->binary_size < sizeof(IMAGE_FILE_HEADER)) {
 		return FALSE;
@@ -1913,54 +1913,48 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 	symbols = (IMAGE_SYMBOL *) (cxt->binary + header->PointerToSymbolTable);
 	string_section = (char *) (symbols) + sizeof(IMAGE_SYMBOL) * header->NumberOfSymbols;
 
+	// perform relocation
 	for(i = 0; i < header->NumberOfSections; i++) {
 		IMAGE_SECTION_HEADER *section = &sections[i];
 		if(memcmp(section->Name, ".text", 6) == 0) {
-			relocations = (IMAGE_RELOCATION *) (cxt->binary + section->PointerToRelocations);
-			relocation_count = section->NumberOfRelocations;
-			text_section = cxt->binary + section->PointerToRawData;
-			break;
-		}
-	}
+			IMAGE_RELOCATION *relocations = (IMAGE_RELOCATION *) (cxt->binary + section->PointerToRelocations);
+			uint32_t relocation_count = section->NumberOfRelocations;
 
-	if(!text_section) {
-		return FALSE;
-	}
+			for(j = 0; j < relocation_count; j++) {
+				IMAGE_RELOCATION *reloc = &relocations[j];
+				IMAGE_SYMBOL *symbol = &symbols[reloc->SymbolTableIndex];
+				char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : string_section + symbol->N.Name.Long;
+				void *symbol_address;
+				void *target_address = cxt->binary + section->PointerToRawData + reloc->VirtualAddress;
+				int32_t A, S, P; 
 
-	// perform relocation
-	for(i = 0; i < relocation_count; i++) {
-		IMAGE_RELOCATION *reloc = &relocations[i];
-		IMAGE_SYMBOL *symbol = &symbols[reloc->SymbolTableIndex];
-		char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : string_section + symbol->N.Name.Long;
-		void *symbol_address;
-		void *target_address = text_section + reloc->VirtualAddress;
-		int32_t A, S, P; 
+				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
+					symbol_address = qb_find_symbol(cxt, symbol_name + 1);
+					if(!symbol_address) {
+						qb_abort("Missing symbol: %s\n", symbol_name);
+						return FALSE;
+					}
+				} else {
+					// probably something in the data segment (e.g. a string literal)
+					IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
+					symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
+				}
 
-		if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
-			symbol_address = qb_find_symbol(cxt, symbol_name + 1);
-			if(!symbol_address) {
-				qb_abort("Missing symbol: %s\n", symbol_name);
-				return FALSE;
+				A = *((int32_t *) target_address);
+				S = (int32_t) symbol_address;
+				P = ((int32_t) target_address) + sizeof(int32_t);
+
+				switch(reloc->Type) {
+					case IMAGE_REL_I386_DIR32:
+						*((uint32_t *) target_address) = S + A;
+						break;
+					case IMAGE_REL_I386_REL32:
+						*((uint32_t *) target_address) = S + A - P;
+						break;
+					default:
+						return FALSE;
+				}
 			}
-		} else {
-			// probably something in the data segment (e.g. a string literal)
-			IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
-			symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
-		}
-
-		A = *((int32_t *) target_address);
-		S = (int32_t) symbol_address;
-		P = ((int32_t) target_address) + sizeof(int32_t);
-
-		switch(reloc->Type) {
-			case IMAGE_REL_I386_DIR32:
-				*((uint32_t *) target_address) = S + A;
-				break;
-			case IMAGE_REL_I386_REL32:
-				*((uint32_t *) target_address) = S + A - P;
-				break;
-			default:
-				return FALSE;
 		}
 	}
 
@@ -1968,8 +1962,9 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 	for(i = 0; i < header->NumberOfSymbols; i++) {
 		IMAGE_SYMBOL *symbol = &symbols[i];
 		if(ISFCN(symbol->Type) && symbol->SectionNumber != IMAGE_SYM_UNDEFINED) {
+			IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
 			char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : (string_section + symbol->N.Name.Long);
-			void *symbol_address = text_section + symbol->Value;
+			void *symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
 			count += qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
 		}
 	}

@@ -492,7 +492,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 			qb_index_alias_scheme *scheme = address->index_alias_schemes[0];
 			for(i = 0; i < dimension; i++) {
 				zval **p_item, *item = NULL;
-				zval *alias = qb_cstring_to_zval(scheme->aliases[i]);
+				zval *alias = qb_cstring_to_zval(scheme->aliases[i] TSRMLS_CC);
 				p_item = Z_OBJ_GET_PROP_PTR_PTR(zvalue, alias);
 
 				if(p_item) {
@@ -978,7 +978,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_co
 					zvalue = *p_zvalue;
 				}
 			} else {
-				zval *name = qb_string_to_zval(qvar->name, qvar->name_length);
+				zval *name = qb_string_to_zval(qvar->name, qvar->name_length TSRMLS_CC);
 				if(qvar->flags & QB_VARIABLE_CLASS) {
 					// copy value from class
 					p_zvalue = Z_CLASS_GET_PROP(qvar->zend_class, qvar->name, qvar->name_length);
@@ -1268,7 +1268,7 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 			qb_index_alias_scheme *scheme = address->index_alias_schemes[0];
 			for(i = 0; i < dimension; i++) {
 				zval **p_item, *item = NULL;
-				zval *alias = qb_cstring_to_zval(scheme->aliases[i]);
+				zval *alias = qb_cstring_to_zval(scheme->aliases[i] TSRMLS_CC);
 				p_item = Z_OBJ_GET_PROP_PTR_PTR(zvalue, alias);
 				if(p_item) {
 					SEPARATE_ZVAL_TO_MAKE_IS_REF(p_item);
@@ -1522,7 +1522,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_cont
 					zend_hash_quick_update(&EG(symbol_table), qvar->name, qvar->name_length + 1, qvar->hash_value, (void **) &zvalue, sizeof(zval *), NULL);
 				} else if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
 					zval *container = cxt->this_object;
-					zval *name = qb_string_to_zval(qvar->name, qvar->name_length);
+					zval *name = qb_string_to_zval(qvar->name, qvar->name_length TSRMLS_CC);
 					Z_OBJ_WRITE_PROP(container, name, zvalue);
 				}
 				zval_ptr_dtor(&zvalue);
@@ -1688,7 +1688,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_debug_zval(qb_interpreter_context
 				USE_TSRM
 				if(Z_TYPE_P(zvalue) != IS_OBJECT) {
 					// create an object and add a property by the name of "value"
-					zval *name = qb_string_to_zval("value", 5);
+					zval *name = qb_string_to_zval("value", 5 TSRMLS_CC);
 					zend_class_entry *ce = qb_get_value_type_debug_class(cxt, address->type);
 					object_init_ex(zvalue, ce);
 					p_value = Z_OBJ_GET_PROP_PTR_PTR(zvalue, name);
@@ -1721,7 +1721,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_debug_zval(qb_interpreter_context
 
 				if(Z_TYPE_P(zvalue) != IS_OBJECT) {
 					// create an object and add a property by the name of "value"
-					zval *name = qb_string_to_zval("value", 5);
+					zval *name = qb_string_to_zval("value", 5 TSRMLS_CC);
 					zend_class_entry *ce = qb_get_value_type_debug_class(cxt, address->type);
 					object_init_ex(zvalue, ce);
 					p_value = Z_OBJ_GET_PROP_PTR_PTR(zvalue, name);
@@ -2242,7 +2242,7 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 			fci.object_pp = fcc.object_pp = NULL;
 		}
 #endif
-		fci.function_name = qb_cstring_to_zval(cxt->zend_function->common.function_name);
+		fci.function_name = qb_cstring_to_zval(cxt->zend_function->common.function_name TSRMLS_CC);
 		fci.retval_ptr_ptr = &retval;
 		fci.param_count = cxt->argument_count;
 		fci.params = cxt->zend_argument_pointers;

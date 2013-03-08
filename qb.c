@@ -177,7 +177,7 @@ PHP_RINIT_FUNCTION(qb)
 		value->is_ref__gc = 0;
 		value->type = IS_STRING;
 	}
-
+	QB_G(static_zval_index) = 0;
 	QB_G(current_filename) = NULL;
 	QB_G(current_line_number) = 0;
 	QB_G(build_context) = NULL;

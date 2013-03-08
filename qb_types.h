@@ -311,8 +311,8 @@ int64_t ZEND_FASTCALL qb_zval_to_long(zval *zvalue);
 double ZEND_FASTCALL qb_zval_to_double(zval *zvalue);
 int64_t ZEND_FASTCALL qb_zval_array_to_int64(zval *zvalue);
 
-zval * ZEND_FASTCALL qb_cstring_to_zval(const char *s);
-zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len);
+zval * ZEND_FASTCALL qb_cstring_to_zval(const char *s TSRMLS_DC);
+zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC);
 
 uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type);
 

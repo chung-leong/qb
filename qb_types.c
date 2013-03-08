@@ -290,8 +290,8 @@ int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uin
 		zval *param, **p_param = &param;
 		zval *retval = NULL;
 
-		function_name = qb_cstring_to_zval("gzinflate");
-		param = qb_string_to_zval(data + sizeof(uint32_t) * 4, compressed_length);
+		function_name = qb_cstring_to_zval("gzinflate" TSRMLS_CC);
+		param = qb_string_to_zval(data + sizeof(uint32_t) * 4, compressed_length TSRMLS_CC);
 
 		call_user_function_ex(CG(function_table), NULL, function_name, &retval, 1, &p_param, TRUE, NULL TSRMLS_CC);
 		if(retval && Z_TYPE_P(retval) == IS_STRING) {
