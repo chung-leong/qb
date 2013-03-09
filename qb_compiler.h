@@ -239,6 +239,12 @@ struct qb_compiler_context {
 	qb_address **pbj_int_numerals;
 	qb_address **pbj_float_numerals;
 	qb_pbj_address pbj_comparison_register;
+	const char *pbj_name;
+	uint32_t pbj_name_length;
+	const char *pbj_vendor;
+	const char *pbj_display_name;
+	const char *pbj_description;
+	uint32_t pbj_version;
 	uint8_t *pbj_data;
 	uint8_t *pbj_data_end;
 	int32_t matrix_padding;

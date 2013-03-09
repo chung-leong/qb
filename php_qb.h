@@ -43,7 +43,7 @@ PHP_RSHUTDOWN_FUNCTION(qb);
 PHP_MINFO_FUNCTION(qb);
 
 PHP_FUNCTION(qb_compile);
-PHP_FUNCTION(qb_compile_pbj);
+PHP_FUNCTION(qb_extract);
 
 /* 
   	Declare any global variables you may need between the BEGIN

@@ -120,6 +120,7 @@
 #include "qb_compiler.h"
 #include "qb_interpreter.h"
 #include "qb_native_compiler.h"
+#include "qb_extractor.h"
 #include "qb_opcodes.h"
 
 enum {
@@ -172,7 +173,8 @@ ZEND_END_MODULE_GLOBALS(qb)
 
 int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC);
 int ZEND_FASTCALL qb_native_compile(TSRMLS_D);
-int ZEND_FASTCALL qb_execute(zend_function *function, zval *this, zval *return_value, zval ***arguments, int argument_count TSRMLS_DC);
+int ZEND_FASTCALL qb_execute(zend_function *function, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
+int ZEND_FASTCALL qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC);
 int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 
 int ZEND_FASTCALL qb_initialize_compiler(TSRMLS_D);

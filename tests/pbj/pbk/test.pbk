@@ -1,0 +1,18 @@
+<languageVersion : 1.0;>
+
+kernel test
+<   namespace : "Test Namespace";
+    vendor : "Test Vendor";
+    version : 4;
+    description : "This is a description"
+>
+{
+    input image4 src;
+    output pixel4 dst;
+
+    void
+    evaluatePixel()
+    {
+        dst = sampleNearest(src,outCoord());
+    }
+}

@@ -1290,7 +1290,7 @@ static void ZEND_FASTCALL qb_pbj_translate_current_instruction(qb_compiler_conte
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
+void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 	uint32_t opcode, prev_opcode, i;
 	float32_t f;
 	cxt->pbj_data = (uint8_t *) cxt->external_code;
@@ -1441,6 +1441,20 @@ static void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 					last_parameter->input_size_name = value->string;
 				} else if(strcmp(value_name, "description") == 0) {
 					last_parameter->description = value->string;
+				} else if(strcmp(value_name, "displayName") == 0) {
+					last_parameter->display_name = value->string;
+				} else if(strcmp(value_name, "parameterType") == 0) {
+					last_parameter->parameter_type = value->string;
+				} 
+			} else if(opcode == PBJ_KERNEL_METADATA) {
+				if(strcmp(value_name, "description") == 0) {
+					cxt->pbj_description = value->string;
+				} else if(strcmp(value_name, "vendor") == 0) {
+					cxt->pbj_vendor = value->string;
+				} else if(strcmp(value_name, "displayName") == 0) {
+					cxt->pbj_display_name = value->string;
+				} else if(strcmp(value_name, "version") == 0) {
+					cxt->pbj_version = value->int1;
 				}
 			}
 		} else if(opcode == PBJ_PARAMETER_DATA) {
@@ -1480,11 +1494,9 @@ static void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 			texture->address = NULL;
 			texture->input_size = NULL;
 		} else if(opcode == PBJ_KERNEL_NAME) {
-			uint32_t len;
-			const char *name = qb_pbj_read_string(cxt, &len);
+			cxt->pbj_name = qb_pbj_read_string(cxt, &cxt->pbj_name_length);
 		} else if(opcode == PBJ_VERSION_DATA) {
-			uint32_t version;
-			version = qb_pbj_read_I32(cxt);
+			qb_pbj_read_I32(cxt);
 		} else {
 			qb_abort("Unknown opcode: %02x (previous opcode = %02x)", opcode, prev_opcode);
 			break;

@@ -3032,7 +3032,7 @@ static void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 #endif
 	zfunc->internal_function.handler = PHP_FN(qb_execute);
 
-	qb_execute(zfunc, NULL, NULL, NULL, 0 TSRMLS_CC);
+	qb_execute(zfunc, NULL, NULL, 0, NULL TSRMLS_CC);
 
 	// restore properties
 	cxt->ops = current_ops;
@@ -3420,7 +3420,7 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 	return qfunc;
 }
 
-static void qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool) {
+void ZEND_FASTCALL qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool) {
 	memset(pool, 0, sizeof(qb_compiler_data_pool));
 
 	// have an array that keeps track of all other arrays
@@ -3440,7 +3440,7 @@ static void qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool) {
 	qb_create_block_allocator(&pool->class_declaration_allocator, sizeof(qb_class_declaration), 16);
 }
 
-static void qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
+void ZEND_FASTCALL qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
 	uint32_t i;
 	for(i = pool->array_count - 1; (int32_t) i >= 0; i--) {
 		void **array = pool->arrays[i];
@@ -3487,7 +3487,7 @@ static void qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
 	}
 }
 
-static void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_compiler_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC) {
+void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_compiler_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC) {
 	uint32_t i;
 
 	cxt->pool = pool;
@@ -3524,7 +3524,7 @@ static void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cx
 	}
 }
 
-static void ZEND_FASTCALL qb_free_compiler_context(qb_compiler_context *cxt) {
+void ZEND_FASTCALL qb_free_compiler_context(qb_compiler_context *cxt) {
 	uint32_t i;
 
 	if(cxt->storage) {
@@ -3747,9 +3747,9 @@ static void ZEND_FASTCALL qb_print_ops(qb_compiler_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_load_external_code(qb_compiler_context *cxt) {
+void ZEND_FASTCALL qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 	USE_TSRM
-	php_stream *stream = php_stream_open_wrapper_ex((char *) cxt->function_declaration->import_path, "rb", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
+	php_stream *stream = php_stream_open_wrapper_ex((char *) import_path, "rb", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
 	if(stream) {
 		char *data = NULL;
 		size_t len = php_stream_copy_to_mem(stream, &data, PHP_STREAM_COPY_ALL, FALSE);
@@ -3765,7 +3765,7 @@ static void ZEND_FASTCALL qb_load_external_code(qb_compiler_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_free_external_code(qb_compiler_context *cxt) {
+void ZEND_FASTCALL qb_free_external_code(qb_compiler_context *cxt) {
 	if(cxt->external_code) {
 		efree(cxt->external_code);
 		cxt->external_code = NULL;
@@ -3957,7 +3957,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 				qb_translate_instructions(compiler_cxt);
 			} else {
 				// load the code into memory
-				qb_load_external_code(compiler_cxt);
+				qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path);
 
 				// decode the pbj data
 				qb_pbj_decode(compiler_cxt);

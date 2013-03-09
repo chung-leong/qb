@@ -40,6 +40,7 @@ ZEND_DECLARE_MODULE_GLOBALS(qb)
  */
 const zend_function_entry qb_functions[] = {
 	PHP_FE(qb_compile,		NULL)
+	PHP_FE(qb_extract,		NULL)
 #ifdef PHP_FE_END
 	PHP_FE_END	/* Must be the last line in qb_functions[] */
 #else
@@ -111,8 +112,6 @@ PHP_INI_BEGIN()
     STD_PHP_INI_BOOLEAN("qb.show_compiler_errors",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_compiler_errors,			zend_qb_globals,	qb_globals)
     STD_PHP_INI_BOOLEAN("qb.show_zend_opcodes",				"0",	PHP_INI_ALL,	OnUpdateBool,	show_zend_opcodes,				zend_qb_globals,	qb_globals)
     STD_PHP_INI_BOOLEAN("qb.show_pbj_opcodes",				"0",	PHP_INI_ALL,	OnUpdateBool,	show_pbj_opcodes,				zend_qb_globals,	qb_globals)
-
-
 PHP_INI_END()
 /* }}} */
 
@@ -135,6 +134,13 @@ PHP_MINIT_FUNCTION(qb)
 	ZEND_INIT_MODULE_GLOBALS(qb, php_qb_init_globals, NULL);
 
 	REGISTER_INI_ENTRIES();
+
+	REGISTER_LONG_CONSTANT("QB_SCAN_FILE",			QB_SCAN_FILE,			CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("QB_SCAN_ALL",			QB_SCAN_ALL,			CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("QB_START_DEFERRAL",		QB_START_DEFERRAL,		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("QB_END_DEFERRAL",		QB_END_DEFERRAL,		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("QB_PBJ_INFO",			QB_PBJ_INFO,			CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("QB_PBJ_DOC_COMMENT",	QB_PBJ_DOC_COMMENT,		CONST_CS | CONST_PERSISTENT);
 
 #ifdef VC6_MSVCRT
 	if(qb_get_vc6_msvcrt_functions() != SUCCESS) {
@@ -298,6 +304,21 @@ PHP_FUNCTION(qb_compile)
 }
 /* }}} */
 
+/* {{{ proto bool qb_extract(callable name, integer output_type)
+   Extract information from a given resource */
+PHP_FUNCTION(qb_extract)
+{
+	zval *input = NULL;
+	long output_type;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl|", &input, &output_type) == FAILURE) {
+		return;
+	}
+
+	qb_extract(input, output_type, return_value TSRMLS_CC);
+}
+/* }}} */
+
 /* {{{ proto string qb_execute(string arg)
     */
 PHP_FUNCTION(qb_execute)
@@ -314,7 +335,7 @@ PHP_FUNCTION(qb_execute)
 		return;
 	}
 
-	qb_execute(zfunc, this, return_value, args, ZEND_NUM_ARGS() TSRMLS_CC);
+	qb_execute(zfunc, this, args, ZEND_NUM_ARGS(), return_value TSRMLS_CC);
 	efree(args);
 
 #ifdef QB_LOG_FUNCTION_CALL

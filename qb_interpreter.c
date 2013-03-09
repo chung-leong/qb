@@ -1568,7 +1568,7 @@ static void ZEND_FASTCALL qb_transfer_arguments_to_php(qb_interpreter_context *c
 	}
 }
 
-static void ZEND_FASTCALL qb_free_context(qb_interpreter_context *cxt) {
+static void ZEND_FASTCALL qb_free_interpreter_context(qb_interpreter_context *cxt) {
 	if(cxt->zend_arguments) {
 		efree(cxt->zend_arguments);
 		efree(cxt->zend_argument_pointers);
@@ -1579,7 +1579,7 @@ static void ZEND_FASTCALL qb_free_context(qb_interpreter_context *cxt) {
 
 void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt);
 
-static void ZEND_FASTCALL qb_initialize_context(qb_interpreter_context *cxt TSRMLS_DC) {
+static void ZEND_FASTCALL qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
 	uint32_t i;
 
 	memset(cxt, 0, sizeof(qb_interpreter_context));
@@ -2368,10 +2368,10 @@ void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argu
 	}
 }
 
-int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval *return_value, zval ***arguments, int argument_count TSRMLS_DC) {
+int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC) {
 	int result = SUCCESS;
 	qb_interpreter_context _cxt, *cxt = &_cxt;
-	qb_initialize_context(cxt TSRMLS_CC);
+	qb_initialize_interpreter_context(cxt TSRMLS_CC);
 
 	// set up the local storage (pass zero as argument count, as
 	// arguments handling actually happens below
@@ -2389,7 +2389,7 @@ int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval *return_valu
 	// clean up the local storage
 	qb_finalize_function_call(cxt);
 
-	qb_free_context(cxt);
+	qb_free_interpreter_context(cxt);
 	return result;
 }
 

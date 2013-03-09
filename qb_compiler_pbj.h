@@ -142,6 +142,7 @@ struct qb_pbj_parameter {
 	const char *parameter_type;
 	const char *description;
 	const char *input_size_name;
+	const char *display_name;
 	qb_address *address;
 };
 
