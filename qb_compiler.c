@@ -359,7 +359,6 @@ static void ZEND_FASTCALL qb_initialize_subarray_address(qb_compiler_context *cx
 	address->source_address = container_address;
 	if(container_address->index_alias_schemes) {
 		address->index_alias_schemes = container_address->index_alias_schemes + 1;
-	} else {
 	}
 }
 
@@ -1322,13 +1321,109 @@ pcre *type_dim_regexp;
 pcre *type_dim_alias_regexp;
 pcre *identifier_regexp;
 
+static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool, const char *s, uint32_t len, qb_type_declaration *decl, uint32_t dimension_index) {
+	int offsets[64], matches;
+	uint32_t dimension = 0;
+
+	matches = pcre_exec(type_dim_regexp, NULL, s, len, 0, 0, offsets, sizeof(offsets) / sizeof(int));
+	if(matches > 0) {
+		if(FOUND_GROUP(TYPE_DIM_INT)) {
+			const char *number = s + GROUP_OFFSET(TYPE_DIM_INT);
+			dimension = strtol(number, NULL, 0);
+		} else if(FOUND_GROUP(TYPE_DIM_CONSTANT)) {
+			TSRMLS_FETCH();
+			zend_constant *zconst;
+			uint32_t name_len = GROUP_LENGTH(TYPE_DIM_CONSTANT);
+			ALLOCA_FLAG(use_heap)
+			char *name = do_alloca(name_len + 1, use_heap);
+			memcpy(name, s + GROUP_OFFSET(TYPE_DIM_CONSTANT), name_len);
+			name[name_len] = '\0';
+			if(zend_hash_find(EG(zend_constants), name, name_len + 1, (void **) &zconst) != FAILURE) {
+				if(Z_TYPE(zconst->value) == IS_LONG) {
+					long const_value = Z_LVAL(zconst->value);
+					if(const_value <= 0) {
+						qb_abort("Constant '%s' is not a positive integer", name);
+					}
+					dimension = const_value;
+				} else if(Z_TYPE(zconst->value) == IS_STRING) {
+					char *expanded;
+					uint32_t expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN(zconst->value), Z_STRVAL(zconst->value));
+					int32_t processed = qb_parse_type_dimension(pool, expanded, expanded_len, decl, dimension_index);
+					efree(expanded);
+					return (processed == -1) ? -1 : offsets[1];
+				} else {
+					decl = NULL;
+				}
+			} else {
+				qb_abort("Undefined constant '%s'", name);
+			}
+			free_alloca(name, use_heap);
+		} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
+			if(dimension_index == 0) {
+				decl->flags |= QB_TYPE_DECL_EXPANDABLE;
+			}
+			dimension = 0;
+		} else {
+			dimension = 0;
+		}
+	} else {
+		matches = pcre_exec(type_dim_alias_regexp, NULL, s, len, 0, 0, offsets, sizeof(offsets) / sizeof(int));
+		if(matches > 0 && FOUND_GROUP(TYPE_DIM_NAMES)) {
+			const char *names = s + GROUP_OFFSET(TYPE_DIM_NAMES), *class_name = s + GROUP_OFFSET(TYPE_DIM_CLASS);
+			uint32_t names_len = GROUP_LENGTH(TYPE_DIM_NAMES), class_name_len = GROUP_LENGTH(TYPE_DIM_CLASS);
+			uint32_t alias_count, alias_start, alias_len, i;
+			qb_index_alias_scheme *scheme;						
+
+			// count the number of commas
+			for(i = 0, dimension = 1; i < names_len; i++) {
+				if(names[i] == ',') {
+					dimension++;
+				}
+			}
+			scheme = qb_allocate_index_alias_scheme(pool);
+			scheme->aliases = qb_allocate_pointers(pool, dimension);
+			scheme->alias_lengths = qb_allocate_indices(pool, dimension);
+			scheme->dimension = dimension;
+			// divide the string into substrings
+			for(i = 0, alias_count = 0, alias_start = 0, alias_len = 0; i <= names_len; i++) {
+				if(names[i] == ' ' || names[i] == '\t' || names[i] == '\n' || names[i] == '\r' || names[i] == ',' || i == names_len) {
+					if(alias_len > 0) {
+						scheme->aliases[alias_count] = qb_allocate_string(pool, names + alias_start, alias_len);
+						scheme->alias_lengths[alias_count] = alias_len;
+						alias_count++;
+						alias_len = 0;
+					}
+					alias_start = i + 1;
+				} else {
+					alias_len++;
+				}
+			}
+			if(class_name_len) {
+				scheme->class_name = qb_allocate_string(pool, class_name, class_name_len);
+				scheme->class_name_length = class_name_len;
+			}
+			if(!decl->index_alias_schemes) {
+				decl->index_alias_schemes = qb_allocate_pointers(pool, decl->dimension_count);
+				memset(decl->index_alias_schemes, 0, sizeof(qb_index_alias_scheme *) * decl->dimension_count);
+			}
+			decl->dimensions[dimension_index] = dimension;
+			decl->index_alias_schemes[dimension_index] = scheme;
+			decl->flags |= QB_TYPE_DECL_HAS_ALIAS_SCHEMES;
+		} else {
+			return -1;
+		}
+	}
+	decl->dimensions[dimension_index] = dimension;
+	return offsets[1];
+}
+
 static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler_data_pool *pool, const char *s, uint32_t len, uint32_t var_type) {
 	qb_type_declaration *decl = NULL;
 	int offsets[64], matches;
 
 	matches = pcre_exec(type_decl_regexp, NULL, s, len, 0, 0, offsets, sizeof(offsets) / sizeof(int));
 	if(matches != -1) {
-		uint32_t start_index, end_index = offsets[1];
+		uint32_t end_index = offsets[1];
 
 		decl = qb_allocate_type_declaration(pool);
 		decl->flags = var_type;
@@ -1398,7 +1493,7 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 		}
 
 		if(FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
-			uint32_t dimension_count = 0, dimension_index = 0, dimension, i;
+			uint32_t dimension_count = 0, i;
 			uint32_t dimension_len = GROUP_LENGTH(TYPE_DECL_DIMENSIONS);
 			const char *dimension_string = s + GROUP_OFFSET(TYPE_DECL_DIMENSIONS);
 
@@ -1412,95 +1507,13 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 			decl->dimensions = qb_allocate_indices(pool, dimension_count);
 			decl->dimension_count = dimension_count;
 
-			for(start_index = 0; start_index < dimension_len; start_index = offsets[1]) {
-				matches = pcre_exec(type_dim_regexp, NULL, dimension_string, dimension_len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
-				if(matches > 0) {
-					if(FOUND_GROUP(TYPE_DIM_INT)) {
-						const char *number = dimension_string + GROUP_OFFSET(TYPE_DIM_INT);
-						dimension = strtol(number, NULL, 0);
-					} else if(FOUND_GROUP(TYPE_DIM_CONSTANT)) {
-						TSRMLS_FETCH();
-						zend_constant *zconst;
-						uint32_t name_len = GROUP_LENGTH(TYPE_DIM_CONSTANT);
-						ALLOCA_FLAG(use_heap)
-						char *name = do_alloca(name_len + 1, use_heap);
-						memcpy(name, dimension_string + GROUP_OFFSET(TYPE_DIM_CONSTANT), name_len);
-						name[name_len] = '\0';
-						if(zend_hash_find(EG(zend_constants), name, name_len + 1, (void **) &zconst) != FAILURE) {
-							if(Z_TYPE(zconst->value) == IS_LONG) {
-								long const_value = Z_LVAL(zconst->value);
-								if(const_value <= 0) {
-									qb_abort("Constant '%s' is not a positive integer", name);
-								}
-								dimension = const_value;
-							} else if(Z_TYPE(zconst->value) == IS_STRING && Z_STRLEN(zconst->value) == 1 && Z_STRVAL(zconst->value)[0] == '*') {
-								decl->flags |= QB_TYPE_DECL_EXPANDABLE;
-								dimension = 0;
-							} else {
-								qb_abort("Constant '%s' is neither an integer or '*'", name);
-							}
-						} else {
-							qb_abort("Undefined constant '%s'", name);
-						}
-						free_alloca(name, use_heap);
-					} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
-						if(dimension_index == 0) {
-							decl->flags |= QB_TYPE_DECL_EXPANDABLE;
-						}
-						dimension = 0;
-					} else {
-						dimension = 0;
-					}
-					decl->dimensions[dimension_index] = dimension;
-					dimension_index++;
-				} else {
-					matches = pcre_exec(type_dim_alias_regexp, NULL, dimension_string, dimension_len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
-					if(matches > 0 && FOUND_GROUP(TYPE_DIM_NAMES)) {
-						const char *names = dimension_string + GROUP_OFFSET(TYPE_DIM_NAMES), *class_name = dimension_string + GROUP_OFFSET(TYPE_DIM_CLASS);
-						uint32_t names_len = GROUP_LENGTH(TYPE_DIM_NAMES), class_name_len = GROUP_LENGTH(TYPE_DIM_CLASS);
-						uint32_t alias_count, alias_start, alias_len;
-						qb_index_alias_scheme *scheme;						
-
-						// count the number of commas
-						for(i = 0, dimension = 1; i < names_len; i++) {
-							if(names[i] == ',') {
-								dimension++;
-							}
-						}
-						scheme = qb_allocate_index_alias_scheme(pool);
-						scheme->aliases = qb_allocate_pointers(pool, dimension);
-						scheme->alias_lengths = qb_allocate_indices(pool, dimension);
-						scheme->dimension = dimension;
-						// divide the string into substrings
-						for(i = 0, alias_count = 0, alias_start = 0, alias_len = 0; i <= names_len; i++) {
-							if(names[i] == ' ' || names[i] == '\t' || names[i] == '\n' || names[i] == '\r' || names[i] == ',' || i == names_len) {
-								if(alias_len > 0) {
-									scheme->aliases[alias_count] = qb_allocate_string(pool, names + alias_start, alias_len);
-									scheme->alias_lengths[alias_count] = alias_len;
-									alias_count++;
-									alias_len = 0;
-								}
-								alias_start = i + 1;
-							} else {
-								alias_len++;
-							}
-						}
-						if(class_name_len) {
-							scheme->class_name = qb_allocate_string(pool, class_name, class_name_len);
-							scheme->class_name_length = class_name_len;
-						}
-						if(!decl->index_alias_schemes) {
-							decl->index_alias_schemes = qb_allocate_pointers(pool, dimension_count);
-							memset(decl->index_alias_schemes, 0, sizeof(qb_index_alias_scheme *) * dimension_count);
-						}
-						decl->dimensions[dimension_index] = dimension;
-						decl->index_alias_schemes[dimension_index] = scheme;
-						decl->flags |= QB_TYPE_DECL_HAS_ALIAS_SCHEMES;
-						dimension_index++;
-					} else {
-						break;
-					}
+			for(i = 0; i < dimension_count; i++) {
+				int32_t processed = qb_parse_type_dimension(pool, dimension_string, dimension_len, decl, i);
+				if(processed == -1) {
+					return NULL;
 				}
+				dimension_string += processed;
+				dimension_len -= processed;
 			}
 		}
 
