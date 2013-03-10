@@ -2100,7 +2100,7 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 		Z_OPERAND_ZV(user_op.op1) = &name;
 #else
-		memset(Z_OPERAND_ZV(user_op.op1), &name, sizeof(zval));
+		memcpy(Z_OPERAND_ZV(user_op.op1), &name, sizeof(zval));
 #endif
 		Z_OPERAND_TYPE(user_op.op2) = Z_OPERAND_UNUSED;
 		Z_OPERAND_INFO(user_op.op2, jmp_addr) = (zend_op *) cxt;
