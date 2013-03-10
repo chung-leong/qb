@@ -1057,6 +1057,9 @@ static void ZEND_FASTCALL qb_transfer_arguments_from_php(qb_interpreter_context 
 
 	cxt->this_object = this;
 	cxt->argument_count = arg_count;
+	if(arg_count > func->argument_count) {
+		arg_count = func->argument_count;
+	}
 
 	for(i = 0; i < arg_count; i++) {
 		qb_variable *qvar = func->variables[i];

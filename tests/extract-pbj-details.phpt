@@ -3,10 +3,8 @@ PBJ info extraction test
 --FILE--
 <?php
 
-$filter_name = "sepia";
-$folder = dirname(__FILE__);
-$path = "$folder/pbj/test.pbj";
-$info = qb_extract($path, QB_PBJ_INFO);
+$path = "pbj/test.pbj";
+$info = qb_extract($path, QB_PBJ_DETAILS);
 print_r($info);
 
 ?>
@@ -67,7 +65,7 @@ Array
                     [name] => value3
                     [displayName] => Value #3
                     [type] => float3x3
-                    [parameterType] =>
+                    [parameterType] => 
                     [description] => Description #3
                     [minValue] => Array
                         (
@@ -148,20 +146,20 @@ Array
                 (
                     [direction] => out
                     [name] => dst
-                    [displayName] =>
+                    [displayName] => 
                     [type] => float4
-                    [parameterType] =>
-                    [description] =>
+                    [parameterType] => 
+                    [description] => 
                 )
 
             [5] => Array
                 (
                     [direction] => in
                     [name] => src
-                    [displayName] =>
+                    [displayName] => 
                     [type] => image4
-                    [parameterType] =>
-                    [description] =>
+                    [parameterType] => 
+                    [description] => 
                 )
 
         )

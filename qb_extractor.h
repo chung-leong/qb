@@ -19,8 +19,8 @@
 /* $Id$ */
 
 enum {
-	QB_PBJ_INFO	= 1,
-	QB_PBJ_DOC_COMMENT,
+	QB_PBJ_DETAILS	= 1,
+	QB_PBJ_DECLARATION,
 };
 
 typedef struct qb_extractor_context qb_extractor_context;
