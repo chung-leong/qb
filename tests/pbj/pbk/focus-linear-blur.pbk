@@ -1,0 +1,68 @@
+//  25 August 2008
+//  Espoo, Finland
+<languageVersion : 1.0;>
+kernel FocusingLinearBlur
+<   namespace : "FocusingLinearBlur";
+    vendor : "Petri Leskinen";
+    version : 1;
+    description : "linear blur by a line equation";
+>
+{
+
+    parameter float3 lineEquation
+    <
+    //  0=Ax+By+C, float3(A,B,C)
+    minValue: float3(-1,-1,-100);
+    maxValue: float3(1,1,100);
+    defaultValue: float3(0.707,-0.707,30.0);
+     >;
+     parameter float uScale
+    <
+    //  blur radius, perpendicular to line
+    minValue: float(0.0);
+    maxValue: float(10);
+    defaultValue: float(1.0);
+     >;
+     parameter float vScale
+    <
+    //  blur radius, parallel to line
+    minValue: float(0.0);
+    maxValue: float(10);
+    defaultValue: float(1.0);
+     >;
+
+    input image4 src;
+    output pixel4  dst;
+
+    void
+    evaluatePixel()
+    {
+        //  val = factor for blurring,
+        //  distance to the line (Ax+Bx+C)/sqrt(A*A+B*B),
+        //  multiplied by 0.01: if A and B are normalized (in actionscript code), 
+        //  we get the correct blurring in the distance of 100 pixels for line
+        float val = lineEquation[0]*outCoord().x + 
+                    lineEquation[1]*outCoord().y + 
+                    lineEquation[2] ;
+        val *= 0.01;
+        
+        //  vector (A,B) perpendicular to line
+        //  uScale gives to radius
+        float2 dir = val* lineEquation.xy;
+        float2 po = uScale* dir;
+        
+        //  samples from two points
+        dst =     sampleLinear(src, outCoord()+po) +
+                  sampleLinear(src, outCoord()-po);
+       
+       //   rotate 90 degrees for the parallel samples
+       //   radius by vScale
+       po = vScale* float2(dir.y, -dir.x);
+        dst +=   sampleLinear(src, outCoord()+po) +
+                  sampleLinear(src, outCoord()-po);
+    
+        // 4 sampled points, count the average
+       dst *= 0.25;
+
+    }
+}

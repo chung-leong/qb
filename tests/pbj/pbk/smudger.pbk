@@ -1,0 +1,51 @@
+
+/////////////////////////////////////////////////////
+//  smudger
+//
+//	author 	   : frank reitberger
+//	blog 	   : http://www.prinzipiell.com
+//  copyright 2008
+//
+/////////////////////////////////////////////////////
+
+<languageVersion: 1.0;>
+
+kernel smudge
+
+<   
+    namespace:          "smudger";
+    vendor:             "Frank Reitberger";
+    version:            1;
+    description:        "generates a smudged pattern";
+>
+
+{
+    parameter float amount
+    <
+        minValue:     float(0.0);
+        maxValue:     float(5.0);
+        defaultValue: float(0.5);
+        description:  "amount";
+    >; 
+    
+    
+    input image4 src;
+    output pixel4 dst; 
+    
+    void
+    evaluatePixel()
+    {
+        float2 pos   = outCoord();
+        
+        //////////////////////////
+        // patterize transition
+        //////////////////////////  
+        float nx     = 5.0 * (cos(pos.y / 5.0));
+        float ny     = 5.0 * (cos(pos.x / 6.0));  
+        float2 pnt   = float2(  nx*ny , nx* ny  );
+        dst = sampleNearest( src, outCoord() + pnt * amount);        
+        
+         
+    }    
+    
+}

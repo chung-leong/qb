@@ -1,0 +1,144 @@
+/*
+*   Posterizer - kernel for Pixel Bender
+*
+*   Petri Leskinen
+*   http://pixelero.wordpress.com
+*   leskinen.petri[at]luukku.com
+*   Espoo, Finland, February 2009
+*   
+*/
+
+#define lengthSquared3(a,b) (tmp=a.x-b.x)*tmp+(tmp=a.y-b.y)*tmp+(tmp=a.z-b.z)*tmp
+
+<languageVersion:1.0;>
+kernel Posterizer
+<   namespace : "Posterizer";
+    vendor : "Petri Leskinen";
+    version : 1;
+    description : "Posterizes an image using 2 to 8 specified colors";
+>
+{
+   
+   
+    parameter pixel4 color1
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0);
+        defaultValue:pixel4(0.441,0.5859375,0.62109375,1); // middle, greyish blue
+    >;
+     parameter pixel4 color2
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0); 
+        defaultValue:pixel4(0.839,0.101,0.1289,1);  //  strong red
+    >;
+    parameter pixel4 color3
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0); 
+        defaultValue:pixel4(0,0.195,0.3,1);    //  dark blur  
+    >;
+    parameter pixel4 color4
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0); 
+        defaultValue:pixel4(0.983,0.89,0.656,1);   //   light yellow 
+    >;
+    parameter pixel4 color5
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0); 
+        defaultValue:pixel4(0,0,0,1);
+    >;
+    parameter pixel4 color6
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0); 
+        defaultValue:pixel4(1,0,0,1);
+    >;
+    parameter pixel4 color7
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0); 
+        defaultValue:pixel4(0,1,0,1);
+    >;
+    parameter pixel4 color8
+    <
+        minValue:pixel4(0.0);
+        maxValue:pixel4(1.0);
+        defaultValue:pixel4(0,0,1,1);
+    >;
+    parameter int numColors
+    <
+        minValue:int(2.0);
+        maxValue:int(8.0); 
+        defaultValue:int(4);
+    >;
+    parameter float blur
+    <
+        minValue:float(0.0);
+        maxValue:float(4.0);
+        defaultValue:float(0.5);    //  smooths the output
+    >;
+    
+    input image4 src;
+    output pixel4 dst;
+    
+    void
+    evaluatePixel()
+    {
+        float dist, minDist, tmp;
+        
+        /*  blurring by taking five samples */
+        pixel4 po=sampleLinear(src,outCoord());
+        po+= sampleLinear(src,outCoord()+float2(blur,0)) +sampleLinear(src,outCoord()+float2(-blur,0)) ;
+        po+= sampleLinear(src,outCoord()+float2(0,blur)) +sampleLinear(src,outCoord()+float2(0,-blur));
+        
+        if (po.a<0.01) {
+            //  on an transparent area
+            dst = pixel4(0.0,0.0,0.0,0.0);
+        } else {
+            /*  po is now the sum of sampled pixels,
+            *   in case being at the edge of image,
+            *   it's divided by the sum of alpha-channels
+            */
+            po/=po.a; 
+            
+            /*  distance in this case is r²+g²+b² of the pixel color values */
+            dst=color1;
+            minDist = lengthSquared3(po,dst);
+        
+            /*  going through the eight colors to find the nearest 
+             *  flash compatable 'one by one'-style
+             */
+            if ((dist = lengthSquared3(po,color2))<minDist) {
+                minDist=dist;
+                dst= color2;
+            }
+            if (numColors>2 && (dist = lengthSquared3(po,color3))<minDist) {
+                minDist=dist;
+                dst= color3;
+            }
+            if (numColors>3 && (dist = lengthSquared3(po,color4))<minDist) {
+                minDist=dist;
+                dst= color4;
+            }
+            if (numColors>4 && (dist = lengthSquared3(po,color5))<minDist) {
+                minDist=dist;
+                dst= color5;
+            }
+            if (numColors>5 && (dist = lengthSquared3(po,color6))<minDist) {
+                minDist=dist;
+                dst= color6;
+            }
+            if (numColors>6 && (dist = lengthSquared3(po,color7))<minDist) {
+                minDist=dist;
+                dst= color7;
+            }
+            if (numColors>7 && (dist = lengthSquared3(po,color8))<minDist) {
+                //  minDist=dist;
+                dst= color8;
+            }
+        }
+    }
+}
