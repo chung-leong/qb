@@ -1,0 +1,92 @@
+<languageVersion : 1.0;>
+
+kernel Pencil
+<   namespace : "ar.shader.pencil";
+    vendor : "Alan Ross";
+    version : 1;
+    description : "Pencil";
+>
+{
+    parameter float n0
+    <
+        defaultValue :97.0;
+        minValue : 0.0;
+        maxValue : 100.0;
+    >;
+    parameter float n1
+    <
+        defaultValue : 15.0;
+        minValue : 0.0;
+        maxValue : 100.0;
+    >;
+    parameter float n2
+    <
+        defaultValue : 97.0;
+        minValue : 0.0;
+        maxValue : 100.0;
+    >;
+    parameter float n3
+    <
+        defaultValue : 9.7;
+        minValue : 0.0;
+        maxValue : 10.0;
+    >;
+
+    input image4 src;
+    output pixel4 result;
+
+    void evaluatePixel()
+    {
+        float2 p = outCoord();
+        float2 offset;
+        float dist, temp;
+        float4 c, m, p0, p1, p2, p3, p4, p5, p6, p7, p8;
+
+        dist = n3;
+        offset.x = 0.0; offset.y = 0.0;
+        p0 = sampleNearest( src, p + offset ); offset.x = -dist; offset.y = -dist;
+        p1 = sampleNearest( src, p + offset ); offset.x =  dist; offset.y = -dist;
+        p2 = sampleNearest( src, p + offset ); offset.x =  dist; offset.y =  dist;
+        p3 = sampleNearest( src, p + offset ); offset.x = -dist; offset.y =  dist; dist = n3 * 2.0;
+        p4 = sampleNearest( src, p + offset ); offset.x = -dist; offset.y = -dist;
+        p5 = sampleNearest( src, p + offset ); offset.x =  dist; offset.y = -dist;
+        p6 = sampleNearest( src, p + offset ); offset.x =  dist; offset.y =  dist;
+        p7 = sampleNearest( src, p + offset ); offset.x = -dist; offset.y =  dist;
+        p8 = sampleNearest( src, p + offset );
+
+        m = ( ( p0 * n2 ) + ( p1 * n0 ) + ( p2 * n0 ) + ( p3 * n0 ) + ( p4 * n0 )
+        + ( p5 * n1 ) + ( p6 * n1 ) + ( p7 * n1 ) + ( p8 * n1 ) ) / ( n2 + ( 4.0 * n0 ) + ( 4.0 * n1 ) );
+
+        //----------------------- convert to b/w
+        temp = ( p0.r + p0.g + p0.b ) / 3.0;
+        p0.r = p0.g = p0.b = temp;
+
+        temp = ( m.r + m.g + m.b ) / 3.0;
+        m.r =  m.g = m.b = temp;
+
+        //----------------------- invert
+        m.r = 1.0 - m.r;
+        m.g = 1.0 - m.g;
+        m.b = 1.0 - m.b;
+
+        //----------------------- color dodge blend mode
+        if( m.r >= .9995 )
+            c.r = 1.0;
+        else
+            c.r = min( p0.r * 1.0 / ( 1.0 - m.r ), 1.0 );
+
+        if( m.g >= 0.9995 )
+            c.g = 1.0;
+        else
+            c.g = min( p0.g * 1.0 / ( 1.0 - m.g ), 1.0 );
+
+        if( m.b >= 0.9995 )
+            c.b = 1.0;
+        else
+            c.b = min( p0.b * 1.0 / ( 1.0 - m.b ), 1.0 );
+
+        c.a = 1.0;
+
+        result = c;
+    }
+}

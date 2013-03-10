@@ -11,7 +11,7 @@ class QBSampleNearestHandler extends QBSampleHandler {
 					"int32_t ix = qb_quick_floor(x);",
 					"int32_t iy = qb_quick_floor(y);",
 					"if(((uint32_t) ix < width) && ((uint32_t) iy < height)) {",
-						"uint32_t index = ((iy * width) + ix) * 4;",
+						"uint32_t index = ((iy * width) + ix) * 3;",
 						"res_ptr[0] = pixels[index + 0];",
 						"res_ptr[1] = pixels[index + 1];",
 						"res_ptr[2] = pixels[index + 2];",

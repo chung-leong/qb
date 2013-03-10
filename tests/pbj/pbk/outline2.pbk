@@ -1,0 +1,61 @@
+<languageVersion : 1.0;>
+
+kernel Outline
+<   namespace : "ar.shader.outline";
+    vendor : "Alan Ross";
+    version : 1;
+    description : "Outline";
+>{
+    parameter float n0
+    <
+        minValue: 0.0;
+        maxValue: 1.0;
+        defaultValue: 0.0;
+    >;
+    parameter float n1
+    <
+        minValue: 0.2;
+        maxValue: 1.0;
+        defaultValue: 0.5;
+    >;
+
+    input image3 src;
+    output pixel3 dst;
+
+    void evaluatePixel()
+    {
+        float2 p = outCoord();
+        float2 offset;
+        float dist;
+        float3 c, m, p0, p1, p2, p3, p4, p5, p6, p7, p8;
+
+        float3 w = float3( 1.0, 1.0, 1.0 );
+        float3 b = float3( 0.0, 0.0, 0.0 );
+        c = float3( n0, n0, n0 );
+
+        dist = n1 * 1.0;
+        offset.x = 0.0; offset.y = 0.0;
+        p0 = sample( src, p + offset ); offset.x = -dist; offset.y = -dist;
+        p1 = sample( src, p + offset ); offset.x =  0.0;  offset.y = -dist;
+        p2 = sample( src, p + offset ); offset.x =  dist; offset.y = -dist;
+        p3 = sample( src, p + offset ); offset.x =  dist; offset.y =  0.0;
+        p4 = sample( src, p + offset ); offset.x =  dist; offset.y =  dist;
+        p5 = sample( src, p + offset ); offset.x =  0.0;  offset.y =  dist;
+        p6 = sample( src, p + offset ); offset.x = -dist; offset.y =  dist;
+        p7 = sample( src, p + offset ); offset.x = -dist; offset.y =  0.0;
+        p8 = sample( src, p + offset ); 
+
+        c = w;
+
+        if( all( greaterThan( p0, p1 ) ) ){ c = b; }
+        if( all( greaterThan( p0, p3 ) ) ){ c = b; }
+        if( all( greaterThan( p0, p5 ) ) ){ c = b; }
+        if( all( greaterThan( p0, p7 ) ) ){ c = b; }
+
+        c.r = c.r * p0.r / 0.5;
+        c.g = c.g * p0.g / 0.5;
+        c.b = c.b * p0.b / 0.5;
+
+        dst = c;
+    }
+}

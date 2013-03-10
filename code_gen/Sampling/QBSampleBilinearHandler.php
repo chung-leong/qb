@@ -2,12 +2,12 @@
 
 class QBSampleBilinearHandler extends QBSampleHandler {
 
-	protected function getPixelRetrievalExpression($offsetX, $offsetY) {
+	protected function getPixelRetrievalExpression($offsetX, $offsetY, $channelCount) {
 		$lines = array();
-		if($this->operandSize == 3) {
+		if($channelCount == 3) {
 			$pixel = "p$offsetX$offsetY";
 			$lines[] = "if((((uint32_t) ix + $offsetX) < width) && (((uint32_t) iy + $offsetY) < height)) {";
-			$lines[] =		"uint32_t index = (((iy + $offsetY) * width) + (ix + $offsetX)) * 4;";
+			$lines[] =		"uint32_t index = (((iy + $offsetY) * width) + (ix + $offsetX)) * 3;";
 			$lines[] =		"{$pixel}[0] = pixels[index + 0];";
 			$lines[] =		"{$pixel}[1] = pixels[index + 1];";
 			$lines[] =		"{$pixel}[2] = pixels[index + 2];";
@@ -41,7 +41,7 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 					"$cType fy = (y - ($cType) 0.5) - ($cType) iy;",
 					"if(fx == 0 && fy == 0) {",
 						"if(((uint32_t) ix < width) && ((uint32_t) iy < height)) {",
-							"uint32_t index = ((iy * width) + ix) * 4;",
+							"uint32_t index = ((iy * width) + ix) * 3;",
 							"res_ptr[0]	= pixels[index + 0];",
 							"res_ptr[1]	= pixels[index + 1];",
 							"res_ptr[2]	= pixels[index + 2];",
@@ -56,10 +56,10 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 						"$cType w01 = fx1 * fy;",
 						"$cType w11 = fx * fy;",
 						"$cType p00[3], p01[3], p10[3], p11[3];",
-						$this->getPixelRetrievalExpression(0, 0),
-						$this->getPixelRetrievalExpression(1, 0),
-						$this->getPixelRetrievalExpression(0, 1),
-						$this->getPixelRetrievalExpression(1, 1),
+						$this->getPixelRetrievalExpression(0, 0, 3),
+						$this->getPixelRetrievalExpression(1, 0, 3),
+						$this->getPixelRetrievalExpression(0, 1, 3),
+						$this->getPixelRetrievalExpression(1, 1, 3),
 						"res_ptr[0] = p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11;",
 						"res_ptr[1] = p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11;",
 						"res_ptr[2] = p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11;",
@@ -90,10 +90,10 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 						"$cType w01 = fx1 * fy;",
 						"$cType w11 = fx * fy;",
 						"$cType p00[4], p01[4], p10[4], p11[4];",
-						$this->getPixelRetrievalExpression(0, 0),
-						$this->getPixelRetrievalExpression(1, 0),
-						$this->getPixelRetrievalExpression(0, 1),
-						$this->getPixelRetrievalExpression(1, 1),
+						$this->getPixelRetrievalExpression(0, 0, 4),
+						$this->getPixelRetrievalExpression(1, 0, 4),
+						$this->getPixelRetrievalExpression(0, 1, 4),
+						$this->getPixelRetrievalExpression(1, 1, 4),
 						"res_ptr[0] = p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11;",
 						"res_ptr[1] = p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11;",
 						"res_ptr[2] = p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11;",

@@ -1526,8 +1526,8 @@ void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 	if(cxt->pbj_conditional_count > 0) {
 		qb_abort("Missing end if");
 	}
-	if(cxt->pbj_out_pixel->type != PBJ_TYPE_FLOAT4) {
-		qb_abort("Output pixel is not float4");
+	if(cxt->pbj_out_pixel->type != PBJ_TYPE_FLOAT3 && cxt->pbj_out_pixel->type != PBJ_TYPE_FLOAT4) {
+		qb_abort("Output pixel is not float3 or float4");
 	}
 }
 
@@ -1805,9 +1805,9 @@ static void ZEND_FASTCALL qb_pbj_remove_redundant_ops(qb_compiler_context *cxt) 
 	}
 }
 
-static int32_t ZEND_FASTCALL qb_pbj_is_image(qb_compiler_context *cxt, qb_address *address) {
+static int32_t ZEND_FASTCALL qb_pbj_is_image(qb_compiler_context *cxt, qb_address *address, uint32_t channel_count) {
 	if(address && address->type == QB_TYPE_F32 && address->dimension_count == 3) {
-		if(VALUE(U32, address->dimension_addresses[2]) == 4) {
+		if(VALUE(U32, address->dimension_addresses[2]) == channel_count) {
 			return TRUE;
 		}
 	}
@@ -1831,7 +1831,7 @@ static qb_variable * ZEND_FASTCALL qb_pbj_find_input(qb_compiler_context *cxt) {
 	for(i = 0; i < cxt->argument_count; i++) {
 		qb_variable *qvar = cxt->variables[i];
 		if(!(qvar->flags & QB_VARIABLE_PASSED_BY_REF)) {
-			if(qb_pbj_is_image(cxt, qvar->address)) {
+			if(qb_pbj_is_image(cxt, qvar->address, 4) || qb_pbj_is_image(cxt, qvar->address, 3)) {
 				if(!input_var) {
 					input_var = qvar;
 				} else {
@@ -1848,7 +1848,7 @@ static qb_variable * ZEND_FASTCALL qb_pbj_find_output(qb_compiler_context *cxt) 
 	for(i = 0; i < cxt->argument_count; i++) {
 		qb_variable *qvar = cxt->variables[i];
 		if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
-			if(qb_pbj_is_image(cxt, qvar->address)) {
+			if(qb_pbj_is_image(cxt, qvar->address, 4) || qb_pbj_is_image(cxt, qvar->address, 3)) {
 				return qvar;
 			}
 		}
@@ -1864,7 +1864,7 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 		qb_pbj_texture *texture = &cxt->pbj_textures[i];
 		qvar = qb_pbj_find_argument(cxt, texture->name);
 		if(qvar) {
-			if(qb_pbj_is_image(cxt, qvar->address)) {
+			if(qb_pbj_is_image(cxt, qvar->address, texture->channel_count)) {
 				texture->address = qvar->address;
 			} else {
 				qb_abort("Parameter '%s' is not of the correct type", qvar->name);
@@ -1935,7 +1935,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	qb_address *width_address, *height_address, *x_address, *y_address, *pixel_index_address, *channel_count_address;
 	qb_address *out_coord_x_address, *out_coord_y_address;
 	qb_op *qop;
-	uint32_t i, end_index;
+	uint32_t i, end_index, channel_count;
 
 	// interpret 3x4 matrix as 3x3 with padded element
 	cxt->matrix_padding = TRUE;
@@ -1965,7 +1965,8 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	pixel_address->source_address = image_address;
 
 	// the pixel produced by the PB routine
-	output_address = qb_pbj_obtain_channel_address(cxt, cxt->pbj_out_pixel->destination.register_id, 0, 4);
+	channel_count = (cxt->pbj_out_pixel->type == PBJ_TYPE_FLOAT3) ? 3 : 4;
+	output_address = qb_pbj_obtain_channel_address(cxt, cxt->pbj_out_pixel->destination.register_id, 0, channel_count);
 
 	// _OutCoord--or x and y as float
 	out_coord_x_address = qb_pbj_obtain_channel_address(cxt, cxt->pbj_out_coord->destination.register_id, cxt->pbj_out_coord->destination.channels[0], 1);
