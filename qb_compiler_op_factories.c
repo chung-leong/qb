@@ -1221,11 +1221,11 @@ static qb_float_op_factory factory_sqrt = {
 	{	QB_SQRT_F64_F64,		QB_SQRT_F32_F32,	},
 };
 
-static qb_float_op_factory factory_inv_sqrt = {
+static qb_float_op_factory factory_rsqrt = {
 	qb_append_unary_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
-	{	QB_ISQRT_F64_F64,		QB_ISQRT_F32_F32,	},
+	{	QB_RSQRT_F64_F64,		QB_RSQRT_F32_F32,	},
 };
 
 static qb_float_op_factory factory_pow = {

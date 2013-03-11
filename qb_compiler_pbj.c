@@ -1188,7 +1188,7 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_log				},	// PBJ_LOG
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_log2				},	// PBJ_LOG2
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sqrt				},	// PBJ_SQRT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_inv_sqrt			},	// PBJ_RSQRT
+	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_rsqrt			},	// PBJ_RSQRT
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_abs				},	// PBJ_ABS
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sign				},	// PBJ_SIGN
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_floor				},	// PBJ_FLOOR

@@ -841,7 +841,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"deg2rad",				NULL,		NULL,										1,		1,		&factory_deg2rad			},
 	{	0,	"rad2deg",				NULL,		NULL,										1,		1,		&factory_rad2deg			},
 	{	0,	"sign",					NULL,		NULL,										1,		1,		&factory_sign				},
-	{	0,	"inv_sqrt",				NULL,		NULL,										1,		1,		&factory_inv_sqrt			},
+	{	0,	"rsqrt",				NULL,		NULL,										1,		1,		&factory_rsqrt				},
 	{	0,	"fract",				NULL,		NULL,										1,		1,		&factory_fract				},
 	{	0,	"step",					NULL,		NULL,										2,		2,		&factory_step				},
 	{	0,	"clamp",				NULL,		NULL,										3,		3,		&factory_clamp				},
