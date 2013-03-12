@@ -691,7 +691,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug_TS_VC6|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
