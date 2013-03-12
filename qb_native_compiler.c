@@ -307,6 +307,7 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define PRIu32	"STRING(PRIu32)"\n");
 	qb_print(cxt, "#define PRIu64	"STRING(PRIu64)"\n");
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
+	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
 
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");

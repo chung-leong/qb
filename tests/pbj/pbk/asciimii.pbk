@@ -1,0 +1,64 @@
+<languageVersion: 1.0;>
+
+/* AsciiMii Pixel Bender Kernel
+ * Author: Richard Zurad (http://www.greyboxware.com)
+ * 
+ * Kernel that mimics the TEXTp effect from YouTube's 2010 April Fools Joke.
+ * For information on how to use: http://asciimii.greyboxware.com
+ *
+ * Note: you will need to supply your own font map (fontmap.png) if you want this
+ * 	to run properly.
+ *
+ * ----------------------------------------------------------------------------
+ * "THE BEERWARE LICENSE" (Revision 42):
+ * Richard Zurad (http://www.greyboxware.com) wrote this file. As long as you 
+ * retain this notice you can do whatever you want with this stuff. If we meet 
+ * some day, and you think this stuff is worth it, you can buy me a beer in 
+ * return
+ * ----------------------------------------------------------------------------
+ */
+kernel AsciiMii<
+    namespace: "com.greyboxware.asciimii";
+    vendor: "Richard Zurad";
+    version: 1;
+    description: "Filter to mimic the TEXTp effect from YouTube's 2010 April Fools joke";
+> 
+{
+    input image4 src;
+    input image4 text;
+
+    output pixel4 dst;
+
+    parameter int size <
+        minValue: 1;
+        defaultValue: 8;
+        maxValue: 32;
+    >;
+
+    parameter int charCount <
+        minValue: 1;
+        defaultValue: 256;
+        maxValue: 512;
+    >;
+
+    void evaluatePixel() {
+        float sizef = float(size);
+        float charCountf = float(charCount);
+        
+        float2 offset2 = mod(outCoord(), sizef);
+        pixel4 mosaicPixel4 = sampleNearest(src, outCoord() - offset2);
+        
+        float luma = 0.2126 * mosaicPixel4.r + 0.7152 * mosaicPixel4.g + 0.0722 * mosaicPixel4.b;
+
+        float range = (1.0 / (charCountf - 1.0));
+        float fontOffset = sizef * floor(luma / range);
+        float fontmapsize = (sizef * floor(sqrt(charCountf))); 
+        float yRow = floor(fontOffset / fontmapsize);
+        offset2.y = offset2.y + (sizef * yRow);
+        offset2.x = offset2.x + (fontOffset - (fontmapsize * yRow)); 
+        pixel4 charPixel4 = sample(text, offset2);
+
+        dst.rgb = mosaicPixel4.rgb * charPixel4.rgb;
+        dst.a = mosaicPixel4.a;
+    }
+}

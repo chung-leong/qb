@@ -1,0 +1,204 @@
+<languageVersion : 1.0;>
+
+kernel CubicSpace
+<   namespace : "CubicSpace";
+    vendor : "Petri Leskinen";
+    version : 1;
+    description : "cubicspace";
+>
+
+//  no loops when inside flash player, therefore these definitions:
+#define repeat1(a) a;
+#define repeat2(a) a;a;
+#define repeat3(a) a;a;a;
+#define repeat4(a) a;a;a;a;
+#define repeat5(a) a;a;a;a;a;
+#define repeat6(a) repeat4(a);repeat2(a);
+
+#define repeat8(a)  a;a;a;a;a;a;a;a;
+#define repeat10(a) a;a;a;a;a;a;a;a;a;a;
+
+
+{
+    parameter float2 center
+        <
+        minValue:float2(-200,-200);
+        maxValue:float2(500,500);
+        defaultValue:float2(300,200);
+        >;
+    
+    parameter float size
+        <
+        minValue:float(10.0);
+        maxValue:float(300.0);
+        defaultValue:float(100.0);
+        >;
+        
+    parameter float fade
+        <
+        minValue:float(0.0);
+        maxValue:float(1.0);
+        defaultValue:float(0.8);
+        >;
+        
+    parameter float focallength
+        <
+        minValue:float(50);
+        maxValue:float(1000);
+        defaultValue:float(250);
+        >;
+    
+    parameter float2 imagesize
+        <
+        minValue:float2(1,1);
+        maxValue:float2(600,600);
+        defaultValue:float2(400,400);
+        >;
+    
+    parameter pixel4 colorX
+        <
+        minValue:pixel4(0);
+        maxValue:pixel4(1,1,1,1);
+        defaultValue:pixel4(1,1,1,1);
+        >;
+        
+    parameter pixel4 colorY
+        <
+        minValue:pixel4(0);
+        maxValue:pixel4(1,1,1,1);
+        defaultValue:pixel4(1,1,1,1);
+        >;
+        
+    parameter pixel4 colorZ
+        <
+        minValue:pixel4(0);
+        maxValue:pixel4(1,1,1,1);
+        defaultValue:pixel4(0.8,0.8,0.8,1);
+        >;
+    
+    parameter pixel4 bgcolor
+        <
+        minValue:pixel4(0);
+        maxValue:pixel4(1,1,1,1);
+        defaultValue:pixel4(0,0,0,1);
+        >;
+        
+    const float eps = 0.000001;
+    
+    
+    parameter float4x4 orientation 
+    <   //  for flash player this parameter best precounted in actionscript
+        minValue:float4x4(
+            -1,-1,-1,0,
+            -1,-1,-1,0,
+            -1,-1,-1,0,
+            -500,-500,-500,-1);
+            
+        maxValue:float4x4(
+            1,1,1,0,
+            1,1,1,0,
+            1,1,1,0,
+            500,500,500,1);
+        
+        defaultValue:float4x4(
+            //  axis for forward:
+            1,  0,  0,   0,
+            //  axis for right hand direction:
+            0,  1,  0,   0,
+            //  axis for downwards:
+            0,  0,  1,   0,
+            //  viewpoint = orientation[3].xyz, default 0,50,50
+            0,50,50,   1
+        );
+    >;
+        
+    // region generated() { return region(float4(0.0, 0.0, 800.0, 400.0)); }
+    
+    
+    input image4 src;
+    output pixel4 dst;
+    
+    
+    void evaluatePixel()
+    {
+        float2 po = outCoord()-center;
+        
+        //  Cylinderical 'panorama' projection :
+        //  rotation in xy-plane by image's coordinate x,
+        //  z-dimension remains linear
+        float theta = po.x/focallength;
+        float3 viewdir = 
+            focallength*
+                (cos(theta)*orientation[0].xyz
+                +sin(theta)*orientation[1].xyz)
+            +po.y*orientation[2].xyz;
+            
+        /* 
+        //  viewdir for 'rectangular' canvas projection : 
+        float3 viewdir = 
+            focallength*orientation[1].xyz
+            +po.x*orientation[0].xyz 
+            +po.y*orientation[2].xyz;
+        */ 
+        
+        
+        //  start point for ray tracing: cell walls on coordinates (x,y,0), (x,0,z) and (0,y,z)
+        float3 v = orientation[3].xyz/size; 
+        
+        //  this value will decrease by fading
+        float currentAlpha = 1.0;
+        
+        //  initialize the output to transparent:
+        dst = pixel4(0,0,0,0);
+        pixel4 dst2;
+        
+        float3 t;
+        
+        // int n=10;
+        // for (int i=0; i<n; i++) {
+        repeat5(
+        
+            //  following line v + t*viewdir, 
+            //  to see where next hit to a cell wall, e.g. which coordinate is nearest to a integer value:
+            t.x = (viewdir.x<0.0 ? -eps : 1.0+eps);
+            t.y = (viewdir.y<0.0 ? -eps : 1.0+eps);
+            t.z = (viewdir.z<0.0 ? -eps : 1.0+eps);
+            
+            // v + t*viewdir = vnext
+            t = (floor(v+t)-v)/viewdir;
+            
+            
+            if (t.x<t.y && t.x<t.z) {
+                //  move ray forward:
+                v += t.x*viewdir;
+                //  sample the pixel from the cell wall: 
+                //  now a pixel of type (0.0 ,fract(v.y),fract(v.z))
+                dst2 = colorX*sampleLinear(src, fract(v.yz)*imagesize);
+                
+            } else if (t.y<t.x && t.y<t.z) {
+                //  cell wall of type (fract(v.x),0.0,fract(v.z))
+                v += t.y*viewdir;
+                dst2 = colorY*sampleLinear(src, fract(v.xz)*imagesize);
+                
+            } else {
+                v += t.z*viewdir;
+                //  some issue in flash player, that's why abs(...) only in z-coordinate
+                dst2 = colorZ*sampleLinear(src, abs(fract(v.xy))*imagesize);
+            }
+            
+            //  mix color by fading:
+            dst2.rgb = mix(bgcolor.rgb, dst2.rgb, currentAlpha);
+            currentAlpha *= fade;
+            
+            //  add new sample to result so far
+            dst += dst2*dst2.a*(1.0-dst.a);
+            
+        // 
+        );
+        // }
+        
+        //  add the background by 'remaining' alpha
+        dst += (1.0-dst.a)*bgcolor;
+        
+    }
+}

@@ -1,0 +1,141 @@
+
+/////////////////////////////////////////////////////
+//
+//  escherizer ...dissected for use with flash
+//
+//	author 	   : frank reitberger
+//	blog 	   : http://www.prinzipiell.com
+//  copyright 2008
+//
+/////////////////////////////////////////////////////
+
+<languageVersion: 1.0;>
+
+kernel deformer
+
+<   
+    namespace:          "escher/-droste effect";
+    vendor:             "Frank Reitberger";
+    version:            1;
+    description:        "escherizer ...dissected for use with flash";
+>
+
+ {
+
+    parameter float2 size
+    <
+        maxValue:float2(4096.0);
+        minValue:float2(0.0);
+        defaultValue:float2( 500.0 );
+        description: "image width/-height";
+    >;
+    
+    parameter float2 radians
+    <
+        maxValue:float2(  1000.0 );
+        minValue:float2( -1000.0 );
+        defaultValue:float2( 50.0, 150.0);
+        description: "setup radians";
+    >;  
+    
+    parameter float rotate
+    <
+        maxValue:360.0;
+        minValue:0.0;
+        defaultValue:0.0;
+        description: "setup rotation";
+    >; 
+    
+    parameter float zoom
+    <
+        maxValue:100.0;
+        minValue:1.0;
+        defaultValue:1.0;
+        description: "setup zooming";
+    >;    
+    
+    parameter float2 center
+    <
+        maxValue:float2(2100.0);
+        minValue:float2(-2100.0);
+        defaultValue:float2(0.0);
+        description: "sets xy.center";
+    >;
+    
+    parameter float2 range
+    <
+        maxValue:float2(2100.0);
+        minValue:float2(-2100.0);
+        defaultValue:float2(160.0);
+        description: "sets xy.range";
+    >;    
+    
+    
+    parameter float xPos
+    <
+        maxValue:1050.0;
+        minValue:-1050.0;
+        defaultValue:160.0;
+        description: "sets initial x.position";
+    >;
+    
+    parameter float yPos
+    <
+        maxValue:1050.0;
+        minValue:-1050.0;
+        defaultValue:160.0;
+        description: "sets initial y.position";
+    >;   
+      
+    
+    input image4 src;
+    output pixel4 dst; 
+    
+    void
+    evaluatePixel() {
+    
+        float2 pos     = outCoord();
+        float PI       = 3.1415926535;
+        float r1       = 0.0;
+        float r2       = 0.0;   
+        float logRad   = log( radians.y / radians.x );
+        float alfa     = atan( logRad / ( PI * 2.0 ) );
+        float xShift   = cos( alfa );
+        float yShift   = sin( alfa );
+        
+        float cosAngle = cos( rotate * PI / 180.0 );
+        float sinAngle = sin( rotate * PI / 180.0 );
+        float xZoom    = cosAngle * zoom;
+        float yZoom    = sinAngle * zoom;
+        
+        float startX   = center.x - ( xPos * cosAngle + yPos * sinAngle) * zoom;
+        float startY   = center.y + (-xPos * sinAngle + yPos * cosAngle) * zoom;
+            
+        float ix       = startX + xZoom * ceil( pos.x ) + yZoom * ceil( pos.y );
+        float iy       = startY + yZoom * ceil( pos.x ) - xZoom * ceil( pos.y );
+        float distRad  = log( ix * ix + iy * iy ) / 2.0;
+        float f        = atan( iy, ix ) + PI;   
+        
+        float i        = ( distRad * xShift + f * yShift ) / xShift;
+        float j        = ( f * xShift - distRad * yShift ) / xShift;
+        
+        i              = mod( i, logRad );
+        j              = mod( j, PI * 2.0 );
+        
+        float z        = exp(i) * radians.x;
+        
+        r1             = range.x + z * cos( j );
+        r2             = range.y - z * sin( j );   
+        
+        
+        if( r1 < 0.0) r1 = mod( r1, size.x ) * -1.0;
+        if( r2 < 0.0) r2 = mod( r2, size.y ) * -1.0;
+        if( r1 > size.x ) r1 = mod( r1, size.x );
+        if( r2 > size.y ) r2 = mod( r2, size.y );        
+        
+        
+        dst = sampleNearest( src, float2( r1,r2 ) );
+        
+    }    
+    
+}

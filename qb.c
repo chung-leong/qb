@@ -28,8 +28,6 @@
 #include "php_qb.h"
 #include "qb.h"
 
-#define QB_LOG_FUNCTION_CALL
-
 ZEND_DECLARE_MODULE_GLOBALS(qb)
 
 /* True global resources - no need for thread safety here */
@@ -100,6 +98,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("qb.compiler_path",    				"",		PHP_INI_SYSTEM, OnUpdatePath,	compiler_path,    				zend_qb_globals,	qb_globals)
 	STD_PHP_INI_ENTRY("qb.compiler_env_path",  				"",		PHP_INI_SYSTEM, OnUpdatePath,	compiler_env_path,  			zend_qb_globals,	qb_globals)
 	STD_PHP_INI_ENTRY("qb.native_code_cache_path",  		"",		PHP_INI_SYSTEM, OnUpdatePath,	native_code_cache_path,			zend_qb_globals,	qb_globals)
+	STD_PHP_INI_ENTRY("qb.execution_log_path",  			"",		PHP_INI_SYSTEM, OnUpdatePath,	execution_log_path,				zend_qb_globals,	qb_globals)
 
 	STD_PHP_INI_BOOLEAN("qb.allow_bytecode_interpretation",	"1",	PHP_INI_ALL,	OnUpdateBool,	allow_bytecode_interpretation,	zend_qb_globals,	qb_globals)
 	STD_PHP_INI_BOOLEAN("qb.allow_debugger_inspection",		"1",	PHP_INI_ALL,	OnUpdateBool,	allow_debugger_inspection,		zend_qb_globals,	qb_globals)
@@ -331,10 +330,11 @@ PHP_FUNCTION(qb_execute)
 	zend_function *zfunc = EG(current_execute_data)->function_state.function;
 	zval ***args = emalloc(ZEND_NUM_ARGS() * sizeof(zval **));
 	zval *this = EG(This);
-#ifdef QB_LOG_FUNCTION_CALL
 	double start_time, end_time, duration;
-	start_time = qb_get_high_res_timestamp();
-#endif
+
+	if(UNEXPECTED(QB_G(execution_log_path)[0])) {
+		start_time = qb_get_high_res_timestamp();
+	}
 
 	if (zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE) {
 		return;
@@ -343,18 +343,18 @@ PHP_FUNCTION(qb_execute)
 	qb_execute(zfunc, this, args, ZEND_NUM_ARGS(), return_value TSRMLS_CC);
 	efree(args);
 
-#ifdef QB_LOG_FUNCTION_CALL
-	end_time = qb_get_high_res_timestamp();
-	duration = end_time - start_time;
-	if(duration > 0) {
-		qb_function *qfunc = zfunc->op_array.reserved[0];
-		FILE *log_file = fopen("log.txt", "a");
-		if(log_file) {
-			fprintf(log_file, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
-			fclose(log_file);
+	if(UNEXPECTED(QB_G(execution_log_path)[0])) {
+		end_time = qb_get_high_res_timestamp();
+		duration = end_time - start_time;
+		if(duration > 0) {
+			qb_function *qfunc = zfunc->op_array.reserved[0];
+			FILE *log_file = fopen(QB_G(execution_log_path), "a");
+			if(log_file) {
+				fprintf(log_file, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
+				fclose(log_file);
+			}
 		}
 	}
-#endif
 }
 /* }}} */
 /* The previous line is meant for vim and emacs, so it can correctly fold and 

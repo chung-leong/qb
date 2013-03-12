@@ -879,7 +879,7 @@ class QBCodeGenerator {
 				$this->handlers[] = new QBIsNaNHandler("NAN", $elementType, $addressMode);
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBInverseSqrtHandler("ISQRT", $elementType, $addressMode);
+				$this->handlers[] = new QBRSqrtHandler("RSQRT", $elementType, $addressMode);
 			}
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBClampHandler("CLAMP", $elementType, $addressMode);

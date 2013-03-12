@@ -122,6 +122,7 @@ class QBHandler {
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] = $this->getOperandDeclaration($i);
 		}
+		$lines[] = "";
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] = $this->getOperandRetrievalCode($i);
 		}
@@ -459,7 +460,6 @@ class QBHandler {
 				$lines[] = $this->declareVariables($cType, array("res_start" => "*res_start", "res_end" => "*res_end", "res_ptr" => "*__restrict res_ptr"));
 			}
 		}
-		$lines[] = "";
 		return $lines;
 	}
 	
