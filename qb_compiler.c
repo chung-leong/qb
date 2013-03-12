@@ -3509,6 +3509,9 @@ void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_c
 		if(QB_G(compile_to_native) && !(function_decl->flags & QB_ENGINE_NEVER_COMPILE)) {
 			cxt->function_flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
 		}
+		if(QB_G(allow_debug_backtrace)) {
+			cxt->function_flags |= QB_ENGINE_GO_THRU_ZEND;
+		}
 		cxt->function_declaration = function_decl;
 		cxt->zend_function = function_decl->zend_function;
 		cxt->zend_op_array = &cxt->zend_function->op_array;

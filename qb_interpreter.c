@@ -1627,8 +1627,7 @@ static zend_class_entry *qb_get_value_type_debug_class(qb_interpreter_context *c
 	}
 	if(!value_type_debug_classes[type]) {
 		const char *type_name = type_names[type];
-		INIT_CLASS_ENTRY(ce, type_name, NULL);
-		ce.name_length = strlen(type_name);
+		INIT_CLASS_ENTRY_EX(ce, type_name, strlen(type_name), NULL);
 		value_type_debug_classes[type] = zend_register_internal_class_ex(&ce, value_type_debug_base_class, NULL TSRMLS_CC);
 	}
 	return value_type_debug_classes[type];
@@ -1801,6 +1800,7 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 	USE_TSRM
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
+	zend_vm_stack stack = EG(argument_stack);
 	for(i = 0, j = 0; i < cxt->function->variable_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
@@ -1814,8 +1814,16 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 			ex->CVs[j] = var;
 #endif
 			j++;
+
+			if(qvar->flags & QB_VARIABLE_ARGUMENT) {
+				// push argument onto Zend stack
+				Z_ADDREF_P(value);
+				zend_vm_stack_push(value TSRMLS_CC);
+			}
 		}
 	}
+	// push the argument count
+	ex->function_state.arguments = zend_vm_stack_push_args(cxt->function->argument_count TSRMLS_CC);
 }
 
 static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) {
@@ -1837,30 +1845,35 @@ static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) 
 }
 
 static void ZEND_FASTCALL qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
-	// Zend will actually perform the clean-up
+	// Zend will actually perform the clean-up of the CVs
 	// the only thing we need to do here is to put arguments that were passed by reference
-	// back into the symbol table
+	// back into the symbol table and pop them off the stack
 	USE_TSRM
-	uint32_t i, j;
+	uint32_t i, j, arg_count;
 	zend_execute_data *ex = EG(current_execute_data);
-	void **p = ex->prev_execute_data->function_state.arguments;
-	uint32_t arg_count = (uint32_t) (zend_uintptr_t) *p;
-	zval **arguments = (zval **) (p - arg_count);
+
+	// pop the argument count
+	arg_count = (uint32_t) (zend_uintptr_t) zend_vm_stack_pop(TSRMLS_C);
 	for(i = 0, j = 0; i < arg_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
-		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-			if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
-				zval **var, *argument = arguments[i];
-				Z_ADDREF_P(argument);
-				zend_hash_quick_update(ex->symbol_table, qvar->name, qvar->name_length + 1, qvar->hash_value, &argument, sizeof(zval *), (void **) &var);
+
+		// pop argument off Zend stack
+		zval *argument = zend_vm_stack_pop(TSRMLS_C);
+		Z_DELREF_P(argument);
+
+		if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
+			zval **var;
+			Z_ADDREF_P(argument);
+			zend_hash_quick_update(ex->symbol_table, qvar->name, qvar->name_length + 1, qvar->hash_value, &argument, sizeof(zval *), (void **) &var);
+
+			// updating the CVs for consistency sake
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-				*EX_CV_NUM(ex, j) = var;
+			*EX_CV_NUM(ex, j) = var;
 #else
-				ex->CVs[j] = var;
+			ex->CVs[j] = var;
 #endif
-			}
-			j++;
 		}
+		j++;
 	}
 }
 
@@ -2054,6 +2067,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op *zop = execute_data->opline;
 	qb_interpreter_context *cxt = (qb_interpreter_context *) Z_OPERAND_INFO(zop->op2, jmp_addr);
 	zend_function *zfunc = cxt->function->zend_function;
+	zend_uchar original_opcode;
 
 	if(cxt->flags & QB_EMPLOY_SHADOW_VARIABLES) {
 		qb_create_shadow_variables(cxt);
@@ -2066,6 +2080,11 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zfunc->internal_function.module = &qb_module_entry;
 #endif
 
+	// change the opcode so it's FCALL
+	original_opcode = zop->opcode;
+	zop->opcode = ZEND_DO_FCALL;
+	zop->lineno = cxt->function_call_line_number;
+
 	// enter the QB virtual machine
 	qb_enter_vm(cxt);
 
@@ -2076,6 +2095,8 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	// make it look like a user function before exiting, just in case
 	zfunc->type = ZEND_USER_FUNCTION;
 	zfunc->op_array.opcodes = zop;
+
+	zop->opcode = original_opcode;
 
 	return ZEND_USER_OPCODE_RETURN;
 }
@@ -2101,6 +2122,8 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 		zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler);
 	}
 	if(qb_user_opcode != -1) {
+		zend_execute_data *original_execute_data;
+
 		memset(&user_op, 0, sizeof(zend_op));
 		user_op.opcode = qb_user_opcode;
 		Z_OPERAND_TYPE(user_op.op1) = Z_OPERAND_CONST;
@@ -2140,9 +2163,20 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 			zfunc->op_array.last_var = local_var_count;
 		}
 
+		if(cxt->call_stack_height == 0) {
+			original_execute_data = EG(current_execute_data);
+			EG(current_execute_data) = original_execute_data->prev_execute_data;
+			cxt->function_call_line_number = original_execute_data->opline->lineno;
+		}
+
+		// run it through zend_execute
 		opline_ptr = EG(opline_ptr);
 		zend_execute(&zfunc->op_array TSRMLS_CC);
 		EG(opline_ptr) = opline_ptr;
+
+		if(cxt->call_stack_height == 0) {
+			EG(current_execute_data) = original_execute_data;
+		}
 
 		// revert back to internal function
 		zfunc->type = ZEND_INTERNAL_FUNCTION;
