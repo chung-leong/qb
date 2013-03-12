@@ -1,5 +1,9 @@
 --TEST--
 Not-a-number check test
+--SKIPIF--
+<?php
+	if(!is_nan(NAN)) print "skip borken NAN constant";
+?>
 --FILE--
 <?php
 

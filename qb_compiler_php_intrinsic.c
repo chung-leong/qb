@@ -427,24 +427,26 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	expr_type = container->address->type;
 	qb_do_type_coercion(cxt, needle, expr_type);
-	if(IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as the first parameter", f->name);
-	}
-	if(container->address->dimension_count == 1) {
-		if(needle->address->dimension_count != 0) {
-			qb_abort("%s expects a scalar as the second parameter", f->name);
-		}
-	} else {
+	if(!cxt->resolving_result_type) {
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as the second parameter when given a multidimensional array", f->name);
+			qb_abort("%s expects an array as the first parameter", f->name);
+		}
+		if(container->address->dimension_count == 1) {
+			if(needle->address->dimension_count != 0) {
+				qb_abort("%s expects a scalar as the second parameter", f->name);
+			}
 		} else {
-			if(IS_VARIABLE_LENGTH_ARRAY(needle->address)) {
-				qb_abort("%s expects a fixed-length array as the second parameter", f->name);
+			if(IS_SCALAR(container->address)) {
+				qb_abort("%s expects an array as the second parameter when given a multidimensional array", f->name);
 			} else {
-				uint32_t needle_length = ARRAY_SIZE(needle->address);
-				uint32_t subarray_length = VALUE(U32, container->address->array_size_addresses[1]);
-				if(needle_length != subarray_length) {
-					qb_abort("%s expects an array with %d elements as the second parameter", f->name, subarray_length);
+				if(IS_VARIABLE_LENGTH_ARRAY(needle->address)) {
+					qb_abort("%s expects a fixed-length array as the second parameter", f->name);
+				} else {
+					uint32_t needle_length = ARRAY_SIZE(needle->address);
+					uint32_t subarray_length = VALUE(U32, container->address->array_size_addresses[1]);
+					if(needle_length != subarray_length) {
+						qb_abort("%s expects an array with %d elements as the second parameter", f->name, subarray_length);
+					}
 				}
 			}
 		}

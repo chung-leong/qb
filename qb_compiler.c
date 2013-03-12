@@ -121,6 +121,7 @@ static zend_always_inline void qb_add_op(qb_compiler_context *cxt, qb_op *op) {
 static zend_always_inline qb_array_initializer *qb_allocate_array_initializer(qb_compiler_data_pool *pool) {
 	qb_array_initializer *a = qb_allocate_items(&pool->array_initializer_allocator, 1);
 	qb_attach_new_array(pool, (void **) &a->elements, &a->element_count, sizeof(qb_operand), 16);
+	a->element_type = QB_TYPE_ANY;
 	return a;
 }
 
@@ -1156,6 +1157,7 @@ static void ZEND_FASTCALL qb_get_array_initializer_dimensions(qb_compiler_contex
 }
 
 static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address *value_address, qb_address *variable_address);
+static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_operand *operand, uint32_t desired_type);
 
 static void ZEND_FASTCALL qb_copy_elements_from_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_address *address) {
 	qb_address *dimension_address = address->dimension_addresses[0];

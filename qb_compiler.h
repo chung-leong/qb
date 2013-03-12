@@ -97,6 +97,7 @@ struct qb_operand {
 struct qb_array_initializer {
 	qb_operand *elements;
 	uint32_t element_count;
+	uint32_t element_type;
 };
 
 #include "qb_compiler_php.h"

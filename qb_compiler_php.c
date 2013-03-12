@@ -1377,13 +1377,20 @@ static void ZEND_FASTCALL qb_translate_add_element(qb_compiler_context *cxt, voi
 	if(result->type == QB_OPERAND_ARRAY_INITIALIZER) {
 		initializer = result->array_initializer;
 	} else {
-		// get it from the top of the stack
-		qb_operand **stack_items = qb_get_stack_items(cxt, cxt->stack_item_count - 1);
-		initializer = stack_items[0]->array_initializer;
-
-		// set the result to none (instead of popping the initializer off the stack and pushing it back on)
-		result->type = QB_OPERAND_NONE;
+		// pop it from off the stack
+		qb_operand *stack_items = qb_pop_stack_item(cxt, cxt->stack_item_count - 1);
+		initializer = stack_items->array_initializer;
 	}
+
+	if(value->type == QB_OPERAND_PREVIOUS_RESULT) {
+		// looking for the lvalue type--coerce value to the initializer's type
+		if(initializer->element_type == QB_TYPE_ANY) {
+			// don't know what it is yet
+			initializer->element_type = qb_get_lvalue_type(cxt, QB_TYPE_I32);
+		}
+		qb_do_type_coercion(cxt, value, initializer->element_type);
+	}
+
 	if(index->type == QB_OPERAND_NONE) {
 		element_index = initializer->element_count;
 	} else {
@@ -1393,11 +1400,15 @@ static void ZEND_FASTCALL qb_translate_add_element(qb_compiler_context *cxt, voi
 			qb_abort("String key encountered: %s", Z_STRVAL_P(index->constant));
 		}
 	}
+
 	// don't add the item if when we're just looking for the result type
 	if(!cxt->resolving_result_type) {
 		element = qb_expand_array_initializer(cxt, initializer, element_index);
 		*element = *value;
 	}
+
+	result->type = QB_OPERAND_ARRAY_INITIALIZER;
+	result->array_initializer = initializer;
 }
 
 static void ZEND_FASTCALL qb_translate_init_array(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
