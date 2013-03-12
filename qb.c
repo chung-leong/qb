@@ -179,8 +179,13 @@ PHP_RINIT_FUNCTION(qb)
 	uint32_t i;
 	for(i = 0; i < sizeof(QB_G(static_zvals)) / sizeof(zval); i++) {
 		zval *value = &QB_G(static_zvals)[i];
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1		
 		value->refcount__gc = 1;
 		value->is_ref__gc = 0;
+#else
+		value->refcount = 0;
+		value->is_ref = 0;
+#endif
 		value->type = IS_STRING;
 	}
 	QB_G(static_zval_index) = 0;
