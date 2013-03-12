@@ -2207,13 +2207,13 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 		for(i = cxt->argument_count; i < cxt->function->argument_count; i++) {
 			qb_variable *qvar = cxt->function->variables[i];
 			if(qvar->default_value_address) {
-				// copying from the function's own storage, actually
 				uint32_t transfer_flags;
 				if((qvar->flags & QB_VARIABLE_PASSED_BY_REF) || !(qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
 					transfer_flags = 0;
 				} else {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 				}
+				// copying from the function's own storage, actually
 				qb_transfer_value_from_caller_storage(cxt, cxt->storage, qvar->default_value_address, qvar->address, transfer_flags);
 			}
 		}

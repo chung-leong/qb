@@ -32,9 +32,17 @@ function test_function3($a) {
 	debug_print_backtrace();
 }
 
+ini_set("qb.allow_debug_backtrace", true);
+
 qb_compile();
 
 test_function1(1, 2);
 
 ?>
---EXPECT--
+--EXPECTREGEX--
+Test function1 \(1, 2\)
+Test function2 \(3, 4\)
+Test function3 \(\[1, 2, 3, 4\]\)
+#0  test_function3\(Array \(\[0\] => 1,\[1\] => 2,\[2\] => 3,\[3\] => 4\)\) called at \[.*:20\]
+#1  test_function2\(3, 4\) called at \[.*:10\]
+#2  test_function1\(uint32 Object \(\[value\] => 1\), uint32 Object \(\[value\] => 2\)\) called at \[.*:36\]
