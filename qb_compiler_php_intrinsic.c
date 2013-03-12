@@ -695,6 +695,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_defined(qb_compiler_context *cx
 		zval c;
 		char *name_str = Z_STRVAL_P(name->constant);
 		uint32_t name_len = Z_STRLEN_P(name->constant);
+		int32_t constant_exists = FALSE;
 		if(result->type != QB_OPERAND_NONE) {
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 			if(zend_get_constant_ex(name_str, name_len, &c, NULL, ZEND_FETCH_CLASS_SILENT TSRMLS_CC)) {
@@ -702,10 +703,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_defined(qb_compiler_context *cx
 			if(zend_get_constant(name_str, name_len, &c TSRMLS_CC)) {
 #endif
 				zval_dtor(&c);
-				result->address = qb_obtain_constant_S32(cxt, 1);
+				constant_exists = TRUE;
 			} else {
-				result->address = qb_obtain_constant_S32(cxt, 0);
+				zval *special_constant = qb_get_special_constant(cxt, name_str, name_len);
+				if(special_constant) {
+					constant_exists = TRUE;
+				}
 			}
+			result->address = qb_obtain_constant_S32(cxt, constant_exists);
 		}
 	} else {
 		qb_abort("%s() expects a constant string", f->name);

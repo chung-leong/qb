@@ -1039,115 +1039,23 @@ static void ZEND_FASTCALL qb_translate_incdec_post(qb_compiler_context *cxt, voi
 	qb_create_op(cxt, op_factory, NULL, 0, variable);
 }
 
-// zend_quick_get_constant() is not exported, so we need a copy of it here 
-// when the module is compiled as dynamically linked library
-#ifdef COMPILE_DL_QB
+static zval * ZEND_FASTCALL qb_get_special_constant(qb_compiler_context *cxt, const char *name, uint32_t length) {
+	static zval type_constants[QB_TYPE_COUNT];
+	static zval qb_indicator;
 
-#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-static int zend_get_special_constant(const char *name, uint name_len, zend_constant **c TSRMLS_DC)
-{
-	int ret;
-	static char haltoff[] = "__COMPILER_HALT_OFFSET__";
-
-	if (!EG(in_execution)) {
-		return 0;
-	} else if (name_len == sizeof("__CLASS__")-1 &&
-	          !memcmp(name, "__CLASS__", sizeof("__CLASS__")-1)) {
-		zend_constant tmp;
-
-		/* Returned constants may be cached, so they have to be stored */
-		if (EG(scope) && EG(scope)->name) {
-			int const_name_len;
-			char *const_name;
-			ALLOCA_FLAG(use_heap)
-			
-			const_name_len = sizeof("\0__CLASS__") + EG(scope)->name_length;
-			const_name = do_alloca(const_name_len, use_heap);
-			memcpy(const_name, "\0__CLASS__", sizeof("\0__CLASS__")-1);
-			zend_str_tolower_copy(const_name + sizeof("\0__CLASS__")-1, EG(scope)->name, EG(scope)->name_length);
-			if (zend_hash_find(EG(zend_constants), const_name, const_name_len, (void**)c) == FAILURE) {
-				zend_hash_add(EG(zend_constants), const_name, const_name_len, (void*)&tmp, sizeof(zend_constant), (void**)c);
-				memset(*c, 0, sizeof(zend_constant));
-				Z_STRVAL((**c).value) = estrndup(EG(scope)->name, EG(scope)->name_length);
-				Z_STRLEN((**c).value) = EG(scope)->name_length;
-				Z_TYPE((**c).value) = IS_STRING;
-			}
-			free_alloca(const_name, use_heap);
-		} else {
-			if (zend_hash_find(EG(zend_constants), "\0__CLASS__", sizeof("\0__CLASS__"), (void**)c) == FAILURE) {
-				zend_hash_add(EG(zend_constants), "\0__CLASS__", sizeof("\0__CLASS__"), (void*)&tmp, sizeof(zend_constant), (void**)c);
-				memset(*c, 0, sizeof(zend_constant));
-				Z_STRVAL((**c).value) = estrndup("", 0);
-				Z_STRLEN((**c).value) = 0;
-				Z_TYPE((**c).value) = IS_STRING;
-			}
-		}
-		return 1;
-	} else if (name_len == sizeof("__COMPILER_HALT_OFFSET__")-1 &&
-	          !memcmp(name, "__COMPILER_HALT_OFFSET__", sizeof("__COMPILER_HALT_OFFSET__")-1)) {
-		const char *cfilename;
-		char *haltname;
-		int len, clen;
-
-		cfilename = zend_get_executed_filename(TSRMLS_C);
-		clen = strlen(cfilename);
-		/* check for __COMPILER_HALT_OFFSET__ */
-		zend_mangle_property_name(&haltname, &len, haltoff,
-			sizeof("__COMPILER_HALT_OFFSET__") - 1, cfilename, clen, 0);
-		ret = zend_hash_find(EG(zend_constants), haltname, len+1, (void **) c);
-		efree(haltname);
-		return ret == SUCCESS;
+	if(strcmp(name, "__QB__") == 0) {
+		Z_TYPE(qb_indicator) = IS_LONG;
+		Z_LVAL(qb_indicator) = 1;
+		return &qb_indicator;
 	} else {
-		return 0;
-	}
-}
-
-zend_constant *zend_quick_get_constant(const zend_literal *key, ulong flags TSRMLS_DC)
-{
-	zend_constant *c;
-
-	if (zend_hash_quick_find(EG(zend_constants), Z_STRVAL(key->constant), Z_STRLEN(key->constant) + 1, key->hash_value, (void **) &c) == FAILURE) {
-		key++;
-		if (zend_hash_quick_find(EG(zend_constants), Z_STRVAL(key->constant), Z_STRLEN(key->constant) + 1, key->hash_value, (void **) &c) == FAILURE ||
-		    (c->flags & CONST_CS) != 0) {
-			if ((flags & (IS_CONSTANT_IN_NAMESPACE|IS_CONSTANT_UNQUALIFIED)) == (IS_CONSTANT_IN_NAMESPACE|IS_CONSTANT_UNQUALIFIED)) {
-				key++;
-				if (zend_hash_quick_find(EG(zend_constants), Z_STRVAL(key->constant), Z_STRLEN(key->constant) + 1, key->hash_value, (void **) &c) == FAILURE) {
-				    key++;
-					if (zend_hash_quick_find(EG(zend_constants), Z_STRVAL(key->constant), Z_STRLEN(key->constant) + 1, key->hash_value, (void **) &c) == FAILURE ||
-					    (c->flags & CONST_CS) != 0) {
-
-						key--;
-						if (!zend_get_special_constant(Z_STRVAL(key->constant), Z_STRLEN(key->constant), &c TSRMLS_CC)) {
-							return NULL;
-						}
-					}
-				}
-			} else {
-				key--;
-				if (!zend_get_special_constant(Z_STRVAL(key->constant), Z_STRLEN(key->constant), &c TSRMLS_CC)) {
-					return NULL;
-				}
+		uint32_t i;
+		for(i = 0; i < QB_TYPE_COUNT; i++) {
+			const char *type = type_names[i];
+			if(strcmp(name, type) == 0) {
+				Z_TYPE(type_constants[i]) = IS_LONG;
+				Z_LVAL(type_constants[i]) = i;
+				return &type_constants[i];
 			}
-		}
-	}
-	return c;
-}
-#endif
-
-#endif
-
-static zval * ZEND_FASTCALL qb_get_type_constant(qb_compiler_context *cxt, const char *name, uint32_t length) {
-	static zval constants[QB_TYPE_COUNT];
-	zval *constant;
-	uint32_t i;
-	for(i = 0; i < QB_TYPE_COUNT; i++) {
-		const char *type = type_names[i];
-		if(strcmp(name, type) == 0) {
-			constant = &constants[0];
-			constant->type = IS_LONG;
-			constant->value.lval = i;
-			return constant;
 		}
 	}
 	return NULL;
@@ -1175,22 +1083,14 @@ static void ZEND_FASTCALL qb_translate_fetch_constant(qb_compiler_context *cxt, 
 			qb_abort("Undefined class constant '%s'", Z_STRVAL_P(name_value));
 		}
 	} else {
-		zval *value = NULL;
-#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		zend_literal *key = Z_OPERAND_INFO(cxt->zend_op->op2, literal) + 1;
-		zend_constant *zconst = zend_quick_get_constant(key, cxt->zend_op->extended_value TSRMLS_CC);
-		zval *name = &key->constant;
-#else
-		zval *name = Z_OPERAND_ZV(cxt->zend_op->op2);
+		zval *value = NULL, *name = Z_OPERAND_ZV(cxt->zend_op->op2);
+		ulong hash_value = Z_HASH_P(name);
 		zend_constant *zconst;
-		if(zend_hash_find(EG(zend_constants), Z_STRVAL_P(name), Z_STRLEN_P(name) + 1, (void **) &zconst) == FAILURE) {
-			zconst = NULL;
-		}
-#endif
-		if(zconst) {
+		if(zend_hash_quick_find(EG(zend_constants), Z_STRVAL_P(name), Z_STRLEN_P(name) + 1, hash_value, (void **) &zconst) == SUCCESS) {
 			value = &zconst->value;
-		} else {
-			value = qb_get_type_constant(cxt, Z_STRVAL_P(name), Z_STRLEN_P(name));
+		}
+		if(!value) {
+			value = qb_get_special_constant(cxt, Z_STRVAL_P(name), Z_STRLEN_P(name));
 		}
 		if(value) {
 			result->type = QB_OPERAND_ZVAL;
