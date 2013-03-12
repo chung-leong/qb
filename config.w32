@@ -14,7 +14,7 @@ if (PHP_QB != "no") {
 			cflags = "/arch:SSE2";
 		}
 	}
-	EXTENSION("qb", "qb.c qb_compiler.c qb_interpreter.c qb_interpreter_msvc.c qb_native_compiler.c qb_types.c qb_compat.c qb_data_tables.c", null, cflags, "php_qb.dll");
+	EXTENSION("qb", "qb_types.c qb.c qb_compiler.c qb_native_compiler.c qb_interpreter.c qb_interpreter_msvc.c qb_extractor.c qb_data_tables.c qb_compat.c", null, cflags, "php_qb.dll");
 	AC_DEFINE('HAVE_QB', 1, 'Have qb');
 }
 

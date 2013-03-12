@@ -1800,7 +1800,6 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 	USE_TSRM
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
-	zend_vm_stack stack = EG(argument_stack);
 	for(i = 0, j = 0; i < cxt->function->variable_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
@@ -1818,12 +1817,21 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 			if(qvar->flags & QB_VARIABLE_ARGUMENT) {
 				// push argument onto Zend stack
 				Z_ADDREF_P(value);
+
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 				zend_vm_stack_push(value TSRMLS_CC);
+#else
+				zend_ptr_stack_push(&EG(argument_stack), value);
+#endif
 			}
 		}
 	}
 	// push the argument count
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	ex->function_state.arguments = zend_vm_stack_push_args(cxt->function->argument_count TSRMLS_CC);
+#else
+	zend_ptr_stack_2_push(&EG(argument_stack), (void *) (zend_uintptr_t) cxt->function->argument_count, NULL);
+#endif
 }
 
 static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) {
@@ -1853,12 +1861,22 @@ static void ZEND_FASTCALL qb_destroy_shadow_variables(qb_interpreter_context *cx
 	zend_execute_data *ex = EG(current_execute_data);
 
 	// pop the argument count
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	arg_count = (uint32_t) (zend_uintptr_t) zend_vm_stack_pop(TSRMLS_C);
+#else
+	zend_ptr_stack_pop(&EG(argument_stack));
+	arg_count = (uint32_t) (zend_uintptr_t) zend_ptr_stack_pop(&EG(argument_stack));
+#endif
+
 	for(i = 0, j = 0; i < arg_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 
 		// pop argument off Zend stack
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 		zval *argument = zend_vm_stack_pop(TSRMLS_C);
+#else
+		zval *argument = zend_ptr_stack_pop(&EG(argument_stack));
+#endif
 		Z_DELREF_P(argument);
 
 		if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {

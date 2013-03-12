@@ -1631,8 +1631,28 @@ static void ZEND_FASTCALL qb_translate_unset(qb_compiler_context *cxt, void *op_
 		qb_do_array_element_retrieval(cxt, variable, value);
 	} else if(cxt->zend_op->opcode == ZEND_UNSET_OBJ) {
 		qb_do_object_property_retrieval(cxt, variable, value);
+	} else {
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+		if(variable->type == QB_OPERAND_ZVAL) {
+			qb_variable *qvar = qb_find_variable(cxt, NULL, variable->constant, 0);
+			if(qvar) {
+				if(!(qvar->flags & QB_VARIABLE_LOCAL)) {
+					qvar->flags |= QB_VARIABLE_LOCAL;
+					qb_set_variable_type(cxt, qvar);
+				}
+				variable->type = QB_OPERAND_ADDRESS;
+				variable->address = qvar->address;
+			} else {
+				qb_abort("Undefined variable: %s", Z_STRVAL_P(variable->constant));
+			}
+		}
+#endif
 	}
 	qb_create_nullary_op(cxt, op_factory, variable->address); 
+
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	result->type = QB_OPERAND_NONE;
+#endif
 }
 
 static void ZEND_FASTCALL qb_translate_begin_silence(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -1647,70 +1667,62 @@ static void ZEND_FASTCALL qb_translate_end_silence(qb_compiler_context *cxt, voi
 
 #include "qb_compiler_php_intrinsic.c"
 
-static zend_function * ZEND_FASTCALL qb_find_function(qb_compiler_context *cxt, zval *object, zend_class_entry *class, zval *name) {
+static zend_function * ZEND_FASTCALL qb_find_function(qb_compiler_context *cxt, zend_class_entry *ce, zval *name) {
 	USE_TSRM
 
 	// check to see if we've found the function already (this function is called whenever an argument is pushed)
-	if(cxt->previous_object != object || cxt->previous_class != class || cxt->previous_function_name != name) {
+	if(cxt->previous_class != ce || cxt->previous_function_name != name) {
 		char *error = NULL;
-		HashTable ht;
-		int32_t use_array_callable = FALSE;
-		zval *callable = name, *class_name;
-		zval _array_callable, *array_callable = &_array_callable;
+		int error_reporting_before;
 		zend_fcall_info_cache fcc;
+		char *full_name = NULL;
 
-		if(class && !object) {
+		if(ce) {
 			// no good way to get the class entry to zend_is_callable_ex() except by creating an array
+			HashTable ht;
+			zval _callable, *callable = &_callable;
+			zval *class_name;
+
 			zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
+			Z_ARRVAL_P(callable) = &ht;
+			Z_TYPE_P(callable) = IS_ARRAY;
 
-			class_name = qb_string_to_zval(class->name, class->name_length TSRMLS_CC);
-
-			Z_ARRVAL_P(array_callable) = &ht;
-			Z_TYPE_P(array_callable) = IS_ARRAY;
-
+			class_name = qb_string_to_zval(ce->name, ce->name_length TSRMLS_CC);
 			zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
-			zend_hash_next_index_insert(&ht, &callable, sizeof(zval *), NULL);
+			zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
 
-			callable = array_callable;
-			use_array_callable = TRUE;
-		}
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(!zend_is_callable_ex(callable, object, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-			qb_abort("%s", error);
-		}
-		if(error) {
-			efree(error);
-		}
+			if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+				qb_abort("%s", error);
+			}
 #else
-		if(!class && object) {
-			zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
-
-			Z_ARRVAL_P(array_callable) = &ht;
-			Z_TYPE_P(array_callable) = IS_ARRAY;
-
-			zend_hash_next_index_insert(&ht, &object, sizeof(zval *), NULL);
-			zend_hash_next_index_insert(&ht, &callable, sizeof(zval *), NULL);
-
-			callable = array_callable;
-			use_array_callable = TRUE;
-		}
-		{
 			// suppress the non-static function being called as static warning message
-			int error_reporting_before = EG(error_reporting);
+			error_reporting_before = EG(error_reporting);
 			EG(error_reporting) = 0;
-			if(!zend_is_callable_ex(callable, 0, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
 				qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
 			}
 			EG(error_reporting) = error_reporting_before;
-		}
 #endif
-		if(use_array_callable) {
 			zend_hash_destroy(&ht);
+		} else {
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+			if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+				qb_abort("%s", error);
+			}
+#else
+			if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+				qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+			}
+#endif
 		}
-		cxt->previous_object = object;
-		cxt->previous_class = class;
+		
+		cxt->previous_class = ce;
 		cxt->previous_function_name = name;
 		cxt->previous_function = fcc.function_handler;
+		if(error) {
+			efree(error);
+		}
 	}
 	return cxt->previous_function;
 }
@@ -1796,7 +1808,7 @@ static uint32_t ZEND_FASTCALL qb_do_argument_coercion(qb_compiler_context *cxt, 
 				qb_do_type_coercion(cxt, argument, QB_TYPE_ANY);
 			}
 		} else {
-			zend_function *zfunc = qb_find_function(cxt, object, class, function_name);
+			zend_function *zfunc = qb_find_function(cxt, class, function_name);
 			if(zfunc) {
 				qb_function *qfunc = qb_get_compiled_function(cxt, zfunc);
 				if(qfunc) {
@@ -1862,6 +1874,10 @@ static void ZEND_FASTCALL qb_translate_init_method_call(qb_compiler_context *cxt
 	} else {
 		qb_abort("No support for object method invocation");
 	}
+
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	result->type = QB_OPERAND_NONE;
+#endif
 }
 
 static void ZEND_FASTCALL qb_translate_function_call_init(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -1927,12 +1943,10 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 		uint32_t result_type, result_size;
 
 		// no intrinsic function found--look for the function
-		if(object->type == QB_OPERAND_ZVAL) {
-			zfunc = qb_find_function(cxt, object->constant, NULL, name->constant);
-		} else if(object->type == QB_OPERAND_ZEND_CLASS) {
-			zfunc = qb_find_function(cxt, NULL, object->zend_class, name->constant);
+		if(object->type == QB_OPERAND_ZEND_CLASS) {
+			zfunc = qb_find_function(cxt, object->zend_class, name->constant);
 		} else {
-			zfunc = qb_find_function(cxt, NULL, NULL, name->constant);
+			zfunc = qb_find_function(cxt, NULL, name->constant);
 		}
 		cxt->zend_function_being_called = zfunc;
 
@@ -2277,6 +2291,9 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 				*stack_item = result;
 
 				if(result.type == QB_OPERAND_ADDRESS) {
+					if(result.address == NULL) {
+						qb_abort("Result is missing");
+					}
 					qb_lock_address(cxt, result.address);
 				}
 			}

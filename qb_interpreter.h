@@ -115,14 +115,6 @@ extern void *op_handlers[];
 	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, (char *) n, len, TRUE TSRMLS_CC)
 #endif
 
-#ifndef Z_REFCOUNT_P
-	#define Z_REFCOUNT_P(zv)		zv->refcount
-#endif
-
-#ifndef Z_ADDREF_P
-	#define Z_ADDREF_P(zv)			zv->refcount++
-#endif
-
 void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number);
 void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt);
 void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index);

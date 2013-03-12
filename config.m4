@@ -26,7 +26,7 @@ if test "$PHP_QB" != "no"; then
     fi
   fi
 
-  extra_sources="qb_compiler.c qb_interpreter.c qb_interpreter_gcc.c qb_native_compiler.c qb_types.c qb_data_tables.c"
+  extra_sources="qb_types.c qb_compiler.c qb_native_compiler.c qb_interpreter.c qb_interpreter_gcc.c qb_extractor.c qb_data_tables.c qb_compat.c"
 
   PHP_NEW_EXTENSION(qb, qb.c $extra_sources, $ext_shared, , "$sse_flags $avx_flags")
 fi

@@ -182,7 +182,7 @@ PHP_RINIT_FUNCTION(qb)
 		value->refcount__gc = 1;
 		value->is_ref__gc = 0;
 #else
-		value->refcount = 0;
+		value->refcount = 1;
 		value->is_ref = 0;
 #endif
 		value->type = IS_STRING;

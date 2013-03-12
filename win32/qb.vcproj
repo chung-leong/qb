@@ -259,10 +259,10 @@
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile="..\Debug_TS/qb.pch"
-				AssemblerListingLocation="..\Debug_TS/"
-				ObjectFile="..\Debug_TS/"
-				ProgramDataBaseFileName="..\Debug_TS/"
+				PrecompiledHeaderFile="..\Debug_TS_VC6/qb.pch"
+				AssemblerListingLocation="..\Debug_TS_VC6/"
+				ObjectFile="..\Debug_TS_VC6/"
+				ProgramDataBaseFileName="..\Debug_TS_VC6/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -281,16 +281,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="php5ts.lib odbc32.lib odbccp32.lib"
-				OutputFile="..\..\..\Debug_TS/php_qb.dll"
+				OutputFile="..\..\..\Debug_TS_VC6/php_qb.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\Debug_TS"
+				AdditionalLibraryDirectories="..\..\..\Debug_TS_VC6"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\Debug_TS/php_qb.pdb"
+				ProgramDatabaseFile="..\Debug_TS_VC6/php_qb.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="..\Debug_TS/php_qb.lib"
+				ImportLibrary="..\Debug_TS_VC6/php_qb.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -305,7 +305,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="..\Debug_TS/qb.bsc"
+				OutputFile="..\Debug_TS_VC6/qb.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -691,6 +691,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug_TS_VC6|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -710,7 +711,6 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS_VC6|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -718,7 +718,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS_VC6|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

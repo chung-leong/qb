@@ -2,7 +2,7 @@
 Anonymous function test
 --SKIPIF--
 <?php 
-	if(version_compare(PHP_VERSION, '5.3.0') < 0) print 'closure not available';
+	if(version_compare(PHP_VERSION, '5.3.0') < 0) print 'skip closure not available';
 ?>
 --FILE--
 <?php
