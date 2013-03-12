@@ -151,6 +151,7 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	char *compiler_path;
 	char *compiler_env_path;
 	char *native_code_cache_path;
+	char *execution_log_path;
 
 	qb_build_context *build_context;
 	qb_interpreter_context *interpreter_context;
