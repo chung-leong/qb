@@ -1684,7 +1684,9 @@ static zend_function * ZEND_FASTCALL qb_find_function(qb_compiler_context *cxt, 
 	// check to see if we've found the function already (this function is called whenever an argument is pushed)
 	if(cxt->previous_class != ce || cxt->previous_function_name != name) {
 		char *error = NULL;
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 		int error_reporting_before;
+#endif
 		zend_fcall_info_cache fcc;
 		char *full_name = NULL;
 
@@ -2114,8 +2116,8 @@ static qb_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_bitwise_not		},	// ZEND_BW_NOT
 	{	qb_translate_basic_op,				&factory_logical_not		},	// ZEND_BOOL_NOT
 	{	qb_translate_basic_op,				&factory_logical_xor		},	// ZEND_BOOL_XOR
-	{	qb_translate_basic_op,				&factory_equal				},	// ZEND_IS_IDENTICAL
-	{	qb_translate_basic_op,				&factory_not_equal			},	// ZEND_IS_NOT_IDENTICAL
+	{	NULL,								NULL						},	// ZEND_IS_IDENTICAL
+	{	NULL,								NULL						},	// ZEND_IS_NOT_IDENTICAL
 	{	qb_translate_basic_op,				&factory_equal				},	// ZEND_IS_EQUAL
 	{	qb_translate_basic_op,				&factory_not_equal			},	// ZEND_IS_NOT_EQUAL
 	{	qb_translate_basic_op,				&factory_less_than			},	// ZEND_IS_SMALLER
