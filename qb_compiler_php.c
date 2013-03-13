@@ -444,7 +444,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_
 
 		for(start_index = 0; start_index < len; start_index = offsets[1]) {
 			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
-			if(matches != -1) {
+			if(matches > 0) {
 				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
 				const char *data = s + data_offset;
 				qb_type_declaration *decl;
@@ -510,7 +510,7 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 	if(s) {
 		for(start_index = 0; start_index < len; start_index = offsets[1]) {
 			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
-			if(matches != -1) {
+			if(matches > 0) {
 				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
 				const char *data = s + data_offset;
 				qb_type_declaration *decl;
@@ -541,37 +541,41 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 		int offsets[48], matches;
 		uint32_t start_index = 0;
 
-		for(start_index = 0; start_index < len; start_index = offsets[1]) {
-			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
-			if(matches != -1) {
-				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA);
-				const char *data = s + data_offset;
-				qb_type_declaration *decl;
+		if(s) {
+			for(start_index = 0; start_index < len; start_index = offsets[1]) {
+				matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
+				if(matches > 0) {
+					uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA);
+					const char *data = s + data_offset;
+					qb_type_declaration *decl;
 
-				if(FOUND_GROUP(FUNC_DECL_VAR)) {
-					decl = qb_parse_type_declaration(pool, data, data_len, 0);
-					if(decl) {
-						if(prop->flags & (ZEND_ACC_PRIVATE | ZEND_ACC_PROTECTED)) {
-							decl->name = prop->name + ce->name_length + 2;
-							decl->name_length = prop->name_length - (ce->name_length + 2);
-							decl->hash_value = zend_inline_hash_func(decl->name, decl->name_length + 1);
+					if(FOUND_GROUP(FUNC_DECL_VAR)) {
+						decl = qb_parse_type_declaration(pool, data, data_len, 0);
+						if(decl) {
+							if(prop->flags & (ZEND_ACC_PRIVATE | ZEND_ACC_PROTECTED)) {
+								decl->name = prop->name + ce->name_length + 2;
+								decl->name_length = prop->name_length - (ce->name_length + 2);
+								decl->hash_value = zend_inline_hash_func(decl->name, decl->name_length + 1);
+							} else {
+								decl->name = prop->name;
+								decl->name_length = prop->name_length;
+								decl->hash_value = prop->h;
+							}
+							if(prop->flags & ZEND_ACC_STATIC) {
+								decl->flags |= QB_VARIABLE_CLASS;
+							} else {
+								decl->flags |= QB_VARIABLE_CLASS_INSTANCE;
+							}
+							qb_add_class_variable_declaration(class_decl, decl);
+
 						} else {
-							decl->name = prop->name;
-							decl->name_length = prop->name_length;
-							decl->hash_value = prop->h;
+							qb_abort_doc_comment_syntax_error(s, len, data_offset, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
 						}
-						if(prop->flags & ZEND_ACC_STATIC) {
-							decl->flags |= QB_VARIABLE_CLASS;
-						} else {
-							decl->flags |= QB_VARIABLE_CLASS_INSTANCE;
-						}
-						qb_add_class_variable_declaration(class_decl, decl);
-	
 					} else {
-						qb_abort_doc_comment_syntax_error(s, len, data_offset, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
+						qb_abort_doc_comment_unexpected_error(s, len, matches, offsets, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
 					}
 				} else {
-					qb_abort_doc_comment_unexpected_error(s, len, matches, offsets, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
+					break;
 				}
 			}
 		}
@@ -1083,8 +1087,15 @@ static void ZEND_FASTCALL qb_translate_fetch_constant(qb_compiler_context *cxt, 
 			qb_abort("Undefined class constant '%s'", Z_STRVAL_P(name_value));
 		}
 	} else {
-		zval *value = NULL, *name = Z_OPERAND_ZV(cxt->zend_op->op2);
-		ulong hash_value = Z_HASH_P(name);
+		zval *value = NULL;
+#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		zend_literal *key = Z_OPERAND_INFO(cxt->zend_op->op2, literal) + 1;
+		zval *name = &key->constant;
+		ulong hash_value = key->hash_value;
+#else
+		zval *name = Z_OPERAND_ZV(cxt->zend_op->op2);
+		ulong hash_value = zend_inline_hash_func(Z_STRVAL_P(name), Z_STRLEN_P(name) + 1);
+#endif
 		zend_constant *zconst;
 		if(zend_hash_quick_find(EG(zend_constants), Z_STRVAL_P(name), Z_STRLEN_P(name) + 1, hash_value, (void **) &zconst) == SUCCESS) {
 			value = &zconst->value;
