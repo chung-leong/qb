@@ -32,8 +32,8 @@ $output_png = ob_get_clean();
 /**
  * @engine qb
  *
- * @param image	$img2;
- * @param image	$img1;
+ * @param image3	$img2;
+ * @param image3	$img1;
  * @return float32
  */
 function image_diff($img1, $img2) {
@@ -63,7 +63,7 @@ if(file_exists($correct_path)) {
 			unlink($incorrect_path);
 		}
 	} else {
-		echo "INCORRECT\n";
+		echo "INCORRECT ($diff)\n";
 		file_put_contents($incorrect_path, $output_png);
 	}
 } else {
