@@ -181,8 +181,8 @@ static zval * ZEND_FASTCALL qb_add_pbj_value(zval *array, const char *name, qb_p
 	}
 }
 
-ZEND_ATTRIBUTE_FORMAT(printf, 1, 3)
-static ZEND_FASTCALL qb_append_string(zval *string, const char *format, ...) {
+ZEND_ATTRIBUTE_FORMAT(printf, 2, 3)
+static void ZEND_FASTCALL qb_append_string(zval *string, const char *format, ...) {
 	uint32_t current_len = Z_STRLEN_P(string), len;
 	char *addition;
 	va_list args;
