@@ -1378,7 +1378,7 @@ static void ZEND_FASTCALL qb_translate_add_element(qb_compiler_context *cxt, voi
 		initializer = result->array_initializer;
 	} else {
 		// pop it from off the stack
-		qb_operand *stack_items = qb_pop_stack_item(cxt, cxt->stack_item_count - 1);
+		qb_operand *stack_items = qb_pop_stack_item(cxt);
 		initializer = stack_items->array_initializer;
 	}
 

@@ -838,6 +838,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"expm1",				NULL,		NULL,										1,		1,		&factory_expm1				},
 	{	0,	"sqrt",					NULL,		NULL,										1,		1,		&factory_sqrt				},
 	{	0,	"pow",					NULL,		NULL,										2,		2,		&factory_pow				},
+	{	0,	"fmod",					NULL,		NULL,										2,		2,		&factory_modulo				},
+	{	0,	"mod",					NULL,		NULL,										2,		2,		&factory_floor_modulo		},
 	{	0,	"lcg_value",			NULL,		NULL,										0,		0,		&factory_lcg				},
 	{	0,	"is_finite",			NULL,		NULL,										1,		1,		&factory_is_finite			},
 	{	0,	"is_infinite",			NULL,		NULL,										1,		1,		&factory_is_infinite		},

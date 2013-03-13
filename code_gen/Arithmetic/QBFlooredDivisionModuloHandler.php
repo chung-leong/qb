@@ -1,7 +1,5 @@
 <?php
 
-// only used by Pixel Pender code
-
 class QBFlooredDivisionModuloHandler extends QBHandler {
 
 	protected function getScalarExpression() {
