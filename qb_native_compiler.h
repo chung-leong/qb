@@ -68,6 +68,7 @@ struct qb_native_compiler_context {
 	char *obj_file_path;
 	char *c_file_path;
 	uint64_t file_id;
+	uint32_t qb_version;
 
 #ifdef _MSC_VER
 	HANDLE msc_thread;

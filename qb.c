@@ -348,10 +348,10 @@ PHP_FUNCTION(qb_execute)
 		duration = end_time - start_time;
 		if(duration > 0) {
 			qb_function *qfunc = zfunc->op_array.reserved[0];
-			FILE *log_file = fopen(QB_G(execution_log_path), "a");
-			if(log_file) {
-				fprintf(log_file, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
-				fclose(log_file);
+			php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
+			if(stream) {
+				php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
+				php_stream_close(stream);
 			}
 		}
 	}

@@ -57,7 +57,7 @@ function calc($h, $w) {
             $byte_acc += $bit_num;
          } while (FALSE);
 
-         if ($bit_num === 1) {
+         if ($bit_num == 1) {
             echo $byte_acc;
             $bit_num = 128;
             $byte_acc = 0;
@@ -65,7 +65,7 @@ function calc($h, $w) {
             $bit_num >>= 1;
          }
       }
-      if ($bit_num !== 128) {
+      if ($bit_num != 128) {
          echo $byte_acc;
          $bit_num = 128;
          $byte_acc = 0;

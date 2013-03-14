@@ -6,12 +6,12 @@ ARG_ENABLE("qb", "qb support", "no");
 ARG_WITH("sse", "Use SSE instructions on x86 processors", "no");
 
 if (PHP_QB != "no") {
-	var cflags = null;
+	var cflags = "/GS-";
 	if (PHP_SSE != "no") {
 		if(PHP_SSE == "1") {
-			cflags = "/arch:SSE";
+			cflags += " /arch:SSE";
 		} else {
-			cflags = "/arch:SSE2";
+			cflags += " /arch:SSE2";
 		}
 	}
 	EXTENSION("qb", "qb_types.c qb.c qb_compiler.c qb_native_compiler.c qb_interpreter.c qb_interpreter_msvc.c qb_extractor.c qb_data_tables.c qb_compat.c", null, cflags, "php_qb.dll");

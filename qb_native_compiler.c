@@ -22,6 +22,9 @@
 
 #if NATIVE_COMPILE_ENABLED
 
+#undef QB_VERSION_SIGNATURE
+#define QB_VERSION_SIGNATURE	0x00010000
+
 #ifdef __GNUC__
 	#include <sys/types.h>
 	#include <sys/mman.h>
@@ -258,9 +261,6 @@ static int32_t ZEND_FASTCALL qb_launch_cl(qb_native_compiler_context *cxt) {
 	}
 	CloseHandle(pipe_error_write);
 	efree(command_line);
-
-	// delete the object file
-	DeleteFile(cxt->obj_file_path);
 
 	if(path_before) {
 		// restore PATH
@@ -1254,6 +1254,10 @@ static void ZEND_FASTCALL qb_print_function(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "}\n");
 }
 
+static void ZEND_FASTCALL qb_print_version(qb_native_compiler_context *cxt) {
+	qb_printf(cxt, "\nextern uint32_t QB_VERSION = 0x%08x;\n\n", QB_VERSION_SIGNATURE);
+}
+
 static void ZEND_FASTCALL qb_print_functions(qb_native_compiler_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
@@ -1415,7 +1419,7 @@ static int32_t ZEND_FASTCALL qb_load_object_file(qb_native_compiler_context *cxt
 	USE_TSRM
 	HANDLE file = NULL, mapping = NULL;
 
-	file = CreateFileA(cxt->obj_file_path, GENERIC_READ | GENERIC_EXECUTE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, 0);
+	file = CreateFile(cxt->obj_file_path, GENERIC_READ | GENERIC_EXECUTE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, 0);
 	if(file != INVALID_HANDLE_VALUE) {
 		mapping = CreateFileMapping(file, NULL, PAGE_EXECUTE_WRITECOPY, 0, 0, NULL);
 		if(mapping != INVALID_HANDLE_VALUE) {
@@ -1427,6 +1431,15 @@ static int32_t ZEND_FASTCALL qb_load_object_file(qb_native_compiler_context *cxt
 	CloseHandle(mapping);
 	CloseHandle(file);		
 	return (cxt->binary != NULL);
+}
+
+static void ZEND_FASTCALL qb_remove_object_file(qb_native_compiler_context *cxt) {
+	if(cxt->binary) {
+		UnmapViewOfFile(cxt->binary);
+		cxt->binary = NULL;
+		cxt->binary_size = 0;
+	}
+	DeleteFile(cxt->obj_file_path);
 }
 #endif
 
@@ -1443,8 +1456,17 @@ static uint32_t ZEND_FASTCALL qb_attach_symbol(qb_native_compiler_context *cxt, 
 				count++;
 			}
 		}
-	}
+	} 
 	return count;
+}
+
+static void ZEND_FASTCALL qb_detach_symbols(qb_native_compiler_context *cxt) {
+	uint32_t i;
+	for(i = 0; i < cxt->compiler_context_count; i++) {
+		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
+		compiler_cxt->native_proc = NULL;
+	}
+	cxt->qb_version = 0;
 }
 
 #ifdef __ELF__
@@ -1964,11 +1986,18 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 	// find the compiled functions
 	for(i = 0; i < header->NumberOfSymbols; i++) {
 		IMAGE_SYMBOL *symbol = &symbols[i];
-		if(ISFCN(symbol->Type) && symbol->SectionNumber != IMAGE_SYM_UNDEFINED) {
+		if(symbol->SectionNumber > 0) {
 			IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
 			char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : (string_section + symbol->N.Name.Long);
 			void *symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
-			count += qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+			if(ISFCN(symbol->Type)) {
+				count += qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+			} else if(symbol->StorageClass == IMAGE_SYM_CLASS_EXTERNAL) {
+				if(strncmp(symbol_name + 1, "QB_VERSION", 10) == 0) {
+					uint32_t *p_version = symbol_address;
+					cxt->qb_version = *p_version;
+				}
+			}
 		}
 	}
 	return (count > 0);
@@ -2188,6 +2217,8 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 #if ZEND_DEBUG
 	qb_print(cxt, "#endif\n");
 #endif
+			// print the current QB version
+			qb_print_version(cxt);
 
 			// print code of the qb functions themselves
 			qb_print_functions(cxt);
@@ -2206,16 +2237,23 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 		if(qb_load_object_file(cxt)) {
 			// parse the object file and find pointers to the compiled functions
 			if(qb_parse_object_file(cxt)) {
-				qb_native_code_bundle *bundle;
-				if(!QB_G(native_code_bundles)) {
-					qb_create_array((void **) &QB_G(native_code_bundles), &QB_G(native_code_bundle_count), sizeof(qb_native_code_bundle), 8);
+				if(cxt->qb_version == QB_VERSION_SIGNATURE) {
+					qb_native_code_bundle *bundle;
+					if(!QB_G(native_code_bundles)) {
+						qb_create_array((void **) &QB_G(native_code_bundles), &QB_G(native_code_bundle_count), sizeof(qb_native_code_bundle), 8);
+					}
+					bundle = qb_enlarge_array((void **) &QB_G(native_code_bundles), 1);
+					bundle->memory = cxt->binary;
+					bundle->size = cxt->binary_size;
+					cxt->binary = NULL;
+					result = SUCCESS;
+					break;
+				} else {
+					qb_detach_symbols(cxt);
 				}
-				bundle = qb_enlarge_array((void **) &QB_G(native_code_bundles), 1);
-				bundle->memory = cxt->binary;
-				bundle->size = cxt->binary_size;
-				cxt->binary = NULL;
-				result = SUCCESS;
-				break;
+			}
+			if(result != SUCCESS) {
+				qb_remove_object_file(cxt);
 			}
 		}
 	} 
