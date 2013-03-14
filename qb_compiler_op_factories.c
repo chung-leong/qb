@@ -1876,16 +1876,139 @@ static qb_basic_op_factory factory_subarray_pos = {
 	{	QB_APOS_F64_F64_I32_I32,	QB_APOS_F32_F32_I32_I32,	QB_APOS_I64_I64_I32_I32,	QB_APOS_I64_I64_I32_I32,	QB_APOS_I32_I32_I32_I32,	QB_APOS_I32_I32_I32_I32,	QB_APOS_I16_I16_I32_I32,	QB_APOS_I16_I16_I32_I32,	QB_APOS_I08_I08_I32_I32,	QB_APOS_I08_I08_I32_I32	},
 };
 
-static qb_basic_op_factory factory_subarray_rpos	= {
+static qb_basic_op_factory factory_subarray_rpos = {
 	qb_append_ternary_op,
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_I32,
 	{	QB_ARPOS_F64_F64_I32_I32,	QB_ARPOS_F32_F32_I32_I32,	QB_ARPOS_I64_I64_I32_I32,	QB_ARPOS_I64_I64_I32_I32,	QB_ARPOS_I32_I32_I32_I32,	QB_ARPOS_I32_I32_I32_I32,	QB_ARPOS_I16_I16_I32_I32,	QB_ARPOS_I16_I16_I32_I32,	QB_ARPOS_I08_I08_I32_I32,	QB_ARPOS_I08_I08_I32_I32	},
 };
 
-static qb_basic_op_factory factory_array_reverse	= {
+static qb_basic_op_factory factory_array_reverse = {
 	qb_append_ternary_op,
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_AREV_F64_U32_U32_F64,	QB_AREV_F32_U32_U32_F32,	QB_AREV_I64_U32_U32_I64,	QB_AREV_I64_U32_U32_I64,	QB_AREV_I32_U32_U32_I32,	QB_AREV_I32_U32_U32_I32,	QB_AREV_I16_U32_U32_I16,	QB_AREV_I16_U32_U32_I16,	QB_AREV_I08_U32_U32_I08,	QB_AREV_I08_U32_U32_I08		},
 };
+
+static qb_op * ZEND_FASTCALL qb_append_complex_number_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_op *qop;
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_address *address = operands[i].address;
+		if(address->dimension_count > 1) {
+			opcode = opcode + 1;
+			break;
+		}
+	}
+	qop = qb_append_op(cxt, opcode, operand_count + 1);
+	for(i = 0; i < operand_count; i++) {
+		qb_address *address = operands[i].address;
+		qop->operands[i].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[i].address = address;
+	}
+	qop->operands[operand_count] = *result;
+	return qop;
+}
+
+static qb_float_op_factory factory_complex_abs = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VECTOR_COUNT | QB_TYPE_OPERAND,
+	{	QB_XABS_F64_F64,	QB_XABS_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_arg = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VECTOR_COUNT | QB_TYPE_OPERAND,
+	{	QB_XARG_F64_F64,	QB_XARG_F32_F32	},
+};
+
+
+static qb_float_op_factory factory_complex_multiply = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XMUL_F64_F64_F64,	QB_XMUL_F32_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_divide = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XDIV_F64_F64_F64,	QB_XDIV_F32_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_exp = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XEXP_F64_F64,	QB_XEXP_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_log = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XLOG_F64_F64,	QB_XLOG_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_sqrt = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XSQRT_F64_F64,	QB_XSQRT_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_pow = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XPOW_F64_F64_F64,	QB_XPOW_F32_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_sin = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XSIN_F64_F64,	QB_XSIN_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_cos = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XCOS_F64_F64,	QB_XCOS_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_tan = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XTAN_F64_F64,	QB_XTAN_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_sinh = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XSINH_F64_F64,	QB_XSINH_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_cosh = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XCOSH_F64_F64,	QB_XCOSH_F32_F32	},
+};
+
+static qb_float_op_factory factory_complex_tanh = {
+	qb_append_complex_number_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_XTANH_F64_F64,	QB_XTANH_F32_F32	},
+};
+

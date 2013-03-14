@@ -209,6 +209,26 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_complex(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
+	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count);
+	uint32_t i;
+	for(i = 0; i < argument_count; i++) {
+		qb_address *address = arguments[i].address;
+		uint32_t vector_width = qb_get_vector_width(cxt, address);
+
+		if((address->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address))) {
+			qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
+		}
+		if(vector_width != 2) {
+			qb_abort("%s() expects complex numbers expressed at two-dimensional arrays", f->name);
+		}
+	}
+	if(result->type != QB_OPERAND_NONE) {
+		result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+		qb_create_op(cxt, f->extra, arguments, argument_count, result);
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	int32_t recursive = 0;
 	qb_address *address = arguments[0].address;
@@ -888,6 +908,20 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_splice",			NULL,		qb_translate_intrinsic_array_splice,		2,		4,		NULL						},
 	{	0,	"utf8_decode",			NULL,		qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			NULL,		qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
+	{	0,	"xabs",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_abs		},
+	{	0,	"xarg",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_arg		},
+	{	0,	"xmult",				NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_multiply	},
+	{	0,	"xdiv",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_divide		},
+	{	0,	"xexp",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_exp		},
+	{	0,	"xlog",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_log		},
+	{	0,	"xsqrt",				NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_sqrt		},
+	{	0,	"xpow",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_pow		},
+	{	0,	"xsin",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_sin		},
+	{	0,	"xcos",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_cos		},
+	{	0,	"xtan",					NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_tan		},
+	{	0,	"xsinh",				NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_sinh		},
+	{	0,	"xcosh",				NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_cosh		},
+	{	0,	"xtanh",				NULL,		qb_translate_intrinsic_complex,				1,		1,		&factory_complex_tanh		},
 };
 
 static qb_intrinsic_function * ZEND_FASTCALL qb_find_intrinsic_function(qb_compiler_context *cxt, zval *callable) {

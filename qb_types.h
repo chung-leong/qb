@@ -24,6 +24,9 @@
 typedef float  float32_t;
 typedef double float64_t;
 
+typedef struct qb_complex_F64			qb_complex_F64;
+typedef struct qb_complex_F32			qb_complex_F32;
+
 typedef struct qb_address				qb_address;
 typedef struct qb_variable				qb_variable;
 typedef struct qb_function				qb_function;
@@ -394,6 +397,20 @@ static zend_always_inline int32_t qb_quick_round(double f) {
 	n = ((long *) &f)[FP_MANTISSA_INDEX];
 	return n >> 16;
 }
+
+#pragma pack(push,1)
+
+struct qb_complex_F32 {
+	float32_t r;
+	float32_t i;
+};
+
+struct qb_complex_F64 {
+	float64_t r;
+	float64_t i;
+};
+
+#pragma pack(pop)
 
 int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent);
 
