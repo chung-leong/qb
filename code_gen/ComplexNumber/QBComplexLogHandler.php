@@ -7,8 +7,9 @@ class QBComplexLogHandler extends QBComplexNumberHandler {
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_log_F64(qb_complex_F64 *z, qb_complex_F64 *res) {",
 					"float64_t w = sqrt(z->r * z->r + z->i * z->i);",
-					"res->r = log(w);",
-					"res->i = atan2(z->r, z->i);",
+					"float64_t r = log(w);",
+					"float64_t i = atan2(z->i, z->r);",
+					"res->r = r; res->i = i;",
 				"}",
 			),
 			array(

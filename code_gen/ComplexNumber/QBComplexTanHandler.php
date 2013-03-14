@@ -7,8 +7,9 @@ class QBComplexTanHandler extends QBComplexNumberHandler {
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_tan_F64(qb_complex_F64 *z, qb_complex_F64 *res) {",
 					"float64_t w = 1 / (cos(2.0 * z->r) + cosh(2.0 * z->i));",
-					"res->r = w * sin(2.0 * z->r);",
-					"res->i = w * sinh(2.0 * z->i);",
+					"float64_t r = w * sin(2.0 * z->r);",
+					"float64_t i = w * sinh(2.0 * z->i);",
+					"res->r = r; res->i = i;",
 				"}",
 			),
 			array(

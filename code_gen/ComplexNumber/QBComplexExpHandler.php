@@ -7,8 +7,9 @@ class QBComplexExpHandler extends QBComplexNumberHandler {
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_exp_F64(qb_complex_F64 *z, qb_complex_F64 *res) {",
 					"float64_t w = exp(z->r);",
-					"res->r = w * cos(z->i);",
-					"res->i = w * sin(z->i);",
+					"float64_t r = w * cos(z->i);",
+					"float64_t i = w * sin(z->i);",
+					"res->r = r; res->i = i;",
 				"}",
 			),
 			array(

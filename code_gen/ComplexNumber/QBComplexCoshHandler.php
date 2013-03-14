@@ -6,8 +6,9 @@ class QBComplexCoshHandler extends QBComplexNumberHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_cosh_F64(qb_complex_F64 *z, qb_complex_F64 *res) {",
-					"res->r = cosh(z->r) * cos(z->i);",
-					"res->i = sinh(z->r) * sin(z->i);",
+					"float64_t r = cosh(z->r) * cos(z->i);",
+					"float64_t i = sinh(z->r) * sin(z->i);",
+					"res->r = r; res->i = i;",
 				"}",
 			),
 			array(

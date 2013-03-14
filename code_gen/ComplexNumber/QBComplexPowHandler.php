@@ -6,7 +6,7 @@ class QBComplexPowHandler extends QBComplexNumberHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_pow_F64(qb_complex_F64 *b, qb_complex_F64 *e, qb_complex_F64 *res) {",
-					"float64_t u = atan2(b->r, b->i);",
+					"float64_t u = atan2(b->i, b->r);",
 					"float64_t v = b->r * b->r + b->i * b->i;",
 					"float64_t w = 1.0;",
 					"float64_t x = pow(v, 0.5 * e->r);",		
@@ -16,8 +16,8 @@ class QBComplexPowHandler extends QBComplexNumberHandler {
 						"z = 0.5 * e->i * log(v);",
 						"w = exp(-e->i * u);",
 					"}",
-					"res->r = w * cos(y + z);",
-					"res->i = w * sin(y + z);",
+					"res->r = x * w * cos(y + z);",
+					"res->i = x * w * sin(y + z);",
 				"}",
 			),
 			array(

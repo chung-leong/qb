@@ -6,8 +6,9 @@ class QBComplexSinhHandler extends QBComplexNumberHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_sinh_F64(qb_complex_F64 *z, qb_complex_F64 *res) {",
-					"res->r = sinh(z->r) * cos(z->i);",
-					"res->i = cosh(z->r) * sin(z->i);",
+					"float64_t r = sinh(z->r) * cos(z->i);",
+					"float64_t i = cosh(z->r) * sin(z->i);",
+					"res->r = r; res->i = i;",
 				"}",
 			),
 			array(

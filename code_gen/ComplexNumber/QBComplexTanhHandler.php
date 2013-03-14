@@ -7,8 +7,9 @@ class QBComplexTanhHandler extends QBComplexNumberHandler {
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_tanh_F64(qb_complex_F64 *z, qb_complex_F64 *res) {",
 					"float64_t w = 1 / (cosh(2.0 * z->r) + cos(2.0 * z->i));",
-					"res->r = w * sin(2.0 * z->r);",
-					"res->i = w * sinh(2.0 * z->i);",
+					"float64_t r = w * sinh(2.0 * z->r);",
+					"float64_t i = w * sin(2.0 * z->i);",
+					"res->r = r; res->i = i;",
 				"}",
 			),
 			array(
@@ -25,7 +26,7 @@ class QBComplexTanhHandler extends QBComplexNumberHandler {
 	
 	protected function getComplexNumberExpression() {
 		$type = $this->getOperandType(1);
-		return "qb_calculate_complex_tan_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) res_ptr);";
+		return "qb_calculate_complex_tanh_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) res_ptr);";
 	}
 }
 
