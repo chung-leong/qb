@@ -1586,11 +1586,18 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 	uint32_t count = 0;
 	for(i = 0; i < symbol_count; i++) {
 		Elf64_Sym *symbol = &symbols[i];
-		int symbol_type = ELF64_ST_TYPE(symbol->st_info);
-		if(symbol_type == STT_FUNC) {
+		if(symbol->st_shndx < symbol_count) {
+			int symbol_type = ELF64_ST_TYPE(symbol->st_info);
 			char *symbol_name = string_section + symbol->st_name;
-			char *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
-			count += qb_attach_symbol(cxt, symbol_name, symbol_address);
+			void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
+			if(symbol_type == STT_FUNC) {
+				count += qb_attach_symbol(cxt, symbol_name, symbol_address);
+			} else if(symbol_type == STT_OBJECT) {
+				if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
+					uint32_t *p_version = symbol_address;
+					cxt->qb_version = *p_version;
+				}
+			}
 		}
 	}
 	return (count > 0);
@@ -1695,11 +1702,18 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 	uint32_t count = 0;
 	for(i = 0; i < symbol_count; i++) {
 		Elf32_Sym *symbol = &symbols[i];
-		int symbol_type = ELF32_ST_TYPE(symbol->st_info);
-		if(symbol_type == STT_FUNC) {
+		if(symbol->st_shndx < symbol_count) {
+			int symbol_type = ELF32_ST_TYPE(symbol->st_info);
 			char *symbol_name = string_section + symbol->st_name;
 			void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
-			count += qb_attach_symbol(cxt, symbol_name, symbol_address);
+			if(symbol_type == STT_FUNC) {
+				count += qb_attach_symbol(cxt, symbol_name, symbol_address);
+			} else if(symbol_type == STT_OBJECT) {
+				if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
+					uint32_t *p_version = symbol_address;
+					cxt->qb_version = *p_version;
+				}
+			}
 		}
 	}
 	return (count > 0);
