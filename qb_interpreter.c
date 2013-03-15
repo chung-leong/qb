@@ -1877,8 +1877,6 @@ static void ZEND_FASTCALL qb_destroy_shadow_variables(qb_interpreter_context *cx
 #else
 		zval *argument = zend_ptr_stack_pop(&EG(argument_stack));
 #endif
-		Z_DELREF_P(argument);
-
 		if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
 			zval **var;
 			Z_ADDREF_P(argument);
@@ -1891,6 +1889,7 @@ static void ZEND_FASTCALL qb_destroy_shadow_variables(qb_interpreter_context *cx
 			ex->CVs[j] = var;
 #endif
 		}
+		zval_ptr_dtor(&argument);
 		j++;
 	}
 }
