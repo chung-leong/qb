@@ -9,7 +9,7 @@ class QBComplexSquareRootHandler extends QBComplexNumberHandler {
 					"float64_t s = (z->i > 0 ? 1.0 : ((z->i < 0 ? -1.0 : 0)));",
 					"float64_t w = sqrt(z->r * z->r + z->i * z->i);",
 					"float64_t r = sqrt(0.5 * (z->r + w));",
-					"float64_t i = sqrt(0.5 * (-z->r + w));",
+					"float64_t i = (s) ? s * sqrt(0.5 * (-z->r + w)) : 0;",
 					"res->r = r; res->i = i;",
 				"}",
 			),

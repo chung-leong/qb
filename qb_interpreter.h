@@ -123,7 +123,7 @@ void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt);
 void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size);
 void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count);
 void ZEND_FASTCALL qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
-NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t line_number);
+NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t count, uint32_t line_number);
 NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number);
 
 #endif
