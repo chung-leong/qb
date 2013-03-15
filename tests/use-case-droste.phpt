@@ -1,3 +1,6 @@
+--TEST--
+Use case: Droste Effect
+--FILE--
 <?php
 
 // Ported from Pixel Bender
