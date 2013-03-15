@@ -1,5 +1,59 @@
 <?php
 
+// Ported from Pixel Bender
+// Droste by Tom Beddard 
+// Url: http://www.adobe.com/cfusion/exchange/index.cfm?event=extensionDetail&extid=1700080
+
+// Based on the Mathmap version described in the Escher Droste Flickr group:
+// http://www.flickr.com/groups/escherdroste/
+//
+// Original Droste formula by: 
+// Ben Reichardt: http://www.flickr.com/photos/breic
+// Additional Features and Mathmap 1.2 conversion by:
+// Josh Sommers: http://www.flickr.com/photos/joshsommers
+// 
+// The math behind the transformation:
+// http://escherdroste.math.leidenuniv.nl/
+// http://www.josleys.com/articles/printgallery.htm
+// 
+// Examples on using the parameters and further updates to the code at:
+// http://www.subblue.com/projects/droste
+//
+// Changelog:
+// 17/11/2008 v1.0: Initial release
+// 25/09/2009 v1.1: Tidied up the code and controls a little.
+//				    Added a rotateSpin parameter to rotate the untransformed image. Works well with rotatePolar
+//                  Added anti-aliasing option. 1 = no AA, 2 = 4x samples, 3 = 9x samples.
+//
+// Quickstart
+// 
+// These are the steps you should follow for best results:
+// 1) Set the size to match the source image
+// 2) Adjust the shift so that the spiral is centered on the area you want to repeat
+// 3) If the source image is a 24-bit PNG with a transparent centre section 
+//    (like a picture frame) then set transparentInside to 1.
+//    If the image has a transparent outside (like a flower cut-out) set enableOutsideTransparency to 1
+// 4) Adjust the inner radius in combination with tweaking the shift values until the repeated section
+//    aligns nicely.
+// 5) Adjust the center parameter to frame the overall image.
+//
+// Tips
+// 
+// Periodicity:
+//   This sets the number of times the image is repeat on each level of the spiral. For 
+//   picture frame type images leave this as 1. For circular images small adjustments 
+//   might be needed to get a nice repeating spiral but it is always worth enabling
+//   the periodicityAuto setting.
+//
+// Levels:
+//   Increase the levelStart so that the image fills the outer area.
+//   Increase the levels until the centre of the spiral has filled in.
+//
+// Strands:
+//   This sets the number of arms on the spiral. When set greater than 1 and applied to an image 
+//   like a flower that has an outside transparency then strandMirror for seamless tiling.
+//
+
 class Droste {
 
 	/** @var float 			The inner radius of the repeating annular */
@@ -84,18 +138,17 @@ class Droste {
 	
 		$r1 = $this->radiusInside * 0.01;
 		$r2 = $this->radiusOutside * 0.01;
-		$p1 = min(0.001, $this->periodicity);	// Prevent divide by zero
-		$p2 = min($this->strands, 0.0001);
+		$p1 = max(0.001, $this->periodicity);	// Prevent divide by zero
+		$p2 = max($this->strands, 0.0001);
 		$tileBasedOnTransparency = ($this->transparentInside || !$this->transparentOutside);
-		$signTransparentOutside = ($transparentOutside) ? -1.0 : 1.0;
+		$signTransparentOutside = ($this->transparentOutside) ? 1.0 : -1.0;
 		
-		$shift = (1.0 + $this->centerShift) * 0.01;
-		$center->x = (1.0 + $this->center->x) * $width * 0.005;
-		$center->y = (1.0 + $this->center->y) * $height * 0.005;
-		
-		$minDimension->x = $width * 0.5;
-		$minDimension->y = $width * 0.5;
-		
+		$shift = 1.0 + $this->centerShift * 0.01;
+		$center->x = $width / 2 + $this->center->x * ($width / 2) / 100;
+		$center->y = $height / 2 + $this->center->y * ($height / 2) / 100;
+				
+		$minDimension = min($width, $height) / 2;
+				
 		$I = array(0.0, 1.0);
 		
 		// Autoset periodicity
@@ -104,7 +157,7 @@ class Droste {
 		}
 		
 		// Set rotation
-		$rotate->x = -sign($p1) * deg2rad($this->rotate);
+		$rotate->x = ($p1 > 0.0) ? -deg2rad($this->rotate) : deg2rad($this->rotate);
 		$rotate->y = 0;
 		
 		$sc = cos(deg2rad($this->rotateSpin));
@@ -112,7 +165,7 @@ class Droste {
 		$imageSpin = array($sc, $ss, -$ss, $sc);
 		
 		// Set zoom
-		$zoom->x = (exp($this->zoom) + $radiusInside - 1.0) * 0.01;
+		$zoom->x = (exp($this->zoom) + $this->radiusInside - 1.0) * 0.01;
 		$zoom->y = 0.0;
 		
 		// Scale viewport pixels to complex plane
@@ -126,12 +179,12 @@ class Droste {
 		
 		$xyMiddle->x = 0.5 * ($xBounds->max + $xBounds->min);
 		$xyMiddle->y = 0.5 * ($yBounds->max + $yBounds->min);
-		$xyRange->x = 0.5 * ($xBounds->max - $xBounds->min);
-		$xyRange->y = 0.5 * ($yBounds->max - $yBounds->min);
+		$xyRange->x = $xBounds->max - $xBounds->min;
+		$xyRange->y = $yBounds->max - $yBounds->min;
 		$xyRange->x = $xyRange->y * ($width / $height);
-		$xBounds->min = 0.5 * ($xyMiddle->x - $xyRange->x);
-		$xBounds->max = 0.5 * ($xyMiddle->x + $xyRange->x);
-		
+		$xBounds->min = $xyMiddle->x - 0.5 * $xyRange->x;
+		$xBounds->max = $xyMiddle->x + 0.5 * $xyRange->x;
+				
 		for($y = 0; $y < $height; $y++) {
 			for($x = 0; $x < $width; $x++) {
 				$sign = 0;
@@ -154,7 +207,7 @@ class Droste {
 					$z = xdiv($z, $div);
 				}
 				
-				$z *= $imageSpin;
+				$z = vm_mult($z, $imageSpin);
 				
 				if ($this->twist) {
 					$z = xlog(xdiv($z, array($r1, 0.0)));
@@ -163,8 +216,8 @@ class Droste {
 				// Start Droste-effect code
 				$alpha->x = atan(($p2/$p1) * (log($r2/$r1) / (2 * M_PI)));
 				$alpha->y = 0.0;
-				$f = cos($alpha->x);
-				$f = 0.0;
+				$f->x = cos($alpha->x);
+				$f->y = 0.0;
 				$beta = xmult($f, xexp(xmult($alpha, $I)));
 				
 				// The angle of rotation between adjacent annular levels
@@ -174,7 +227,7 @@ class Droste {
 				if($p2 > 0.0) {
 					$angle = -$angle;
 				}
-				if($strandMirror) {
+				if($this->strandMirror) {
 					$angle /= $p2;
 				}
 				
@@ -184,12 +237,12 @@ class Droste {
 				
 				// Start drawing
 				if($tileBasedOnTransparency && $this->levelStart > 0) {
-					if($transparentOutside) {
+					if($this->transparentOutside) {
 						$ratio = xmult(array($r2/$r1, 0.0), xexp(xmult($angle,  $I)));
 					} else {
 						$ratio = xmult(array($r1/$r2, 0.0), xexp(xmult($angle, -$I)));
 					}
-					$z = xmult($z, pow($ratio, array($this->levelStart, 0)));
+					$z = xmult($z, xpow($ratio, array($this->levelStart, 0)));
 				}
 				
 				$iteration = 0;
@@ -197,7 +250,7 @@ class Droste {
         		$d = $minDimension * ($z + $shift);
 	        	$sign = 0;
 		        if($tileBasedOnTransparency || $iteration == 0) {
-					$color = sample_nearest($image, $d->x, $d->y);
+					$color = sample_bilinear($image, $d->x, $d->y);
 		            $colorSoFar += $color * ($color->a * $alphaRemaining);
 		            $alphaRemaining *= (1.0 - $colorSoFar->a);
 		        }
@@ -208,7 +261,7 @@ class Droste {
         			}
         		} else {
             		if($iteration > 0) {
-            			$colorSoFar = sample_nearest($image, $d->x, $d->y);
+            			$colorSoFar = sample_bilinear($image, $d->x, $d->y);
             		}
             		$radius = length($z);
             		$sign = sign($radius - $r1);
@@ -222,7 +275,7 @@ class Droste {
 				}
 				
 				$iteration = $this->levelStart;
-				$maxIteration = $levels + $this->levelStart - 1;
+				$maxIteration = $this->levels + $this->levelStart - 1;
 				
 				while($sign != 0 && $iteration < $maxIteration) {
 					$z = xmult($z, $ratio);
@@ -230,7 +283,7 @@ class Droste {
 	        		$d = $minDimension * ($z + $shift);
 		        	$sign = 0;
 			        if($tileBasedOnTransparency || $iteration == 0) {
-						$color = sample_nearest($image, $d->x, $d->y);
+						$color = sample_bilinear($image, $d->x, $d->y);
 			            $colorSoFar += $color * ($color->a * $alphaRemaining);
 			            $alphaRemaining *= (1.0 - $colorSoFar->a);
 			        }
@@ -241,7 +294,7 @@ class Droste {
 	        			}
 	        		} else {
 	            		if($iteration > 0) {
-	            			$colorSoFar = sample_nearest($image, $d->x, $d->y);
+	            			$colorSoFar = sample_bilinear($image, $d->x, $d->y);
 	            		}
 	            		$radius = length($z);
 	            		$sign = sign($radius - $r1);
@@ -255,14 +308,78 @@ class Droste {
     
 }
 
+// so the script wouldn't slow to a grind if xdebug is active
+ini_set("qb.allow_debugger_inspection", 0);
+
 qb_compile();
 
-$image = imagecreatefrompng("../ipad.png");
-$output = imagecreatetruecolor(imagesx($image), imagesy($image));
+$folder = dirname(__FILE__);
+$image = imagecreatefrompng("$folder/input/ipad.png");
+$output = imagecreatetruecolor(680, 680);
+$correct_path = "$folder/output/droste.correct.png";
+$incorrect_path = "$folder/output/droste.incorrect.png";
 
 $droste = new Droste;
+$droste->twist = true;
+$droste->periodicity = 1;
+$droste->transparentOutside = true;
+$droste->transparentInside = true;
+$droste->radiusInside = 40;
+$droste->radiusOutside = 100;
+$droste->zoom = 3;
+$droste->rotate = 30;
+$droste->center = array(12, 8);
+$droste->centerShift = array(-20, 24);
 $droste->generate($output, $image);
+
+ob_start();
 imagesavealpha($output, true);
-imagepng($output, "test.png");
+imagepng($output);
+$output_png = ob_get_clean();
+
+/**
+ * @engine qb
+ *
+ * @param image	$img2;
+ * @param image	$img1;
+ * @return float32
+ */
+function image_diff($img1, $img2) {
+	$img2 -= $img1;
+	return array_sum($img2);
+}
+
+if(file_exists($correct_path)) {
+	$correct_md5 = md5_file($correct_path);
+	$output_md5 = md5($output_png);
+	if($correct_md5 == $output_md5) {
+		// exact match
+		$match = true;
+	} else {
+		$correct_output = imagecreatefrompng($correct_path);
+		$diff = image_diff($output, $correct_output);
+		if($diff < 0.05) {
+			// the output is different ever so slightly
+			$match = true;
+		} else {
+			$match = false;
+		}
+	}
+	if($match) {
+		echo "CORRECT\n";
+		if(file_exists($incorrect_path)) {
+			unlink($incorrect_path);
+		}
+	} else {
+		echo "INCORRECT\n";
+		file_put_contents($incorrect_path, $output_png);
+	}
+} else {
+	// reference image not yet available--save image and inspect it for correctness by eye
+	file_put_contents($correct_path, $output_png);
+}
+
 
 ?>
+--EXPECT--
+CORRECT
