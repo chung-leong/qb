@@ -37,7 +37,7 @@ long long int llabs(long long int number);
 int snprintf(char *__restrict s, size_t size, const char *__restrict format, ...);
 NO_RETURN void qb_abort(const char *format, ...);
 NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *__restrict cxt, uint32_t line_number);
-NO_RETURN void qb_abort_range_error(qb_interpreter_context *__restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t line_number);
+NO_RETURN void qb_abort_range_error(qb_interpreter_context *__restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t count, uint32_t line_number);
 void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index);
 void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size);
 void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt);

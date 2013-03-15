@@ -719,7 +719,7 @@ static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_contex
 	const char *size = (new_size) ? new_size : qb_get_array_size(cxt, address);
 
 	qb_printf(cxt, "if(%s + %s > segment_element_count%d) {\n", index, size, address->segment_selector);
-	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s + %s - 1, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
+	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s, %s, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
 }
 

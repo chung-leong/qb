@@ -793,26 +793,70 @@ void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_me
 	}
 }
 
-NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t line_number) {
+NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t count, uint32_t line_number) {
 	USE_TSRM
-	qb_function *func = cxt->function;
-	const char *var_name = "(unknown)";
-	uint32_t i;
+	qb_function *function = NULL;
+	qb_storage *storage = NULL;
+	qb_variable *problem_variable = NULL;
+	uint32_t i, base_index, segment_selector = 0;
 
-	for(i = 0; i < func->variable_count; i++) {
-		qb_variable *qvar = func->variables[i];
-		if(qvar->address && !IS_SCALAR(qvar->address)) {
-			uint32_t selector = qvar->address->segment_selector;
-			qb_memory_segment *var_segment = &cxt->storage->segments[selector];
-			if(var_segment == segment) {
-				var_name = qvar->name;
-				break;
+	// see if the segment is in the called function's storage
+	for(i = 0; i < cxt->storage->segment_count; i++) {
+		if(&cxt->storage->segments[i] == segment) {
+			segment_selector = i;
+			storage = cxt->storage;
+			function = cxt->function;
+			break;
+		}
+	}
+	if(!storage) {
+		// it's probably in the caller
+		if(cxt->call_stack_height > 0) {
+			qb_call_stack_item *caller = &cxt->call_stack[cxt->call_stack_height - 1];
+			for(i = 0; i < caller->storage->segment_count; i++) {
+				if(&caller->storage->segments[i] == segment) {
+					segment_selector = i;
+					storage = caller->storage;
+					function = caller->function;
+					line_number = cxt->function_call_line_number;
+					break;
+				}
 			}
 		}
 	}
-	QB_G(current_filename) = cxt->function->filename;
-	QB_G(current_line_number) = line_number;
-	qb_abort("Array index %d is out of range: %s", index, var_name);
+	if(function) {
+		for(i = 0; i < function->variable_count; i++) {
+			qb_variable *qvar = function->variables[i];
+			if(qvar->address) {
+				if(qvar->address->segment_selector == segment_selector) {
+					if(segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
+						base_index = 0;
+						problem_variable = qvar;
+						break;
+					} else {
+						uint32_t length = IS_SCALAR(qvar->address) ? 1 : ARRAY_SIZE_IN(storage, qvar->address);
+						base_index = ELEMENT_COUNT(qvar->address->segment_offset, qvar->address->type);
+						if(base_index <= index && index < base_index + length) {
+							problem_variable = qvar;
+							break;
+						}
+					}
+				}
+			}
+		}
+		QB_G(current_filename) = function->filename;
+		QB_G(current_line_number) = line_number;
+	}
+	if(problem_variable) {
+		uint32_t max_index = index + count - base_index - 1;
+		if(IS_SCALAR(problem_variable->address)) {
+			qb_abort("Array index %d is beyond the range of a scalar: %s", max_index, problem_variable->name);
+		} else {
+			qb_abort("Array index %d is out of range: %s", max_index, problem_variable->name);
+		}
+	} else {
+		qb_abort("Illegal memory access on segment %d at index %d", segment_selector, index);
+	}
 }
 
 NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number) {
@@ -841,7 +885,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 					qb_resize_segment(cxt, segment, element_start_index + 1);
 					segment->current_allocation = element_start_index + 1;
 				} else {
-					qb_abort_range_error(cxt, segment, element_start_index, 0);
+					qb_abort_range_error(cxt, segment, element_start_index, 1, 0);
 				}
 			} 
 		}
@@ -913,7 +957,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 			if((caller_segment->flags & QB_SEGMENT_EXPANDABLE) && (transfer_flags & QB_TRANSFER_CAN_ENLARGE_SEGMENT)) {
 				qb_enlarge_segment(cxt, caller_segment, caller_element_start_index + caller_element_count);
 			} else {
-				qb_abort_range_error(cxt, caller_segment, caller_element_start_index + caller_element_count, cxt->function_call_line_number);
+				qb_abort_range_error(cxt, caller_segment, caller_element_start_index, caller_element_count, cxt->function_call_line_number);
 			}
 		}
 	}
@@ -1492,7 +1536,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 					// expand the caller segment to accommodate
 					qb_enlarge_segment(cxt, caller_segment, element_start_index + element_count);
 				} else {
-					qb_abort_range_error(cxt, caller_segment, element_start_index + element_count, cxt->function_call_line_number);
+					qb_abort_range_error(cxt, caller_segment, element_start_index, element_count, cxt->function_call_line_number);
 				}
 			}
 		}
