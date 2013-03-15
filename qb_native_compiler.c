@@ -364,6 +364,22 @@ static void ZEND_FASTCALL qb_print_typedefs(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "typedef struct qb_function\tqb_function;\n");
 	qb_print(cxt, "typedef struct qb_interpreter_context\tqb_interpreter_context;\n");
 	qb_print(cxt, "typedef struct qb_external_symbol\tqb_external_symbol;\n");
+	qb_print(cxt, "typedef struct qb_complex_F64\tqb_complex_F64;\n");
+	qb_print(cxt, "typedef struct qb_complex_F32\tqb_complex_F32;\n");
+
+	qb_print(cxt, "\
+struct qb_complex_F32 {\
+	float32_t r;\
+	float32_t i;\
+};\
+\n");
+
+	qb_print(cxt, "\
+struct qb_complex_F64 {\
+	float64_t r;\
+	float64_t i;\
+};\
+\n");
 
 	qb_print(cxt, "\
 struct qb_address {\

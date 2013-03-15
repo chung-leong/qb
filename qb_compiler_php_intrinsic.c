@@ -212,15 +212,17 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 static void ZEND_FASTCALL qb_translate_intrinsic_complex(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result) {
 	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count);
 	uint32_t i;
-	for(i = 0; i < argument_count; i++) {
-		qb_address *address = arguments[i].address;
-		uint32_t vector_width = qb_get_vector_width(cxt, address);
+	if(!cxt->resolving_result_type) {
+		for(i = 0; i < argument_count; i++) {
+			qb_address *address = arguments[i].address;
+			uint32_t vector_width = qb_get_vector_width(cxt, address);
 
-		if((address->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address))) {
-			qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
-		}
-		if(vector_width != 2) {
-			qb_abort("%s() expects complex numbers expressed at two-dimensional arrays", f->name);
+			if((address->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address))) {
+				qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
+			}
+			if(vector_width != 2) {
+				qb_abort("%s() expects complex numbers expressed as two-dimensional arrays", f->name);
+			}
 		}
 	}
 	if(result->type != QB_OPERAND_NONE) {

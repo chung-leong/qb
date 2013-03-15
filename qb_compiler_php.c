@@ -35,7 +35,7 @@ static void ZEND_FASTCALL qb_print_zend_ops(qb_compiler_context *cxt) {
 	for(i = 0; i < cxt->zend_op_array->last; i++) {
 		zend_op *zop = &cxt->zend_op_array->opcodes[i];
 		const char *opname = qb_get_zend_op_name(cxt, zop->opcode);
-		php_printf("%s (line number: %d)\n", opname, zop->lineno);
+		php_printf("[%04d] %s (line number: %d)\n", i, opname, zop->lineno);
 	}
 }
 
@@ -2075,7 +2075,7 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 
 static void ZEND_FASTCALL qb_translate_function_call_by_name(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_operand **stack_items, fcall_operands[2];
-	uint32_t argument_count, i, name_index;
+	uint32_t argument_count, name_index, i, j;
 
 	argument_count = cxt->zend_op->extended_value;
 	name_index = cxt->stack_item_count - argument_count - 2;
@@ -2085,11 +2085,11 @@ static void ZEND_FASTCALL qb_translate_function_call_by_name(qb_compiler_context
 	qb_translate_function_call(cxt, op_factory, fcall_operands, 2, result);
 
 	// get rid of the name and the object
-	stack_items = qb_get_stack_items(cxt, name_index);
-	for(i = 2; i < cxt->stack_item_count; i++) {
-		*stack_items[i - 2] = *stack_items[i];
-	}
+	stack_items = qb_get_stack_items(cxt, 0);
 	cxt->stack_item_count -= 2; 
+	for(i = name_index, j = 0; i < cxt->stack_item_count; i++, j++) {
+		*stack_items[i] = *stack_items[i + 2];
+	}
 }
 
 static void ZEND_FASTCALL qb_translate_user_opcode(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -2455,12 +2455,17 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cx
 			} else {
 				cxt->zend_op = ZEND_OP(target_index1);
 				cxt->zend_op_index = target_index1;
+				cxt->pop_short_circuiting_bool = FALSE;
 			}
 			if(target_index2) {
 				cxt->zend_op = ZEND_OP(target_index2);
 				cxt->zend_op_index = target_index2;
 			}
 		} else {
+			if(cxt->pop_short_circuiting_bool) {
+				//qb_pop_stack_item(cxt);
+				cxt->pop_short_circuiting_bool = FALSE;
+			}
 			cxt->zend_op++;
 			cxt->zend_op_index++;
 		}
@@ -2473,6 +2478,7 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cx
 	qb_restore_stack(cxt, stack_item_offset, stack_item_count);
 	cxt->zend_op = ZEND_OP(zend_op_index);
 	cxt->zend_op_index = zend_op_index;
+	cxt->pop_short_circuiting_bool = FALSE;
 }
 
 static void ZEND_FASTCALL qb_translate_instructions(qb_compiler_context *cxt) {

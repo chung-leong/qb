@@ -1536,10 +1536,18 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 				const char *pcre_error = NULL;
 				int pcre_error_offset = 0, c = pattern[pattern_len];
 				pcre *re;
+				char *constricted_pattern;
+				ALLOCA_FLAG(use_heap);
 
-				((char *) pattern)[pattern_len] = '\0';
-				re = pcre_compile(pattern, PCRE_ANCHORED, &pcre_error, &pcre_error_offset, NULL);
-				((char *) pattern)[pattern_len] = c;
+				// put ^ at the beginning and $ at the end to force complete match
+				constricted_pattern = do_alloca(pattern_len + 3, use_heap);
+				constricted_pattern[0] = '^';
+				memcpy(constricted_pattern + 1, pattern, pattern_len);
+				constricted_pattern[1 + pattern_len] = '$';
+				constricted_pattern[1 + pattern_len + 1] = '\0';
+
+				re = pcre_compile(constricted_pattern, 0, &pcre_error, &pcre_error_offset, NULL);
+				free_alloca(constricted_pattern, use_heap);
 				if(!re) {
 					return NULL;
 				}
@@ -1576,9 +1584,9 @@ static qb_type_declaration * ZEND_FASTCALL qb_find_variable_declaration_in_list(
 						}
 					}
 				} else if(decl->regexp) {
-					int offsets[16];
-					int count = pcre_exec(decl->regexp, NULL, qvar->name, qvar->name_length, 0, PCRE_NOTEMPTY, offsets, 2);
-					if(count == 1 && offsets[1] == qvar->name_length) {
+					int offsets[128];
+					int count = pcre_exec(decl->regexp, NULL, qvar->name, qvar->name_length, 0, PCRE_NOTEMPTY, offsets, sizeof(offsets) / sizeof(int));
+					if(count > 0) {
 						return decl;
 					}
 				}
