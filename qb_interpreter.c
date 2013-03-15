@@ -407,7 +407,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_caller_address(qb_interpreter_co
 }
 
 static void ZEND_FASTCALL qb_copy_element_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
-	if(Z_TYPE_P(zvalue) == IS_LONG) {
+	if(Z_TYPE_P(zvalue) == IS_LONG || Z_TYPE_P(zvalue) == IS_BOOL) {
 		long value = Z_LVAL_P(zvalue);
 #if SIZEOF_LONG == 8
 		qb_copy_element(QB_TYPE_S64, (int8_t *) &value, address->type, ARRAY(I08, address));
@@ -434,6 +434,8 @@ static void ZEND_FASTCALL qb_copy_element_from_zval(qb_interpreter_context *cxt,
 			default:
 				qb_abort("Cannot convert an array to %s", type_names[address->type]);
 		}
+	} else if(Z_TYPE_P(zvalue) == IS_NULL) {
+		memset(ARRAY(I08, address), 0, BYTE_COUNT(1, address->type));
 	}
 }
 
