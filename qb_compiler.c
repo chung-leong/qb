@@ -1031,40 +1031,25 @@ static void ZEND_FASTCALL qb_preserve_stack(qb_compiler_context *cxt, uint32_t *
 static void ZEND_FASTCALL qb_restore_stack(qb_compiler_context *cxt, uint32_t original_offset, uint32_t original_count) {
 	uint32_t i;
 
-	// remove references on items that weren't on the stack originally
+	// unlock temporary addresses
 	for(i = 0; i < cxt->stack_item_count; i++) {
 		qb_operand *new_stack_item = cxt->stack_items[cxt->stack_item_offset + i];
 
 		if(new_stack_item->type == QB_OPERAND_ADDRESS) {
-			int32_t exists_originally = FALSE;
-			if(i < original_count) {
-				qb_operand *old_stack_item = cxt->stack_items[original_offset + i];
-				if(new_stack_item->address == old_stack_item->address) {
-					exists_originally = TRUE;
-				}
-			}
-			if(!exists_originally) {
-				qb_unlock_address(cxt, new_stack_item->address);
-			}
+			qb_unlock_address(cxt, new_stack_item->address);
 		}
 	}
 
-	// restore references on items that were taken off the stack
+	// lock temporary addresses on the original stack
 	for(i = 0; i < original_count; i++) {
 		qb_operand *old_stack_item = cxt->stack_items[original_offset + i];
 
 		if(old_stack_item->type == QB_OPERAND_ADDRESS) {
-			int32_t still_exists = FALSE;
-			if(i < cxt->stack_item_count) {
-				qb_operand *new_stack_item = cxt->stack_items[cxt->stack_item_offset + i];
-				if(new_stack_item->address == old_stack_item->address) {
-					still_exists = TRUE;
-				}
-			}
-			if(still_exists) {
-				if(!(old_stack_item->address->flags & QB_ADDRESS_QM_TEMPORARY)) {
-					qb_lock_address(cxt, old_stack_item->address);
-				}
+			// not restoring the lock on QM temporary, so that the address
+			// pushed on the stack by the JMP_SET handler will get reused by
+			// the QM_ASSIGN handler
+			if(!(old_stack_item->address->flags & QB_ADDRESS_QM_TEMPORARY)) {
+				qb_lock_address(cxt, old_stack_item->address);
 			}
 		}
 	}

@@ -1394,12 +1394,14 @@ static void ZEND_FASTCALL qb_translate_add_element(qb_compiler_context *cxt, voi
 	}
 
 	if(value->type == QB_OPERAND_PREVIOUS_RESULT) {
-		// looking for the lvalue type--coerce value to the initializer's type
-		if(initializer->element_type == QB_TYPE_ANY) {
-			// don't know what it is yet
-			initializer->element_type = qb_get_lvalue_type(cxt, QB_TYPE_I32);
+		if(!cxt->resolving_result_type) {
+			// looking for the lvalue type--coerce value to the initializer's type
+			if(initializer->element_type == QB_TYPE_ANY) {
+				// don't know what it is yet
+				initializer->element_type = qb_get_lvalue_type(cxt, QB_TYPE_I32);
+			}
+			qb_do_type_coercion(cxt, value, initializer->element_type);
 		}
-		qb_do_type_coercion(cxt, value, initializer->element_type);
 	}
 
 	if(index->type == QB_OPERAND_NONE) {
@@ -2308,6 +2310,14 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 		if(t->translate) {
 			cxt->line_number = cxt->zend_op->lineno;
 			t->translate(cxt, t->extra, operands, operand_count, &result);
+
+			// unlock the operands
+			if(operands[0].type == QB_OPERAND_ADDRESS) {
+				qb_unlock_address(cxt, operands[0].address);
+			}
+			if(operands[1].type == QB_OPERAND_ADDRESS) {
+				qb_unlock_address(cxt, operands[1].address);
+			}
 
 			if(result.type != QB_OPERAND_NONE) {
 				// other operand types can simply be copied onto the stack
