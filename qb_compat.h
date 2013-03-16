@@ -278,4 +278,194 @@ int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void);
 	void _allshl(void);
 #endif
 
+// the following is copied from the PHP source so we can build without the
+// full source code--i.e. using just phpize
+
+#ifndef RAND_MAX
+#define RAND_MAX (1<<15)
+#endif
+
+#if !defined(ZTS) && (defined(HAVE_LRAND48) || defined(HAVE_RANDOM))
+#define PHP_RAND_MAX 2147483647
+#else
+#define PHP_RAND_MAX RAND_MAX
+#endif
+
+#define PHP_MT_RAND_MAX ((long) (0x7FFFFFFF)) /* (1<<31) - 1 */
+
+PHPAPI double php_combined_lcg(TSRMLS_D);
+
+#define gdMaxColors 256
+
+#define gdAlphaMax 127
+#define gdAlphaOpaque 0
+#define gdAlphaTransparent 127
+#define gdRedMax 255
+#define gdGreenMax 255
+#define gdBlueMax 255
+#define gdTrueColorGetAlpha(c) (((c) & 0x7F000000) >> 24)
+#define gdTrueColorGetRed(c) (((c) & 0xFF0000) >> 16)
+#define gdTrueColorGetGreen(c) (((c) & 0x00FF00) >> 8)
+#define gdTrueColorGetBlue(c) ((c) & 0x0000FF)
+
+#define gdImagePalettePixel(im, x, y) (im)->pixels[(y)][(x)]
+#define gdImageTrueColorPixel(im, x, y) (im)->tpixels[(y)][(x)]
+
+typedef struct gdImageStruct {
+	/* Palette-based image pixels */
+	unsigned char ** pixels;
+	int sx;
+	int sy;
+	/* These are valid in palette images only. See also
+		'alpha', which appears later in the structure to
+		preserve binary backwards compatibility */
+	int colorsTotal;
+	int red[gdMaxColors];
+	int green[gdMaxColors];
+	int blue[gdMaxColors];
+	int open[gdMaxColors];
+	/* For backwards compatibility, this is set to the
+		first palette entry with 100% transparency,
+		and is also set and reset by the
+		gdImageColorTransparent function. Newer
+		applications can allocate palette entries
+		with any desired level of transparency; however,
+		bear in mind that many viewers, notably
+		many web browsers, fail to implement
+		full alpha channel for PNG and provide
+		support for full opacity or transparency only. */
+	int transparent;
+	int *polyInts;
+	int polyAllocated;
+	struct gdImageStruct *brush;
+	struct gdImageStruct *tile;
+	int brushColorMap[gdMaxColors];
+	int tileColorMap[gdMaxColors];
+	int styleLength;
+	int stylePos;
+	int *style;
+	int interlace;
+	/* New in 2.0: thickness of line. Initialized to 1. */
+	int thick;
+	/* New in 2.0: alpha channel for palettes. Note that only
+		Macintosh Internet Explorer and (possibly) Netscape 6
+		really support multiple levels of transparency in
+		palettes, to my knowledge, as of 2/15/01. Most
+		common browsers will display 100% opaque and
+		100% transparent correctly, and do something
+		unpredictable and/or undesirable for levels
+		in between. TBB */
+	int alpha[gdMaxColors];
+	/* Truecolor flag and pixels. New 2.0 fields appear here at the
+		end to minimize breakage of existing object code. */
+	int trueColor;
+	int ** tpixels;
+	/* Should alpha channel be copied, or applied, each time a
+		pixel is drawn? This applies to truecolor images only.
+		No attempt is made to alpha-blend in palette images,
+		even if semitransparent palette entries exist.
+		To do that, build your image as a truecolor image,
+		then quantize down to 8 bits. */
+	int alphaBlendingFlag;
+	/* Should antialias functions be used */
+	int antialias;
+	/* Should the alpha channel of the image be saved? This affects
+		PNG at the moment; other future formats may also
+		have that capability. JPEG doesn't. */
+	int saveAlphaFlag;
+
+
+	/* 2.0.12: anti-aliased globals */
+	int AA;
+	int AA_color;
+	int AA_dont_blend;
+	unsigned char **AA_opacity;
+	int AA_polygon;
+	/* Stored and pre-computed variables for determining the perpendicular
+	 * distance from a point to the anti-aliased line being drawn:
+	 */
+	int AAL_x1;
+	int AAL_y1;
+	int AAL_x2;
+	int AAL_y2;
+	int AAL_Bx_Ax;
+	int AAL_By_Ay;
+	int AAL_LAB_2;
+	float AAL_LAB;
+
+	/* 2.0.12: simple clipping rectangle. These values must be checked for safety when set; please use gdImageSetClip */
+	int cx1;
+	int cy1;
+	int cx2;
+	int cy2;
+} gdImage;
+
+typedef gdImage * gdImagePtr;
+
+#define gdTrueColorAlpha(r, g, b, a) (((a) << 24) + \
+	((r) << 16) + \
+	((g) << 8) + \
+	(b))
+
+typedef struct real_pcre pcre;
+
+#define PCRE_CASELESS           0x00000001
+#define PCRE_MULTILINE          0x00000002
+#define PCRE_ANCHORED           0x00000010
+#define PCRE_NOTEMPTY           0x00000400
+
+#if defined(HAVE_BUNDLED_PCRE) || !defined(PHP_VERSION)
+#define pcre_compile			php_pcre_compile
+#define pcre_exec				php_pcre_exec
+#endif
+
+#ifndef PCRE_SPTR
+#define PCRE_SPTR const char *
+#endif
+
+#if defined(_WIN32) && !defined(PCRE_STATIC)
+#  ifndef PCRE_EXP_DECL
+#    define PCRE_EXP_DECL  extern __declspec(dllimport)
+#  endif
+#  ifdef __cplusplus
+#    ifndef PCRECPP_EXP_DECL
+#      define PCRECPP_EXP_DECL  extern __declspec(dllimport)
+#    endif
+#    ifndef PCRECPP_EXP_DEFN
+#      define PCRECPP_EXP_DEFN  __declspec(dllimport)
+#    endif
+#  endif
+#endif
+
+#ifndef PCRE_EXP_DECL
+#  ifdef __cplusplus
+#    define PCRE_EXP_DECL  extern "C"
+#  else
+#    define PCRE_EXP_DECL  extern
+#  endif
+#endif
+
+#ifdef __cplusplus
+#  ifndef PCRECPP_EXP_DECL
+#    define PCRECPP_EXP_DECL  extern
+#  endif
+#  ifndef PCRECPP_EXP_DEFN
+#    define PCRECPP_EXP_DEFN
+#  endif
+#endif
+
+typedef struct pcre_extra {
+  unsigned long int flags;        /* Bits for which fields are set */
+  void *study_data;               /* Opaque data from pcre_study() */
+  unsigned long int match_limit;  /* Maximum number of calls to match() */
+  void *callout_data;             /* Data passed back in callouts */
+  const unsigned char *tables;    /* Pointer to character tables */
+  unsigned long int match_limit_recursion; /* Max recursive calls to match() */
+  unsigned char **mark;           /* For passing back a mark pointer */
+} pcre_extra;
+
+PCRE_EXP_DECL pcre *pcre_compile(const char *, int, const char **, int *, const unsigned char *);
+PCRE_EXP_DECL int  pcre_exec(const pcre *, const pcre_extra *, PCRE_SPTR, int, int, int, int *, int);
+
+
 #endif

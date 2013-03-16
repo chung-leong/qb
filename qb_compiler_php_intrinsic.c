@@ -301,7 +301,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt,
 		qb_do_type_coercion(cxt, mode, QB_TYPE_S32);
 		mode_address = mode->address;
 	} else {
-		mode_address = qb_obtain_constant_S32(cxt, PHP_ROUND_HALF_UP);
+		mode_address = qb_obtain_constant_S32(cxt, 1);	//	PHP_ROUND_HALF_UP
 	}
 
 	if(result->type != QB_OPERAND_NONE) {

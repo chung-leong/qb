@@ -90,8 +90,9 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 
 #if defined(__i386__) || defined(__x86_64__)
 	const char *sse = NULL, *avx = NULL;
-	int eax, ebx, ecx, edx;
-	__asm__ __volatile__ ("cpuid":"=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) : "a" (0x0000001));
+	unsigned int index = 0x0000001;
+	unsigned int eax, ebx, ecx, edx;
+	__asm__ __volatile__ ("cpuid": "=c" (ecx), "=d" (edx) : "a" (0x0000001));
 	if(ecx & (1 << 20)) {
 		sse = "-msse4.2";
 	} else
@@ -859,7 +860,6 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					qb_address *address = operands[i].address;
 					zend_arg_info *zarg = (i < zfunc->common.num_args && zfunc->common.arg_info) ? &zfunc->common.arg_info[i] : NULL;
 
-					// TODO: skip this unless the argument is passed by ref (or is the return value)
 					if(!zarg || zarg->pass_by_reference) {
 						if(address->dimension_count > 0) {
 							qb_printf(cxt, "cxt->array_address.type = %d;\n", address->type);
