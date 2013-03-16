@@ -1209,35 +1209,35 @@ class QBCodeGenerator {
 	protected function addComplexNumberHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			$this->handlers[] = new QBComplexAbsHandler("XABS", $elementType, null);
-			$this->handlers[] = new QBComplexAbsHandler("XABS", $elementType, "ARR");
-			$this->handlers[] = new QBComplexArgumentHandler("XARG", $elementType, null);
-			$this->handlers[] = new QBComplexArgumentHandler("XARG", $elementType, "ARR");
-			$this->handlers[] = new QBComplexMultiplyHandler("XMUL", $elementType, null);
-			$this->handlers[] = new QBComplexMultiplyHandler("XMUL", $elementType, "ARR");
-			$this->handlers[] = new QBComplexDivideHandler("XDIV", $elementType, null);
-			$this->handlers[] = new QBComplexDivideHandler("XDIV", $elementType, "ARR");
-			$this->handlers[] = new QBComplexExpHandler("XEXP", $elementType, null);
-			$this->handlers[] = new QBComplexExpHandler("XEXP", $elementType, "ARR");
-			$this->handlers[] = new QBComplexLogHandler("XLOG", $elementType, null);
-			$this->handlers[] = new QBComplexLogHandler("XLOG", $elementType, "ARR");
-			$this->handlers[] = new QBComplexSquareRootHandler("XSQRT", $elementType, null);
-			$this->handlers[] = new QBComplexSquareRootHandler("XSQRT", $elementType, "ARR");
-			$this->handlers[] = new QBComplexPowHandler("XPOW", $elementType, null);
-			$this->handlers[] = new QBComplexPowHandler("XPOW", $elementType, "ARR");
+			$this->handlers[] = new QBComplexAbsHandler("CABS", $elementType, null);
+			$this->handlers[] = new QBComplexAbsHandler("CABS", $elementType, "ARR");
+			$this->handlers[] = new QBComplexArgumentHandler("CARG", $elementType, null);
+			$this->handlers[] = new QBComplexArgumentHandler("CARG", $elementType, "ARR");
+			$this->handlers[] = new QBComplexMultiplyHandler("CMUL", $elementType, null);
+			$this->handlers[] = new QBComplexMultiplyHandler("CMUL", $elementType, "ARR");
+			$this->handlers[] = new QBComplexDivideHandler("CDIV", $elementType, null);
+			$this->handlers[] = new QBComplexDivideHandler("CDIV", $elementType, "ARR");
+			$this->handlers[] = new QBComplexExpHandler("CEXP", $elementType, null);
+			$this->handlers[] = new QBComplexExpHandler("CEXP", $elementType, "ARR");
+			$this->handlers[] = new QBComplexLogHandler("CLOG", $elementType, null);
+			$this->handlers[] = new QBComplexLogHandler("CLOG", $elementType, "ARR");
+			$this->handlers[] = new QBComplexSquareRootHandler("CSQRT", $elementType, null);
+			$this->handlers[] = new QBComplexSquareRootHandler("CSQRT", $elementType, "ARR");
+			$this->handlers[] = new QBComplexPowHandler("CPOW", $elementType, null);
+			$this->handlers[] = new QBComplexPowHandler("CPOW", $elementType, "ARR");
 			
-			$this->handlers[] = new QBComplexSinHandler("XSIN", $elementType, null);
-			$this->handlers[] = new QBComplexSinHandler("XSIN", $elementType, "ARR");
-			$this->handlers[] = new QBComplexCosHandler("XCOS", $elementType, null);
-			$this->handlers[] = new QBComplexCosHandler("XCOS", $elementType, "ARR");
-			$this->handlers[] = new QBComplexTanHandler("XTAN", $elementType, null);
-			$this->handlers[] = new QBComplexTanHandler("XTAN", $elementType, "ARR");
-			$this->handlers[] = new QBComplexSinhHandler("XSINH", $elementType, null);
-			$this->handlers[] = new QBComplexSinhHandler("XSINH", $elementType, "ARR");
-			$this->handlers[] = new QBComplexCoshHandler("XCOSH", $elementType, null);
-			$this->handlers[] = new QBComplexCoshHandler("XCOSH", $elementType, "ARR");
-			$this->handlers[] = new QBComplexTanhHandler("XTANH", $elementType, null);
-			$this->handlers[] = new QBComplexTanhHandler("XTANH", $elementType, "ARR");
+			$this->handlers[] = new QBComplexSinHandler("CSIN", $elementType, null);
+			$this->handlers[] = new QBComplexSinHandler("CSIN", $elementType, "ARR");
+			$this->handlers[] = new QBComplexCosHandler("CCOS", $elementType, null);
+			$this->handlers[] = new QBComplexCosHandler("CCOS", $elementType, "ARR");
+			$this->handlers[] = new QBComplexTanHandler("CTAN", $elementType, null);
+			$this->handlers[] = new QBComplexTanHandler("CTAN", $elementType, "ARR");
+			$this->handlers[] = new QBComplexSinhHandler("CSINH", $elementType, null);
+			$this->handlers[] = new QBComplexSinhHandler("CSINH", $elementType, "ARR");
+			$this->handlers[] = new QBComplexCoshHandler("CCOSH", $elementType, null);
+			$this->handlers[] = new QBComplexCoshHandler("CCOSH", $elementType, "ARR");
+			$this->handlers[] = new QBComplexTanhHandler("CTANH", $elementType, null);
+			$this->handlers[] = new QBComplexTanhHandler("CTANH", $elementType, "ARR");
 		}
 	}
 	
