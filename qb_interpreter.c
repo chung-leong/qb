@@ -21,7 +21,6 @@
 #include "qb.h"
 #include <math.h>
 #include "zend_variables.h"
-#include "../gd/libgd/gd.h"
 
 static const char * ZEND_FASTCALL qb_get_address_name(qb_interpreter_context *cxt, qb_address *address) {
 	uint32_t i, j;
