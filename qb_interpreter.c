@@ -1177,7 +1177,7 @@ static void ZEND_FASTCALL qb_copy_element_to_zval(qb_interpreter_context *cxt, q
 			Z_LVAL_P(zvalue) = VALUE(S64, address);
 #else
 			CTYPE(S64) value = VALUE(S64, address);
-			if(value & 0xFFFFFFFF00000000) {
+			if(value & 0xFFFFFFFF00000000LL) {
 				// the upper bits are used--save it to a double to preserve as much info as we can
 				Z_TYPE_P(zvalue) = IS_DOUBLE;
 				Z_DVAL_P(zvalue) = (double) value;
@@ -1194,7 +1194,7 @@ static void ZEND_FASTCALL qb_copy_element_to_zval(qb_interpreter_context *cxt, q
 			Z_LVAL_P(zvalue) = VALUE(U64, address);
 #else
 			CTYPE(U64) value = VALUE(U64, address);
-			if(value & 0xFFFFFFFF80000000) {
+			if(value & 0xFFFFFFFF80000000LL) {
 				// the upper bits are used--save it to a double to preserve as much info as we can
 				Z_TYPE_P(zvalue) = IS_DOUBLE;
 				Z_DVAL_P(zvalue) = (double) value;
