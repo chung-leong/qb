@@ -106,8 +106,6 @@
 	#endif
 
 	#if ZEND_ENGINE_2_1
-		#define ZEND_FETCH_RESOURCE_NO_RETURN(rsrc, rsrc_type, passed_id, default_id, resource_type_name, resource_type)	\
-			(rsrc = (rsrc_type) zend_fetch_resource(passed_id TSRMLS_CC, default_id, resource_type_name, NULL, 1, resource_type))
 		char *zend_get_type_by_const(int type);
 		typedef uintptr_t zend_uintptr_t;
 	#endif
@@ -294,6 +292,8 @@ int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void);
 #define PHP_MT_RAND_MAX ((long) (0x7FFFFFFF)) /* (1<<31) - 1 */
 
 PHPAPI double php_combined_lcg(TSRMLS_D);
+PHPAPI long php_rand(TSRMLS_D);
+PHPAPI uint32_t php_mt_rand(TSRMLS_D);
 
 #define gdMaxColors 256
 

@@ -48,18 +48,18 @@
 
 #include "php.h"
 
-// ZEND_VERSION is a C-string and it isn't possible to do string comparison in the preprocessor
-// detect the version of Zend Engines by checking for the absence of certain macros instead
-#if !defined(ZEND_FETCH_RESOURCE_NO_RETURN)
+#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 1
 	#define ZEND_ENGINE_2_1		1
-#elif !defined(PHP_FE_END)
+#elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 2
 	#define ZEND_ENGINE_2_2		1
-#elif !defined(Z_HASH_P)
+#elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 3
 	#define ZEND_ENGINE_2_3		1
-#elif !defined(EX_CV_NUM)
+#elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 4
 	#define ZEND_ENGINE_2_4		1
-#else
+#elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 5
 	#define ZEND_ENGINE_2_5		1
+#else
+	#error Incompatible version of PHP
 #endif
 
 #ifdef ZTS

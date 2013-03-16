@@ -52,8 +52,7 @@ static gdImagePtr ZEND_FASTCALL qb_get_gd_image(qb_interpreter_context *cxt, zva
 			le_gd = zend_fetch_list_dtor_id("gd");
 		}
 		if(le_gd) {
-			gdImagePtr image = NULL;
-			ZEND_FETCH_RESOURCE_NO_RETURN(image, gdImagePtr, &resource, -1, NULL, le_gd);
+			gdImagePtr image = (gdImagePtr) zend_fetch_resource(&resource TSRMLS_CC, -1, NULL, NULL, 1, le_gd);
 			return image;
 		}
 	}

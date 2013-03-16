@@ -5,10 +5,10 @@ PHP_ARG_ENABLE(qb, whether to enable qb support,
 [  --enable-qb           Enable qb support])
 
 PHP_ARG_WITH(sse, whether to use SSE instructions on x86 processors,
-[  --with-sse[=VER]          Enable SSE optimization.  VER is the SSE version number])
+[  --with-sse[=VER]          Enable SSE optimization.  VER is the SSE version], no, no)
 
 PHP_ARG_WITH(avx, whether to use AVX instructions on x86 processors,
-[  --with-avx[=VER]          Enable AVX optimization.  VER is the AVX version number])
+[  --with-avx[=VER]          Enable AVX optimization.  VER is the AVX version], no, no)
 
 if test "$PHP_QB" != "no"; then
   if test "$PHP_SSE" != "no"; then
@@ -22,7 +22,7 @@ if test "$PHP_QB" != "no"; then
   	if test "$PHP_AVX" == "1" || test "$PHP_AVX" == "yes"; then
     	avx_flags="-mavx"
     else  
-    	avx_flags="-mavx$PHP_SSE"
+    	avx_flags="-mavx$PHP_AVX"
     fi
   fi
 
