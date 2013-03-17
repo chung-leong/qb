@@ -592,7 +592,7 @@ class QBHandler {
 					$lines[] = "if(segment_expandable[selector]) {";
 					$lines[] = 		"if(res_start_index + res_count > segment_element_counts[selector]) {";
 					$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);";
-					$lines[] = 		"} else if(res_start_index + res_count < res_start_index) {";
+					$lines[] = 		"} else if(UNEXPECTED(res_start_index + res_count < res_start_index)) {";
 					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);";
 					$lines[] =		"}";
 					$lines[] = "} else {";

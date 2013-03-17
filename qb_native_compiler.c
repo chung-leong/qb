@@ -678,7 +678,9 @@ static const char * ZEND_FASTCALL qb_get_jump(qb_native_compiler_context *cxt, u
 static int32_t ZEND_FASTCALL qb_is_always_in_bound(qb_native_compiler_context *cxt, qb_address *container, qb_address *address, uint32_t new_element_count) {
 	if(container != address || new_element_count != 0) {
 		uint32_t index, element_count, container_size;
-		if(address->array_size_address) {
+		if(IS_SCALAR(address)) {
+			element_count = 1;
+		} else {
 			if(address->array_size_address->flags & QB_ADDRESS_CONSTANT) {
 				// sub-array size is not constant
 				if(address->flags & QB_ADDRESS_ALWAYS_IN_BOUND) {
@@ -688,15 +690,11 @@ static int32_t ZEND_FASTCALL qb_is_always_in_bound(qb_native_compiler_context *c
 					return FALSE;
 				}
 			} else {
-				if(!new_element_count) {
-					// use the actual size
-					element_count = ARRAY_SIZE(address);
-				} else {
-					element_count = new_element_count;
-				}
+				element_count = ARRAY_SIZE(address);
 			}
-		} else {
-			element_count = 1;
+		} 
+		if(new_element_count > element_count) {
+			element_count = new_element_count;
 		}
 		index = ELEMENT_COUNT(address->segment_offset, address->type);
 		if(IS_SCALAR(container)) {
@@ -719,7 +717,7 @@ static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_contex
 	const char *index = qb_get_segment_index(cxt, address);
 	const char *size = (new_size) ? new_size : qb_get_array_size(cxt, address);
 
-	qb_printf(cxt, "if(%s + %s > segment_element_count%d) {\n", index, size, address->segment_selector);
+	qb_printf(cxt, "if(UNEXPECTED(res_count > res_count_before || %s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
 	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s, %s, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
 }
@@ -730,6 +728,8 @@ static void ZEND_FASTCALL qb_print_segment_enlargement(qb_native_compiler_contex
 
 	qb_printf(cxt, "if(%s + %s > segment_element_count%d) {\n", index, size, address->segment_selector);
 	qb_printf(cxt, "	qb_enlarge_segment(cxt, &cxt->storage->segments[%d], %s + %s);\n", address->segment_selector, index, size);
+	qb_print(cxt,  "} else if(UNEXPECTED(%s + %s < %s)) {\n");
+	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s, %s, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
 }
 
@@ -1392,10 +1392,8 @@ static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_co
 		return FALSE;
 	}
 
-#ifndef ZEND_DEBUG
 	// delete the temporary c file
 	DeleteFile(cxt->c_file_path);
-#endif
 	return TRUE;
 }
 #endif	// _MSC_VER

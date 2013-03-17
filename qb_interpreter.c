@@ -849,10 +849,11 @@ NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_mem
 	}
 	if(problem_variable) {
 		uint32_t max_index = index + count - base_index - 1;
+		const char *var_name = (problem_variable->name) ? problem_variable->name : "(return value)";
 		if(IS_SCALAR(problem_variable->address)) {
-			qb_abort("Array index %d is beyond the range of a scalar: %s", max_index, problem_variable->name);
+			qb_abort("Array index %d is beyond the range of a scalar: %s", max_index, var_name);
 		} else {
-			qb_abort("Array index %d is out of range: %s", max_index, problem_variable->name);
+			qb_abort("Array index %d is out of range: %s", max_index, var_name);
 		}
 	} else {
 		qb_abort("Illegal memory access on segment %d at index %d", segment_selector, index);
