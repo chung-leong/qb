@@ -154,7 +154,7 @@ static zend_always_inline const char * qb_pbj_get_op_name(qb_compiler_context *c
 	if(!cxt->pool->pbj_op_names) {
 		qb_uncompress_table(compressed_table_pbj_op_names, (void ***) &cxt->pool->pbj_op_names, NULL, 0);
 		if(!cxt->pool->pbj_op_names) {
-			qb_abort("Unable to decompress table");
+			return "?";
 		}
 	}
 	return cxt->pool->pbj_op_names[opcode];
