@@ -1,5 +1,9 @@
 --TEST--
 Pixel Bender test: Bezier Aligner
+--SKIPIF--
+<?php 
+	if(!function_exists('imagepng') < 0) print 'skip PNG function not available';
+?>
 --FILE--
 <?php
 
