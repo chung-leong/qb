@@ -174,7 +174,7 @@ static const char * ZEND_FASTCALL qb_get_op_name(qb_compiler_context *cxt, uint3
 		// decompress the opname table
 		qb_uncompress_table(compressed_table_op_names, (void ***) &cxt->pool->op_names, NULL, 0);
 		if(!cxt->pool->op_names) {
-			qb_abort("Unable to decompress table");
+			return "?";
 		}
 	}
 	return cxt->pool->op_names[opcode];
@@ -2767,7 +2767,7 @@ static void ZEND_FASTCALL qb_encode_jump_target(qb_compiler_context *cxt, uint32
 
 	// the opcode and offset will be replaced with actual pointers during relocation
 	*((void **) *p_ip) = (void *) ~((uintptr_t) target_qop->opcode); *p_ip += sizeof(void *);
-	*((int8_t **) *p_ip) = (int8_t *) target_qop->instruction_offset; *p_ip += sizeof(int8_t *);
+	*((int8_t **) *p_ip) = (int8_t *) (uintptr_t) target_qop->instruction_offset; *p_ip += sizeof(int8_t *);
 }
 
 static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {

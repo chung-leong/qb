@@ -24,7 +24,7 @@ static zend_always_inline const char * qb_get_zend_op_name(qb_compiler_context *
 	if(!cxt->pool->zend_op_names) {
 		qb_uncompress_table(compressed_table_zend_op_names, (void ***) &cxt->pool->zend_op_names, NULL, 0);
 		if(!cxt->pool->zend_op_names) {
-			qb_abort("Unable to decompress table");
+			return "?";
 		}
 	}
 	return cxt->pool->zend_op_names[opcode];
@@ -2276,9 +2276,6 @@ static qb_translator op_translators[] = {
 };
 
 static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *cxt) {
-#ifdef ZEND_DEBUG
-	const char *op_name = qb_get_zend_op_name(cxt, cxt->zend_op->opcode);
-#endif
 	if(cxt->zend_op->opcode != ZEND_OP_DATA) {
 		USE_TSRM
 		qb_operand operands[2], result;
