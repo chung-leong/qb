@@ -176,7 +176,7 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 	cxt->read_stream = fdopen(gcc_pipe_read[0], "r");
 	cxt->error_stream = fdopen(gcc_pipe_error[0], "r");
 
-	return (pid > 0);
+	return (pid > 0 && cxt->write_stream && cxt->read_stream && cxt->error_stream);
 }
 #endif	// __GNUC__
 

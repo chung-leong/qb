@@ -26,5 +26,5 @@ qb_compile();
 test_function();
 
 ?>
---EXPECT--
-2 0.9999999
+--EXPECTREGEX--
+2 (0.9999999|1)
