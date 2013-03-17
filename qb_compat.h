@@ -202,7 +202,9 @@ double _php_math_round(double value, int places, int mode);
 
 #ifdef _MSC_VER
 	#define strtoull	_strtoui64
+#endif
 
+#if defined(_MSC_VER) || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 	// not sure why Zend doesn't use alloca in win32
 	#undef ALLOCA_FLAG
 	#undef SET_ALLOCA_FLAG
