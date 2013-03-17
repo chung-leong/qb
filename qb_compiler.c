@@ -677,6 +677,9 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_conte
 			segment->dimension_pointer = ARRAY(U32, size_address);
 			segment->array_size_pointer = ARRAY(U32, size_address);
 			segment->type = element_type;
+			if(BYTE_COUNT(element_count, element_type) <= 8192) {
+				segment->flags |= QB_SEGMENT_PREALLOCATED;
+			}
 			start = 0;
 			end = element_count;
 

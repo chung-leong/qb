@@ -899,7 +899,8 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 
 		if(address->flags & QB_ADDRESS_SEGMENT) {
 			*segment->array_size_pointer = *segment->stack_ref_element_count = segment->element_count = element_count;
-			if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
+			// if the segment doesn't have preallocated memory, see if it can borrow it from the zval
+			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
 				php_stream *stream;
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
 					// use memory from the string if it's long enough
@@ -970,7 +971,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 		uint32_t element_count = qb_set_array_dimensions_from_caller_address(cxt, caller_storage, caller_address, address); 
 
 		// see if we can just point to the memory in the caller storage
-		if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
+		if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
 			if(STORAGE_TYPE_MATCH(address->type, caller_address->type)) {
 				// use memory from the caller if it's larger enough
 				if(ARRAY_SIZE_IN(caller_storage, caller_address) >= ARRAY_SIZE(address)) {
@@ -996,7 +997,9 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 		}
 
 		// allocate memory for the segment
-		qb_resize_segment(cxt, segment, BYTE_COUNT(element_count, address->type));
+		if(segment->element_count != element_count) {
+			qb_resize_segment(cxt, segment, BYTE_COUNT(element_count, address->type));
+		}
 
 		// update the segment length and allocation count
 		// don't need to update the value referenced by segment->array_size_pointer, since
