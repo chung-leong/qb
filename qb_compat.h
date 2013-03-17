@@ -276,6 +276,15 @@ int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void);
 	void _allshl(void);
 #endif
 
+#ifdef __GNUC__
+	__extension__ extern long long int llabs (long long int __x);
+	extern double round (double __x);
+	extern double expm1 (double __x);
+	extern double log1p (double __x);
+	extern double exp2 (double __x);
+	extern double log2 (double __x);
+#endif
+
 // the following is copied from the PHP source so we can build without the
 // full source code--i.e. using just phpize
 
