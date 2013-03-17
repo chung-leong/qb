@@ -21,8 +21,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xmult($c, $b);
-	echo xmult($a, $b), "\n";
+	$c = cmult($c, $b);
+	echo cmult($a, $b), "\n";
 	echo "$c\n";
 }
 

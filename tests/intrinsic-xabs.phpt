@@ -19,8 +19,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	echo xabs($a), "\n";
-	echo xabs($c), "\n";
+	echo cabs($a), "\n";
+	echo cabs($c), "\n";
 }
 
 qb_compile();

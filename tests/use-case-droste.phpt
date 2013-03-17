@@ -199,7 +199,7 @@ class Droste {
 				
 				// Only allow for procedural zooming/scaling in the standard coordinates
 				if($this->twist) {
-					$z = $xyMiddle + xmult(xdiv(($z - $xyMiddle), $zoom), xexp(xmult(-$I, $rotate)));
+					$z = $xyMiddle + cmult(cdiv(($z - $xyMiddle), $zoom), cexp(cmult(-$I, $rotate)));
 				}
 				
 				if($this->rotatePolar != 0.0) {
@@ -207,13 +207,13 @@ class Droste {
 				
 					$div->x = (1.0 + pow($z->x, 2.0) + pow($z->y, 2.0) + ((1.0 - pow($z->x, 2.0) - pow($z->y, 2.0)) * cos($theta)) - (2.0 * $z->x * sin($theta))) / 2.0;
 					$z->x = $z->x * cos($theta) + ((1.0 - pow($z->x, 2.0) - pow($z->y, 2.0)) * sin($theta) / 2.0);
-					$z = xdiv($z, $div);
+					$z = cdiv($z, $div);
 				}
 				
 				$z = vm_mult($z, $imageSpin);
 				
 				if ($this->twist) {
-					$z = xlog(xdiv($z, array($r1, 0.0)));
+					$z = clog(cdiv($z, array($r1, 0.0)));
 				}
 				
 				// Start Droste-effect code
@@ -221,7 +221,7 @@ class Droste {
 				$alpha->y = 0.0;
 				$f->x = cos($alpha->x);
 				$f->y = 0.0;
-				$beta = xmult($f, xexp(xmult($alpha, $I)));
+				$beta = cmult($f, cexp(cmult($alpha, $I)));
 				
 				// The angle of rotation between adjacent annular levels
 				$angle->x = -2 * M_PI * $p1;
@@ -234,18 +234,18 @@ class Droste {
 					$angle /= $p2;
 				}
 				
-				$z = xdiv(xmult(array($p1, 0.0), $z), $beta);
-				$z = xmult(array($r1, 0.0), xexp($z));
+				$z = cdiv(cmult(array($p1, 0.0), $z), $beta);
+				$z = cmult(array($r1, 0.0), cexp($z));
 				// End Droste-effect code
 				
 				// Start drawing
 				if($tileBasedOnTransparency && $this->levelStart > 0) {
 					if($this->transparentOutside) {
-						$ratio = xmult(array($r2/$r1, 0.0), xexp(xmult($angle,  $I)));
+						$ratio = cmult(array($r2/$r1, 0.0), cexp(cmult($angle,  $I)));
 					} else {
-						$ratio = xmult(array($r1/$r2, 0.0), xexp(xmult($angle, -$I)));
+						$ratio = cmult(array($r1/$r2, 0.0), cexp(cmult($angle, -$I)));
 					}
-					$z = xmult($z, xpow($ratio, array($this->levelStart, 0)));
+					$z = cmult($z, cpow($ratio, array($this->levelStart, 0)));
 				}
 				
 				$iteration = 0;
@@ -272,16 +272,16 @@ class Droste {
 				$iteration++;
 				
 				if($sign < 0) {
-					$ratio = xmult(array($r2/$r1, 0.0), xexp(xmult($angle, $I)));
+					$ratio = cmult(array($r2/$r1, 0.0), cexp(cmult($angle, $I)));
 				} else if($sign > 0) {
-					$ratio = xmult(array($r1/$r2, 0.0), xexp(xmult($angle, -$I)));
+					$ratio = cmult(array($r1/$r2, 0.0), cexp(cmult($angle, -$I)));
 				}
 				
 				$iteration = $this->levelStart;
 				$maxIteration = $this->levels + $this->levelStart - 1;
 				
 				while($sign != 0 && $iteration < $maxIteration) {
-					$z = xmult($z, $ratio);
+					$z = cmult($z, $ratio);
 					
 	        		$d = $minDimension * ($z + $shift);
 		        	$sign = 0;
@@ -303,6 +303,9 @@ class Droste {
 	            		$sign = sign($radius - $r1);
 					}
 					$iteration++;
+				}
+				if($colorSoFar->a < 1.0) {
+					$colorSoFar = mix($colorSoFar, $this->backgroundRGBA, 1.0 - $colorSoFar->a);
 				}
 				$output[$y][$x] = $colorSoFar;
 			}

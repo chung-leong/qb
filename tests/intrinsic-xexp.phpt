@@ -1,5 +1,5 @@
 --TEST--
-Complex number exponential test
+Complex number ecponential test
 --FILE--
 <?php 
 
@@ -19,8 +19,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xexp($c);
-	echo xexp($a), "\n";
+	$c = cexp($c);
+	echo cexp($a), "\n";
 	echo "$c\n";
 }
 

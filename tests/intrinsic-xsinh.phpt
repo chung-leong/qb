@@ -19,8 +19,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xsinh($c);
-	echo xsinh($a), "\n";
+	$c = csinh($c);
+	echo csinh($a), "\n";
 	echo "$c\n";
 }
 

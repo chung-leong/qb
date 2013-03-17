@@ -19,8 +19,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xtan($c);
-	echo xtan($a), "\n";
+	$c = ctan($c);
+	echo ctan($a), "\n";
 	echo "$c\n";
 }
 

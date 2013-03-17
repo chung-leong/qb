@@ -19,8 +19,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xcos($c);
-	echo xcos($a), "\n";
+	$c = ccos($c);
+	echo ccos($a), "\n";
 	echo "$c\n";
 }
 

@@ -19,8 +19,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xsqrt($c);
-	echo xsqrt($a), "\n";
+	$c = csqrt($c);
+	echo csqrt($a), "\n";
 	echo "$c\n";
 }
 

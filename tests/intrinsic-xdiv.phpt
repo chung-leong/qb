@@ -21,8 +21,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xdiv($c, $b);
-	echo xdiv($a, $b), "\n";
+	$c = cdiv($c, $b);
+	echo cdiv($a, $b), "\n";
 	echo "$c\n";
 }
 

@@ -19,8 +19,8 @@ function test_function() {
 	$c[1] = array(-13, 1);
 	$c[2] = array(3.5, -2);
 	
-	$c = xpow($c, array(2, 0));
-	echo xpow($a, array(3,-3)), "\n";
+	$c = cpow($c, array(2, 0));
+	echo cpow($a, array(3,-3)), "\n";
 	echo "$c\n";
 }
 
