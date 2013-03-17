@@ -1674,7 +1674,7 @@ static void ZEND_FASTCALL qb_translate_unset(qb_compiler_context *cxt, void *op_
 	}
 	qb_create_nullary_op(cxt, op_factory, variable->address); 
 
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+#if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 	result->type = QB_OPERAND_NONE;
 #endif
 }

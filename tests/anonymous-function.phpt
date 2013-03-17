@@ -14,14 +14,14 @@ $a = function($a, $b) {
 	return $a + $b;
 };
 
-$decl = [
+$decl = array(
 	'engine' => 'qb',
-	'param' => [
+	'param' => array(
 		'int32 $a', 
 		'int32 $b',
-	],
+	),
 	'return' => 'uint32'
-];
+);
 
 qb_compile($a, $decl);
 
