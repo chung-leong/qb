@@ -1865,7 +1865,6 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 			if(qvar->flags & QB_VARIABLE_ARGUMENT) {
 				// push argument onto Zend stack
 				Z_ADDREF_P(value);
-
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 				zend_vm_stack_push(value TSRMLS_CC);
 #else
@@ -1875,7 +1874,10 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 		}
 	}
 	// push the argument count
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+#if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3
+	ex->function_state.arguments = zend_vm_stack_top(TSRMLS_C);
+	zend_vm_stack_push((void *) (zend_uintptr_t) cxt->function->argument_count TSRMLS_CC);
+#elif !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	ex->function_state.arguments = zend_vm_stack_push_args(cxt->function->argument_count TSRMLS_CC);
 #else
 	zend_ptr_stack_2_push(&EG(argument_stack), (void *) (zend_uintptr_t) cxt->function->argument_count, NULL);
