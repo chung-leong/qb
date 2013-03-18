@@ -361,7 +361,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_tab
 							if(data_len == 2 && strncmp(data, "qb", 2) == 0) {
 							} else if(data_len == 11 && strncmp(data, "qb-bytecode", 11) == 0) {
 								function_decl->flags |= QB_ENGINE_NEVER_COMPILE;
-							} else if(data_len == 8 && strncmp(data, "qb-native", 9) == 0) {
+							} else if(data_len == 9 && strncmp(data, "qb-native", 9) == 0) {
 								function_decl->flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
 							} else {
 								error_zval = element;
@@ -455,7 +455,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_
 					} else if(data_len == 11 && strncmp(data, "qb-bytecode", 11) == 0) {
 						use_qb = TRUE;
 						function_decl->flags |= QB_ENGINE_NEVER_COMPILE;
-					} else if(data_len == 8 && strncmp(data, "qb-native", 9) == 0) {
+					} else if(data_len == 9 && strncmp(data, "qb-native", 9) == 0) {
 						use_qb = TRUE;
 						function_decl->flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
 					}

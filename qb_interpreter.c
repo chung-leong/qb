@@ -2193,21 +2193,22 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 
 		memset(&user_op, 0, sizeof(zend_op));
 		user_op.opcode = qb_user_opcode;
+
+		// attach a name to the op so others can figure out what it is
 		Z_OPERAND_TYPE(user_op.op1) = Z_OPERAND_CONST;
+		Z_TYPE(name) = IS_STRING;
+		Z_STRVAL(name) = "QBVM";
+		Z_STRLEN(name) = 4;
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 		Z_OPERAND_ZV(user_op.op1) = &name;
 #else
 		memcpy(Z_OPERAND_ZV(user_op.op1), &name, sizeof(zval));
 #endif
+
 		Z_OPERAND_TYPE(user_op.op2) = Z_OPERAND_UNUSED;
 		Z_OPERAND_INFO(user_op.op2, jmp_addr) = (zend_op *) cxt;
 		Z_OPERAND_TYPE(user_op.result) = Z_OPERAND_UNUSED;
 		zend_vm_set_opcode_handler(&user_op);
-
-		// attach a name to the op so others can figure out what it is
-		Z_TYPE(name) = IS_STRING;
-		Z_STRVAL(name) = "QBVM";
-		Z_STRLEN(name) = 4;
 
 		// make the funcion look like a user function temporarily
 		zfunc->type = ZEND_USER_FUNCTION;
