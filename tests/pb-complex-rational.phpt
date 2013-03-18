@@ -1,5 +1,9 @@
 --TEST--
 Pixel Bender test: Complex Mapping f(z)= (az2+b)/(cz2+d)
+--SKIPIF--
+<?php 
+	if(!function_exists('imagepng')) print 'skip PNG function not available';
+?>
 --FILE--
 <?php
 

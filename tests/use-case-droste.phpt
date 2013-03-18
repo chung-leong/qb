@@ -1,5 +1,9 @@
 --TEST--
 Use case: Droste Effect
+--SKIPIF--
+<?php 
+	if(!function_exists('imagepng')) print 'skip PNG function not available';
+?>
 --FILE--
 <?php
 

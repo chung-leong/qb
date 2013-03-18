@@ -279,6 +279,7 @@ uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, i
 
 int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent) {
 	TSRMLS_FETCH();
+	static int32_t decompression_failed = FALSE;
 	uint32_t compressed_length = SWAP_LE_I32(((uint32_t *) data)[0]);
 	uint32_t uncompressed_length = SWAP_LE_I32(((uint32_t *) data)[1]);
 	uint32_t total_data_length = SWAP_LE_I32(((uint32_t *) data)[2]);
@@ -290,10 +291,14 @@ int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uin
 		zval *param, **p_param = &param;
 		zval *retval = NULL;
 
-		function_name = qb_cstring_to_zval("gzinflate" TSRMLS_CC);
-		param = qb_string_to_zval(data + sizeof(uint32_t) * 4, compressed_length TSRMLS_CC);
+		if(!decompression_failed) {
+			function_name = qb_cstring_to_zval("gzinflate" TSRMLS_CC);
+			param = qb_string_to_zval(data + sizeof(uint32_t) * 4, compressed_length TSRMLS_CC);
 
-		call_user_function_ex(CG(function_table), NULL, function_name, &retval, 1, &p_param, TRUE, NULL TSRMLS_CC);
+			if(call_user_function_ex(CG(function_table), NULL, function_name, &retval, 1, &p_param, TRUE, NULL TSRMLS_CC) != SUCCESS) {
+				decompression_failed = TRUE;
+			}
+		}
 		if(retval && Z_TYPE_P(retval) == IS_STRING) {
 			int8_t *p = (int8_t *) Z_STRVAL_P(retval), *q; 
 			int8_t *data_end = p + Z_STRLEN_P(retval);

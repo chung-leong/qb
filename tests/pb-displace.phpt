@@ -1,5 +1,9 @@
 --TEST--
 Pixel Bender test: Displace
+--SKIPIF--
+<?php 
+	if(!function_exists('imagepng')) print 'skip PNG function not available';
+?>
 --FILE--
 <?php
 
