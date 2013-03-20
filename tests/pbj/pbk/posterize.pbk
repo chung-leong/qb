@@ -25,48 +25,56 @@ kernel Posterizer
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0);
         defaultValue:pixel4(0.441,0.5859375,0.62109375,1); // middle, greyish blue
+        parameterType: "colorRGBA";
     >;
      parameter pixel4 color2
     <
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0); 
         defaultValue:pixel4(0.839,0.101,0.1289,1);  //  strong red
+        parameterType: "colorRGBA";
     >;
     parameter pixel4 color3
     <
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0); 
         defaultValue:pixel4(0,0.195,0.3,1);    //  dark blur  
+        parameterType: "colorRGBA";
     >;
     parameter pixel4 color4
     <
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0); 
         defaultValue:pixel4(0.983,0.89,0.656,1);   //   light yellow 
+        parameterType: "colorRGBA";
     >;
     parameter pixel4 color5
     <
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0); 
         defaultValue:pixel4(0,0,0,1);
+        parameterType: "colorRGBA";
     >;
     parameter pixel4 color6
     <
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0); 
         defaultValue:pixel4(1,0,0,1);
+        parameterType: "colorRGBA";
     >;
     parameter pixel4 color7
     <
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0); 
         defaultValue:pixel4(0,1,0,1);
+        parameterType: "colorRGBA";
     >;
     parameter pixel4 color8
     <
         minValue:pixel4(0.0);
         maxValue:pixel4(1.0);
         defaultValue:pixel4(0,0,1,1);
+        parameterType: "colorRGBA";
     >;
     parameter int numColors
     <
