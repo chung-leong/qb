@@ -254,9 +254,9 @@ static qb_address * ZEND_FASTCALL qb_obtain_zval_constant(qb_compiler_context *c
 }
 
 static uint32_t qb_find_doc_comment_line_number(const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
-	TSRMLS_FETCH();
 	// load the file
 	uint32_t line_number = 0;
+	TSRMLS_FETCH();
 	if(filepath) {
 		php_stream *stream = php_stream_open_wrapper_ex((char *) filepath, "rb", 0, NULL, NULL);
 		if(stream) {
@@ -308,8 +308,8 @@ static uint32_t qb_find_doc_comment_line_number(const char *comment, uint32_t co
 }
 
 static void qb_abort_doc_comment_unexpected_error(const char *comment, uint32_t comment_length, int matches, int *offsets, const char *filepath, uint32_t line_number_max) {
-	TSRMLS_FETCH();
 	int i;
+	TSRMLS_FETCH();
 	for(i = 1; i < matches; i++) {
 		if(FOUND_GROUP(i)) {
 			uint32_t tag_len = GROUP_LENGTH(i);
@@ -325,8 +325,8 @@ static void qb_abort_doc_comment_unexpected_error(const char *comment, uint32_t 
 }
 
 static void qb_abort_doc_comment_syntax_error(const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
-	TSRMLS_FETCH();
 	uint32_t line_number = qb_find_doc_comment_line_number(comment, comment_length, offset, filepath, line_number_max);
+	TSRMLS_FETCH();
 	QB_G(current_filename) = filepath;
 	QB_G(current_line_number) = line_number;
 	qb_abort("Syntax error encountered while parsing Doc Comments for type information");

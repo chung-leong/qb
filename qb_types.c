@@ -278,12 +278,12 @@ uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, i
 }
 
 int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent) {
-	TSRMLS_FETCH();
 	static int32_t decompression_failed = FALSE;
 	uint32_t compressed_length = SWAP_LE_I32(((uint32_t *) data)[0]);
 	uint32_t uncompressed_length = SWAP_LE_I32(((uint32_t *) data)[1]);
 	uint32_t total_data_length = SWAP_LE_I32(((uint32_t *) data)[2]);
 	uint32_t item_count = SWAP_LE_I32(((uint32_t *) data)[3]);
+	TSRMLS_FETCH();
 
 	if(compressed_length < uncompressed_length) {
 		// call gzinflate through PHP (since the zlib functions are not otherwise exposed)

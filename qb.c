@@ -365,10 +365,10 @@ PHP_FUNCTION(qb_execute)
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
 NO_RETURN void qb_abort(const char *format, ...) {
-	TSRMLS_FETCH();
 	const char *filename;
 	uint32_t lineno;
 	va_list args;
+	TSRMLS_FETCH();
 
 	if(QB_G(current_filename)) {
 		filename = QB_G(current_filename);
