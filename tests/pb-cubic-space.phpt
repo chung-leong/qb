@@ -20,13 +20,20 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
  *
  * @param image			$dst
  * @param image			$src
+ * @param float[4][4]	$orientation
  */
-function filter(&$dst, $src) {
-}
+function filter(&$dst, $src, $orientation) {
+} 
 
 qb_compile();
 
-filter($output, $image);
+$orientation =  
+	array( 1,  0,  0,  0, 
+		   0,  1,  0,  0,
+		   0,  0,  1,  0,
+		   0, 50, 50,  1);
+
+filter($output, $image, $orientation);
 
 ob_start();
 imagesavealpha($output, true);

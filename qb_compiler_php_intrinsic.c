@@ -791,7 +791,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 		c.module_number = PHP_USER_CONSTANT;
 		registration_result = zend_register_constant(&c TSRMLS_CC);
 		if(result->type != QB_OPERAND_NONE) {
-			if(result == SUCCESS) {
+			if(registration_result == SUCCESS) {
 				result->address = qb_obtain_constant_S32(cxt, TRUE);
 			} else {
 				result->address = qb_obtain_constant_S32(cxt, FALSE);
