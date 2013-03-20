@@ -362,12 +362,12 @@
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="false"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="false"
 				PrecompiledHeaderFile="..\Release_TS/qb.pch"
-				AssemblerListingLocation="..\Release_TS/"
-				ObjectFile="..\Release_TS/"
-				ProgramDataBaseFileName="..\Release_TS/"
+				AssemblerListingLocation="..\Release_TS_VC6/"
+				ObjectFile="..\Release_TS_VC6/"
+				ProgramDataBaseFileName="..\Release_TS_VC6/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -386,16 +386,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="php5ts.lib odbc32.lib odbccp32.lib"
-				OutputFile="..\..\..\Release_TS/php_qb.dll"
+				OutputFile="..\..\..\Release_TS_VC6/php_qb.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\Release_TS,..\..\Release_TS_Inline"
-				ProgramDatabaseFile="..\Release_TS/php_qb.pdb"
+				AdditionalLibraryDirectories="..\..\..\Release_TS_VC6,..\..\Release_TS_Inline"
+				ProgramDatabaseFile="..\Release_TS_VC6/php_qb.pdb"
 				SubSystem="2"
 				LinkTimeCodeGeneration="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="..\Release_TS/php_qb.lib"
+				ImportLibrary="..\Release_TS_VC6/php_qb.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -709,20 +709,6 @@
 			<File
 				RelativePath="..\qb_interpreter_msvc.c"
 				>
-				<FileConfiguration
-					Name="Debug_TS_VC6|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS_VC6|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_native_compiler.c"

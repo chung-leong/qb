@@ -231,21 +231,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_image(qb_interpreter_
 static uint32_t ZEND_FASTCALL qb_get_zend_array_size(qb_interpreter_context *cxt, zval *zvalue) {
 	if(Z_TYPE_P(zvalue) == IS_ARRAY) {
 		HashTable *ht = Z_ARRVAL_P(zvalue);
-		Bucket *p;
-		int32_t highest_index = -1;
-
-		for(p = ht->pListHead; p; p = p->pListNext) {
-			if(p->nKeyLength > 0) {
-				qb_abort("String key encountered: %s", p->arKey);
-			}
-			if((long) p->h < 0) {
-				qb_abort("Negative index encountered: %lu", p->h);
-			}
-			if((long) p->h > highest_index) {
-				highest_index = p->h;
-			}
-		}
-		return highest_index + 1;
+		return ht->nNextFreeElement;
 	} else {
 		if(Z_TYPE_P(zvalue) == IS_NULL) {
 			return 0;
@@ -288,6 +274,20 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_caller_address(qb_int
 	}
 }
 
+static int32_t ZEND_FASTCALL qb_is_linear_zval_array(qb_interpreter_context *cxt, zval *zvalue) {
+	HashTable *ht = Z_ARRVAL_P(zvalue);
+	Bucket *p;
+	for(p = ht->pListHead; p; p = p->pListNext) {
+		if(p->nKeyLength == 0 && p->h >= 0) {
+			zval **p_element = p->pData;
+			if(Z_TYPE_PP(p_element) == IS_ARRAY || Z_TYPE_PP(p_element) == IS_OBJECT) {
+				return FALSE;
+			}
+		}
+	}
+	return TRUE;
+}
+
 static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
 	USE_TSRM
 
@@ -301,6 +301,17 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 
 		if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
 			if(dimension > dimension_expected) {
+				if(address->dimension_count > 1 && IS_FIXED_LENGTH_ARRAY(address)) {
+					// maybe we're trying to initialize a multidimensional array with a linear array
+					if(qb_is_linear_zval_array(cxt, zvalue)) {
+						uint32_t array_size = Z_ARRVAL_P(zvalue)->nNextFreeElement;
+						uint32_t array_size_expected = ARRAY_SIZE(address);
+						if(array_size > array_size_expected) {
+							qb_abort("Number of elements (%d) exceeds the declared size of the array (%d): %s", array_size, array_size_expected, qb_get_address_name(cxt, address));
+						}
+						return array_size_expected;
+					}
+				}
 				// dimension is defined
 				qb_abort("Number of elements (%d) exceeds the declared size of the array (%d): %s", dimension, dimension_expected, qb_get_address_name(cxt, address));
 			}
@@ -332,8 +343,10 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 				Bucket *p;
 
 				for(p = ht->pListHead; p; p = p->pListNext) {
-					zval **p_element = p->pData;
-					qb_set_array_dimensions_from_zval(cxt, *p_element, &item_address);
+					if(p->nKeyLength == 0 && p->h >= 0) {
+						zval **p_element = p->pData;
+						qb_set_array_dimensions_from_zval(cxt, *p_element, &item_address);
+					}
 				}
 			} else {
 				// pass the value along to set the long dimension to either one or zero (if they were not defined)
@@ -472,6 +485,19 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 		if(Z_TYPE_P(zvalue) == IS_ARRAY) {
 			HashTable *ht = Z_ARRVAL_P(zvalue);
 			uint32_t array_size = ht->nNextFreeElement;
+
+			if(array_size > dimension) {
+				if(item_address->dimension_count > 0 && qb_is_linear_zval_array(cxt, zvalue)) {
+					// initializing a multidimensional array with a linear array
+					item_address->dimension_count = 0;
+					item_address->mode = QB_ADDRESS_MODE_ELC;
+					item_address->dimension_addresses =
+					item_address->array_size_addresses = NULL;
+					item_address->array_size_address = NULL;
+					item_element_count = 1;
+					item_byte_count = BYTE_COUNT(item_element_count, item_address->type);
+				}
+			}
 			for(i = 0; i < array_size; i++) {
 				zval **p_item;
 				if(zend_hash_index_find(ht, i, (void **) &p_item) == SUCCESS) {
@@ -2193,21 +2219,22 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 
 		memset(&user_op, 0, sizeof(zend_op));
 		user_op.opcode = qb_user_opcode;
+
+		// attach a name to the op so others can figure out what it is
 		Z_OPERAND_TYPE(user_op.op1) = Z_OPERAND_CONST;
+		Z_TYPE(name) = IS_STRING;
+		Z_STRVAL(name) = "QBVM";
+		Z_STRLEN(name) = 4;
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 		Z_OPERAND_ZV(user_op.op1) = &name;
 #else
 		memcpy(Z_OPERAND_ZV(user_op.op1), &name, sizeof(zval));
 #endif
+
 		Z_OPERAND_TYPE(user_op.op2) = Z_OPERAND_UNUSED;
 		Z_OPERAND_INFO(user_op.op2, jmp_addr) = (zend_op *) cxt;
 		Z_OPERAND_TYPE(user_op.result) = Z_OPERAND_UNUSED;
 		zend_vm_set_opcode_handler(&user_op);
-
-		// attach a name to the op so others can figure out what it is
-		Z_TYPE(name) = IS_STRING;
-		Z_STRVAL(name) = "QBVM";
-		Z_STRLEN(name) = 4;
 
 		// make the funcion look like a user function temporarily
 		zfunc->type = ZEND_USER_FUNCTION;
