@@ -26,6 +26,15 @@ if test "$PHP_QB" != "no"; then
     fi
   fi
 
+  PHP_SUBST(QB_SHARED_LIBADD)
+  case $host_alias in
+  *darwin*)
+    ;;
+  *)
+    PHP_ADD_LIBRARY(rt,, QB_SHARED_LIBADD)
+    ;;
+  esac
+
   extra_sources="qb_types.c qb_compiler.c qb_native_compiler.c qb_interpreter.c qb_interpreter_gcc.c qb_extractor.c qb_data_tables.c qb_compat.c"
 
   PHP_NEW_EXTENSION(qb, qb.c $extra_sources, $ext_shared, , "$sse_flags $avx_flags")
