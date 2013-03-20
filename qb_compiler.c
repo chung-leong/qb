@@ -1321,11 +1321,11 @@ static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool
 			const char *number = s + GROUP_OFFSET(TYPE_DIM_INT);
 			dimension = strtol(number, NULL, 0);
 		} else if(FOUND_GROUP(TYPE_DIM_CONSTANT)) {
-			TSRMLS_FETCH();
 			zend_constant *zconst;
 			uint32_t name_len = GROUP_LENGTH(TYPE_DIM_CONSTANT);
 			ALLOCA_FLAG(use_heap)
 			char *name = do_alloca(name_len + 1, use_heap);
+			TSRMLS_FETCH();
 			memcpy(name, s + GROUP_OFFSET(TYPE_DIM_CONSTANT), name_len);
 			name[name_len] = '\0';
 			if(zend_hash_find(EG(zend_constants), name, name_len + 1, (void **) &zconst) != FAILURE) {
