@@ -231,21 +231,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_image(qb_interpreter_
 static uint32_t ZEND_FASTCALL qb_get_zend_array_size(qb_interpreter_context *cxt, zval *zvalue) {
 	if(Z_TYPE_P(zvalue) == IS_ARRAY) {
 		HashTable *ht = Z_ARRVAL_P(zvalue);
-		Bucket *p;
-		int32_t highest_index = -1;
-
-		for(p = ht->pListHead; p; p = p->pListNext) {
-			if(p->nKeyLength > 0) {
-				qb_abort("String key encountered: %s", p->arKey);
-			}
-			if((long) p->h < 0) {
-				qb_abort("Negative index encountered: %lu", p->h);
-			}
-			if((long) p->h > highest_index) {
-				highest_index = p->h;
-			}
-		}
-		return highest_index + 1;
+		return ht->nNextFreeElement;
 	} else {
 		if(Z_TYPE_P(zvalue) == IS_NULL) {
 			return 0;
@@ -292,7 +278,7 @@ static int32_t ZEND_FASTCALL qb_is_linear_zval_array(qb_interpreter_context *cxt
 	HashTable *ht = Z_ARRVAL_P(zvalue);
 	Bucket *p;
 	for(p = ht->pListHead; p; p = p->pListNext) {
-		if(!p->arKey && p->h >= 0) {
+		if(p->nKeyLength == 0 && p->h >= 0) {
 			zval **p_element = p->pData;
 			if(Z_TYPE_PP(p_element) == IS_ARRAY || Z_TYPE_PP(p_element) == IS_OBJECT) {
 				return FALSE;
@@ -357,7 +343,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 				Bucket *p;
 
 				for(p = ht->pListHead; p; p = p->pListNext) {
-					if(!p->arKey && p->h >= 0) {
+					if(p->nKeyLength == 0 && p->h >= 0) {
 						zval **p_element = p->pData;
 						qb_set_array_dimensions_from_zval(cxt, *p_element, &item_address);
 					}
