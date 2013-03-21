@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:local="*"
+			   width="1052" height="640" creationComplete="creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Shader;
+			import flash.filters.ShaderFilter;
+			
+			import mx.events.FlexEvent;
+			
+			protected var imageURL:String;
+			protected var textureURL:String; 
+			protected var kernelURL:String;
+			
+			protected var shaderFilter:ShaderFilter;
+			protected var shader:Shader;
+			protected var shaderParameters:Vector.<ShaderParameter>;
+			protected var texture:BitmapData;
+			
+			protected var textureLoader:Loader;
+			protected var kernelLoader:URLLoader;
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				var queryString:String = ExternalInterface.call("window.location.search.substring", 1);
+				var params:Array = queryString.split('&');
+				var param:String;
+				var options:Object = {};
+				for each(param in params) {
+					var pair:Array = param.split('=');
+					if(pair.length == 2) {
+						options[pair[0]] = pair[1];
+					} 		
+				}
+				
+				if(options.image) {
+					imageURL = 'assets/' + options.image;
+				}
+				if(options.texture) {
+					textureURL = 'assets/' + options.texture;
+				}
+				if(options.kernel) {
+					kernelURL = 'assets/' + options.kernel;
+				}
+				
+				if(imageURL) {
+					localImage.source = imageURL;
+				}
+				if(textureURL) {
+					loadTexture();
+				} else if(kernelURL) {
+					loadKernel();
+				}
+			}
+			
+			protected function loadKernel():void {
+				var request:URLRequest = new URLRequest(kernelURL);
+				kernelLoader = new URLLoader;
+				kernelLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				kernelLoader.addEventListener(Event.COMPLETE, kernelLoadCompleteHandler);
+				kernelLoader.load(request);
+			}
+			
+			protected function loadTexture():void {
+				var request:URLRequest = new URLRequest(textureURL);
+				textureLoader = new Loader;				
+				textureLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, textureLoadCompleteHandler);
+				textureLoader.load(request);
+			}
+			
+			protected function textureLoadCompleteHandler(event:Event):void {
+				var bitmap:Bitmap = textureLoader.content as Bitmap;
+				texture = bitmap.bitmapData;
+				loadKernel();	
+			}
+			
+			protected function kernelLoadCompleteHandler(event:Event):void {
+				kernelLoader.removeEventListener(Event.COMPLETE, kernelLoadCompleteHandler);
+				shader = new Shader(kernelLoader.data);
+				shader.precisionHint = ShaderPrecision.FULL;
+				shaderFilter = new ShaderFilter(shader);
+
+				var key:String;
+				if(texture) {
+					for(key in shader.data) {
+						if(shader.data[key] is ShaderInput) {
+							var input:ShaderInput = shader.data[key];
+							input.input = texture;
+						}
+					}
+				}
+				localImage.filters = [ shaderFilter ];
+				
+				shaderParameters = new Vector.<ShaderParameter>;				
+				for(key in shader.data) {
+					if(shader.data[key] is ShaderParameter) {
+						shaderParameters.push(shader.data[key]);
+					}
+				} 
+				shaderParameters.sort(function(a:ShaderParameter, b:ShaderParameter):Number {
+					if(a.name < b.name) {
+						return -1;
+					} else if(a.name > b.name) {
+						return +1;
+					} else {
+						return 0;
+					}
+				});
+				
+				updateControls();
+				updateRemoteImage();
+			}
+			
+			protected function updateControls():void {
+				var parameter:ShaderParameter;
+				var i:uint;
+				for each(parameter in shaderParameters) {
+					switch(parameter.parameterType) {
+						case 'colorRGBA': {
+							var colorControl:RGBEditor = new RGBEditor;
+							colorControl.parameter = parameter;
+							colorControl.addEventListener(FlexEvent.CHANGING, parameterChangingHandler, false, 0, true);
+							colorControl.addEventListener(FlexEvent.CHANGE_END, parameterChangeEndHandler, false, 0, true);
+							controlGroup.addElement(colorControl);
+						}	break;
+						default: {
+							switch(parameter.type) {
+								case 'bool':
+								case 'bool2':
+								case 'bool3':
+								case 'bool4': {
+									for(i = 0; i < parameter.value.length; i++) {
+										var boolControl:BoolEditor = new BoolEditor;
+										boolControl.parameter = parameter;
+										boolControl.index = i;
+										boolControl.addEventListener(FlexEvent.CHANGING, parameterChangingHandler, false, 0, true);
+										boolControl.addEventListener(FlexEvent.CHANGE_END, parameterChangeEndHandler, false, 0, true);
+										controlGroup.addElement(boolControl);
+									}
+								}	break;
+								case 'int':
+								case 'int2':
+								case 'int3':
+								case 'int4':
+								case 'float':
+								case 'float2':  
+								case 'float3':  
+								case 'float4':  
+								case 'float2x2':  
+								case 'float3x3':  
+								case 'float4x4': {
+									for(i = 0; i < parameter.value.length; i++) {
+										var numberControl:NumberEditor = new NumberEditor;
+										numberControl.parameter = parameter;
+										numberControl.index = i;
+										numberControl.addEventListener(FlexEvent.CHANGING, parameterChangingHandler, false, 0, true);
+										numberControl.addEventListener(FlexEvent.CHANGE_END, parameterChangeEndHandler, false, 0, true);
+										controlGroup.addElement(numberControl);
+									}
+								}	break;
+							}
+						}
+					}
+				}
+				filterName.text = shader.data.name;
+			}
+			
+			protected function updateRemoteImage():void {
+				if(imageURL && kernelURL) {
+					var vars:URLVariables = new URLVariables;
+					vars['kernel'] = kernelURL;
+					vars['source'] = imageURL;
+					if(textureURL) {
+						vars['texture'] = textureURL;
+					}
+					
+					var parameter:ShaderParameter;
+					for each(parameter in shaderParameters) {
+						vars[parameter.name] = String(parameter.value);
+					}
+					var url:String = 'generate.php?' + vars;
+					remoteImage.source = url;
+				}
+			}
+			
+			protected function parameterChangingHandler(event:FlexEvent):void {
+				localImage.filters = [ shaderFilter ];
+			}
+			
+			protected function parameterChangeEndHandler(event:FlexEvent):void {
+				updateRemoteImage();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:VGroup x="530" y="41" >
+	</s:VGroup>
+	<s:Image id="localImage" x="10" y="38" width="512" height="370"/>
+	<s:Image id="remoteImage" x="530" y="38" width="512" height="370"/>
+	<s:Label id="filterName" x="10" y="6" width="512" height="32" fontSize="18" fontWeight="bold" text="Label"
+			 textAlign="center" verticalAlign="middle"/>
+	<s:Label x="530" y="6" width="512" height="32" fontSize="18" fontWeight="bold" text="QB output"
+			 textAlign="center" verticalAlign="middle"/>
+	
+	<s:TileGroup id="controlGroup" x="10" bottom="10" width="1032" height="215" horizontalGap="10"/>
+	
+</s:Application>

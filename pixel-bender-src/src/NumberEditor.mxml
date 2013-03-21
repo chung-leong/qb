@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="250" height="30" verticalAlign="middle" creationComplete="creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			public var parameter:ShaderParameter;
+			public var index:uint;
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				var name:String = parameter.hasOwnProperty("displayName") ? parameter.displayName : parameter.name;
+				if(parameter.value.length > 1) {
+					switch(parameter.parameterType) {
+						case 'position': {
+							var xy:Array = ['x', 'y'];							
+							name += ' ' + xy[index];
+						}	break;
+						default: {
+							name += ' [' + index + ']';
+						}
+					}
+				}
+				name += ':';
+				label.text = name;
+				slider.value = parameter.value[index];
+				slider.minimum = parameter.hasOwnProperty("minValue") ? parameter.minValue[index] : 0;
+				slider.maximum = parameter.hasOwnProperty("maxValue") ? parameter.maxValue[index] : 100;
+				if(parameter.type.match(/float/)) {
+					slider.stepSize = 0;
+				} else {
+					slider.stepSize = 1;
+				}
+			}
+			
+			protected function sliderChangeHandler(event:Event):void {
+				parameter.value[index] = slider.value;
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGING, false, false));
+			}
+			
+			protected function sliderChangeEndHandler(event:FlexEvent):void {
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGE_END, false, false));
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Label id="label" text="Label:" />
+	<s:HSlider id="slider" width="140" change="sliderChangeHandler(event)" changeEnd="sliderChangeEndHandler(event)"/>
+</s:HGroup>

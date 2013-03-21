@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>PHP+QB Raytracer</title>
+	<script>
+
+	function updateImage() {
+		var radius = parseFloat(document.getElementById('radius').value);
+		var x = parseFloat(document.getElementById('x').value);
+		var y = parseFloat(document.getElementById('y').value);
+		var z = parseFloat(document.getElementById('z').value);
+		var distance = parseFloat(document.getElementById('distance').value);
+		var image = document.getElementById('image');
+		image.src = "raytracer.php?radius=" + radius + "&x=" + x + "&y=" + y + "&z=" + z + "&distance=" + distance + "";
+	}
+
+	</script>
+</head>
+<body onload="updateImage()">
+<h1>PHP+QB Raytracer</h1>
+
+<table>
+	<tr>
+		<td width="600" align="center">
+			<img id="image" width="512" height="512"/>
+		</td>
+		<td align="right">
+			<div>
+				<label for="radius">Radius: </label>
+				<input id="radius" value="2.0" />
+			</div>
+			<div>
+				<label for="x">Position X: </label>
+				<input id="x" value="0.0" />
+			</div>
+			<div>
+				<label for="y">Position Y: </label>
+				<input id="y" value="2.0" />
+			</div>
+			<div>
+				<label for="z">Position Z: </label>
+				<input id="z" value="-10.0" />
+			</div>
+			<div>
+				<label for="distance">View distance: </label>
+				<input id="distance" value="2.0" />
+			</div>
+			<div>
+				<button onclick="updateImage()">Update</button>
+			</div>
+		</td>
+	</tr>
+</table>
+</body>
+</html>

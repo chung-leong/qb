@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="250" height="30" verticalAlign="middle">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			public var parameter:ShaderParameter;
+			public var index:uint;
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				var name:String = parameter.hasOwnProperty("displayName") ? parameter.displayName : parameter.name;
+				checkbox.label = name;
+				checkbox.selected = (parameter.value[index] != 0);
+			}
+			
+			protected function checkboxChangeHandler(event:Event):void {
+				parameter.value[index] = checkbox.selected ? 1 : 0;
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGING, false, false));
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGE_END, false, false));
+			}
+			
+		]]>
+	</fx:Script>
+	<s:CheckBox id="checkbox" label="Label" change="checkboxChangeHandler(event)"/>
+</s:HGroup>

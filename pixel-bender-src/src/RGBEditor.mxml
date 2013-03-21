@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="250" height="30" verticalAlign="middle" creationComplete="creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.ColorPickerEvent;
+			import mx.events.FlexEvent;
+			
+			public var parameter:ShaderParameter;
+			public var index:uint;
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				var name:String = parameter.hasOwnProperty("displayName") ? parameter.displayName : parameter.name;
+				name += ':';
+				label.text = name;
+				var color:uint = uint(Math.round(parameter.value[0] * 0xFF)) << 16
+							   | uint(Math.round(parameter.value[1] * 0xFF)) <<  8
+							   | uint(Math.round(parameter.value[2] * 0xFF)) <<  0;
+				picker.selectedColor = color;
+				
+			}
+			
+			protected function setColor(color:uint):void {
+				parameter.value[0] = Number((color >> 16) & 0xFF) / 0xFF; 
+				parameter.value[1] = Number((color >>  8) & 0xFF) / 0xFF; 
+				parameter.value[2] = Number((color >>  0) & 0xFF) / 0xFF; 
+			}
+			
+			protected function pickerChangeHandler(event:Event):void {
+				setColor(picker.selectedColor);
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGING, false, false));
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGE_END, false, false));
+			}
+			
+			protected function pickerRollOverHandler(event:ColorPickerEvent):void {
+				setColor(event.color);
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGING, false, false));
+			}
+
+			protected function pickerRollOutHandler(event:ColorPickerEvent):void {
+				setColor(picker.selectedColor);
+				dispatchEvent(new FlexEvent(FlexEvent.CHANGING, false, false));
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Label id="label" text="Label:" />
+	<mx:ColorPicker id="picker" itemRollOver="pickerRollOverHandler(event)" itemRollOut="pickerRollOutHandler(event)" change="pickerChangeHandler(event)"/>
+</s:HGroup>
