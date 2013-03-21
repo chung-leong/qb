@@ -73,8 +73,15 @@ foreach($parameters as $parameter) {
 // call the function
 call_user_func_array($info['name'], $arguments);
 
+imagedestroy($image);
+
+$final_image = imagecreatetruecolor(imagesx($output), imagesy($output));
+imagefilledrectangle($final_image, 0, 0, imagesx($output), imagesy($output), imagecolorallocate($final_image, 0xFF, 0xFF, 0xFF));
+imagecopy($final_image, $output, 0, 0, 0, 0, imagesx($output), imagesy($output));
+
 // send the output
 header("Content-type: image/jpeg");
-imagejpeg($output);
+
+imagejpeg($final_image);
 
 ?>
