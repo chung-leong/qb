@@ -73,12 +73,8 @@ foreach($parameters as $parameter) {
 // call the function
 call_user_func_array($info['name'], $arguments);
 
-//header("Content-type: text/plain");
-//print_r($_GET);
-
 // send the output
-header("Content-type: image/png");
-imagesavealpha($output, true);
-imagepng($output);
+header("Content-type: image/jpeg");
+imagejpeg($output);
 
 ?>
