@@ -717,7 +717,11 @@ static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_contex
 	const char *index = qb_get_segment_index(cxt, address);
 	const char *size = (new_size) ? new_size : qb_get_array_size(cxt, address);
 
-	qb_printf(cxt, "if(UNEXPECTED(res_count > res_count_before || %s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
+	if(size == (char *) "res_count") {
+		qb_printf(cxt, "if(UNEXPECTED(res_count > res_count_before || %s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
+	} else {
+		qb_printf(cxt, "if(UNEXPECTED(%s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
+	}
 	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s, %s, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
 }
@@ -728,7 +732,7 @@ static void ZEND_FASTCALL qb_print_segment_enlargement(qb_native_compiler_contex
 
 	qb_printf(cxt, "if(%s + %s > segment_element_count%d) {\n", index, size, address->segment_selector);
 	qb_printf(cxt, "	qb_enlarge_segment(cxt, &cxt->storage->segments[%d], %s + %s);\n", address->segment_selector, index, size);
-	qb_print(cxt,  "} else if(UNEXPECTED(%s + %s < %s)) {\n");
+	qb_printf(cxt,  "} else if(UNEXPECTED(%s + %s < %s)) {\n", index, size, index);
 	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s, %s, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
 }
@@ -1271,7 +1275,7 @@ static void ZEND_FASTCALL qb_print_function(qb_native_compiler_context *cxt) {
 }
 
 static void ZEND_FASTCALL qb_print_version(qb_native_compiler_context *cxt) {
-	qb_printf(cxt, "\nextern uint32_t QB_VERSION = 0x%08x;\n\n", QB_VERSION_SIGNATURE);
+	qb_printf(cxt, "\nuint32_t QB_VERSION = 0x%08x;\n\n", QB_VERSION_SIGNATURE);
 }
 
 static void ZEND_FASTCALL qb_print_functions(qb_native_compiler_context *cxt) {
