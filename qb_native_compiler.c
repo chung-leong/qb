@@ -88,31 +88,6 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 	pipe(gcc_pipe_write);
 	pipe(gcc_pipe_error);
 
-#if defined(__i386__) || defined(__x86_64__)
-	const char *sse = NULL, *avx = NULL;
-	unsigned int index = 0x0000001;
-	unsigned int eax, ebx, ecx, edx;
-	__asm__ __volatile__ ("cpuid": "=c" (ecx), "=d" (edx) : "a" (0x0000001));
-	if(ecx & (1 << 20)) {
-		sse = "-msse4.2";
-	} else
-	if(ecx & (1 << 19)) {
-		sse = "-msse4";
-	} else
-	if(ecx & (1 << 0)) {
-		sse = "-msse3";
-	} else
-	if(edx & (1 << 26)) {
-		sse = "-msse2";
-	} else
-	if(edx & (1 << 25)) {
-		sse = "-msse";
-	}
-	if(ecx & (1 << 28)) {
-		avx = "-mavx";
-	}
-#endif
-
 	const char *compiler_path = QB_G(compiler_path);
 	const char *compiler_env_path = QB_G(compiler_env_path);
 
@@ -138,23 +113,15 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 			args[argc++] = "c99";
 		}
 		args[argc++] = "-c";
-#if defined(__i386__) || defined(__x86_64__)
-		if(sse) {
-			args[argc++] = sse;
-		}
-		if(avx) {
-			args[argc++] = avx;
-		}
-#endif
 		args[argc++] = "-O2";										// optimization level
+		args[argc++] = "-march=native";								// optimize for current CPU
 		args[argc++] = "-pipe";										// use pipes for internal communication
-#ifndef ZEND_DEBUG
+#if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
 #endif
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
 		args[argc++] = "-fno-builtin";
-		args[argc++] = "-fno-builtin",
 		args[argc++] = "-o";
 		args[argc++] = cxt->obj_file_path;
 		args[argc++] = "-xc";										// indicate the source is C
@@ -717,7 +684,11 @@ static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_contex
 	const char *index = qb_get_segment_index(cxt, address);
 	const char *size = (new_size) ? new_size : qb_get_array_size(cxt, address);
 
-	qb_printf(cxt, "if(UNEXPECTED(res_count > res_count_before || %s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
+	if(size == (char *) "res_count") {
+		qb_printf(cxt, "if(UNEXPECTED(res_count > res_count_before || %s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
+	} else {
+		qb_printf(cxt, "if(UNEXPECTED(%s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
+	}
 	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s, %s, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
 }
@@ -728,7 +699,7 @@ static void ZEND_FASTCALL qb_print_segment_enlargement(qb_native_compiler_contex
 
 	qb_printf(cxt, "if(%s + %s > segment_element_count%d) {\n", index, size, address->segment_selector);
 	qb_printf(cxt, "	qb_enlarge_segment(cxt, &cxt->storage->segments[%d], %s + %s);\n", address->segment_selector, index, size);
-	qb_print(cxt,  "} else if(UNEXPECTED(%s + %s < %s)) {\n");
+	qb_printf(cxt,  "} else if(UNEXPECTED(%s + %s < %s)) {\n", index, size, index);
 	qb_printf(cxt, "	qb_abort_range_error(cxt, &cxt->storage->segments[%d], %s, %s, PHP_LINE_NUMBER);\n", address->segment_selector, index, size);
 	qb_print(cxt,  "}\n");
 }
@@ -1271,7 +1242,7 @@ static void ZEND_FASTCALL qb_print_function(qb_native_compiler_context *cxt) {
 }
 
 static void ZEND_FASTCALL qb_print_version(qb_native_compiler_context *cxt) {
-	qb_printf(cxt, "\nextern uint32_t QB_VERSION = 0x%08x;\n\n", QB_VERSION_SIGNATURE);
+	qb_printf(cxt, "\nuint32_t QB_VERSION = 0x%08x;\n\n", QB_VERSION_SIGNATURE);
 }
 
 static void ZEND_FASTCALL qb_print_functions(qb_native_compiler_context *cxt) {
@@ -2084,7 +2055,7 @@ extern const char compressed_table_native_result_size_calculations[];
 extern const char compressed_table_native_prototypes[];
 extern const char compressed_table_native_references[];
 
-static int32_t ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt TSRMLS_DC) {
+static void ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt TSRMLS_DC) {
 	qb_build_context *build_cxt = QB_G(build_context);
 	memset(cxt, 0, sizeof(qb_native_compiler_context));
 
@@ -2096,38 +2067,6 @@ static int32_t ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *c
 	SAVE_TSRMLS();
 
 	cxt->cache_folder_path = QB_G(native_code_cache_path);
-
-	// decompress string tables used to generate the C source code
-	if(!cxt->pool->op_actions) {
-		qb_uncompress_table(compressed_table_native_actions, (void ***) &cxt->pool->op_actions, NULL, 0);
-	}
-	if(!cxt->pool->op_result_size_variables) {
-		qb_uncompress_table(compressed_table_native_result_size_possibilities, (void ***) &cxt->pool->op_result_size_variables, NULL, 0);
-	}
-	if(!cxt->pool->op_result_size_codes) {
-		qb_uncompress_table(compressed_table_native_result_size_calculations, (void ***) &cxt->pool->op_result_size_codes, NULL, 0);
-	}
-	if(!cxt->pool->op_function_usages) {
-		qb_uncompress_table(compressed_table_native_references, (void ***) &cxt->pool->op_function_usages, NULL, 0);
-	}
-	if(!cxt->pool->function_prototypes) {
-		uint32_t count;
-		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &count, 0);
-#if ZEND_DEBUG
-		if(count > PROTOTYPE_COUNT) {
-			qb_abort("Not enough space for the number of possible prototypes");
-		}
-#endif
-	}
-
-	cxt->op_names = cxt->pool->op_names;
-	cxt->op_actions = cxt->pool->op_actions;
-	cxt->op_result_size_codes = cxt->pool->op_result_size_codes;
-	cxt->op_result_size_variables = cxt->pool->op_result_size_variables;
-	cxt->op_function_usages = cxt->pool->op_function_usages;
-	cxt->function_prototypes = cxt->pool->function_prototypes;
-
-	return (cxt->op_actions && cxt->op_result_size_variables && cxt->op_result_size_codes && cxt->op_function_usages && cxt->function_prototypes);
 }
 
 static void ZEND_FASTCALL qb_free_context(qb_native_compiler_context *cxt) {
@@ -2222,14 +2161,47 @@ static void ZEND_FASTCALL qb_link_debuggable_functions(qb_native_compiler_contex
 }
 #endif
 
+int32_t ZEND_FASTCALL qb_decompress_code(qb_native_compiler_context *cxt) {
+	// decompress string tables used to generate the C source code
+	if(!cxt->pool->op_actions) {
+		qb_uncompress_table(compressed_table_native_actions, (void ***) &cxt->pool->op_actions, NULL, 0);
+	}
+	if(!cxt->pool->op_result_size_variables) {
+		qb_uncompress_table(compressed_table_native_result_size_possibilities, (void ***) &cxt->pool->op_result_size_variables, NULL, 0);
+	}
+	if(!cxt->pool->op_result_size_codes) {
+		qb_uncompress_table(compressed_table_native_result_size_calculations, (void ***) &cxt->pool->op_result_size_codes, NULL, 0);
+	}
+	if(!cxt->pool->op_function_usages) {
+		qb_uncompress_table(compressed_table_native_references, (void ***) &cxt->pool->op_function_usages, NULL, 0);
+	}
+	if(!cxt->pool->function_prototypes) {
+		uint32_t count;
+		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &count, 0);
+#if ZEND_DEBUG
+		if(count > PROTOTYPE_COUNT) {
+			qb_abort("Not enough space for the number of possible prototypes");
+		}
+#endif
+	}
+
+	cxt->op_names = cxt->pool->op_names;
+	cxt->op_actions = cxt->pool->op_actions;
+	cxt->op_result_size_codes = cxt->pool->op_result_size_codes;
+	cxt->op_result_size_variables = cxt->pool->op_result_size_variables;
+	cxt->op_function_usages = cxt->pool->op_function_usages;
+	cxt->function_prototypes = cxt->pool->function_prototypes;
+
+	return (cxt->op_actions && cxt->op_result_size_variables && cxt->op_result_size_codes && cxt->op_function_usages && cxt->function_prototypes);
+}
+
 int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	int result = FAILURE;
 	uint32_t i, attempt;
 	qb_native_compiler_context _cxt, *cxt = &_cxt;
 
-	if(!qb_initialize_context(cxt TSRMLS_CC)) {
-		return FAILURE;
-	}
+	qb_initialize_context(cxt TSRMLS_CC);
+
 #if ZEND_DEBUG
 	if(native_proc_table) {
 		// link the functions to code in qb_native_proc_debug.c instead of compiling them live
@@ -2249,11 +2221,22 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	}
 	spprintf(&cxt->obj_file_path, 0, "%s%cQB%" PRIX64 ".o", cxt->cache_folder_path, PHP_DIR_SEPARATOR, cxt->file_id);
 
+#if ZEND_DEBUG
+	for(attempt = 2; attempt <= 2; attempt++) {
+#else
 	for(attempt = 1; attempt <= 2; attempt++) {
+#endif
+
 		// first, try to load a previously created object file
 		if(attempt == 2) {
+			if(!qb_decompress_code(cxt)) {
+				php_error_docref0(NULL TSRMLS_CC, E_WARNING, "Unable to decompress C source code");
+				break;
+			}
+
 			// launch compiler
 			if(!qb_launch_compiler(cxt)) {
+				php_error_docref0(NULL TSRMLS_CC, E_WARNING, "Unable to launch compiler");
 				break;
 			}
 

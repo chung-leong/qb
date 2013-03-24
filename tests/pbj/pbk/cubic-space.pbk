@@ -25,6 +25,7 @@ kernel CubicSpace
         minValue:float2(-200,-200);
         maxValue:float2(500,500);
         defaultValue:float2(300,200);
+        parameterType: "position";
         >;
     
     parameter float size
@@ -53,6 +54,7 @@ kernel CubicSpace
         minValue:float2(1,1);
         maxValue:float2(600,600);
         defaultValue:float2(400,400);
+        parameterType: "position";
         >;
     
     parameter pixel4 colorX
@@ -60,6 +62,7 @@ kernel CubicSpace
         minValue:pixel4(0);
         maxValue:pixel4(1,1,1,1);
         defaultValue:pixel4(1,1,1,1);
+        parameterType: "colorRGBA";
         >;
         
     parameter pixel4 colorY
@@ -67,6 +70,7 @@ kernel CubicSpace
         minValue:pixel4(0);
         maxValue:pixel4(1,1,1,1);
         defaultValue:pixel4(1,1,1,1);
+        parameterType: "colorRGBA";
         >;
         
     parameter pixel4 colorZ
@@ -74,6 +78,7 @@ kernel CubicSpace
         minValue:pixel4(0);
         maxValue:pixel4(1,1,1,1);
         defaultValue:pixel4(0.8,0.8,0.8,1);
+        parameterType: "colorRGBA";
         >;
     
     parameter pixel4 bgcolor
@@ -81,6 +86,7 @@ kernel CubicSpace
         minValue:pixel4(0);
         maxValue:pixel4(1,1,1,1);
         defaultValue:pixel4(0,0,0,1);
+        parameterType: "colorRGBA";
         >;
         
     const float eps = 0.000001;
