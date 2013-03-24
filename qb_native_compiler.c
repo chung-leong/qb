@@ -2253,11 +2253,19 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	}
 	spprintf(&cxt->obj_file_path, 0, "%s%cQB%" PRIX64 ".o", cxt->cache_folder_path, PHP_DIR_SEPARATOR, cxt->file_id);
 
+#if ZEND_DEBUG
+	for(attempt = 2; attempt <= 2; attempt++) {
+#else
 	for(attempt = 1; attempt <= 2; attempt++) {
+#endif
 		// first, try to load a previously created object file
 		if(attempt == 2) {
 			// launch compiler
 			if(!qb_launch_compiler(cxt)) {
+				USE_TSRM
+				if(!QB_G(allow_bytecode_interpretation)) {
+					qb_abort("Unable to launch compiler");
+				}
 				break;
 			}
 
