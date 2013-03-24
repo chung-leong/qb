@@ -116,13 +116,12 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 		args[argc++] = "-O2";										// optimization level
 		args[argc++] = "-march=native";								// optimize for current CPU
 		args[argc++] = "-pipe";										// use pipes for internal communication
-#ifndef ZEND_DEBUG
+#if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
 #endif
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
 		args[argc++] = "-fno-builtin";
-		args[argc++] = "-fno-builtin",
 		args[argc++] = "-o";
 		args[argc++] = cxt->obj_file_path;
 		args[argc++] = "-xc";										// indicate the source is C
