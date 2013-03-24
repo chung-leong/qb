@@ -88,31 +88,6 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 	pipe(gcc_pipe_write);
 	pipe(gcc_pipe_error);
 
-#if defined(__i386__) || defined(__x86_64__)
-	const char *sse = NULL, *avx = NULL;
-	unsigned int index = 0x0000001;
-	unsigned int eax, ebx, ecx, edx;
-	__asm__ __volatile__ ("cpuid": "=c" (ecx), "=d" (edx) : "a" (0x0000001));
-	if(ecx & (1 << 20)) {
-		sse = "-msse4.2";
-	} else
-	if(ecx & (1 << 19)) {
-		sse = "-msse4";
-	} else
-	if(ecx & (1 << 0)) {
-		sse = "-msse3";
-	} else
-	if(edx & (1 << 26)) {
-		sse = "-msse2";
-	} else
-	if(edx & (1 << 25)) {
-		sse = "-msse";
-	}
-	if(ecx & (1 << 28)) {
-		avx = "-mavx";
-	}
-#endif
-
 	const char *compiler_path = QB_G(compiler_path);
 	const char *compiler_env_path = QB_G(compiler_env_path);
 
@@ -138,15 +113,8 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 			args[argc++] = "c99";
 		}
 		args[argc++] = "-c";
-#if defined(__i386__) || defined(__x86_64__)
-		if(sse) {
-			args[argc++] = sse;
-		}
-		if(avx) {
-			args[argc++] = avx;
-		}
-#endif
 		args[argc++] = "-O2";										// optimization level
+		args[argc++] = "-march=native";								// optimize for current CPU
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #ifndef ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
@@ -2259,23 +2227,17 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 #else
 	for(attempt = 1; attempt <= 2; attempt++) {
 #endif
-		USE_TSRM
-		int32_t abort_on_failure = !QB_G(allow_bytecode_interpretation);
 
 		// first, try to load a previously created object file
 		if(attempt == 2) {
 			if(!qb_decompress_code(cxt)) {
-				if(abort_on_failure) {
-					qb_abort("Unable to decompress code");
-					break;
-				}
+				php_error_docref0(NULL TSRMLS_CC, E_WARNING, "Unable to decompress C source code");
+				break;
 			}
 
 			// launch compiler
 			if(!qb_launch_compiler(cxt)) {
-				if(abort_on_failure) {
-					qb_abort("Unable to launch compiler");
-				}
+				php_error_docref0(NULL TSRMLS_CC, E_WARNING, "Unable to launch compiler");
 				break;
 			}
 
