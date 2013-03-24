@@ -2088,7 +2088,7 @@ extern const char compressed_table_native_result_size_calculations[];
 extern const char compressed_table_native_prototypes[];
 extern const char compressed_table_native_references[];
 
-static int32_t ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt TSRMLS_DC) {
+static void ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt TSRMLS_DC) {
 	qb_build_context *build_cxt = QB_G(build_context);
 	memset(cxt, 0, sizeof(qb_native_compiler_context));
 
@@ -2100,38 +2100,6 @@ static int32_t ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *c
 	SAVE_TSRMLS();
 
 	cxt->cache_folder_path = QB_G(native_code_cache_path);
-
-	// decompress string tables used to generate the C source code
-	if(!cxt->pool->op_actions) {
-		qb_uncompress_table(compressed_table_native_actions, (void ***) &cxt->pool->op_actions, NULL, 0);
-	}
-	if(!cxt->pool->op_result_size_variables) {
-		qb_uncompress_table(compressed_table_native_result_size_possibilities, (void ***) &cxt->pool->op_result_size_variables, NULL, 0);
-	}
-	if(!cxt->pool->op_result_size_codes) {
-		qb_uncompress_table(compressed_table_native_result_size_calculations, (void ***) &cxt->pool->op_result_size_codes, NULL, 0);
-	}
-	if(!cxt->pool->op_function_usages) {
-		qb_uncompress_table(compressed_table_native_references, (void ***) &cxt->pool->op_function_usages, NULL, 0);
-	}
-	if(!cxt->pool->function_prototypes) {
-		uint32_t count;
-		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &count, 0);
-#if ZEND_DEBUG
-		if(count > PROTOTYPE_COUNT) {
-			qb_abort("Not enough space for the number of possible prototypes");
-		}
-#endif
-	}
-
-	cxt->op_names = cxt->pool->op_names;
-	cxt->op_actions = cxt->pool->op_actions;
-	cxt->op_result_size_codes = cxt->pool->op_result_size_codes;
-	cxt->op_result_size_variables = cxt->pool->op_result_size_variables;
-	cxt->op_function_usages = cxt->pool->op_function_usages;
-	cxt->function_prototypes = cxt->pool->function_prototypes;
-
-	return (cxt->op_actions && cxt->op_result_size_variables && cxt->op_result_size_codes && cxt->op_function_usages && cxt->function_prototypes);
 }
 
 static void ZEND_FASTCALL qb_free_context(qb_native_compiler_context *cxt) {
@@ -2226,14 +2194,47 @@ static void ZEND_FASTCALL qb_link_debuggable_functions(qb_native_compiler_contex
 }
 #endif
 
+int32_t ZEND_FASTCALL qb_decompress_code(qb_native_compiler_context *cxt) {
+	// decompress string tables used to generate the C source code
+	if(!cxt->pool->op_actions) {
+		qb_uncompress_table(compressed_table_native_actions, (void ***) &cxt->pool->op_actions, NULL, 0);
+	}
+	if(!cxt->pool->op_result_size_variables) {
+		qb_uncompress_table(compressed_table_native_result_size_possibilities, (void ***) &cxt->pool->op_result_size_variables, NULL, 0);
+	}
+	if(!cxt->pool->op_result_size_codes) {
+		qb_uncompress_table(compressed_table_native_result_size_calculations, (void ***) &cxt->pool->op_result_size_codes, NULL, 0);
+	}
+	if(!cxt->pool->op_function_usages) {
+		qb_uncompress_table(compressed_table_native_references, (void ***) &cxt->pool->op_function_usages, NULL, 0);
+	}
+	if(!cxt->pool->function_prototypes) {
+		uint32_t count;
+		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &count, 0);
+#if ZEND_DEBUG
+		if(count > PROTOTYPE_COUNT) {
+			qb_abort("Not enough space for the number of possible prototypes");
+		}
+#endif
+	}
+
+	cxt->op_names = cxt->pool->op_names;
+	cxt->op_actions = cxt->pool->op_actions;
+	cxt->op_result_size_codes = cxt->pool->op_result_size_codes;
+	cxt->op_result_size_variables = cxt->pool->op_result_size_variables;
+	cxt->op_function_usages = cxt->pool->op_function_usages;
+	cxt->function_prototypes = cxt->pool->function_prototypes;
+
+	return (cxt->op_actions && cxt->op_result_size_variables && cxt->op_result_size_codes && cxt->op_function_usages && cxt->function_prototypes);
+}
+
 int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	int result = FAILURE;
 	uint32_t i, attempt;
 	qb_native_compiler_context _cxt, *cxt = &_cxt;
 
-	if(!qb_initialize_context(cxt TSRMLS_CC)) {
-		return FAILURE;
-	}
+	qb_initialize_context(cxt TSRMLS_CC);
+
 #if ZEND_DEBUG
 	if(native_proc_table) {
 		// link the functions to code in qb_native_proc_debug.c instead of compiling them live
@@ -2258,12 +2259,21 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 #else
 	for(attempt = 1; attempt <= 2; attempt++) {
 #endif
+		USE_TSRM
+		int32_t abort_on_failure = !QB_G(allow_bytecode_interpretation);
+
 		// first, try to load a previously created object file
 		if(attempt == 2) {
+			if(!qb_decompress_code(cxt)) {
+				if(abort_on_failure) {
+					qb_abort("Unable to decompress code");
+					break;
+				}
+			}
+
 			// launch compiler
 			if(!qb_launch_compiler(cxt)) {
-				USE_TSRM
-				if(!QB_G(allow_bytecode_interpretation)) {
+				if(abort_on_failure) {
 					qb_abort("Unable to launch compiler");
 				}
 				break;
