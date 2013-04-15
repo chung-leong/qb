@@ -2284,9 +2284,27 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 
 		QB_G(current_line_number) = cxt->zend_op->lineno;
 
-		// retrieve operands (second one first)
-		qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op2), &cxt->zend_op->op2, &operands[1]);
-		qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0]);
+		// retrieve operands 
+		switch(cxt->zend_op->opcode) {
+			case ZEND_UNSET_DIM:
+			case ZEND_FETCH_DIM_R:
+			case ZEND_FETCH_DIM_W:
+			case ZEND_FETCH_DIM_RW:
+			case ZEND_FETCH_DIM_IS:
+			case ZEND_FETCH_DIM_UNSET:
+			case ZEND_FETCH_DIM_TMP_VAR:
+			case ZEND_ISSET_ISEMPTY_DIM_OBJ:
+			case ZEND_ASSIGN_DIM: {
+				// order needs to be reversed
+				qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0]);
+				qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op2), &cxt->zend_op->op2, &operands[1]);
+			}	break;
+			default: {
+				// get the second one first
+				qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op2), &cxt->zend_op->op2, &operands[1]);
+				qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0]);
+			}
+		}
 		operand_count = (operands[0].type != QB_OPERAND_NONE) + (operands[1].type != QB_OPERAND_NONE);
 
 		// see whether the op returns a value
