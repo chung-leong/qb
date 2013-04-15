@@ -1643,6 +1643,7 @@ static void ZEND_FASTCALL qb_translate_isset(qb_compiler_context *cxt, void *op_
 
 static void ZEND_FASTCALL qb_translate_isset_element(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_operand *container = &operands[0], *index = &operands[1], *element = &operands[0];
+	qb_do_type_coercion(cxt, index, QB_TYPE_U32);
 	element->address = qb_get_array_element(cxt, container->address, index->address);
 	result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, NULL);
 	qb_create_op(cxt, op_factory, operands, 1, result);
