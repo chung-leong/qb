@@ -2511,6 +2511,8 @@ int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval ***arguments
 	qb_interpreter_context _cxt, *cxt = &_cxt;
 	qb_initialize_interpreter_context(cxt TSRMLS_CC);
 
+	EG(scope) = zfunc->common.scope;
+
 	// set up the local storage (pass zero as argument count, as
 	// arguments handling actually happens below
 	qb_initialize_function_call(cxt, zfunc, 0, (uint32_t) -1);

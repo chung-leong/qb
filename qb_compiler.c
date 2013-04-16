@@ -1887,6 +1887,8 @@ static uint32_t ZEND_FASTCALL qb_get_array_initializer_type(qb_compiler_context 
 			element_type = qb_get_zval_type(cxt, element->constant, 0);
 		} else if(element->type == QB_OPERAND_ADDRESS) {
 			element_type = element->address->type;
+		} else {
+			continue;
 		}
 		if(highest_rank_type == QB_TYPE_UNKNOWN || element_type > highest_rank_type) {
 			highest_rank_type = element_type;
@@ -1923,16 +1925,6 @@ static uint32_t ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *cxt, qb_o
 		return qb_get_zval_type(cxt, operand->constant, flags);
 	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
 		return qb_get_array_initializer_type(cxt, operand->array_initializer);
-	} else if(operand->type == QB_OPERAND_PREVIOUS_RESULT) {
-		if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
-			return QB_TYPE_F64;
-		} else if(flags & (QB_COERCE_TO_INTEGER | QB_COERCE_TO_BOOLEAN)) {
-			if(flags & QB_COERCE_TO_UNSIGNED) {
-				return QB_TYPE_I32;
-			} else {
-				return QB_TYPE_U32;
-			}
-		} 
 	}
 	return QB_TYPE_UNKNOWN;
 }
@@ -1942,13 +1934,25 @@ static uint32_t ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cxt,
 	for(i = 0; i < count; i++) {
 		qb_operand *operand = &operands[i];
 		type2 = qb_get_operand_type(cxt, operand, flags);
-		if(type1 == QB_TYPE_UNKNOWN || type1 < type2) {
-			type1 = type2;
+		if(type2 != QB_TYPE_UNKNOWN) {
+			if(type1 == QB_TYPE_UNKNOWN || type1 < type2) {
+				type1 = type2;
+			}
 		}
 	}
 	if(type1 == QB_TYPE_UNKNOWN) {
-		// default to I32
-		type1 = QB_TYPE_I32;
+		if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
+			type1 = QB_TYPE_F64;
+		} else if(flags & (QB_COERCE_TO_INTEGER | QB_COERCE_TO_BOOLEAN)) {
+			if(flags & QB_COERCE_TO_UNSIGNED) {
+				type1 = QB_TYPE_S32;
+			} else {
+				type1 = QB_TYPE_U32;
+			}
+		} else {
+			// default to S32
+			type1 = QB_TYPE_S32;
+		}
 	}
 	return type1;
 }

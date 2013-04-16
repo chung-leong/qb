@@ -44,7 +44,7 @@ struct qb_type_declaration {
 	qb_index_alias_scheme **index_alias_schemes;
 };
 
-enum {
+enum qb_operand_type {
 	QB_OPERAND_NONE					= 0,
 	QB_OPERAND_ADDRESS_VAR			= 1,
 	QB_OPERAND_ADDRESS_ELC			= 2,
@@ -63,6 +63,7 @@ enum {
 	QB_OPERAND_ADDRESS_EXT_ELV,
 	QB_OPERAND_ADDRESS_EXT_ARR,
 	QB_OPERAND_GLOBAL_STATIC,
+	QB_OPERAND_EMPTY,
 
 	QB_OPERAND_WRITABLE				= 0x08
 };
@@ -194,6 +195,8 @@ struct qb_compiler_context {
 	uint32_t stack_item_buffer_size;
 	uint32_t stack_item_count;
 	uint32_t stack_item_offset;
+	qb_operand *temp_variables;
+	uint32_t temp_variable_count;
 
 	qb_variable *return_variable;
 	qb_variable **variables;
