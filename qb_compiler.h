@@ -197,6 +197,7 @@ struct qb_compiler_context {
 	uint32_t stack_item_offset;
 	qb_operand *temp_variables;
 	uint32_t temp_variable_count;
+	qb_address *foreach_index_address;
 
 	qb_variable *return_variable;
 	qb_variable **variables;

@@ -1336,21 +1336,8 @@ static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op
 	} 
 	qb_coerce_operands(cxt, op_factory, operands, operand_count);
 
-	if(result->type != QB_OPERAND_NONE) {
-		// push the condition back onto the stack for the purpose of short-circuiting logical statements
-		if(!(condition->address->flags & QB_ADDRESS_REUSED)) {
-			qb_address *new_address = qb_allocate_address(cxt->pool);
-			*new_address = *condition->address;
-			new_address->flags |= QB_ADDRESS_REUSED;
-			new_address->source_address = condition->address;
-			condition->address = new_address;
-		}
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = condition->address;
-		cxt->pop_short_circuiting_bool = TRUE;
-	}
-
 	if(condition->address->flags & QB_ADDRESS_CONSTANT) {
+		// the condition is constant--eliminate the branch
 		int32_t is_true = VALUE(I32, condition->address);
 		if((is_true && op_factory == &factory_branch_on_true) || (!is_true && op_factory == &factory_branch_on_false)) {
 			// the branch always occurs--jump to it
@@ -1361,6 +1348,19 @@ static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op
 			cxt->jump_target_index1 = target_index2;
 		}
 	} else {
+		if(result->type != QB_OPERAND_NONE) {
+			// push the condition back onto the stack for the purpose of short-circuiting logical statements
+			if(!(condition->address->flags & QB_ADDRESS_REUSED)) {
+				qb_address *new_address = qb_allocate_address(cxt->pool);
+				*new_address = *condition->address;
+				new_address->flags |= QB_ADDRESS_REUSED;
+				new_address->source_address = condition->address;
+				condition->address = new_address;
+			}
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = condition->address;
+		}
+
 		qb_create_branch_op(cxt, op_factory, target_index1, target_index2, condition->address);
 
 		// start down the next instruction first before going down the branch
@@ -1412,15 +1412,8 @@ static void ZEND_FASTCALL qb_translate_continue(qb_compiler_context *cxt, void *
 static void ZEND_FASTCALL qb_translate_add_element(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_operand *value = &operands[0], *index = &operands[1];
 	qb_operand *element;
-	qb_array_initializer *initializer;
+	qb_array_initializer *initializer = result->array_initializer;
 	uint32_t element_index;
-	if(result->type == QB_OPERAND_ARRAY_INITIALIZER) {
-		initializer = result->array_initializer;
-	} else {
-		// pop it from off the stack
-		qb_operand *stack_items = qb_pop_stack_item(cxt);
-		initializer = stack_items->array_initializer;
-	}
 
 	if(value->type == QB_OPERAND_PREVIOUS_RESULT) {
 		if(!cxt->resolving_result_type) {
@@ -1471,8 +1464,7 @@ static void ZEND_FASTCALL qb_translate_foreach_reset(qb_compiler_context *cxt, v
 	qb_do_assignment(cxt, neg1_address, index_address);
 	index_address->flags |= QB_ADDRESS_FOREACH_INDEX;
 
-	// push the index onto the stack
-	qb_push_address(cxt, index_address);
+	cxt->foreach_index_address = index_address;
 
 	// the result is the container; not checking if it is an array here 
 	// since that'll be done in the handler for FOREACH_FETCH
@@ -1482,16 +1474,8 @@ static void ZEND_FASTCALL qb_translate_foreach_reset(qb_compiler_context *cxt, v
 
 static void ZEND_FASTCALL qb_translate_foreach_fetch(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_operand *container = &operands[0];
-	qb_address *index_address;
+	qb_address *index_address = cxt->foreach_index_address;
 	uint32_t target_index = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);
-
-	// pop the index off the stack
-	index_address = qb_pop_stack_item(cxt)->address;
-
-	// push it back on if the key is needed
-	if(cxt->zend_op->extended_value & ZEND_FE_FETCH_WITH_KEY) {
-		qb_push_address(cxt, index_address);
-	}
 
 	if(cxt->zend_op->extended_value & ZEND_FE_FETCH_BYREF) {
 		qb_abort("Reference is not supported");
@@ -1506,6 +1490,15 @@ static void ZEND_FASTCALL qb_translate_foreach_fetch(qb_compiler_context *cxt, v
 	// get the element from the container
 	result->type = QB_OPERAND_ADDRESS;
 	result->address = qb_get_array_element(cxt, container->address, index_address);
+
+	// save the index if it's needed
+	if(cxt->zend_op->extended_value & ZEND_FE_FETCH_WITH_KEY) {
+		zend_op *data_zop = &cxt->zend_op[1];
+		qb_operand index;
+		index.type = QB_OPERAND_ADDRESS;
+		index.address = index_address;
+		qb_save_result_operand(cxt, Z_OPERAND_TYPE(data_zop->result), &data_zop->result, &index);
+	}
 
 	cxt->jump_target_index1 = cxt->zend_op_index + 1;
 	cxt->jump_target_index2 = target_index;
@@ -1669,8 +1662,14 @@ static void ZEND_FASTCALL qb_translate_bool(qb_compiler_context *cxt, void *op_f
 			value->address = value->address->array_size_address;
 		}
 		qb_coerce_to_boolean(cxt, value);
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = value->address;
+		// if there's an address already, then copy the value into it
+		// it's probably a short-circuited conditional statement
+		if(result->type == QB_OPERAND_ADDRESS) {
+			qb_do_assignment(cxt, value->address, result->address);
+		} else {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = value->address;
+		}
 	} else if(value->type == QB_OPERAND_PREVIOUS_RESULT) {
 		qb_do_type_coercion(cxt, value, QB_TYPE_ANY);
 	}
@@ -2378,12 +2377,6 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cx
 	zend_op_index = cxt->zend_op_index;
 	qb_preserve_stack(cxt, &stack_item_offset, &stack_item_count);
 
-	if(cxt->pop_short_circuiting_bool) {
-		qb_operand *stack_item = qb_pop_stack_item(cxt);
-		qb_unlock_address(cxt, stack_item->address);
-		cxt->pop_short_circuiting_bool = FALSE;
-	}
-
 	// process zend instructions until we reach the end 
 	// or if an instruction is already translated
 	cxt->zend_op_index = start_index;
@@ -2432,17 +2425,12 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cx
 			} else {
 				cxt->zend_op = ZEND_OP(target_index1);
 				cxt->zend_op_index = target_index1;
-				cxt->pop_short_circuiting_bool = FALSE;
 			}
 			if(target_index2) {
 				cxt->zend_op = ZEND_OP(target_index2);
 				cxt->zend_op_index = target_index2;
 			}
 		} else {
-			if(cxt->pop_short_circuiting_bool) {
-				//qb_pop_stack_item(cxt);
-				cxt->pop_short_circuiting_bool = FALSE;
-			}
 			cxt->zend_op++;
 			cxt->zend_op_index++;
 		}
@@ -2455,7 +2443,6 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cx
 	qb_restore_stack(cxt, stack_item_offset, stack_item_count);
 	cxt->zend_op = ZEND_OP(zend_op_index);
 	cxt->zend_op_index = zend_op_index;
-	cxt->pop_short_circuiting_bool = FALSE;
 }
 
 static void ZEND_FASTCALL qb_translate_instructions(qb_compiler_context *cxt) {
