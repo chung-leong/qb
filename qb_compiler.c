@@ -595,6 +595,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_constant_integer(qb_compiler_context
 		case QB_TYPE_U32: return qb_obtain_constant_U32(cxt, (CTYPE(U32)) value);
 		case QB_TYPE_S64: return qb_obtain_constant_S64(cxt, (CTYPE(S64)) value);
 		case QB_TYPE_U64: return qb_obtain_constant_U64(cxt, (CTYPE(U64)) value);
+		default: break;
 	}
 	return NULL;
 }
@@ -603,6 +604,7 @@ static qb_address *ZEND_FASTCALL qb_obtain_constant_float(qb_compiler_context *c
 	switch(desired_type) {
 		case QB_TYPE_F32: return qb_obtain_constant_F32(cxt, (CTYPE(F32)) value);
 		case QB_TYPE_F64: return qb_obtain_constant_F64(cxt, (CTYPE(F64)) value);
+		default: break;
 	}
 	return NULL;
 }
@@ -760,13 +762,13 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_size_multidimensional_array(qb
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_string_constant(qb_compiler_context *cxt, const char *string) {
+/*static qb_address * ZEND_FASTCALL qb_obtain_string_constant(qb_compiler_context *cxt, const char *string) {
 	uint32_t length = strlen(string);
 	qb_address *address = qb_create_fixed_length_array(cxt, QB_TYPE_U08, length, 0);
 	address->flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_STRING;
 	memcpy(ARRAY(I08, address), string, length);
 	return address;
-}
+}*/
 
 static qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, int32_t element_type, uint32_t element_count) {
 	qb_address *address;
@@ -1009,14 +1011,14 @@ static qb_operand ** ZEND_FASTCALL qb_get_stack_items(qb_compiler_context *cxt, 
 	return &cxt->stack_items[cxt->stack_item_offset + index];
 }
 
-static qb_operand * ZEND_FASTCALL qb_pop_stack_item(qb_compiler_context *cxt) {
+/*static qb_operand * ZEND_FASTCALL qb_pop_stack_item(qb_compiler_context *cxt) {
 	qb_operand **items = qb_get_stack_items(cxt, cxt->stack_item_count - 1);
 	qb_operand *item = items[0];
 	cxt->stack_item_count--;
 	return item;
-}
+}*/
 
-static void ZEND_FASTCALL qb_preserve_stack(qb_compiler_context *cxt, uint32_t *p_original_offset, uint32_t *p_original_count) {
+/*static void ZEND_FASTCALL qb_preserve_stack(qb_compiler_context *cxt, uint32_t *p_original_offset, uint32_t *p_original_count) {
 	uint32_t current_stack_item_offset = cxt->stack_item_offset;
 	uint32_t current_stack_item_count = cxt->stack_item_count;
 	uint32_t i;
@@ -1029,9 +1031,9 @@ static void ZEND_FASTCALL qb_preserve_stack(qb_compiler_context *cxt, uint32_t *
 	}
 	*p_original_offset = current_stack_item_offset;
 	*p_original_count = current_stack_item_count;
-}
+}*/
 
-static void ZEND_FASTCALL qb_restore_stack(qb_compiler_context *cxt, uint32_t original_offset, uint32_t original_count) {
+/*static void ZEND_FASTCALL qb_restore_stack(qb_compiler_context *cxt, uint32_t original_offset, uint32_t original_count) {
 	uint32_t i;
 
 	// unlock temporary addresses
@@ -1059,16 +1061,7 @@ static void ZEND_FASTCALL qb_restore_stack(qb_compiler_context *cxt, uint32_t or
 
 	cxt->stack_item_offset = original_offset;
 	cxt->stack_item_count = original_count;
-}
-
-static void ZEND_FASTCALL qb_push_address(qb_compiler_context *cxt, qb_address *address) {
-	qb_operand *stack_item = qb_push_stack_item(cxt);
-#if ZEND_DEBUG
-	qb_validate_address(cxt, address);
-#endif
-	stack_item->type = QB_OPERAND_ADDRESS;
-	stack_item->address = address;
-}
+}*/
 
 static qb_operand * ZEND_FASTCALL qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index) {
 	int32_t addition = (required_index + 1) - initializer->element_count;
@@ -1522,7 +1515,7 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 				const char *pattern = identifier + GROUP_OFFSET(ID_PATTERN);
 				uint32_t pattern_len = GROUP_LENGTH(ID_PATTERN);
 				const char *pcre_error = NULL;
-				int pcre_error_offset = 0, c = pattern[pattern_len];
+				int pcre_error_offset = 0;
 				pcre *re;
 				char *constricted_pattern;
 				ALLOCA_FLAG(use_heap);
@@ -1961,67 +1954,71 @@ static uint32_t ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_coerce_operand_to_type(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
-	if(operand->type == QB_OPERAND_ADDRESS) {
-		if(desired_type != QB_TYPE_VOID) {
-			qb_address *new_address = NULL;
-			if(operand->address->type != desired_type && desired_type != QB_TYPE_ANY) {
-				if(STORAGE_TYPE_MATCH(operand->address->type, desired_type)) {
-					if(operand->address->flags & QB_ADDRESS_CAST) {
-						// use the original address
-						operand->address = operand->address->source_address;
-					} else {
-						// storage type is the same--just create a new address
-						new_address = qb_allocate_address(cxt->pool);
-						*new_address = *operand->address;
-						new_address->type = desired_type;
-						new_address->source_address = operand->address;
-						new_address->flags |= QB_ADDRESS_CAST;
-						operand->address = new_address;
-					}
-				} else {
-					// the bit pattern is different--need to do a copy
-					if(operand->address->flags & QB_ADDRESS_CONSTANT) {
-						uint32_t element_count = IS_SCALAR(operand->address) ? 1 : ARRAY_SIZE(operand->address);
-						new_address = qb_allocate_constant(cxt, desired_type, operand->address->array_size_address);
-						qb_copy_elements(operand->address->type, ARRAY(I08, operand->address), element_count, new_address->type, ARRAY(I08, new_address), element_count);
-						operand->address = new_address;
-					} else {
-						new_address = qb_obtain_temporary_variable(cxt, desired_type, operand->address->array_size_address);
-						qb_do_assignment(cxt, operand->address, new_address);
-						operand->address = new_address;
-					}
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			if(desired_type == QB_TYPE_ANY) {
+				desired_type = operand->result_prototype->preliminary_type;
+			}
+			if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
+				operand->result_prototype->preliminary_type = desired_type;
+				if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
+					operand->result_prototype->final_type = desired_type;
 				}
 			}
-		} else {
-			operand->address = NULL;
-			operand->type = QB_OPERAND_NONE;
 		}
-	} else if(operand->type == QB_OPERAND_ZVAL) {
-		if(desired_type != QB_TYPE_VOID) {
+	} else {
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			if(desired_type != QB_TYPE_VOID) {
+				qb_address *new_address = NULL;
+				if(operand->address->type != desired_type && desired_type != QB_TYPE_ANY) {
+					if(STORAGE_TYPE_MATCH(operand->address->type, desired_type)) {
+						if(operand->address->flags & QB_ADDRESS_CAST) {
+							// use the original address
+							operand->address = operand->address->source_address;
+						} else {
+							// storage type is the same--just create a new address
+							new_address = qb_allocate_address(cxt->pool);
+							*new_address = *operand->address;
+							new_address->type = desired_type;
+							new_address->source_address = operand->address;
+							new_address->flags |= QB_ADDRESS_CAST;
+							operand->address = new_address;
+						}
+					} else {
+						// the bit pattern is different--need to do a copy
+						if(operand->address->flags & QB_ADDRESS_CONSTANT) {
+							uint32_t element_count = IS_SCALAR(operand->address) ? 1 : ARRAY_SIZE(operand->address);
+							new_address = qb_allocate_constant(cxt, desired_type, operand->address->array_size_address);
+							qb_copy_elements(operand->address->type, ARRAY(I08, operand->address), element_count, new_address->type, ARRAY(I08, new_address), element_count);
+							operand->address = new_address;
+						} else {
+							new_address = qb_obtain_temporary_variable(cxt, desired_type, operand->address->array_size_address);
+							qb_do_assignment(cxt, operand->address, new_address);
+							operand->address = new_address;
+						}
+					}
+				}
+			} else {
+				operand->address = NULL;
+				operand->type = QB_OPERAND_NONE;
+			}
+		} else if(operand->type == QB_OPERAND_ZVAL) {
+			if(desired_type != QB_TYPE_VOID) {
+				if(desired_type == QB_TYPE_ANY) {
+					desired_type = qb_get_zval_type(cxt, operand->constant, 0);
+				}
+				operand->address = qb_obtain_zval_constant(cxt, operand->constant, desired_type);
+				operand->type = QB_OPERAND_ADDRESS;
+			} else {
+				operand->address = NULL;
+				operand->type = QB_OPERAND_NONE;
+			}
+		} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
 			if(desired_type == QB_TYPE_ANY) {
-				desired_type = qb_get_zval_type(cxt, operand->constant, 0);
+				desired_type = qb_get_array_initializer_type(cxt, operand->array_initializer);
 			}
-			operand->address = qb_obtain_zval_constant(cxt, operand->constant, desired_type);
+			operand->address = qb_obtain_array_from_initializer(cxt, operand->array_initializer, desired_type);
 			operand->type = QB_OPERAND_ADDRESS;
-		} else {
-			operand->address = NULL;
-			operand->type = QB_OPERAND_NONE;
-		}
-	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
-		if(desired_type == QB_TYPE_ANY) {
-			desired_type = qb_get_array_initializer_type(cxt, operand->array_initializer);
-		}
-		operand->address = qb_obtain_array_from_initializer(cxt, operand->array_initializer, desired_type);
-		operand->type = QB_OPERAND_ADDRESS;
-	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		if(desired_type == QB_TYPE_ANY) {
-			desired_type = operand->result_prototype->preliminary_type;
-		}
-		if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
-			operand->result_prototype->preliminary_type = desired_type;
-			if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
-				operand->result_prototype->final_type = desired_type;
-			}
 		}
 	}
 }
@@ -2538,6 +2535,7 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 						// combine the comparison op with the branch op
 						// (only if no arrays are involved since the combined instructions aren't implemented for them)
 						if(!qb_find_array_address(prev_qop)) {
+							// TODO: get rid of this switch loop
 							switch(prev_qop->opcode) {
 								case QB_EQ_I08_I08_I32:	new_opcode = (on_true) ? QB_IF_EQ_I08_I08 : QB_IF_NE_I08_I08; break;
 								case QB_EQ_I16_I16_I32:	new_opcode = (on_true) ? QB_IF_EQ_I16_I16 : QB_IF_NE_I16_I16; break;
@@ -2574,6 +2572,7 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 								case QB_LE_U64_U64_I32:	new_opcode = (on_true) ? QB_IF_LE_U64_U64 : QB_IF_GT_U64_U64; break;
 								case QB_LE_F32_F32_I32: new_opcode = (on_true) ? QB_IF_LE_F32_F32 : QB_IF_GT_F32_F32; break;
 								case QB_LE_F64_F64_I32: new_opcode = (on_true) ? QB_IF_LE_F64_F64 : QB_IF_GT_F64_F64; break;
+								default: break;
 							}
 							if(new_opcode) {
 								qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);

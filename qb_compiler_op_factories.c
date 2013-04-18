@@ -541,7 +541,6 @@ static qb_basic_op_factory factory_logical_xor = {
 static qb_op * ZEND_FASTCALL qb_append_binary_arithmetic_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_arithmetic_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	qb_address *address2 = operands[1].address;
 	uint32_t opcode = f->regular_opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 3);
 	qop->operands[0] = operands[0];

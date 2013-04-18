@@ -1243,6 +1243,7 @@ static void ZEND_FASTCALL qb_copy_element_to_zval(qb_interpreter_context *cxt, q
 			Z_TYPE_P(zvalue) = IS_DOUBLE;
 			Z_DVAL_P(zvalue) = VALUE(F64, address);
 		}	break;
+		default: break;
 	}
 }
 

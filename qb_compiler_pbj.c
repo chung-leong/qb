@@ -311,7 +311,7 @@ static void ZEND_FASTCALL qb_pbj_set_source_channels(qb_compiler_context *cxt, q
 	}
 }
 
-static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter(qb_compiler_context *cxt, const char *name) {
+/*static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter(qb_compiler_context *cxt, const char *name) {
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_parameter_count; i++) {
 		qb_pbj_parameter *parameter = &cxt->pbj_parameters[i];
@@ -320,7 +320,7 @@ static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter(qb_compiler_contex
 		}
 	}
 	return NULL;
-}
+}*/
 
 static qb_pbj_texture * ZEND_FASTCALL qb_pbj_find_texture(qb_compiler_context *cxt, const char *name) {
 	uint32_t i;

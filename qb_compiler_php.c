@@ -119,6 +119,7 @@ static void ZEND_FASTCALL qb_copy_element_from_zval(qb_compiler_context *cxt, zv
 			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_LVAL_P(zvalue); break;
 			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_LVAL_P(zvalue); break;
 			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_LVAL_P(zvalue); break;
+			default: break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_DOUBLE) {
 		switch(address->type) {
@@ -132,6 +133,7 @@ static void ZEND_FASTCALL qb_copy_element_from_zval(qb_compiler_context *cxt, zv
 			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_DVAL_P(zvalue); break;
 			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_DVAL_P(zvalue); break;
 			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_DVAL_P(zvalue); break;
+			default: break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
 		uint32_t type_size = type_sizes[address->type];
@@ -151,6 +153,7 @@ static void ZEND_FASTCALL qb_copy_element_from_zval(qb_compiler_context *cxt, zv
 			case QB_TYPE_U64: VALUE(U64, address) = *((CTYPE(U64) *) string); break;
 			case QB_TYPE_F32: VALUE(F32, address) = *((CTYPE(F32) *) string); break;
 			case QB_TYPE_F64: VALUE(F64, address) = *((CTYPE(F64) *) string); break;
+			default: break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY) {
 		switch(address->type) {
@@ -247,6 +250,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_zval_constant(qb_compiler_context *c
 			case QB_TYPE_U64: return qb_obtain_constant_U64(cxt, (CTYPE(U64)) qb_zval_to_long(zvalue));
 			case QB_TYPE_F32: return qb_obtain_constant_F32(cxt, (CTYPE(F32)) qb_zval_to_double(zvalue));
 			case QB_TYPE_F64: return qb_obtain_constant_F64(cxt, (CTYPE(F64)) qb_zval_to_double(zvalue));
+			default: break;
 		}
 	}
 	qb_abort("Unable to convert constant");
@@ -805,7 +809,7 @@ static void ZEND_FASTCALL qb_finalize_result_prototype(qb_compiler_context *cxt,
 	}
 }
 
-static void ZEND_FASTCALL qb_do_array_element_retrieval(qb_compiler_context *cxt, qb_operand *variable, qb_operand *value) {
+static void ZEND_FASTCALL qb_do_array_element_retrieval(qb_compiler_context *cxt, qb_operand *variable, qb_operand *value, qb_result_prototype *result_prototype) {
 	// the arguments hold the array and index before we change them
 	qb_operand *container = variable;
 	qb_operand *index = value;
@@ -820,7 +824,25 @@ static void ZEND_FASTCALL qb_do_array_element_retrieval(qb_compiler_context *cxt
 		// make sure the index is a U32
 		qb_coerce_operand_to_type(cxt, index, QB_TYPE_U32);
 	}
-	variable->address = qb_get_array_element(cxt, container->address, index->address);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(container->type == QB_OPERAND_ADDRESS) {
+			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+			variable->type = QB_OPERAND_RESULT_PROTOTYPE;
+			variable->result_prototype = result_prototype;
+		} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+			result_prototype->final_type = container->result_prototype->final_type;
+			variable->type = QB_OPERAND_RESULT_PROTOTYPE;
+			variable->result_prototype = result_prototype;
+		} else {
+#if ZEND_DEBUG
+			// shouldn't be possible
+			qb_abort("Internal error");
+#endif
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		variable->address = qb_get_array_element(cxt, container->address, index->address);
+	}
 
 	// extra info is held in the next op
 	if(cxt->zend_op[1].opcode == ZEND_OP_DATA) {
@@ -829,7 +851,7 @@ static void ZEND_FASTCALL qb_do_array_element_retrieval(qb_compiler_context *cxt
 	}
 }
 
-static void ZEND_FASTCALL qb_do_object_property_retrieval(qb_compiler_context *cxt, qb_operand *variable, qb_operand *value) {
+static void ZEND_FASTCALL qb_do_object_property_retrieval(qb_compiler_context *cxt, qb_operand *variable, qb_operand *value, qb_result_prototype *result_prototype) {
 	// the arguments hold the container (which should be null for $this) and the name of the property
 	qb_operand *container = variable;
 	qb_operand *name = value;
@@ -855,19 +877,29 @@ static void ZEND_FASTCALL qb_do_object_property_retrieval(qb_compiler_context *c
 static void ZEND_FASTCALL qb_translate_assign(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 
+	// retrieve array element (if we're not assigning to a variable)
+	// initially, value contains the index or index alias
+	// afterward, it'll hold the actual value
 	if(cxt->zend_op->opcode == ZEND_ASSIGN_DIM) {
-		qb_do_array_element_retrieval(cxt, variable, value);
+		qb_do_array_element_retrieval(cxt, variable, value, result_prototype);
 	} else if(cxt->zend_op->opcode == ZEND_ASSIGN_OBJ) {
-		qb_do_object_property_retrieval(cxt, variable, value);
+		qb_do_object_property_retrieval(cxt, variable, value, result_prototype);
 	}
+
+	// coerce the operand to the variable's type
 	qb_coerce_operand_to_type(cxt, value, variable->address->type);
 
-	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_do_assignment(cxt, value->address, variable->address);
-	}
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = variable->address;
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = variable->address;
+		}
 	}
 }
 
@@ -899,9 +931,9 @@ static void ZEND_FASTCALL qb_translate_assign_op(qb_compiler_context *cxt, void 
 	qb_operand *variable = &operands[0], *value = &operands[1];
 
 	if(cxt->zend_op->extended_value == ZEND_ASSIGN_DIM) {
-		qb_do_array_element_retrieval(cxt, variable, value);
+		qb_do_array_element_retrieval(cxt, variable, value, result_prototype);
 	} else if(cxt->zend_op->extended_value == ZEND_ASSIGN_OBJ) {
-		qb_do_object_property_retrieval(cxt, variable, value);
+		qb_do_object_property_retrieval(cxt, variable, value, result_prototype);
 	}
 
 	qb_coerce_operand_to_type(cxt, value, variable->address->type);
@@ -968,10 +1000,12 @@ static void ZEND_FASTCALL qb_coerce_operand_to_boolean(qb_compiler_context *cxt,
 						case QB_TYPE_U64: is_true = VALUE(I64, operand->address) != 0; break;
 						case QB_TYPE_F32: is_true = VALUE(F32, operand->address) != 0.0f; break;
 						case QB_TYPE_F64: is_true = VALUE(F64, operand->address) != 0.0; break;
+						default: break;
 					}
 				} else {
 					is_true = TRUE;
 				}
+				// TODO: need qb_contain_constant_bool()
 				operand->address = qb_obtain_constant_S32(cxt, is_true);
 			} else {
 				qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, operand->address->array_size_address);
@@ -979,6 +1013,10 @@ static void ZEND_FASTCALL qb_coerce_operand_to_boolean(qb_compiler_context *cxt,
 				operand->address = new_address;
 			}
 		}
+	} else if(operand->type == QB_OPERAND_ZVAL) {
+		int32_t is_true = zend_is_true(operand->constant);
+		operand->type = QB_OPERAND_ADDRESS;
+		operand->address = qb_obtain_constant_S32(cxt, is_true);
 	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		operand->result_prototype->final_type = QB_TYPE_I32;
 		operand->result_prototype->address_flags |= QB_ADDRESS_BOOLEAN;
@@ -1119,7 +1157,7 @@ static void ZEND_FASTCALL qb_translate_basic_op(qb_compiler_context *cxt, void *
 static void ZEND_FASTCALL qb_translate_incdec_pre(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0];
 	if(cxt->zend_op->opcode == ZEND_PRE_INC_OBJ || cxt->zend_op->opcode == ZEND_PRE_DEC_OBJ) {
-		qb_do_object_property_retrieval(cxt, &operands[0], &operands[1]);
+		qb_do_object_property_retrieval(cxt, &operands[0], &operands[1], result_prototype);
 	}
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		result_prototype->preliminary_type = result_prototype->final_type = result->address->type;
@@ -1135,10 +1173,10 @@ static void ZEND_FASTCALL qb_translate_incdec_pre(qb_compiler_context *cxt, void
 static void ZEND_FASTCALL qb_translate_incdec_post(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0];
 	if(cxt->zend_op->opcode == ZEND_POST_INC_OBJ || cxt->zend_op->opcode == ZEND_POST_DEC_OBJ) {
-		qb_do_object_property_retrieval(cxt, &operands[0], &operands[1]);
+		qb_do_object_property_retrieval(cxt, &operands[0], &operands[1], result_prototype);
 	}
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		result_prototype->preliminary_type = result_prototype->final_type = result->address->type;
+		result_prototype->preliminary_type = result_prototype->final_type = variable->address->type;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(result->type != QB_OPERAND_NONE) {
 			// copy the value to a temporary variable before performining the increment
@@ -1268,8 +1306,19 @@ static void ZEND_FASTCALL qb_translate_fetch(qb_compiler_context *cxt, void *op_
 static void ZEND_FASTCALL qb_translate_fetch_element(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0], *index = &operands[1];
 	qb_coerce_operand_to_type(cxt, index, QB_TYPE_U32);
-	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_get_array_element(cxt, container->address, index->address);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(container->type == QB_OPERAND_ADDRESS) {
+			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+		} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+			result_prototype->final_type = container->result_prototype->final_type;
+		}
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		result->type = QB_OPERAND_ADDRESS;
+		result->address = qb_get_array_element(cxt, container->address, index->address);
+	}
 }
 
 static void ZEND_FASTCALL qb_translate_fetch_property(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1850,9 +1899,9 @@ static void ZEND_FASTCALL qb_translate_unset(qb_compiler_context *cxt, void *op_
 		qb_operand *variable = &operands[0], *value = &operands[1];
 
 		if(cxt->zend_op->opcode == ZEND_UNSET_DIM) {
-			qb_do_array_element_retrieval(cxt, variable, value);
+			qb_do_array_element_retrieval(cxt, variable, value, result_prototype);
 		} else if(cxt->zend_op->opcode == ZEND_UNSET_OBJ) {
-			qb_do_object_property_retrieval(cxt, variable, value);
+			qb_do_object_property_retrieval(cxt, variable, value, result_prototype);
 		} else {
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 			if(variable->type == QB_OPERAND_ZVAL) {
@@ -1896,7 +1945,6 @@ static zend_function * ZEND_FASTCALL qb_find_function(qb_compiler_context *cxt, 
 		int error_reporting_before;
 #endif
 		zend_fcall_info_cache fcc;
-		char *full_name = NULL;
 
 		if(ce) {
 			// no good way to get the class entry to zend_is_callable_ex() except by creating an array
@@ -2444,11 +2492,10 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 }
 
 static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cxt, uint32_t start_index, uint32_t end_index) {
-	uint32_t zend_op_index, stack_item_offset, stack_item_count;
+	uint32_t zend_op_index;
 
 	// save states
 	zend_op_index = cxt->zend_op_index;
-	qb_preserve_stack(cxt, &stack_item_offset, &stack_item_count);
 
 	// process zend instructions until we reach the end 
 	// or if an instruction is already translated
@@ -2519,8 +2566,7 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cx
 		}
 	}
 
-	// restore the stack
-	qb_restore_stack(cxt, stack_item_offset, stack_item_count);
+	// restore the state
 	cxt->zend_op = ZEND_OP(zend_op_index);
 	cxt->zend_op_index = zend_op_index;
 }

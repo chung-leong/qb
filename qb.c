@@ -72,20 +72,20 @@ ZEND_GET_MODULE(qb)
 #endif
 
 static ZEND_INI_MH(OnUpdatePath) {
-	uint32_t i;
 	if(new_value_length > 1) {
-		int last_char = new_value[new_value_length - 1];
+		uint32_t i = new_value_length - 1;
+		int last_char = new_value[i];
 		if(last_char == '\\' || last_char == '/') {
 			new_value_length--;
 		}
-	}
 #ifdef ZEND_WIN32
-	for(i = 0; i < new_value_length; i++) {
-		if(new_value[i] == '/') {
-			new_value[i] = '\\';
+		for(i = 0; i < new_value_length; i++) {
+			if(new_value[i] == '/') {
+				new_value[i] = '\\';
+			}
 		}
-	}
 #endif
+	}
 	return OnUpdateString(entry, new_value, new_value_length, mh_arg1, mh_arg2, mh_arg3, stage TSRMLS_CC);
 }
 

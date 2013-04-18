@@ -881,6 +881,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 					switch(expr->address->type) {
 						case QB_TYPE_F32: value = VALUE(F32, expr->address); break;
 						case QB_TYPE_F64: value = VALUE(F64, expr->address); break;
+						default: break;
 					}
 					Z_TYPE(c.value) = IS_DOUBLE;
 					Z_DVAL(c.value) = value;
@@ -895,6 +896,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 						case QB_TYPE_U32: value = VALUE(U32, expr->address); break;
 						case QB_TYPE_S64: value = (long) VALUE(S64, expr->address); break;
 						case QB_TYPE_U64: value = (long) VALUE(U64, expr->address); break;
+						default: break;
 					}
 					Z_TYPE(c.value) = IS_LONG;
 					Z_LVAL(c.value) = value;

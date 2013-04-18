@@ -57,7 +57,7 @@ struct qb_result_prototype {
 	qb_result_prototype *destination;
 };
 
-enum {
+enum qb_operand_type {
 	QB_OPERAND_NONE					= 0,
 	QB_OPERAND_ADDRESS_VAR			= 1,
 	QB_OPERAND_ADDRESS_ELC			= 2,
@@ -91,6 +91,8 @@ enum {
 	QB_OP_INDEX_NONE				= 0xFFFFFFFF,
 	QB_OP_INDEX_JUMP_TARGET			= 0xFFFFFFFE,
 };
+
+#include "qb_opcodes.h"
 
 struct qb_operand {
 	qb_operand_type type;
