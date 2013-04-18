@@ -984,42 +984,46 @@ static void ZEND_FASTCALL qb_translate_cast(qb_compiler_context *cxt, void *op_f
 }
 
 static void ZEND_FASTCALL qb_coerce_operand_to_boolean(qb_compiler_context *cxt, qb_operand *operand) {
-	if(operand->type == QB_OPERAND_ADDRESS) {
-		if(!(operand->address->flags & QB_ADDRESS_BOOLEAN)) {
-			if(operand->address->flags & QB_ADDRESS_CONSTANT) {
-				int32_t is_true;
-				if(IS_SCALAR(operand->address)) {
-					switch(operand->address->type) {
-						case QB_TYPE_S08:
-						case QB_TYPE_U08: is_true = VALUE(I08, operand->address) != 0; break;
-						case QB_TYPE_S16:
-						case QB_TYPE_U16: is_true = VALUE(I16, operand->address) != 0; break;
-						case QB_TYPE_S32:
-						case QB_TYPE_U32: is_true = VALUE(I32, operand->address) != 0; break;
-						case QB_TYPE_S64:
-						case QB_TYPE_U64: is_true = VALUE(I64, operand->address) != 0; break;
-						case QB_TYPE_F32: is_true = VALUE(F32, operand->address) != 0.0f; break;
-						case QB_TYPE_F64: is_true = VALUE(F64, operand->address) != 0.0; break;
-						default: break;
-					}
-				} else {
-					is_true = TRUE;
-				}
-				// TODO: need qb_contain_constant_bool()
-				operand->address = qb_obtain_constant_S32(cxt, is_true);
-			} else {
-				qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, operand->address->array_size_address);
-				qb_create_unary_op(cxt, &factory_boolean, operand->address, new_address);
-				operand->address = new_address;
-			}
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			operand->result_prototype->preliminary_type = operand->result_prototype->final_type = QB_TYPE_I32;
+			operand->result_prototype->address_flags |= QB_ADDRESS_BOOLEAN;
 		}
-	} else if(operand->type == QB_OPERAND_ZVAL) {
-		int32_t is_true = zend_is_true(operand->constant);
-		operand->type = QB_OPERAND_ADDRESS;
-		operand->address = qb_obtain_constant_S32(cxt, is_true);
-	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		operand->result_prototype->final_type = QB_TYPE_I32;
-		operand->result_prototype->address_flags |= QB_ADDRESS_BOOLEAN;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			if(!(operand->address->flags & QB_ADDRESS_BOOLEAN)) {
+				if(operand->address->flags & QB_ADDRESS_CONSTANT) {
+					int32_t is_true;
+					if(IS_SCALAR(operand->address)) {
+						switch(operand->address->type) {
+							case QB_TYPE_S08:
+							case QB_TYPE_U08: is_true = VALUE(I08, operand->address) != 0; break;
+							case QB_TYPE_S16:
+							case QB_TYPE_U16: is_true = VALUE(I16, operand->address) != 0; break;
+							case QB_TYPE_S32:
+							case QB_TYPE_U32: is_true = VALUE(I32, operand->address) != 0; break;
+							case QB_TYPE_S64:
+							case QB_TYPE_U64: is_true = VALUE(I64, operand->address) != 0; break;
+							case QB_TYPE_F32: is_true = VALUE(F32, operand->address) != 0.0f; break;
+							case QB_TYPE_F64: is_true = VALUE(F64, operand->address) != 0.0; break;
+							default: break;
+						}
+					} else {
+						is_true = TRUE;
+					}
+					// TODO: need qb_obtain_constant_bool()
+					operand->address = qb_obtain_constant_S32(cxt, is_true);
+				} else {
+					qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, operand->address->array_size_address);
+					qb_create_unary_op(cxt, &factory_boolean, operand->address, new_address);
+					operand->address = new_address;
+				}
+			}
+		} else if(operand->type == QB_OPERAND_ZVAL) {
+			int32_t is_true = zend_is_true(operand->constant);
+			operand->type = QB_OPERAND_ADDRESS;
+			operand->address = qb_obtain_constant_S32(cxt, is_true);
+		}
 	}
 }
 
@@ -2099,12 +2103,13 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 			qb_translate_basic_op(cxt, ifunc->extra, arguments, argument_count, result, result_prototype); 
 		}
 	} else {
+		// calling an external function
 		zend_function *zfunc;
 		qb_function *qfunc;
+		qb_variable *argument;
 		int32_t result_size_known, result_is_array;
 		uint32_t result_type, result_size;
 
-		// no intrinsic function found--look for the function
 		if(object->type == QB_OPERAND_ZEND_CLASS) {
 			zfunc = qb_find_function(cxt, object->zend_class, name->constant);
 		} else {
@@ -2115,11 +2120,60 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 		// see if it's a qb function
 		qfunc = qb_get_compiled_function(cxt, zfunc);
 
+		// cast arguments to correct type
+		for(i = 0; i < argument_count; i++) {
+			qb_operand *argument = &arguments[i];
+			if(qfunc) {
+				if(i < qfunc->argument_count) {
+					qb_variable *qvar = qfunc->variables[i];
+
+					if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+						if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
+							// do nothing at this point
+						} else {
+							qb_coerce_operand_to_type(cxt, argument, qvar->address->type);
+						}
+					} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+						if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
+							if(!STORAGE_TYPE_MATCH(qvar->address->type, argument->address->type)) {
+								qb_abort("%s expects argument %d to be of the type %s, %s was passed", qfunc->name, i + 1, type_names[qvar->address->type], type_names[argument->address->type]);
+							}
+							if(argument->address->flags & (QB_ADDRESS_TEMPORARY | QB_ADDRESS_QM_TEMPORARY)) {
+								qb_abort("Only variable should be passed by reference");
+							}
+
+							// mark variables passed by-ref as writable
+							qb_mark_as_writable(cxt, argument->address);
+						} else {
+							qb_coerce_operand_to_type(cxt, argument, qvar->address->type);
+						}
+						if(IS_EXPANDABLE_ARRAY(qvar->address) && !IS_EXPANDABLE_ARRAY(argument->address)) {
+							qb_abort("%s expects argument %d to be of a variable length array", qfunc->name, i + 1);
+						}
+					}
+				}
+			} else {
+				qb_coerce_operand_to_type(cxt, argument, QB_TYPE_ANY);
+				if(i < zfunc->common.num_args && zfunc->common.arg_info) {
+					zend_arg_info *zarg = &zfunc->common.arg_info[i];
+					if(zarg->pass_by_reference) {
+						qb_mark_as_writable(cxt, argument->address);
+					}
+				} else {
+					// no argument info--assume it's passed by ref just in case
+					qb_mark_as_writable(cxt, argument->address);
+				}
+			}
+
+			// mark all arguments as non-local (since they have to be copied out and in)
+			qb_mark_as_non_local(cxt, argument->address);
+		}
+
 		// the result type is determined by the caller; it's up to the interpreter to coerce 
-		// the result into the right type; query subsequent opcodes to see what is expected
-		// (if a return value is expected
+		// the result into the right type
+		qb_finalize_result_prototype(cxt, result_prototype);
 		if(result->type != QB_OPERAND_NONE) {
-			//result_type = qb_get_lvalue_type(cxt, QB_TYPE_ANY);
+			result_type = result_prototype->final_type;
 		} else {
 			result_type = QB_TYPE_VOID;
 		}
@@ -2176,38 +2230,26 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 			result_size_known = TRUE;
 		}
 
-		result->type = QB_OPERAND_ADDRESS;
-		if(result_size_known) {
-			if(result_is_array) {
-				result->address = qb_obtain_temporary_fixed_length_array(cxt, result_type, result_size);
-			} else {
-				result->address = qb_obtain_temporary_scalar(cxt, result_type);
-			}
-		} else {
-			result->address = qb_obtain_temporary_variable_length_array(cxt, result_type);
-		}
-
-		for(i = 0; i < argument_count; i++) {
-			qb_address *address = arguments[i].address;
-
-			// mark variables passed by-ref as writable
-			if(i < zfunc->common.num_args && zfunc->common.arg_info) {
-				zend_arg_info *zarg = &zfunc->common.arg_info[i];
-				if(zarg->pass_by_reference) {
-					qb_mark_as_writable(cxt, address);
+		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+			result->type = QB_OPERAND_ADDRESS;
+			if(result_size_known) {
+				if(result_is_array) {
+					result->address = qb_obtain_temporary_fixed_length_array(cxt, result_type, result_size);
+				} else {
+					result->address = qb_obtain_temporary_scalar(cxt, result_type);
 				}
 			} else {
-				// not argument info--assume it's passed by ref just in case
-				qb_mark_as_writable(cxt, address);
+				result->address = qb_obtain_temporary_variable_length_array(cxt, result_type);
 			}
 
-			// mark all variables as exportable (since they have to be copied out and in)
-			qb_mark_as_non_local(cxt, address);
-		}
-		qb_mark_as_writable(cxt, result->address);
-		qb_mark_as_non_local(cxt, result->address);
+			qb_mark_as_writable(cxt, result->address);
+			qb_mark_as_non_local(cxt, result->address);
 
-		qb_create_op(cxt, op_factory, arguments, argument_count, result);
+			qb_create_op(cxt, op_factory, arguments, argument_count, result);
+		}
 		cxt->zend_function_being_called = NULL;
 	}
 }
