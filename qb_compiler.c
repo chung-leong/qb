@@ -1145,7 +1145,7 @@ static void ZEND_FASTCALL qb_get_array_initializer_dimensions(qb_compiler_contex
 }
 
 static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address *value_address, qb_address *variable_address);
-static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_operand *operand, uint32_t desired_type);
+static void ZEND_FASTCALL qb_coerce_operand_to_type(qb_compiler_context *cxt, qb_operand *operand, uint32_t desired_type);
 
 static void ZEND_FASTCALL qb_copy_elements_from_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_address *address) {
 	qb_address *dimension_address = address->dimension_addresses[0];
@@ -1957,7 +1957,7 @@ static uint32_t ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cxt,
 	return type1;
 }
 
-static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_operand *operand, uint32_t desired_type) {
+static void ZEND_FASTCALL qb_coerce_operand_to_type(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
 	if(operand->type == QB_OPERAND_ADDRESS) {
 		if(desired_type != QB_TYPE_VOID) {
 			qb_address *new_address = NULL;
@@ -2025,6 +2025,11 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 		} else {
 			operand->address = NULL;
 			operand->type = QB_OPERAND_NONE;
+		}
+	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		operand->result_prototype->preliminary_type = desired_type;
+		if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
+			operand->result_prototype->final_type = desired_type;
 		}
 	}
 }
@@ -2411,7 +2416,9 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 
 		if(qop->opcode != QB_NOP) {
 			uint32_t flags = qb_get_op_flags(cxt, qop->opcode);
-			uint32_t operand_address_mode, operand_type, operand_flags;
+			qb_address_mode operand_address_mode; 
+			qb_operand_type operand_type;
+			uint32_t operand_flags;
 			if(flags & QB_OP_MULTI_ADDRESS) {
 				if(qop->opcode == QB_FCALL) {
 					// FCALL can work in one of two manners: either all addresses point to scalar variables
@@ -2424,7 +2431,7 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 						}
 					}
 				} else {
-					uint32_t required_address_mode = QB_ADDRESS_MODE_VAR;
+					qb_address_mode required_address_mode = QB_ADDRESS_MODE_VAR;
 					for(j = 0; j < qop->operand_count; j++) {
 						qb_operand *operand = &qop->operands[j];
 						if(operand->type == QB_OPERAND_ADDRESS) {

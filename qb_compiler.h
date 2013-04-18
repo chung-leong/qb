@@ -31,6 +31,10 @@ typedef struct qb_compiler_data_pool		qb_compiler_data_pool;
 typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_build_context				qb_build_context;
 typedef struct qb_diagnostics				qb_diagnostics;
+typedef struct qb_result_prototype			qb_result_prototype;
+
+typedef enum qb_operand_type				qb_operand_type;
+typedef enum qb_stage				qb_stage;
 
 struct qb_type_declaration {
 	pcre *regexp;
@@ -44,7 +48,15 @@ struct qb_type_declaration {
 	qb_index_alias_scheme **index_alias_schemes;
 };
 
-enum qb_operand_type {
+struct qb_result_prototype {
+	qb_primitive_type preliminary_type;
+	qb_primitive_type final_type;
+	uint32_t operand_flags;
+	uint32_t address_flags;
+	qb_result_prototype *destination;
+};
+
+enum {
 	QB_OPERAND_NONE					= 0,
 	QB_OPERAND_ADDRESS_VAR			= 1,
 	QB_OPERAND_ADDRESS_ELC			= 2,
@@ -64,6 +76,7 @@ enum qb_operand_type {
 	QB_OPERAND_ADDRESS_EXT_ARR,
 	QB_OPERAND_GLOBAL_STATIC,
 	QB_OPERAND_EMPTY,
+	QB_OPERAND_RESULT_PROTOTYPE,
 
 	QB_OPERAND_WRITABLE				= 0x08
 };
@@ -80,7 +93,7 @@ enum {
 };
 
 struct qb_operand {
-	uint32_t type;
+	qb_operand_type type;
 	union {
 		qb_address *address;
 		zval *constant;
@@ -92,6 +105,7 @@ struct qb_operand {
 		uint32_t *result_type;
 		zend_class_entry *zend_class;
 		qb_array_initializer *array_initializer;
+		qb_result_prototype *result_prototype;
 	};
 };
 
@@ -179,6 +193,12 @@ struct qb_compiler_data_pool {
 	char * const *pbj_op_names;
 };
 
+enum qb_stage {
+	QB_STAGE_VARIABLE_ASSIGNMENT,
+	QB_STAGE_RESULT_TYPE_RESOLUTION,
+	QB_STAGE_OPCODE_TRANSLATION,
+};
+
 struct qb_compiler_context {
 	qb_op **ops;
 	uint32_t op_count;
@@ -198,6 +218,9 @@ struct qb_compiler_context {
 	qb_operand *temp_variables;
 	uint32_t temp_variable_count;
 	qb_address *foreach_index_address;
+	qb_result_prototype *result_prototypes;
+	uint32_t result_prototype_count;
+	qb_result_prototype *result_prototype;
 
 	qb_variable *return_variable;
 	qb_variable **variables;
@@ -220,7 +243,6 @@ struct qb_compiler_context {
 	zend_op_array *zend_op_array;
 	zend_op *zend_op;
 	uint32_t zend_op_index;
-	uint32_t zend_op_processed_count;
 	uint32_t jump_target_index1;
 	uint32_t jump_target_index2;
 
@@ -266,6 +288,8 @@ struct qb_compiler_context {
 	int32_t resolving_result_type;
 	int32_t pop_short_circuiting_bool;
 	uint32_t default_result_type;
+
+	qb_stage stage;
 
 	zend_function *previous_function;
 	zend_class_entry *previous_class;

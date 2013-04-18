@@ -37,6 +37,9 @@ typedef struct qb_external_symbol		qb_external_symbol;
 typedef struct qb_native_code_bundle	qb_native_code_bundle;
 typedef struct qb_block_allocator 		qb_block_allocator;
 
+typedef enum qb_primitive_type			qb_primitive_type;
+typedef enum qb_address_mode			qb_address_mode;
+
 #define MAX_SEGMENT_COUNT			256
 #define MAX_DIMENSION				64
 
@@ -57,7 +60,7 @@ typedef struct qb_block_allocator 		qb_block_allocator;
 
 #define CTYPE(type)					CTYPE_##type
 
-enum {
+enum qb_primitive_type {
 	QB_TYPE_I08						= 0,
 	QB_TYPE_I16						= 2,
 	QB_TYPE_I32						= 4,
@@ -77,17 +80,15 @@ enum {
 	QB_TYPE_F64						= 9,
 
 	QB_TYPE_COUNT					= 10,
-};
 
-// pseudo-types
-enum {
+	// pseudo-types
 	QB_TYPE_VOID					= 100,
 	QB_TYPE_UNKNOWN,
 	QB_TYPE_ANY,
 	QB_TYPE_OPERAND,
 };
 
-enum {
+enum qb_address_mode {
 	QB_ADDRESS_MODE_VAR				= 0,
 	QB_ADDRESS_MODE_ELC,
 	QB_ADDRESS_MODE_ELV,
@@ -141,8 +142,8 @@ struct qb_index_alias_scheme {
 };
 
 struct qb_address {
-	uint32_t mode;
-	uint32_t type;
+	qb_address_mode mode;
+	qb_primitive_type type;
 	uint32_t flags;
 	uint32_t segment_selector;
 	uint32_t segment_offset;
