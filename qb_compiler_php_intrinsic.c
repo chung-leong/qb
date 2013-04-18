@@ -520,14 +520,19 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_aggregate(qb_compiler_con
 	uint32_t expr_type;
 
 	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
-	expr_type = container->address->type;
-	if(IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as parameter", f->name);
-	}
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, expr_type, NULL);
-		qb_create_op(cxt, f->extra, arguments, 1, result);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		expr_type = container->address->type;
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, expr_type, NULL);
+			qb_create_op(cxt, f->extra, arguments, 1, result);
+		}
 	}
 }
 
@@ -539,7 +544,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
 	expr_type = container->address->type;
 	qb_coerce_operand_to_type(cxt, needle, expr_type);
-	if(!cxt->resolving_result_type) {
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_S32;
+		result_prototype->operand_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(IS_SCALAR(container->address)) {
 			qb_abort("%s expects an array as the first parameter", f->name);
 		}
@@ -562,11 +573,11 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 				}
 			}
 		}
-	}
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_S32, NULL);
-		qb_create_op(cxt, f->extra, arguments, 2, result);
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_S32, NULL);
+			qb_create_op(cxt, f->extra, arguments, 2, result);
+		}
 	}
 }
 
@@ -643,16 +654,27 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 
 static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *source = &arguments[0];
-	uint32_t result_type = qb_get_lvalue_type(cxt, QB_TYPE_U16);
 	qb_coerce_operand_to_type(cxt, source, QB_TYPE_U08);
 
 	if(result->type != QB_OPERAND_NONE) {
-		if((result_type & ~QB_TYPE_UNSIGNED) != QB_TYPE_I16 && (result_type & ~QB_TYPE_UNSIGNED) != QB_TYPE_I32) {
-			result_type = QB_TYPE_U16;
+		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+			qb_primitive_type expr_type;
+
+			qb_finalize_result_prototype(cxt, result_prototype);
+			expr_type = result_prototype->final_type;
+
+			if(!STORAGE_TYPE_MATCH(expr_type , QB_TYPE_I16) && STORAGE_TYPE_MATCH(expr_type , QB_TYPE_I32)) {
+				// not I16 or I32--assume I32
+				expr_type = QB_TYPE_U32;
+			}
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable_length_array(cxt, expr_type);
+			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable_length_array(cxt, result_type);
-		qb_create_op(cxt, f->extra, arguments, argument_count, result);
 	}
 }
 
@@ -728,7 +750,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt
 			qb_abort("%s expects the third parameter to be a constant indicating the type", f->name);
 		}
 	} else {
-		result_type = qb_get_lvalue_type(cxt, QB_TYPE_VOID);
+		//result_type = qb_get_lvalue_type(cxt, QB_TYPE_VOID);
 		if(result_type == QB_TYPE_VOID) {
 			qb_abort("%s() requires the third parameter when the desired type cannot be determined from context", f->name);
 		}

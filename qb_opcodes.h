@@ -18,7 +18,7 @@
 
 /* $Id$ */
 
-enum {
+enum qb_opcode {
 	QB_NOP,
 	QB_JMP,
 	QB_RET,
@@ -2793,11 +2793,4 @@ enum {
 	QB_CTANH_F64_F64_ARR,
 	QB_EXT_U32,
 	QB_OPCODE_COUNT
-};
-
-enum {
-	QB_OPCODE_OFFSET_VAR = 0,
-	QB_OPCODE_OFFSET_ELC = 1,
-	QB_OPCODE_OFFSET_ELV = 2,
-	QB_OPCODE_OFFSET_ARR = 3,
 };

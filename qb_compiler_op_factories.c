@@ -169,37 +169,39 @@ static zend_always_inline uint32_t qb_get_vector_width(qb_compiler_context *cxt,
 static void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
 
 static qb_op * ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	if(!cxt->resolving_result_type) {
-		qb_basic_op_factory *f = factory;
-		uint32_t initial_op_count = cxt->op_count;
-		uint32_t i;
-		qb_op *qop = f->append(cxt, factory, operands, operand_count, result);
+	qb_basic_op_factory *f = factory;
+	uint32_t initial_op_count = cxt->op_count;
+	uint32_t i;
+	qb_op *qop = f->append(cxt, factory, operands, operand_count, result);
 
-		for(i = 0; i < operand_count; i++) {
-			qb_operand *operand = &operands[i];
-			if(operand->type == QB_OPERAND_ADDRESS) {
-				qb_unlock_address(cxt, operand->address);
-			}
-		}
-		if(result && result->type == QB_OPERAND_ADDRESS) {
-			if(result->address->flags & QB_ADDRESS_CONSTANT) {
-				// evalulate the expression at compile-time
-				qb_execute_op(cxt, qop);
-
-				// roll back the op counter
-				cxt->op_count = initial_op_count;
-
-				// make it a NOP
-				qop->opcode = QB_NOP;
-			} else {
-				// mark result address as writable
-				qb_mark_as_writable(cxt, result->address);
-			}
-		}
-		return qop;
-	} else {
-		return NULL;
+#if ZEND_DEBUG
+	if(cxt->stage != QB_STAGE_OPCODE_TRANSLATION) {
+		qb_abort("Creating opcode at the wrong stage");
 	}
+#endif
+
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			qb_unlock_address(cxt, operand->address);
+		}
+	}
+	if(result && result->type == QB_OPERAND_ADDRESS) {
+		if(result->address->flags & QB_ADDRESS_CONSTANT) {
+			// evalulate the expression at compile-time
+			qb_execute_op(cxt, qop);
+
+			// roll back the op counter
+			cxt->op_count = initial_op_count;
+
+			// make it a NOP
+			qop->opcode = QB_NOP;
+		} else {
+			// mark result address as writable
+			qb_mark_as_writable(cxt, result->address);
+		}
+	}
+	return qop;
 }
 
 static qb_op * ZEND_FASTCALL qb_create_nop(qb_compiler_context *cxt) {
@@ -1526,7 +1528,7 @@ static qb_vector_op_factory factory_reflect = {
 	},
 };
 
-static qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, uint32_t desired_type);
+static qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type);
 
 static qb_op * ZEND_FASTCALL qb_append_refract(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_vector_op_factory *f = factory;

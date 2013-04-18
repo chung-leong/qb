@@ -144,7 +144,7 @@ class QBCodeGenerator {
 			$this->writeCode($handle, $lines);
 		} else if($output == "CODES") {
 			$lines = array();
-			$lines[] = "enum {";
+			$lines[] = "enum qb_opcode {";
 			foreach($this->handlers as $handler) {
 				$name = $handler->getName();
 				if(preg_match("/(\w+)_VAR$/", $name, $m)) {
@@ -156,12 +156,6 @@ class QBCodeGenerator {
 				}
 			}
 			$lines[] = "QB_OPCODE_COUNT";
-			$lines[] = "};";
-			$lines[] = "";
-			$lines[] = "enum {";
-			foreach($this->addressModes as $index => $addressMode) {
-				$lines[] =	"QB_OPCODE_OFFSET_$addressMode = $index,";
-			}
 			$lines[] = "};";
 			$this->writeCode($handle, $lines);
 		} else if($output == "FLAGS") {

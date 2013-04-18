@@ -34,7 +34,8 @@ typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_result_prototype			qb_result_prototype;
 
 typedef enum qb_operand_type				qb_operand_type;
-typedef enum qb_stage				qb_stage;
+typedef enum qb_stage						qb_stage;
+typedef enum qb_opcode						qb_opcode;
 
 struct qb_type_declaration {
 	pcre *regexp;
@@ -70,7 +71,6 @@ enum {
 	QB_OPERAND_ARRAY_INITIALIZER,
 	QB_OPERAND_ZEND_CLASS,
 	QB_OPERAND_ZVAL,
-	QB_OPERAND_PREVIOUS_RESULT,
 	QB_OPERAND_ADDRESS_EXT_VAR,
 	QB_OPERAND_ADDRESS_EXT_ELV,
 	QB_OPERAND_ADDRESS_EXT_ARR,
@@ -142,7 +142,7 @@ enum {
 
 struct qb_op {
 	uint32_t flags;
-	uint32_t opcode;
+	qb_opcode opcode;
 	uint32_t operand_count;
 	qb_operand *operands;
 	uint32_t instruction_offset;
@@ -220,7 +220,6 @@ struct qb_compiler_context {
 	qb_address *foreach_index_address;
 	qb_result_prototype *result_prototypes;
 	uint32_t result_prototype_count;
-	qb_result_prototype *result_prototype;
 
 	qb_variable *return_variable;
 	qb_variable **variables;
@@ -285,10 +284,6 @@ struct qb_compiler_context {
 	void *native_proc;
 
 	int32_t silence;
-	int32_t resolving_result_type;
-	int32_t pop_short_circuiting_bool;
-	uint32_t default_result_type;
-
 	qb_stage stage;
 
 	zend_function *previous_function;
