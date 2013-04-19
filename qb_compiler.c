@@ -658,7 +658,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_qm_temporary_scalar(qb_compiler_cont
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_context *cxt, uint32_t element_type, uint32_t element_count, uint32_t flags) {
+static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type desired_type, uint32_t element_count, uint32_t flags) {
 	qb_address *address, *size_address;
 	qb_memory_segment *segment;
 	uint32_t selector, start, end, element_size = BYTE_COUNT(1, element_type);
@@ -722,7 +722,7 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_conte
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_create_fixed_size_multidimensional_array(qb_compiler_context *cxt, uint32_t element_type, uint32_t *dimensions, uint32_t dimension_count, uint32_t flags) {
+static qb_address * ZEND_FASTCALL qb_create_fixed_size_multidimensional_array(qb_compiler_context *cxt, qb_primitive_type desired_type, uint32_t *dimensions, uint32_t dimension_count, uint32_t flags) {
 	qb_address *address;
 	uint32_t array_sizes[MAX_DIMENSION], array_size = 1;
 	uint32_t i;
@@ -770,7 +770,7 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_size_multidimensional_array(qb
 	return address;
 }*/
 
-static qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, int32_t element_type, uint32_t element_count) {
+static qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count) {
 	qb_address *address;
 	uint32_t i;
 	for(i = 0; i < cxt->array_count; i++) {
@@ -792,7 +792,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_comp
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_qm_temporary_fixed_length_array(qb_compiler_context *cxt, int32_t element_type, uint32_t element_count) {
+static qb_address * ZEND_FASTCALL qb_obtain_qm_temporary_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type desired_type, uint32_t element_count) {
 	qb_address *address;
 	uint32_t i;
 	for(i = 0; i < cxt->array_count; i++) {
@@ -814,7 +814,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_qm_temporary_fixed_length_array(qb_c
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_create_variable_length_array(qb_compiler_context *cxt, uint32_t element_type, uint32_t flags) {
+static qb_address * ZEND_FASTCALL qb_create_variable_length_array(qb_compiler_context *cxt, qb_primitive_type desired_type, uint32_t flags) {
 	uint32_t selector;
 	qb_memory_segment *segment;
 	qb_address *address, *size_address;
@@ -850,7 +850,7 @@ static qb_address * ZEND_FASTCALL qb_create_variable_length_array(qb_compiler_co
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_create_variable_length_multidimensional_array(qb_compiler_context *cxt, uint32_t element_type, uint32_t *dimensions, uint32_t dimension_count, uint32_t flags) {
+static qb_address * ZEND_FASTCALL qb_create_variable_length_multidimensional_array(qb_compiler_context *cxt, qb_primitive_type desired_type, uint32_t *dimensions, uint32_t dimension_count, uint32_t flags) {
 	qb_address *address;
 	uint32_t array_sizes[MAX_DIMENSION], array_size = 1;
 	uint32_t i;
@@ -1076,12 +1076,12 @@ static qb_operand * ZEND_FASTCALL qb_expand_array_initializer(qb_compiler_contex
 
 static void ZEND_FASTCALL qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb_address *address);
 static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *zvalue, qb_address *address);
-static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, int32_t element_type);
-static void ZEND_FASTCALL qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue, int32_t element_type, uint32_t *dimensions, uint32_t dimension_count);
+static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type);
+static void ZEND_FASTCALL qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type, uint32_t *dimensions, uint32_t dimension_count);
 static uint32_t ZEND_FASTCALL qb_get_zval_type(qb_compiler_context *cxt, zval *zvalue, uint32_t flags);
 static qb_address * ZEND_FASTCALL qb_obtain_zval_constant(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type);
 
-static uint32_t ZEND_FASTCALL qb_get_array_initializer_dimension_count(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t element_type) {
+static uint32_t ZEND_FASTCALL qb_get_array_initializer_dimension_count(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_primitive_type desired_type) {
 	uint32_t overall_sub_array_dimension_count = 0, i;
 
 	for(i = 0; i < initializer->element_count; i++) {
@@ -1111,7 +1111,7 @@ static uint32_t ZEND_FASTCALL qb_get_array_initializer_dimension_count(qb_compil
 	return overall_sub_array_dimension_count + 1;
 }
 
-static void ZEND_FASTCALL qb_get_array_initializer_dimensions(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t element_type, uint32_t *dimensions, uint32_t dimension_count) {
+static void ZEND_FASTCALL qb_get_array_initializer_dimensions(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_primitive_type desired_type, uint32_t *dimensions, uint32_t dimension_count) {
 	uint32_t i, j;
 	if(initializer->element_count > dimensions[0]) {
 		dimensions[0] = initializer->element_count;
@@ -1871,7 +1871,7 @@ static uint32_t ZEND_FASTCALL qb_get_array_initializer_type(qb_compiler_context 
 	uint32_t i, highest_rank_type = 0;
 	for(i = 0; i < initializer->element_count; i++) {
 		qb_operand *element = &initializer->elements[i];
-		uint32_t element_type;
+		qb_primitive_type desired_type;
 		if(element->type == QB_OPERAND_ARRAY_INITIALIZER) {
 			element_type = qb_get_array_initializer_type(cxt, element->array_initializer);
 		} else if(element->type == QB_OPERAND_ZVAL) {
@@ -2098,7 +2098,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address) {
 	qb_address *result_address = qb_allocate_address(cxt->pool);
 	qb_address *offset_address = NULL;
-	int32_t element_type = container_address->type;
+	qb_primitive_type desired_type = container_address->type;
 
 	if(IS_SCALAR(container_address)) {
 		qb_abort("Illegal operation: not an array");

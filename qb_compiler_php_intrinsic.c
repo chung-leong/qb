@@ -406,132 +406,205 @@ static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt,
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_push(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *value = &arguments[1];
-	qb_address *size_address, *variable_address;
-	if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as parameter", f->name);
-	}
-	if(!IS_EXPANDABLE_ARRAY(container->address)) {
-		qb_abort("Adding element to an array that cannot expand");
-	}
-	qb_coerce_operand_to_type(cxt, value, container->address->type);
-	size_address = container->address->dimension_addresses[0];
-	variable_address = qb_get_array_element(cxt, container->address, size_address);
-	qb_do_assignment(cxt, value->address, variable_address);
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = size_address;
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_U32;
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *size_address, *variable_address;
+		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
+		}
+		if(!IS_EXPANDABLE_ARRAY(container->address)) {
+			qb_abort("Adding element to an array that cannot expand");
+		}
+		qb_coerce_operand_to_type(cxt, value, container->address->type);
+		size_address = container->address->dimension_addresses[0];
+		variable_address = qb_get_array_element(cxt, container->address, size_address);
+		qb_do_assignment(cxt, value->address, variable_address);
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = size_address;
+		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
-	qb_address *size_address, *index_address, *one_address, *variable_address;
-	if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as parameter", f->name);
+
+	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(container->type == QB_OPERAND_ADDRESS) {
+			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+		} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+			result_prototype->final_type = container->result_prototype->final_type;
+		}
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *size_address, *index_address, *one_address, *variable_address;
+
+		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
+		}
+		if(!IS_EXPANDABLE_ARRAY(container->address)) {
+			qb_abort("Removing element to from an array that cannot shrink");
+		}
+		size_address = container->address->dimension_addresses[0];
+		index_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
+		one_address = qb_obtain_constant_U32(cxt, 1);
+		qb_create_binary_op(cxt, &factory_subtract, size_address, one_address, index_address);
+		variable_address = qb_get_array_element(cxt, container->address, index_address);
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, variable_address->type, variable_address->array_size_address);
+			qb_create_unary_op(cxt, &factory_copy, variable_address, result->address);
+		}
+		qb_create_nullary_op(cxt, &factory_unset, variable_address);
 	}
-	if(!IS_EXPANDABLE_ARRAY(container->address)) {
-		qb_abort("Removing element to from an array that cannot shrink");
-	}
-	size_address = container->address->dimension_addresses[0];
-	index_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-	one_address = qb_obtain_constant_U32(cxt, 1);
-	qb_create_binary_op(cxt, &factory_subtract, size_address, one_address, index_address);
-	variable_address = qb_get_array_element(cxt, container->address, index_address);
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, variable_address->type, variable_address->array_size_address);
-		qb_create_unary_op(cxt, &factory_copy, variable_address, result->address);
-	}
-	qb_create_nullary_op(cxt, &factory_unset, variable_address);
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
-	qb_address *zero_address, *variable_address;
-	if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as parameter", f->name);
+
+	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(container->type == QB_OPERAND_ADDRESS) {
+			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+		} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+			result_prototype->final_type = container->result_prototype->final_type;
+		}
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *zero_address, *variable_address;
+
+		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
+		}
+		if(!IS_EXPANDABLE_ARRAY(container->address)) {
+			qb_abort("Removing element from an array that cannot shrink");
+		}
+		zero_address = qb_obtain_constant_U32(cxt, 0);
+		variable_address = qb_get_array_element(cxt, container->address, zero_address);
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, variable_address->type, variable_address->array_size_address);
+			qb_do_assignment(cxt, variable_address, result->address);
+		}
+		qb_create_nullary_op(cxt, &factory_unset, variable_address);
 	}
-	if(!IS_EXPANDABLE_ARRAY(container->address)) {
-		qb_abort("Removing element from an array that cannot shrink");
-	}
-	zero_address = qb_obtain_constant_U32(cxt, 0);
-	variable_address = qb_get_array_element(cxt, container->address, zero_address);
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, variable_address->type, variable_address->array_size_address);
-		qb_do_assignment(cxt, variable_address, result->address);
-	}
-	qb_create_nullary_op(cxt, &factory_unset, variable_address);
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_slice(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *offset = &arguments[1], *length = &arguments[2];
+
 	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
-	if(IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as parameter", f->name);
-	}
-	qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
-	if(argument_count >= 3) {
-		qb_coerce_operand_to_type(cxt, length, QB_TYPE_U32);
-	}
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_get_array_slice(cxt, container->address, offset->address, (argument_count >= 3) ? length->address : NULL);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(container->type == QB_OPERAND_ADDRESS) {
+			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+		} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+			result_prototype->final_type = container->result_prototype->final_type;
+		}
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
+		}
+		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
+		if(argument_count >= 3) {
+			qb_coerce_operand_to_type(cxt, length, QB_TYPE_U32);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_get_array_slice(cxt, container->address, offset->address, (argument_count >= 3) ? length->address : NULL);
+		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *offset = &arguments[1], *length = &arguments[2], *replacement = &arguments[3];
-	qb_address *slice_address;
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
-	if(IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as parameter", f->name);
-	}
-	qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
-	if(argument_count >= 3) {
-		qb_coerce_operand_to_type(cxt, length, QB_TYPE_U32);
-	}
-	if(argument_count >= 4) {
-		qb_coerce_operand_to_type(cxt, replacement, container->address->type);
-	}
-	slice_address = qb_get_array_slice(cxt, container->address, offset->address, (argument_count >= 3) ? length->address : NULL);
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, slice_address->type, slice_address->array_size_address);
-		qb_create_unary_op(cxt, &factory_copy, slice_address, result->address);
-	}
-	if(argument_count >= 4) {
-		if(IS_FIXED_LENGTH_ARRAY(replacement->address) && IS_FIXED_LENGTH_ARRAY(slice_address) && ARRAY_SIZE(replacement->address) == ARRAY_SIZE(slice_address)) {
-			qb_create_unary_op(cxt, &factory_copy, replacement->address, slice_address);
-		} else {
-			qb_address *insert_offset_address;
-			// clear the span (unless its length is zero)
-			if(!(slice_address->array_size_address->flags & QB_ADDRESS_CONSTANT && ARRAY_SIZE(slice_address) == 0)) {
-				qb_create_nullary_op(cxt, &factory_unset, slice_address);
-			}
 
-			// insert the replacement 
-			if(slice_address->array_index_address) {
-				insert_offset_address = slice_address->array_index_address;
-			} else {
-				uint32_t insert_offset = ELEMENT_COUNT(slice_address->segment_offset, slice_address->type);
-				insert_offset_address = qb_obtain_constant_U32(cxt, insert_offset);
-			}
-			qb_create_binary_op(cxt, &factory_array_insert, replacement->address, insert_offset_address, container->address);
+	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(container->type == QB_OPERAND_ADDRESS) {
+			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+		} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+			result_prototype->final_type = container->result_prototype->final_type;
 		}
-	} else {
-		qb_create_nullary_op(cxt, &factory_unset, slice_address);
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *slice_address;
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
+		}
+		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
+		if(argument_count >= 3) {
+			qb_coerce_operand_to_type(cxt, length, QB_TYPE_U32);
+		}
+		if(argument_count >= 4) {
+			qb_coerce_operand_to_type(cxt, replacement, container->address->type);
+		}
+		slice_address = qb_get_array_slice(cxt, container->address, offset->address, (argument_count >= 3) ? length->address : NULL);
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, slice_address->type, slice_address->array_size_address);
+			qb_create_unary_op(cxt, &factory_copy, slice_address, result->address);
+		}
+		if(argument_count >= 4) {
+			if(IS_FIXED_LENGTH_ARRAY(replacement->address) && IS_FIXED_LENGTH_ARRAY(slice_address) && ARRAY_SIZE(replacement->address) == ARRAY_SIZE(slice_address)) {
+				qb_create_unary_op(cxt, &factory_copy, replacement->address, slice_address);
+			} else {
+				qb_address *insert_offset_address;
+				// clear the span (unless its length is zero)
+				if(!(slice_address->array_size_address->flags & QB_ADDRESS_CONSTANT && ARRAY_SIZE(slice_address) == 0)) {
+					qb_create_nullary_op(cxt, &factory_unset, slice_address);
+				}
+
+				// insert the replacement 
+				if(slice_address->array_index_address) {
+					insert_offset_address = slice_address->array_index_address;
+				} else {
+					uint32_t insert_offset = ELEMENT_COUNT(slice_address->segment_offset, slice_address->type);
+					insert_offset_address = qb_obtain_constant_U32(cxt, insert_offset);
+				}
+				qb_create_binary_op(cxt, &factory_array_insert, replacement->address, insert_offset_address, container->address);
+			}
+		} else {
+			qb_create_nullary_op(cxt, &factory_unset, slice_address);
+		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_aggregate(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
-	uint32_t expr_type;
+	qb_primitive_type expr_type;
 
 	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		result->type = QB_OPERAND_RESULT_PROTOTYPE;
-		result->result_prototype = result_prototype;
+		if(result->type != QB_OPERAND_NONE) {
+			if(container->type == QB_OPERAND_ADDRESS) {
+				result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+			} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+				result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+				result_prototype->final_type = container->result_prototype->final_type;
+			}
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		expr_type = container->address->type;
 		if(IS_SCALAR(container->address)) {
@@ -548,17 +621,19 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_aggregate(qb_compiler_con
 static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
 	qb_operand *needle = &arguments[1];
-	uint32_t expr_type;
+	qb_primitive_type expr_type;
 
 	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
 	expr_type = container->address->type;
 	qb_coerce_operand_to_type(cxt, needle, expr_type);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_S32;
-		result_prototype->operand_flags = QB_ADDRESS_TEMPORARY;
-		result->type = QB_OPERAND_RESULT_PROTOTYPE;
-		result->result_prototype = result_prototype;
+		if(result->type != QB_OPERAND_NONE) {
+			result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_S32;
+			result_prototype->operand_flags = QB_ADDRESS_TEMPORARY;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(IS_SCALAR(container->address)) {
 			qb_abort("%s expects an array as the first parameter", f->name);
@@ -591,23 +666,22 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *container = &arguments[0];
-	qb_operand *needle = &arguments[1];
-	qb_operand *offset = &arguments[2];
+	qb_operand *container = &arguments[0], *needle = &arguments[1], *offset = &arguments[2];
 
+	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	if(argument_count >= 3) {
+		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_S32);
+	}
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		if(argument_count >= 3) {
-			qb_coerce_operand_to_type(cxt, offset, QB_TYPE_S32);
+		if(result->type != QB_OPERAND_NONE) {
+			result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_I32;
+			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
 		}
-		result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_I32;
-		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
-		result->type = QB_OPERAND_RESULT_PROTOTYPE;
-		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		uint32_t expr_type;
 		qb_address *offset_address;
-
-		qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
 
 		expr_type = container->address->type;
 		qb_coerce_operand_to_type(cxt, needle, expr_type);
@@ -618,7 +692,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 			qb_abort("%s expects a one-dimensional array as the second parameter", f->name);
 		}
 		if(argument_count >= 3) {
-			qb_coerce_operand_to_type(cxt, offset, QB_TYPE_S32);
 			if(!IS_SCALAR(offset->address)) {
 				qb_abort("%s expects a scalar as the third parameter", f->name);
 			}
@@ -642,34 +715,58 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 
 static void ZEND_FASTCALL qb_translate_intrinsic_sort(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
-	if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address) || container->address->dimension_count > 1) {
-		qb_abort("%s expects a one-dimensional array as parameter", f->name);
-	}
-	qb_create_op(cxt, f->extra, NULL, 0, container);
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_constant_S32(cxt, 1);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_S32;
+			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address) || container->address->dimension_count > 1) {
+			qb_abort("%s expects a one-dimensional array as parameter", f->name);
+		}
+		qb_create_op(cxt, f->extra, NULL, 0, container);
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_constant_S32(cxt, 1);
+		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
 
-	if(IS_SCALAR(container->address)) {
-		qb_abort("%s expects an array as the first parameter", f->name);
-	}
 	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
-	if(result->type != QB_OPERAND_NONE) {
-		qb_address *count_address = container->address->dimension_addresses[0];
-		qb_address *width_address;
-		if(container->address->dimension_count > 1) {
-			width_address = container->address->array_size_addresses[1];
-		} else {
-			width_address = qb_obtain_constant_U32(cxt, 1);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			if(container->type == QB_OPERAND_ADDRESS) {
+				result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+			} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+				result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+				result_prototype->final_type = container->result_prototype->final_type;
+			}
+			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
 		}
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, container->address->type, container->address->array_size_address);
-		qb_create_ternary_op(cxt, f->extra, container->address, count_address, width_address, result->address);
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as the first parameter", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			qb_address *count_address = container->address->dimension_addresses[0];
+			qb_address *width_address;
+			if(container->address->dimension_count > 1) {
+				width_address = container->address->array_size_addresses[1];
+			} else {
+				width_address = qb_obtain_constant_U32(cxt, 1);
+			}
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, container->address->type, container->address->array_size_address);
+			qb_create_ternary_op(cxt, f->extra, container->address, count_address, width_address, result->address);
+		}
 	}
 }
 
@@ -679,109 +776,161 @@ static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context
 
 	if(result->type != QB_OPERAND_NONE) {
 		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
-			result->type = QB_OPERAND_RESULT_PROTOTYPE;
-			result->result_prototype = result_prototype;
+			if(result->type != QB_OPERAND_NONE) {
+				result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+				result->type = QB_OPERAND_RESULT_PROTOTYPE;
+				result->result_prototype = result_prototype;
+			}
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			qb_primitive_type expr_type;
 
 			qb_finalize_result_prototype(cxt, result_prototype);
 			expr_type = result_prototype->final_type;
 
-			if(!STORAGE_TYPE_MATCH(expr_type , QB_TYPE_I16) && STORAGE_TYPE_MATCH(expr_type , QB_TYPE_I32)) {
-				// not I16 or I32--assume I32
+			if(!STORAGE_TYPE_MATCH(expr_type , QB_TYPE_U16)) {
+				// not U16--use U32
 				expr_type = QB_TYPE_U32;
 			}
-			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable_length_array(cxt, expr_type);
-			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+			if(result->type != QB_OPERAND_NONE) {
+				result->type = QB_OPERAND_ADDRESS;
+				result->address = qb_obtain_temporary_variable_length_array(cxt, expr_type);
+				qb_create_op(cxt, f->extra, arguments, argument_count, result);
+			}
 		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_utf8_encode(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *source = &arguments[0];
-	uint32_t source_type = QB_TYPE_U16;
-	if(source->type == QB_OPERAND_ADDRESS && (source->address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
+	qb_primitive_type source_type = QB_TYPE_ANY;
+
+	if(source->type == QB_OPERAND_ADDRESS) {
+		source_type = source->address->type;
+	} else if(source->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		source_type = source->result_prototype->final_type;
+	}
+	if(!STORAGE_TYPE_MATCH(source->address->type, QB_TYPE_U16)) {
+		// use U32 unless the input is U16
 		source_type = QB_TYPE_U32;
 	}
 	qb_coerce_operand_to_type(cxt, source, source_type);
-
-	if(result->type != QB_OPERAND_NONE) {
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable_length_array(cxt, QB_TYPE_I08);
-		result->address->flags |= QB_ADDRESS_STRING;
-		qb_create_op(cxt, f->extra, arguments, argument_count, result);
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_U08;
+			result_prototype->address_flags = QB_ADDRESS_STRING;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable_length_array(cxt, QB_TYPE_I08);
+			result->address->flags |= QB_ADDRESS_STRING;
+			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_pack(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &arguments[0], *type = &arguments[1];
-	qb_address *result_size_address;
-	uint32_t arg_type;
+	qb_primitive_type arg_type = QB_TYPE_ANY;
 	if(argument_count >= 2) {
 		if(type->type == QB_OPERAND_ZVAL && type->constant->type == IS_LONG) {
 			arg_type = type->constant->value.lval;
-		} else {
-			qb_abort("%s expects the second parameter to be a constant indicating the type", f->name);
 		}
 	} else {
 		if(value->type == QB_OPERAND_ADDRESS) {
 			arg_type = value->address->type;
-		} else {
-			qb_abort("%s() requires the second parameter when the input type cannot be determined", f->name);
+		} else if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			arg_type = value->result_prototype->final_type;
 		}
 	}
 	qb_coerce_operand_to_type(cxt, value, arg_type);
-	if(!IS_SCALAR(value->address)) {
-		qb_abort("%s expects a scalar as the first parameter", f->name);
-	}
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_U08;
+			result_prototype->address_flags = QB_ADDRESS_STRING;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *result_size_address;
+		if(!(arg_type >= QB_TYPE_S08 && arg_type <= QB_TYPE_F64)) {
+			qb_abort((argument_count >= 2) ? "%s expects the second parameter to be a constant indicating the type" : "%s() requires the second parameter when the input type cannot be determined", f->name);
+		}
+		if(!IS_SCALAR(value->address)) {
+			qb_abort("%s expects a scalar as the first parameter", f->name);
+		}
 
-	if(result->type != QB_OPERAND_NONE) {
-		result_size_address = qb_obtain_constant_U32(cxt, type_sizes[value->address->type]);
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_U08, result_size_address);
-		result->address->flags |= QB_ADDRESS_STRING;
-		qb_create_op(cxt, f->extra, arguments, 1, result);
+		if(result->type != QB_OPERAND_NONE) {
+			result_size_address = qb_obtain_constant_U32(cxt, type_sizes[value->address->type]);
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_U08, result_size_address);
+			result->address->flags |= QB_ADDRESS_STRING;
+			qb_create_op(cxt, f->extra, arguments, 1, result);
+		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *array = &arguments[0], *offset = &arguments[1], *type = &arguments[2];
-	qb_address *slice_address, *offset_address, *length_address;
-	uint32_t result_type;
+	qb_primitive_type result_type = QB_TYPE_ANY;
 
 	qb_coerce_operand_to_type(cxt, array, QB_TYPE_U08);
-	if(IS_SCALAR(array->address) || array->address->dimension_count > 1) {
-		qb_abort("%s expects a one-dimenstional array as the first parameter", f->name);
-	}
 	if(argument_count >= 2) {
 		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
-		if(!IS_SCALAR(offset->address)) {
-			qb_abort("%s expects a scalar as the second parameter", f->name);
-		}
-		offset_address = offset->address;
-	} else {
-		offset_address = qb_obtain_constant_U32(cxt, 0);
 	}
 	if(argument_count >= 3) {
 		if(type->type == QB_OPERAND_ZVAL && type->constant->type == IS_LONG) {
 			result_type = type->constant->value.lval;
-		} else {
-			qb_abort("%s expects the third parameter to be a constant indicating the type", f->name);
-		}
-	} else {
-		//result_type = qb_get_lvalue_type(cxt, QB_TYPE_VOID);
-		if(result_type == QB_TYPE_VOID) {
-			qb_abort("%s() requires the third parameter when the desired type cannot be determined from context", f->name);
 		}
 	}
-	if(result->type != QB_OPERAND_NONE) {
-		length_address = qb_obtain_constant_U32(cxt, type_sizes[result_type]);
-		slice_address = qb_get_array_slice(cxt, array->address, offset_address, length_address);
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, result_type, NULL);
-		qb_create_unary_op(cxt, f->extra, slice_address, result->address);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result_prototype->preliminary_type = result_type;
+			if(result_type != QB_TYPE_ANY) {
+				result_prototype->final_type = result_type;
+			} else {
+				// we need the lvalue type if it isn't specified
+				result_prototype->operand_flags = QB_COERCE_TO_LVALUE_TYPE;
+			}
+			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *slice_address, *offset_address, *length_address;
+
+		if(IS_SCALAR(array->address) || array->address->dimension_count > 1) {
+			qb_abort("%s expects a one-dimenstional array as the first parameter", f->name);
+		}
+		if(argument_count >= 2) {
+			if(!IS_SCALAR(offset->address)) {
+				qb_abort("%s expects a scalar as the second parameter", f->name);
+			}
+			offset_address = offset->address;
+		} else {
+			offset_address = qb_obtain_constant_U32(cxt, 0);
+		}
+		qb_finalize_result_prototype(cxt, result_prototype);
+		if(argument_count >= 3) {
+			if(!(result_type >= QB_TYPE_S08 && result_type <= QB_TYPE_F64)) {
+				qb_abort("%s expects the third parameter to be a constant indicating the type", f->name);
+			}
+		} else {
+			result_type = result_prototype->final_type;
+			if(result_type == QB_TYPE_ANY) {
+				qb_abort("%s() requires the third parameter when the desired type cannot be determined from context", f->name);
+			}
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			length_address = qb_obtain_constant_U32(cxt, type_sizes[result_type]);
+			slice_address = qb_get_array_slice(cxt, array->address, offset_address, length_address);
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, result_type, NULL);
+			qb_create_unary_op(cxt, f->extra, slice_address, result->address);
+		}
 	}
 }
 
