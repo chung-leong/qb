@@ -36,6 +36,7 @@ typedef struct qb_result_prototype			qb_result_prototype;
 typedef enum qb_operand_type				qb_operand_type;
 typedef enum qb_stage						qb_stage;
 typedef enum qb_opcode						qb_opcode;
+typedef enum qb_diagnostic_type				qb_diagnostic_type;
 
 struct qb_type_declaration {
 	pcre *regexp;
@@ -104,7 +105,6 @@ struct qb_operand {
 		uint32_t jump_target_index;
 		uint32_t operand_size;
 		uint32_t argument_count;
-		uint32_t *result_type;
 		zend_class_entry *zend_class;
 		qb_array_initializer *array_initializer;
 		qb_result_prototype *result_prototype;
@@ -312,7 +312,7 @@ struct qb_build_context {
 	void ***tsrm_ls;
 };
 
-enum {
+enum qb_diagnostic_type {
 	QB_DIAGNOSTIC_EMPTY,
 	QB_DIAGNOSTIC_INT_ADD,
 	QB_DIAGNOSTIC_INT_MUL,

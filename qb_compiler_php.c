@@ -39,7 +39,7 @@ static void ZEND_FASTCALL qb_print_zend_ops(qb_compiler_context *cxt) {
 	}
 }
 
-static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type) {
+static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type element_type) {
 	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
 		HashTable *ht = Z_ARRVAL_P(zvalue);
 		Bucket *p;
@@ -66,7 +66,7 @@ static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_cont
 	}
 }
 
-static void ZEND_FASTCALL qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type, uint32_t *dimensions, uint32_t dimension_count) {
+static void ZEND_FASTCALL qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type element_type, uint32_t *dimensions, uint32_t dimension_count) {
 	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
 		HashTable *ht = Z_ARRVAL_P(zvalue);
 		Bucket *p;
@@ -170,7 +170,7 @@ static void ZEND_FASTCALL qb_copy_element_from_zval(qb_compiler_context *cxt, zv
 static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *zvalue, qb_address *address) {
 	qb_address *dimension_address = address->dimension_addresses[0];
 	uint32_t dimension = VALUE(U32, dimension_address);
-	qb_primitive_type desired_type = address->type;
+	qb_primitive_type element_type = address->type;
 	uint32_t element_size = type_sizes[element_type], i;
 
 	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {

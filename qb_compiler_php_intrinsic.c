@@ -19,7 +19,7 @@
 /* $Id$ */
 
 static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -45,7 +45,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_con
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -77,7 +77,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_co
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -109,7 +109,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -146,7 +146,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cx
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -187,7 +187,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cx
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -331,7 +331,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	uint32_t expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -369,7 +369,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 
 static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &arguments[0], *precision = &arguments[1], *mode = &arguments[2];
-	uint32_t expr_type = qb_get_operand_type(cxt, &arguments[0], QB_COERCE_TO_FLOATING_POINT);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, &arguments[0], QB_COERCE_TO_FLOATING_POINT);
 	qb_coerce_operand_to_type(cxt, &arguments[0], expr_type);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
@@ -680,7 +680,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 			result->result_prototype = result_prototype;
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		uint32_t expr_type;
+		qb_primitive_type expr_type;
 		qb_address *offset_address;
 
 		expr_type = container->address->type;
@@ -954,7 +954,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 			}
 		}
 	} else {
-		uint32_t expr_type = qb_get_highest_rank_type(cxt, arguments, argument_count, 0);
+		qb_primitive_type expr_type = qb_get_highest_rank_type(cxt, arguments, argument_count, 0);
 		uint32_t i = 0; 
 
 		for(i = 0; i < argument_count; i++) {
