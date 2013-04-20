@@ -175,7 +175,7 @@ static qb_op * ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factor
 	qb_op *qop = f->append(cxt, factory, operands, operand_count, result);
 
 #if ZEND_DEBUG
-	if(cxt->stage != QB_STAGE_OPCODE_TRANSLATION) {
+	if(cxt->stage != QB_STAGE_OPCODE_TRANSLATION && cxt->stage != QB_STAGE_VARIABLE_INITIALIZATION) {
 		qb_abort("Creating opcode at the wrong stage");
 	}
 #endif

@@ -1164,7 +1164,7 @@ static void ZEND_FASTCALL qb_translate_incdec_pre(qb_compiler_context *cxt, void
 		qb_do_object_property_retrieval(cxt, &operands[0], &operands[1], result_prototype);
 	}
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		result_prototype->preliminary_type = result_prototype->final_type = result->address->type;
+		result_prototype->preliminary_type = result_prototype->final_type = variable->address->type;
 	} else {
 		qb_create_op(cxt, op_factory, NULL, 0, variable);
 		if(result->type != QB_OPERAND_NONE) {
@@ -1493,6 +1493,7 @@ static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op
 				// the branch is not reachable, just go to the next op
 				cxt->jump_target_index1 = target_index2;
 			}
+			return;
 		} else {
 			if(result->type != QB_OPERAND_NONE) {
 				// push the condition back onto the stack for the purpose of short-circuiting logical statements
@@ -1669,7 +1670,7 @@ static void ZEND_FASTCALL qb_translate_foreach_fetch(qb_compiler_context *cxt, v
 			qb_save_result_operand(cxt, Z_OPERAND_TYPE(data_zop->result), &data_zop->result, &index);
 		}
 	}
-	cxt->jump_target_index1 = cxt->zend_op_index + 1;
+	cxt->jump_target_index1 = cxt->zend_op_index + 2;
 	cxt->jump_target_index2 = target_index;
 }
 
@@ -2149,23 +2150,27 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 						if(IS_EXPANDABLE_ARRAY(qvar->address) && !IS_EXPANDABLE_ARRAY(argument->address)) {
 							qb_abort("%s expects argument %d to be of a variable length array", qfunc->name, i + 1);
 						}
+
+						// mark arguments as non-local (since they have to be copied out and in)
+						qb_mark_as_non_local(cxt, argument->address);
 					}
 				}
 			} else {
 				qb_coerce_operand_to_type(cxt, argument, QB_TYPE_ANY);
-				if(i < zfunc->common.num_args && zfunc->common.arg_info) {
-					zend_arg_info *zarg = &zfunc->common.arg_info[i];
-					if(zarg->pass_by_reference) {
+				if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+					if(i < zfunc->common.num_args && zfunc->common.arg_info) {
+						zend_arg_info *zarg = &zfunc->common.arg_info[i];
+						if(zarg->pass_by_reference) {
+							qb_mark_as_writable(cxt, argument->address);
+						}
+					} else {
+						// no argument info--assume it's passed by ref just in case
 						qb_mark_as_writable(cxt, argument->address);
 					}
-				} else {
-					// no argument info--assume it's passed by ref just in case
-					qb_mark_as_writable(cxt, argument->address);
+
+					qb_mark_as_non_local(cxt, argument->address);
 				}
 			}
-
-			// mark all arguments as non-local (since they have to be copied out and in)
-			qb_mark_as_non_local(cxt, argument->address);
 		}
 
 		// the result type is determined by the caller; it's up to the interpreter to coerce 
