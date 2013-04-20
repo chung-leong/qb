@@ -1798,7 +1798,9 @@ static qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *
 		if(operand->result_prototype->final_type != QB_TYPE_UNKNOWN) {
 			return operand->result_prototype->final_type;
 		} 
-		return operand->result_prototype->preliminary_type;
+		if(operand->result_prototype->preliminary_type != QB_TYPE_ANY) {
+			return operand->result_prototype->preliminary_type;
+		}
 	}
 	return QB_TYPE_UNKNOWN;
 }
@@ -1835,14 +1837,15 @@ static qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_cont
 static void ZEND_FASTCALL qb_coerce_operand_to_type(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-			if(desired_type == QB_TYPE_ANY) {
-				desired_type = operand->result_prototype->preliminary_type;
-			}
-			if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
-				operand->result_prototype->preliminary_type = desired_type;
-				if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
-					operand->result_prototype->final_type = desired_type;
+			if(desired_type != QB_TYPE_ANY) {
+				if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
+					operand->result_prototype->preliminary_type = desired_type;
+					if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
+						operand->result_prototype->final_type = desired_type;
+					}
 				}
+			} else {
+				desired_type = operand->result_prototype->preliminary_type;
 			}
 		}
 	} else {

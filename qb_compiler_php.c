@@ -789,9 +789,11 @@ static void ZEND_FASTCALL qb_finalize_result_prototype(qb_compiler_context *cxt,
 					destination_type = result_prototype->destination->final_type;
 
 					// see what the result is--promote the expression to it if it's higher
-					if(destination_type > expr_type || expr_type == QB_TYPE_ANY) {
-						if(!(destination_type >= QB_TYPE_F32 && (result_prototype->operand_flags & QB_COERCE_TO_INTEGER))) { 
-							expr_type = destination_type;
+					if(destination_type != QB_TYPE_ANY) {
+						if(destination_type > expr_type || expr_type == QB_TYPE_ANY) {
+							if(!(destination_type >= QB_TYPE_F32 && (result_prototype->operand_flags & QB_COERCE_TO_INTEGER))) { 
+								expr_type = destination_type;
+							}
 						}
 					}
 				}
@@ -855,18 +857,38 @@ static void ZEND_FASTCALL qb_do_object_property_retrieval(qb_compiler_context *c
 	// the arguments hold the container (which should be null for $this) and the name of the property
 	qb_operand *container = variable;
 	qb_operand *name = value;
-	if(name->type != QB_OPERAND_ZVAL) {
-		qb_abort("No support for variable variable-names");
-	}
-	if(container->type == QB_OPERAND_NONE) {
-		qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
-		variable->address = qvar->address;
-		variable->type = QB_OPERAND_ADDRESS;
-	} else if(container->type == QB_OPERAND_ADDRESS) {
-		variable->address = qb_get_named_element(cxt, container->address, name->constant);
-		variable->type = QB_OPERAND_ADDRESS;
-	} else {
-		qb_abort("Cannot fetch property of objects other than $this");
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(container->type == QB_OPERAND_ADDRESS) {
+			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+		} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+			result_prototype->final_type = container->result_prototype->final_type;
+		} else if(container->type == QB_OPERAND_NONE) {
+			qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
+			result_prototype->preliminary_type = result_prototype->final_type = qvar->address->type;
+		} else {
+#if ZEND_DEBUG
+			// shouldn't be possible
+			qb_abort("Internal error");
+#endif
+		}
+		variable->type = QB_OPERAND_RESULT_PROTOTYPE;
+		variable->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) { 
+		if(name->type != QB_OPERAND_ZVAL) {
+			qb_abort("No support for variable variable-names");
+		}
+		if(container->type == QB_OPERAND_NONE) {
+			qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
+			variable->address = qvar->address;
+			variable->type = QB_OPERAND_ADDRESS;
+		} else if(container->type == QB_OPERAND_ADDRESS) {
+			variable->address = qb_get_named_element(cxt, container->address, name->constant);
+			variable->type = QB_OPERAND_ADDRESS;
+		} else {
+			qb_abort("Cannot fetch property of objects other than $this");
+		}
 	}
 	if(cxt->zend_op[1].opcode == ZEND_OP_DATA) {
 		// retrieve the actual value to assign the property to
@@ -1063,7 +1085,9 @@ static uint32_t ZEND_FASTCALL qb_coerce_operands(qb_compiler_context *cxt, void 
 		result_prototype->preliminary_type = expr_type;
 		if(!(operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
 			// result is not dependent on lvalue, so we know what the type ought to be at this point
-			result_prototype->final_type = expr_type;
+			if(expr_type != QB_TYPE_ANY) {
+				result_prototype->final_type = expr_type;
+				}
 		}
 		result_prototype->operand_flags = operand_flags;
 		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
@@ -1148,7 +1172,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 
 static void ZEND_FASTCALL qb_translate_basic_op(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// coerce the operands to the proper type
-	uint32_t expr_type = qb_coerce_operands(cxt, op_factory, operands, operand_count, result_prototype);
+	qb_primitive_type expr_type = qb_coerce_operands(cxt, op_factory, operands, operand_count, result_prototype);
 
 	if(result->type != QB_OPERAND_NONE) {
 		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
@@ -1336,20 +1360,35 @@ static void ZEND_FASTCALL qb_translate_fetch_element(qb_compiler_context *cxt, v
 static void ZEND_FASTCALL qb_translate_fetch_property(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *object = &operands[0], *name = &operands[1];
 
-	if(name->type != QB_OPERAND_ZVAL) {
-		qb_abort("No support for variable variable-names");
-	}
-	if(object->type == QB_OPERAND_NONE) {
-		// this object
-		qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qvar->address;
-	} else if(object->type == QB_OPERAND_ADDRESS) {
-		// named element
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_get_named_element(cxt, object->address, name->constant);
-	} else {
-		qb_abort("Cannot fetch property of objects other than $this");
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(name->type == QB_OPERAND_ZVAL) {
+			if(object->type == QB_OPERAND_NONE) {
+				// this object
+				qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
+				result_prototype->preliminary_type = result_prototype->final_type = qvar->address->type;
+			} else if(object->type == QB_OPERAND_ADDRESS) {
+				// array with named element
+				result_prototype->preliminary_type = result_prototype->final_type = object->address->type;
+			}
+		}
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(name->type != QB_OPERAND_ZVAL) {
+			qb_abort("No support for variable variable-names");
+		}
+		if(object->type == QB_OPERAND_NONE) {
+			// this object
+			qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qvar->address;
+		} else if(object->type == QB_OPERAND_ADDRESS) {
+			// array with named element
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_get_named_element(cxt, object->address, name->constant);
+		} else {
+			qb_abort("Cannot fetch property of objects other than $this");
+		}
 	}
 }
 
