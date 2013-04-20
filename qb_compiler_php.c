@@ -758,8 +758,8 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_compiler_context *cxt, uint32_t
 			if(temp_variable->type == QB_OPERAND_NONE) {
 				operand->type = QB_OPERAND_EMPTY;
 			}
-			temp_variable->type = QB_OPERAND_EMPTY;
-			temp_variable->address = NULL;
+			//temp_variable->type = QB_OPERAND_EMPTY;
+			//temp_variable->address = NULL;
 		}	break;
 		default: {
 			operand->type = QB_OPERAND_NONE;
@@ -915,14 +915,22 @@ static void ZEND_FASTCALL qb_translate_assign_ref(qb_compiler_context *cxt, void
 }
 
 static void ZEND_FASTCALL qb_translate_assign_temp(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_operand *value = &operands[0];
+	qb_operand *value = &operands[0];
 
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			result_prototype->destination = result->result_prototype;
+		}
+		result_prototype->operand_flags = QB_COERCE_TO_LVALUE_TYPE;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_finalize_result_prototype(cxt, result_prototype);
 		qb_coerce_operand_to_type(cxt, value, result_prototype->final_type);
-
-		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_qm_temporary_variable(cxt, value->address->type, value->address->array_size_address);
+		if(result->type != QB_OPERAND_ADDRESS) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_temporary_variable(cxt, value->address->type, value->address->array_size_address);
+		}
 		qb_do_assignment(cxt, value->address, result->address);
 	}
 }
@@ -1454,7 +1462,8 @@ static void ZEND_FASTCALL qb_translate_jump_set(qb_compiler_context *cxt, void *
 
 		// copy value to qm temporary
 		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_qm_temporary_variable(cxt, value->address->type, value->address->array_size_address);
+		result->address = qb_obtain_temporary_variable(cxt, value->address->type, value->address->array_size_address);
+		result->address->flags |= QB_ADDRESS_REUSED;
 		qb_do_assignment(cxt, value->address, result->address);
 	}
 
@@ -2138,7 +2147,7 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 							if(!STORAGE_TYPE_MATCH(qvar->address->type, argument->address->type)) {
 								qb_abort("%s expects argument %d to be of the type %s, %s was passed", qfunc->name, i + 1, type_names[qvar->address->type], type_names[argument->address->type]);
 							}
-							if(argument->address->flags & (QB_ADDRESS_TEMPORARY | QB_ADDRESS_QM_TEMPORARY)) {
+							if(argument->address->flags & QB_ADDRESS_TEMPORARY) {
 								qb_abort("Only variable should be passed by reference");
 							}
 
