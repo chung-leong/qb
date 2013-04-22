@@ -3669,7 +3669,6 @@ static void ZEND_FASTCALL qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint
 
 static void ZEND_FASTCALL qb_print_ops(qb_compiler_context *cxt) {
 	uint32_t i;
-	php_printf("; %s\n", cxt->zend_function->common.function_name);
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
 		if(qop->opcode != QB_NOP) {

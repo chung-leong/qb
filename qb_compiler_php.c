@@ -753,12 +753,15 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_compiler_context *cxt, uint32_t
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
 			uint32_t temp_var_index = Z_OPERAND_INFO(*zoperand, var) / sizeof(temp_variable);
-			qb_operand *temp_variable = &cxt->temp_variables[temp_var_index];
-			*operand = *temp_variable;
-			if(temp_variable->type == QB_OPERAND_NONE) {
-				operand->type = QB_OPERAND_EMPTY;
+			if(temp_var_index < cxt->temp_variable_count) {
+				qb_operand *temp_variable = &cxt->temp_variables[temp_var_index];
+				*operand = *temp_variable;
+				if(temp_variable->type == QB_OPERAND_NONE) {
+					operand->type = QB_OPERAND_EMPTY;
+				}
+				break;
 			}
-		}	break;
+		}	// fall through in case of invalid index
 		default: {
 			operand->type = QB_OPERAND_NONE;
 			operand->address = NULL;
@@ -767,8 +770,8 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_compiler_context *cxt, uint32_t
 }
 
 static void ZEND_FASTCALL qb_save_result_operand(qb_compiler_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
-	if(zoperand_type == Z_OPERAND_TMP_VAR || zoperand_type == Z_OPERAND_VAR) {
-		uint32_t temp_var_index = Z_OPERAND_INFO(*zoperand, var) / sizeof(temp_variable);
+	uint32_t temp_var_index = Z_OPERAND_INFO(*zoperand, var) / sizeof(temp_variable);
+	if(temp_var_index < cxt->temp_variable_count) {
 		cxt->temp_variables[temp_var_index] = *operand;
 	}
 }
@@ -1465,11 +1468,16 @@ static void ZEND_FASTCALL qb_translate_fetch_constant(qb_compiler_context *cxt, 
 		result_prototype->preliminary_type = QB_TYPE_ANY;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		USE_TSRM
-		qb_operand *container = &operands[0], *name = &operands[1];
-		if(container->type == QB_OPERAND_ZEND_CLASS) {
+		qb_operand *scope = &operands[0], *name = &operands[1];
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+		if(scope->type == QB_OPERAND_ZVAL) {
+			qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op1, scope);
+		}
+#endif
+		if(scope->type == QB_OPERAND_ZEND_CLASS) {
 			zval *name_value = name->constant;
 			ulong hash_value = Z_HASH_P(name_value);
-			zend_class_entry *ce = container->zend_class;
+			zend_class_entry *ce = scope->zend_class;
 			zval **p_value;
 			if(zend_hash_quick_find(&ce->constants_table, Z_STRVAL_P(name_value), Z_STRLEN_P(name_value) + 1, hash_value, (void **) &p_value) == SUCCESS) {
 				result->type = QB_OPERAND_ZVAL;
@@ -1508,6 +1516,11 @@ static void ZEND_FASTCALL qb_translate_fetch(qb_compiler_context *cxt, void *op_
 	USE_TSRM
 	qb_operand *name = &operands[0], *scope = &operands[1];
 
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	if(scope->type == QB_OPERAND_ZVAL) {
+		qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op2, scope);
+	}
+#endif
 	if(name->type == QB_OPERAND_ZVAL) {
 		if(scope->type == QB_OPERAND_NONE) {
 			uint32_t fetch_type = FETCH_TYPE(cxt->zend_op);
@@ -2324,6 +2337,12 @@ static void ZEND_FASTCALL qb_translate_send_argument(qb_compiler_context *cxt, v
 static void ZEND_FASTCALL qb_translate_init_method_call(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *object = &operands[0], *name = &operands[1], *stack_item;
 
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	if(object->type == QB_OPERAND_ZVAL) {
+		qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op1, object);
+	}
+#endif
+
 	stack_item = qb_push_stack_item(cxt);	// function name
 	*stack_item = *name;
 	stack_item = qb_push_stack_item(cxt);	// object
@@ -2923,8 +2942,10 @@ static void ZEND_FASTCALL qb_translate_instructions(qb_compiler_context *cxt) {
 	cxt->op_translations = qb_allocate_indices(cxt->pool, cxt->zend_op_array->last);
 	memset(cxt->op_translations, 0xFF, cxt->zend_op_array->last * sizeof(uint32_t));
 
-	qb_attach_new_array(cxt->pool, (void **) &cxt->temp_variables, &cxt->temp_variable_count, sizeof(qb_operand), cxt->zend_op_array->T);
-	qb_enlarge_array((void **) &cxt->temp_variables, cxt->zend_op_array->T);
+	if(cxt->zend_op_array->T > 0) {
+		qb_attach_new_array(cxt->pool, (void **) &cxt->temp_variables, &cxt->temp_variable_count, sizeof(qb_operand), cxt->zend_op_array->T);
+		qb_enlarge_array((void **) &cxt->temp_variables, cxt->zend_op_array->T);
+	}
 
 	qb_attach_new_array(cxt->pool, (void **) &cxt->result_prototypes, &cxt->result_prototype_count, sizeof(qb_result_prototype), cxt->zend_op_array->last);
 	qb_enlarge_array((void **) &cxt->result_prototypes, cxt->zend_op_array->last);
