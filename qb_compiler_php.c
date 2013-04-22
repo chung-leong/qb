@@ -1058,15 +1058,21 @@ static void ZEND_FASTCALL qb_coerce_operand_to_boolean(qb_compiler_context *cxt,
 }
 
 static uint32_t ZEND_FASTCALL qb_coerce_operands(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
-	uint32_t operand_flags, i;
-	qb_primitive_type expr_type;
+	uint32_t operand_flags, result_flags, i;
+	qb_primitive_type expr_type, result_type;
 
-	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+	// see how the operands should be coerced and what kind of result is produced
+	operand_flags = qb_get_coercion_flags(cxt, op_factory);
+	result_flags = qb_get_result_flags(cxt, op_factory);
+	expr_type = QB_TYPE_ANY;
+	result_type = QB_RESULT_TYPE(result_flags);
+
+	if(operand_flags & QB_COERCE_TO_LVALUE_TYPE && cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		// use the information gathered in the previous stage, finalizing the prototype first
+		qb_finalize_result_prototype(cxt, result_prototype);
+		expr_type = result_prototype->final_type;
+	} else {
 		qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
-
-		// see how the operands should be coerced
-		operand_flags = qb_get_coercion_flags(cxt, op_factory);
-		expr_type = QB_TYPE_ANY;
 
 		if(operand_flags & QB_COERCE_TO_BOOLEAN) {
 			expr_type = QB_TYPE_I32;
@@ -1090,22 +1096,28 @@ static uint32_t ZEND_FASTCALL qb_coerce_operands(qb_compiler_context *cxt, void 
 				expr_type = QB_TYPE_I32;
 			}
 		}
+	}
 
-		result_prototype->preliminary_type = expr_type;
-		if(!(operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
-			// result is not dependent on lvalue, so we know what the type ought to be at this point
-			if(expr_type != QB_TYPE_ANY) {
-				result_prototype->final_type = expr_type;
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		// put in information about the result
+		if(result_type == QB_TYPE_OPERAND) {
+			// the result type matches the operand type
+			// the preliminary result doesn't take into account the context (i.e. the type of the lvalue)
+			result_prototype->preliminary_type = expr_type;
+			if(!(operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
+				// result is not dependent on lvalue, so we know what the type ought to be at this point
+				if(expr_type != QB_TYPE_ANY) {
+					result_prototype->final_type = expr_type;
+				}
 			}
+		} else {
+			// the result type is fixed
+			result_prototype->preliminary_type = result_prototype->final_type = result_type;
 		}
 		result_prototype->operand_flags = operand_flags;
 		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
-	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// use the information gathered in the previous stage, finalizing the prototype first
-		qb_finalize_result_prototype(cxt, result_prototype);
-		operand_flags = result_prototype->operand_flags;
-		expr_type = result_prototype->final_type;
 	}
+
 	if(operand_flags & QB_COERCE_TO_BOOLEAN) {
 		for(i = 0; i < operand_count; i++) {
 			qb_coerce_operand_to_boolean(cxt, &operands[i]);
