@@ -362,6 +362,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+			qb_address *lvalue_size_address = qb_obtain_write_target_size_address(cxt, result_prototype);
+
+			// use the lvalue size if the parameters are scalar
+			// this allow use to generate multiple random numbers in a single call
+			if(lvalue_size_address && !result_size_address) {
+				result_size_address = lvalue_size_address;
+			}
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, expr_type, result_size_address, result_prototype, result_flags);
 			qb_create_binary_op(cxt, f->extra, min_address, max_address, result->address);

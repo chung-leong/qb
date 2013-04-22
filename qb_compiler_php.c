@@ -906,6 +906,37 @@ static void ZEND_FASTCALL qb_do_object_property_retrieval(qb_compiler_context *c
 	}
 }
 
+static qb_address * ZEND_FASTCALL qb_obtain_write_target_size_address(qb_compiler_context *cxt, qb_result_prototype *result_prototype) {
+	if(result_prototype->destination) {
+		qb_result_destination *destination = result_prototype->destination;
+
+		switch(destination->type) {
+			case QB_RESULT_DESTINATION_VARIABLE: {
+				qb_address *address = destination->variable.address;
+				return address->array_size_address;
+			}	break;
+			case QB_RESULT_DESTINATION_ELEMENT: {
+				if(destination->element.container.type == QB_OPERAND_ADDRESS) {
+					qb_address *address = destination->element.container.address;
+					if(address->dimension_count > 1) {
+						return address->array_size_addresses[1];
+					}
+				}
+			}	break;
+			case QB_RESULT_DESTINATION_PROPERTY: {
+				if(destination->property.container.type == QB_OPERAND_ADDRESS) {
+					qb_address *address = destination->property.container.address;
+					if(address->dimension_count > 1) {
+						return address->array_size_addresses[1];
+					}
+				}
+			}	break;
+			default: break;
+		}
+	}
+	return NULL;
+}
+
 static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_address *size_address, qb_result_prototype *result_prototype, uint32_t result_flags) {
 	if(result_prototype->destination) {
 		qb_result_destination *destination = result_prototype->destination;
