@@ -38,7 +38,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_con
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}
@@ -70,7 +70,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_co
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}
@@ -102,7 +102,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt,
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}
@@ -139,7 +139,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cx
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}
@@ -180,7 +180,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cx
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}
@@ -222,7 +222,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}
@@ -293,7 +293,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_complex(qb_compiler_context *cx
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type);
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}

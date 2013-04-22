@@ -64,6 +64,10 @@ static zend_always_inline qb_class_declaration *qb_allocate_class_declaration(qb
 	return c;
 }
 
+static zend_always_inline qb_result_destination *qb_allocate_result_destination(qb_compiler_data_pool *pool) {
+	return qb_allocate_items(&pool->result_destination_allocator, 1);
+}
+
 static zend_always_inline void qb_add_function_declaration(qb_build_context *cxt, qb_function_declaration *function_decl) {
 	qb_function_declaration **p = qb_enlarge_array((void **) &cxt->function_declarations, 1);
 	*p = function_decl;
@@ -1681,67 +1685,75 @@ static uint32_t ZEND_FASTCALL qb_import_external_symbol(qb_compiler_context *cxt
 }
 
 static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address *value_address, qb_address *variable_address) {
-	if(!(variable_address->flags & QB_ADDRESS_INITIALIZED)) {
-		// initialize the dimensions of an array
-		if(variable_address->dimension_count > 0) {
-			qb_initialize_dimensions(cxt, value_address, variable_address);
-		}
-		variable_address->flags |= QB_ADDRESS_INITIALIZED;
-	}
-
-	if((value_address->flags & QB_ADDRESS_TEMPORARY) && !(value_address->flags & QB_ADDRESS_REUSED)) {
-		qb_op *prev_qop = cxt->ops[cxt->op_count - 1];
-		if(prev_qop->operand_count > 0 && prev_qop->operands[prev_qop->operand_count - 1].address == value_address) {
-			// the previous op probably created the value and placed it into the temp var
-			// double check just to be sure
-			uint32_t operand_flags;
-			switch(prev_qop->opcode) {
-				case QB_FCALL_VAR:
-				case QB_FCALL_MIX:
-					// function calls employ variable number of operands so qb_get_operand_flags() 
-					// won't tell us anything; we do know that the last operand is the return value
-					operand_flags = QB_OPERAND_WRITABLE;
-					break;
-				default:
-					operand_flags = qb_get_operand_flags(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
+	// do not do anything if the value is the variable itself
+	// this will happen mainly when a op handler choose to write 
+	// directly into the variable instead of creating a temporary 
+	if(value_address != variable_address) {
+		if(!(variable_address->flags & QB_ADDRESS_INITIALIZED)) {
+			// initialize the dimensions of an array
+			if(variable_address->dimension_count > 0) {
+				qb_initialize_dimensions(cxt, value_address, variable_address);
 			}
-			if(operand_flags & QB_OPERAND_WRITABLE) {
-				// we can probably let the previous op write into the variable instead of putting 
-				// the value into the temp var first
-				int32_t substitute = FALSE;
-				if(STORAGE_TYPE_MATCH(value_address->type, variable_address->type)) {
-					// okay, the storage types do match (i.e. they are the same or differ only by signedness)
-					// if the op can is capable of performing the same wrap-around behavior that the MOV
-					// instruction performs, then a substituion can always occur
-					uint32_t op_flags = qb_get_op_flags(cxt, prev_qop->opcode);
-					if(op_flags & QB_OP_PERFORM_WRAP_AROUND) {
-						substitute = TRUE;
-					} else {
-						// in absence of wrap-around handling, the sizes of the two must match
-						if(IS_SCALAR(value_address)) {
-							if(IS_SCALAR(variable_address)) {
-								// both are scalars
+			variable_address->flags |= QB_ADDRESS_INITIALIZED;
+		}
+
+		if(cxt->pbj_ops) {
+			// keep this code until the PBJ translator is updated to do two-stage translation
+			if((value_address->flags & QB_ADDRESS_TEMPORARY) && !(value_address->flags & QB_ADDRESS_REUSED)) {
+				qb_op *prev_qop = cxt->ops[cxt->op_count - 1];
+				if(prev_qop->operand_count > 0 && prev_qop->operands[prev_qop->operand_count - 1].address == value_address) {
+					// the previous op probably created the value and placed it into the temp var
+					// double check just to be sure
+					uint32_t operand_flags;
+					switch(prev_qop->opcode) {
+						case QB_FCALL_VAR:
+						case QB_FCALL_MIX:
+							// function calls employ variable number of operands so qb_get_operand_flags() 
+							// won't tell us anything; we do know that the last operand is the return value
+							operand_flags = QB_OPERAND_WRITABLE;
+							break;
+						default:
+							operand_flags = qb_get_operand_flags(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
+					}
+					if(operand_flags & QB_OPERAND_WRITABLE) {
+						// we can probably let the previous op write into the variable instead of putting 
+						// the value into the temp var first
+						int32_t substitute = FALSE;
+						if(STORAGE_TYPE_MATCH(value_address->type, variable_address->type)) {
+							// okay, the storage types do match (i.e. they are the same or differ only by signedness)
+							// if the op can is capable of performing the same wrap-around behavior that the MOV
+							// instruction performs, then a substituion can always occur
+							uint32_t op_flags = qb_get_op_flags(cxt, prev_qop->opcode);
+							if(op_flags & QB_OP_PERFORM_WRAP_AROUND) {
 								substitute = TRUE;
-							} 
-						} else if(!IS_SCALAR(variable_address)) {
-							// both are arrays--check their sizes
-							if(IS_FIXED_LENGTH_ARRAY(value_address) && IS_FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
-								substitute = TRUE;
+							} else {
+								// in absence of wrap-around handling, the sizes of the two must match
+								if(IS_SCALAR(value_address)) {
+									if(IS_SCALAR(variable_address)) {
+										// both are scalars
+										substitute = TRUE;
+									} 
+								} else if(!IS_SCALAR(variable_address)) {
+									// both are arrays--check their sizes
+									if(IS_FIXED_LENGTH_ARRAY(value_address) && IS_FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
+										substitute = TRUE;
+									}
+								}
 							}
+						} 
+						if(substitute) {
+							prev_qop->operands[prev_qop->operand_count - 1].address = variable_address;
+							qb_mark_as_writable(cxt, variable_address);
+							return;
 						}
 					}
-				} 
-				if(substitute) {
-					prev_qop->operands[prev_qop->operand_count - 1].address = variable_address;
-					qb_mark_as_writable(cxt, variable_address);
-					return;
 				}
 			}
 		}
-	}
 
-	// add copy op
-	qb_create_unary_op(cxt, &factory_copy, value_address, variable_address);
+		// add copy op
+		qb_create_unary_op(cxt, &factory_copy, value_address, variable_address);
+	}
 }
 
 static qb_primitive_type ZEND_FASTCALL qb_get_array_initializer_type(qb_compiler_context *cxt, qb_array_initializer *initializer) {
@@ -3338,6 +3350,7 @@ void ZEND_FASTCALL qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool)
 	qb_create_block_allocator(&pool->variable_allocator, sizeof(qb_variable), 256);
 	qb_create_block_allocator(&pool->function_declaration_allocator, sizeof(qb_function_declaration), 16);
 	qb_create_block_allocator(&pool->class_declaration_allocator, sizeof(qb_class_declaration), 16);
+	qb_create_block_allocator(&pool->result_destination_allocator, sizeof(qb_result_destination), 64);
 }
 
 void ZEND_FASTCALL qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
@@ -3360,6 +3373,7 @@ void ZEND_FASTCALL qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
 	qb_destroy_block_allocator(&pool->variable_allocator);
 	qb_destroy_block_allocator(&pool->function_declaration_allocator);
 	qb_destroy_block_allocator(&pool->class_declaration_allocator);
+	qb_destroy_block_allocator(&pool->result_destination_allocator);
 
 	if(pool->op_actions) {
 		efree((void *) pool->op_actions);
@@ -3555,9 +3569,6 @@ static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address 
 				php_printf("(%c%u..%c%u)", letter, id, letter, id + (ARRAY_SIZE(address) - 1));
 			}
 		}
-	} else if(address->flags & QB_ADDRESS_FOREACH_INDEX) {
-		uint32_t id = address->segment_offset / 4;
-		php_printf("(fe%u)", id);
 	} else if(address->source_address) {
 		if(address->source_address->dimension_count == address->dimension_count + 1) {
 			// array element
@@ -3596,6 +3607,9 @@ static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address 
 				php_printf("[]");
 			}
 			php_printf((recursive) ? ", true)" : ")");
+		} else if(address->flags & QB_ADDRESS_FOREACH_INDEX) {
+			uint32_t id = address->segment_offset / 4;
+			php_printf("(fe%u)", id);
 		} else {
 			php_printf("(unknown)");
 		}

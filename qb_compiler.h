@@ -32,11 +32,13 @@ typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_build_context				qb_build_context;
 typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_result_prototype			qb_result_prototype;
+typedef struct qb_result_destination		qb_result_destination;
 
 typedef enum qb_operand_type				qb_operand_type;
 typedef enum qb_stage						qb_stage;
 typedef enum qb_opcode						qb_opcode;
 typedef enum qb_diagnostic_type				qb_diagnostic_type;
+typedef enum qb_result_destination_type		qb_result_destination_type;
 
 struct qb_type_declaration {
 	pcre *regexp;
@@ -55,7 +57,8 @@ struct qb_result_prototype {
 	qb_primitive_type final_type;
 	uint32_t operand_flags;
 	uint32_t address_flags;
-	qb_result_prototype *destination;
+	qb_result_prototype *parent;
+	qb_result_destination *destination;
 };
 
 enum qb_operand_type {
@@ -115,6 +118,36 @@ struct qb_array_initializer {
 	qb_operand *elements;
 	uint32_t element_count;
 	qb_primitive_type desired_type;
+};
+
+enum qb_result_destination_type {
+	QB_RESULT_DESTINATION_TEMPORARY	= 0,
+	QB_RESULT_DESTINATION_VARIABLE,
+	QB_RESULT_DESTINATION_ELEMENT,
+	QB_RESULT_DESTINATION_PROPERTY,
+	QB_RESULT_DESTINATION_ARGUMENT,
+	QB_RESULT_DESTINATION_PRINT,
+	QB_RESULT_DESTINATION_FREE,
+};
+
+struct qb_result_destination {
+	qb_result_destination_type type;
+	union {
+		struct {
+			qb_function *function;
+			uint32_t index;
+		} argument;
+		struct {
+			qb_operand container;
+			qb_operand index;
+		} element;
+		struct {
+			qb_operand container;
+			qb_operand name;
+		} property;
+		qb_operand variable;
+	};
+	qb_result_prototype *prototype;
 };
 
 #include "qb_compiler_php.h"
@@ -184,6 +217,7 @@ struct qb_compiler_data_pool {
 	qb_block_allocator *variable_allocator;
 	qb_block_allocator *function_declaration_allocator;
 	qb_block_allocator *class_declaration_allocator;
+	qb_block_allocator *result_destination_allocator;
 
 	char * const *op_names;
 	char * const *op_actions;
@@ -360,6 +394,7 @@ enum {
 	QB_RESULT_IS_STRING				= 0x02000000,
 
 	QB_RESULT_FROM_PURE_FUNCTION	= 0x00100000,
+	QB_RESULT_NO_WRAP_AROUND		= 0x00200000,
 };
 
 enum {
