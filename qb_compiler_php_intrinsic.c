@@ -19,7 +19,7 @@
 /* $Id$ */
 
 static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -45,7 +45,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_con
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -77,7 +77,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_co
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -109,7 +109,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -146,7 +146,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cx
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -187,7 +187,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cx
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -231,9 +231,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *image = &arguments[0], *x = &arguments[1], *y = &arguments[2];
 
-	qb_coerce_operand_to_type(cxt, image, QB_TYPE_ANY);
-	qb_coerce_operand_to_type(cxt, x, image->address->type);
-	qb_coerce_operand_to_type(cxt, y, image->address->type);
+	qb_do_type_coercion(cxt, image, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, x, image->address->type);
+	qb_do_type_coercion(cxt, y, image->address->type);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -247,6 +247,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 		}
 
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			qb_address *result_size_address;
 			if(IS_SCALAR(x->address) && IS_SCALAR(y->address)) {
 				result_size_address = qb_obtain_constant_U32(cxt, channel_count);
@@ -264,14 +265,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 				}
 			}
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, image->address->type, result_size_address);
+			result->address = qb_obtain_write_target_address(cxt, image->address->type, result_size_address, result_prototype, result_flags);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
 		}
 	}
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_complex(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -309,9 +310,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt,
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		int32_t recursive = 0;
 		qb_address *address = arguments[0].address;
-		qb_coerce_operand_to_type(cxt, &arguments[0], QB_TYPE_ANY);
+		qb_do_type_coercion(cxt, &arguments[0], QB_TYPE_ANY);
 		if(argument_count == 2) {
-			qb_coerce_operand_to_type(cxt, &arguments[1], QB_TYPE_I32);
+			qb_do_type_coercion(cxt, &arguments[1], QB_TYPE_I32);
 			if(arguments[1].address->flags & QB_ADDRESS_CONSTANT) {
 				recursive = VALUE(I32, arguments[1].address);
 			} else {
@@ -331,7 +332,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_coerce_operands(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -360,8 +361,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 		}
 
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, expr_type, result_size_address);
+			result->address = qb_obtain_write_target_address(cxt, expr_type, result_size_address, result_prototype, result_flags);
 			qb_create_binary_op(cxt, f->extra, min_address, max_address, result->address);
 		}
 	}
@@ -370,7 +372,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &arguments[0], *precision = &arguments[1], *mode = &arguments[2];
 	qb_primitive_type expr_type = qb_get_operand_type(cxt, &arguments[0], QB_COERCE_TO_FLOATING_POINT);
-	qb_coerce_operand_to_type(cxt, &arguments[0], expr_type);
+	qb_do_type_coercion(cxt, &arguments[0], expr_type);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -382,22 +384,23 @@ static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt,
 		qb_address *precision_address, *mode_address, *result_size_address, *address = value->address;
 
 		if(argument_count >= 2) {
-			qb_coerce_operand_to_type(cxt, precision, QB_TYPE_S32);
+			qb_do_type_coercion(cxt, precision, QB_TYPE_S32);
 			precision_address = precision->address;
 		} else {
 			precision_address = qb_obtain_constant_S32(cxt, 0);
 		}
 		if(argument_count >= 3) {
-			qb_coerce_operand_to_type(cxt, mode, QB_TYPE_S32);
+			qb_do_type_coercion(cxt, mode, QB_TYPE_S32);
 			mode_address = mode->address;
 		} else {
 			mode_address = qb_obtain_constant_S32(cxt, 1);	//	PHP_ROUND_HALF_UP
 		}
 
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			result_size_address = address->array_size_address;
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, expr_type, result_size_address);
+			result->address = qb_obtain_write_target_address(cxt, expr_type, result_size_address, result_prototype, result_flags);
 			qb_create_ternary_op(cxt, f->extra, address, precision_address, mode_address, result->address);
 		}
 
@@ -420,7 +423,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_push(qb_compiler_context 
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
 			qb_abort("Adding element to an array that cannot expand");
 		}
-		qb_coerce_operand_to_type(cxt, value, container->address->type);
+		qb_do_type_coercion(cxt, value, container->address->type);
 		size_address = container->address->dimension_addresses[0];
 		variable_address = qb_get_array_element(cxt, container->address, size_address);
 		qb_do_assignment(cxt, value->address, variable_address);
@@ -434,7 +437,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_push(qb_compiler_context 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(container->type == QB_OPERAND_ADDRESS) {
 			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
@@ -461,7 +464,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *
 		variable_address = qb_get_array_element(cxt, container->address, index_address);
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, variable_address->type, variable_address->array_size_address);
+			result->address = qb_obtain_write_target_address(cxt, variable_address->type, variable_address->array_size_address, result_prototype, 0);
 			qb_create_unary_op(cxt, &factory_copy, variable_address, result->address);
 		}
 		qb_create_nullary_op(cxt, &factory_unset, variable_address);
@@ -471,7 +474,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *
 static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(container->type == QB_OPERAND_ADDRESS) {
 			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
@@ -495,7 +498,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context
 		variable_address = qb_get_array_element(cxt, container->address, zero_address);
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, variable_address->type, variable_address->array_size_address);
+			result->address = qb_obtain_write_target_address(cxt, variable_address->type, variable_address->array_size_address, result_prototype, 0);
 			qb_do_assignment(cxt, variable_address, result->address);
 		}
 		qb_create_nullary_op(cxt, &factory_unset, variable_address);
@@ -505,7 +508,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context
 static void ZEND_FASTCALL qb_translate_intrinsic_array_slice(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *offset = &arguments[1], *length = &arguments[2];
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(container->type == QB_OPERAND_ADDRESS) {
 			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
@@ -517,13 +520,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_slice(qb_compiler_context
 		result->type = QB_OPERAND_RESULT_PROTOTYPE;
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+		qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 		if(IS_SCALAR(container->address)) {
 			qb_abort("%s expects an array as parameter", f->name);
 		}
-		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
+		qb_do_type_coercion(cxt, offset, QB_TYPE_U32);
 		if(argument_count >= 3) {
-			qb_coerce_operand_to_type(cxt, length, QB_TYPE_U32);
+			qb_do_type_coercion(cxt, length, QB_TYPE_U32);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
@@ -535,7 +538,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_slice(qb_compiler_context
 static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *offset = &arguments[1], *length = &arguments[2], *replacement = &arguments[3];
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(container->type == QB_OPERAND_ADDRESS) {
 			result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
@@ -551,17 +554,18 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_contex
 		if(IS_SCALAR(container->address)) {
 			qb_abort("%s expects an array as parameter", f->name);
 		}
-		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
+		qb_do_type_coercion(cxt, offset, QB_TYPE_U32);
 		if(argument_count >= 3) {
-			qb_coerce_operand_to_type(cxt, length, QB_TYPE_U32);
+			qb_do_type_coercion(cxt, length, QB_TYPE_U32);
 		}
 		if(argument_count >= 4) {
-			qb_coerce_operand_to_type(cxt, replacement, container->address->type);
+			qb_do_type_coercion(cxt, replacement, container->address->type);
 		}
 		slice_address = qb_get_array_slice(cxt, container->address, offset->address, (argument_count >= 3) ? length->address : NULL);
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, slice_address->type, slice_address->array_size_address);
+			result->address = qb_obtain_write_target_address(cxt, slice_address->type, slice_address->array_size_address, result_prototype, result_flags);
 			qb_create_unary_op(cxt, &factory_copy, slice_address, result->address);
 		}
 		if(argument_count >= 4) {
@@ -593,7 +597,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_aggregate(qb_compiler_con
 	qb_operand *container = &arguments[0];
 	qb_primitive_type expr_type;
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
 			if(container->type == QB_OPERAND_ADDRESS) {
@@ -611,8 +615,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_aggregate(qb_compiler_con
 			qb_abort("%s expects an array as parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, expr_type, NULL);
+			result->address = qb_obtain_write_target_address(cxt, expr_type, NULL, result_prototype, result_flags);
 			qb_create_op(cxt, f->extra, arguments, 1, result);
 		}
 	}
@@ -623,9 +628,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 	qb_operand *needle = &arguments[1];
 	qb_primitive_type expr_type;
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	expr_type = container->address->type;
-	qb_coerce_operand_to_type(cxt, needle, expr_type);
+	qb_do_type_coercion(cxt, needle, expr_type);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -658,8 +663,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 			}
 		}
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_S32, NULL);
+			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_S32, NULL, result_prototype, result_flags);
 			qb_create_op(cxt, f->extra, arguments, 2, result);
 		}
 	}
@@ -668,9 +674,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *needle = &arguments[1], *offset = &arguments[2];
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	if(argument_count >= 3) {
-		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_S32);
+		qb_do_type_coercion(cxt, offset, QB_TYPE_S32);
 	}
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
@@ -684,7 +690,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 		qb_address *offset_address;
 
 		expr_type = container->address->type;
-		qb_coerce_operand_to_type(cxt, needle, expr_type);
+		qb_do_type_coercion(cxt, needle, expr_type);
 		if(container->address->dimension_count != 1) {
 			qb_abort("%s expects a one-dimensional array as the first parameter", f->name);
 		}
@@ -697,7 +703,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 			}
 			if(offset->address->segment_offset == QB_OFFSET_INVALID) {
 				// need to copy the index value to a temporary variable first
-				offset_address = qb_obtain_temporary_variable(cxt, QB_TYPE_S32, NULL);
+				offset_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_S32);
 				qb_do_assignment(cxt, offset_address, offset->address);
 			} else {
 				offset_address = offset->address;
@@ -706,8 +712,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 			offset_address = qb_obtain_constant_S32(cxt, 0);
 		}
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_S32, NULL);
+			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_S32, NULL, result_prototype, result_flags);
 			qb_create_ternary_op(cxt, f->extra, container->address, needle->address, offset_address, result->address);
 		}
 	}
@@ -738,7 +745,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sort(qb_compiler_context *cxt, 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
 
-	qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+	qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
 			if(container->type == QB_OPERAND_ADDRESS) {
@@ -758,13 +765,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 		if(result->type != QB_OPERAND_NONE) {
 			qb_address *count_address = container->address->dimension_addresses[0];
 			qb_address *width_address;
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			if(container->address->dimension_count > 1) {
 				width_address = container->address->array_size_addresses[1];
 			} else {
 				width_address = qb_obtain_constant_U32(cxt, 1);
 			}
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, container->address->type, container->address->array_size_address);
+			result->address = qb_obtain_write_target_address(cxt, container->address->type, container->address->array_size_address, result_prototype, result_flags);
 			qb_create_ternary_op(cxt, f->extra, container->address, count_address, width_address, result->address);
 		}
 	}
@@ -772,7 +780,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 
 static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *source = &arguments[0];
-	qb_coerce_operand_to_type(cxt, source, QB_TYPE_U08);
+	qb_do_type_coercion(cxt, source, QB_TYPE_U08);
 
 	if(result->type != QB_OPERAND_NONE) {
 		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
@@ -792,9 +800,12 @@ static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context
 				expr_type = QB_TYPE_U32;
 			}
 			if(result->type != QB_OPERAND_NONE) {
+				uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+				qb_address *result_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
 				result->type = QB_OPERAND_ADDRESS;
-				result->address = qb_obtain_temporary_variable_length_array(cxt, expr_type);
+				result->address = qb_obtain_write_target_address(cxt, expr_type, result_size_address, result_prototype, result_flags);
 				qb_create_op(cxt, f->extra, arguments, argument_count, result);
+				qb_unlock_address(cxt, result_size_address);
 			}
 		}
 	}
@@ -813,7 +824,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_utf8_encode(qb_compiler_context
 		// use U32 unless the input is U16
 		source_type = QB_TYPE_U32;
 	}
-	qb_coerce_operand_to_type(cxt, source, source_type);
+	qb_do_type_coercion(cxt, source, source_type);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
 			result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_U08;
@@ -823,10 +834,16 @@ static void ZEND_FASTCALL qb_translate_intrinsic_utf8_encode(qb_compiler_context
 		}
 	} else {
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+			qb_address *result_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable_length_array(cxt, QB_TYPE_I08);
-			result->address->flags |= QB_ADDRESS_STRING;
+			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_I08, result_size_address, result_prototype, result_flags);
+			if(result->address->flags & QB_ADDRESS_TEMPORARY) {
+				// it's a temporary address--make it as a string
+				result->address->flags |= QB_ADDRESS_STRING;
+			}
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+			qb_unlock_address(cxt, result_size_address);
 		}
 	}
 }
@@ -845,7 +862,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_pack(qb_compiler_context *cxt, 
 			arg_type = value->result_prototype->final_type;
 		}
 	}
-	qb_coerce_operand_to_type(cxt, value, arg_type);
+	qb_do_type_coercion(cxt, value, arg_type);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
 			result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_U08;
@@ -863,10 +880,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_pack(qb_compiler_context *cxt, 
 		}
 
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			result_size_address = qb_obtain_constant_U32(cxt, type_sizes[value->address->type]);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_U08, result_size_address);
-			result->address->flags |= QB_ADDRESS_STRING;
+			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_U08, result_size_address, result_prototype, result_flags);
+			if(result->address->flags & QB_ADDRESS_TEMPORARY) {
+				// it's a temporary address--mark it as a string
+				result->address->flags |= QB_ADDRESS_STRING;
+			}
 			qb_create_op(cxt, f->extra, arguments, 1, result);
 		}
 	}
@@ -876,9 +897,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt
 	qb_operand *array = &arguments[0], *offset = &arguments[1], *type = &arguments[2];
 	qb_primitive_type result_type = QB_TYPE_ANY;
 
-	qb_coerce_operand_to_type(cxt, array, QB_TYPE_U08);
+	qb_do_type_coercion(cxt, array, QB_TYPE_U08);
 	if(argument_count >= 2) {
-		qb_coerce_operand_to_type(cxt, offset, QB_TYPE_U32);
+		qb_do_type_coercion(cxt, offset, QB_TYPE_U32);
 	}
 	if(argument_count >= 3) {
 		if(type->type == QB_OPERAND_ZVAL && type->constant->type == IS_LONG) {
@@ -925,10 +946,11 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt
 			}
 		}
 		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			length_address = qb_obtain_constant_U32(cxt, type_sizes[result_type]);
 			slice_address = qb_get_array_slice(cxt, array->address, offset_address, length_address);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, result_type, NULL);
+			result->address = qb_obtain_write_target_address(cxt, result_type, NULL, result_prototype, result_flags);
 			qb_create_unary_op(cxt, f->extra, slice_address, result->address);
 		}
 	}
@@ -937,7 +959,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt
 static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(argument_count == 1) {
 		qb_operand *container = &arguments[0];
-		qb_coerce_operand_to_type(cxt, container, QB_TYPE_ANY);
+		qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 
 		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 			result->type = QB_OPERAND_RESULT_PROTOTYPE;
@@ -948,8 +970,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 				qb_abort("%s expects an array as parameter when only one parameter is given", f->name);
 			}
 			if(result->type != QB_OPERAND_NONE) {
+				uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 				result->type = QB_OPERAND_ADDRESS;
-				result->address = qb_obtain_temporary_variable(cxt, expr_type, NULL);
+				result->address = qb_obtain_write_target_address(cxt, expr_type, NULL, result_prototype, result_flags);
 				qb_create_op(cxt, f->extra, arguments, 1, result);
 			}
 		}
@@ -958,7 +981,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 		uint32_t i = 0; 
 
 		for(i = 0; i < argument_count; i++) {
-			qb_coerce_operand_to_type(cxt, &arguments[i], expr_type);
+			qb_do_type_coercion(cxt, &arguments[i], expr_type);
 		}
 		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 			result_prototype->preliminary_type = expr_type;
@@ -966,8 +989,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 			result->result_prototype = result_prototype;
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			if(result->type != QB_OPERAND_NONE) {
+				uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 				result->type = QB_OPERAND_ADDRESS;
-				result->address = qb_obtain_temporary_variable(cxt, expr_type, NULL);
+				result->address = qb_obtain_write_target_address(cxt, expr_type, NULL, result_prototype, result_flags);
 				qb_create_binary_op(cxt, f->extra, arguments[0].address, arguments[1].address, result->address);
 				for(i = 2; i < argument_count; i++) {
 					qb_create_binary_op(cxt, f->extra, result->address, arguments[i].address, result->address);
@@ -981,7 +1005,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cast(qb_compiler_context *cxt, 
 	qb_operand *expr = &arguments[0];
 	uint32_t type = (uintptr_t) f->extra;
 
-	qb_coerce_operand_to_type(cxt, expr, type);
+	qb_do_type_coercion(cxt, expr, type);
 	if(result->type != QB_OPERAND_NONE) {
 		*result = *expr;
 	}

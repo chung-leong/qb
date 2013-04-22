@@ -640,6 +640,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context
 		}
 	}
 	address = qb_create_scalar(cxt, desired_type);
+	address->flags &= ~QB_ADDRESS_READ_ONLY;
 	address->flags |= QB_ADDRESS_TEMPORARY;
 	qb_lock_address(cxt, address);
 	return address;
@@ -1019,7 +1020,7 @@ static void ZEND_FASTCALL qb_get_array_initializer_dimensions(qb_compiler_contex
 }
 
 static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address *value_address, qb_address *variable_address);
-static void ZEND_FASTCALL qb_coerce_operand_to_type(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type);
+static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type);
 
 static void ZEND_FASTCALL qb_copy_elements_from_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_address *address) {
 	qb_address *dimension_address = address->dimension_addresses[0];
@@ -1846,7 +1847,7 @@ static qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_cont
 	return type1;
 }
 
-static void ZEND_FASTCALL qb_coerce_operand_to_type(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
+static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
 			if(desired_type != QB_TYPE_ANY) {
