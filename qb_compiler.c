@@ -1838,14 +1838,17 @@ static void ZEND_FASTCALL qb_coerce_operand_to_type(qb_compiler_context *cxt, qb
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
 			if(desired_type != QB_TYPE_ANY) {
+				if(desired_type >= QB_TYPE_F32 && operand->result_prototype->operand_flags & QB_COERCE_TO_INTEGER) {
+					// operand cannot be floating point (e.g. result of bitwise operator) 
+					// use the largest integer type instead
+					desired_type = QB_TYPE_I64;
+				} 
 				if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
 					operand->result_prototype->preliminary_type = desired_type;
 					if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
 						operand->result_prototype->final_type = desired_type;
 					}
 				}
-			} else {
-				desired_type = operand->result_prototype->preliminary_type;
 			}
 		}
 	} else {
@@ -3639,6 +3642,7 @@ static void ZEND_FASTCALL qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint
 
 static void ZEND_FASTCALL qb_print_ops(qb_compiler_context *cxt) {
 	uint32_t i;
+	php_printf("; %s\n", cxt->zend_function->common.function_name);
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
 		if(qop->opcode != QB_NOP) {

@@ -1068,7 +1068,9 @@ static uint32_t ZEND_FASTCALL qb_coerce_operands(qb_compiler_context *cxt, void 
 		operand_flags = qb_get_coercion_flags(cxt, op_factory);
 		expr_type = QB_TYPE_ANY;
 
-		if(operand_flags & QB_COERCE_TO_HIGHEST_RANK) {
+		if(operand_flags & QB_COERCE_TO_BOOLEAN) {
+			expr_type = QB_TYPE_I32;
+		} else if(operand_flags & QB_COERCE_TO_HIGHEST_RANK) {
 			// get the highest rank type of the operands
 			expr_type = qb_get_highest_rank_type(cxt, operands, operand_count, operand_flags);
 		} else if(operand_flags & QB_COERCE_TO_FIRST_OPERAND_TYPE) {
@@ -1082,12 +1084,19 @@ static uint32_t ZEND_FASTCALL qb_coerce_operands(qb_compiler_context *cxt, void 
 			expr_type = qb_get_operand_type(cxt, operand1, operand_flags);
 		}
 
+		if(operand_flags & QB_COERCE_TO_INTEGER) {
+			// if operands are floating point or unknown, coerce to S32
+			if(expr_type >= QB_TYPE_F32) {
+				expr_type = QB_TYPE_I32;
+			}
+		}
+
 		result_prototype->preliminary_type = expr_type;
 		if(!(operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
 			// result is not dependent on lvalue, so we know what the type ought to be at this point
 			if(expr_type != QB_TYPE_ANY) {
 				result_prototype->final_type = expr_type;
-				}
+			}
 		}
 		result_prototype->operand_flags = operand_flags;
 		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
@@ -1101,7 +1110,6 @@ static uint32_t ZEND_FASTCALL qb_coerce_operands(qb_compiler_context *cxt, void 
 		for(i = 0; i < operand_count; i++) {
 			qb_coerce_operand_to_boolean(cxt, &operands[i]);
 		}
-		expr_type = QB_TYPE_I32;
 	} else {
 		for(i = 0; i < operand_count; i++) {
 			qb_coerce_operand_to_type(cxt, &operands[i], expr_type);
