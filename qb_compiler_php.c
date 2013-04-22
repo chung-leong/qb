@@ -752,14 +752,12 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_compiler_context *cxt, uint32_t
 		}	break;
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
-			uint32_t temp_var_index = zoperand->var / sizeof(temp_variable);
+			uint32_t temp_var_index = Z_OPERAND_INFO(*zoperand, var) / sizeof(temp_variable);
 			qb_operand *temp_variable = &cxt->temp_variables[temp_var_index];
 			*operand = *temp_variable;
 			if(temp_variable->type == QB_OPERAND_NONE) {
 				operand->type = QB_OPERAND_EMPTY;
 			}
-			//temp_variable->type = QB_OPERAND_EMPTY;
-			//temp_variable->address = NULL;
 		}	break;
 		default: {
 			operand->type = QB_OPERAND_NONE;
@@ -770,7 +768,7 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_compiler_context *cxt, uint32_t
 
 static void ZEND_FASTCALL qb_save_result_operand(qb_compiler_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	if(zoperand_type == Z_OPERAND_TMP_VAR || zoperand_type == Z_OPERAND_VAR) {
-		uint32_t temp_var_index = zoperand->var / sizeof(temp_variable);
+		uint32_t temp_var_index = Z_OPERAND_INFO(*zoperand, var) / sizeof(temp_variable);
 		cxt->temp_variables[temp_var_index] = *operand;
 	}
 }
@@ -1621,6 +1619,10 @@ static void ZEND_FASTCALL qb_translate_fetch_class(qb_compiler_context *cxt, voi
 		result->zend_class = (cxt->zend_class) ? cxt->zend_class->parent : NULL;
 	}
 	result->type = QB_OPERAND_ZEND_CLASS;
+
+#if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	qb_save_result_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->result), &cxt->zend_op->result, result);
+#endif
 }
 
 static void ZEND_FASTCALL qb_translate_receive_argument(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -2765,6 +2767,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 		qb_result_prototype *result_prototype = &cxt->result_prototypes[cxt->zend_op_index];
 		qb_translator *t;
 		uint32_t operand_count = 0;
+		int32_t need_return_value = RETURN_VALUE_USED(cxt->zend_op);
 
 		QB_G(current_line_number) = cxt->zend_op->lineno;
 
@@ -2774,7 +2777,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 		operand_count = (operands[0].type != QB_OPERAND_NONE) + (operands[1].type != QB_OPERAND_NONE);
 
 		// see whether the op returns a value
-		if(RETURN_VALUE_USED(cxt->zend_op)) {
+		if(need_return_value) {
 			qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->result), &cxt->zend_op->result, &result);
 		} else {
 			result.type = QB_OPERAND_NONE;
@@ -2823,7 +2826,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 			if(operands[1].type == QB_OPERAND_ADDRESS) {
 				qb_unlock_address(cxt, operands[1].address);
 			}
-			if(RETURN_VALUE_USED(cxt->zend_op)) {
+			if(need_return_value) {
 				if(result.type == QB_OPERAND_ADDRESS) {
 					qb_lock_address(cxt, result.address);
 				}
