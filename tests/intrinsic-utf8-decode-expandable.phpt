@@ -14,6 +14,7 @@ UTF8 decode test (assignment to expandable array)
  * 
  */
 function test_function($s) {
+	unset($cp);
 	$cp = utf8_decode($s);
 	echo $cp;
 }

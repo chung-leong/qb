@@ -240,6 +240,7 @@ struct qb_compiler_context {
 	uint32_t op_count;
 	uint32_t *op_translations;
 	uint32_t line_number;
+	uint32_t initialization_op_count;
 
 	qb_compiler_data_pool *pool;
 
@@ -394,7 +395,6 @@ enum {
 	QB_RESULT_IS_STRING				= 0x02000000,
 
 	QB_RESULT_FROM_PURE_FUNCTION	= 0x00100000,
-	QB_RESULT_NO_WRAP_AROUND		= 0x00200000,
 };
 
 enum {

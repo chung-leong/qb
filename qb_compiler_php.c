@@ -941,7 +941,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 	if(result_prototype->destination) {
 		qb_result_destination *destination = result_prototype->destination;
 		qb_primitive_type lvalue_type = QB_TYPE_UNKNOWN;
-		qb_address *lvalue_size_address, *lvalue_address;
+		qb_address *lvalue_size_address = NULL, *lvalue_address = NULL;
 
 		// figure out what kind of lvalue it is
 		switch(destination->type) {
@@ -970,25 +970,52 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 		if(lvalue_type != QB_TYPE_UNKNOWN) {
 			int substitute = FALSE;
 
+			// see if the storage types do match (i.e. they are the same or differ only by signedness)
 			if(STORAGE_TYPE_MATCH(desired_type, lvalue_type)) {
-				// okay, the storage types do match (i.e. they are the same or differ only by signedness)
-				// do substitution if the size match
-				if(size_address) {
-					// array assignment
-					if((size_address->flags & QB_ADDRESS_CONSTANT) && (lvalue_size_address->flags & QB_ADDRESS_CONSTANT)) {
-						// both are fixed-length arrays--compare their sizes
-						if(VALUE(U32, size_address) == VALUE(U32, lvalue_size_address)) {
-							substitute = TRUE;
+				if(lvalue_size_address == size_address) {
+					substitute = TRUE;
+				} else {
+					// see if we're assigned to an empty variable length array
+					int32_t lvalue_is_empty_variable_length_array = FALSE;
+					if(lvalue_size_address && !(lvalue_size_address->flags & QB_ADDRESS_READ_ONLY)) {
+						// see if an unset occurs just before
+						if(cxt->op_count > cxt->initialization_op_count) {
+							uint32_t i = cxt->op_count;
+							qb_op *previous_qop;
+							uint32_t previous_op_flags;
+							do {
+								previous_qop = cxt->ops[--i];
+							} while(previous_qop->opcode == QB_NOP && i > 0);
+							previous_op_flags = qb_get_op_flags(cxt, previous_qop->opcode + QB_ADDRESS_MODE_ARR);
+
+							if(previous_op_flags & QB_OP_UNSET) {
+								// make sure the unset cannot be bypass
+								if(cxt->op_translations[cxt->zend_op_index] != QB_OP_INDEX_JUMP_TARGET) {
+									lvalue_is_empty_variable_length_array = TRUE;
+								}
+							}
 						}
-					} else if(!(size_address->flags & QB_ADDRESS_READ_ONLY) && !(lvalue_size_address->flags & QB_ADDRESS_READ_ONLY)) {
-						// both are dynamic-length arrays
-						substitute = TRUE;
 					}
-				} else  {
-					// scalar assignment--lvalue must be scalar as well
-					if(!lvalue_size_address) {
+
+					if(lvalue_is_empty_variable_length_array) {
+						// substitution always happens since the lvalue will expand to match the size
 						substitute = TRUE;
-					} 
+					} else {
+						if(size_address) {
+							// array assignment
+							if((size_address->flags & QB_ADDRESS_CONSTANT) && (lvalue_size_address->flags & QB_ADDRESS_CONSTANT)) {
+								// both are fixed-length arrays--compare their sizes
+								if(VALUE(U32, size_address) == VALUE(U32, lvalue_size_address)) {
+									substitute = TRUE;
+								}
+							} 
+						} else  {
+							// scalar assignment--lvalue must be scalar as well
+							if(!lvalue_size_address) {
+								substitute = TRUE;
+							} 
+						}
+					}
 				}
 			}
 			if(substitute) {
@@ -1020,11 +1047,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 						lvalue_address = qb_get_named_element(cxt, container->address, name->constant);
 					}	break;
 					default: break;
-				}
-
-				if(IS_VARIABLE_LENGTH_ARRAY(lvalue_address)) {
-					// need to unset a variable-length destination
-					qb_create_nullary_op(cxt, &factory_unset, lvalue_address);
 				}
 
 				// indicate that the assignment won't be necessary
@@ -1357,6 +1379,9 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 		string_address->source_address = result_address;
 		string_address->flags |= QB_ADDRESS_STRING;
 		result_address = string_address;
+	}
+	if(result_size_address) {
+		qb_unlock_address(cxt, result_size_address);
 	}
 	return result_address;
 }
@@ -2914,6 +2939,7 @@ static void ZEND_FASTCALL qb_translate_instructions(qb_compiler_context *cxt) {
 		// there are instructions for initializing static variables
 		// the first translated instruction is going to be a jump target
 		cxt->op_translations[0] = QB_OP_INDEX_JUMP_TARGET;
+		cxt->initialization_op_count = cxt->op_count;
 	}
 	qb_translate_instruction_range(cxt, 0, cxt->zend_op_array->last);
 

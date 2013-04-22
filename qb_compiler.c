@@ -2163,18 +2163,23 @@ static qb_address * ZEND_FASTCALL qb_get_largest_vector_count(qb_compiler_contex
 static qb_address * ZEND_FASTCALL qb_get_matrix_matrix_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
 	qb_address *m1_address = operand1->address;
 	qb_address *m2_address = operand2->address;
-	if(IS_EXPANDABLE_ARRAY(m1_address)) {
-		// return the none-constant address to indicate the result will be variable-length
-		// the value at the address wouldn't actually be correct
-		return m1_address->array_size_address;
-	} else if(IS_EXPANDABLE_ARRAY(m2_address)) {
+	uint32_t m1_rows = qb_get_matrix_row_count(cxt, m1_address);
+	uint32_t m1_cols = qb_get_matrix_column_count(cxt, m1_address);
+	uint32_t m2_rows = qb_get_matrix_row_count(cxt, m1_address);
+	uint32_t m2_cols = qb_get_matrix_column_count(cxt, m2_address);
+	uint32_t m1_count = 1, m2_count = 1, res_count, res_size;
+	int32_t m1_is_square = (m1_cols == m1_rows) && (m1_address->dimension_count == 2);
+	int32_t m2_is_square = (m2_cols == m2_rows) && (m2_address->dimension_count == 2);
+
+	if(m1_is_square) {
 		return m2_address->array_size_address;
+	} else if(m2_is_square) {
+		return m1_address->array_size_address;
+	}
+
+	if(!IS_FIXED_LENGTH_ARRAY(m1_address) || !IS_FIXED_LENGTH_ARRAY(m2_address)) {
+		return qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
 	} else {
-		uint32_t m1_rows = qb_get_matrix_row_count(cxt, m1_address);
-		uint32_t m1_cols = qb_get_matrix_column_count(cxt, m1_address);
-		uint32_t m2_rows = qb_get_matrix_row_count(cxt, m1_address);
-		uint32_t m2_cols = qb_get_matrix_column_count(cxt, m2_address);
-		uint32_t m1_count = 1, m2_count = 1, res_count, res_size;
 		if(m1_address->dimension_count > 2) {
 			m1_count = ARRAY_SIZE(m1_address) / (m1_rows * m1_cols);
 		}
@@ -2193,16 +2198,19 @@ static qb_address * ZEND_FASTCALL qb_get_matrix_matrix_product_size(qb_compiler_
 static qb_address * ZEND_FASTCALL qb_get_vector_matrix_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
 	qb_address *v_address = operand1->address;
 	qb_address *m_address = operand2->address;
-	if(IS_EXPANDABLE_ARRAY(m_address)) {
-		return m_address->array_size_address;
-	} else if(IS_EXPANDABLE_ARRAY(v_address)) {
+	uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
+	uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
+	uint32_t v_width = qb_get_vector_width(cxt, v_address);
+	uint32_t m_count = 1, v_count = 1, res_count, res_size;
+	int32_t m_is_square = (m_cols == m_rows) && (m_address->dimension_count == 2);
+
+	if(m_is_square) {
 		return v_address->array_size_address;
+	}
+
+	if(!IS_FIXED_LENGTH_ARRAY(m_address) || !IS_FIXED_LENGTH_ARRAY(v_address)) {
+		return qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
 	} else {
-		// both are fixed-length
-		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
-		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
-		uint32_t v_width = qb_get_vector_width(cxt, v_address);
-		uint32_t m_count = 1, v_count = 1, res_count, res_size;
 		if(m_address->dimension_count > 2) {
 			m_count = ARRAY_SIZE(m_address) / (m_rows * m_cols);
 		}
@@ -2221,15 +2229,19 @@ static qb_address * ZEND_FASTCALL qb_get_vector_matrix_product_size(qb_compiler_
 static qb_address * ZEND_FASTCALL qb_get_matrix_vector_product_size(qb_compiler_context *cxt, qb_operand *operand1, qb_operand *operand2) {
 	qb_address *m_address = operand1->address;
 	qb_address *v_address = operand2->address;
-	if(IS_EXPANDABLE_ARRAY(v_address)) {
+	uint32_t v_width = qb_get_vector_width(cxt, v_address);
+	uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
+	uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
+	uint32_t m_count = 1, v_count = 1, res_count, res_size;
+	int32_t m_is_square = (m_cols == m_rows) && (m_address->dimension_count == 2);
+
+	if(m_is_square) {
 		return v_address->array_size_address;
-	} else if(IS_EXPANDABLE_ARRAY(m_address)) {
-		return m_address->array_size_address;
+	}
+
+	if(!IS_FIXED_LENGTH_ARRAY(v_address) && !IS_FIXED_LENGTH_ARRAY(m_address)) {
+		return qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
 	} else {
-		uint32_t v_width = qb_get_vector_width(cxt, v_address);
-		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
-		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
-		uint32_t m_count = 1, v_count = 1, res_count, res_size;
 		if(v_address->dimension_count > 1) {
 			v_count = ARRAY_SIZE(v_address) / v_width;
 		}
