@@ -38,36 +38,36 @@ struct qb_basic_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes[10];
+	qb_opcode opcodes[10];
 }; 
 
 struct qb_float_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes[2];
+	qb_opcode opcodes[2];
 }; 
 
 struct qb_simple_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcode;
+	qb_opcode opcode;
 };
 
 struct qb_copy_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes[10][10];
-	uint32_t vector_opcodes[3][2];
+	qb_opcode opcodes[10][10];
+	qb_opcode vector_opcodes[3][2];
 };
 
 struct qb_comparison_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes[10];
+	qb_opcode opcodes[10];
 	qb_comparison_branch_op_factory *branch_factory;
 	qb_basic_op_factory *set_factory;
 };
@@ -76,7 +76,7 @@ struct qb_comparison_branch_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes[10];
+	qb_opcode opcodes[10];
 	qb_comparison_branch_op_factory *inverse_factory;
 };
 
@@ -84,56 +84,56 @@ struct qb_arithmetic_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t regular_opcodes[10];
-	uint32_t vector_opcodes[3][2];
+	qb_opcode regular_opcodes[10];
+	qb_opcode vector_opcodes[3][2];
 };
 
 struct qb_string_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes[10];
-	uint32_t multidim_opcodes[10];
-	uint32_t text_opcode;
+	qb_opcode opcodes[10];
+	qb_opcode multidim_opcodes[10];
+	qb_opcode text_opcode;
 }; 
 
 struct qb_fcall_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcode;
+	qb_opcode opcode;
 };
 
 struct qb_minmax_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes_pair[10];
-	uint32_t opcodes_list[10];
+	qb_opcode opcodes_pair[10];
+	qb_opcode opcodes_list[10];
 };
 
 struct qb_vector_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes_any_size[2];
-	uint32_t opcodes_fixed_size[3][2];
+	qb_opcode opcodes_any_size[2];
+	qb_opcode opcodes_fixed_size[3][2];
 };
 
 struct qb_matrix_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes_any_size[2];
-	uint32_t opcodes_fixed_size[3][2];
-	uint32_t opcode_3x3_padded;
+	qb_opcode opcodes_any_size[2];
+	qb_opcode opcodes_fixed_size[3][2];
+	qb_opcode opcode_3x3_padded;
 };
 
 struct qb_sampling_op_factory {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	uint32_t opcodes[2][2];
+	qb_opcode opcodes[2][2];
 }; 
 
 static zend_always_inline uint32_t qb_get_coercion_flags(qb_compiler_context *cxt, void *factory) {
@@ -293,7 +293,7 @@ static uint32_t ZEND_FASTCALL qb_get_minimum_width(qb_compiler_context *cxt, qb_
 	return width;
 }
 
-static int32_t ZEND_FASTCALL qb_vectorize_op(qb_compiler_context *cxt, qb_op *qop, uint32_t opcodes[][2]) {
+static int32_t ZEND_FASTCALL qb_vectorize_op(qb_compiler_context *cxt, qb_op *qop, qb_opcode opcodes[][2]) {
 	qb_address *address = qop->operands[0].address;
 	if(address->type >= QB_TYPE_F32) {
 		uint32_t i, j;
@@ -332,7 +332,7 @@ static qb_op * ZEND_FASTCALL qb_append_copy_op(qb_compiler_context *cxt, void *f
 	qb_copy_op_factory *f = factory;
 	qb_address *src_address = operands[0].address;
 	qb_address *dst_address = result->address;	
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - src_address->type][QB_TYPE_F64 - dst_address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - src_address->type][QB_TYPE_F64 - dst_address->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 2);
 	qop->operands[0] = operands[0];
 	qop->operands[1] = *result;
@@ -371,7 +371,7 @@ static qb_op * ZEND_FASTCALL qb_append_array_insert(qb_compiler_context *cxt, vo
 	qb_address *address = operands[0].address;
 	qb_address *offset_address = operands[1].address;
 	qb_op *qop = NULL;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
 	qop = qb_append_op(cxt, opcode, 3);
 	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
 	qop->operands[0].address = address;
@@ -392,7 +392,7 @@ static qb_op * ZEND_FASTCALL qb_append_incdec_op(qb_compiler_context *cxt, void 
 	qb_arithmetic_op_factory *f = factory;
 	qb_address *address = result->address;
 	qb_op *qop = NULL;
-	uint32_t opcode = f->regular_opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->regular_opcodes[QB_TYPE_F64 - address->type];
 	qop = qb_append_op(cxt, opcode, 1);
 	qop->operands[0] = *result;
 	qb_vectorize_op(cxt, qop, f->vector_opcodes);
@@ -426,7 +426,7 @@ static qb_arithmetic_op_factory factory_decrement = {
 static qb_op * ZEND_FASTCALL qb_append_unary_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = operands[0].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 2);
 	qop->operands[0] = operands[0];
 	qop->operands[1] = *result;
@@ -458,7 +458,7 @@ static qb_basic_op_factory factory_isset = {
 static qb_op * ZEND_FASTCALL qb_append_nullary_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = result->address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 1);
 	qop->operands[0] = *result;
 	return qop;
@@ -474,7 +474,7 @@ static qb_basic_op_factory factory_unset = {
 static qb_op * ZEND_FASTCALL qb_append_binary_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 3);
 	qop->operands[0] = operands[0];
 	qop->operands[1] = operands[1];
@@ -541,7 +541,7 @@ static qb_basic_op_factory factory_logical_xor = {
 static qb_op * ZEND_FASTCALL qb_append_binary_arithmetic_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_arithmetic_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	uint32_t opcode = f->regular_opcodes[QB_TYPE_F64 - address1->type];
+	qb_opcode opcode = f->regular_opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 3);
 	qop->operands[0] = operands[0];
 	qop->operands[1] = operands[1];
@@ -710,7 +710,7 @@ static qb_op *ZEND_FASTCALL qb_append_binary_branch_op(qb_compiler_context *cxt,
 	uint32_t jump_target1 = operands[0].jump_target_index;
 	uint32_t jump_target2 = operands[1].jump_target_index;
 	qb_address *address1 = operands[2].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 4);	
 	qop->operands[0] = operands[0];
 	qop->operands[1] = operands[1];
@@ -816,7 +816,7 @@ static qb_address *ZEND_FASTCALL qb_get_subarray_sizes(qb_compiler_context *cxt,
 static qb_op *ZEND_FASTCALL qb_append_concat_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *f = factory;
 	qb_address *addition = operands[0].address;
-	uint32_t opcode;
+	qb_opcode opcode;
 	qb_op *qop;
 
 	if(addition->dimension_count > 1) {
@@ -853,7 +853,7 @@ static qb_string_op_factory factory_concat = {
 static qb_op *ZEND_FASTCALL qb_append_print_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *f = factory;
 	qb_address *address = operands[0].address;
-	uint32_t opcode;
+	qb_opcode opcode;
 	qb_op *qop = NULL;
 
 	if(address->dimension_count > 1) {
@@ -887,7 +887,7 @@ static qb_string_op_factory factory_print = {
 
 static qb_op *ZEND_FASTCALL qb_append_simple_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_simple_op_factory *f = factory;
-	uint32_t opcode = f->opcode;
+	qb_opcode opcode = f->opcode;
 	uint32_t i;
 	qb_op *qop = qb_append_op(cxt, opcode, operand_count);
 	for(i = 0; i < operand_count; i++) {
@@ -919,7 +919,7 @@ static qb_simple_op_factory factory_ext = {
 
 static qb_op * ZEND_FASTCALL qb_append_jump_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_simple_op_factory *f = factory;
-	uint32_t opcode = f->opcode;
+	qb_opcode opcode = f->opcode;
 	uint32_t qop_index = cxt->op_count;
 	uint32_t jump_target = operands[0].jump_target_index;
 	qb_op *qop = qb_append_op(cxt, opcode, 1);
@@ -938,7 +938,7 @@ static qb_simple_op_factory factory_jump = {
 
 static qb_op * ZEND_FASTCALL qb_append_branch_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_simple_op_factory *f = factory;
-	uint32_t opcode = f->opcode;
+	qb_opcode opcode = f->opcode;
 	uint32_t qop_index = cxt->op_count;
 	uint32_t jump_target1 = operands[0].jump_target_index;
 	uint32_t jump_target2 = operands[1].jump_target_index;
@@ -1150,7 +1150,7 @@ static qb_float_op_factory factory_fract = {
 static qb_op * ZEND_FASTCALL qb_append_ternary_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 4);
 	qop->operands[0] = operands[0];
 	qop->operands[1] = operands[1];
@@ -1323,7 +1323,7 @@ static qb_basic_op_factory factory_abs = {
 static qb_op * ZEND_FASTCALL qb_append_minmax_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_minmax_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	uint32_t opcode;
+	qb_opcode opcode;
 	qb_op *qop;
 
 	if(operand_count == 2) {
@@ -1385,7 +1385,7 @@ static qb_op * ZEND_FASTCALL qb_append_sampling_op(qb_compiler_context *cxt, voi
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
 	uint32_t channel_count = qb_get_vector_width(cxt, image_address);
-	uint32_t opcode = f->opcodes[channel_count - 3][QB_TYPE_F64 - image_address->type];
+	qb_opcode opcode = f->opcodes[channel_count - 3][QB_TYPE_F64 - image_address->type];
 	qb_op *qop;
 
 	qop = qb_append_op(cxt, opcode, 6);
@@ -1430,7 +1430,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_op(qb_compiler_context *cxt, void 
 	qb_address *address2 = (operand_count >= 2) ? operands[1].address : NULL;
 	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
 	qb_op *qop;
-	uint32_t opcode;
+	qb_opcode opcode;
 	uint32_t i;
 
 	if(2 <= dimension1 && dimension1 <= 4) {
@@ -1536,7 +1536,7 @@ static qb_op * ZEND_FASTCALL qb_append_refract(qb_compiler_context *cxt, void *f
 	qb_address *eta_address = operands[2].address;
 	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
 	qb_op *qop;
-	uint32_t opcode;
+	qb_opcode opcode;
 
 	if(2 <= dimension1 && dimension1 <= 4) {
 		opcode = f->opcodes_fixed_size[dimension1 - 2][QB_TYPE_F64 - address1->type];
@@ -1583,7 +1583,7 @@ static qb_op * ZEND_FASTCALL qb_append_cross(qb_compiler_context *cxt, void *fac
 	qb_basic_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop;
 	if(address1->dimension_count > 1 || address2->dimension_count > 1) {
 		opcode = opcode + 1;
@@ -1613,7 +1613,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt
 	uint32_t m2_rows = qb_get_matrix_row_count(cxt, address2);
 	uint32_t m2_cols = qb_get_matrix_column_count(cxt, address2);
 	qb_op *qop;
-	uint32_t opcode;
+	qb_opcode opcode;
 
 	if(cxt->matrix_padding && m1_rows == 3 && m1_cols == 4 && m2_rows == 3 && m2_cols == 4) {
 		opcode = f->opcode_3x3_padded;
@@ -1658,7 +1658,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt
 	uint32_t m_cols = qb_get_matrix_column_count(cxt, address1);
 	uint32_t v_width = qb_get_vector_width(cxt, address1);
 	qb_op *qop;
-	uint32_t opcode;
+	qb_opcode opcode;
 
 	if(cxt->matrix_padding && m_rows == 3 && m_cols == 4) {
 		opcode = f->opcode_3x3_padded;
@@ -1703,7 +1703,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt
 	uint32_t m_rows = qb_get_matrix_row_count(cxt, address2);
 	uint32_t m_cols = qb_get_matrix_column_count(cxt, address2);
 	qb_op *qop;
-	uint32_t opcode;
+	qb_opcode opcode;
 
 	if(cxt->matrix_padding && m_rows == 3 && m_cols == 4) {
 		opcode = f->opcode_3x3_padded;
@@ -1742,10 +1742,9 @@ static qb_matrix_op_factory factory_vm_multiply = {
 static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_vector_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	qb_address *address2 = (operand_count >= 2) ? operands[1].address : NULL;
 	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
 	qb_op *qop;
-	uint32_t opcode;
+	qb_opcode opcode;
 	uint32_t i;
 
 	if(2 <= dimension1 && dimension1 <= 4) {
@@ -1753,7 +1752,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void 
 	} else {
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
-	if(address1->dimension_count > 1 || (address2 && address2->dimension_count > 1)) {
+	if(address1->dimension_count > 2) {
 		// handling multiple input vectors
 		uint32_t op_flags = qb_get_op_flags(cxt, opcode);
 		if(!(op_flags & QB_OP_MULTI_ADDRESS)) {
@@ -1777,8 +1776,8 @@ static qb_matrix_op_factory factory_transpose = {
 	{	0,			0,	},
 	{
 		{	QB_MTRAN_2X_F64_F64,		QB_MTRAN_2X_F32_F32,	},
-		{	QB_MTRAN_3X_F64_F64,		QB_MTRAN_3X_F64_F64,	},
-		{	QB_MTRAN_4X_F64_F64,		QB_MTRAN_4X_F64_F64,	},
+		{	QB_MTRAN_3X_F64_F64,		QB_MTRAN_3X_F32_F32,	},
+		{	QB_MTRAN_4X_F64_F64,		QB_MTRAN_4X_F32_F32,	},
 	},
 	0,
 };
@@ -1790,8 +1789,8 @@ static qb_matrix_op_factory factory_inverse = {
 	{	0,			0,	},
 	{
 		{	QB_MINV_2X_F64_F64,		QB_MINV_2X_F32_F32,	},
-		{	QB_MINV_3X_F64_F64,		QB_MINV_3X_F64_F64,	},
-		{	QB_MINV_4X_F64_F64,		QB_MINV_4X_F64_F64,	},
+		{	QB_MINV_3X_F64_F64,		QB_MINV_3X_F32_F32,	},
+		{	QB_MINV_4X_F64_F64,		QB_MINV_4X_F32_F32,	},
 	},
 	0,
 };
@@ -1803,8 +1802,8 @@ static qb_matrix_op_factory factory_determinant = {
 	{	0,			0,	},
 	{
 		{	QB_MDET_2X_F64_F64,		QB_MDET_2X_F32_F32,	},
-		{	QB_MDET_3X_F64_F64,		QB_MDET_3X_F64_F64,	},
-		{	QB_MDET_4X_F64_F64,		QB_MDET_4X_F64_F64,	},
+		{	QB_MDET_3X_F64_F64,		QB_MDET_3X_F32_F32,	},
+		{	QB_MDET_4X_F64_F64,		QB_MDET_4X_F32_F32,	},
 	},
 	0,
 };
@@ -1812,7 +1811,7 @@ static qb_matrix_op_factory factory_determinant = {
 static qb_op * ZEND_FASTCALL qb_append_utf8_decode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = result->address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 2);
 	qop->operands[0] = operands[0];
 	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
@@ -1831,7 +1830,7 @@ static qb_basic_op_factory factory_utf8_decode = {
 static qb_op * ZEND_FASTCALL qb_append_utf8_encode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = operands[0].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 2);
 	qop->operands[0] = operands[0];
 	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
@@ -1850,7 +1849,7 @@ static qb_basic_op_factory factory_utf8_encode = {
 static qb_op * ZEND_FASTCALL qb_append_pack(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = operands[0].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 2);
 	qop->operands[0] = operands[0];
 	qop->operands[1] = *result;
@@ -1876,7 +1875,7 @@ static qb_basic_op_factory factory_pack_be = {
 static qb_op * ZEND_FASTCALL qb_append_unpack(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = result->address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 2);
 	qop->operands[0] = operands[0];
 	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
@@ -1964,7 +1963,7 @@ static qb_basic_op_factory factory_array_reverse = {
 static qb_op * ZEND_FASTCALL qb_append_complex_number_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	uint32_t opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop;
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
