@@ -2142,6 +2142,24 @@ static qb_address * ZEND_FASTCALL qb_get_largest_array_size(qb_compiler_context 
 	return array_size_address;
 }
 
+static qb_address * ZEND_FASTCALL qb_get_largest_matrix_count(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
+	qb_address *array_size_address = qb_get_largest_array_size(cxt, operands, operand_count);
+	qb_address *matrix_address;
+	uint32_t element_count, matrix_size, matrix_count;
+	if(!(array_size_address->flags & QB_ADDRESS_CONSTANT)) {
+		// return the variable to indicate variable-length
+		return array_size_address;
+	}
+	matrix_address = operands[0].address;
+	matrix_size = VALUE(U32, matrix_address->array_size_addresses[matrix_address->dimension_count - 2]);
+	element_count = VALUE(U32, array_size_address);
+	if(element_count > matrix_size) {
+		matrix_count = element_count / matrix_size;
+		return qb_obtain_constant_U32(cxt, matrix_count);
+	}
+	return NULL;
+}
+
 static qb_address * ZEND_FASTCALL qb_get_largest_vector_count(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
 	qb_address *array_size_address = qb_get_largest_array_size(cxt, operands, operand_count);
 	qb_address *vector_address;

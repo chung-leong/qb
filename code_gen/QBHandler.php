@@ -411,9 +411,13 @@ class QBHandler {
 		if(self::$compiler == "MSVC") {
 			$lines = array();
 			$lines[] = "#ifdef ZEND_WIN32";
-			$lines[] = "if(*windows_timed_out_pointer) {";
-			$lines[] =		"zend_timeout(1);";
-			$lines[] = 		"goto label_exit;";
+			$lines[] = "if(windows_timeout_check_counter == 4096) {";
+			$lines[] = 		"if(*windows_timed_out_pointer) {";
+			$lines[] =			"zend_timeout(1);";
+			$lines[] = 			"goto label_exit;";
+			$lines[] =		"}";
+			$lines[] = "} else {";
+			$lines[] =		"windows_timeout_check_counter++;";
 			$lines[] = "}";
 			$lines[] = "#endif";
 			return $lines;
@@ -616,7 +620,7 @@ class QBHandler {
 			}
 		} else {
 			$className = get_class($this);
-			die("Invalid address mode for operand $i in $className\n");
+			die("Invalid address mode for operand $i in $className: $addressMode\n");
 		}
 		$lines[] = "";
 		return $lines;

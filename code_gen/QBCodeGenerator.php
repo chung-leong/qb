@@ -51,6 +51,7 @@ class QBCodeGenerator {
 			$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
 			
 			if($compiler == "MSVC") {
+				$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
 				$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
 			}
 			$lines[] =			"USE_TSRM";
@@ -1084,6 +1085,13 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL_4X", $elementType, "ARR", 4);
 			$this->handlers[] = new QBRefractHandler("REFR_4X", $elementType, null, 4);
 			$this->handlers[] = new QBRefractHandler("REFR_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_4X", $elementType, null, 4);
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_4X", $elementType, null, 4);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_4X", $elementType, "ARR", 4);
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBDeterminantHandler("MDET_4X", $elementType, $addressMode, 4);
+			}
 			
 			$this->handlers[] = new QBCopyHandler("MOV_4X", $elementType, null, 4);
 			$this->handlers[] = new QBCopyHandler("MOV_4X", $elementType, "ARR", 4);
@@ -1135,6 +1143,13 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL_3X", $elementType, "ARR", 3);
 			$this->handlers[] = new QBRefractHandler("REFR_3X", $elementType, null, 3);
 			$this->handlers[] = new QBRefractHandler("REFR_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_3X", $elementType, null, 3);
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_3X", $elementType, null, 3);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_3X", $elementType, "ARR", 3);
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBDeterminantHandler("MDET_3X", $elementType, $addressMode, 3);
+			}
 			
 			$this->handlers[] = new QBCopyHandler("MOV_3X", $elementType, null, 3);
 			$this->handlers[] = new QBCopyHandler("MOV_3X", $elementType, "ARR", 3);
@@ -1178,6 +1193,13 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBRefractHandler("REFR_2X", $elementType, null, 2);
 			$this->handlers[] = new QBRefractHandler("REFR_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_2X", $elementType, null, 2);
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_2X", $elementType, null, 2);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_2X", $elementType, "ARR", 2);
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBDeterminantHandler("MDET_2X", $elementType, $addressMode, 2);
+			}
 			
 			$this->handlers[] = new QBCopyHandler("MOV_2X", $elementType, null, 2);
 			$this->handlers[] = new QBCopyHandler("MOV_2X", $elementType, "ARR", 2);

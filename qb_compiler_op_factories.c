@@ -1739,6 +1739,76 @@ static qb_matrix_op_factory factory_vm_multiply = {
 	QB_MUL_VM_3X3P_F32_F32_F32,
 };
 
+static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_vector_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	qb_address *address2 = (operand_count >= 2) ? operands[1].address : NULL;
+	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
+	qb_op *qop;
+	uint32_t opcode;
+	uint32_t i;
+
+	if(2 <= dimension1 && dimension1 <= 4) {
+		opcode = f->opcodes_fixed_size[dimension1 - 2][QB_TYPE_F64 - address1->type];
+	} else {
+		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
+	}
+	if(address1->dimension_count > 1 || (address2 && address2->dimension_count > 1)) {
+		// handling multiple input vectors
+		uint32_t op_flags = qb_get_op_flags(cxt, opcode);
+		if(!(op_flags & QB_OP_MULTI_ADDRESS)) {
+			opcode = opcode + 1;
+		}
+	}
+	qop = qb_append_op(cxt, opcode, operand_count + 1);
+	for(i = 0; i < operand_count; i++) {
+		qop->operands[i].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[i].address = operands[i].address;
+	}
+	qop->operands[operand_count] = *result;
+	qop->matrix_dimensions = V_DIMENSIONS(dimension1);
+	return qop;
+}
+
+static qb_matrix_op_factory factory_transpose = { 
+	qb_append_matrix_op,
+	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	0,			0,	},
+	{
+		{	QB_MTRAN_2X_F64_F64,		QB_MTRAN_2X_F32_F32,	},
+		{	QB_MTRAN_3X_F64_F64,		QB_MTRAN_3X_F64_F64,	},
+		{	QB_MTRAN_4X_F64_F64,		QB_MTRAN_4X_F64_F64,	},
+	},
+	0,
+};
+
+static qb_matrix_op_factory factory_inverse = { 
+	qb_append_matrix_op,
+	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	0,			0,	},
+	{
+		{	QB_MINV_2X_F64_F64,		QB_MINV_2X_F32_F32,	},
+		{	QB_MINV_3X_F64_F64,		QB_MINV_3X_F64_F64,	},
+		{	QB_MINV_4X_F64_F64,		QB_MINV_4X_F64_F64,	},
+	},
+	0,
+};
+
+static qb_matrix_op_factory factory_determinant = { 
+	qb_append_matrix_op,
+	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MATRIX_COUNT | QB_TYPE_OPERAND,
+	{	0,			0,	},
+	{
+		{	QB_MDET_2X_F64_F64,		QB_MDET_2X_F32_F32,	},
+		{	QB_MDET_3X_F64_F64,		QB_MDET_3X_F64_F64,	},
+		{	QB_MDET_4X_F64_F64,		QB_MDET_4X_F64_F64,	},
+	},
+	0,
+};
+
 static qb_op * ZEND_FASTCALL qb_append_utf8_decode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = result->address;

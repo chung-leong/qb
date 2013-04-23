@@ -1338,6 +1338,8 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 
 	if(result_flags & QB_RESULT_SIZE_OPERAND) {
 		result_size_address = qb_get_largest_array_size(cxt, operands, operand_count);
+	} else if(result_flags & QB_RESULT_SIZE_MATRIX_COUNT) {
+		result_size_address = qb_get_largest_matrix_count(cxt, operands, operand_count);
 	} else if(result_flags & QB_RESULT_SIZE_VECTOR_COUNT) {
 		result_size_address = qb_get_largest_vector_count(cxt, operands, operand_count);
 	} else if(result_flags & QB_RESULT_SIZE_MM_PRODUCT) {
