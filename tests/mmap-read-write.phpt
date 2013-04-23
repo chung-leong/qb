@@ -28,7 +28,7 @@ $contents = str_repeat("\xFF\x7F\xAA\x00\xCC", 200);
 $path = __FILE__ . ".dat";
 file_put_contents($path, $contents);
 
-$handle = fopen($path, "c+");
+$handle = fopen($path, "r+");
 
 test_function($handle);
 
