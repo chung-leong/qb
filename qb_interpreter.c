@@ -1243,6 +1243,7 @@ static void ZEND_FASTCALL qb_copy_element_to_zval(qb_interpreter_context *cxt, q
 			Z_TYPE_P(zvalue) = IS_DOUBLE;
 			Z_DVAL_P(zvalue) = VALUE(F64, address);
 		}	break;
+		default: break;
 	}
 }
 
@@ -2510,6 +2511,8 @@ int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval ***arguments
 	int result = SUCCESS;
 	qb_interpreter_context _cxt, *cxt = &_cxt;
 	qb_initialize_interpreter_context(cxt TSRMLS_CC);
+
+	EG(scope) = zfunc->common.scope;
 
 	// set up the local storage (pass zero as argument count, as
 	// arguments handling actually happens below

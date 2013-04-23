@@ -527,6 +527,7 @@ static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt,
 			case QB_TYPE_U64: snprintf(buffer, 128, "%" PRIu64"ULL", VALUE(U64, address)); break;
 			case QB_TYPE_F32: snprintf(buffer, 128, "%.11G", VALUE(F32, address)); break;
 			case QB_TYPE_F64: snprintf(buffer, 128, "%.17G", VALUE(F64, address)); break;
+			default: break;
 		}
 	} else if(IS_ARRAY_MEMBER(address)) {
 		snprintf(buffer, 128, "%s[0]", qb_get_segment_pointer(cxt, address));

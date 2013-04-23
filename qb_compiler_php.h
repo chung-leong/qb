@@ -24,9 +24,8 @@
 typedef struct qb_translator			qb_translator;
 typedef struct qb_intrinsic_function	qb_intrinsic_function;
 
-typedef void (ZEND_FASTCALL *qb_translator_proc)(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result);
-typedef void (ZEND_FASTCALL *qb_intrinsic_coercion_proc)(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *argument, uint32_t argument_index);
-typedef void (ZEND_FASTCALL *qb_intrinsic_translate_proc)(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result);
+typedef void (ZEND_FASTCALL *qb_translator_proc)(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (ZEND_FASTCALL *qb_intrinsic_translator_proc)(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 struct qb_translator {
 	qb_translator_proc translate;
@@ -36,8 +35,7 @@ struct qb_translator {
 struct qb_intrinsic_function {
 	ulong hash_value;
 	const char *name;
-	qb_intrinsic_coercion_proc do_type_coercion;
-	qb_intrinsic_translate_proc translate;
+	qb_intrinsic_translator_proc translate;
 	uint32_t argument_count_min;
 	uint32_t argument_count_max;
 	void *extra;
@@ -57,6 +55,7 @@ enum {
 	#define Z_OPERAND_TYPE(op)				op##_type
 	#define Z_OPERAND_ZV(op)				Z_OPERAND_INFO(op, zv)
 	#define RETURN_VALUE_USED(opline)		(!((opline)->result_type & EXT_TYPE_UNUSED))
+	#define FETCH_TYPE(opline)				(opline->extended_value & ZEND_FETCH_TYPE_MASK)
 #else
 	#define Z_CLASS_INFO(ce, prop)			ce->prop
 	#define Z_OPERAND_INFO(op, prop)		(op).u.prop
@@ -64,6 +63,7 @@ enum {
 	#define Z_OPERAND_ZV(op)				&Z_OPERAND_INFO(op, constant)
 	#define Z_HASH_P(zv)					zend_inline_hash_func(Z_STRVAL_P(zv), Z_STRLEN_P(zv) + 1)
 	#define RETURN_VALUE_USED(opline)		(!((opline)->result.u.EA.type & EXT_TYPE_UNUSED))
+	#define FETCH_TYPE(opline)				(opline->op2.u.EA.type)
 #endif
 
 #define ZEND_OP_INDEX(zop)						(((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op)

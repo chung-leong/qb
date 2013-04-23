@@ -117,7 +117,6 @@
 #include "qb_interpreter.h"
 #include "qb_native_compiler.h"
 #include "qb_extractor.h"
-#include "qb_opcodes.h"
 
 enum {
 	QB_SCAN_FILE				= 0,

@@ -9,13 +9,6 @@ Use case: mandelbrot
    modified by anon
 */
 
-ob_start();
-
-$h = 200;
-$w = $h;
-
-printf ("P4\n%d %d\n", $w, $h);
-
 /**
  * A test function
  * 
@@ -74,6 +67,13 @@ function calc($h, $w) {
 }
 
 qb_compile();
+
+ob_start();
+
+$h = 200;
+$w = $h;
+
+printf ("P4\n%d %d\n", $w, $h);
 
 calc($h, $w);
 
