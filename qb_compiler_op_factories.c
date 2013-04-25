@@ -828,6 +828,7 @@ static qb_op *ZEND_FASTCALL qb_append_concat_op(qb_compiler_context *cxt, void *
 		qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
 		qop->operands[1].address = subarray_sizes_address;
 		qop->operands[2] = *result;
+		qb_unlock_address(cxt, subarray_sizes_address);
 	} else {
 		if(addition->flags & QB_ADDRESS_STRING) {
 			opcode = f->text_opcode;
@@ -864,6 +865,7 @@ static qb_op *ZEND_FASTCALL qb_append_print_op(qb_compiler_context *cxt, void *f
 		qop->operands[0].address = address;
 		qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
 		qop->operands[1].address = subarray_sizes_address;
+		qb_unlock_address(cxt, subarray_sizes_address);
 	} else {
 		if(address->flags & QB_ADDRESS_STRING) {
 			opcode = f->text_opcode;

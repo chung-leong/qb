@@ -227,6 +227,28 @@ static void ZEND_FASTCALL qb_unlock_address(qb_compiler_context *cxt, qb_address
 	}
 }
 
+static void ZEND_FASTCALL qb_lock_operand(qb_compiler_context *cxt, qb_operand *operand) {
+	if(operand->type == QB_OPERAND_ADDRESS) {
+		qb_lock_address(cxt, operand->address);
+	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
+		uint32_t i;
+		for(i = 0; i < operand->array_initializer->element_count; i++) {
+			qb_lock_operand(cxt, &operand->array_initializer->elements[i]);
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_unlock_operand(qb_compiler_context *cxt, qb_operand *operand) {
+	if(operand->type == QB_OPERAND_ADDRESS) {
+		qb_unlock_address(cxt, operand->address);
+	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
+		uint32_t i;
+		for(i = 0; i < operand->array_initializer->element_count; i++) {
+			qb_unlock_operand(cxt, &operand->array_initializer->elements[i]);
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_mark_as_non_local(qb_compiler_context *cxt, qb_address *address) {
 	if(!(address->flags & QB_ADDRESS_NON_LOCAL)) {
 		address->flags |= QB_ADDRESS_NON_LOCAL;
