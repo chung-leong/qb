@@ -779,8 +779,7 @@ static void ZEND_FASTCALL qb_retire_operand(qb_compiler_context *cxt, uint32_t z
 				if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 					temp_variable->operand = *operand;
 				} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-					int32_t changed = memcmp(&temp_variable->operand, operand, sizeof(qb_operand)) != 0;
-					if(changed) {
+					if(memcmp(&temp_variable->operand, operand, sizeof(qb_operand)) != 0) {
 						// unlock what was there before if it's different
 						qb_unlock_operand(cxt, &temp_variable->operand);
 					}
@@ -791,10 +790,8 @@ static void ZEND_FASTCALL qb_retire_operand(qb_compiler_context *cxt, uint32_t z
 						temp_variable->operand.generic_pointer = NULL;
 					} else {
 						// lock it otherwise
-						if(changed) {
-							temp_variable->operand = *operand;
-							qb_lock_operand(cxt, operand);
-						}
+						temp_variable->operand = *operand;
+						qb_lock_operand(cxt, operand);
 					}
 				}
 			}
@@ -1030,12 +1027,14 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 					} else {
 						if(size_address) {
 							// array assignment
-							if((size_address->flags & QB_ADDRESS_CONSTANT) && (lvalue_size_address->flags & QB_ADDRESS_CONSTANT)) {
-								// both are fixed-length arrays--compare their sizes
-								if(VALUE(U32, size_address) == VALUE(U32, lvalue_size_address)) {
-									substitute = TRUE;
-								}
-							} 
+							if(lvalue_size_address) {
+								if((size_address->flags & QB_ADDRESS_CONSTANT) && (lvalue_size_address->flags & QB_ADDRESS_CONSTANT)) {
+									// both are fixed-length arrays--compare their sizes
+									if(VALUE(U32, size_address) == VALUE(U32, lvalue_size_address)) {
+										substitute = TRUE;
+									}
+								} 
+							}
 						} else  {
 							// scalar assignment--lvalue must be scalar as well
 							if(!lvalue_size_address) {

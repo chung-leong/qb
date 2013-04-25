@@ -1894,7 +1894,7 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 					if(STORAGE_TYPE_MATCH(operand->address->type, desired_type)) {
 						if(operand->address->flags & QB_ADDRESS_CAST) {
 							// use the original address
-							operand->address = operand->address->source_address;
+							new_address = operand->address->source_address;
 						} else {
 							// storage type is the same--just create a new address
 							new_address = qb_allocate_address(cxt->pool);
@@ -1902,7 +1902,6 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 							new_address->type = desired_type;
 							new_address->source_address = operand->address;
 							new_address->flags |= QB_ADDRESS_CAST;
-							operand->address = new_address;
 						}
 					} else {
 						// the bit pattern is different--need to do a copy
@@ -1910,13 +1909,18 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 							uint32_t element_count = IS_SCALAR(operand->address) ? 1 : ARRAY_SIZE(operand->address);
 							new_address = qb_allocate_constant(cxt, desired_type, operand->address->array_size_address);
 							qb_copy_elements(operand->address->type, ARRAY(I08, operand->address), element_count, new_address->type, ARRAY(I08, new_address), element_count);
-							operand->address = new_address;
 						} else {
 							new_address = qb_obtain_temporary_variable(cxt, desired_type, operand->address->array_size_address);
 							qb_do_assignment(cxt, operand->address, new_address);
-							operand->address = new_address;
+						}
+						if(operand->address->dimension_count > 1) {
+							new_address->dimension_count = operand->address->dimension_count;
+							new_address->array_size_addresses = operand->address->array_size_addresses;
+							new_address->dimension_addresses = operand->address->dimension_addresses;
+							new_address->array_size_address = new_address->array_size_addresses[0];
 						}
 					}
+					operand->address = new_address;
 				}
 			} else {
 				operand->address = NULL;
@@ -3968,6 +3972,9 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			if(QB_G(show_opcodes)) {
 				qb_print_ops(compiler_cxt);
 			}
+
+			QB_G(current_filename) = NULL;
+			QB_G(current_line_number) = 0;
 		}
 
 #ifdef NATIVE_COMPILE_ENABLED
