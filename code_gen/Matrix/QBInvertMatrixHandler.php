@@ -13,13 +13,17 @@ class QBInvertMatrixHandler extends QBSIMDHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_invert_matrix_2x2_$type($cType *m, $cType *res_ptr) {",
-					"$cType det = (m[0] * m[3]) - (m[1] * m[2]);",
+					"$cType p00 =  m[3];",
+					"$cType p01 = -m[1];",
+					"$cType p10 = -m[2];",
+					"$cType p11 =  m[0];",
+					"$cType det = (m[0] * p00) + (m[1] * p10);",
 					"if(det != 0) {",
 						"$cType rdet = 1.0$f / det;",
-						"res_ptr[0] =  m[3] * rdet;",
-						"res_ptr[1] = -m[1] * rdet;",
-						"res_ptr[2] = -m[2] * rdet;",
-						"res_ptr[3] =  m[0] * rdet;",
+						"res_ptr[0] = p00 * rdet;",
+						"res_ptr[1] = p01 * rdet;",
+						"res_ptr[2] = p10 * rdet;",
+						"res_ptr[3] = p11 * rdet;",
 					"} else {",
 						"uint32_t i;",
 						"for(i = 0; i < 4; i++) {",
@@ -106,6 +110,14 @@ class QBInvertMatrixHandler extends QBSIMDHandler {
 			),
 		);
 		return $functions;
+	}
+	
+	public function getOperandSize($i) {
+		if($this->operandSize == "variable") {
+			return "MATRIX1_ROWS * MATRIX1_COLS";
+		} else {
+			return $this->operandSize * $this->operandSize;
+		}
 	}
 	
 	public function getSIMDExpression() {
