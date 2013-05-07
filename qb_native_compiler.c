@@ -49,7 +49,7 @@
 #define MAKE_STRING(x)							#x
 #define STRING(x)								MAKE_STRING(x)
 
-// note: fastcall could cause a variable to fall of the list on OSX
+// note: fastcall could cause a variable to fall off the list on OSX
 ZEND_ATTRIBUTE_FORMAT(printf, 2, 3)
 static void qb_printf(qb_native_compiler_context *cxt, const char *format, ...) {
 	USE_TSRM
@@ -121,7 +121,10 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 #endif
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
-		args[argc++] = "-fno-builtin";
+		args[argc++] = "-fno-builtin";								// disable intrinsic functions (for the time being)
+#ifdef __LP64__
+		args[argc++] = "-mcmodel=large";							// use large memory model, since qb extension could be anywhere in the address space
+#endif
 		args[argc++] = "-o";
 		args[argc++] = cxt->obj_file_path;
 		args[argc++] = "-xc";										// indicate the source is C
