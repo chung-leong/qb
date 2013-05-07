@@ -923,6 +923,9 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 							qb_printf(cxt, "#define res	%s\n", scalar);
 						} else {
 							qb_printf(cxt, "#define op%d	%s\n", operand_number, scalar);
+							if(qop->flags & QB_OP_ISSET && operand_address_mode == QB_ADDRESS_MODE_ELV) {
+								qb_printf(cxt, "#define op%d_ptr	((%s *) isset_pointer)\n", operand_number, type_cnames[address->type]);
+							}
 						}
 					}
 					operand_number++;
@@ -1032,8 +1035,19 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 								qb_print_segment_bound_check(cxt, address, NULL);
 							}
 						} else if(address->mode == QB_ADDRESS_MODE_ELC || address->mode == QB_ADDRESS_MODE_ELV) {
-							if(!qb_is_always_in_bound(cxt, container, address, 0)) {
-								qb_print_segment_bound_check(cxt, address, NULL);
+							if(!(qop->flags & QB_OP_ISSET)) {
+								if(!qb_is_always_in_bound(cxt, container, address, 0)) {
+									qb_print_segment_bound_check(cxt, address, NULL);
+								}
+							} else {
+								const char *index = qb_get_segment_index(cxt, address);
+								const char *pointer = qb_get_segment_pointer(cxt, address);
+
+								qb_printf(cxt, "if(%s < segment_element_count%d) {\n", index, address->segment_selector);
+								qb_printf(cxt, 		"isset_pointer = %s;\n", pointer);
+								qb_print(cxt,  "} else {\n");
+								qb_print(cxt,		"isset_pointer = NULL;\n");
+								qb_print(cxt,  "}\n");
 							}
 						}
 						if(operand_address_mode == QB_ADDRESS_MODE_ARR) {
@@ -1115,6 +1129,9 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 							qb_printf(cxt, "#undef res\n");
 						} else {
 							qb_printf(cxt, "#undef op%d\n", operand_number);
+							if(qop->flags & QB_OP_ISSET && operand_address_mode == QB_ADDRESS_MODE_ELV) {
+								qb_printf(cxt, "#undef op%d_ptr\n", operand_number);
+							}
 						}
 					}
 					operand_number++;
@@ -1159,6 +1176,7 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	qb_print(cxt, "uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;\n");
 	qb_print(cxt, "uint32_t string_length, symbol_index;\n");
 	qb_print(cxt, "uint32_t condition, res_count, res_count_before;\n");
+	qb_print(cxt, "void * isset_pointer;\n");
 	qb_print(cxt, "zend_function *function;\n");
 	qb_print(cxt, "\n");
 
@@ -1439,6 +1457,12 @@ static void ZEND_FASTCALL qb_remove_object_file(qb_native_compiler_context *cxt)
 		cxt->binary_size = 0;
 	}
 	DeleteFile(cxt->obj_file_path);
+}
+#endif
+
+#ifdef __GNUC__
+static void ZEND_FASTCALL qb_lock_object_file(qb_native_compiler_context *cxt) {
+	mprotect(cxt->binary, cxt->binary_size, PROT_EXEC | PROT_READ);
 }
 #endif
 
@@ -2286,6 +2310,7 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 					bundle = qb_enlarge_array((void **) &QB_G(native_code_bundles), 1);
 					bundle->memory = cxt->binary;
 					bundle->size = cxt->binary_size;
+					qb_lock_object_file(cxt);
 					cxt->binary = NULL;
 					result = SUCCESS;
 					break;
