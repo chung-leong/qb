@@ -3727,7 +3727,9 @@ void ZEND_FASTCALL qb_load_external_code(qb_compiler_context *cxt, const char *i
 
 	// set active op array to the function to whom the code belong, so that relative paths are resolved correctly
 	zend_op_array *active_op_array = EG(active_op_array);
-	EG(active_op_array) = &cxt->function_declaration->zend_function->op_array;
+	if(cxt->function_declaration) {
+		EG(active_op_array) = &cxt->function_declaration->zend_function->op_array;
+	}
 	stream = php_stream_open_wrapper_ex((char *) import_path, "rb", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
 	EG(active_op_array) = active_op_array;
 

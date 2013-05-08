@@ -1466,6 +1466,12 @@ static void ZEND_FASTCALL qb_lock_object_file(qb_native_compiler_context *cxt) {
 }
 #endif
 
+#ifdef _MSC_VER
+static void ZEND_FASTCALL qb_lock_object_file(qb_native_compiler_context *cxt) {
+	VirtualProtect(cxt->binary, cxt->binary_size, FILE_MAP_EXECUTE | FILE_MAP_READ, NULL);
+}
+#endif
+
 static uint32_t ZEND_FASTCALL qb_attach_symbol(qb_native_compiler_context *cxt, const char *symbol_name, const char *address) {
 	uint32_t count = 0;
 	if(strncmp(symbol_name, "QBN_", 4) == 0) {
