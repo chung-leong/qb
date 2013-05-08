@@ -83,6 +83,14 @@ class QBTransposeMatrixHandler extends QBSIMDHandler {
 		);
 		return $functions;
 	}
+
+	public function getOperandSize($i) {
+		if($this->operandSize == "variable") {
+			return "MATRIX1_ROWS * MATRIX1_COLS";
+		} else {
+			return $this->operandSize * $this->operandSize;
+		}
+	}
 	
 	public function getSIMDExpression() {
 		$type = $this->getOperandType(1);
