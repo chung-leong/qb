@@ -1125,6 +1125,36 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_unary_matrix_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *address = arguments[0].address;
+		uint32_t matrix_cols = qb_get_matrix_column_count(cxt, address);
+		uint32_t matrix_rows = qb_get_matrix_row_count(cxt, address);
+
+		if(address->dimension_count == 2 && IS_EXPANDABLE_ARRAY(address)) {
+			qb_abort("%s() expects an array with fixed dimensions as parameter", f->name);
+		}
+		if(matrix_cols != matrix_rows) {
+			qb_abort("%s() expects a square matrix as parameter", f->name);
+		}
+		if(!(2 <= matrix_rows && matrix_rows <= 4)) {
+			qb_abort("%s() can only handle 2x2, 3x3, and 4x4 matrices", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
+			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+		}
+	}
+}
+
 #define MAX_INLINE_FUNCTION_NAME_LEN		32
 
 static qb_intrinsic_function intrinsic_functions[] = {
@@ -1212,6 +1242,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"mm_mult",				qb_translate_intrinsic_mm_mult,				2,		2,		&factory_mm_multiply		},
 	{	0,	"mv_mult",				qb_translate_intrinsic_mv_mult,				2,		2,		&factory_mv_multiply		},
 	{	0,	"vm_mult",				qb_translate_intrinsic_vm_mult,				2,		2,		&factory_vm_multiply		},
+	{	0,	"transpose",			qb_translate_intrinsic_unary_matrix_op,		1,		1,		&factory_transpose			},
+	{	0,	"det",					qb_translate_intrinsic_unary_matrix_op,		1,		1,		&factory_determinant		},
+	{	0,	"inverse",				qb_translate_intrinsic_unary_matrix_op,		1,		1,		&factory_inverse			},
 	{	0,	"sample_nearest",		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_nearest		},
 	{	0,	"sample_bilinear",		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_bilinear	},
 	{	0,	"array_pop",			qb_translate_intrinsic_array_pop,			1,		1,		NULL						},

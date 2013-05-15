@@ -33,6 +33,7 @@ typedef struct qb_build_context				qb_build_context;
 typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_result_prototype			qb_result_prototype;
 typedef struct qb_result_destination		qb_result_destination;
+typedef struct qb_temporary_variable		qb_temporary_variable;
 
 typedef enum qb_operand_type				qb_operand_type;
 typedef enum qb_stage						qb_stage;
@@ -111,6 +112,7 @@ struct qb_operand {
 		zend_class_entry *zend_class;
 		qb_array_initializer *array_initializer;
 		qb_result_prototype *result_prototype;
+		void *generic_pointer;
 	};
 };
 
@@ -148,6 +150,11 @@ struct qb_result_destination {
 		qb_operand variable;
 	};
 	qb_result_prototype *prototype;
+};
+
+struct qb_temporary_variable {
+	qb_operand operand;
+	uint32_t last_access_op_index;
 };
 
 #include "qb_compiler_php.h"
@@ -252,7 +259,7 @@ struct qb_compiler_context {
 	uint32_t stack_item_buffer_size;
 	uint32_t stack_item_count;
 	uint32_t stack_item_offset;
-	qb_operand *temp_variables;
+	qb_temporary_variable *temp_variables;
 	uint32_t temp_variable_count;
 	qb_address *foreach_index_address;
 	qb_result_prototype *result_prototypes;
@@ -386,13 +393,14 @@ enum {
 
 enum {
 	QB_RESULT_SIZE_OPERAND			= 0x80000000,
-	QB_RESULT_SIZE_VECTOR_COUNT		= 0x40000000,
-	QB_RESULT_SIZE_MM_PRODUCT		= 0x20000000,
-	QB_RESULT_SIZE_MV_PRODUCT		= 0x10000000,
-	QB_RESULT_SIZE_VM_PRODUCT		= 0x08000000,
+	QB_RESULT_SIZE_MATRIX_COUNT		= 0x40000000,
+	QB_RESULT_SIZE_VECTOR_COUNT		= 0x20000000,
+	QB_RESULT_SIZE_MM_PRODUCT		= 0x10000000,
+	QB_RESULT_SIZE_MV_PRODUCT		= 0x08000000,
+	QB_RESULT_SIZE_VM_PRODUCT		= 0x04000000,
 
-	QB_RESULT_IS_BOOLEAN			= 0x04000000,
-	QB_RESULT_IS_STRING				= 0x02000000,
+	QB_RESULT_IS_BOOLEAN			= 0x02000000,
+	QB_RESULT_IS_STRING				= 0x01000000,
 
 	QB_RESULT_FROM_PURE_FUNCTION	= 0x00100000,
 };

@@ -1146,12 +1146,6 @@ static void ZEND_FASTCALL qb_transfer_arguments_from_php(qb_interpreter_context 
 		qb_variable *qvar = func->variables[i];
 		zval **p_zarg = p_args[i];
 		uint32_t transfer_flags = 0;
-		if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
-			// do variable separation if argument is passed-by-ref
-			// a new copy of the zval is created if it's being shared
-			// on a copy-on-write basis
-			SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zarg);
-		}
 
 		if((qvar->flags & QB_VARIABLE_PASSED_BY_REF) || (qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
 			// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
