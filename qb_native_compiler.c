@@ -1610,7 +1610,12 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 			char *symbol_name = string_section + symbol->st_name;
 			void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
 			if(symbol_type == STT_FUNC) {
-				count += qb_attach_symbol(cxt, symbol_name, symbol_address);
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+				if(!attached) {
+					// error out if there's an unrecognized function
+					return FALSE;
+				}
+				count += attached;
 			} else if(symbol_type == STT_OBJECT) {
 				if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
 					uint32_t *p_version = symbol_address;
@@ -1726,7 +1731,12 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 			char *symbol_name = string_section + symbol->st_name;
 			void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
 			if(symbol_type == STT_FUNC) {
-				count += qb_attach_symbol(cxt, symbol_name, symbol_address);
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+				if(!attached) {
+					// error out if there's an unrecognized function
+					return FALSE;
+				}
+				count += attached;
 			} else if(symbol_type == STT_OBJECT) {
 				if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
 					uint32_t *p_version = symbol_address;
@@ -2050,7 +2060,12 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 			char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : (string_section + symbol->N.Name.Long);
 			void *symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
 			if(ISFCN(symbol->Type)) {
-				count += qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+				if(!attached) {
+					// error out if there's an unrecognized function
+					return FALSE;
+				}
+				count += attached;
 			} else if(symbol->StorageClass == IMAGE_SYM_CLASS_EXTERNAL) {
 				if(strncmp(symbol_name + 1, "QB_VERSION", 10) == 0) {
 					uint32_t *p_version = symbol_address;
