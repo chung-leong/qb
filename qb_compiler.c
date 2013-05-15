@@ -387,7 +387,7 @@ static void ZEND_FASTCALL qb_initialize_variable_address(qb_compiler_context *cx
 static qb_address * ZEND_FASTCALL qb_create_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type) {
 	qb_memory_segment *segment = &cxt->storage->segments[QB_SELECTOR_VARIABLE];
 	uint32_t element_size = type_sizes[desired_type];
-	uint32_t start = ALIGN(segment->element_count, (element_size > 4) ? element_size : 4);
+	uint32_t start = ALIGN_TO(segment->element_count, (element_size > 4) ? element_size : 4);
 	uint32_t end = start + element_size;
 	qb_address *address;
 #if ZEND_DEBUG
@@ -689,7 +689,7 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_conte
 		// necessary, it's okay for the code to sometimes think that these segments
 		// are larger than they actually are
 		segment = &cxt->storage->segments[selector];
-		start = ALIGN(segment->element_count, (element_size > 4) ? element_size : 4);
+		start = ALIGN_TO(segment->element_count, (element_size > 4) ? element_size : 4);
 		end = start + element_size * element_count;
 
 		if(end > segment->current_allocation) {
@@ -3178,11 +3178,11 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 	for(i = 0; i < cxt->storage->segment_count; i++) {
 		qb_memory_segment *segment = &cxt->storage->segments[i];
 		if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-			storage_size = ALIGN(storage_size, 16);
+			storage_size = ALIGN_TO(storage_size, 16);
 			storage_size += BYTE_COUNT(segment->element_count, segment->type); 
 		}
 	}
-	total_size = ALIGN(total_size, 16);
+	total_size = ALIGN_TO(total_size, 16);
 	total_size += storage_size;
 
 	// allocate memory and copy everything into a continuous block of memory
@@ -3225,7 +3225,7 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 	memcpy(filename, zfunc->op_array.filename, filename_len + 1);
 	
 	// set up local storage
-	p = memory + ALIGN(p - memory, 16);
+	p = memory + ALIGN_TO(p - memory, 16);
 	storage = (qb_storage *) p;	p += sizeof(qb_storage);
 	storage->flags = 0;
 	storage->size = storage_size;
@@ -3247,7 +3247,7 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 
 		// memory is preallocated
 		if(src->flags & QB_SEGMENT_PREALLOCATED) {
-			p = memory + ALIGN(p - memory, 16);
+			p = memory + ALIGN_TO(p - memory, 16);
 			dst->memory = (int8_t *) p; p += BYTE_COUNT(src->element_count, src->type);
 			dst->current_allocation = src->element_count;
 			if(src->memory) {
@@ -4018,6 +4018,7 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 				}
 				break;
 			}
+			default: break;
 		}
 		result_address = qb_obtain_temporary_variable(cxt, value1_address->type, value1_address->array_size_address);
 
@@ -4044,6 +4045,7 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 				qb_create_binary_op(cxt, &factory_multiply, value1_address, value2_address, intermediate_address);
 				qb_create_binary_op(cxt, &factory_add, result_address, intermediate_address, result_address);
 			}	break;
+			default: break;
 		}
 	}
 	qb_close_diagnostic_loop(cxt);

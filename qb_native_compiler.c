@@ -114,7 +114,9 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 		}
 		args[argc++] = "-c";
 		args[argc++] = "-O2";										// optimization level
+#ifndef __APPLE__
 		args[argc++] = "-march=native";								// optimize for current CPU
+#endif
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
@@ -1836,6 +1838,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 	struct relocation_info *relocations;
 	uint32_t relocation_count;
 	char *text_section = NULL;
+	uint32_t text_section_number = 0;
 	uint32_t i;
 
 	if(cxt->binary_size < sizeof(struct mach_header)) {
@@ -1877,6 +1880,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 			relocations = (struct relocation_info *) (cxt->binary + section->reloff);
 			relocation_count = section->nreloc;
 			text_section = cxt->binary + section->offset;
+			text_section_number = i + 1;
 			break;
 		}
 	}
@@ -1921,17 +1925,21 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 	}
 
 	// find the compiled functions
-	uint32_t count;
+	uint32_t count = 0;
 	for(i = 0; i < symtab_command->nsyms; i++) {
 		struct nlist *symbol = &symbols[i];
 		if(symbol->n_sect != NO_SECT) {
 			const char *symbol_name = string_table + symbol->n_un.n_strx;
 			void *symbol_address = text_section + symbol->n_value;
-			uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
-			if(attached) {
-				count += attached;
+			if(symbol->n_sect == text_section_number) {
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+				if(attached) {
+					count += attached;
+				} else {
+					return FALSE;
+				}
 			} else {
-				if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
+				if(strncmp(symbol_name + 1, "QB_VERSION", 10) == 0) {
 					uint32_t *p_version = symbol_address;
 					cxt->qb_version = *p_version;
 				}

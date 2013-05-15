@@ -764,7 +764,7 @@ void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_seg
 
 	if(desired_size > segment->current_allocation) {
 		// allocate more bytes
-		segment->current_allocation = ALIGN(desired_size, 1024);
+		segment->current_allocation = ALIGN_TO(desired_size, 1024);
 		qb_resize_segment(cxt, segment, BYTE_COUNT(segment->current_allocation, segment->type));
 
 		// clear the newly allcoated bytes

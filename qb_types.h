@@ -288,7 +288,7 @@ struct qb_function {
 	#endif
 #endif
 
-#define ALIGN(v, count)		(((v) + (count) - 1) & ~((count) - 1))
+#define ALIGN_TO(v, count)		(((v) + (count) - 1) & ~((count) - 1))
 
 #define ZERO_IF_FALSE(v, cond)		(v & ~(-(cond)))
 
