@@ -1,0 +1,14 @@
+Version 1.2 (Agnieszka B.)
+--------------------------------------------------
+15-May-2013
+--------------------------------------------------
+
+* Added matrix tranpose, inverse, and determinant functions
+* Changed behavior of rand() so multiple random numbers are generated when assigned to array
+* Improved reliability of compiler/opcode-translator
+* Fixed native-code linking when compiled as shared library
+
+* Fixed issue #4 - incorrect dimension error
+* Fixed issue #3 - unable to set type of private and protected properties
+* Fixed issue #2 - error accessing element using element as index
+* Fixed issue #1 - isset() error on element with constant index
