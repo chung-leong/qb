@@ -1610,7 +1610,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 			char *symbol_name = string_section + symbol->st_name;
 			void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
 			if(symbol_type == STT_FUNC) {
-				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
 					return FALSE;
@@ -1731,7 +1731,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 			char *symbol_name = string_section + symbol->st_name;
 			void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
 			if(symbol_type == STT_FUNC) {
-				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
 					return FALSE;
