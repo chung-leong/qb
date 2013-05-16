@@ -66,6 +66,12 @@ enum {
 	#define FETCH_TYPE(opline)				(opline->op2.u.EA.type)
 #endif
 
+#if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	#define Z_OPERAND_TMP_INDEX(op)			((- (int) Z_OPERAND_INFO(*op, var)) / sizeof(temp_variable) - 1)
+#else
+	#define Z_OPERAND_TMP_INDEX(op)			(Z_OPERAND_INFO(*op, var) / sizeof(temp_variable))
+#endif
+
 #define ZEND_OP_INDEX(zop)						(((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op)
 #define ZEND_OP(index)							&cxt->zend_op_array->opcodes[index]
 

@@ -752,7 +752,7 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_compiler_context *cxt, uint32_t
 		}	break;
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
-			uint32_t temp_var_index = Z_OPERAND_INFO(*zoperand, var) / sizeof(temp_variable);
+			uint32_t temp_var_index = Z_OPERAND_TMP_INDEX(zoperand);
 			if(temp_var_index < cxt->temp_variable_count) {
 				qb_temporary_variable *temp_variable = &cxt->temp_variables[temp_var_index];
 				*operand = temp_variable->operand;
@@ -773,7 +773,7 @@ static void ZEND_FASTCALL qb_retire_operand(qb_compiler_context *cxt, uint32_t z
 	switch(zoperand_type) {
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
-			uint32_t temp_var_index = Z_OPERAND_INFO(*zoperand, var) / sizeof(temp_variable);
+			uint32_t temp_var_index = Z_OPERAND_TMP_INDEX(zoperand);
 			if(temp_var_index < cxt->temp_variable_count) {
 				qb_temporary_variable *temp_variable = &cxt->temp_variables[temp_var_index];
 				if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
@@ -2109,11 +2109,11 @@ static void ZEND_FASTCALL qb_translate_add_string(qb_compiler_context *cxt, void
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_operand *string = &operands[0], *addition = &operands[1];
 		result->type = QB_OPERAND_ADDRESS;
-		if(string->type == QB_OPERAND_NONE) {
+		if(string->type == QB_OPERAND_ADDRESS) {
+			result->address = string->address;
+		} else {
 			result->address = qb_obtain_temporary_variable_length_array(cxt, QB_TYPE_U08);
 			result->address->flags |= QB_ADDRESS_STRING;
-		} else {
-			result->address = string->address;
 		}
 		if(addition->type == QB_OPERAND_ZVAL) {
 			qb_do_type_coercion(cxt, addition, QB_TYPE_U08);
