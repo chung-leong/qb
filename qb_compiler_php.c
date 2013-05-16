@@ -1486,16 +1486,17 @@ static zval * ZEND_FASTCALL qb_get_special_constant(qb_compiler_context *cxt, co
 }
 
 static void ZEND_FASTCALL qb_translate_fetch_constant(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *scope = &operands[0], *name = &operands[1];
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	if(scope->type == QB_OPERAND_ZVAL) {
+		qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op1, scope);
+	}
+#endif
+
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		result_prototype->preliminary_type = QB_TYPE_ANY;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		USE_TSRM
-		qb_operand *scope = &operands[0], *name = &operands[1];
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-		if(scope->type == QB_OPERAND_ZVAL) {
-			qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op1, scope);
-		}
-#endif
 		if(scope->type == QB_OPERAND_ZEND_CLASS) {
 			zval *name_value = name->constant;
 			ulong hash_value = Z_HASH_P(name_value);
