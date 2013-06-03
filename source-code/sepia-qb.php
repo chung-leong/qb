@@ -19,7 +19,7 @@ $a_strm_out2 = av_stream_open($file_out2, "audio");
 set_time_limit(600);
 
 /**
- * @engine qb-bytecode
+ * @engine qb
  * @param image			$image
  * @param float32		$intensity
  *
@@ -34,18 +34,12 @@ function sepia(&$image, $intensity) {
 		array(0.114, -0.321,  0.311, 0.000),
 		array(0.000,  0.000,  0.000, 1.000),
 	);
-	
 	$image = mv_mult($YIQMatrix, $image);
 	$k = array(1, 0, 0, 1);
 	$image *= $k;		// clear I and Q
 	$k = array(0, $intensity, 0, 0);
 	$image += $k;		// set I to intensity
-	$inverseYIQ = array(
-		array(1.0,    1.0,    1.0,    0.0),
-		array(0.956, -0.272, -1.10,   0.0),
-		array(0.621, -0.647,  1.70,   0.0),
-		array(0.0,    0.0,    0.0,    1.0),
-	);	
+	$inverseYIQ = inverse($YIQMatrix);	
 	$image = mv_mult($inverseYIQ, $image);
 }
 
