@@ -1223,7 +1223,7 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_FLOAT_TO_BOOL
 	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_BOOL_TO_FLOAT
 	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_INT_TO_BOOL
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_BOOL_TO_INT
+	{	NULL,										PBJ_RS_WD,			&factory_copy				},	// PBJ_BOOL_TO_INT
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_set_equal			},	// PBJ_VECTOR_EQUAL
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_set_not_equal		},	// PBJ_VECTOR_NOT_EQUAL
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_any				},	// PBJ_ANY
@@ -1878,6 +1878,10 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 				qb_abort("Input image '%s' must be passed to the function", texture->name); 
 			}
 		}
+		// premultiplication is applied to input images with alpha channel
+		if(VALUE(U32, texture->address->dimension_addresses[2]) == 4) {
+			texture->address->flags &= ~QB_ADDRESS_READ_ONLY;
+		}
 	}
 
 	for(i = 0; i < cxt->pbj_parameter_count; i++) {
@@ -2011,6 +2015,14 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 		}
 	}
 
+	// apply premultiplication to input images
+	for(i = 0; i < cxt->pbj_texture_count; i++) {
+		qb_pbj_texture *texture = &cxt->pbj_textures[i];
+		if(VALUE(U32, texture->address->dimension_addresses[2]) == 4) {
+			qb_create_unary_op(cxt, &factory_apply_premultiplication, texture->address, texture->address);
+		}
+	}
+
 	// set pixel index to zero
 	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_int_numerals[0], pixel_index_address);
 
@@ -2093,6 +2105,13 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 	// jump to beginning of outer loop if y is less than height
 	qb_create_comparison_branch_op(cxt, &factory_branch_on_less_than, OUTER_LOOK_JUMP_TARGET_INDEX, QB_INSTRUCTION_NEXT, y_address, height_address);
+
+	// remove premultiplication with output has alpha channel
+	if(VALUE(U32, image_address->dimension_addresses[2]) == 4) {
+		qb_create_unary_op(cxt, &factory_remove_premultiplication, image_address, image_address);
+	}
+
+	// return
 	qb_create_op(cxt, &factory_return, NULL, 0, NULL);
 
 	// allocate memory space for the registers

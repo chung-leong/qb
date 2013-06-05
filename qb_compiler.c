@@ -2769,6 +2769,8 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 
 			// need the handler to the next instruction if it's not a jump operation
 			if(!(qop->flags & QB_OP_JUMP)) {
+				// functions must always end with a return
+				// that's why there's no check here if there is an op at i + 1
 				qb_encode_handler(cxt, i + 1, &ip);
 			}
 

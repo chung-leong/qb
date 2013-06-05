@@ -2084,3 +2084,16 @@ static qb_float_op_factory factory_complex_tanh = {
 	{	QB_CTANH_F64_F64,	QB_CTANH_F32_F32	},
 };
 
+static qb_float_op_factory factory_apply_premultiplication = {
+	qb_append_unary_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_PREMULT_F64_F64,		QB_PREMULT_F32_F32	},
+};
+
+static qb_float_op_factory factory_remove_premultiplication = {
+	qb_append_unary_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_UNPREMULT_F64_F64,	QB_UNPREMULT_F32_F32	},
+};

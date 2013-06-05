@@ -356,7 +356,7 @@ $output_png = ob_get_clean();
  */
 function image_diff($img1, $img2) {
 	$img2 -= $img1;
-	return array_sum($img2);
+	return abs(array_sum($img2));;
 }
 
 if(file_exists($correct_path)) {
@@ -374,6 +374,7 @@ if(file_exists($correct_path)) {
 		} else {
 			$match = false;
 		}
+		//$match = false;
 	}
 	if($match) {
 		echo "CORRECT\n";

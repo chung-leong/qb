@@ -20,13 +20,14 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
  *
  * @param image			$dst
  * @param image			$src
+ * @param int32			$size
  */
-function filter(&$dst, $src) {
+function filter(&$dst, $src, $size) {
 }
 
 qb_compile();
 
-filter($output, $image);
+filter($output, $image, 5);
 
 ob_start();
 imagesavealpha($output, true);
@@ -42,7 +43,7 @@ $output_png = ob_get_clean();
  */
 function image_diff($img1, $img2) {
 	$img2 -= $img1;
-	return array_sum($img2);
+	return abs(array_sum($img2));;
 }
 
 if(file_exists($correct_path)) {

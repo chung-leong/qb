@@ -1032,6 +1032,8 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBSampleBilinearHandler("SAMPLE_3X_BL", $elementType, $addressMode, 3);
 			}
+			$this->handlers[] = new QBApplyPremultiplicationHandler("PREMULT", $elementType);
+			$this->handlers[] = new QBRemovePremultiplicationHandler("UNPREMULT", $elementType);
 		}
 	}
 	
