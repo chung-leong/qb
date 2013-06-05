@@ -29,7 +29,7 @@ function filter(&$dst, $src, $dist, $size, $edgeAlpha) {
 
 qb_compile();
 
-filter($output, $image, 8, 1, 2);
+filter($output, $image, 19, 1, 18);
 
 ob_start();
 imagesavealpha($output, true);

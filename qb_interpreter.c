@@ -158,7 +158,7 @@ static void ZEND_FASTCALL qb_set_image_dimensions(qb_interpreter_context *cxt, g
 }
 
 static void ZEND_FASTCALL qb_set_image_linear_size(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
-	qb_address *length_address = address->array_size_address;
+	qb_address *length_address = address->dimension_addresses[0];
 	uint32_t pixel_count = image->sx * image->sy;
 	uint32_t length_expected = VALUE(U32, length_address);
 	if(length_expected != pixel_count) {
