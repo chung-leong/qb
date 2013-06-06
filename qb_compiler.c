@@ -1720,55 +1720,53 @@ static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address 
 			variable_address->flags |= QB_ADDRESS_INITIALIZED;
 		}
 
-		if(cxt->pbj_ops) {
-			// keep this code until the PBJ translator is updated to do two-stage translation
-			if((value_address->flags & QB_ADDRESS_TEMPORARY) && !(value_address->flags & QB_ADDRESS_REUSED)) {
-				qb_op *prev_qop = cxt->ops[cxt->op_count - 1];
-				if(prev_qop->operand_count > 0 && prev_qop->operands[prev_qop->operand_count - 1].address == value_address) {
-					// the previous op probably created the value and placed it into the temp var
-					// double check just to be sure
-					uint32_t operand_flags;
-					switch(prev_qop->opcode) {
-						case QB_FCALL_VAR:
-						case QB_FCALL_MIX:
-							// function calls employ variable number of operands so qb_get_operand_flags() 
-							// won't tell us anything; we do know that the last operand is the return value
-							operand_flags = QB_OPERAND_WRITABLE;
-							break;
-						default:
-							operand_flags = qb_get_operand_flags(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
-					}
-					if(operand_flags & QB_OPERAND_WRITABLE) {
-						// we can probably let the previous op write into the variable instead of putting 
-						// the value into the temp var first
-						int32_t substitute = FALSE;
-						if(STORAGE_TYPE_MATCH(value_address->type, variable_address->type)) {
-							// okay, the storage types do match (i.e. they are the same or differ only by signedness)
-							// if the op can is capable of performing the same wrap-around behavior that the MOV
-							// instruction performs, then a substituion can always occur
-							uint32_t op_flags = qb_get_op_flags(cxt, prev_qop->opcode);
-							if(op_flags & QB_OP_PERFORM_WRAP_AROUND) {
-								substitute = TRUE;
-							} else {
-								// in absence of wrap-around handling, the sizes of the two must match
-								if(IS_SCALAR(value_address)) {
-									if(IS_SCALAR(variable_address)) {
-										// both are scalars
-										substitute = TRUE;
-									} 
-								} else if(!IS_SCALAR(variable_address)) {
-									// both are arrays--check their sizes
-									if(IS_FIXED_LENGTH_ARRAY(value_address) && IS_FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
-										substitute = TRUE;
-									}
+		// FIXME: do away with this code
+		if((value_address->flags & QB_ADDRESS_TEMPORARY) && !(value_address->flags & QB_ADDRESS_REUSED)) {
+			qb_op *prev_qop = cxt->ops[cxt->op_count - 1];
+			if(prev_qop->operand_count > 0 && prev_qop->operands[prev_qop->operand_count - 1].address == value_address) {
+				// the previous op probably created the value and placed it into the temp var
+				// double check just to be sure
+				uint32_t operand_flags;
+				switch(prev_qop->opcode) {
+					case QB_FCALL_VAR:
+					case QB_FCALL_MIX:
+						// function calls employ variable number of operands so qb_get_operand_flags() 
+						// won't tell us anything; we do know that the last operand is the return value
+						operand_flags = QB_OPERAND_WRITABLE;
+						break;
+					default:
+						operand_flags = qb_get_operand_flags(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
+				}
+				if(operand_flags & QB_OPERAND_WRITABLE) {
+					// we can probably let the previous op write into the variable instead of putting 
+					// the value into the temp var first
+					int32_t substitute = FALSE;
+					if(STORAGE_TYPE_MATCH(value_address->type, variable_address->type)) {
+						// okay, the storage types do match (i.e. they are the same or differ only by signedness)
+						// if the op can is capable of performing the same wrap-around behavior that the MOV
+						// instruction performs, then a substituion can always occur
+						uint32_t op_flags = qb_get_op_flags(cxt, prev_qop->opcode);
+						if(op_flags & QB_OP_PERFORM_WRAP_AROUND) {
+							substitute = TRUE;
+						} else {
+							// in absence of wrap-around handling, the sizes of the two must match
+							if(IS_SCALAR(value_address)) {
+								if(IS_SCALAR(variable_address)) {
+									// both are scalars
+									substitute = TRUE;
+								} 
+							} else if(!IS_SCALAR(variable_address)) {
+								// both are arrays--check their sizes
+								if(IS_FIXED_LENGTH_ARRAY(value_address) && IS_FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
+									substitute = TRUE;
 								}
 							}
-						} 
-						if(substitute) {
-							prev_qop->operands[prev_qop->operand_count - 1].address = variable_address;
-							qb_mark_as_writable(cxt, variable_address);
-							return;
 						}
+					} 
+					if(substitute) {
+						prev_qop->operands[prev_qop->operand_count - 1].address = variable_address;
+						qb_mark_as_writable(cxt, variable_address);
+						return;
 					}
 				}
 			}

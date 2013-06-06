@@ -2600,6 +2600,13 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 		}
 		cxt->zend_function_being_called = NULL;
 	}
+	if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		for(i = 0; i < argument_count; i++) {
+			if(arguments[i].type == QB_OPERAND_RESULT_PROTOTYPE) {
+				arguments[i].result_prototype->parent = result_prototype;
+			}
+		}
+	}
 }
 
 static void ZEND_FASTCALL qb_translate_function_call_by_name(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
