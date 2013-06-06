@@ -2408,7 +2408,7 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 	qb_operand *name = &operands[0], *object = &operands[1];
 	qb_intrinsic_function *ifunc;
 	qb_operand arguments[256], **stack_pointer;
-	uint32_t argument_count, i;
+	uint32_t argument_count, i, j;
 
 	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
 		qb_abort("Function name is not a literal string");
@@ -2600,10 +2600,21 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 		}
 		cxt->zend_function_being_called = NULL;
 	}
-	if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		for(i = 0; i < argument_count; i++) {
-			if(arguments[i].type == QB_OPERAND_RESULT_PROTOTYPE) {
-				arguments[i].result_prototype->parent = result_prototype;
+			qb_operand *argument = &arguments[i];
+			if(argument->type == QB_OPERAND_RESULT_PROTOTYPE) {
+				for(j = 0; j < cxt->temp_variable_count; j++) {
+					qb_temporary_variable *temp_variable = &cxt->temp_variables[j];
+					if(temp_variable->operand.type == QB_OPERAND_RESULT_PROTOTYPE) {
+						if(temp_variable->operand.result_prototype == argument->result_prototype) {
+							temp_variable->last_access_op_index = cxt->zend_op_index;
+						}
+					}
+				}
+				if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
+					arguments[i].result_prototype->parent = result_prototype;
+				}
 			}
 		}
 	}
