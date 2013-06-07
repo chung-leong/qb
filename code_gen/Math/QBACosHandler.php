@@ -3,9 +3,10 @@
 class QBACosHandler extends QBHandler {
 
 	protected function getScalarExpression() {
+		$type = $this->getOperandType($this->srcCount + 1);
 		$cType = $this->getOperandCType($this->srcCount + 1);
-		return "res = ($cType) acos(op1);";
-
+		$f = ($type == 'F32') ? 'f' : '';
+		return "res = ($cType) acos$f(op1);";
 	}
 }
 

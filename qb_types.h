@@ -334,7 +334,20 @@ uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, i
 	#define FP_MANTISSA_INDEX	1
 #endif
 
+#define FAST_FLOAT_TO_INT
+
 static zend_always_inline int32_t qb_clamp_float32_0_255(float32_t f) {
+#ifdef FAST_FLOAT_TO_INT
+	int32_t n = (int32_t) (f * 255);
+	if(UNEXPECTED((uint32_t) n > 255)) {
+		if(n < 0) {
+			n = 0;
+		} else {
+			n = 255;
+		}
+	}
+	return n;
+#else
 	int32_t n, sig, mask1, mask2;
 	f++;
 	n = ((int32_t *) &f)[0];
@@ -342,9 +355,21 @@ static zend_always_inline int32_t qb_clamp_float32_0_255(float32_t f) {
 	mask1 = -(n >= 0x40000000);
 	mask2 = -(n >= 0x3F800000) & 0xFF;
 	return (sig | mask1) & mask2;
+#endif
 }
 
 static zend_always_inline int32_t qb_clamp_float64_0_255(float64_t f) {
+#ifdef FAST_FLOAT_TO_INT
+	int32_t n = (int32_t) (f * 255);
+	if(UNEXPECTED((uint32_t) n > 255)) {
+		if(n < 0) {
+			n = 0;
+		} else {
+			n = 255;
+		}
+	}
+	return n;
+#else
 	int32_t n, sig, mask1, mask2;
 	f++;
 	n = ((int32_t *) &f)[FP_EXPONENT_INDEX];
@@ -352,9 +377,21 @@ static zend_always_inline int32_t qb_clamp_float64_0_255(float64_t f) {
 	mask1 = -(n >= 0x40000000);
 	mask2 = -(n >= 0x3FF00000) & 0xFF;
 	return (sig | mask1) & mask2;
+#endif
 }
 
 static zend_always_inline int32_t qb_clamp_float32_0_127(float32_t f) {
+#ifdef FAST_FLOAT_TO_INT
+	int32_t n = (int32_t) (f * 127);
+	if(UNEXPECTED((uint32_t) n > 127)) {
+		if(n < 0) {
+			n = 0;
+		} else {
+			n = 127;
+		}
+	}
+	return n;
+#else
 	int32_t n, sig, mask1, mask2;
 	f++;
 	n = ((int32_t *) &f)[0];
@@ -362,9 +399,21 @@ static zend_always_inline int32_t qb_clamp_float32_0_127(float32_t f) {
 	mask1 = -(n >= 0x40000000);
 	mask2 = -(n >= 0x3F800000) & 0x7F;
 	return (sig | mask1) & mask2;
+#endif
 }
 
 static zend_always_inline int32_t qb_clamp_float64_0_127(float64_t f) {
+#ifdef FAST_FLOAT_TO_INT
+	int32_t n = (int32_t) (f * 127);
+	if(UNEXPECTED((uint32_t) n > 127)) {
+		if(n < 0) {
+			n = 0;
+		} else {
+			n = 127;
+		}
+	}
+	return n;
+#else
 	int32_t n, sig, mask1, mask2;
 	f++;
 	n = ((int32_t *) &f)[FP_EXPONENT_INDEX];
@@ -372,9 +421,13 @@ static zend_always_inline int32_t qb_clamp_float64_0_127(float64_t f) {
 	mask1 = -(n >= 0x40000000);
 	mask2 = -(n >= 0x3FF00000) & 0x7F;
 	return (sig | mask1) & mask2;
+#endif
 }
 
 static zend_always_inline int32_t qb_quick_floor(double f) {
+#ifdef FAST_FLOAT_TO_INT
+	return (int32_t) f;
+#else
 	int32_t n;
 	if(f < INT16_MIN) {
 		return INT16_MIN;
@@ -384,9 +437,13 @@ static zend_always_inline int32_t qb_quick_floor(double f) {
 	f += 103079215104.0;
 	n = ((long *) &f)[FP_MANTISSA_INDEX];
 	return n >> 16;
+#endif
 }
 
 static zend_always_inline int32_t qb_quick_round(double f) {
+#ifdef FAST_FLOAT_TO_INT
+	return (int32_t) (f + 0.5);
+#else
 	int32_t n;
 	if(f < INT16_MIN) {
 		return INT16_MIN;
@@ -396,6 +453,7 @@ static zend_always_inline int32_t qb_quick_round(double f) {
 	f += 103079215104.5;
 	n = ((long *) &f)[FP_MANTISSA_INDEX];
 	return n >> 16;
+#endif
 }
 
 #pragma pack(push,1)

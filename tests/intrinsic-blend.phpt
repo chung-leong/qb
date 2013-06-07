@@ -37,7 +37,7 @@ function blend2(&$dst, $image1, $image2) {
  * @param image	$img1;
  * @return float32
  */
-function image_diff($img1, $img2) {
+function _image_diff($img1, $img2) {
 	$img2 -= $img1;
 	return abs(array_sum($img2));;
 }
@@ -73,7 +73,7 @@ for($i = 1; $i <= 2; $i++) {
 			// exact match
 			$match = true;
 		} else {
-			$diff = image_diff($output, $correct_output);
+			$diff = _image_diff($image, $correct_output);
 			if(abs($diff) < 0.05) {
 				// the output is different ever so slightly
 				$match = true;

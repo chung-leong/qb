@@ -3,8 +3,10 @@
 class QBLog1PHandler extends QBHandler {
 
 	protected function getScalarExpression() {
+		$type = $this->getOperandType($this->srcCount + 1);
 		$cType = $this->getOperandCType($this->srcCount + 1);
-		return "res = ($cType) log1p(op1);";
+		$f = ($type == 'F32') ? 'f' : '';
+		return "res = log1p$f(op1);";
 
 	}
 }

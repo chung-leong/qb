@@ -3,8 +3,10 @@
 class QBDegreeToRadianHandler extends QBHandler {
 
 	protected function getScalarExpression() {
-		$cType = $this->getOperandCType(2);
-		return "res = ($cType) ((op1 / 180.0) * M_PI);";
+		$type = $this->getOperandType($this->srcCount + 1);
+		$cType = $this->getOperandCType($this->srcCount + 1);
+		$f = ($type == 'F32') ? 'f' : '';
+		return "res = op1 * (($cType) (M_PI / 180.0));";
 	}
 }
 
