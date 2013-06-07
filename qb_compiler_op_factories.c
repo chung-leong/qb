@@ -1810,6 +1810,13 @@ static qb_matrix_op_factory factory_determinant = {
 	0,
 };
 
+static qb_float_op_factory factory_alpha_blend = {
+	qb_append_binary_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
+	{	QB_BLEND_F64_F64_F64,		QB_BLEND_F32_F32_F32,	},
+};
+
 static qb_op * ZEND_FASTCALL qb_append_utf8_decode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = result->address;

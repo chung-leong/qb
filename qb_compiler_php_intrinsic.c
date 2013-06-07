@@ -271,6 +271,35 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_blend(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *address1 = arguments[0].address;
+		qb_address *address2 = arguments[1].address;
+		uint32_t vector_width1 = qb_get_vector_width(cxt, address1);
+		uint32_t vector_width2 = qb_get_vector_width(cxt, address2);
+
+		if((address1->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address1))
+		|| (address2->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address2))) {
+			qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
+		}
+		if(vector_width1 != 4 || vector_width2 != 4) {
+			qb_abort("%s() only accepts four-channel pixels", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
+			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_complex(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
@@ -1247,6 +1276,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"inverse",				qb_translate_intrinsic_unary_matrix_op,		1,		1,		&factory_inverse			},
 	{	0,	"sample_nearest",		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_nearest		},
 	{	0,	"sample_bilinear",		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_bilinear	},
+	{	0,	"blend",				qb_translate_intrinsic_blend,				2,		2,		&factory_alpha_blend		},
 	{	0,	"array_pop",			qb_translate_intrinsic_array_pop,			1,		1,		NULL						},
 	{	0,	"array_shift",			qb_translate_intrinsic_array_shift,			1,		1,		NULL						},
 	{	0,	"array_push",			qb_translate_intrinsic_array_push,			2,		2,		NULL						},
