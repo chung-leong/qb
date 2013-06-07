@@ -47,7 +47,7 @@ if(file_exists($correct_path)) {
 			unlink($incorrect_path);
 		}
 	} else {
-		echo "INCORRECT\n";
+		echo "INCORRECT (diff = $diff)\n";
 		file_put_contents($incorrect_path, $output_png);
 	}
 } else {
