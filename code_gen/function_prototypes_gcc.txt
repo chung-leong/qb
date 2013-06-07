@@ -1,4 +1,3 @@
-float fabsf(float x);
 float sinf(float x);
 float asinf(float x);
 float cosf(float x);

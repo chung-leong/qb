@@ -271,8 +271,10 @@ class QBCodeGenerator {
 				}
 			}
 			$folder = dirname(__FILE__);
-			$list = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-			foreach($list as $line) {
+			$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+			$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+			$lines = array_filter(array_merge($common, $compilerSpecific));
+			foreach($lines as $line) {
 				$decl = $this->parseFunctionDeclaration($line);
 				$functionDecls[$decl->name] = $decl;
 			}						
@@ -284,7 +286,15 @@ class QBCodeGenerator {
 			$index = 0;
 			foreach($functionDecls as $decl) {
 				$parameterDecls = implode(", ", $decl->parameterDecls);
-				$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
+				if($decl->inline) {
+					$prototypes[] = "inline $decl->returnType $decl->name($parameterDecls) {$decl->body}";
+				} else {
+					if($decl->fastcall) {
+						$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
+					} else {
+						$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
+					}
+				}
 				$prototypeIndices[$decl->name] = $index++;
 			}
 			
@@ -299,8 +309,6 @@ class QBCodeGenerator {
 							$index = $prototypeIndices[$name];
 							if($index !== null) {
 								$indices[] = $index;
-							} else {
-								throw new Exception("Missing function prototype for $name");
 							}
 						}
 					}
@@ -349,36 +357,22 @@ class QBCodeGenerator {
 			}
 			// add other functions 
 			$folder = dirname(__FILE__);			
-			$list = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-			foreach($list as $line) {
+			$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+			$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+			$intrinsic = file(($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+			$lines = array_filter(array_merge($common, $compilerSpecific, $intrinsic));
+			foreach($lines as $line) {
 				$decl = $this->parseFunctionDeclaration($line);
 				if($decl) {
 					$functionDecls[$decl->name] = $decl;
 				}
 			}
-			$compilerSpecificPath = ($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt";
-			$list = file($compilerSpecificPath, FILE_IGNORE_NEW_LINES);
-			foreach($list as $line) {
-				$decl = $this->parseFunctionDeclaration($line);
-				if($decl) {
-					$functionDecls[$decl->name] = $decl;
-				}
-			}
-			$intrinsicPath = ($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt";
-			$intrinsics = file($intrinsicPath, FILE_IGNORE_NEW_LINES);
-			foreach($intrinsics as $line) {
-				$decl = $this->parseFunctionDeclaration($line);
-				if($decl) {
-					$functionDecls[$decl->name] = $decl;
-				}
-			}
-			print_r($intrinsics);
-			ksort($functionDecls);		
-			
+			ksort($functionDecls);
+						
 			// print out wrappers
 			$wrappers = array();
 			foreach($functionDecls as $decl) {
-				$needWrapper = ($decl->fastcall || $decl->static);
+				$needWrapper = ($decl->static);
 				if($compiler == "MSVC") {
 					if($decl->name == "floor") {
 						$needWrapper = true;
@@ -390,7 +384,7 @@ class QBCodeGenerator {
 					$fcall = "{$decl->name}($parameters)";
 					$wrapper = "{$decl->name}_wrapper";
 					$wrappers[$decl->name] = $wrapper;
-					fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
+					fwrite($handle, "{$decl->returnType} ZEND_FASTCALL $wrapper($parameterDecls) {\n");
 					if($decl->returnType != 'void') {
 						fwrite($handle, "	return $fcall;\n");
 					} else {
@@ -416,7 +410,7 @@ class QBCodeGenerator {
 			}
 			
 			// print out prototypes of intrinsics
-			foreach($intrinsics as $line) {
+			foreach($intrinsic as $line) {
 				fwrite($handle, "$line\n");
 			}
 			fwrite($handle, "\n");
@@ -447,7 +441,7 @@ class QBCodeGenerator {
 	}
 
 	protected function parseFunctionDeclaration($line) {
-		if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)\s*[{;]\s*$/', $line, $m)) {
+		if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)\s*[{;]/', $line, $m)) {
 			$name = $m[2];
 			$wrapper = array();
 			$returnType = $m[1]; 
@@ -466,6 +460,15 @@ class QBCodeGenerator {
 			}
 			$func = new stdClass;
 			$func->name = $name;
+			if(preg_match('/\binline\b/', $returnType)) {
+				$returnType = preg_replace('/\binline\b/', "", $returnType);
+				$func->inline = true;
+				if(preg_match('/{(.*)}/', $line, $m)) {
+					$func->body = $m[1];
+				}
+			} else {
+				$func->inline = false;
+			}
 			if(preg_match('/\bstatic\b/', $returnType)) {
 				$returnType = preg_replace('/\bstatic\b/', "", $returnType);
 				$func->static = true;

@@ -53,12 +53,20 @@ $handle = fopen("$targetFolder/qb_opcodes.h", "w");
 fwrite($handle, $copyright);
 $generator->generate($handle, 'GCC', 'CODES');
 
-echo "Creating qb_data_tables.c\n";
-$handle = fopen("$targetFolder/qb_data_tables.c", "w");
+echo "Creating qb_data_tables_gcc.c\n";
+$handle = fopen("$targetFolder/qb_data_tables_gcc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'GCC', 'FLAGS');
 $generator->generate($handle, 'GCC', 'NAMES');
 $generator->generate($handle, 'GCC', 'NATIVE CODE');
+
+echo "Creating qb_data_tables_msvc.c\n";
+$handle = fopen("$targetFolder/qb_data_tables_msvc.c", "w");
+fwrite($handle, $copyright);
+fwrite($handle, "#include \"qb.h\"\n\n");
+$generator->generate($handle, 'MSVC', 'FLAGS');
+$generator->generate($handle, 'MSVC', 'NAMES');
+$generator->generate($handle, 'MSVC', 'NATIVE CODE');
 
 ?>
