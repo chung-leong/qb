@@ -356,16 +356,24 @@ class QBCodeGenerator {
 					$functionDecls[$decl->name] = $decl;
 				}
 			}
-			if($compiler == "MSVC") {
-				$list = file("$folder/function_prototypes_msvc.txt", FILE_IGNORE_NEW_LINES);
-				foreach($list as $line) {
-					$decl = $this->parseFunctionDeclaration($line);
-					if($decl) {
-						$functionDecls[$decl->name] = $decl;
-					}
+			$compilerSpecificPath = ($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt";
+			$list = file($compilerSpecificPath, FILE_IGNORE_NEW_LINES);
+			foreach($list as $line) {
+				$decl = $this->parseFunctionDeclaration($line);
+				if($decl) {
+					$functionDecls[$decl->name] = $decl;
 				}
 			}
-			ksort($functionDecls);
+			$intrinsicPath = ($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt";
+			$intrinsics = file($intrinsicPath, FILE_IGNORE_NEW_LINES);
+			foreach($intrinsics as $line) {
+				$decl = $this->parseFunctionDeclaration($line);
+				if($decl) {
+					$functionDecls[$decl->name] = $decl;
+				}
+			}
+			print_r($intrinsics);
+			ksort($functionDecls);		
 			
 			// print out wrappers
 			$wrappers = array();
@@ -406,6 +414,12 @@ class QBCodeGenerator {
 					}
 				}
 			}
+			
+			// print out prototypes of intrinsics
+			foreach($intrinsics as $line) {
+				fwrite($handle, "$line\n");
+			}
+			fwrite($handle, "\n");
 			
 			fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
 			foreach($functionDecls as $name => $decl) {

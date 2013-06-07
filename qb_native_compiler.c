@@ -123,7 +123,6 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 #endif
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
-		args[argc++] = "-fno-builtin";								// disable intrinsic functions (for the time being)
 #ifdef __LP64__
 		args[argc++] = "-mcmodel=large";							// use large memory model, since qb extension could be anywhere in the address space
 #endif
@@ -1571,7 +1570,8 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name);
 			if(!symbol_address) {
-				qb_abort("Missing symbol: %s\n", symbol_name);
+				//qb_abort("Missing symbol: %s\n", symbol_name);
+				zend_printf("%s\n", symbol_name);
 			}
 		} else {
 			return FALSE;
