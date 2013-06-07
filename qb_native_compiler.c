@@ -114,7 +114,7 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 		}
 		args[argc++] = "-c";
 		args[argc++] = "-O2";										// optimization level
-#ifndef __APPLE__
+#ifdef HAVE_GCC_MARCH_NATIVE
 		args[argc++] = "-march=native";								// optimize for current CPU
 #endif
 		args[argc++] = "-pipe";										// use pipes for internal communication

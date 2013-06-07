@@ -36,6 +36,11 @@ if test "$PHP_QB" != "no"; then
     fi
   fi
 
+  `echo "" | $CC -fsyntax-only -march=native -xc -`
+  if [[ $? -eq 0 ]]; then
+    AC_DEFINE(HAVE_GCC_MARCH_NATIVE,1,[ ])
+  fi  
+
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
   *darwin*)
