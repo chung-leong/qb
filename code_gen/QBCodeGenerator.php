@@ -260,11 +260,13 @@ class QBCodeGenerator {
 				if($functions) {
 					foreach($functions as $lines) {
 						$line1 = $lines[0];
-						if(!isset($processed[$line1])) {
-							$decl = $this->parseFunctionDeclaration($line1);
-							if($decl) {
-								$functionDecls[$decl->name] = $decl;
-								$processed[$line1] = true;
+						if(!preg_match('/\bzend_always_inline\b/', $line1)) {
+							if(!isset($processed[$line1])) {
+								$decl = $this->parseFunctionDeclaration($line1);
+								if($decl) {
+									$functionDecls[$decl->name] = $decl;
+									$processed[$line1] = true;
+								}
 							}
 						}
 					}
@@ -345,11 +347,13 @@ class QBCodeGenerator {
 				if($functions) {
 					foreach($functions as $lines) {
 						$line1 = $lines[0];
-						if(!isset($processed[$line1])) {
-							$decl = $this->parseFunctionDeclaration($line1);
-							if($decl) {
-								$functionDecls[$decl->name] = $decl;
-								$processed[$line1] = true;
+						if(!preg_match('/\bzend_always_inline\b/', $line1)) {
+							if(!isset($processed[$line1])) {
+								$decl = $this->parseFunctionDeclaration($line1);
+								if($decl) {
+									$functionDecls[$decl->name] = $decl;
+									$processed[$line1] = true;
+								}
 							}
 						}
 					}
@@ -417,12 +421,14 @@ class QBCodeGenerator {
 			
 			fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
 			foreach($functionDecls as $name => $decl) {
-				if(isset($wrappers[$decl->name])) {
-					$symbol = $wrappers[$decl->name];
-				} else {
-					$symbol = $name;
+				if(!$decl->inline) {
+					if(isset($wrappers[$decl->name])) {
+						$symbol = $wrappers[$decl->name];
+					} else {
+						$symbol = $name;
+					}
+					fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
 				}
-				fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
 			}
 			fwrite($handle, "};\n\n");
 			fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n\n");
@@ -460,11 +466,14 @@ class QBCodeGenerator {
 			}
 			$func = new stdClass;
 			$func->name = $name;
-			if(preg_match('/\binline\b/', $returnType)) {
-				$returnType = preg_replace('/\binline\b/', "", $returnType);
+			if(preg_match('/\bzend_always_inline\b/', $returnType)) {
+				$returnType = preg_replace('/\bzend_always_inline\b/', "", $returnType);
 				$func->inline = true;
 				if(preg_match('/{(.*)}/', $line, $m)) {
 					$func->body = $m[1];
+				} else {
+					echo "$line\n";
+					die();
 				}
 			} else {
 				$func->inline = false;

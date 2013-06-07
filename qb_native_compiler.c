@@ -468,7 +468,7 @@ typedef struct qb_native_proc_record {\
 	qb_print(cxt, "\n");
 }
 
-#define PROTOTYPE_COUNT		400
+#define PROTOTYPE_COUNT		500
 
 static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;

@@ -4,31 +4,31 @@ unsigned __int64 _byteswap_uint64(unsigned __int64 _Int64);
 void _ftol2(void);
 void _allshr(void);
 void _allshl(void);
-inline float sinf(float x) { return (float) sin(x); }
-inline float asinf(float x) { return (float) asin(x); }
-inline float cosf(float x) { return (float) cos(x); }
-inline float acosf(float x) { return (float) acos(x); }
-inline float tanf(float x) { return (float) tan(x); }
-inline float atanf(float x) { return (float) atan(x); }
-inline float atan2f(float x, float y) { return (float) atan2(x, y); }
-inline float sinhf(float x) { return (float) sinh(x); }
-inline float asinhf(float x) { return (float) asinh(x); }
-inline float coshf(float x) { return (float) cosh(x); }
-inline float acoshf(float x) { return (float) acosh(x); }
-inline float tanhf(float x) { return (float) tanh(x); }
-inline float atanhf(float x) { return (float) atanh(x); }
-inline float expf(float x) { return (float) exp(x); }
-inline float expm1f(float x) { return (float) expm1(x); }
-inline float exp2f(float x) { return (float) exp2(x); }
-inline float logf(float x) { return (float) log(x); }
-inline float log1pf(float x) { return (float) log1p(x); }
-inline float log10f(float x) { return (float) log10(x); }
-inline float log2f(float x) { return (float) log2(x); }
-inline float powf(float x, float y) { return (float) pow(x, y); }
-inline float sqrtf(float x) { return (float) sqrt(x); }
-inline float roundf(float x) { return (float) round(x); }
-inline float ceilf(float x) { return (float) ceil(x); }
-inline float floorf(float x) { return (float) floor(x); }
-inline float fabsf(float x) { return (float) fabs(x); }
-inline float hypotf(float x, float y) { return (float) hypot(x, y); }
-inline float fmodf(float n, float d) { return (float) fmod(n, d); }
+zend_always_inline float sinf(float x) { return (float) sin(x); }
+zend_always_inline float asinf(float x) { return (float) asin(x); }
+zend_always_inline float cosf(float x) { return (float) cos(x); }
+zend_always_inline float acosf(float x) { return (float) acos(x); }
+zend_always_inline float tanf(float x) { return (float) tan(x); }
+zend_always_inline float atanf(float x) { return (float) atan(x); }
+zend_always_inline float atan2f(float x, float y) { return (float) atan2(x, y); }
+zend_always_inline float sinhf(float x) { return (float) sinh(x); }
+zend_always_inline float asinhf(float x) { return (float) asinh(x); }
+zend_always_inline float coshf(float x) { return (float) cosh(x); }
+zend_always_inline float acoshf(float x) { return (float) acosh(x); }
+zend_always_inline float tanhf(float x) { return (float) tanh(x); }
+zend_always_inline float atanhf(float x) { return (float) atanh(x); }
+zend_always_inline float expf(float x) { return (float) exp(x); }
+zend_always_inline float expm1f(float x) { return (float) expm1(x); }
+zend_always_inline float exp2f(float x) { return (float) exp2(x); }
+zend_always_inline float logf(float x) { return (float) log(x); }
+zend_always_inline float log1pf(float x) { return (float) log1p(x); }
+zend_always_inline float log10f(float x) { return (float) log10(x); }
+zend_always_inline float log2f(float x) { return (float) log2(x); }
+zend_always_inline float powf(float x, float y) { return (float) pow(x, y); }
+zend_always_inline float sqrtf(float x) { return (float) sqrt(x); }
+zend_always_inline float roundf(float x) { return (float) round(x); }
+zend_always_inline float ceilf(float x) { return (float) ceil(x); }
+zend_always_inline float floorf(float x) { return (float) floor(x); }
+zend_always_inline float fabsf(float x) { return (float) fabs(x); }
+zend_always_inline float hypotf(float x, float y) { return (float) hypot(x, y); }
+zend_always_inline float fmodf(float n, float d) { return (float) fmod(n, d); }

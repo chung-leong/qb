@@ -9,7 +9,7 @@ class QBComplexSquareRootHandler extends QBComplexNumberHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_sqrt_$type(qb_complex_$type *z, qb_complex_$type *res) {",
-					"$cType s = (z->i > 0 ? 1 : ((z->i < 0 ? -1 : 0)));",
+					"$cType s = (z->i > 0 ? 1.0$f : ((z->i < 0 ? -1.0$f : 0.0$f)));",
 					"$cType w = sqrt$f(z->r * z->r + z->i * z->i);",
 					"$cType r = sqrt$f(0.5$f * (z->r + w));",
 					"$cType i = (s) ? s * sqrt$f(0.5$f * (-z->r + w)) : 0;",

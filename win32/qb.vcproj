@@ -805,7 +805,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\qb_data_tables.c"
+				RelativePath="..\qb_data_tables_msvc.c"
 				>
 			</File>
 			<File

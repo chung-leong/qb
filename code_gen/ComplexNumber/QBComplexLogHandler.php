@@ -9,9 +9,9 @@ class QBComplexLogHandler extends QBComplexNumberHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_log_$type(qb_complex_$type *z, qb_complex_$type *res) {",
-					"$cType w = sqrt(z->r * z->r + z->i * z->i);",
-					"$cType r = log(w);",
-					"$cType i = atan2(z->i, z->r);",
+					"$cType w = sqrt$f(z->r * z->r + z->i * z->i);",
+					"$cType r = log$f(w);",
+					"$cType i = atan2$f(z->i, z->r);",
 					"res->r = r; res->i = i;",
 				"}",
 			),

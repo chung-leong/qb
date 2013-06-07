@@ -9,8 +9,8 @@ class QBComplexCoshHandler extends QBComplexNumberHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_cosh_$type(qb_complex_$type *z, qb_complex_$type *res) {",
-					"$cType r = cosh(z->r) * cos(z->i);",
-					"$cType i = sinh(z->r) * sin(z->i);",
+					"$cType r = cosh$f(z->r) * cos$f(z->i);",
+					"$cType i = sinh$f(z->r) * sin$f(z->i);",
 					"res->r = r; res->i = i;",
 				"}",
 			),

@@ -9,9 +9,9 @@ class QBComplexExpHandler extends QBComplexNumberHandler {
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_calculate_complex_exp_$type(qb_complex_$type *z, qb_complex_$type *res) {",
-					"$cType w = exp(z->r);",
-					"$cType r = w * cos(z->i);",
-					"$cType i = w * sin(z->i);",
+					"$cType w = exp$f(z->r);",
+					"$cType r = w * cos$f(z->i);",
+					"$cType i = w * sin$f(z->i);",
 					"res->r = r; res->i = i;",
 				"}",
 			),
