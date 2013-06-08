@@ -432,7 +432,7 @@ static zend_always_inline int32_t qb_clamp_float64_0_127(float64_t f) {
 
 static zend_always_inline int32_t qb_quick_floor(double f) {
 #ifdef FAST_FLOAT_TO_INT
-	return f;
+	return (int32_t) f;
 #else
 	int32_t n;
 	if(f < INT16_MIN) {
@@ -448,7 +448,7 @@ static zend_always_inline int32_t qb_quick_floor(double f) {
 
 static zend_always_inline int32_t qb_quick_round(double f) {
 #ifdef FAST_FLOAT_TO_INT
-	return round(f);
+	return (int32_t) round(f);
 #else
 	int32_t n;
 	if(f < INT16_MIN) {
@@ -464,7 +464,7 @@ static zend_always_inline int32_t qb_quick_round(double f) {
 
 static zend_always_inline int32_t qb_quick_floorf(float f) {
 #ifdef FAST_FLOAT_TO_INT
-	return f;
+	return (int32_t) f;
 #else
 	return qb_quick_floor(f);
 #endif
@@ -472,7 +472,7 @@ static zend_always_inline int32_t qb_quick_floorf(float f) {
 
 static zend_always_inline int32_t qb_quick_roundf(float f) {
 #ifdef FAST_FLOAT_TO_INT
-	return roundf(f);
+	return (int32_t) roundf(f);
 #else
 	return qb_quick_round(f);
 #endif

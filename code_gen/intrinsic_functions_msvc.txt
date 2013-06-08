@@ -1,0 +1,16 @@
+void _CIacos(void);
+void _CIasin(void);
+void _CIatan(void);
+void _CIatan2(void);
+void _CIcos(void);
+void _CIcosh(void);
+void _CIexp(void);
+void _CIfmod(void);
+void _CIlog(void);
+void _CIlog10(void);
+void _CIpow(void);
+void _CIsin(void);
+void _CIsinh(void);
+void _CIsqrt(void);
+void _CItan(void);
+void _CItanh(void);

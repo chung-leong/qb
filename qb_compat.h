@@ -165,6 +165,7 @@ zend_always_inline float log1pf(float x) { return (float) log1p(x); }
 zend_always_inline float asinhf(float x) { return (float) asinh(x); }
 zend_always_inline float acoshf(float x) { return (float) acosh(x); }
 zend_always_inline float atanhf(float x) { return (float) atanh(x); }
+zend_always_inline float roundf(float x) { return (float) round(x); }
 #endif
 
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1

@@ -211,13 +211,17 @@ static int32_t ZEND_FASTCALL qb_launch_cl(qb_native_compiler_context *cxt) {
 	}
 
 	// /O2		maximize speed
-	// /Oi-		disable intrinsic functions
 	// /Oy		enable frame pointer omission
 	// /GS-		disable buffer security check
 	// /GF		enable read-only string pooling
 	// /c		compile without linking
+	// /w		disable all warnings
 	// /nologo	suppress startup banner
-	spprintf(&command_line, 0, "\"%s\" /O2 /Oi- /Oy /GS- /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
+#ifdef ZEND_DEBUG
+	spprintf(&command_line, 0, "\"%s\" /O2 /Oy /GS- /w /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
+#else
+	//spprintf(&command_line, 0, "\"%s\" /O2 /Oy /GS- /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
+#endif
 
 	memset(&si, 0, sizeof(STARTUPINFO));
 	memset(&pi, 0, sizeof(PROCESS_INFORMATION));
@@ -281,6 +285,7 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
 	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
 	qb_print(cxt, "#define ZEND_FASTCALL	"STRING(ZEND_FASTCALL)"\n");
+	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
 
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");
@@ -1321,12 +1326,32 @@ static void ZEND_FASTCALL qb_print_function_records(qb_native_compiler_context *
 }
 
 static void * ZEND_FASTCALL qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
-	long hash_value = zend_get_hash_value(name, strlen(name) + 1);
-	uint32_t i;
+	long hash_value;
+	uint32_t i, name_len;
+	char name_buffer[256];
+	name_len = (uint32_t) strlen(name);
+	if(name_len > sizeof(name_buffer) - 1) {
+		return NULL;
+	}
+	if(name[0] == '_') {
+		name_len--;
+		strncpy(name_buffer, name + 1, name_len);
+#ifdef _MSC_VER
+	} else if(name[0] == '@') {
+		// '@' means fastcall
+		while(name[--name_len] != '@');
+		name_len--;
+		strncpy(name_buffer, name + 1, name_len);
+#endif
+	} else {
+		strncpy(name_buffer, name, name_len);
+	}
+	name_buffer[name_len] = '\0';
+	hash_value = zend_get_hash_value(name_buffer, name_len + 1);
 	for(i = 0; i < global_native_symbol_count; i++) {
 		qb_native_symbol *symbol = &global_native_symbols[i];
 		if(symbol->hash_value == hash_value) {
-			if(strcmp(symbol->name, name) == 0) {
+			if(strcmp(symbol->name, name_buffer) == 0) {
 				return symbol->address;
 			}
 		}
@@ -1571,8 +1596,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name);
 			if(!symbol_address) {
-				//qb_abort("Missing symbol: %s\n", symbol_name);
-				zend_printf("%s\n", symbol_name);
+				qb_abort("Missing symbol: %s\n", symbol_name);
 			}
 		} else {
 			return FALSE;
@@ -1616,7 +1640,9 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					return FALSE;
+					if(!qb_find_symbol(cxt, symbol_name)) {
+						return FALSE;
+					}
 				}
 				count += attached;
 			} else if(symbol_type == STT_OBJECT) {
@@ -1737,7 +1763,9 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					return FALSE;
+					if(!qb_find_symbol(cxt, symbol_name)) {
+						return FALSE;
+					}
 				}
 				count += attached;
 			} else if(symbol_type == STT_OBJECT) {
@@ -1827,7 +1855,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho64(qb_native_compiler_context *cxt) {
 			if(reloc->r_extern) {
 				struct nlist_64 *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
-				symbol_address = qb_find_symbol(cxt, symbol_name + 1);
+				symbol_address = qb_find_symbol(cxt, symbol_name);
 				if(!symbol_address) {
 					qb_abort("Missing symbol: %s\n", symbol_name);
 					return FALSE;
@@ -1949,7 +1977,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 			if(reloc->r_extern) {
 				struct nlist *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
-				symbol_address = qb_find_symbol(cxt, symbol_name + 1);
+				symbol_address = qb_find_symbol(cxt, symbol_name);
 				if(!symbol_address) {
 					qb_abort("Missing symbol: %s\n", symbol_name);
 					return FALSE;
@@ -2038,10 +2066,10 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 				int32_t A, S, P; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
-					symbol_address = qb_find_symbol(cxt, symbol_name + 1);
+					symbol_address = qb_find_symbol(cxt, symbol_name);
 					if(!symbol_address) {
-						qb_abort("Missing symbol: %s\n", symbol_name);
-						return FALSE;
+						//qb_abort("Missing symbol: %s\n", symbol_name);
+						zend_printf("Missing symbol: %s\n", symbol_name);
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)
@@ -2078,7 +2106,9 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					return FALSE;
+					if(!qb_find_symbol(cxt, symbol_name)) {
+						return FALSE;
+					}
 				}
 				count += attached;
 			} else if(symbol->StorageClass == IMAGE_SYM_CLASS_EXTERNAL) {

@@ -289,7 +289,7 @@ class QBCodeGenerator {
 			foreach($functionDecls as $decl) {
 				$parameterDecls = implode(", ", $decl->parameterDecls);
 				if($decl->inline) {
-					$prototypes[] = "inline $decl->returnType $decl->name($parameterDecls) {$decl->body}";
+					$prototypes[] = "static zend_always_inline $decl->returnType $decl->name($parameterDecls) {{$decl->body}}";
 				} else {
 					if($decl->fastcall) {
 						$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
@@ -428,6 +428,10 @@ class QBCodeGenerator {
 						$symbol = $name;
 					}
 					fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
+				} else {
+					// a function body will be generated inside the object file
+					// need to indicate that the symbol is known 
+					fwrite($handle, "	{	0,	\"$name\",	(void*) -1	},\n");
 				}
 			}
 			fwrite($handle, "};\n\n");
