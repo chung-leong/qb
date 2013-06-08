@@ -32,13 +32,14 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
+		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
 				"static void ZEND_FASTCALL qb_sample_bilinear_3x_$type(qb_interpreter_context *__restrict cxt, $cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
-					"int32_t ix = qb_quick_floor(x - 0.5);",
-					"int32_t iy = qb_quick_floor(y - 0.5);",
-					"$cType fx = (x - ($cType) 0.5) - ($cType) ix;",
-					"$cType fy = (y - ($cType) 0.5) - ($cType) iy;",
+					"int32_t ix = qb_quick_floor$f(x - 0.5$f);",
+					"int32_t iy = qb_quick_floor$f(y - 0.5$f);",
+					"$cType fx = (x - 0.5$f) - floor(x - 0.5$f);",
+					"$cType fy = (y - 0.5$f) - floor(y - 0.5$f);",
 					"if(fx == 0 && fy == 0) {",
 						"if(((uint32_t) ix < width) && ((uint32_t) iy < height)) {",
 							"uint32_t index = ((iy * width) + ix) * 3;",
@@ -49,8 +50,8 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 							"res_ptr[0] = res_ptr[1] = res_ptr[2] = 0;",
 						"}",
 					"} else { ",
-						"$cType fx1 = ($cType) 1 - fx;",
-						"$cType fy1 = ($cType) 1 - fy;",
+						"$cType fx1 = 1.0$f - fx;",
+						"$cType fy1 = 1.0$f - fy;",
 						"$cType w00 = fx1 * fy1;",
 						"$cType w10 = fx * fy1;",
 						"$cType w01 = fx1 * fy;",
@@ -68,10 +69,10 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 			),
 			array(
 				"static void ZEND_FASTCALL qb_sample_bilinear_4x_$type(qb_interpreter_context *__restrict cxt, $cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
-					"int32_t ix = qb_quick_floor(x - 0.5);",
-					"int32_t iy = qb_quick_floor(y - 0.5);",
-					"$cType fx = (x - ($cType) 0.5) - ($cType) ix;",
-					"$cType fy = (y - ($cType) 0.5) - ($cType) iy;",
+					"int32_t ix = qb_quick_floor$f(x - 0.5$f);",
+					"int32_t iy = qb_quick_floor$f(y - 0.5$f);",
+					"$cType fx = (x - 0.5$f) - floor(x - 0.5$f);",
+					"$cType fy = (y - 0.5$f) - floor(y - 0.5$f);",
 					"if(fx == 0 && fy == 0) {",
 						"if(((uint32_t) ix < width) && ((uint32_t) iy < height)) {",
 							"uint32_t index = ((iy * width) + ix) * 4;",
@@ -83,8 +84,8 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 							"res_ptr[0] = res_ptr[1] = res_ptr[2] = res_ptr[3] = 0;",
 						"}",
 					"} else { ",
-						"$cType fx1 = ($cType) 1 - fx;",
-						"$cType fy1 = ($cType) 1 - fy;",
+						"$cType fx1 = 1.0$f - fx;",
+						"$cType fy1 = 1.0$f - fy;",
 						"$cType w00 = fx1 * fy1;",
 						"$cType w10 = fx * fy1;",
 						"$cType w01 = fx1 * fy;",
