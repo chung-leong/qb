@@ -146,9 +146,23 @@ static inline unsigned short __builtin_bswap16(unsigned short v) {
 #endif
 
 #ifdef _MSC_VER
-#define hypot		_hypot
-#define hypotf		_hypotf
-#define llabs		_abs64
+	#if _M_IX86_FP == 2 
+		#define __SSE2__		1
+		#define __SSE__			1
+	#elif _M_IX86_FP == 1 
+		#define __SSE__			1
+	#endif
+
+	#if defined(_M_IX86)
+		#define __i386__
+	#elif defined(_M_X64)
+		#define __x86_64__
+	#endif
+
+	#define hypot		_hypot
+	#define hypotf		_hypotf
+	#define llabs		_abs64
+
 double asinh(double z);
 double acosh(double x);
 double atanh(double z);
@@ -486,6 +500,5 @@ typedef struct pcre_extra {
 
 PCRE_EXP_DECL pcre *pcre_compile(const char *, int, const char **, int *, const unsigned char *);
 PCRE_EXP_DECL int  pcre_exec(const pcre *, const pcre_extra *, PCRE_SPTR, int, int, int, int *, int);
-
 
 #endif

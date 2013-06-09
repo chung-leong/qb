@@ -235,7 +235,7 @@ PHP_MINFO_FUNCTION(qb)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "qb support", "enabled");
 
-	php_info_print_table_row(2, "Version", STRING(AV_MAJOR_VERSION) "." STRING(AV_MINOR_VERSION));
+	php_info_print_table_row(2, "Version", STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION));
 	php_info_print_table_row(2, "Release Name", QB_FULL_RELEASE_NAME);
 
 #if __SSE4_2__
