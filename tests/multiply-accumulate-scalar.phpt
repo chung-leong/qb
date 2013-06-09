@@ -21,7 +21,7 @@ function test_function() {
 	$A = 10.5;
 	$B = 5.5;
 	$C = $A + ($A * $B);
-	echo "$Cc\n";
+	echo "$C\n";
 }
 
 qb_compile();

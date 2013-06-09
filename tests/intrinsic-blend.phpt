@@ -73,8 +73,9 @@ for($i = 1; $i <= 2; $i++) {
 			// exact match
 			$match = true;
 		} else {
+			$correct_output = imagecreatefrompng($correct_path);
 			$diff = _image_diff($image, $correct_output);
-			if(abs($diff) < 0.05) {
+			if(abs($diff) < 1) {
 				// the output is different ever so slightly
 				$match = true;
 			} else {
