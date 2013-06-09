@@ -1323,31 +1323,34 @@ static void ZEND_FASTCALL qb_print_function_records(qb_native_compiler_context *
 
 static void * ZEND_FASTCALL qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
 	long hash_value;
-	uint32_t i, name_len;
+	uint32_t i, name_len = strlen(name);
+#if defined(_MSC_VER)
 	char name_buffer[256];
-	name_len = (uint32_t) strlen(name);
 	if(name_len > sizeof(name_buffer) - 1) {
 		return NULL;
 	}
 	if(name[0] == '_') {
 		name_len--;
 		strncpy(name_buffer, name + 1, name_len);
-#ifdef _MSC_VER
 	} else if(name[0] == '@') {
 		// '@' means fastcall
 		while(name[--name_len] != '@');
 		name_len--;
 		strncpy(name_buffer, name + 1, name_len);
-#endif
 	} else {
 		strncpy(name_buffer, name, name_len);
 	}
 	name_buffer[name_len] = '\0';
-	hash_value = zend_get_hash_value(name_buffer, name_len + 1);
+	name = name_buffer;
+#elif defined(__MACH__)
+	name++;
+	name_len--;
+#endif
+	hash_value = zend_get_hash_value(name, name_len + 1);
 	for(i = 0; i < global_native_symbol_count; i++) {
 		qb_native_symbol *symbol = &global_native_symbols[i];
 		if(symbol->hash_value == hash_value) {
-			if(strcmp(symbol->name, name_buffer) == 0) {
+			if(strcmp(symbol->name, name) == 0) {
 				return symbol->address;
 			}
 		}
