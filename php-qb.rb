@@ -10,6 +10,7 @@ class PhpQb < Formula
     system "./configure"
     system "make"
     system "sudo", "make", "install"
+    system "cp", "qb.ini", "#{prefix}/qb.ini"
   end
 
   test do
