@@ -22,9 +22,6 @@
 
 #if NATIVE_COMPILE_ENABLED
 
-#undef QB_VERSION_SIGNATURE
-#define QB_VERSION_SIGNATURE	0x00010000
-
 #ifdef __GNUC__
 	#include <sys/types.h>
 	#include <sys/mman.h>
@@ -45,9 +42,6 @@
 	#include <mach-o/stab.h>
 	#include <mach-o/x86_64/reloc.h>
 #endif
-
-#define MAKE_STRING(x)							#x
-#define STRING(x)								MAKE_STRING(x)
 
 // note: fastcall could cause a variable to fall off the list on OSX
 ZEND_ATTRIBUTE_FORMAT(printf, 2, 3)

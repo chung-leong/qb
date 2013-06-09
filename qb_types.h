@@ -40,6 +40,9 @@ typedef struct qb_block_allocator 		qb_block_allocator;
 typedef enum qb_primitive_type			qb_primitive_type;
 typedef enum qb_address_mode			qb_address_mode;
 
+#define MAKE_STRING(x)					#x
+#define STRING(x)						MAKE_STRING(x)
+
 #define MAX_SEGMENT_COUNT			256
 #define MAX_DIMENSION				64
 

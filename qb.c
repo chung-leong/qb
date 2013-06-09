@@ -61,7 +61,7 @@ zend_module_entry qb_module_entry = {
 	PHP_RSHUTDOWN(qb),	/* Replace with NULL if there's nothing to do at request end */
 	PHP_MINFO(qb),
 #if ZEND_MODULE_API_NO >= 20010901
-	"0.1", /* Replace with version number for your extension */
+	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION), /* Replace with version number for your extension */
 #endif
 	STANDARD_MODULE_PROPERTIES
 };
@@ -235,8 +235,7 @@ PHP_MINFO_FUNCTION(qb)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "qb support", "enabled");
 
-	snprintf(buffer, sizeof(buffer), "%d.%d", (int) QB_MAJOR_VERSION, (int) QB_MINOR_VERSION);
-	php_info_print_table_row(2, "Version", buffer);
+	php_info_print_table_row(2, "Version", STRING(AV_MAJOR_VERSION) "." STRING(AV_MINOR_VERSION));
 	php_info_print_table_row(2, "Release Name", QB_FULL_RELEASE_NAME);
 
 #if __SSE4_2__
