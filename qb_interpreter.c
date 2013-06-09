@@ -606,18 +606,10 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							tpixel = gdImageTrueColorPixel(image, j, i);
-							if(gdTrueColorGetAlpha(tpixel) != gdAlphaTransparent) {
-								elements[offset + 0] = (float32_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-								elements[offset + 1] = (float32_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-								elements[offset + 2] = (float32_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-								elements[offset + 3] = (float32_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-							} else {
-								// transparent pixels are assumed to be black
-								elements[offset + 0] = 
-								elements[offset + 1] =
-								elements[offset + 2] = 
-								elements[offset + 3] = 0;
-							}
+							elements[offset + 0] = (float32_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+							elements[offset + 1] = (float32_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+							elements[offset + 2] = (float32_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+							elements[offset + 3] = (float32_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
 							offset += 4;
 						}
 					}
@@ -641,17 +633,10 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							tpixel = gdImageTrueColorPixel(image, j, i);
-							if(gdTrueColorGetAlpha(tpixel) != gdAlphaTransparent) {
-								elements[offset + 0] = (float64_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-								elements[offset + 1] = (float64_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-								elements[offset + 2] = (float64_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-								elements[offset + 3] = (float64_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-							} else {
-								elements[offset + 0] = 
-								elements[offset + 1] =
-								elements[offset + 2] = 
-								elements[offset + 3] = 0;
-							}
+							elements[offset + 0] = (float64_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+							elements[offset + 1] = (float64_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+							elements[offset + 2] = (float64_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+							elements[offset + 3] = (float64_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
 							offset += 4;
 						}
 					}
