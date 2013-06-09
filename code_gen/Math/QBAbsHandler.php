@@ -8,7 +8,7 @@ class QBAbsHandler extends QBHandler {
 			"S16" => "abs",
 			"S32" => "abs",
 			"S64" => "llabs",
-			"F32" => "fabs",
+			"F32" => "fabsf",
 			"F64" => "fabs",
 		);
 		$type = $this->getOperandType(1);

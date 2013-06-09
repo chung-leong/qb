@@ -1,0 +1,2 @@
+void sincosf(float x, float *sin, float *cos);
+void sincos(double x, double *sin, double *cos);

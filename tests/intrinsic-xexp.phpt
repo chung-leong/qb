@@ -1,5 +1,5 @@
 --TEST--
-Complex number ecponential test
+Complex number exponential test
 --FILE--
 <?php 
 
@@ -29,6 +29,6 @@ qb_compile();
 test_function();
 
 ?>
---EXPECT--
-[-4.829809, -5.592056]
-[[-18.30054, -8.277621], [1.221261E-6, 1.902002E-6], [-13.78089, -30.1118]]
+--EXPECTREGEX--
+\[-4.8298\d+, -5.5920\d+\]
+\[\[-18.3005\d+, -8.2776\d+\], \[1.2212\d+E-6, 1.9020\d+E-6\], \[-13.78\d+, -30.11\d+\]\]

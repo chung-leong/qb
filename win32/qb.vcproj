@@ -805,7 +805,19 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\qb_data_tables.c"
+				RelativePath="..\qb_data_tables_gcc.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_data_tables_msvc.c"
 				>
 			</File>
 			<File

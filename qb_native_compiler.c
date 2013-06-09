@@ -22,9 +22,6 @@
 
 #if NATIVE_COMPILE_ENABLED
 
-#undef QB_VERSION_SIGNATURE
-#define QB_VERSION_SIGNATURE	0x00010000
-
 #ifdef __GNUC__
 	#include <sys/types.h>
 	#include <sys/mman.h>
@@ -45,9 +42,6 @@
 	#include <mach-o/stab.h>
 	#include <mach-o/x86_64/reloc.h>
 #endif
-
-#define MAKE_STRING(x)							#x
-#define STRING(x)								MAKE_STRING(x)
 
 // note: fastcall could cause a variable to fall off the list on OSX
 ZEND_ATTRIBUTE_FORMAT(printf, 2, 3)
@@ -114,7 +108,7 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 		}
 		args[argc++] = "-c";
 		args[argc++] = "-O2";										// optimization level
-#ifndef __APPLE__
+#ifdef HAVE_GCC_MARCH_NATIVE
 		args[argc++] = "-march=native";								// optimize for current CPU
 #endif
 		args[argc++] = "-pipe";										// use pipes for internal communication
@@ -123,7 +117,6 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 #endif
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
-		args[argc++] = "-fno-builtin";								// disable intrinsic functions (for the time being)
 #ifdef __LP64__
 		args[argc++] = "-mcmodel=large";							// use large memory model, since qb extension could be anywhere in the address space
 #endif
@@ -212,13 +205,17 @@ static int32_t ZEND_FASTCALL qb_launch_cl(qb_native_compiler_context *cxt) {
 	}
 
 	// /O2		maximize speed
-	// /Oi-		disable intrinsic functions
 	// /Oy		enable frame pointer omission
 	// /GS-		disable buffer security check
 	// /GF		enable read-only string pooling
 	// /c		compile without linking
+	// /w		disable all warnings
 	// /nologo	suppress startup banner
-	spprintf(&command_line, 0, "\"%s\" /O2 /Oi- /Oy /GS- /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
+#ifdef ZEND_DEBUG
+	spprintf(&command_line, 0, "\"%s\" /O2 /Oy /GS- /w /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
+#else
+	//spprintf(&command_line, 0, "\"%s\" /O2 /Oy /GS- /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
+#endif
 
 	memset(&si, 0, sizeof(STARTUPINFO));
 	memset(&pi, 0, sizeof(PROCESS_INFORMATION));
@@ -281,6 +278,10 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define PRIu64	"STRING(PRIu64)"\n");
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
 	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
+#ifndef _MSC_VER
+	qb_print(cxt, "#define ZEND_FASTCALL	"STRING(ZEND_FASTCALL)"\n");
+#endif
+	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
 
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");
@@ -469,7 +470,7 @@ typedef struct qb_native_proc_record {\
 	qb_print(cxt, "\n");
 }
 
-#define PROTOTYPE_COUNT		400
+#define PROTOTYPE_COUNT		500
 
 static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
@@ -1321,8 +1322,31 @@ static void ZEND_FASTCALL qb_print_function_records(qb_native_compiler_context *
 }
 
 static void * ZEND_FASTCALL qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
-	long hash_value = zend_get_hash_value(name, strlen(name) + 1);
-	uint32_t i;
+	long hash_value;
+	uint32_t i, name_len = strlen(name);
+#if defined(_MSC_VER)
+	char name_buffer[256];
+	if(name_len > sizeof(name_buffer) - 1) {
+		return NULL;
+	}
+	if(name[0] == '_') {
+		name_len--;
+		strncpy(name_buffer, name + 1, name_len);
+	} else if(name[0] == '@') {
+		// '@' means fastcall
+		while(name[--name_len] != '@');
+		name_len--;
+		strncpy(name_buffer, name + 1, name_len);
+	} else {
+		strncpy(name_buffer, name, name_len);
+	}
+	name_buffer[name_len] = '\0';
+	name = name_buffer;
+#elif defined(__MACH__)
+	name++;
+	name_len--;
+#endif
+	hash_value = zend_get_hash_value(name, name_len + 1);
 	for(i = 0; i < global_native_symbol_count; i++) {
 		qb_native_symbol *symbol = &global_native_symbols[i];
 		if(symbol->hash_value == hash_value) {
@@ -1615,7 +1639,9 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					return FALSE;
+					if(!qb_find_symbol(cxt, symbol_name)) {
+						return FALSE;
+					}
 				}
 				count += attached;
 			} else if(symbol_type == STT_OBJECT) {
@@ -1736,7 +1762,9 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					return FALSE;
+					if(!qb_find_symbol(cxt, symbol_name)) {
+						return FALSE;
+					}
 				}
 				count += attached;
 			} else if(symbol_type == STT_OBJECT) {
@@ -1826,7 +1854,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho64(qb_native_compiler_context *cxt) {
 			if(reloc->r_extern) {
 				struct nlist_64 *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
-				symbol_address = qb_find_symbol(cxt, symbol_name + 1);
+				symbol_address = qb_find_symbol(cxt, symbol_name);
 				if(!symbol_address) {
 					qb_abort("Missing symbol: %s\n", symbol_name);
 					return FALSE;
@@ -1948,7 +1976,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 			if(reloc->r_extern) {
 				struct nlist *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
-				symbol_address = qb_find_symbol(cxt, symbol_name + 1);
+				symbol_address = qb_find_symbol(cxt, symbol_name);
 				if(!symbol_address) {
 					qb_abort("Missing symbol: %s\n", symbol_name);
 					return FALSE;
@@ -2037,10 +2065,10 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 				int32_t A, S, P; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
-					symbol_address = qb_find_symbol(cxt, symbol_name + 1);
+					symbol_address = qb_find_symbol(cxt, symbol_name);
 					if(!symbol_address) {
-						qb_abort("Missing symbol: %s\n", symbol_name);
-						return FALSE;
+						//qb_abort("Missing symbol: %s\n", symbol_name);
+						zend_printf("Missing symbol: %s\n", symbol_name);
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)
@@ -2077,7 +2105,9 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					return FALSE;
+					if(!qb_find_symbol(cxt, symbol_name)) {
+						return FALSE;
+					}
 				}
 				count += attached;
 			} else if(symbol->StorageClass == IMAGE_SYM_CLASS_EXTERNAL) {
@@ -2280,7 +2310,9 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	cxt->file_id = 0;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		cxt->file_id ^= compiler_cxt->instruction_crc64;
+		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
+			cxt->file_id ^= compiler_cxt->instruction_crc64;
+		}
 	}
 	spprintf(&cxt->obj_file_path, 0, "%s%cQB%" PRIX64 ".o", cxt->cache_folder_path, PHP_DIR_SEPARATOR, cxt->file_id);
 

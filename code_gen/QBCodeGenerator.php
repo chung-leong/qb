@@ -260,19 +260,23 @@ class QBCodeGenerator {
 				if($functions) {
 					foreach($functions as $lines) {
 						$line1 = $lines[0];
-						if(!isset($processed[$line1])) {
-							$decl = $this->parseFunctionDeclaration($line1);
-							if($decl) {
-								$functionDecls[$decl->name] = $decl;
-								$processed[$line1] = true;
+						if(!preg_match('/\bzend_always_inline\b/', $line1)) {
+							if(!isset($processed[$line1])) {
+								$decl = $this->parseFunctionDeclaration($line1);
+								if($decl) {
+									$functionDecls[$decl->name] = $decl;
+									$processed[$line1] = true;
+								}
 							}
 						}
 					}
 				}
 			}
 			$folder = dirname(__FILE__);
-			$list = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-			foreach($list as $line) {
+			$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+			$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+			$lines = array_filter(array_merge($common, $compilerSpecific));
+			foreach($lines as $line) {
 				$decl = $this->parseFunctionDeclaration($line);
 				$functionDecls[$decl->name] = $decl;
 			}						
@@ -284,7 +288,15 @@ class QBCodeGenerator {
 			$index = 0;
 			foreach($functionDecls as $decl) {
 				$parameterDecls = implode(", ", $decl->parameterDecls);
-				$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
+				if($decl->inline) {
+					$prototypes[] = "static zend_always_inline $decl->returnType $decl->name($parameterDecls) {{$decl->body}}";
+				} else {
+					if($decl->fastcall && $compiler != "MSVC") {
+						$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
+					} else {
+						$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
+					}
+				}
 				$prototypeIndices[$decl->name] = $index++;
 			}
 			
@@ -299,8 +311,6 @@ class QBCodeGenerator {
 							$index = $prototypeIndices[$name];
 							if($index !== null) {
 								$indices[] = $index;
-							} else {
-								throw new Exception("Missing function prototype for $name");
 							}
 						}
 					}
@@ -337,11 +347,13 @@ class QBCodeGenerator {
 				if($functions) {
 					foreach($functions as $lines) {
 						$line1 = $lines[0];
-						if(!isset($processed[$line1])) {
-							$decl = $this->parseFunctionDeclaration($line1);
-							if($decl) {
-								$functionDecls[$decl->name] = $decl;
-								$processed[$line1] = true;
+						if(!preg_match('/\bzend_always_inline\b/', $line1)) {
+							if(!isset($processed[$line1])) {
+								$decl = $this->parseFunctionDeclaration($line1);
+								if($decl) {
+									$functionDecls[$decl->name] = $decl;
+									$processed[$line1] = true;
+								}
 							}
 						}
 					}
@@ -349,28 +361,22 @@ class QBCodeGenerator {
 			}
 			// add other functions 
 			$folder = dirname(__FILE__);			
-			$list = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-			foreach($list as $line) {
+			$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+			$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+			$intrinsic = file(($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+			$lines = array_filter(array_merge($common, $compilerSpecific, $intrinsic));
+			foreach($lines as $line) {
 				$decl = $this->parseFunctionDeclaration($line);
 				if($decl) {
 					$functionDecls[$decl->name] = $decl;
 				}
 			}
-			if($compiler == "MSVC") {
-				$list = file("$folder/function_prototypes_msvc.txt", FILE_IGNORE_NEW_LINES);
-				foreach($list as $line) {
-					$decl = $this->parseFunctionDeclaration($line);
-					if($decl) {
-						$functionDecls[$decl->name] = $decl;
-					}
-				}
-			}
 			ksort($functionDecls);
-			
+						
 			// print out wrappers
 			$wrappers = array();
 			foreach($functionDecls as $decl) {
-				$needWrapper = ($decl->fastcall || $decl->static);
+				$needWrapper = ($decl->static) || ($decl->fastcall &&  $compiler == "MSVC");
 				if($compiler == "MSVC") {
 					if($decl->name == "floor") {
 						$needWrapper = true;
@@ -382,7 +388,11 @@ class QBCodeGenerator {
 					$fcall = "{$decl->name}($parameters)";
 					$wrapper = "{$decl->name}_wrapper";
 					$wrappers[$decl->name] = $wrapper;
-					fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
+					if($compiler == "MSVC") {
+						fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
+					} else {
+						fwrite($handle, "{$decl->returnType} ZEND_FASTCALL $wrapper($parameterDecls) {\n");
+					}
 					if($decl->returnType != 'void') {
 						fwrite($handle, "	return $fcall;\n");
 					} else {
@@ -407,14 +417,26 @@ class QBCodeGenerator {
 				}
 			}
 			
+			// print out prototypes of intrinsics
+			foreach($intrinsic as $line) {
+				fwrite($handle, "$line\n");
+			}
+			fwrite($handle, "\n");
+			
 			fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
 			foreach($functionDecls as $name => $decl) {
-				if(isset($wrappers[$decl->name])) {
-					$symbol = $wrappers[$decl->name];
+				if(!$decl->inline) {
+					if(isset($wrappers[$decl->name])) {
+						$symbol = $wrappers[$decl->name];
+					} else {
+						$symbol = $name;
+					}
+					fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
 				} else {
-					$symbol = $name;
+					// a function body will be generated inside the object file
+					// need to indicate that the symbol is known 
+					fwrite($handle, "	{	0,	\"$name\",	(void*) -1	},\n");
 				}
-				fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
 			}
 			fwrite($handle, "};\n\n");
 			fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n\n");
@@ -433,7 +455,7 @@ class QBCodeGenerator {
 	}
 
 	protected function parseFunctionDeclaration($line) {
-		if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)\s*[{;]\s*$/', $line, $m)) {
+		if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)\s*[{;]/', $line, $m)) {
 			$name = $m[2];
 			$wrapper = array();
 			$returnType = $m[1]; 
@@ -452,6 +474,15 @@ class QBCodeGenerator {
 			}
 			$func = new stdClass;
 			$func->name = $name;
+			if(preg_match('/\bzend_always_inline\b/', $returnType)) {
+				$returnType = preg_replace('/\b__inline\b/', "", $returnType);
+				$func->inline = true;
+				if(preg_match('/{(.*)}/', $line, $m)) {
+					$func->body = $m[1];
+				}
+			} else {
+				$func->inline = false;
+			}
 			if(preg_match('/\bstatic\b/', $returnType)) {
 				$returnType = preg_replace('/\bstatic\b/', "", $returnType);
 				$func->static = true;
@@ -620,6 +651,12 @@ class QBCodeGenerator {
 		}
 		foreach($this->addressModes as $addressMode) {
 			$this->handlers[] = new QBModuloHandler("MOD", $elementType, $addressMode);
+		}
+		foreach($this->addressModes as $addressMode) {
+			$width = (int) substr($elementType, 1);
+			if($width >= 32) {
+				$this->handlers[] = new QBMultiplyAccumulateHandler("MAC", $elementType, $addressMode);
+			}
 		}
 		if($float) {
 			foreach($this->addressModes as $addressMode) {
@@ -1114,6 +1151,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBIncrementHandler("INC_4X", $elementType, "ARR", 4);
 			$this->handlers[] = new QBDecrementHandler("DEC_4X", $elementType, null, 4);
 			$this->handlers[] = new QBDecrementHandler("DEC_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_4X", $elementType, null, 4);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_4X", $elementType, "ARR", 4);
 
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3", $elementType, null, 3);
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3", $elementType, "ARR", 3);
@@ -1172,6 +1211,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBIncrementHandler("INC_3X", $elementType, "ARR", 3);
 			$this->handlers[] = new QBDecrementHandler("DEC_3X", $elementType, null, 3);
 			$this->handlers[] = new QBDecrementHandler("DEC_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_3X", $elementType, null, 3);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_3X", $elementType, "ARR", 3);
 			
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_2X2", $elementType, null, 2);
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_2X2", $elementType, "ARR", 2);
@@ -1222,6 +1263,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBIncrementHandler("INC_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, null, 2);
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_2X", $elementType, null, 2);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_2X", $elementType, "ARR", 2);
 		}
 	}
 

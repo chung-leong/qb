@@ -49,7 +49,7 @@ $output_png = ob_get_clean();
  * @param image	$img1;
  * @return float32
  */
-function image_diff($img1, $img2) {
+function _image_diff($img1, $img2) {
 	$img2 -= $img1;
 	return abs(array_sum($img2));;
 }
@@ -62,7 +62,7 @@ if(file_exists($correct_path)) {
 		$match = true;
 	} else {
 		$correct_output = imagecreatefrompng($correct_path);
-		$diff = image_diff($output, $correct_output);
+		$diff = _image_diff($output, $correct_output);
 		if(abs($diff) < 0.1) {
 			// the output is different ever so slightly
 			$match = true;
@@ -82,6 +82,7 @@ if(file_exists($correct_path)) {
 } else {
 	// reference image not yet available--save image and inspect it for correctness by eye
 	file_put_contents($correct_path, $output_png);
+	echo "CORRECT\n";
 }
 
 

@@ -3,8 +3,10 @@
 class QBRSqrtHandler extends QBHandler {
 
 	protected function getScalarExpression() {
-		$cType = $this->getOperandCType(1);
-		return "res = ($cType) (1 / sqrt(op1));";
+		$type = $this->getOperandType($this->srcCount + 1);
+		$cType = $this->getOperandCType($this->srcCount + 1);
+		$f = ($type == 'F32') ? 'f' : '';
+		return "res = (1 / sqrt$f(op1));";
 	}
 }
 

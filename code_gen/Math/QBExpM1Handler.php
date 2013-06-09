@@ -3,8 +3,10 @@
 class QBExpM1Handler extends QBHandler {
 
 	protected function getScalarExpression() {
+		$type = $this->getOperandType($this->srcCount + 1);
 		$cType = $this->getOperandCType($this->srcCount + 1);
-		return "res = ($cType) expm1(op1);";
+		$f = ($type == 'F32') ? 'f' : '';
+		return "res = expm1$f(op1);";
 
 	}
 }
