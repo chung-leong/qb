@@ -312,7 +312,7 @@ if(file_exists($correct_path)) {
 } else {
 	// reference image not yet available--save image and inspect it for correctness by eye
 	file_put_contents($correct_path, $output_png);
-	echo "CORRECT\n"
+	echo "CORRECT\n";
 }
 
 

@@ -94,7 +94,7 @@ for($i = 1; $i <= 2; $i++) {
 	} else {
 		// reference image not yet available--save image and inspect it for correctness by eye
 		file_put_contents($correct_path, $output_png);
-		echo "CORRECT\n"
+		echo "CORRECT\n";
 	}
 }
 
