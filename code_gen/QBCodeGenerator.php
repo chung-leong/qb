@@ -291,7 +291,7 @@ class QBCodeGenerator {
 				if($decl->inline) {
 					$prototypes[] = "static zend_always_inline $decl->returnType $decl->name($parameterDecls) {{$decl->body}}";
 				} else {
-					if($decl->fastcall) {
+					if($decl->fastcall && $compiler != "MSVC") {
 						$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
 					} else {
 						$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
@@ -376,7 +376,7 @@ class QBCodeGenerator {
 			// print out wrappers
 			$wrappers = array();
 			foreach($functionDecls as $decl) {
-				$needWrapper = ($decl->static);
+				$needWrapper = ($decl->static) || ($decl->fastcall &&  $compiler == "MSVC");
 				if($compiler == "MSVC") {
 					if($decl->name == "floor") {
 						$needWrapper = true;
@@ -388,7 +388,11 @@ class QBCodeGenerator {
 					$fcall = "{$decl->name}($parameters)";
 					$wrapper = "{$decl->name}_wrapper";
 					$wrappers[$decl->name] = $wrapper;
-					fwrite($handle, "{$decl->returnType} ZEND_FASTCALL $wrapper($parameterDecls) {\n");
+					if($compiler == "MSVC") {
+						fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
+					} else {
+						fwrite($handle, "{$decl->returnType} ZEND_FASTCALL $wrapper($parameterDecls) {\n");
+					}
 					if($decl->returnType != 'void') {
 						fwrite($handle, "	return $fcall;\n");
 					} else {
@@ -471,13 +475,10 @@ class QBCodeGenerator {
 			$func = new stdClass;
 			$func->name = $name;
 			if(preg_match('/\bzend_always_inline\b/', $returnType)) {
-				$returnType = preg_replace('/\bzend_always_inline\b/', "", $returnType);
+				$returnType = preg_replace('/\b__inline\b/', "", $returnType);
 				$func->inline = true;
 				if(preg_match('/{(.*)}/', $line, $m)) {
 					$func->body = $m[1];
-				} else {
-					echo "$line\n";
-					die();
 				}
 			} else {
 				$func->inline = false;

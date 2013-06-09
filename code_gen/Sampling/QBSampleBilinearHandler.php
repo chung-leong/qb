@@ -6,8 +6,8 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 		$lines = array();
 		if($channelCount == 3) {
 			$pixel = "p$offsetX$offsetY";
-			$lines[] = "if((((uint32_t) ix + $offsetX) < width) && (((uint32_t) iy + $offsetY) < height)) {";
-			$lines[] =		"uint32_t index = (((iy + $offsetY) * width) + (ix + $offsetX)) * 3;";
+			$lines[] = "index = (((iy + $offsetY) * width) + (ix + $offsetX)) * 3;";
+			$lines[] = "if(index < pixel_count) {";
 			$lines[] =		"{$pixel}[0] = pixels[index + 0];";
 			$lines[] =		"{$pixel}[1] = pixels[index + 1];";
 			$lines[] =		"{$pixel}[2] = pixels[index + 2];";
@@ -16,8 +16,8 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 			$lines[] = "}";
 		} else {
 			$pixel = "p$offsetX$offsetY";
-			$lines[] = "if((((uint32_t) ix + $offsetX) < width) && (((uint32_t) iy + $offsetY) < height)) {";
-			$lines[] =		"uint32_t index = (((iy + $offsetY) * width) + (ix + $offsetX)) * 4;";
+			$lines[] = "index = (((iy + $offsetY) * width) + (ix + $offsetX)) * 4;";
+			$lines[] = "if(index < pixel_count) {";
 			$lines[] =		"{$pixel}[0] = pixels[index + 0];";
 			$lines[] =		"{$pixel}[1] = pixels[index + 1];";
 			$lines[] =		"{$pixel}[2] = pixels[index + 2];";
@@ -35,14 +35,15 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_sample_bilinear_3x_$type(qb_interpreter_context *__restrict cxt, $cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
+				"static void ZEND_FASTCALL qb_sample_bilinear_3x_$type($cType *__restrict pixels, uint32_t pixel_count, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
 					"int32_t ix = qb_quick_floor$f(x - 0.5$f);",
 					"int32_t iy = qb_quick_floor$f(y - 0.5$f);",
-					"$cType fx = (x - 0.5$f) - floor$f(x - 0.5$f);",
-					"$cType fy = (y - 0.5$f) - floor$f(y - 0.5$f);",
+					"$cType fx = (x - 0.5$f) - ($cType) ix;",
+					"$cType fy = (y - 0.5$f) - ($cType) iy;",
+					"uint32_t index;",
 					"if(fx == 0 && fy == 0) {",
-						"if(((uint32_t) ix < width) && ((uint32_t) iy < height)) {",
-							"uint32_t index = ((iy * width) + ix) * 3;",
+						"index = ((iy * width) + ix) * 4;",
+						"if(index < pixel_count) {",
 							"res_ptr[0]	= pixels[index + 0];",
 							"res_ptr[1]	= pixels[index + 1];",
 							"res_ptr[2]	= pixels[index + 2];",
@@ -68,14 +69,15 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_sample_bilinear_4x_$type(qb_interpreter_context *__restrict cxt, $cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
+				"static void ZEND_FASTCALL qb_sample_bilinear_4x_$type($cType *__restrict pixels, uint32_t pixel_count, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
 					"int32_t ix = qb_quick_floor$f(x - 0.5$f);",
 					"int32_t iy = qb_quick_floor$f(y - 0.5$f);",
-					"$cType fx = (x - 0.5$f) - floor$f(x - 0.5$f);",
-					"$cType fy = (y - 0.5$f) - floor$f(y - 0.5$f);",
+					"$cType fx = (x - 0.5$f) - ($cType) ix;",
+					"$cType fy = (y - 0.5$f) - ($cType) iy;",
+					"uint32_t index;",
 					"if(fx == 0 && fy == 0) {",
-						"if(((uint32_t) ix < width) && ((uint32_t) iy < height)) {",
-							"uint32_t index = ((iy * width) + ix) * 4;",
+						"index = ((iy * width) + ix) * 4;",
+						"if((uint32_t) index < pixel_count) {",
 							"res_ptr[0]	= pixels[index + 0];",
 							"res_ptr[1]	= pixels[index + 1];",
 							"res_ptr[2]	= pixels[index + 2];",
@@ -108,7 +110,7 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 	
 	public function getAction() {
 		$type = $this->getOperandType(1);
-		$expr = "qb_sample_bilinear_{$this->operandSize}x_$type(cxt, op1_ptr, op2, op3, op4, op5, res_ptr);";
+		$expr = "qb_sample_bilinear_{$this->operandSize}x_$type(op1_ptr, op1_count, op2, op3, op4, op5, res_ptr);";
 		return ($this->addressMode == "ARR") ? $this->getIterationCode($expr) : $expr;
 	}
 }

@@ -334,7 +334,7 @@ uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, i
 	#define FP_MANTISSA_INDEX	1
 #endif
 
-#ifdef __i386__
+#if defined(__i386__) || defined(_MSC_VER)
 	#ifdef __SSE2__
 		#define FAST_FLOAT_TO_INT
 	#endif

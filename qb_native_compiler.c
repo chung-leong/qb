@@ -284,7 +284,9 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define PRIu64	"STRING(PRIu64)"\n");
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
 	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
+#ifndef _MSC_VER
 	qb_print(cxt, "#define ZEND_FASTCALL	"STRING(ZEND_FASTCALL)"\n");
+#endif
 	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
 
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
@@ -2311,7 +2313,9 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	cxt->file_id = 0;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		cxt->file_id ^= compiler_cxt->instruction_crc64;
+		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
+			cxt->file_id ^= compiler_cxt->instruction_crc64;
+		}
 	}
 	spprintf(&cxt->obj_file_path, 0, "%s%cQB%" PRIX64 ".o", cxt->cache_folder_path, PHP_DIR_SEPARATOR, cxt->file_id);
 

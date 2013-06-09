@@ -13,7 +13,7 @@ $correct_path = "$folder/output/sepia-3.correct.png";
 $incorrect_path = "$folder/output/sepia-3.incorrect.png";
 
 /**
- * @engine qb-bytecode
+ * @engine qb
  * @param float32[][4]		$image
  * @param float32			$intensity
  *
