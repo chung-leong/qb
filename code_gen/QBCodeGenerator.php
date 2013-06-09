@@ -651,6 +651,12 @@ class QBCodeGenerator {
 		foreach($this->addressModes as $addressMode) {
 			$this->handlers[] = new QBModuloHandler("MOD", $elementType, $addressMode);
 		}
+		foreach($this->addressModes as $addressMode) {
+			$width = (int) substr($elementType, 1);
+			if($width >= 32) {
+				$this->handlers[] = new QBMultiplyAccumulateHandler("MAC", $elementType, $addressMode);
+			}
+		}
 		if($float) {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBFlooredDivisionModuloHandler("MOD_FLR", $elementType, $addressMode);
@@ -1144,6 +1150,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBIncrementHandler("INC_4X", $elementType, "ARR", 4);
 			$this->handlers[] = new QBDecrementHandler("DEC_4X", $elementType, null, 4);
 			$this->handlers[] = new QBDecrementHandler("DEC_4X", $elementType, "ARR", 4);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_4X", $elementType, null, 4);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_4X", $elementType, "ARR", 4);
 
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3", $elementType, null, 3);
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3", $elementType, "ARR", 3);
@@ -1202,6 +1210,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBIncrementHandler("INC_3X", $elementType, "ARR", 3);
 			$this->handlers[] = new QBDecrementHandler("DEC_3X", $elementType, null, 3);
 			$this->handlers[] = new QBDecrementHandler("DEC_3X", $elementType, "ARR", 3);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_3X", $elementType, null, 3);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_3X", $elementType, "ARR", 3);
 			
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_2X2", $elementType, null, 2);
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_2X2", $elementType, "ARR", 2);
@@ -1252,6 +1262,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBIncrementHandler("INC_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, null, 2);
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_2X", $elementType, null, 2);
+			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_2X", $elementType, "ARR", 2);
 		}
 	}
 

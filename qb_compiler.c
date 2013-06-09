@@ -2465,7 +2465,8 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 	uint32_t i, j;
 	if(pass == 1) {
 		// opcodes are not address mode specific at this point
-		for(i = 0; i < cxt->op_count; i++) {
+		// the last op is always RET: there's no need to scan it
+		for(i = 0; i < cxt->op_count - 1; i++) {
 			qb_op *qop = cxt->ops[i];
 
 			if(qop->opcode == QB_IF_T_I32 || qop->opcode == QB_IF_F_I32) {
@@ -2482,7 +2483,7 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 					}
 
 					if(prev_qop && prev_qop->operand_count == 3 && prev_qop->operands[2].address == condition_address) {
-						uint32_t new_opcode = 0;
+						qb_opcode new_opcode = 0;
 						int32_t on_true = (qop->opcode == QB_IF_T_I32);
 
 						// combine the comparison op with the branch op
@@ -2544,6 +2545,53 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 
 								qop->opcode = QB_NOP;
 							}
+						}
+					}
+				}
+			} else {
+				if(qop->operand_count == 3 && (qop->operands[2].address->flags & QB_ADDRESS_TEMPORARY)) {
+					qb_op *next_qop = cxt->ops[i + 1];
+					if(next_qop->operand_count == 3 && (next_qop->operands[0].address == qop->operands[2].address || next_qop->operands[1].address == qop->operands[2].address)) {
+						qb_opcode new_opcode = 0;
+						if((qop->opcode == QB_MUL_S32_S32_S32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
+							new_opcode = QB_MAC_S32_S32_S32_S32;
+						} else if((qop->opcode == QB_MUL_S64_S64_S64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
+							new_opcode = QB_MAC_S64_S64_S64_S64;
+						} else if((qop->opcode == QB_MUL_U32_U32_U32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
+							new_opcode = QB_MAC_U32_U32_U32_U32;
+						} else if((qop->opcode == QB_MUL_U64_U64_U64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
+							new_opcode = QB_MAC_U64_U64_U64_U64;
+						} else if((qop->opcode == QB_MUL_F32_F32_F32) && (next_qop->opcode == QB_ADD_F32_F32_F32)) {
+							new_opcode = QB_MAC_F32_F32_F32_F32;
+						} else if((qop->opcode == QB_MUL_F64_F64_F64) && (next_qop->opcode == QB_ADD_F64_F64_F64)) {
+							new_opcode = QB_MAC_F64_F64_F64_F64;
+						} else if((qop->opcode == QB_MUL_2X_F32_F32_F32) && (next_qop->opcode == QB_ADD_2X_F32_F32_F32)) {
+							new_opcode = QB_MAC_2X_F32_F32_F32_F32;
+						} else if((qop->opcode == QB_MUL_2X_F64_F64_F64) && (next_qop->opcode == QB_ADD_2X_F64_F64_F64)) {
+							new_opcode = QB_MAC_2X_F64_F64_F64_F64;
+						} else if((qop->opcode == QB_MUL_3X_F32_F32_F32) && (next_qop->opcode == QB_ADD_3X_F32_F32_F32)) {
+							new_opcode = QB_MAC_3X_F32_F32_F32_F32;
+						} else if((qop->opcode == QB_MUL_3X_F64_F64_F64) && (next_qop->opcode == QB_ADD_3X_F64_F64_F64)) {
+							new_opcode = QB_MAC_3X_F64_F64_F64_F64;
+						} else if((qop->opcode == QB_MUL_4X_F32_F32_F32) && (next_qop->opcode == QB_ADD_4X_F32_F32_F32)) {
+							new_opcode = QB_MAC_4X_F32_F32_F32_F32;
+						} else if((qop->opcode == QB_MUL_4X_F64_F64_F64) && (next_qop->opcode == QB_ADD_4X_F64_F64_F64)) {
+							new_opcode = QB_MAC_4X_F64_F64_F64_F64;
+						}
+						if(new_opcode) {
+							qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);
+							if(next_qop->operands[0].address == qop->operands[2].address) {
+								new_operands[0] = next_qop->operands[1];
+							} else {
+								new_operands[0] = next_qop->operands[0];
+							}
+							new_operands[1] = qop->operands[0];
+							new_operands[2] = qop->operands[1];
+							new_operands[3] = next_qop->operands[2];
+							qop->operands = new_operands;
+							qop->operand_count = 4;
+							qop->opcode = new_opcode;
+							next_qop->opcode = QB_NOP;
 						}
 					}
 				}
