@@ -110,6 +110,14 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 		args[argc++] = "-O2";										// optimization level
 #ifdef HAVE_GCC_MARCH_NATIVE
 		args[argc++] = "-march=native";								// optimize for current CPU
+#elif defined(__SSE4__)
+		args[argc++] = "-march=msse4";
+#elif defined(__SSE3__)
+		args[argc++] = "-march=msse3";
+#elif defined(__SSE2__)
+		args[argc++] = "-march=msse2";
+#elif defined(__SSE__)
+		args[argc++] = "-march=msse";
 #endif
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG

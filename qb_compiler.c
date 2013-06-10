@@ -1237,6 +1237,7 @@ static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool
 					uint32_t expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN(zconst->value), Z_STRVAL(zconst->value));
 					int32_t processed = qb_parse_type_dimension(pool, expanded, expanded_len, decl, dimension_index);
 					efree(expanded);
+					free_alloca(name, use_heap);
 					return (processed == -1) ? -1 : offsets[1];
 				} else {
 					decl = NULL;
