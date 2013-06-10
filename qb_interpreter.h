@@ -101,7 +101,13 @@ extern uint32_t native_proc_table_size;
 extern void *op_handlers[];
 #endif
 
-#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+#if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	#define Z_OBJ_GET_PROP_PTR_PTR(zv, n)		Z_OBJ_HT_P(zv)->get_property_ptr_ptr(zv, n, BP_VAR_W, NULL TSRMLS_CC)
+	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zvalue)->write_property(zv, n, v, NULL TSRMLS_CC)
+	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zvalue)->read_property(zv, n, BP_VAR_R, NULL TSRMLS_CC)
+
+	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, n, len, TRUE, NULL TSRMLS_CC)
+#elif !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	#define Z_OBJ_GET_PROP_PTR_PTR(zv, n)		Z_OBJ_HT_P(zv)->get_property_ptr_ptr(zv, n, NULL TSRMLS_CC)
 	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zvalue)->write_property(zv, n, v, NULL TSRMLS_CC)
 	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zvalue)->read_property(zv, n, BP_VAR_R, NULL TSRMLS_CC)

@@ -289,8 +289,6 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 #ifndef _MSC_VER
 	qb_print(cxt, "#define ZEND_FASTCALL	"STRING(ZEND_FASTCALL)"\n");
 #endif
-	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
-
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I64(v)	"STRING(SWAP_BE_I64(v))"\n");
@@ -1234,7 +1232,7 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	qb_print(cxt, "\n");
 	// sanity check
 	qb_printf(cxt, "if(cxt->function->instruction_crc64 != 0x%" PRIX64 "ULL) {\n", cxt->instruction_crc64);
-	qb_print( cxt, "	return " STRING(FAILURE) ";\n");
+	qb_print( cxt, "	return -1;\n");
 	qb_print( cxt, "}\n");
 
 	// set the stack variable references
@@ -1257,7 +1255,7 @@ static void ZEND_FASTCALL qb_print_exit_section(qb_native_compiler_context *cxt)
 	for(i = 0; i < cxt->storage->segment_count; i++) {
 		qb_printf(cxt, "cxt->storage->segments[%d].stack_ref_element_count = &cxt->storage->segments[%d].element_count;\n", i, i);
 	}
-	qb_print(cxt, "return " STRING(SUCCESS) ";\n");
+	qb_print(cxt, "return 0;\n");
 }
 
 static void ZEND_FASTCALL qb_print_function(qb_native_compiler_context *cxt) {

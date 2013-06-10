@@ -172,14 +172,14 @@ double log2(double x);
 double exp2(double x);
 double round(double x);
 
-zend_always_inline float exp2f(float x) { return (float) exp2(x); }
-zend_always_inline float expm1f(float x) { return (float) expm1(x); }
-zend_always_inline float log2f(float x) { return (float) log2(x); }
-zend_always_inline float log1pf(float x) { return (float) log1p(x); }
-zend_always_inline float asinhf(float x) { return (float) asinh(x); }
-zend_always_inline float acoshf(float x) { return (float) acosh(x); }
-zend_always_inline float atanhf(float x) { return (float) atanh(x); }
-zend_always_inline float roundf(float x) { return (float) round(x); }
+__forceinline float exp2f(float x) { return (float) exp2(x); }
+__forceinline float expm1f(float x) { return (float) expm1(x); }
+__forceinline float log2f(float x) { return (float) log2(x); }
+__forceinline float log1pf(float x) { return (float) log1p(x); }
+__forceinline float asinhf(float x) { return (float) asinh(x); }
+__forceinline float acoshf(float x) { return (float) acosh(x); }
+__forceinline float atanhf(float x) { return (float) atanh(x); }
+__forceinline float roundf(float x) { return (float) round(x); }
 #endif
 
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
