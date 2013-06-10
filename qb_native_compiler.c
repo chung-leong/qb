@@ -2073,8 +2073,7 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 					symbol_address = qb_find_symbol(cxt, symbol_name);
 					if(!symbol_address) {
-						//qb_abort("Missing symbol: %s\n", symbol_name);
-						zend_printf("Missing symbol: %s\n", symbol_name);
+						qb_abort("Missing symbol: %s\n", symbol_name);
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)
