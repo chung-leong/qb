@@ -39,7 +39,8 @@ function blend2(&$dst, $image1, $image2) {
  */
 function _image_diff($img1, $img2) {
 	$img2 -= $img1;
-	return abs(array_sum($img2));;
+	$img2 *= $img2;
+	return sqrt(array_sum($img2));
 }
 
 qb_compile();
@@ -75,7 +76,7 @@ for($i = 1; $i <= 2; $i++) {
 		} else {
 			$correct_output = imagecreatefrompng($correct_path);
 			$diff = _image_diff($image, $correct_output);
-			if(abs($diff) < 300) {
+			if($diff < 3) {
 				// the output is different ever so slightly
 				$match = true;
 			} else {

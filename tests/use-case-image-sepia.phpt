@@ -61,7 +61,8 @@ $output_png = ob_get_clean();
  */
 function _image_diff($img1, $img2) {
 	$img2 -= $img1;
-	return abs(array_sum($img2));;
+	$img2 *= $img2;
+	return sqrt(array_sum($img2));
 }
 
 if(file_exists($correct_path)) {
@@ -73,7 +74,7 @@ if(file_exists($correct_path)) {
 	} else {
 		$correct_output = imagecreatefrompng($correct_path);
 		$diff = _image_diff($image, $correct_output);
-		if(abs($diff) < 1) {
+		if($diff < 3) {
 			// the output is different ever so slightly
 			$match = true;
 		} else {
