@@ -6,6 +6,8 @@
 #gcc files
 *.o
 *.lo
+*.la
+.libs
 
 #Visual Studio files
 *.[Oo]bj
