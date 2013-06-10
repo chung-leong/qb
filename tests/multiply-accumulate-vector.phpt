@@ -14,12 +14,12 @@ Multiply accumulate test (vector)
  * 
  */
 function test_function() {
-	$a = [1, 2, 3, 4];
-	$b = [5, 6, 7, 8];
+	$a = array(1, 2, 3, 4);
+	$b = array(5, 6, 7, 8);
 	$c = $a + ($a * $b);
 	echo "$c\n";
-	$A = [1, 2, 3, 4];
-	$B = [5, 6, 7, 8];
+	$A = array(1, 2, 3, 4);
+	$B = array(5, 6, 7, 8);
 	$C = $A + ($A * $B);
 	echo "$C\n";
 }
