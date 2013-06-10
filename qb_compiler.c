@@ -18,6 +18,10 @@
 
 /* $Id$ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "qb.h"
 
 extern zend_module_entry qb_module_entry;

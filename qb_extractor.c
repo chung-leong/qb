@@ -18,6 +18,10 @@
 
 /* $Id$ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "qb.h"
 
 void ZEND_FASTCALL qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool);
