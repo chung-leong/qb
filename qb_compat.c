@@ -70,8 +70,8 @@ double round(double x) {
 
 sin
 
-#ifndef __USE_GNU
-// gcc intrinsic functions--just make the symbols available
+#ifndef HAVE_SINCOS
+// gcc intrinsic functions--just make the symbols available if they doesn't exist
 void sincos() {
 }
 

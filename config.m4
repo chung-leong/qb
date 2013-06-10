@@ -36,10 +36,18 @@ if test "$PHP_QB" != "no"; then
     fi
   fi
 
-  `echo "" | $CC -fsyntax-only -march=native -xc -`
+  dnl See if compile support -march=native 
+  `echo "" | $CC -fsyntax-only -march=native -xc - 2> /dev/null`
   if [[ $? -eq 0 ]]; then
     AC_DEFINE(HAVE_GCC_MARCH_NATIVE,1,[ ])
   fi  
+
+  dnl See if sincos() function exists
+  `echo "void sincos(double x, double *ps, double *pc); int main(int argc, const char *argv[]) { sincos(0, 0, 0); return 0; }" | $CC -o sincos -xc - 2> /dev/null`
+  if [[ $? -eq 0 ]]; then
+    AC_DEFINE(HAVE_SINCOS,1,[ ])
+    `rm -f sincos`
+  fi
 
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
