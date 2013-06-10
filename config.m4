@@ -41,13 +41,6 @@ if test "$PHP_QB" != "no"; then
     AC_DEFINE(HAVE_GCC_MARCH_NATIVE,1,[ ])
   fi  
 
-  PHP_CHECK_LIBRARY(c,sincos,
-  [
-    AC_DEFINE(HAVE_SINCOS,1,[ ])
-  ],[
-  ],[
-  ])
-
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
   *darwin*)

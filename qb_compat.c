@@ -68,8 +68,10 @@ double round(double x) {
 }
 #endif
 
-#ifndef HAVE_SINCOS
-// gcc intrinsic functions--just make the symbol available
+sin
+
+#ifndef __USE_GNU
+// gcc intrinsic functions--just make the symbols available
 void sincos() {
 }
 
