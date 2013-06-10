@@ -35,16 +35,22 @@ double atanh(double z) {
 
 double log1p(double x) {
 	if(fabs(x) > 1e-4) {
+
 		return log(1.0 + x);
+
 	} else {
+
 		return (-0.5 * x + 1.0) * x;
 	}
 }
 
 double expm1(double x) {
 	if(fabs(x) < 1e-5) {
+
 		return x + 0.5 * x * x;
+
 	} else {
+
 		return exp(x) - 1.0;
 	}
 }
@@ -59,6 +65,15 @@ double exp2(double x) {
 
 double round(double x) {
 	return floor(x + 0.5);
+}
+#endif
+
+#ifndef HAVE_SINCOS
+// gcc intrinsic functions--just make the symbol available
+void sincos() {
+}
+
+void sincosf() {
 }
 #endif
 
@@ -247,29 +262,53 @@ double _php_math_round(double value, int places, int mode) {
 
 #if ZEND_ENGINE_2_1
 char *zend_get_type_by_const(int type)
+
 {
+
 	switch(type) {
+
 		case IS_BOOL:
+
 			return "boolean";
+
 		case IS_LONG:
+
 			return "integer";
+
 		case IS_DOUBLE:
+
 			return "double";
+
 		case IS_STRING:
+
 			return "string";
+
 		case IS_OBJECT:
+
 			return "object";
+
 		case IS_RESOURCE:
+
 			return "resource";
+
 		case IS_NULL:
+
 			return "null";
+
 		case IS_ARRAY:
+
 			return "array";
+
 		default:
+
 			return "unknown";
+
 	}
 
+
+
 	
+
 }
 #include "qb_compat_snprintf.c"
 #endif
@@ -279,34 +318,65 @@ char *zend_get_type_by_const(int type)
 #ifdef VC6_MSVCRT
 
 FILE *	(*vc6_fdopen)(int _FileHandle, const char * _Mode);
+
 int		(*vc6_open_osfhandle)(intptr_t _OSFileHandle, int _Flags);
+
 FILE *	(*vc6_fopen)(const char * _Filename, const char * _Mode);
+
 int		(*vc6_fclose)(FILE * _File);
+
 size_t	(*vc6_fread)(void * _DstBuf, size_t _ElementSize, size_t _Count, FILE * _File);
+
 size_t	(*vc6_fwrite)(const void * _Str, size_t _Size, size_t _Count, FILE * _File);
+
 int		(*vc6_fprintf)(FILE * _File, const char * _Format, ...);
+
 int		(*vc6_vfprintf)(FILE * _File, const char * _Format, va_list _ArgList);
+
 void *	(*vc6_malloc)(size_t _Size);
+
 void	(*vc6_free)(void * _Memory);
+
 char *	(*vc6_strdup)(const char * _Src);
 
+
+
 int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void) {
+
 	HMODULE lib = GetModuleHandle("MSVCRT.DLL");
+
 	if(!lib) {
+
 		return FAILURE;
+
 	}
+
 	vc6_fdopen = (void *) GetProcAddress(lib, "_fdopen");
+
 	vc6_open_osfhandle = (void *) GetProcAddress(lib, "_open_osfhandle");
+
 	vc6_fopen = (void *) GetProcAddress(lib, "fopen");
+
 	vc6_fclose = (void *) GetProcAddress(lib, "fclose");
+
 	vc6_fread = (void *) GetProcAddress(lib, "fread");
+
 	vc6_fwrite = (void *) GetProcAddress(lib, "fwrite");
+
 	vc6_fprintf = (void *) GetProcAddress(lib, "fprintf");
+
 	vc6_vfprintf = (void *) GetProcAddress(lib, "vfprintf");
+
 	vc6_malloc = (void *) GetProcAddress(lib, "malloc");
+
 	vc6_free = (void *) GetProcAddress(lib, "free");
+
 	vc6_strdup = (void *) GetProcAddress(lib, "_strdup");
+
 	return SUCCESS;
+
 }
+
+
 
 #endif
