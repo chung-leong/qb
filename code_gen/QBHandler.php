@@ -457,10 +457,8 @@ class QBHandler {
 			// a array address, containing two indices besides the segment selector
 			// both points to variable in segment 0--one is the offset and the other the size
 			if($i <= $this->srcCount) {
-				$lines[] = $this->declareVariables("uint32_t", array("op{$i}_start_index" => "op{$i}_start_index", "op{$i}_count" => "op{$i}_count"));
 				$lines[] = $this->declareVariables($cType, array("op{$i}_start" => "*op{$i}_start", "op{$i}_end" => "*op{$i}_end", "op{$i}_ptr" => "*__restrict op{$i}_ptr"));
 			} else {
-				$lines[] = $this->declareVariables("uint32_t", array("res_start_index" => "res_start_index", "res_count" => "res_count", "res_count_before" => "res_count_before"));
 				$lines[] = $this->declareVariables($cType, array("res_start" => "*res_start", "res_end" => "*res_end", "res_ptr" => "*__restrict res_ptr"));
 			}
 		}

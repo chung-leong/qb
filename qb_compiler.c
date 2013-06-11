@@ -2386,9 +2386,10 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 							operand_type = operand_flags & 0x07;
 							operand_address_mode = operand_type - 1;
 							if(operand->address->mode > operand_address_mode) {
-								if(operand->address->mode > required_address_mode) {
+								qb_address_mode mode = (operand->address->mode == QB_ADDRESS_MODE_ELC) ? QB_ADDRESS_MODE_ELV : operand->address->mode;
+								if(mode > required_address_mode) {
 									// need use to a higher address mode
-									required_address_mode = operand->address->mode;
+									required_address_mode = mode;
 								}
 							}
 						}
@@ -2428,13 +2429,14 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 				for(j = 0; j < qop->operand_count; j++) {
 					qb_operand *operand = &qop->operands[j];
 					if(operand->type == QB_OPERAND_ADDRESS) {
+						qb_address_mode mode = (operand->address->mode == QB_ADDRESS_MODE_ELC) ? QB_ADDRESS_MODE_ELV : operand->address->mode;
 						operand_flags = qb_get_operand_flags(cxt, qop->opcode, j);
 						operand_type = operand_flags & 0x07;
 						operand_address_mode = operand_type - 1;
 						// we can only go from VAR > ELC > ELV > ARR (an array cannot be passed as a scalar, for instance)
 						// doing a signed comparison here so that if operand_address_mode is -1 
 						// (i.e. there isn't supposed be an operand), we'd fall into the else
-						if((int32_t) operand->address->mode <= (int32_t) operand_address_mode) {
+						if((int32_t) mode <= (int32_t) operand_address_mode) {
 							operand->type = operand_address_mode + 1;
 						} else {
 							// shouldn't really happen at runtime but we'll leave the error check in here just in case
