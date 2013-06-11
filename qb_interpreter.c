@@ -282,7 +282,7 @@ static int32_t ZEND_FASTCALL qb_is_linear_zval_array(qb_interpreter_context *cxt
 	HashTable *ht = Z_ARRVAL_P(zvalue);
 	Bucket *p;
 	for(p = ht->pListHead; p; p = p->pListNext) {
-		if(p->nKeyLength == 0 && p->h >= 0) {
+		if(p->nKeyLength == 0 && (long) p->h >= 0) {
 			zval **p_element = p->pData;
 			if(Z_TYPE_PP(p_element) == IS_ARRAY || Z_TYPE_PP(p_element) == IS_OBJECT) {
 				return FALSE;
@@ -347,7 +347,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 				Bucket *p;
 
 				for(p = ht->pListHead; p; p = p->pListNext) {
-					if(p->nKeyLength == 0 && p->h >= 0) {
+					if(p->nKeyLength == 0 && (long) p->h >= 0) {
 						zval **p_element = p->pData;
 						qb_set_array_dimensions_from_zval(cxt, *p_element, &item_address);
 					}
