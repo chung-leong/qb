@@ -39,6 +39,15 @@ $generator->generate($handle, 'GCC', 'HANDLERS');
 $generator->generate($handle, 'GCC', 'NATIVE SYMBOLS');
 $generator->generate($handle, 'GCC', 'NATIVE DEBUG');
 
+echo "Creating qb_interpreter_llvm.c\n";
+$handle = fopen("$targetFolder/qb_interpreter_llvm.c", "w");
+fwrite($handle, $copyright);
+fwrite($handle, "#include \"qb.h\"\n\n");
+$generator->generate($handle, 'GCC', 'DECLARATIONS');
+$generator->generate($handle, 'GCC', 'HANDLERS');
+$generator->generate($handle, 'GCC', 'NATIVE SYMBOLS');
+$generator->generate($handle, 'GCC', 'NATIVE DEBUG');
+
 echo "Creating qb_interpreter_msvc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
 fwrite($handle, $copyright);
@@ -60,6 +69,14 @@ fwrite($handle, "#include \"qb.h\"\n\n");
 $generator->generate($handle, 'GCC', 'FLAGS');
 $generator->generate($handle, 'GCC', 'NAMES');
 $generator->generate($handle, 'GCC', 'NATIVE CODE');
+
+echo "Creating qb_data_tables_llvm.c\n";
+$handle = fopen("$targetFolder/qb_data_tables_llvm.c", "w");
+fwrite($handle, $copyright);
+fwrite($handle, "#include \"qb.h\"\n\n");
+$generator->generate($handle, 'LLVM', 'FLAGS');
+$generator->generate($handle, 'LLVM', 'NAMES');
+$generator->generate($handle, 'LLVM', 'NATIVE CODE');
 
 echo "Creating qb_data_tables_msvc.c\n";
 $handle = fopen("$targetFolder/qb_data_tables_msvc.c", "w");

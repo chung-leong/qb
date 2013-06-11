@@ -119,6 +119,11 @@ class QBHandler {
 			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
 			$lines[] = "#define MATRIX2_COLS			((($instr *) instruction_pointer)->matrix_dimensions & 0x03FF)";
 		}
+		if(self::$compiler == "LLVM") {		
+			$lines[] =	"uint32_t selector, index, index_selector, index_index, size_index;";
+			$lines[] = 	"uint32_t string_length;";
+			$lines[] = 	"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
+		}
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] = $this->getOperandDeclaration($i);
 		}
@@ -431,6 +436,15 @@ class QBHandler {
 		$cType = $this->getOperandCType($i);
 		$addressMode = $this->getOperandAddressMode($i);
 		$lines = array();
+
+		if(self::$compiler == "LLVM") {
+			if($i <= $this->srcCount) {
+				$lines[] = 	"uint32_t op{$i}_start_index, op{$i}_count;";
+			} else {
+				$lines[] = 	"uint32_t res_start_index, res_count, res_count_before;";
+			}
+		}
+		
 		if($addressMode == "VAR") {
 			// selector is fixed to QB_SEGMENT_SCALAR
 			if($i <= $this->srcCount) {
