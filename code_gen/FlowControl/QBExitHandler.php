@@ -12,16 +12,18 @@ class QBExitHandler extends QBHandler {
 	
 	public function getCode() {
 		$lines = array();
-		$lines[] = $this->getDefineCode();
-		$lines[] = $this->getLabelCode();
+		$name = $this->getName();
+		$lines[] = $this->getLabelCode($name);
 		$lines[] = "{";
+			for($i = 1; $i <= $this->opCount; $i++) {
+			$lines[] = $this->getOperandDeclaration($i);
+		}
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] = $this->getOperandRetrievalCode($i);
 		}
 		$lines[] =		"EG(exit_status) = op1;"; 
 		$lines[] =		"zend_bailout();";
 		$lines[] = "}";
-		$lines[] = $this->getUndefCode();
 		return $lines;
 	}
 	

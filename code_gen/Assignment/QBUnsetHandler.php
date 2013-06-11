@@ -3,7 +3,7 @@
 class QBUnsetHandler extends QBHandler {
 
 	protected function initialize() {
-		if($this->addressMode == "ELV" || $this->addressMode == "ARR") {
+		if($this->addressMode == "ELC" || $this->addressMode == "ELV" || $this->addressMode == "ARR") {
 			$this->flags |= self::IS_UNSET;
 		}
 	}

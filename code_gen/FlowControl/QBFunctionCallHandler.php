@@ -8,14 +8,15 @@ class QBFunctionCallHandler extends QBHandler {
 	
 	public function getCode() {
 		$lines = array();
+		$name = $this->getName();
 		$instr = $this->getInstructionStructure();
-		$lines[] = $this->getDefineCode();
-		$lines[] = $this->getLabelCode();
-		$lines[] = $this->getSetHandlerCode("INSTRUCTION->next_handler");
+		$lines[] = $this->getLabelCode($name);
+		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
 		$lines[] = "{";
-		$lines[] = 		"uint32_t symbol_index = INSTRUCTION->symbol_index;";
-		$lines[] =		"uint32_t argument_count = INSTRUCTION->argument_count;";
-		$lines[] = 		"uint32_t *operands = INSTRUCTION->operands, *op;";
+		$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
+		$lines[] = 		"uint32_t symbol_index = (($instr *) instruction_pointer)->symbol_index;";
+		$lines[] =		"uint32_t argument_count = (($instr *) instruction_pointer)->argument_count;";
+		$lines[] = 		"uint32_t *operands = (($instr *) instruction_pointer)->operands, *op;";
 		$lines[] = 		"uint32_t i;";
 		$lines[] =		"zend_function *function = cxt->function->external_symbols[symbol_index]->pointer;";
 		$lines[] =		"qb_initialize_function_call(cxt, function, argument_count, PHP_LINE_NUMBER);";
@@ -39,10 +40,10 @@ class QBFunctionCallHandler extends QBHandler {
 		$lines[] =		"if(cxt->exception_encountered) {";
 		$lines[] =			"goto label_exit;";
 		$lines[] =		"}";
-		$lines[] =		"instruction_pointer += sizeof(INSTRUCTION->next_handler) + INSTRUCTION->operand_size;";
+		$lines[] =		"instruction_pointer += sizeof((($instr *) instruction_pointer)->next_handler) + (($instr *) instruction_pointer)->operand_size;";
+		$lines[] = "#undef PHP_LINE_NUMBER";
 		$lines[] = "}";
 		$lines[] = $this->getJumpCode();
-		$lines[] = $this->getUndefCode();
 		return $lines;
 	}
 	

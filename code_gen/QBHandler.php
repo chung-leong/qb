@@ -3,6 +3,7 @@
 class QBHandler {
 	protected static $typeDecls = array();
 	protected static $compiler;
+	protected static $scalarAliases = array();
 
 	protected $opCount = 0;
 	protected $srcCount = 0;
@@ -16,7 +17,7 @@ class QBHandler {
 	protected $addressMode;
 
 	protected $functionUsed = array();
-	protected $variableDefinitions = array();
+	protected $variableUsed = array();
 	protected $flags = 0;
 	
 	const NEED_LINE_NUMBER						= 0x0001;
@@ -34,6 +35,24 @@ class QBHandler {
 	static public function getTypeDeclarations() {
 		ksort(self::$typeDecls);
 		return self::$typeDecls;
+	}
+	
+	static public function getMacroDefinitions() {
+		$lines = array();
+		foreach(self::$scalarAliases as $name => $def) {
+			$lines[] = "#define $name	$def";
+		}
+		sort($lines);
+		return $lines;
+	}
+	
+	static public function getMacroUndefinitions() {
+		$lines = array();
+		foreach(self::$scalarAliases as $name => $def) {
+			$lines[] = "#undef $name";
+		}
+		sort($lines);
+		return $lines;
 	}
 	
 	static public function setCompiler($compiler) {
@@ -82,40 +101,44 @@ class QBHandler {
 		return $name;
 	}
 
-	public function getDefineCode() {
-		$lines = array();
-		$instr = $this->getInstructionStructure();
-		$lines[] = "#define INSTRUCTION			(($instr *) instruction_pointer)";
-		foreach($this->variableDefinitions as $var => $def) {
-			$lines[] = "#define $var			$def";
-		}
-		return $lines;
-	}
-	
-	public function getUndefCode() {
-		$lines = array();
-		foreach($this->variableDefinitions as $var => $def) {
-			$lines[] = "#undef $var";
-		}
-		$lines[] = "#undef INSTRUCTION";
-		return $lines;
-	}
-
 	// return code for the op handler
 	public function getCode() {
 		$lines = array();
-		$lines[] = $this->getDefineCode();
-		$lines[] = $this->getLabelCode();
-		$lines[] = $this->getSetHandlerCode("INSTRUCTION->next_handler");
+		$name = $this->getName();
+		$instr = $this->getInstructionStructure();
+		$action = $this->getAction();
+		$lines[] = $this->getLabelCode($name);
+		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
 		$lines[] = "{";
+		if($this->flags & self::NEED_LINE_NUMBER) {
+			$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
+		}
+		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+			$lines[] = "#define MATRIX1_ROWS			((($instr *) instruction_pointer)->matrix_dimensions >> 20)";
+			$lines[] = "#define MATRIX1_COLS			(((($instr *) instruction_pointer)->matrix_dimensions >> 10) & 0x03FF)";
+			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
+			$lines[] = "#define MATRIX2_COLS			((($instr *) instruction_pointer)->matrix_dimensions & 0x03FF)";
+		}
+		for($i = 1; $i <= $this->opCount; $i++) {
+			$lines[] = $this->getOperandDeclaration($i);
+		}
+		$lines[] = "";
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] = $this->getOperandRetrievalCode($i);
 		}
-		$lines[] = $this->getAction();
+		$lines[] = $action;
+		if($this->flags & self::NEED_LINE_NUMBER) {
+			$lines[] = "#undef PHP_LINE_NUMBER";
+		}
+		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+			$lines[] = "#undef MATRIX1_ROWS";
+			$lines[] = "#undef MATRIX1_COLS";
+			$lines[] = "#undef MATRIX2_ROWS";
+			$lines[] = "#undef MATRIX2_COLS";
+		}
 		$lines[] = "}";
-		$lines[] = "instruction_pointer += sizeof(*INSTRUCTION);";
+		$lines[] = "instruction_pointer += sizeof($instr);";
 		$lines[] = $this->getJumpCode();
-		$lines[] = $this->getUndefCode();
 		return $lines;
 	}
 
@@ -230,6 +253,10 @@ class QBHandler {
 		return array_keys($this->functionUsed);
 	}
 
+	public function getVariablesUsed() {
+		return array_keys($this->variableUsed);
+	}
+
 	// return the address mode of operand $i
 	// by default, all operands use the same address mode
 	public function getOperandAddressMode($i) {
@@ -252,51 +279,35 @@ class QBHandler {
 		$lines = $this->getCode();
 		$lines = $this->linearizeArray($lines);
 		$variableFound = array();
-
-		// find the input variables first
-		$srcPattern = '/\bop(\d)_?(\w+)?\b/';
-		foreach($lines as $line) {
-			if(preg_match_all($srcPattern, $line, $matches, PREG_SET_ORDER)) {
-				foreach($matches as $match) {
-					$variable = $match[0];
-					if(!isset($variableFound[$variable])) {
-						$number = (int) $match[1];
-						$suffix = (count($match) >= 3) ? $match[2] : null;
-						if($number > $this->srcCount) {
-							$this->srcCount = $number;
-						}
-
-						$type = strtolower($this->getOperandType($number));
-						if($type[0] == 'i') {
-							$type[0] = 's';
-						}
-						
-						if(!$suffix) {
-							$variableFound["{$variable}_ptr"] = true;
-						}
-						$variableFound[$variable] = true;
-					}
-				}
-			}
+		$variables = array("res", "res_ptr", "res_count", "res_start", "res_start_index", "res_end", "res_count", "res_count_before", "op#", "op#_ptr", "op#_count", "op#_start", "op#_start_index", "op#_end", "op#count");
+		$patterns = array();
+		foreach($variables as $variable) {
+			// \b means word boundary
+			$patterns[] = "\b" . str_replace("#", "\d+", $variable) . "\b";
 		}
-
-		// find the output variable (only one possible right now)
-		$dstPattern = '/\bres_?(\w+)?\b/';
+		$pattern = "/" . implode("|", $patterns) . "/";
 		foreach($lines as $line) {
-			if(preg_match_all($dstPattern, $line, $matches, PREG_SET_ORDER)) {
+			if(preg_match_all($pattern, $line, $matches, PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$variable = $match[0];
 					if(!isset($variableFound[$variable])) {
-						$this->dstCount = 1;
-						$suffix = (count($match) >= 2) ? $match[1] : null;
-
-						$type = strtolower($this->getOperandType($this->srcCount + 1));
-						if($type[0] == 'i') {
-							$type[0] = 's';
-						}
-						
-						if(!$suffix) {
-							$variableFound["{$variable}_ptr"] = true;
+						if(preg_match("/^res(.*)/", $variable, $m)) {
+							$this->dstCount = 1;							
+							$suffix = $m[1];
+							if(!$suffix) {
+								self::$scalarAliases["res"] = "(*res_ptr)";
+								$variableFound["res_ptr"] = true;
+							}							
+						} else if(preg_match("/^op(\d+)(.*)/", $variable, $m)) {
+							$number = (int) $m[1];
+							$suffix = $m[2];
+							if($number > $this->srcCount) {
+								$this->srcCount = $number;
+							}
+							if(!$suffix) {
+								self::$scalarAliases["op{$number}"] = "(*op{$number}_ptr)";
+								$variableFound["op{$number}_ptr"] = true;
+							}
 						}
 						$variableFound[$variable] = true;
 					}
@@ -306,22 +317,7 @@ class QBHandler {
 		
 		$this->opCount = $this->srcCount + $this->dstCount;
 		$this->flags &= ~self::SEARCHING_FOR_OPERANDS;
-
-		for($i = 1; $i <= $this->opCount; $i++) {
-			$variable = ($i <= $this->srcCount) ? "op{$i}" : "res";
-			$type = strtolower($this->getOperandType($i));
-			if($type[0] == 'i') {
-				$type[0] = 's';
-			}
-			if(isset($variableFound[$variable])) {
-				$this->variableDefinitions[$variable] = "(*{$variable}_ptr_{$type})";
-			}
-			if(isset($variableFound["{$variable}_ptr"])) {
-				$this->variableDefinitions["{$variable}_ptr"] = "{$variable}_ptr_{$type}";
-			}
-		}
-		$this->variableUsed = $variableFound;
-
+		
 		// scan again now that the operand count is set to see if the handler needs the line number (for error output)
 		$this->flags |= self::SEARCHING_FOR_LINE_NUMBER;
 		$lines = $this->getCode();
@@ -338,6 +334,7 @@ class QBHandler {
 		$lines = $this->getCode();
 		$lines = $this->linearizeArray($lines);
 		$functionFound = array();
+		$variableFound = array();
 		foreach($lines as $line) {		
 			if(!preg_match('/^\s*#/', $line) && preg_match('/(\w+)\s*\(/', $line, $m)) {
 				$token = $m[1];
@@ -359,9 +356,15 @@ class QBHandler {
 						$functionFound[$token] = true;
 				}					
 			}
+			if(preg_match_all($pattern, $line, $matches, PREG_SET_ORDER)) {
+				foreach($matches as $match) {
+					$variable = $match[0];
+					$variableFound[$variable] = true;
+				}
+			}
 		}
-		
 		$this->functionUsed = $functionFound;
+		$this->variableUsed = $variableFound;
 		$this->flags &= ~self::SEARCHING_FOR_CALLS_AND_VARIABLES;
 	}
 	
@@ -382,8 +385,7 @@ class QBHandler {
 	}
 	
 	// return code for the handle label	
-	protected function getLabelCode() {
-		$name = $this->getName();
+	protected function getLabelCode($name) {
 		if(self::$compiler == "GCC") {
 			return "label_$name:";
 		} else if(self::$compiler == "MSVC") {
@@ -436,6 +438,13 @@ class QBHandler {
 			} else {
 				$lines[] = $this->declareVariables($cType, array("res_ptr" => "*__restrict res_ptr"));
 			}
+		} else if($addressMode == "ELC") {
+			// segment selector is encoded, along with a fixed offset
+			if($i <= $this->srcCount) {
+				$lines[] = $this->declareVariables($cType, array("op{$i}_ptr" => "*__restrict op{$i}_ptr"));
+			} else {
+				$lines[] = $this->declareVariables($cType, array("res_ptr" => "*__restrict res_ptr"));
+			}
 		} else if($addressMode == "ELV") {
 			// segment selector plus the index of a variable in segment 0 (i.e. QB_SEGMENT_SCALAR)
 			// which will serve as the index for the array element
@@ -456,6 +465,25 @@ class QBHandler {
 		return $lines;
 	}
 	
+	protected function declareVariables($cType, $decls) {
+		$line = NULL;
+		if($this->variableUsed) {
+			foreach($decls as $var => $decl) {
+				if(isset($this->variableUsed[$var])) {
+					if(!$line) {
+						$line = "$cType $decl";
+					} else {
+						$line .= ", $decl";
+					}
+				}
+			}
+			if($line) {
+				$line .= ";";
+			}
+		}
+		return $line;
+	}	
+	
 	// return code for retrieving operand $i
 	// variables employed here should be declared in getOperandDeclaration() 
 	protected function getOperandRetrievalCode($i) {
@@ -470,11 +498,16 @@ class QBHandler {
 				$j = $i - $this->srcCount;
 				$lines[] = "res_ptr = (($cType *) segment0) + index;";
 			}
-		} else if($addressMode == "ELV") {
-			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
-			$lines[] = "index_selector = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x00FF;";
-			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 16;";
-			$lines[] = "index = ((uint32_t *) segments[index_selector])[index_index];";
+		} else if($addressMode == "ELC" || $addressMode == "ELV") {
+			if($addressMode == "ELC") {
+				$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
+				$lines[] = "index = (($instr *) instruction_pointer)->operand{$i} >> 8;";
+			} else {
+				$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
+				$lines[] = "index_selector = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x00FF;";
+				$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 16;";
+				$lines[] = "index = ((uint32_t *) segments[index_selector])[index_index];";
+			}
 			if($i <= $this->srcCount) {				
 				if(!($this->flags & self::IS_ISSET)) {
 					// abort on out-of-bound
@@ -527,10 +560,13 @@ class QBHandler {
 					$lines[] = 		"op{$i}_ptr = NULL;";
 					$lines[] = "} else {";
 				}
-				$this->variableDefinitions["op{$i}_start"] = "((($cType *) segments[selector]) + op{$i}_start_index)";
-				$this->variableDefinitions["op{$i}_end"] = "((($cType *) segments[selector]) + op{$i}_start_index + op{$i}_count)";
-				if(isset($this->variableUsed["op{$i}_ptr"])) {
-					$lines[] = "op{$i}_ptr = op{$i}_start;";
+				if(isset($this->variableUsed["op{$i}_start"])) {
+					$lines[] = "op{$i}_ptr = op{$i}_start = (($cType *) segments[selector]) + op{$i}_start_index;";
+				} else {
+					$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + op{$i}_start_index;";
+				}
+				if(isset($this->variableUsed["op{$i}_end"])) {
+					$lines[] = "op{$i}_end = op{$i}_ptr + op{$i}_count;";
 				}
 				if($this->flags & self::IS_ISSET) {
 					$lines[] = "}";	// end else
@@ -566,10 +602,13 @@ class QBHandler {
 					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);";
 					$lines[] = 		"}";
 					$lines[] = "}";
-					$this->variableDefinitions["res_start"] = "((($cType *) segments[selector]) + res_start_index)";
-					$this->variableDefinitions["res_end"] = "((($cType *) segments[selector]) + res_start_index + res_count)";
-					if(isset($this->variableUsed["res_ptr"])) {
-						$lines[] = "res_ptr = res_start;";
+					if(isset($this->variableUsed["res_start"])) {
+						$lines[] = "res_ptr = res_start = (($cType *) segments[selector]) + res_start_index;";
+					} else {
+						$lines[] = "res_ptr = (($cType *) segments[selector]) + res_start_index;";
+					}
+					if(isset($this->variableUsed["res_end"])) {
+						$lines[] = "res_end = res_ptr + res_count;";
 					}
 				} else {
 					$lines[] = "if(res_start_index + res_count <= segment_element_counts[selector] && res_start_index + res_count >= res_start_index) {";
