@@ -10,8 +10,8 @@ PHP_ARG_WITH(sse, whether to use SSE instructions on x86 processors,
 PHP_ARG_WITH(avx, whether to use AVX instructions on x86 processors,
 [  --with-avx[=VER]          Enable AVX optimization.  VER is the AVX version], no, no)
 
-PHP_ARG_WITH(arch-native, whether to enable CPU-specific optimization,
-[  --with-arch-native      Enable optimization specific to current CPU.], no, no)
+PHP_ARG_WITH(cpu, whether to enable CPU-specific optimization,
+[  --with-cpu[=arch]         Enable optimization specific to CPU archecture], no, no)
 
 if test "$PHP_QB" != "no"; then
   qb_cflags=""
@@ -30,9 +30,11 @@ if test "$PHP_QB" != "no"; then
     	qb_cflags="$qb_cflags -mavx$PHP_AVX"
     fi
   fi
-  if test "$PHP_ARCH_NATIVE" != "no"; then
-  	if test "$PHP_ARCH_NATIVE" == "yes"; then
+  if test "$PHP_CPU" != "no"; then
+  	if test "$PHP_CPU" == "yes"; then
     	qb_cflags="$qb_cflags -march=native"
+    else  
+    	qb_cflags="$qb_cflags -march=$PHP_CPU"
     fi
   fi
 
