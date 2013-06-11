@@ -16,7 +16,6 @@ class QBHandler {
 	protected $addressMode;
 
 	protected $functionUsed = array();
-	protected $variableUsed = array();
 	protected $variableDefinitions = array();
 	protected $flags = 0;
 	
@@ -231,10 +230,6 @@ class QBHandler {
 		return array_keys($this->functionUsed);
 	}
 
-	public function getVariablesUsed() {
-		return array_keys($this->variableUsed);
-	}
-
 	// return the address mode of operand $i
 	// by default, all operands use the same address mode
 	public function getOperandAddressMode($i) {
@@ -312,6 +307,21 @@ class QBHandler {
 		$this->opCount = $this->srcCount + $this->dstCount;
 		$this->flags &= ~self::SEARCHING_FOR_OPERANDS;
 
+		for($i = 1; $i <= $this->opCount; $i++) {
+			$variable = ($i <= $this->srcCount) ? "op{$i}" : "res";
+			$type = strtolower($this->getOperandType($i));
+			if($type[0] == 'i') {
+				$type[0] = 's';
+			}
+			if(isset($variableFound[$variable])) {
+				$this->variableDefinitions[$variable] = "(*{$variable}_ptr_{$type})";
+			}
+			if(isset($variableFound["{$variable}_ptr"])) {
+				$this->variableDefinitions["{$variable}_ptr"] = "{$variable}_ptr_{$type}";
+			}
+		}
+		$this->variableUsed = $variableFound;
+
 		// scan again now that the operand count is set to see if the handler needs the line number (for error output)
 		$this->flags |= self::SEARCHING_FOR_LINE_NUMBER;
 		$lines = $this->getCode();
@@ -349,44 +359,9 @@ class QBHandler {
 						$functionFound[$token] = true;
 				}					
 			}
-			if(preg_match_all($srcPattern, $line, $matches, PREG_SET_ORDER)) {
-				foreach($matches as $match) {
-					$variable = $match[0];
-					$variableFound[$variable] = true;
-				}
-			}
-			if(preg_match_all($dstPattern, $line, $matches, PREG_SET_ORDER)) {
-				foreach($matches as $match) {
-					$variable = $match[0];
-					$variableFound[$variable] = true;
-				}
-			}
-		}
-		
-		$definitions = array();
-		for($i = 1; $i <= $this->opCount; $i++) {
-			$variable = ($i <= $this->srcCount) ? "op{$i}" : "res";
-			$type = strtolower($this->getOperandType($i));
-			if($type[0] == 'i') {
-				$type[0] = 's';
-			}
-			if(isset($variableFound[$variable])) {
-				$definitions[$variable] = "(*{$variable}_ptr_{$type})";
-			}
-			if(isset($variableFound["{$variable}_ptr"])) {
-				$definitions["{$variable}_ptr"] = "{$variable}_ptr_{$type}";
-			}
-			if(isset($variableFound["{$variable}_start"])) {
-				$definitions["{$variable}_start"] = "{$variable}_start_{$type}";
-			}
-			if(isset($variableFound["{$variable}_end"])) {
-				$definitions["{$variable}_end"] = "{$variable}_end_{$type}";
-			}
 		}
 		
 		$this->functionUsed = $functionFound;
-		$this->variableUsed = $variableFound;
-		$this->variableDefinitions = $definitions;
 		$this->flags &= ~self::SEARCHING_FOR_CALLS_AND_VARIABLES;
 	}
 	
@@ -552,13 +527,10 @@ class QBHandler {
 					$lines[] = 		"op{$i}_ptr = NULL;";
 					$lines[] = "} else {";
 				}
-				if(isset($this->variableUsed["op{$i}_start"])) {
-					$lines[] = "op{$i}_ptr = op{$i}_start = (($cType *) segments[selector]) + op{$i}_start_index;";
-				} else {
-					$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + op{$i}_start_index;";
-				}
-				if(isset($this->variableUsed["op{$i}_end"])) {
-					$lines[] = "op{$i}_end = op{$i}_ptr + op{$i}_count;";
+				$this->variableDefinitions["op{$i}_start"] = "((($cType *) segments[selector]) + op{$i}_start_index)";
+				$this->variableDefinitions["op{$i}_end"] = "((($cType *) segments[selector]) + op{$i}_start_index + op{$i}_count)";
+				if(isset($this->variableUsed["op{$i}_ptr"])) {
+					$lines[] = "op{$i}_ptr = op{$i}_start;";
 				}
 				if($this->flags & self::IS_ISSET) {
 					$lines[] = "}";	// end else
@@ -594,13 +566,10 @@ class QBHandler {
 					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);";
 					$lines[] = 		"}";
 					$lines[] = "}";
-					if(isset($this->variableUsed["res_start"])) {
-						$lines[] = "res_ptr = res_start = (($cType *) segments[selector]) + res_start_index;";
-					} else {
-						$lines[] = "res_ptr = (($cType *) segments[selector]) + res_start_index;";
-					}
-					if(isset($this->variableUsed["res_end"])) {
-						$lines[] = "res_end = res_ptr + res_count;";
+					$this->variableDefinitions["res_start"] = "((($cType *) segments[selector]) + res_start_index)";
+					$this->variableDefinitions["res_end"] = "((($cType *) segments[selector]) + res_start_index + res_count)";
+					if(isset($this->variableUsed["res_ptr"])) {
+						$lines[] = "res_ptr = res_start;";
 					}
 				} else {
 					$lines[] = "if(res_start_index + res_count <= segment_element_counts[selector] && res_start_index + res_count >= res_start_index) {";
