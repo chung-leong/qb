@@ -39,18 +39,10 @@ abstract class QBBranchHandler extends QBHandler {
 
 	public function getCode() {
 		$lines = array();
-		$name = $this->getName();
-		$instr = $this->getInstructionStructure();
-		$lines[] = $this->getLabelCode($name);
-		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler1");
+		$lines[] = $this->getDefineCode();
+		$lines[] = $this->getLabelCode();
+		$lines[] = $this->getSetHandlerCode("INSTRUCTION->next_handler1");
 		$lines[] = "{";
-		if($this->flags & self::NEED_LINE_NUMBER) {
-			$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
-		}
-		$lines[] =		"int32_t condition;";
-		for($i = 1; $i <= $this->opCount; $i++) {
-			$lines[] =	$this->getOperandDeclaration($i);
-		}
 		for($i = 1; $i <= $this->opCount; $i++) {
 			$lines[] =	$this->getOperandRetrievalCode($i);
 		}
@@ -58,16 +50,14 @@ abstract class QBBranchHandler extends QBHandler {
 		// code returned by getAction() sets the variable condition
 		$lines[] = 		$this->getAction();
 		$lines[] = 		"if(condition) {";
-		$lines[] = 			"instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer1;";
+		$lines[] = 			"instruction_pointer = INSTRUCTION->instruction_pointer1;";
 		$lines[] = 		"} else {";
-		$lines[] = 			$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler2");
-		$lines[] = 			"instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer2;";
+		$lines[] = 			$this->getSetHandlerCode("INSTRUCTION->next_handler2");
+		$lines[] = 			"instruction_pointer = INSTRUCTION->instruction_pointer2;";
 		$lines[] = 		"}";
-		if($this->flags & self::NEED_LINE_NUMBER) {
-			$lines[] = "#undef PHP_LINE_NUMBER";
-		}
 		$lines[] = "}";
 		$lines[] = $this->getJumpCode();
+		$lines[] = $this->getUndefCode();
 		return $lines;
 	}
 	

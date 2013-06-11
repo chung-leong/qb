@@ -37,11 +37,16 @@ class QBCodeGenerator {
 		
 			$lines = array();
 			$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
-			$lines[] =		QBHandler::getMacroDefinitions();
+			$lines[] = 		"#define PHP_LINE_NUMBER			INSTRUCTION->line_number";
+			$lines[] = 		"#define MATRIX1_ROWS			(INSTRUCTION->matrix_dimensions >> 20)";
+			$lines[] = 		"#define MATRIX1_COLS			((INSTRUCTION->matrix_dimensions >> 10) & 0x03FF)";
+			$lines[] = 		"#define MATRIX2_ROWS			MATRIX1_COLS";
+			$lines[] = 		"#define MATRIX2_COLS			(INSTRUCTION->matrix_dimensions & 0x03FF)";
 			$lines[] =		"";
 			$lines[] = 		"if(cxt) {";
 			$lines[] = 			"register void *__restrict op_handler;";
 			$lines[] = 			"register int8_t *__restrict instruction_pointer;";
+			$lines[] =			"int condition;";
 			$lines[] = 			"int8_t *__restrict segments[MAX_SEGMENT_COUNT];";
 			$lines[] = 			"int8_t *__restrict segment0;";
 			$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
@@ -52,7 +57,31 @@ class QBCodeGenerator {
 			$lines[] = 			"uint32_t op1_start_index, op2_start_index, op3_start_index, op4_start_index, op5_start_index;";
 			$lines[] =			"uint32_t op1_count, op2_count, op3_count, op4_count, op5_count;";
 			$lines[] = 			"uint32_t res_start_index, res_count, res_count_before;";
-			
+			$lines[] =			"";
+			$lines[] =			"int8_t *__restrict res_ptr_s08, *res_start_s08, *res_end_s08;";
+			$lines[] =			"uint8_t *__restrict res_ptr_u08, *res_start_u08, *res_end_u08;";
+			$lines[] =			"int16_t *__restrict res_ptr_s16, *res_start_s16, *res_end_s16;";
+			$lines[] =			"uint16_t *__restrict res_ptr_u16, *res_start_u16, *res_end_u16;";
+			$lines[] =			"int32_t *__restrict res_ptr_s32, *res_start_s32, *res_end_s32;";
+			$lines[] =			"uint32_t *__restrict res_ptr_u32, *res_start_u32, *res_end_u32;";
+			$lines[] =			"int64_t *__restrict res_ptr_s64, *res_start_s64, *res_end_s64;";
+			$lines[] =			"uint64_t *__restrict res_ptr_u64, *res_start_u64, *res_end_u64;";
+			$lines[] =			"float32_t *__restrict res_ptr_f32, *res_start_f32, *res_end_f32;";
+			$lines[] =			"float64_t *__restrict res_ptr_f64, *res_start_f64, *res_end_f64;";
+			$lines[] =			"";
+			for($i = 1; $i < 6; $i++) {
+				$lines[] =		"int8_t *__restrict op{$i}_ptr_s08, *op{$i}_start_s08, *op{$i}_end_s08;";
+				$lines[] =		"uint8_t *__restrict op{$i}_ptr_u08, *op{$i}_start_u08, *op{$i}_end_u08;";
+				$lines[] =		"int16_t *__restrict op{$i}_ptr_s16, *op{$i}_start_s16, *op{$i}_end_s16;";
+				$lines[] =		"uint16_t *__restrict op{$i}_ptr_u16, *op{$i}_start_u16, *op{$i}_end_u16;";
+				$lines[] =		"int32_t *__restrict op{$i}_ptr_s32, *op{$i}_start_s32, *op{$i}_end_s32;";
+				$lines[] =		"uint32_t *__restrict op{$i}_ptr_u32, *op{$i}_start_u32, *op{$i}_end_u32;";
+				$lines[] =		"int64_t *__restrict op{$i}_ptr_s64, *op{$i}_start_s64, *op{$i}_end_s64;";
+				$lines[] =		"uint64_t *__restrict op{$i}_ptr_u64, *op{$i}_start_u64, *op{$i}_end_u64;";
+				$lines[] =		"float32_t *__restrict op{$i}_ptr_f32, *op{$i}_start_f32, *op{$i}_end_f32;";
+				$lines[] =		"float64_t *__restrict op{$i}_ptr_f64, *op{$i}_start_f64, *op{$i}_end_f64;";
+			}
+			$lines[] =			"";
 			if($compiler == "MSVC") {
 				$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
 				$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
@@ -126,7 +155,6 @@ class QBCodeGenerator {
 
 			$lines = array();
 			$lines[] =		"";
-			$lines[] =		QBHandler::getMacroUndefinitions();
 			$lines[] = 	"}";
 			$lines[] = 	"";
 			if($compiler == "GCC") {

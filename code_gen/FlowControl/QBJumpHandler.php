@@ -28,25 +28,18 @@ class QBJumpHandler extends QBHandler {
 
 	public function getCode() {
 		$lines = array();
-		$name = $this->getName();
-		$instr = $this->getInstructionStructure();
-		$lines[] = $this->getLabelCode($name);
-		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
+		$lines[] = $this->getDefineCode();
+		$lines[] = $this->getLabelCode();
+		$lines[] = $this->getSetHandlerCode("INSTRUCTION->next_handler");
 		$lines[] = "{";
-		// retrieve operands (none by default)
-		for($i = 1; $i <= $this->opCount; $i++) {
-			$lines[] = $this->getOperandDeclaration($i);
-		}
-		for($i = 1; $i <= $this->opCount; $i++) {
-			$lines[] = $this->getOperandRetrievalCode($i);
-		}
 		// check time limit (Windows only)
 		$lines[] = $this->getTimeoutCode();
 		// in case a descendant class wants to do something before the jump occurs		
 		$lines[] = $this->getAction();
 		$lines[] = "}";
-		$lines[] = "instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer;";
+		$lines[] = "instruction_pointer = INSTRUCTION->instruction_pointer;";
 		$lines[] = $this->getJumpCode();
+		$lines[] = $this->getUndefCode();
 		return $lines;
 	}
 	
