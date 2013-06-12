@@ -915,7 +915,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 		if(address->flags & QB_ADDRESS_SEGMENT) {
 			*segment->array_size_pointer = *segment->stack_ref_element_count = segment->element_count = element_count;
 			// if the segment doesn't have preallocated memory, see if it can borrow it from the zval
-			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
+			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && !(segment->flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 				php_stream *stream;
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
 					// use memory from the string if it's long enough

@@ -385,6 +385,8 @@ NO_RETURN void qb_abort(const char *format, ...) {
 	va_start(args, format);
 	zend_error_cb(E_ERROR, filename, lineno, format, args);
 	va_end(args);
+	// just to silence the warning--zend_error_cb() doesn't return
+ 	exit(0);
 }
 
 /*

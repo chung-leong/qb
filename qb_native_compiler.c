@@ -701,7 +701,7 @@ static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_contex
 	const char *index = qb_get_segment_index(cxt, address);
 	const char *size = (new_size) ? new_size : qb_get_array_size(cxt, address);
 
-	if(size == (char *) "res_count") {
+	if(strcmp(size, "res_count") == 0) {
 		qb_printf(cxt, "if(UNEXPECTED(res_count > res_count_before || %s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);
 	} else {
 		qb_printf(cxt, "if(UNEXPECTED(%s + %s > segment_element_count%d || %s + %s < %s)) {\n", index, size, address->segment_selector, index, size, index);

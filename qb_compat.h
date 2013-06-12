@@ -135,7 +135,7 @@
 	#endif
 #endif
 
-#if defined(__GNUC__) && !defined(__builtin_bswap16)
+#if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP16)
 static inline unsigned short __builtin_bswap16(unsigned short v) {
   return (v << 8) | (v >> 8);
 }

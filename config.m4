@@ -37,7 +37,7 @@ if test "$PHP_QB" != "no"; then
     	qb_cflags="$qb_cflags -march=$PHP_CPU"
     fi
   fi
-
+  
   dnl See if compile support -march=native 
   `echo "" | $CC -fsyntax-only -march=native -xc - 2> /dev/null`
   if [[ $? -eq 0 ]]; then
@@ -45,12 +45,27 @@ if test "$PHP_QB" != "no"; then
   fi  
 
   dnl See if sincos() function exists
+  AC_MSG_CHECKING([for sincos])  
   `echo "void sincos(double x, double *ps, double *pc); int main(int argc, const char *argv[]) { sincos(0, 0, 0); return 0; }" | $CC -o sincos -xc - 2> /dev/null`
   if [[ $? -eq 0 ]]; then
     AC_DEFINE(HAVE_SINCOS,1,[ ])
     `rm -f sincos`
+    AC_MSG_RESULT([yes])
+  else
+    AC_MSG_RESULT([no])
   fi
 
+  AC_MSG_CHECKING([for __builtin_bswap16])  
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ short __builtin_bswap16(short a) { return a; } ]], [[ ]])],
+    [
+    AC_MSG_RESULT([no])
+    ],
+    [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE_UNQUOTED([HAVE_BUILTIN_BSWAP16],1,[ ])
+    ]
+  )  
+  
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
   *darwin*)

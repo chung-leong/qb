@@ -2880,14 +2880,12 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 					case QB_OPERAND_JUMP_TARGET: {
 						qb_encode_jump_target(cxt, operand->jump_target_index, i, &ip);
 					}	break;
-#if ZEND_DEBUG
 					case QB_OPERAND_ADDRESS: {
 						qb_abort("Unresolved address");
 					}	break;
 					default: {
 						qb_abort("Unknown operand type: %d", operand->type);
 					}	break;
-#endif
 				}
 			}
 			if(qop->flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
