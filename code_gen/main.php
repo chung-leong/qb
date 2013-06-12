@@ -28,12 +28,19 @@ error_reporting(E_ALL | E_STRICT);
 set_time_limit(0);
 
 $copyright = file_get_contents("$scriptFolder/copyright.txt");
+$include = <<<INCLUDE
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include "qb.h"
+
+INCLUDE;
 $generator = new QBCodeGenerator;
 
 echo "Creating qb_interpreter_gcc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_gcc.c", "w");
 fwrite($handle, $copyright);
-fwrite($handle, "#include \"qb.h\"\n\n");
+fwrite($handle, $include);
 $generator->generate($handle, 'GCC', 'DECLARATIONS');
 $generator->generate($handle, 'GCC', 'HANDLERS');
 $generator->generate($handle, 'GCC', 'NATIVE SYMBOLS');
@@ -42,7 +49,7 @@ $generator->generate($handle, 'GCC', 'NATIVE DEBUG');
 echo "Creating qb_interpreter_msvc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
 fwrite($handle, $copyright);
-fwrite($handle, "#include \"qb.h\"\n\n");
+fwrite($handle, $include);
 $generator->generate($handle, 'MSVC', 'DECLARATIONS');
 $generator->generate($handle, 'MSVC', 'HANDLERS');
 $generator->generate($handle, 'MSVC', 'NATIVE SYMBOLS');
@@ -56,7 +63,7 @@ $generator->generate($handle, 'GCC', 'CODES');
 echo "Creating qb_data_tables_gcc.c\n";
 $handle = fopen("$targetFolder/qb_data_tables_gcc.c", "w");
 fwrite($handle, $copyright);
-fwrite($handle, "#include \"qb.h\"\n\n");
+fwrite($handle, $include);
 $generator->generate($handle, 'GCC', 'FLAGS');
 $generator->generate($handle, 'GCC', 'NAMES');
 $generator->generate($handle, 'GCC', 'NATIVE CODE');
@@ -64,7 +71,7 @@ $generator->generate($handle, 'GCC', 'NATIVE CODE');
 echo "Creating qb_data_tables_msvc.c\n";
 $handle = fopen("$targetFolder/qb_data_tables_msvc.c", "w");
 fwrite($handle, $copyright);
-fwrite($handle, "#include \"qb.h\"\n\n");
+fwrite($handle, $include);
 $generator->generate($handle, 'MSVC', 'FLAGS');
 $generator->generate($handle, 'MSVC', 'NAMES');
 $generator->generate($handle, 'MSVC', 'NATIVE CODE');

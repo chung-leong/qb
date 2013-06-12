@@ -18,8 +18,10 @@
 
 /* $Id$ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "qb.h"
-
 uint32_t global_op_flags[] = {
 	// NOP
 	0,
