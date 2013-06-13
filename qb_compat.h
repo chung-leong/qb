@@ -182,15 +182,15 @@ __forceinline float atanhf(float x) { return (float) atanh(x); }
 __forceinline float roundf(float x) { return (float) round(x); }
 #else
 #ifndef HAVE_EXP2F
-zend_always_inline float exp2f(float x) { return (float) exp2(x); }
+float exp2f(float x);
 #endif
 
 #ifndef HAVE_ROUNDF
-zend_always_inline float roundf(float x) { return (float) round(x); }
+float roundf(float x);
 #endif
 
 #ifndef HAVE_LOG2F
-zend_always_inline float log2f(float x) { return (float) log2(x); }
+float log2f(float x);
 #endif
 #endif
 
