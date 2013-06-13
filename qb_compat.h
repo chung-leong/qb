@@ -180,7 +180,20 @@ __forceinline float asinhf(float x) { return (float) asinh(x); }
 __forceinline float acoshf(float x) { return (float) acosh(x); }
 __forceinline float atanhf(float x) { return (float) atanh(x); }
 __forceinline float roundf(float x) { return (float) round(x); }
+#else
+#ifndef HAVE_EXP2F
+zend_always_inline float exp2f(float x) { return (float) exp2(x); }
 #endif
+
+#ifndef HAVE_ROUNDF
+zend_always_inline float roundf(float x) { return (float) round(x); }
+#endif
+
+#ifndef HAVE_LOG2F
+zend_always_inline float log2f(float x) { return (float) log2(x); }
+#endif
+#endif
+
 
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 PHPAPI double _php_math_round(double value, int places, int mode);
