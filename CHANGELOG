@@ -1,3 +1,24 @@
+Version 1.3 (Agnieszka C.)
+--------------------------------------------------
+14-June-2013
+--------------------------------------------------
+
+* Added blend function 
+* Added multiple accumulate instruction
+* Fixed temporary variable allocation during function call
+* Fixed crash when image is declared as linear pixel array
+* Added alpha-premulitiplication to import Pixel Bender kernel
+* Lowered precision of single-precision operations from double-precision
+* Enabled intrinsic functions in compiled native code
+* Enabled fastcall semantic from compiled native code
+* Corrected extension version number reported by phpversion() 
+* Reduced memory usage during compiling
+* Reduced VM size by cutting one address mode
+* Enabled native-code compiling on OSX in 64-bit mode
+
+* Fixed issie #6 - Droste test case failing
+* Fixed issue #5 - Incorrect Pixel Bender output
+
 Version 1.2 (Agnieszka B.)
 --------------------------------------------------
 15-May-2013
