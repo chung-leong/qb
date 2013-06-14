@@ -115,13 +115,13 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 #ifdef HAVE_GCC_MARCH_NATIVE
 		args[argc++] = "-march=native";								// optimize for current CPU
 #elif defined(__SSE4__)
-		args[argc++] = "-march=msse4";
+		args[argc++] = "-msse4";
 #elif defined(__SSE3__)
-		args[argc++] = "-march=msse3";
+		args[argc++] = "-msse3";
 #elif defined(__SSE2__)
-		args[argc++] = "-march=msse2";
+		args[argc++] = "-msse2";
 #elif defined(__SSE__)
-		args[argc++] = "-march=msse";
+		args[argc++] = "-msse";
 #endif
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG
@@ -129,7 +129,7 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 #endif
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
-#ifdef __LP64__
+#if defined(__LP64__) && !defined(__APPLE__)
 		args[argc++] = "-mcmodel=large";							// use large memory model, since qb extension could be anywhere in the address space
 #endif
 		args[argc++] = "-o";
@@ -1441,7 +1441,11 @@ static int32_t ZEND_FASTCALL qb_load_object_file(qb_native_compiler_context *cxt
 			// on x64-64, gcc is going to use 32-bit relative pointers for function calls
 			// the code has to be thus located in an address not too far from the PHP executable
 			// assume here that it's located with in the first 4 gig
+#ifndef __APPLE__			
 			binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_32BIT, file_descriptor, 0);
+#else
+			binary = mmap((void *) ~0, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE, file_descriptor, 0);
+#endif			
 #else
 			binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE, file_descriptor, 0);
 #endif
@@ -1890,7 +1894,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho64(qb_native_compiler_context *cxt) {
 	}
 
 	// find the compiled functions
-	uint32_t count;
+	uint32_t count = 0;
 	for(i = 0; i < symtab_command->nsyms; i++) {
 		struct nlist_64 *symbol = &symbols[i];
 		if(symbol->n_sect != NO_SECT) {
