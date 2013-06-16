@@ -10,7 +10,6 @@ class PhpQb < Formula
   def install
     system "phpize"
     system "./configure"
-    system "make"
     system "sudo", "make", "install"
     system "cp", "qb.ini", "#{prefix}/qb.ini"
   end
