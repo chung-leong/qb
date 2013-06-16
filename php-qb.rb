@@ -10,8 +10,9 @@ class PhpQb < Formula
   def install
     system "phpize"
     system "./configure"
-    system "sudo", "make", "install"
-    system "cp", "qb.ini", "#{prefix}/qb.ini"
+    system "make"
+    system "cp", "modules/qb.so", "#{prefix}/qb.so"
+    system "cp", "qb.ini", "#{prefix}/qb.ini"    
   end
 
   test do
@@ -19,7 +20,7 @@ class PhpQb < Formula
   end
   
   fails_with :clang do
-  	build 425
+    build 425
     cause "Compiling with clang is incredibly slow"
   end
 end
