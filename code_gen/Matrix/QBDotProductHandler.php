@@ -15,31 +15,96 @@ class QBDotProductHandler extends QBSIMDHandler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_dot_product_2x_$type($cType *v1, $cType *v2) {",
-					"$cType sum = (v1[0] * v2[0]) + (v1[1] * v2[1]);",
-					"return sum;",
-				"}",
-			),
-			array(
-				"static $cType ZEND_FASTCALL qb_calculate_dot_product_3x_$type($cType *v1, $cType *v2) {",
-					"$cType sum = (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]);",
-					"return sum;",
-				"}",
-			),
-			array(
-				"static $cType ZEND_FASTCALL qb_calculate_dot_product_4x_$type($cType *v1, $cType *v2) {",
-					"$cType sum = (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]) + (v1[3] * v2[3]);",
-					"return sum;",
-				"}",
-			),
-			array(
-				"static $cType ZEND_FASTCALL qb_calculate_dot_product_$type($cType *v1, $cType *v2, uint32_t size) {",
-					"uint32_t i;",
-					"$cType sum = 0;",
-					"for(i = 0; i < size; i++) {",
-						"sum += v1[i] * v2[i];",
+				"static void ZEND_FASTCALL qb_calculate_dot_product_2x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 2;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += 2;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
 					"}",
-					"return sum;",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_calculate_dot_product_3x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 3;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += 3;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
+					"}",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_calculate_dot_product_4x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 4;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += 4;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
+					"}",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_calculate_dot_product_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"uint32_t i;",
+						"$cType sum = 0;",
+						"for(i = 0; i < dim; i++) {",
+							"sum += op1_ptr[i] * op2_ptr[i];",
+						"}",
+						"res_ptr[0] = sum;",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += dim;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += dim;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
+					"}",
 				"}",
 			),
 		);
@@ -67,12 +132,20 @@ class QBDotProductHandler extends QBSIMDHandler {
 		}
 	}
 	
-	public function getSIMDExpression() {
+	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "res = qb_calculate_dot_product_$type(op1_ptr, op2_ptr, MATRIX2_ROWS);";
+			if($this->addressMode == "ARR") {
+				return "qb_calculate_dot_product_$type(op1_start, op1_end, op2_start, op2_end, MATRIX2_ROWS, res_start, res_end);";
+			} else {
+				return "qb_calculate_dot_product_$type(op1_ptr, NULL, op2_ptr, NULL, MATRIX2_ROWS, res_ptr, NULL);";
+			}
 		} else {
-			return "res = qb_calculate_dot_product_{$this->operandSize}x_$type(op1_ptr, op2_ptr);";
+			if($this->addressMode == "ARR") {
+				return "qb_calculate_dot_product_{$this->operandSize}x_$type(op1_start, op1_end, op2_start, op2_end, res_start, res_end);";
+			} else {
+				return "qb_calculate_dot_product_{$this->operandSize}x_$type(op1_ptr, NULL, op2_ptr, NULL, res_ptr, NULL);";
+			}
 		}
 	}
 }

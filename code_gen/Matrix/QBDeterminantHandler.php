@@ -14,37 +14,70 @@ class QBDeterminantHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_matrix_determinant_2x2_$type($cType *m) {",
-					"$cType det = (m[0] * m[3]) - (m[1] * m[2]);",
-					"return det;",
+				"static void ZEND_FASTCALL qb_calculate_matrix_determinant_2x2_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"for(;;) {",
+						"res_ptr[0] = (op1_ptr[0] * op1_ptr[3]) - (op1_ptr[1] * op1_ptr[2]);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 4;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
 				"}",
 			),
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_matrix_determinant_3x3_$type($cType *m) {",
-					"$cType det =	 (m[0] * m[4] * m[8]) -",
-									"(m[0] * m[5] * m[7]) +",
-									"(m[1] * m[5] * m[6]) -",
-									"(m[1] * m[3] * m[8]) +",
-									"(m[2] * m[3] * m[7]) -",
-									"(m[2] * m[4] * m[6]);",
-					"return det;",
+				"static void ZEND_FASTCALL qb_calculate_matrix_determinant_3x3_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"for(;;) {",
+						"res_ptr[0] =	 (op1_ptr[0] * op1_ptr[4] * op1_ptr[8]) -",
+										"(op1_ptr[0] * op1_ptr[5] * op1_ptr[7]) +",
+										"(op1_ptr[1] * op1_ptr[5] * op1_ptr[6]) -",
+										"(op1_ptr[1] * op1_ptr[3] * op1_ptr[8]) +",
+										"(op1_ptr[2] * op1_ptr[3] * op1_ptr[7]) -",
+										"(op1_ptr[2] * op1_ptr[4] * op1_ptr[6]);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 9;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
 				"}",
 			),
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_matrix_determinant_4x4_$type($cType *m) {",
-					"$cType det = 	 ((m[ 3] * m[ 6]) * (m[ 9] * m[12])) - ((m[ 2] * m[ 7]) * (m[ 9] * m[12])) -",
-									"((m[ 3] * m[ 5]) * (m[10] * m[12])) + ((m[ 1] * m[ 7]) * (m[10] * m[12])) +",
-									"((m[ 2] * m[ 5]) * (m[11] * m[12])) - ((m[ 1] * m[ 6]) * (m[11] * m[12])) -",
-									"((m[ 3] * m[ 6]) * (m[ 8] * m[13])) + ((m[ 2] * m[ 7]) * (m[ 8] * m[13])) +",
-									"((m[ 3] * m[ 4]) * (m[10] * m[13])) - ((m[ 0] * m[ 7]) * (m[10] * m[13])) -",
-									"((m[ 2] * m[ 4]) * (m[11] * m[13])) + ((m[ 0] * m[ 6]) * (m[11] * m[13])) +",
-									"((m[ 3] * m[ 5]) * (m[ 8] * m[14])) - ((m[ 1] * m[ 7]) * (m[ 8] * m[14])) -",
-									"((m[ 3] * m[ 4]) * (m[ 9] * m[14])) + ((m[ 0] * m[ 7]) * (m[ 9] * m[14])) +",
-									"((m[ 1] * m[ 4]) * (m[11] * m[14])) - ((m[ 0] * m[ 5]) * (m[11] * m[14])) -",
-									"((m[ 2] * m[ 5]) * (m[ 8] * m[15])) + ((m[ 1] * m[ 6]) * (m[ 8] * m[15])) +",
-									"((m[ 2] * m[ 4]) * (m[ 9] * m[15])) - ((m[ 0] * m[ 6]) * (m[ 9] * m[15])) -",
-									"((m[ 1] * m[ 4]) * (m[10] * m[15])) + ((m[ 0] * m[ 5]) * (m[10] * m[15]));",
-					"return det;",
+				"static void ZEND_FASTCALL qb_calculate_matrix_determinant_4x4_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"for(;;) {",
+						"res_ptr[0] = 	 ((op1_ptr[ 3] * op1_ptr[ 6]) * (op1_ptr[ 9] * op1_ptr[12])) - ((op1_ptr[ 2] * op1_ptr[ 7]) * (op1_ptr[ 9] * op1_ptr[12])) -",
+										"((op1_ptr[ 3] * op1_ptr[ 5]) * (op1_ptr[10] * op1_ptr[12])) + ((op1_ptr[ 1] * op1_ptr[ 7]) * (op1_ptr[10] * op1_ptr[12])) +",
+										"((op1_ptr[ 2] * op1_ptr[ 5]) * (op1_ptr[11] * op1_ptr[12])) - ((op1_ptr[ 1] * op1_ptr[ 6]) * (op1_ptr[11] * op1_ptr[12])) -",
+										"((op1_ptr[ 3] * op1_ptr[ 6]) * (op1_ptr[ 8] * op1_ptr[13])) + ((op1_ptr[ 2] * op1_ptr[ 7]) * (op1_ptr[ 8] * op1_ptr[13])) +",
+										"((op1_ptr[ 3] * op1_ptr[ 4]) * (op1_ptr[10] * op1_ptr[13])) - ((op1_ptr[ 0] * op1_ptr[ 7]) * (op1_ptr[10] * op1_ptr[13])) -",
+										"((op1_ptr[ 2] * op1_ptr[ 4]) * (op1_ptr[11] * op1_ptr[13])) + ((op1_ptr[ 0] * op1_ptr[ 6]) * (op1_ptr[11] * op1_ptr[13])) +",
+										"((op1_ptr[ 3] * op1_ptr[ 5]) * (op1_ptr[ 8] * op1_ptr[14])) - ((op1_ptr[ 1] * op1_ptr[ 7]) * (op1_ptr[ 8] * op1_ptr[14])) -",
+										"((op1_ptr[ 3] * op1_ptr[ 4]) * (op1_ptr[ 9] * op1_ptr[14])) + ((op1_ptr[ 0] * op1_ptr[ 7]) * (op1_ptr[ 9] * op1_ptr[14])) +",
+										"((op1_ptr[ 1] * op1_ptr[ 4]) * (op1_ptr[11] * op1_ptr[14])) - ((op1_ptr[ 0] * op1_ptr[ 5]) * (op1_ptr[11] * op1_ptr[14])) -",
+										"((op1_ptr[ 2] * op1_ptr[ 5]) * (op1_ptr[ 8] * op1_ptr[15])) + ((op1_ptr[ 1] * op1_ptr[ 6]) * (op1_ptr[ 8] * op1_ptr[15])) +",
+										"((op1_ptr[ 2] * op1_ptr[ 4]) * (op1_ptr[ 9] * op1_ptr[15])) - ((op1_ptr[ 0] * op1_ptr[ 6]) * (op1_ptr[ 9] * op1_ptr[15])) -",
+										"((op1_ptr[ 1] * op1_ptr[ 4]) * (op1_ptr[10] * op1_ptr[15])) + ((op1_ptr[ 0] * op1_ptr[ 5]) * (op1_ptr[10] * op1_ptr[15]));",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 16;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
 				"}",
 			),
 		);
@@ -76,12 +109,16 @@ class QBDeterminantHandler extends QBSIMDHandler {
 		}
 	}
 	
-	protected function getSIMDExpression() {
+	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
 			throw Exception("No implementation for matrices of arbituary size");
 		} else {
-			return "res = qb_calculate_matrix_determinant_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr);";
+			if($this->addressMode == "ARR") {
+				return "qb_calculate_matrix_determinant_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, res_start, res_end);";
+			} else {
+				return "qb_calculate_matrix_determinant_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, NULL, res_ptr, NULL);";
+			}
 		}
 	}
 }

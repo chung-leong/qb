@@ -934,10 +934,13 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 						const char *scalar = qb_get_scalar(cxt, address);
 						if(operand_flags & QB_OPERAND_WRITABLE) {
 							qb_printf(cxt, "#define res	%s\n", scalar);
+							qb_printf(cxt, "#define res_ptr	&res\n");
 						} else {
 							qb_printf(cxt, "#define op%d	%s\n", operand_number, scalar);
 							if(qop->flags & QB_OP_ISSET && operand_address_mode == QB_ADDRESS_MODE_ELV) {
 								qb_printf(cxt, "#define op%d_ptr	((%s *) isset_pointer)\n", operand_number, type_cnames[address->type]);
+							} else {
+								qb_printf(cxt, "#define op%d_ptr	&op%d\n", operand_number);
 							}
 						}
 					}
@@ -1140,11 +1143,10 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					} else {
 						if(operand_flags & QB_OPERAND_WRITABLE) {
 							qb_printf(cxt, "#undef res\n");
+							qb_printf(cxt, "#undef res_ptr\n");
 						} else {
 							qb_printf(cxt, "#undef op%d\n", operand_number);
-							if(qop->flags & QB_OP_ISSET && operand_address_mode == QB_ADDRESS_MODE_ELV) {
-								qb_printf(cxt, "#undef op%d_ptr\n", operand_number);
-							}
+							qb_printf(cxt, "#undef op%d_ptr\n", operand_number);
 						}
 					}
 					operand_number++;
