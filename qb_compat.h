@@ -171,6 +171,9 @@ double expm1(double x);
 double log2(double x);
 double exp2(double x);
 double round(double x);
+double rsqrt(double x);
+
+float rsqrtf(float x);
 
 __forceinline float exp2f(float x) { return (float) exp2(x); }
 __forceinline float expm1f(float x) { return (float) expm1(x); }

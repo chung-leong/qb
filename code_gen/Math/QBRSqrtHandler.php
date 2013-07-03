@@ -6,7 +6,7 @@ class QBRSqrtHandler extends QBHandler {
 		$type = $this->getOperandType($this->srcCount + 1);
 		$cType = $this->getOperandCType($this->srcCount + 1);
 		$f = ($type == 'F32') ? 'f' : '';
-		return "res = (1 / sqrt$f(op1));";
+		return "res = rsqrt$f(op1);";
 	}
 }
 

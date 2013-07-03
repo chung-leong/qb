@@ -12,33 +12,82 @@ class QBLengthHandler extends QBSIMDHandler {
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
+		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_length_2x_$type($cType *v) {",
-					"$cType sum = (v[0] * v[0]) + (v[1] * v[1]);",
-					"return ($cType) sqrt(sum);",
-				"}",
-			),
-			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_length_3x_$type($cType *v) {",
-					"$cType sum = (v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]);",
-					"return ($cType) sqrt(sum);",
-				"}",
-			),
-			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_length_4x_$type($cType *v) {",
-					"$cType sum = (v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]) + (v[3] * v[3]);",
-					"return ($cType) sqrt(sum);",
-				"}",
-			),
-			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_length_$type($cType *v, uint32_t size) {",
-					"uint32_t i;",
-					"$cType sum = 0;",
-					"for(i = 0; i < size; i++) {",
-						"sum += v[i] * v[i];",
+				"static void ZEND_FASTCALL qb_calculate_array_length_2x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"for(;;) {",
+						"$cType sum = (op1_ptr[0] * op1_ptr[0]) + (op1_ptr[1] * op1_ptr[1]);",
+						"res_ptr[0] = sqrt$f(sum);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 2;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
 					"}",
-					"return ($cType) sqrt(sum);",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_calculate_array_length_3x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"for(;;) {",
+						"$cType sum = (op1_ptr[0] * op1_ptr[0]) + (op1_ptr[1] * op1_ptr[1]) + (op1_ptr[2] * op1_ptr[2]);",
+						"res_ptr[0] = sqrt$f(sum);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 3;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_calculate_array_length_4x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"for(;;) {",
+						"$cType sum = (op1_ptr[0] * op1_ptr[0]) + (op1_ptr[1] * op1_ptr[1]) + (op1_ptr[2] * op1_ptr[2]) + (op1_ptr[3] * op1_ptr[3]);",
+						"res_ptr[0] = sqrt$f(sum);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 4;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_calculate_array_length_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"for(;;) {",
+						"uint32_t i;",
+						"$cType sum = 0;",
+						"for(i = 0; i < dim; i++) {",
+							"sum += op1_ptr[i] * op1_ptr[i];",
+						"}",
+						"res_ptr[0] = sqrt$f(sum);",
+						"res_ptr += 1;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += dim;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
 				"}",
 			),
 		);
@@ -66,12 +115,20 @@ class QBLengthHandler extends QBSIMDHandler {
 		}
 	}
 	
-	protected function getSIMDExpression() {
+	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "res = qb_calculate_array_length_$type(op1_ptr, MATRIX2_ROWS);";
+			if($this->addressMode == "ARR") {
+				return "qb_calculate_array_length_$type(op1_start, op1_end, MATRIX2_ROWS, res_start, res_end);";
+			} else {
+				return "qb_calculate_array_length_$type(op1_ptr, NULL, MATRIX2_ROWS, res_ptr, NULL);";
+			}
 		} else {
-			return "res = qb_calculate_array_length_{$this->operandSize}x_$type(op1_ptr);";
+			if($this->addressMode == "ARR") {
+				return "qb_calculate_array_length_{$this->operandSize}x_$type(op1_start, op1_end, res_start, res_end);";
+			} else {
+				return "qb_calculate_array_length_{$this->operandSize}x_$type(op1_ptr, NULL, res_ptr, NULL);";
+			}
 		}
 	}
 }
