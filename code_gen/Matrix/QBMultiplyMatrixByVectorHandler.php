@@ -7,57 +7,144 @@ class QBMultiplyMatrixByVectorHandler extends QBMultiplyMatrixByMatrixHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_2x2_$type($cType *m, $cType *v, $cType *res_ptr) {",
-					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[2 + 0] * v[1]);",
-					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[2 + 1] * v[1]);",
-					"res_ptr[0] = dot_product0;",
-					"res_ptr[1] = dot_product1;",
-				"}",
-			),
-			array(
-				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_3x3_$type($cType *m, $cType *v, $cType *res_ptr) {",
-					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[3 + 0] * v[1]) + (m[6 + 0] * v[2]);",
-					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[3 + 1] * v[1]) + (m[6 + 1] * v[2]);",
-					"$cType dot_product2 = (m[0 + 2] * v[0]) + (m[3 + 2] * v[1]) + (m[6 + 2] * v[2]);",
-					"res_ptr[0] = dot_product0;",
-					"res_ptr[1] = dot_product1;",
-					"res_ptr[2] = dot_product2;",
-				"}",
-			),
-			array(
-				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_3x3_padded_$type($cType *m, $cType *v, $cType *res_ptr) {",
-					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[4 + 0] * v[1]) + (m[8 + 0] * v[2]);",
-					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[4 + 1] * v[1]) + (m[8 + 1] * v[2]);",
-					"$cType dot_product2 = (m[0 + 2] * v[0]) + (m[4 + 2] * v[1]) + (m[8 + 2] * v[2]);",
-					"res_ptr[0] = dot_product0;",
-					"res_ptr[1] = dot_product1;",
-					"res_ptr[2] = dot_product2;",
-				"}",
-			),
-			array(
-				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_4x4_$type($cType *m, $cType *v, $cType *res_ptr) {",
-					"$cType dot_product0 = (m[0 + 0] * v[0]) + (m[4 + 0] * v[1]) + (m[8 + 0] * v[2]) + (m[12 + 0] * v[3]);",
-					"$cType dot_product1 = (m[0 + 1] * v[0]) + (m[4 + 1] * v[1]) + (m[8 + 1] * v[2]) + (m[12 + 1] * v[3]);",
-					"$cType dot_product2 = (m[0 + 2] * v[0]) + (m[4 + 2] * v[1]) + (m[8 + 2] * v[2]) + (m[12 + 2] * v[3]);",
-					"$cType dot_product3 = (m[0 + 3] * v[0]) + (m[4 + 3] * v[1]) + (m[8 + 3] * v[2]) + (m[12 + 3] * v[3]);",
-					"res_ptr[0] = dot_product0;",
-					"res_ptr[1] = dot_product1;",
-					"res_ptr[2] = dot_product2;",
-					"res_ptr[3] = dot_product3;",
-				"}",
-			),
-			array(
-				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_$type($cType *m, uint32_t m_row, uint32_t m_col, $cType *v, uint32_t v_row, $cType *res_ptr) {",
-					"uint32_t i, j, k;",
-					"$cType buffer[4096];",
-					"for(i = 0, k = 0; i < m_row; ++i) {",
-						"$cType dot_product = 0;",
-						"for(j = 0; j < m_col; ++j) {",
-							"dot_product += m[k++] * v[j];",
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_2x2_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"$cType dot_product0 = (op1_ptr[0 + 0] * op2_ptr[0]) + (op1_ptr[2 + 0] * op2_ptr[1]);",
+						"$cType dot_product1 = (op1_ptr[0 + 1] * op2_ptr[0]) + (op1_ptr[2 + 1] * op2_ptr[1]);",
+						"res_ptr[0] = dot_product0;",
+						"res_ptr[1] = dot_product1;",
+						"res_ptr += 2;",
+						"if(res_ptr >= res_end) {",
+							"break;",
 						"}",
-						"buffer[i] = dot_product;",
+						"op1_ptr += 4;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += 2;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
 					"}",
-					"memcpy(res_ptr, buffer, m_row * sizeof($cType));",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_3x3_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"$cType dot_product0 = (op1_ptr[0 + 0] * op2_ptr[0]) + (op1_ptr[3 + 0] * op2_ptr[1]) + (op1_ptr[6 + 0] * op2_ptr[2]);",
+						"$cType dot_product1 = (op1_ptr[0 + 1] * op2_ptr[0]) + (op1_ptr[3 + 1] * op2_ptr[1]) + (op1_ptr[6 + 1] * op2_ptr[2]);",
+						"$cType dot_product2 = (op1_ptr[0 + 2] * op2_ptr[0]) + (op1_ptr[3 + 2] * op2_ptr[1]) + (op1_ptr[6 + 2] * op2_ptr[2]);",
+						"res_ptr[0] = dot_product0;",
+						"res_ptr[1] = dot_product1;",
+						"res_ptr[2] = dot_product2;",
+						"res_ptr += 3;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 9;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += 3;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
+					"}",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_3x3_padded_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"$cType dot_product0 = (op1_ptr[0 + 0] * op2_ptr[0]) + (op1_ptr[4 + 0] * op2_ptr[1]) + (op1_ptr[8 + 0] * op2_ptr[2]);",
+						"$cType dot_product1 = (op1_ptr[0 + 1] * op2_ptr[0]) + (op1_ptr[4 + 1] * op2_ptr[1]) + (op1_ptr[8 + 1] * op2_ptr[2]);",
+						"$cType dot_product2 = (op1_ptr[0 + 2] * op2_ptr[0]) + (op1_ptr[4 + 2] * op2_ptr[1]) + (op1_ptr[8 + 2] * op2_ptr[2]);",
+						"res_ptr[0] = dot_product0;",
+						"res_ptr[1] = dot_product1;",
+						"res_ptr[2] = dot_product2;",
+						"res_ptr += 4;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 12;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += 4;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
+					"}",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_4x4_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"$cType dot_product0 = (op1_ptr[0 + 0] * op2_ptr[0]) + (op1_ptr[4 + 0] * op2_ptr[1]) + (op1_ptr[8 + 0] * op2_ptr[2]) + (op1_ptr[12 + 0] * op2_ptr[3]);",
+						"$cType dot_product1 = (op1_ptr[0 + 1] * op2_ptr[0]) + (op1_ptr[4 + 1] * op2_ptr[1]) + (op1_ptr[8 + 1] * op2_ptr[2]) + (op1_ptr[12 + 1] * op2_ptr[3]);",
+						"$cType dot_product2 = (op1_ptr[0 + 2] * op2_ptr[0]) + (op1_ptr[4 + 2] * op2_ptr[1]) + (op1_ptr[8 + 2] * op2_ptr[2]) + (op1_ptr[12 + 2] * op2_ptr[3]);",
+						"$cType dot_product3 = (op1_ptr[0 + 3] * op2_ptr[0]) + (op1_ptr[4 + 3] * op2_ptr[1]) + (op1_ptr[8 + 3] * op2_ptr[2]) + (op1_ptr[12 + 3] * op2_ptr[3]);",
+						"res_ptr[0] = dot_product0;",
+						"res_ptr[1] = dot_product1;",
+						"res_ptr[2] = dot_product2;",
+						"res_ptr[3] = dot_product3;",
+						"res_ptr += 4;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += 16;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += 4;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
+					"}",
+				"}",
+			),
+			array(
+				"static void ZEND_FASTCALL qb_multiply_matrix_by_vector_$type($cType *op1_start, $cType *op1_end, uint32_t m_row, uint32_t m_col, $cType *op2_start, $cType *op2_end, uint32_t v_row, $cType *res_start, $cType *res_end) {",
+					"ALLOCA_FLAG(use_heap)",
+					"$cType *buffer = do_alloca(m_row * sizeof($cType), use_heap);",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",
+					"$cType *__restrict op2_ptr = op2_start;",
+					"for(;;) {",
+						"uint32_t i, j, k;",
+						"for(i = 0, k = 0; i < m_row; ++i) {",
+							"$cType dot_product = 0;",
+							"for(j = 0; j < m_col; ++j) {",
+								"dot_product += op1_ptr[k++] * op2_ptr[j];",
+							"}",
+							"buffer[i] = dot_product;",
+						"}",
+						"memcpy(res_ptr, buffer, m_row * sizeof($cType));",
+						"res_ptr += m_row;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += m_row * m_col;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+						"op2_ptr += v_row;",
+						"if(op2_ptr >= op2_end) {",
+							"op2_ptr = op2_start;",
+						"}",
+					"}",
+					"free_alloca(buffer, use_heap);",
 				"}",
 			),
 		);
@@ -80,15 +167,27 @@ class QBMultiplyMatrixByVectorHandler extends QBMultiplyMatrixByMatrixHandler {
 		}
 	}
 	
-	public function getSIMDExpression() {
+	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			return "qb_multiply_matrix_by_vector_$type(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, op2_ptr, MATRIX2_ROWS, res_ptr);";
+			if($this->addressMode == "ARR") {
+				return "qb_multiply_matrix_by_vector_$type(op1_start, op1_end, MATRIX1_ROWS, MATRIX1_COLS, op2_start, op2_end, MATRIX2_ROWS, res_start, res_end);";
+			} else {
+				return "qb_multiply_matrix_by_vector_$type(op1_ptr, NULL, MATRIX1_ROWS, MATRIX1_COLS, op2_ptr, NULL, MATRIX2_ROWS, res_ptr, NULL);";
+			}
 		} else {
 			if($this->operandPadding) {
-				return "qb_multiply_matrix_by_vector_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, op2_ptr, res_ptr);";
+				if($this->addressMode == "ARR") {
+					return "qb_multiply_matrix_by_vector_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_start, op1_end, op2_start, op2_end, res_start, res_end);";
+				} else {
+					return "qb_multiply_matrix_by_vector_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, NULL, op2_ptr, NULL, res_ptr, NULL);";
+				}
 			} else {
-				return "qb_multiply_matrix_by_vector_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, op2_ptr, res_ptr);";
+				if($this->addressMode == "ARR") {
+					return "qb_multiply_matrix_by_vector_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, op2_start, op2_end, res_start, res_end);";
+				} else {
+					return "qb_multiply_matrix_by_vector_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, NULL, op2_ptr, NULL, res_ptr, NULL);";
+				}
 			}
 		}
 	}
