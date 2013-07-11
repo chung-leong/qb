@@ -155,7 +155,7 @@ class QBRefractHandler extends QBSIMDHandler {
 		return $functions;
 	}
 	
-	public function getSIMDExpression() {
+	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
 			if($this->addressMode == "ARR") {

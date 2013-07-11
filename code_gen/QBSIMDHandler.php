@@ -26,9 +26,4 @@ class QBSIMDHandler extends QBHandler {
 		}
 	}
 
-	public function getAction() {
-		$expr = $this->getSIMDExpression();
-		return ($this->addressMode == "ARR") ? $this->getIterationCode($expr) : $expr;
-	}
-	
 }
