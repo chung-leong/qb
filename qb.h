@@ -136,6 +136,7 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	zend_bool allow_debugger_inspection;
 	zend_bool allow_debug_backtrace;
 	zend_bool debug_with_exact_type;
+	zend_bool column_major_matrix;
 
 	zend_bool show_opcodes;
 	zend_bool show_native_source;

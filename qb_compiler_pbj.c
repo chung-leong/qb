@@ -1197,9 +1197,9 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_COPY
 	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_FLOAT_TO_INT
 	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_INT_TO_FLOAT
-	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mm_multiply		},	// PBJ_MATRIX_MATRIX_MULTIPLY
-	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_vm_multiply		},	// PBJ_VECTOR_MATRIX_MULTIPLY
-	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mv_multiply		},	// PBJ_MATRIX_VECTOR_MULTIPLY
+	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mm_multiply_cm		},	// PBJ_MATRIX_MATRIX_MULTIPLY
+	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_vm_multiply_cm		},	// PBJ_VECTOR_MATRIX_MULTIPLY
+	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mv_multiply_cm		},	// PBJ_MATRIX_VECTOR_MULTIPLY
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_normalize			},	// PBJ_NORMALIZE
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_length				},	// PBJ_LENGTH
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD1,		&factory_distance			},	// PBJ_DISTANCE

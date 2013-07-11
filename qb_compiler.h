@@ -40,6 +40,7 @@ typedef enum qb_stage						qb_stage;
 typedef enum qb_opcode						qb_opcode;
 typedef enum qb_diagnostic_type				qb_diagnostic_type;
 typedef enum qb_result_destination_type		qb_result_destination_type;
+typedef enum qb_matrix_order				qb_matrix_order;
 
 struct qb_type_declaration {
 	pcre *regexp;
@@ -242,6 +243,11 @@ enum qb_stage {
 	QB_STAGE_OPCODE_TRANSLATION,
 };
 
+enum qb_matrix_order {
+	QB_MATRIX_ORDER_COLUMN_MAJOR,
+	QB_MATRIX_ORDER_ROW_MAJOR,
+};
+
 struct qb_compiler_context {
 	qb_op **ops;
 	uint32_t op_count;
@@ -318,6 +324,7 @@ struct qb_compiler_context {
 	uint8_t *pbj_data;
 	uint8_t *pbj_data_end;
 	int32_t matrix_padding;
+	qb_matrix_order matrix_order;
 
 	char *external_code;
 	uint32_t external_code_length;

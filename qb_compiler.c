@@ -3535,6 +3535,7 @@ void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_c
 	qb_attach_new_array(pool, (void **) &cxt->scalars, &cxt->scalar_count, sizeof(qb_address *), 64);
 	qb_attach_new_array(pool, (void **) &cxt->arrays, &cxt->array_count, sizeof(qb_address *), 64);
 
+	cxt->matrix_order = QB_G(column_major_matrix) ? QB_MATRIX_ORDER_COLUMN_MAJOR : QB_MATRIX_ORDER_ROW_MAJOR;
 	cxt->storage = emalloc(sizeof(qb_storage));
 	cxt->storage->flags = 0;
 	cxt->storage->size = 0;

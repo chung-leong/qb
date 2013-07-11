@@ -11,7 +11,7 @@ class QBColumnMajorTransposeMatrixHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_transpose_matrix_2x2_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"static void ZEND_FASTCALL qb_transpose_cm_matrix_2x2_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -35,7 +35,7 @@ class QBColumnMajorTransposeMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_transpose_matrix_3x3_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"static void ZEND_FASTCALL qb_transpose_cm_matrix_3x3_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -69,7 +69,7 @@ class QBColumnMajorTransposeMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_transpose_matrix_4x4_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"static void ZEND_FASTCALL qb_transpose_cm_matrix_4x4_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -134,9 +134,9 @@ class QBColumnMajorTransposeMatrixHandler extends QBSIMDHandler {
 			throw Exception("No implementation for matrices of arbituary size");
 		} else {
 			if($this->addressMode == "ARR") {
-				return "qb_transpose_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, res_start, res_end);";
+				return "qb_transpose_cm_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, res_start, res_end);";
 			} else {
-				return "qb_transpose_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, NULL, res_ptr, NULL);";
+				return "qb_transpose_cm_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, NULL, res_ptr, NULL);";
 			}
 		}
 	}
