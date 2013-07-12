@@ -1854,106 +1854,43 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void 
 	return qop;
 }
 
-static qb_matrix_op_factory factory_transpose_cm = { 
+static qb_matrix_op_factory factory_transpose = { 
 	qb_append_matrix_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	0,			0,	},
 	{
-		{	QB_MTRAN_CM_2X_F64_F64,		QB_MTRAN_CM_2X_F32_F32,	},
-		{	QB_MTRAN_CM_3X_F64_F64,		QB_MTRAN_CM_3X_F32_F32,	},
-		{	QB_MTRAN_CM_4X_F64_F64,		QB_MTRAN_CM_4X_F32_F32,	},
+		{	QB_MTRAN_2X_F64_F64,		QB_MTRAN_2X_F32_F32,	},
+		{	QB_MTRAN_3X_F64_F64,		QB_MTRAN_3X_F32_F32,	},
+		{	QB_MTRAN_4X_F64_F64,		QB_MTRAN_4X_F32_F32,	},
 	},
 	0,
 };
 
-static qb_matrix_op_factory factory_transpose_rm = { 
+static qb_matrix_op_factory factory_inverse = { 
 	qb_append_matrix_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
 	{	0,			0,	},
 	{
-		{	QB_MTRAN_RM_2X_F64_F64,		QB_MTRAN_RM_2X_F32_F32,	},
-		{	QB_MTRAN_RM_3X_F64_F64,		QB_MTRAN_RM_3X_F32_F32,	},
-		{	QB_MTRAN_RM_4X_F64_F64,		QB_MTRAN_RM_4X_F32_F32,	},
+		{	QB_MINV_2X_F64_F64,		QB_MINV_2X_F32_F32,	},
+		{	QB_MINV_3X_F64_F64,		QB_MINV_3X_F32_F32,	},
+		{	QB_MINV_4X_F64_F64,		QB_MINV_4X_F32_F32,	},
 	},
 	0,
 };
 
-static qb_matrix_op_factory_selector factory_transpose = { 
-	qb_select_matrix_op,
-	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
-	&factory_transpose_cm,
-	&factory_transpose_rm,
-};
-
-static qb_matrix_op_factory factory_inverse_cm = { 
-	qb_append_matrix_op,
-	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
-	{	0,			0,	},
-	{
-		{	QB_MINV_CM_2X_F64_F64,		QB_MINV_CM_2X_F32_F32,	},
-		{	QB_MINV_CM_3X_F64_F64,		QB_MINV_CM_3X_F32_F32,	},
-		{	QB_MINV_CM_4X_F64_F64,		QB_MINV_CM_4X_F32_F32,	},
-	},
-	0,
-};
-
-static qb_matrix_op_factory factory_inverse_rm = { 
-	qb_append_matrix_op,
-	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
-	{	0,			0,	},
-	{
-		{	QB_MINV_RM_2X_F64_F64,		QB_MINV_RM_2X_F32_F32,	},
-		{	QB_MINV_RM_3X_F64_F64,		QB_MINV_RM_3X_F32_F32,	},
-		{	QB_MINV_RM_4X_F64_F64,		QB_MINV_RM_4X_F32_F32,	},
-	},
-	0,
-};
-
-static qb_matrix_op_factory_selector factory_inverse = { 
-	qb_select_matrix_op,
-	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
-	&factory_inverse_cm,
-	&factory_inverse_rm,
-};
-
-static qb_matrix_op_factory factory_determinant_cm = { 
+static qb_matrix_op_factory factory_determinant = { 
 	qb_append_matrix_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MATRIX_COUNT | QB_TYPE_OPERAND,
 	{	0,			0,	},
 	{
-		{	QB_MDET_CM_2X_F64_F64,		QB_MDET_CM_2X_F32_F32,	},
-		{	QB_MDET_CM_3X_F64_F64,		QB_MDET_CM_3X_F32_F32,	},
-		{	QB_MDET_CM_4X_F64_F64,		QB_MDET_CM_4X_F32_F32,	},
+		{	QB_MDET_2X_F64_F64,		QB_MDET_2X_F32_F32,	},
+		{	QB_MDET_3X_F64_F64,		QB_MDET_3X_F32_F32,	},
+		{	QB_MDET_4X_F64_F64,		QB_MDET_4X_F32_F32,	},
 	},
 	0,
-};
-
-static qb_matrix_op_factory factory_determinant_rm = { 
-	qb_append_matrix_op,
-	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MATRIX_COUNT | QB_TYPE_OPERAND,
-	{	0,			0,	},
-	{
-		{	QB_MDET_RM_2X_F64_F64,		QB_MDET_RM_2X_F32_F32,	},
-		{	QB_MDET_RM_3X_F64_F64,		QB_MDET_RM_3X_F32_F32,	},
-		{	QB_MDET_RM_4X_F64_F64,		QB_MDET_RM_4X_F32_F32,	},
-	},
-	0,
-};
-
-static qb_matrix_op_factory_selector factory_determinant = { 
-	qb_select_matrix_op,
-	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MATRIX_COUNT | QB_TYPE_OPERAND,
-	&factory_determinant_cm,
-	&factory_determinant_rm,
 };
 
 static qb_float_op_factory factory_alpha_blend = {
