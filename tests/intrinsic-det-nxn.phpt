@@ -7,9 +7,9 @@ Matrix determinant test (n > 4)
  * A test function
  * 
  * @engine	qb
- * @local	float64[5][5]		$m1
- * @local	float64[6][6]		$m2
- * @local	float64				$r
+ * @local	float32[5][5]		$m1
+ * @local	float32[6][6]		$m2
+ * @local	float32				$r
  * 
  * @return	void
  * 

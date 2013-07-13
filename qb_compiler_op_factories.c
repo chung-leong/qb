@@ -1879,7 +1879,7 @@ static qb_matrix_op_factory factory_inverse = {
 	qb_append_matrix_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
-	{	0,			0,	},
+	{	QB_MINV_F64_F64,			QB_MINV_F32_F32,	},
 	{
 		{	QB_MINV_2X_F64_F64,		QB_MINV_2X_F32_F32,	},
 		{	QB_MINV_3X_F64_F64,		QB_MINV_3X_F32_F32,	},

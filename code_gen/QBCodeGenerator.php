@@ -1090,6 +1090,8 @@ class QBCodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDeterminantHandler("MDET", $elementType, $addressMode);
 			}
+			$this->handlers[] = new QBInvertMatrixHandler("MINV", $elementType, null);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV", $elementType, "ARR");
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT", $elementType, $addressMode);
 			}

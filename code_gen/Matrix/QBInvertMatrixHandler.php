@@ -144,6 +144,62 @@ class QBInvertMatrixHandler extends QBSIMDHandler {
 					"}",
 				"}",
 			),
+			array(
+				"static void ZEND_FASTCALL qb_invert_cm_matrix_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+					"ALLOCA_FLAG(use_heap)",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",						
+					"$cType *__restrict minor = do_alloca((dim - 1) * (dim - 1) * sizeof($cType), use_heap);",
+					"$cType *__restrict cofactors = do_alloca(dim * dim * sizeof($cType), use_heap);",
+					"for(;;) {",
+						"uint32_t i, j, k, m, n, p, q;",
+						"$cType a, sign_init = 1, sign, det = 0, rdet;",
+						"for(m = 0, p = 0; m < dim; m++) {",
+							"sign = sign_init;",
+							"sign_init = -sign_init;",
+							"for(n = 0; n < dim; n++) {",
+								"$cType minor_det;",
+								"for(i = 0, k = 0, q = 0; i < dim; i++) {",
+									"for(j = 0; j < dim; j++, k++) {",
+										"if(j != m && i != n) {",
+											"minor[q] = op1_ptr[k];",
+											"q++;",
+										"}",
+									"}",
+								"}",
+								"qb_calculate_cm_matrix_determinant_$type(minor, NULL, dim - 1, &minor_det, NULL);",
+								"cofactors[p] = minor_det * sign;",
+								"p++;",
+								"if(n == 0) {",
+									"a = op1_ptr[m];",
+									"det += a * minor_det * sign;",
+								"}",
+								"sign = -sign;",
+							"}",
+						"}",
+						"if(det != 0) {",
+							"rdet = 1 / det;",
+							"for(p = 0; p < dim * dim; p++) {",
+								"res_ptr[p] = cofactors[p] * rdet;",
+							"}",
+						"} else {",
+							"for(p = 0; p < dim * dim; p++) {",
+								"res_ptr[p] = ($cType) NAN;",
+							"}",
+						"}",
+						"res_ptr += dim * dim;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += dim * dim;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
+					"free_alloca(minor, use_heap);",
+					"free_alloca(cofactors, use_heap);",
+				"}",
+			),
 		);
 		return $functions;
 	}
@@ -159,7 +215,11 @@ class QBInvertMatrixHandler extends QBSIMDHandler {
 	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			throw Exception("No implementation for matrices of arbituary size");
+			if($this->addressMode == "ARR") {
+				return "qb_invert_cm_matrix_$type(op1_start, op1_end, MATRIX2_ROWS, res_start, res_end);";
+			} else {
+				return "qb_invert_cm_matrix_$type(op1_ptr, NULL, MATRIX2_ROWS, res_ptr, NULL);";
+			}
 		} else {
 			if($this->addressMode == "ARR") {
 				return "qb_invert_cm_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, res_start, res_end);";
