@@ -29,6 +29,8 @@ function test_function() {
 	echo mv_mult($m, $c), "\n";
 }
 
+ini_set("qb.column_major_matrix", true);
+
 qb_compile();
 
 test_function();

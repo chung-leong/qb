@@ -1081,18 +1081,12 @@ class QBCodeGenerator {
 	protected function addMatrixHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM", $elementType, null);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM", $elementType, "ARR");
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM", $elementType, null);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM", $elementType, "ARR");
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM", $elementType, null);
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM", $elementType, "ARR");
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM", $elementType, null);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM", $elementType, "ARR");
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM", $elementType, null);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM", $elementType, "ARR");
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM", $elementType, null);
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM", $elementType, "ARR");
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM", $elementType, null);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM", $elementType, "ARR");
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV", $elementType, null);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV", $elementType, "ARR");
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, null);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, "ARR");
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT", $elementType, $addressMode);
 			}
@@ -1111,18 +1105,12 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR");
 
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM_4X4", $elementType, null, 4);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM_4X4", $elementType, "ARR", 4);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM_4X4", $elementType, null, 4);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM_4X4", $elementType, "ARR", 4);
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM_4X4", $elementType, null, 4);
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM_4X4", $elementType, "ARR", 4);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM_4X4", $elementType, null, 4);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM_4X4", $elementType, "ARR", 4);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM_4X4", $elementType, null, 4);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM_4X4", $elementType, "ARR", 4);
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM_4X4", $elementType, null, 4);
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM_4X4", $elementType, "ARR", 4);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_4X4", $elementType, null, 4);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_4X4", $elementType, "ARR", 4);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_4X4", $elementType, null, 4);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_4X4", $elementType, "ARR", 4);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_4X4", $elementType, null, 4);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_4X4", $elementType, "ARR", 4);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_4X", $elementType, null, 4);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_4X", $elementType, "ARR", 4);
 			$this->handlers[] = new QBInvertMatrixHandler("MINV_4X", $elementType, null, 4);
@@ -1169,24 +1157,18 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_4X", $elementType, null, 4);
 			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_4X", $elementType, "ARR", 4);
 
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM_3X3", $elementType, null, 3);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM_3X3", $elementType, "ARR", 3);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM_3X3", $elementType, null, 3);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM_3X3", $elementType, "ARR", 3);
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM_3X3", $elementType, null, 3);
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM_3X3", $elementType, "ARR", 3);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3", $elementType, null, 3);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3", $elementType, "ARR", 3);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_3X3", $elementType, null, 3);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_3X3", $elementType, "ARR", 3);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_3X3", $elementType, null, 3);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_3X3", $elementType, "ARR", 3);
 			if($elementType == "F32") {
 				// these are used by Pixel Bender only
-				$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM_3X3P", $elementType, null, "3+P");
-				$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM_3X3P", $elementType, null, "3+P");
-				$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM_3X3P", $elementType, null, "3+P");
+				$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_3X3P", $elementType, null, "3+P");
+				$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_3X3P", $elementType, null, "3+P");
+				$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_3X3P", $elementType, null, "3+P");
 			}
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM_3X3", $elementType, null, 3);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM_3X3", $elementType, "ARR", 3);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM_3X3", $elementType, null, 3);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM_3X3", $elementType, "ARR", 3);
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM_3X3", $elementType, null, 3);
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM_3X3", $elementType, "ARR", 3);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_3X", $elementType, null, 3);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_3X", $elementType, "ARR", 3);
 			$this->handlers[] = new QBInvertMatrixHandler("MINV_3X", $elementType, null, 3);
@@ -1235,18 +1217,12 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_3X", $elementType, null, 3);
 			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_3X", $elementType, "ARR", 3);
 			
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM_2X2", $elementType, null, 2);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByMatrixHandler("MUL_MM_CM_2X2", $elementType, "ARR", 2);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM_2X2", $elementType, null, 2);
-			$this->handlers[] = new QBColumnMajorMultiplyMatrixByVectorHandler("MUL_MV_CM_2X2", $elementType, "ARR", 2);
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM_2X2", $elementType, null, 2);
-			$this->handlers[] = new QBColumnMajorMultiplyVectorByMatrixHandler("MUL_VM_CM_2X2", $elementType, "ARR", 2);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM_2X2", $elementType, null, 2);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByMatrixHandler("MUL_MM_RM_2X2", $elementType, "ARR", 2);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM_2X2", $elementType, null, 2);
-			$this->handlers[] = new QBRowMajorMultiplyMatrixByVectorHandler("MUL_MV_RM_2X2", $elementType, "ARR", 2);
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM_2X2", $elementType, null, 2);
-			$this->handlers[] = new QBRowMajorMultiplyVectorByMatrixHandler("MUL_VM_RM_2X2", $elementType, "ARR", 2);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_2X2", $elementType, null, 2);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_2X2", $elementType, "ARR", 2);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_2X2", $elementType, null, 2);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_2X2", $elementType, "ARR", 2);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_2X2", $elementType, null, 2);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_2X2", $elementType, "ARR", 2);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_2X", $elementType, null, 2);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBInvertMatrixHandler("MINV_2X", $elementType, null, 2);

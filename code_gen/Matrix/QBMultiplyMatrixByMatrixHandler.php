@@ -1,6 +1,8 @@
 <?php
 
-class QBColumnMajorMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
+// note: using column-major order
+
+class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);

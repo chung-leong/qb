@@ -34,6 +34,8 @@ function test_function() {
 	echo "$c\n";
 }
 
+ini_set("qb.column_major_matrix", true);
+
 qb_compile();
 
 test_function();

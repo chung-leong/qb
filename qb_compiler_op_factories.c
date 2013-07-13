@@ -18,6 +18,7 @@
 
 /* $Id$ */
 
+typedef struct qb_op_factory					qb_op_factory; 
 typedef struct qb_basic_op_factory				qb_basic_op_factory; 
 typedef struct qb_float_op_factory				qb_float_op_factory; 
 typedef struct qb_simple_op_factory				qb_simple_op_factory;
@@ -30,10 +31,17 @@ typedef struct qb_fcall_op_factory				qb_fcall_op_factory;
 typedef struct qb_minmax_op_factory				qb_minmax_op_factory;
 typedef struct qb_vector_op_factory				qb_vector_op_factory;
 typedef struct qb_matrix_op_factory				qb_matrix_op_factory;
+typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
 typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
 typedef struct qb_sampling_op_factory			qb_sampling_op_factory;
 
 typedef qb_op * (ZEND_FASTCALL *qb_append_op_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+
+struct qb_op_factory {
+	qb_append_op_proc append;
+	uint32_t coercion_flags;
+	uint32_t result_flags;
+}; 
 
 struct qb_basic_op_factory {
 	qb_append_op_proc append;
@@ -130,12 +138,19 @@ struct qb_matrix_op_factory {
 	qb_opcode opcode_3x3_padded;
 };
 
+struct qb_equivalent_matrix_op_factory {
+	qb_append_op_proc append;
+	uint32_t coercion_flags;
+	uint32_t result_flags;
+	qb_matrix_op_factory *factory;
+};
+
 struct qb_matrix_op_factory_selector {
 	qb_append_op_proc append;
 	uint32_t coercion_flags;
 	uint32_t result_flags;
-	qb_matrix_op_factory *cm_factory;
-	qb_matrix_op_factory *rm_factory;
+	qb_op_factory *cm_factory;
+	qb_op_factory *rm_factory;
 };
 
 struct qb_sampling_op_factory {
@@ -146,12 +161,12 @@ struct qb_sampling_op_factory {
 }; 
 
 static zend_always_inline uint32_t qb_get_coercion_flags(qb_compiler_context *cxt, void *factory) {
-	qb_basic_op_factory *f = factory;
+	qb_op_factory *f = factory;
 	return f->coercion_flags;
 }
 
 static zend_always_inline uint32_t qb_get_result_flags(qb_compiler_context *cxt, void *factory) {
-	qb_basic_op_factory *f = factory;
+	qb_op_factory *f = factory;
 	return f->result_flags;
 }
 
@@ -1615,17 +1630,6 @@ static qb_float_op_factory factory_cross_product = {
 	{	QB_CROSS_F64_F64_F64,		QB_CROSS_F32_F32_F32,	},
 };
 
-static qb_op * ZEND_FASTCALL qb_select_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_matrix_op_factory_selector *s = factory;
-	qb_matrix_op_factory *f;
-	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
-		f = s->cm_factory;
-	} else {
-		f = s->rm_factory;
-	}
-	return f->append(cxt, f, operands, operand_count, result);
-}
-
 static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
@@ -1663,34 +1667,13 @@ static qb_matrix_op_factory factory_mm_multiply_cm = {
 	qb_append_matrix_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
-	{	QB_MUL_MM_CM_F64_F64_F64,			QB_MUL_MM_CM_F32_F32_F32,	},
+	{	QB_MUL_MM_F64_F64_F64,			QB_MUL_MM_F32_F32_F32,	},
 	{
-		{	QB_MUL_MM_CM_2X2_F64_F64_F64,		QB_MUL_MM_CM_2X2_F32_F32_F32,	},
-		{	QB_MUL_MM_CM_3X3_F64_F64_F64,		QB_MUL_MM_CM_3X3_F32_F32_F32,	},
-		{	QB_MUL_MM_CM_4X4_F64_F64_F64,		QB_MUL_MM_CM_4X4_F32_F32_F32,	},
+		{	QB_MUL_MM_2X2_F64_F64_F64,		QB_MUL_MM_2X2_F32_F32_F32,	},
+		{	QB_MUL_MM_3X3_F64_F64_F64,		QB_MUL_MM_3X3_F32_F32_F32,	},
+		{	QB_MUL_MM_4X4_F64_F64_F64,		QB_MUL_MM_4X4_F32_F32_F32,	},
 	},
-	QB_MUL_MM_CM_3X3P_F32_F32_F32,
-};
-
-static qb_matrix_op_factory factory_mm_multiply_rm = { 
-	qb_append_matrix_matrix_op,
-	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
-	{	QB_MUL_MM_RM_F64_F64_F64,			QB_MUL_MM_RM_F32_F32_F32,	},
-	{
-		{	QB_MUL_MM_RM_2X2_F64_F64_F64,		QB_MUL_MM_RM_2X2_F32_F32_F32,	},
-		{	QB_MUL_MM_RM_3X3_F64_F64_F64,		QB_MUL_MM_RM_3X3_F32_F32_F32,	},
-		{	QB_MUL_MM_RM_4X4_F64_F64_F64,		QB_MUL_MM_RM_4X4_F32_F32_F32,	},
-	},
-	0,
-};
-
-static qb_matrix_op_factory_selector factory_mm_multiply = { 
-	qb_select_matrix_op,
-	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
-	&factory_mm_multiply_cm,
-	&factory_mm_multiply_rm,
+	QB_MUL_MM_3X3P_F32_F32_F32,
 };
 
 static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -1729,34 +1712,13 @@ static qb_matrix_op_factory factory_mv_multiply_cm = {
 	qb_append_matrix_vector_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
-	{	QB_MUL_MV_CM_F64_F64_F64,			QB_MUL_MV_CM_F32_F32_F32,	},
+	{	QB_MUL_MV_F64_F64_F64,			QB_MUL_MV_F32_F32_F32,	},
 	{
-		{	QB_MUL_MV_CM_2X2_F64_F64_F64,		QB_MUL_MV_CM_2X2_F32_F32_F32,	},
-		{	QB_MUL_MV_CM_3X3_F64_F64_F64,		QB_MUL_MV_CM_3X3_F32_F32_F32,	},
-		{	QB_MUL_MV_CM_4X4_F64_F64_F64,		QB_MUL_MV_CM_4X4_F32_F32_F32,	},
+		{	QB_MUL_MV_2X2_F64_F64_F64,		QB_MUL_MV_2X2_F32_F32_F32,	},
+		{	QB_MUL_MV_3X3_F64_F64_F64,		QB_MUL_MV_3X3_F32_F32_F32,	},
+		{	QB_MUL_MV_4X4_F64_F64_F64,		QB_MUL_MV_4X4_F32_F32_F32,	},
 	},
-	QB_MUL_MV_CM_3X3P_F32_F32_F32,
-};
-
-static qb_matrix_op_factory factory_mv_multiply_rm = { 
-	qb_append_matrix_vector_op,
-	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
-	{	QB_MUL_MV_RM_F64_F64_F64,			QB_MUL_MV_RM_F32_F32_F32,	},
-	{
-		{	QB_MUL_MV_RM_2X2_F64_F64_F64,		QB_MUL_MV_RM_2X2_F32_F32_F32,	},
-		{	QB_MUL_MV_RM_3X3_F64_F64_F64,		QB_MUL_MV_RM_3X3_F32_F32_F32,	},
-		{	QB_MUL_MV_RM_4X4_F64_F64_F64,		QB_MUL_MV_RM_4X4_F32_F32_F32,	},
-	},
-	0,
-};
-
-static qb_matrix_op_factory_selector factory_mv_multiply = { 
-	qb_select_matrix_op,
-	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
-	&factory_mv_multiply_cm,
-	&factory_mv_multiply_rm,
+	QB_MUL_MV_3X3P_F32_F32_F32,
 };
 
 static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -1794,34 +1756,80 @@ static qb_matrix_op_factory factory_vm_multiply_cm = {
 	qb_append_vector_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_TYPE_OPERAND,
-	{	QB_MUL_VM_CM_F64_F64_F64,			QB_MUL_VM_CM_F32_F32_F32,	},
+	{	QB_MUL_VM_F64_F64_F64,			QB_MUL_VM_F32_F32_F32,	},
 	{
-		{	QB_MUL_VM_CM_2X2_F64_F64_F64,		QB_MUL_VM_CM_2X2_F32_F32_F32,	},
-		{	QB_MUL_VM_CM_3X3_F64_F64_F64,		QB_MUL_VM_CM_3X3_F32_F32_F32,	},
-		{	QB_MUL_VM_CM_4X4_F64_F64_F64,		QB_MUL_VM_CM_4X4_F32_F32_F32,	},
+		{	QB_MUL_VM_2X2_F64_F64_F64,		QB_MUL_VM_2X2_F32_F32_F32,	},
+		{	QB_MUL_VM_3X3_F64_F64_F64,		QB_MUL_VM_3X3_F32_F32_F32,	},
+		{	QB_MUL_VM_4X4_F64_F64_F64,		QB_MUL_VM_4X4_F32_F32_F32,	},
 	},
-	QB_MUL_VM_CM_3X3P_F32_F32_F32,
+	QB_MUL_VM_3X3P_F32_F32_F32,
 };
 
-static qb_matrix_op_factory factory_vm_multiply_rm = { 
-	qb_append_vector_matrix_op,
+static qb_op * ZEND_FASTCALL qb_append_equivalent_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_equivalent_matrix_op_factory *e = factory;
+	qb_matrix_op_factory *f = e->factory;
+	qb_operand reversed_operands[2];
+	reversed_operands[0] = operands[1];
+	reversed_operands[1] = operands[0];
+	return f->append(cxt, f, reversed_operands, operand_count, result);
+}
+
+// make use of the fact that A' * B' = (B * A)' 
+
+static qb_equivalent_matrix_op_factory factory_mm_multiply_rm = { 
+	qb_append_equivalent_matrix_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
+	&factory_mm_multiply_cm,
+};
+
+static qb_equivalent_matrix_op_factory factory_mv_multiply_rm = { 
+	qb_append_equivalent_matrix_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
+	&factory_vm_multiply_cm,
+};
+
+static qb_equivalent_matrix_op_factory factory_vm_multiply_rm = { 
+	qb_append_equivalent_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_TYPE_OPERAND,
-	{	QB_MUL_VM_RM_F64_F64_F64,			QB_MUL_VM_RM_F32_F32_F32,	},
-	{
-		{	QB_MUL_VM_RM_2X2_F64_F64_F64,		QB_MUL_VM_RM_2X2_F32_F32_F32,	},
-		{	QB_MUL_VM_RM_3X3_F64_F64_F64,		QB_MUL_VM_RM_3X3_F32_F32_F32,	},
-		{	QB_MUL_VM_RM_4X4_F64_F64_F64,		QB_MUL_VM_RM_4X4_F32_F32_F32,	},
-	},
-	0,
+	&factory_mv_multiply_cm,
+};
+
+static qb_op * ZEND_FASTCALL qb_select_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_matrix_op_factory_selector *s = factory;
+	qb_op_factory *f;
+	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
+		f = s->cm_factory;
+	} else {
+		f = s->rm_factory;
+	}
+	return f->append(cxt, f, operands, operand_count, result);
+}
+
+static qb_matrix_op_factory_selector factory_mm_multiply = { 
+	qb_select_matrix_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
+	(qb_op_factory *) &factory_mm_multiply_cm,
+	(qb_op_factory *) &factory_mm_multiply_rm,
+};
+
+static qb_matrix_op_factory_selector factory_mv_multiply = { 
+	qb_select_matrix_op,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
+	(qb_op_factory *) &factory_mv_multiply_cm,
+	(qb_op_factory *) &factory_mv_multiply_rm,
 };
 
 static qb_matrix_op_factory_selector factory_vm_multiply = { 
 	qb_select_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_TYPE_OPERAND,
-	&factory_vm_multiply_cm,
-	&factory_vm_multiply_rm,
+	(qb_op_factory *) &factory_vm_multiply_cm,
+	(qb_op_factory *) &factory_vm_multiply_rm,
 };
 
 static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {

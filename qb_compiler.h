@@ -244,8 +244,8 @@ enum qb_stage {
 };
 
 enum qb_matrix_order {
-	QB_MATRIX_ORDER_COLUMN_MAJOR,
-	QB_MATRIX_ORDER_ROW_MAJOR,
+	QB_MATRIX_ORDER_COLUMN_MAJOR	= 0,
+	QB_MATRIX_ORDER_ROW_MAJOR		= 1,
 };
 
 struct qb_compiler_context {
