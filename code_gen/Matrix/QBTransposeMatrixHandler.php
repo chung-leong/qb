@@ -116,6 +116,32 @@ class QBTransposeMatrixHandler extends QBSIMDHandler {
 					"}",
 				"}",
 			),
+			array(
+				"static void ZEND_FASTCALL qb_transpose_cm_matrix_$type($cType *op1_start, $cType *op1_end, uint32_t m1_row, uint32_t m1_col, $cType *res_start, $cType *res_end) {",
+					"ALLOCA_FLAG(use_heap)",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict op1_ptr = op1_start;",						
+					"$cType *__restrict buffer = do_alloca(m1_row * m1_col * sizeof($cType), use_heap);",
+					"for(;;) {",
+						"uint32_t i, j, k, p;",
+						"for(i = 0, p = 0; i < m1_row; i++) {",
+							"for(j = 0, k = i; j < m1_col; j++, p++, k += m1_row) {",
+								"buffer[k] = op1_ptr[p];",
+							"}",
+						"}",
+						"memcpy(res_ptr, buffer, m1_row * m1_col * sizeof($cType));",
+						"res_ptr += m1_row * m1_col;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"op1_ptr += m1_row * m1_col;",
+						"if(op1_ptr >= op1_end) {",
+							"op1_ptr = op1_start;",
+						"}",
+					"}",
+					"free_alloca(buffer, use_heap);",
+				"}",
+			),
 		);
 		return $functions;
 	}
@@ -131,7 +157,11 @@ class QBTransposeMatrixHandler extends QBSIMDHandler {
 	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			throw Exception("No implementation for matrices of arbituary size");
+			if($this->addressMode == "ARR") {
+				return "qb_transpose_cm_matrix_$type(op1_start, op1_end, MATRIX1_ROWS, MATRIX1_COLS, res_start, res_end);";
+			} else {
+				return "qb_transpose_cm_matrix_$type(op1_ptr, NULL, MATRIX1_ROWS, MATRIX1_COLS, res_ptr, NULL);";
+			}
 		} else {
 			if($this->addressMode == "ARR") {
 				return "qb_transpose_cm_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, res_start, res_end);";

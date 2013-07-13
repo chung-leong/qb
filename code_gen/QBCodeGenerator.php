@@ -1081,35 +1081,6 @@ class QBCodeGenerator {
 	protected function addMatrixHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM", $elementType, null);
-			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM", $elementType, "ARR");
-			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV", $elementType, null);
-			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV", $elementType, "ARR");
-			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, null);
-			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, "ARR");
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBDeterminantHandler("MDET", $elementType, $addressMode);
-			}
-			$this->handlers[] = new QBInvertMatrixHandler("MINV", $elementType, null);
-			$this->handlers[] = new QBInvertMatrixHandler("MINV", $elementType, "ARR");
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBDotProductHandler("DOT", $elementType, $addressMode);
-			}
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBLengthHandler("LEN", $elementType, $addressMode);
-			}
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBDistanceHandler("DIS", $elementType, $addressMode);
-			}
-			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, null);
-			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, "ARR");
-			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, null);
-			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, "ARR");
-			$this->handlers[] = new QBReflectHandler("REFL", $elementType, null);
-			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR");
-			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null);
-			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR");
-
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_4X4", $elementType, null, 4);
 			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM_4X4", $elementType, "ARR", 4);
 			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV_4X4", $elementType, null, 4);
@@ -1118,11 +1089,11 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM_4X4", $elementType, "ARR", 4);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_4X", $elementType, null, 4);
 			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN_4X", $elementType, "ARR", 4);
-			$this->handlers[] = new QBInvertMatrixHandler("MINV_4X", $elementType, null, 4);
-			$this->handlers[] = new QBInvertMatrixHandler("MINV_4X", $elementType, "ARR", 4);
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDeterminantHandler("MDET_4X", $elementType, $addressMode, 4);
 			}
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_4X", $elementType, null, 4);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV_4X", $elementType, "ARR", 4);
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT_4X", $elementType, $addressMode, 4);
 			}
@@ -1273,6 +1244,37 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBDecrementHandler("DEC_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_2X", $elementType, null, 2);
 			$this->handlers[] = new QBMultiplyAccumulateHandler("MAC_2X", $elementType, "ARR", 2);
+			
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM", $elementType, null);
+			$this->handlers[] = new QBMultiplyMatrixByMatrixHandler("MUL_MM", $elementType, "ARR");
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV", $elementType, null);
+			$this->handlers[] = new QBMultiplyMatrixByVectorHandler("MUL_MV", $elementType, "ARR");
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, null);
+			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, "ARR");
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN", $elementType, null);
+			$this->handlers[] = new QBTransposeMatrixHandler("MTRAN", $elementType, "ARR");
+			$this->handlers[] = new QBInvertMatrixHandler("MINV", $elementType, null);
+			$this->handlers[] = new QBInvertMatrixHandler("MINV", $elementType, "ARR");
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBDeterminantHandler("MDET", $elementType, $addressMode);
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBDotProductHandler("DOT", $elementType, $addressMode);
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBLengthHandler("LEN", $elementType, $addressMode);
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBDistanceHandler("DIS", $elementType, $addressMode);
+			}
+			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, null);
+			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, "ARR");
+			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, null);
+			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, "ARR");
+			$this->handlers[] = new QBReflectHandler("REFL", $elementType, null);
+			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR");
+			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null);
+			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR");
 		}
 	}
 

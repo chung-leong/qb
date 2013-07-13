@@ -1835,13 +1835,14 @@ static qb_matrix_op_factory_selector factory_vm_multiply = {
 static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_vector_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
+	uint32_t m1_rows = qb_get_matrix_row_count(cxt, address1);
+	uint32_t m1_cols = qb_get_matrix_column_count(cxt, address1);
 	qb_op *qop;
 	qb_opcode opcode;
 	uint32_t i;
 
-	if(2 <= dimension1 && dimension1 <= 4) {
-		opcode = f->opcodes_fixed_size[dimension1 - 2][QB_TYPE_F64 - address1->type];
+	if(m1_rows == m1_cols && 2 <= m1_rows && m1_rows <= 4) {
+		opcode = f->opcodes_fixed_size[m1_rows - 2][QB_TYPE_F64 - address1->type];
 	} else {
 		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
@@ -1858,7 +1859,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void 
 		qop->operands[i].address = operands[i].address;
 	}
 	qop->operands[operand_count] = *result;
-	qop->matrix_dimensions = V_DIMENSIONS(dimension1);
+	qop->matrix_dimensions = MM_DIMENSIONS(m1_rows, m1_cols, 0, 0);
 	return qop;
 }
 
@@ -1866,7 +1867,7 @@ static qb_matrix_op_factory factory_transpose = {
 	qb_append_matrix_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_OPERAND | QB_TYPE_OPERAND,
-	{	0,			0,	},
+	{	QB_MTRAN_F64_F64,				QB_MTRAN_F32_F32,	},
 	{
 		{	QB_MTRAN_2X_F64_F64,		QB_MTRAN_2X_F32_F32,	},
 		{	QB_MTRAN_3X_F64_F64,		QB_MTRAN_3X_F32_F32,	},
