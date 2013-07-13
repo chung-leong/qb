@@ -80,6 +80,47 @@ class QBDeterminantHandler extends QBSIMDHandler {
 					"}",
 				"}",
 			),
+			array(
+				"static void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+					"if(dim == 4) {",
+						"qb_calculate_cm_matrix_determinant_4x4_$type(op1_start, op1_end, res_start, res_end);",
+					"} else {",
+						"ALLOCA_FLAG(use_heap)",
+						"$cType *__restrict res_ptr = res_start;",
+						"$cType *__restrict op1_ptr = op1_start;",						
+						"$cType *__restrict minor = do_alloca((dim - 1) * (dim - 1) * sizeof($cType), use_heap);",
+						"for(;;) {",
+							"uint32_t i, j, k, m, n;",
+							"$cType sign = 1, sum = 0;",
+							"for(m = 0; m < dim; m++) {",
+								"$cType a = op1_ptr[m];",
+								"$cType det;",
+								"for(i = 1, n = 0, k = dim; i < dim; i++) {",
+									"for(j = 0; j < dim; j++, k++) {",
+										"if(j != m) {",
+											"minor[n] = op1_ptr[k];",
+											"n++;",
+										"}",
+									"}",
+								"}",
+								"qb_calculate_cm_matrix_determinant_$type(minor, NULL, dim - 1, &det, NULL);",
+								"sum += a * det * sign;",
+								"sign = -sign;",
+							"}",
+							"res_ptr[0] = sum;",
+							"res_ptr += 1;",
+							"if(res_ptr >= res_end) {",
+								"break;",
+							"}",
+							"op1_ptr += dim * dim;",
+							"if(op1_ptr >= op1_end) {",
+								"op1_ptr = op1_start;",
+							"}",
+						"}",
+						"free_alloca(minor, use_heap);",
+					"}",
+				"}",
+			),
 		);
 		return $functions;
 	}
@@ -112,7 +153,11 @@ class QBDeterminantHandler extends QBSIMDHandler {
 	public function getAction() {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
-			throw Exception("No implementation for matrices of arbituary size");
+			if($this->addressMode == "ARR") {
+				return "qb_calculate_cm_matrix_determinant_$type(op1_start, op1_end, MATRIX2_ROWS, res_start, res_end);";
+			} else {
+				return "qb_calculate_cm_matrix_determinant_$type(op1_ptr, NULL, MATRIX2_ROWS, res_ptr, NULL);";
+			}
 		} else {
 			if($this->addressMode == "ARR") {
 				return "qb_calculate_cm_matrix_determinant_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, res_start, res_end);";

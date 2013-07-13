@@ -1174,7 +1174,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unary_matrix_op(qb_compiler_con
 			qb_abort("%s() expects a square matrix as parameter", f->name);
 		}
 		if(!(2 <= matrix_rows && matrix_rows <= 4)) {
-			qb_abort("%s() can only handle 2x2, 3x3, and 4x4 matrices", f->name);
+			//qb_abort("%s() can only handle 2x2, 3x3, and 4x4 matrices", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;

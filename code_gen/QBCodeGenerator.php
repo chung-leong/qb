@@ -1088,6 +1088,9 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, null);
 			$this->handlers[] = new QBMultiplyVectorByMatrixHandler("MUL_VM", $elementType, "ARR");
 			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new QBDeterminantHandler("MDET", $elementType, $addressMode);
+			}
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBDotProductHandler("DOT", $elementType, $addressMode);
 			}
 			foreach($this->addressModes as $addressMode) {

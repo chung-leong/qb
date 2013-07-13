@@ -1892,7 +1892,7 @@ static qb_matrix_op_factory factory_determinant = {
 	qb_append_matrix_op,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MATRIX_COUNT | QB_TYPE_OPERAND,
-	{	0,			0,	},
+	{	QB_MDET_F64_F64,			QB_MDET_F32_F32,	},
 	{
 		{	QB_MDET_2X_F64_F64,		QB_MDET_2X_F32_F32,	},
 		{	QB_MDET_3X_F64_F64,		QB_MDET_3X_F32_F32,	},
