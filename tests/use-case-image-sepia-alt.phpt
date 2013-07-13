@@ -43,6 +43,8 @@ function sepia(&$image, $intensity) {
 	}
 }
 
+ini_set("qb.column_major_matrix", true);
+
 qb_compile();
 
 sepia($image, 0.2);
