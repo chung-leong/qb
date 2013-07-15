@@ -776,14 +776,6 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_size_multidimensional_array(qb
 	return address;
 }
 
-/*static qb_address * ZEND_FASTCALL qb_obtain_string_constant(qb_compiler_context *cxt, const char *string) {
-	uint32_t length = strlen(string);
-	qb_address *address = qb_create_fixed_length_array(cxt, QB_TYPE_U08, length, 0);
-	address->flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_STRING;
-	memcpy(ARRAY(I08, address), string, length);
-	return address;
-}*/
-
 static qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count) {
 	qb_address *address;
 	uint32_t i;
@@ -1917,6 +1909,12 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 							qb_do_assignment(cxt, operand->address, new_address);
 						}
 						if(operand->address->dimension_count > 1) {
+							if(new_address->flags & QB_ADDRESS_TEMPORARY) {
+								// since temporary variables are reused, create a new address and put dimensional information into it
+								qb_address *multidim_address = qb_allocate_address(cxt->pool);
+								*multidim_address = *new_address;
+								new_address = multidim_address;
+							}
 							new_address->dimension_count = operand->address->dimension_count;
 							new_address->array_size_addresses = operand->address->array_size_addresses;
 							new_address->dimension_addresses = operand->address->dimension_addresses;
