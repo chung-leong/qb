@@ -918,17 +918,27 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_c
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_address *size_address) {
-	if(size_address) {
-		uint32_t element_count = VALUE(U32, size_address);
-		if(size_address->flags & QB_ADDRESS_CONSTANT) {
-			return qb_obtain_temporary_fixed_length_array(cxt, desired_type, element_count);
+static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim) {
+	qb_address *address;
+	if(dim->array_size_address) {
+		uint32_t element_count = VALUE(U32, dim->array_size_address);
+		if(dim->array_size_address->flags & QB_ADDRESS_CONSTANT) {
+			address = qb_obtain_temporary_fixed_length_array(cxt, desired_type, element_count);
 		} else {
-			return qb_obtain_temporary_variable_length_array(cxt, desired_type);
+			address = qb_obtain_temporary_variable_length_array(cxt, desired_type);
+		}
+		if(dim->dimension_count > 1) {
+			qb_address *multidim_address = qb_allocate_address(cxt->pool);
+			*multidim_address = *address;
+			multidim_address->dimension_addresses = dim->dimension_addresses;
+			multidim_address->array_size_addresses = dim->array_size_addresses;
+			multidim_address->dimension_count = dim->dimension_count;
+			address = multidim_address;
 		}
 	} else {
-		return qb_obtain_temporary_scalar(cxt, desired_type);
+		address = qb_obtain_temporary_scalar(cxt, desired_type);
 	}
+	return address;
 }
 
 static qb_address * ZEND_FASTCALL qb_allocate_constant(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim) {
@@ -1864,6 +1874,178 @@ static qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_cont
 	return type1;
 }
 
+static qb_variable_dimensions *qb_get_variable_length_dimensions(qb_compiler_context *cxt) {
+	qb_variable_dimensions *dim = &cxt->result_dimensions;
+
+	dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
+	dim->dimension_count = 1;
+	dim->array_size_addresses = NULL;
+	dim->dimension_addresses = NULL;
+	return dim;
+}
+
+static qb_variable_dimensions *qb_get_address_dimensions(qb_compiler_context *cxt, qb_address *address) {
+	qb_variable_dimensions *dim = &cxt->result_dimensions;
+
+	dim->array_size_address = address->array_size_address;
+	dim->dimension_count = address->dimension_count;
+	dim->array_size_addresses = address->array_size_addresses;
+	dim->dimension_addresses = address->dimension_addresses;
+	return dim;
+}
+
+static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count, uint32_t result_flags) {
+	qb_variable_dimensions *dim = &cxt->result_dimensions;
+
+	dim->array_size_address = NULL;
+	dim->dimension_count = 0;
+	dim->array_size_addresses = NULL;
+	dim->dimension_addresses = NULL;
+
+	if(result_flags & QB_RESULT_SIZE_OPERAND) {
+		uint32_t i, array_size, current_array_size = 0;
+		for(i = 0; i < operand_count; i++) {
+			qb_address *address = operands[i].address;
+			if(!IS_SCALAR(address)) {
+				if(IS_VARIABLE_LENGTH_ARRAY(address)) {
+					array_size = UINT32_MAX;
+				} else {
+					array_size = ARRAY_SIZE(address);
+				}
+				if(array_size > current_array_size) {
+					current_array_size = array_size;
+					dim->array_size_address = address->array_size_address;
+					dim->array_size_addresses = address->array_size_addresses;
+					dim->dimension_addresses = address->dimension_addresses;
+					dim->dimension_count = address->dimension_count;
+				}
+			}
+		}
+	} else if(result_flags & QB_RESULT_SIZE_MATRIX_COUNT) {
+		qb_address *matrix_address = operands[0].address;
+		if(matrix_address->dimension_count > 2) {
+			if(!(matrix_address->array_size_address->flags & QB_ADDRESS_CONSTANT)) {
+				// indicate variable-length result
+				dim->array_size_address = matrix_address->array_size_address;
+			} else {
+				uint32_t matrix_size = VALUE(U32, matrix_address->array_size_addresses[matrix_address->dimension_count - 2]);
+				uint32_t element_count = VALUE(U32, matrix_address->array_size_address);
+				uint32_t matrix_count = element_count / matrix_size;
+				dim->array_size_address = qb_obtain_constant_U32(cxt, matrix_count);
+			}
+			dim->dimension_count = 1;
+		}
+	} else if(result_flags & QB_RESULT_SIZE_VECTOR_COUNT) {
+		qb_address *vector_address = operands[0].address;
+		if(vector_address->dimension_count > 1) {
+			if(!(vector_address->array_size_address->flags & QB_ADDRESS_CONSTANT)) {
+				// indicate variable-length
+				dim->array_size_address = vector_address->array_size_address;
+			} else {
+				uint32_t vector_width = VALUE(U32, vector_address->dimension_addresses[vector_address->dimension_count - 1]);
+				uint32_t element_count = VALUE(U32, vector_address->array_size_address);
+				uint32_t vector_count = element_count / vector_width;
+				dim->array_size_address = qb_obtain_constant_U32(cxt, vector_count);
+			}
+			dim->dimension_count = 1;
+		}
+	} else if(result_flags & QB_RESULT_SIZE_MM_PRODUCT) {
+		qb_address *m1_address = operands[0].address;
+		qb_address *m2_address = operands[1].address;
+		uint32_t m1_rows = qb_get_matrix_row_count(cxt, m1_address);
+		uint32_t m1_cols = qb_get_matrix_column_count(cxt, m1_address);
+		uint32_t m2_rows = qb_get_matrix_row_count(cxt, m1_address);
+		uint32_t m2_cols = qb_get_matrix_column_count(cxt, m2_address);
+		uint32_t m1_count = 1, m2_count = 1, res_count, res_size;
+
+		if(!IS_FIXED_LENGTH_ARRAY(m1_address) || !IS_FIXED_LENGTH_ARRAY(m2_address)) {
+			dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
+		} else {
+			if(m1_address->dimension_count > 2) {
+				m1_count = ARRAY_SIZE(m1_address) / (m1_rows * m1_cols);
+			}
+			if(m2_address->dimension_count > 2) {
+				m2_count = ARRAY_SIZE(m2_address) / (m2_rows * m2_cols);
+			}
+			res_count = max(m1_count, m2_count);
+			res_size = (m1_rows * m2_cols) * res_count;
+			if(res_size > 1) {
+				dim->array_size_address = qb_obtain_constant_U32(cxt, res_size);
+			}
+		}
+	} else if(result_flags & QB_RESULT_SIZE_MV_PRODUCT) {
+		qb_address *m_address = operands[0].address;
+		qb_address *v_address = operands[1].address;
+		uint32_t v_width = qb_get_vector_width(cxt, v_address);
+		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
+		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
+		uint32_t m_count = 1, v_count = 1, res_count, res_size;
+
+		if(!IS_FIXED_LENGTH_ARRAY(v_address) && !IS_FIXED_LENGTH_ARRAY(m_address)) {
+			dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
+		} else {
+			if(v_address->dimension_count > 1) {
+				v_count = ARRAY_SIZE(v_address) / v_width;
+			}
+			if(m_address->dimension_count > 2) {
+				m_count = ARRAY_SIZE(m_address) / (m_rows * m_cols);
+			}
+			res_count = max(v_count, m_count);
+			res_size = (1 * m_cols) * res_count;
+			if(res_size > 1) {
+				dim->array_size_address = qb_obtain_constant_U32(cxt, res_size);
+			}
+		}
+	} else if(result_flags & QB_RESULT_SIZE_VM_PRODUCT) {
+		qb_address *v_address = operands[0].address;
+		qb_address *m_address = operands[1].address;
+		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
+		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
+		uint32_t v_width = qb_get_vector_width(cxt, v_address);
+		uint32_t m_count = 1, v_count = 1, res_count, res_size;
+
+		if(!IS_FIXED_LENGTH_ARRAY(m_address) || !IS_FIXED_LENGTH_ARRAY(v_address)) {
+			dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
+		} else {
+			if(m_address->dimension_count > 2) {
+				m_count = ARRAY_SIZE(m_address) / (m_rows * m_cols);
+			}
+			if(v_address->dimension_count > 1) {
+				v_count = ARRAY_SIZE(v_address) / v_width;
+			}
+			res_count = max(m_count, v_count);
+			res_size = (m_rows * 1) * res_count;
+			if(res_size > 1) {
+				dim->array_size_address = qb_obtain_constant_U32(cxt, res_size);
+			}
+		}
+	} else if(result_flags & QB_RESULT_SIZE_PIXEL_COUNT) {
+		qb_operand *image = &operands[0], *x = &operands[1], *y = &operands[2];
+		uint32_t channel_count = qb_get_vector_width(cxt, image->address);
+		if(IS_SCALAR(x->address) && IS_SCALAR(y->address)) {
+			dim->array_size_address = qb_obtain_constant_U32(cxt, channel_count);
+		} else {
+			if(IS_EXPANDABLE_ARRAY(x->address)) {
+				// indicate the length of result is variable 
+				dim->array_size_address = x->address->array_size_address;
+			} else if(IS_EXPANDABLE_ARRAY(y->address)) {
+				dim->array_size_address = y->address->array_size_address;
+			} else {
+				uint32_t x_count = IS_SCALAR(x->address) ? 1: ARRAY_SIZE(x->address);
+				uint32_t y_count = IS_SCALAR(y->address) ? 1 : ARRAY_SIZE(y->address);
+				uint32_t total_channel_count = max(x_count, y_count) * channel_count;
+				dim->array_size_address = qb_obtain_constant_U32(cxt, total_channel_count);
+			}
+			dim->dimension_count = 1;
+		}
+	}
+	return dim;
+}
+
+static void qb_release_result_dimensions(qb_compiler_context *cxt, qb_variable_dimensions *dim) {
+	qb_unlock_address(cxt, dim->array_size_address);
+}
+
 static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
@@ -1900,17 +2082,13 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 						}
 					} else {
 						// the bit pattern is different--need to do a copy
+						qb_variable_dimensions *dim = qb_get_address_dimensions(cxt, operand->address);
 						if(operand->address->flags & QB_ADDRESS_CONSTANT) {
 							uint32_t element_count = IS_SCALAR(operand->address) ? 1 : ARRAY_SIZE(operand->address);
-							qb_variable_dimensions dim;
-							dim.dimension_count = operand->address->dimension_count;
-							dim.dimension_addresses = operand->address->dimension_addresses;
-							dim.array_size_address = operand->address->array_size_address;
-							dim.array_size_addresses = operand->address->array_size_addresses;
-							new_address = qb_allocate_constant(cxt, desired_type, &dim);
+							new_address = qb_allocate_constant(cxt, desired_type, dim);
 							qb_copy_elements(operand->address->type, ARRAY(I08, operand->address), element_count, new_address->type, ARRAY(I08, new_address), element_count);
 						} else {
-							new_address = qb_obtain_temporary_variable(cxt, desired_type, operand->address->array_size_address);
+							new_address = qb_obtain_temporary_variable(cxt, desired_type, dim);
 							qb_do_assignment(cxt, operand->address, new_address);
 						}
 						if(operand->address->dimension_count > 1) {
@@ -2155,178 +2333,6 @@ static qb_address * ZEND_FASTCALL qb_get_named_element(qb_compiler_context *cxt,
 	index_address = qb_obtain_constant_U32(cxt, index);
 	value_address = qb_get_array_element(cxt, container_address, index_address);
 	return value_address;
-}
-
-static qb_variable_dimensions *qb_get_variable_length_dimensions(qb_compiler_context *cxt) {
-	qb_variable_dimensions *dim = &cxt->result_dimensions;
-
-	dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-	dim->dimension_count = 1;
-	dim->array_size_addresses = NULL;
-	dim->dimension_addresses = NULL;
-	return dim;
-}
-
-static qb_variable_dimensions *qb_get_address_dimension(qb_compiler_context *cxt, qb_address *address) {
-	qb_variable_dimensions *dim = &cxt->result_dimensions;
-
-	dim->array_size_address = address->array_size_address;
-	dim->dimension_count = address->dimension_count;
-	dim->array_size_addresses = address->array_size_addresses;
-	dim->dimension_addresses = address->dimension_addresses;
-	return dim;
-}
-
-static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count, uint32_t result_flags) {
-	qb_variable_dimensions *dim = &cxt->result_dimensions;
-
-	dim->array_size_address = NULL;
-	dim->dimension_count = 0;
-	dim->array_size_addresses = NULL;
-	dim->dimension_addresses = NULL;
-
-	if(result_flags & QB_RESULT_SIZE_OPERAND) {
-		uint32_t i, array_size, current_array_size = 0;
-		for(i = 0; i < operand_count; i++) {
-			qb_address *address = operands[i].address;
-			if(!IS_SCALAR(address)) {
-				if(IS_VARIABLE_LENGTH_ARRAY(address)) {
-					array_size = UINT32_MAX;
-				} else {
-					array_size = ARRAY_SIZE(address);
-				}
-				if(array_size > current_array_size) {
-					current_array_size = array_size;
-					dim->array_size_address = address->array_size_address;
-					dim->array_size_addresses = address->array_size_addresses;
-					dim->dimension_addresses = address->dimension_addresses;
-					dim->dimension_count = address->dimension_count;
-				}
-			}
-		}
-	} else if(result_flags & QB_RESULT_SIZE_MATRIX_COUNT) {
-		qb_address *matrix_address = operands[0].address;
-		if(matrix_address->dimension_count > 2) {
-			if(!(matrix_address->array_size_address->flags & QB_ADDRESS_CONSTANT)) {
-				// indicate variable-length result
-				dim->array_size_address = matrix_address->array_size_address;
-			} else {
-				uint32_t matrix_size = VALUE(U32, matrix_address->array_size_addresses[matrix_address->dimension_count - 2]);
-				uint32_t element_count = VALUE(U32, matrix_address->array_size_address);
-				uint32_t matrix_count = element_count / matrix_size;
-				dim->array_size_address = qb_obtain_constant_U32(cxt, matrix_count);
-			}
-			dim->dimension_count = 1;
-		}
-	} else if(result_flags & QB_RESULT_SIZE_VECTOR_COUNT) {
-		qb_address *vector_address = operands[0].address;
-		if(vector_address->dimension_count > 1) {
-			if(!(vector_address->array_size_address->flags & QB_ADDRESS_CONSTANT)) {
-				// indicate variable-length
-				dim->array_size_address = vector_address->array_size_address;
-			} else {
-				uint32_t vector_width = VALUE(U32, vector_address->dimension_addresses[vector_address->dimension_count - 1]);
-				uint32_t element_count = VALUE(U32, vector_address->array_size_address);
-				uint32_t vector_count = element_count / vector_width;
-				dim->array_size_address = qb_obtain_constant_U32(cxt, vector_count);
-			}
-			dim->dimension_count = 1;
-		}
-	} else if(result_flags & QB_RESULT_SIZE_MM_PRODUCT) {
-		qb_address *m1_address = operands[0].address;
-		qb_address *m2_address = operands[1].address;
-		uint32_t m1_rows = qb_get_matrix_row_count(cxt, m1_address);
-		uint32_t m1_cols = qb_get_matrix_column_count(cxt, m1_address);
-		uint32_t m2_rows = qb_get_matrix_row_count(cxt, m1_address);
-		uint32_t m2_cols = qb_get_matrix_column_count(cxt, m2_address);
-		uint32_t m1_count = 1, m2_count = 1, res_count, res_size;
-
-		if(!IS_FIXED_LENGTH_ARRAY(m1_address) || !IS_FIXED_LENGTH_ARRAY(m2_address)) {
-			dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-		} else {
-			if(m1_address->dimension_count > 2) {
-				m1_count = ARRAY_SIZE(m1_address) / (m1_rows * m1_cols);
-			}
-			if(m2_address->dimension_count > 2) {
-				m2_count = ARRAY_SIZE(m2_address) / (m2_rows * m2_cols);
-			}
-			res_count = max(m1_count, m2_count);
-			res_size = (m1_rows * m2_cols) * res_count;
-			if(res_size > 1) {
-				dim->array_size_address = qb_obtain_constant_U32(cxt, res_size);
-			}
-		}
-	} else if(result_flags & QB_RESULT_SIZE_MV_PRODUCT) {
-		qb_address *m_address = operands[0].address;
-		qb_address *v_address = operands[1].address;
-		uint32_t v_width = qb_get_vector_width(cxt, v_address);
-		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
-		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
-		uint32_t m_count = 1, v_count = 1, res_count, res_size;
-
-		if(!IS_FIXED_LENGTH_ARRAY(v_address) && !IS_FIXED_LENGTH_ARRAY(m_address)) {
-			dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-		} else {
-			if(v_address->dimension_count > 1) {
-				v_count = ARRAY_SIZE(v_address) / v_width;
-			}
-			if(m_address->dimension_count > 2) {
-				m_count = ARRAY_SIZE(m_address) / (m_rows * m_cols);
-			}
-			res_count = max(v_count, m_count);
-			res_size = (1 * m_cols) * res_count;
-			if(res_size > 1) {
-				dim->array_size_address = qb_obtain_constant_U32(cxt, res_size);
-			}
-		}
-	} else if(result_flags & QB_RESULT_SIZE_VM_PRODUCT) {
-		qb_address *v_address = operands[0].address;
-		qb_address *m_address = operands[1].address;
-		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
-		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
-		uint32_t v_width = qb_get_vector_width(cxt, v_address);
-		uint32_t m_count = 1, v_count = 1, res_count, res_size;
-
-		if(!IS_FIXED_LENGTH_ARRAY(m_address) || !IS_FIXED_LENGTH_ARRAY(v_address)) {
-			dim->array_size_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-		} else {
-			if(m_address->dimension_count > 2) {
-				m_count = ARRAY_SIZE(m_address) / (m_rows * m_cols);
-			}
-			if(v_address->dimension_count > 1) {
-				v_count = ARRAY_SIZE(v_address) / v_width;
-			}
-			res_count = max(m_count, v_count);
-			res_size = (m_rows * 1) * res_count;
-			if(res_size > 1) {
-				dim->array_size_address = qb_obtain_constant_U32(cxt, res_size);
-			}
-		}
-	} else if(result_flags & QB_RESULT_SIZE_PIXEL_COUNT) {
-		qb_operand *image = &operands[0], *x = &operands[1], *y = &operands[2];
-		uint32_t channel_count = qb_get_vector_width(cxt, image->address);
-		if(IS_SCALAR(x->address) && IS_SCALAR(y->address)) {
-			dim->array_size_address = qb_obtain_constant_U32(cxt, channel_count);
-		} else {
-			if(IS_EXPANDABLE_ARRAY(x->address)) {
-				// indicate the length of result is variable 
-				dim->array_size_address = x->address->array_size_address;
-			} else if(IS_EXPANDABLE_ARRAY(y->address)) {
-				dim->array_size_address = y->address->array_size_address;
-			} else {
-				uint32_t x_count = IS_SCALAR(x->address) ? 1: ARRAY_SIZE(x->address);
-				uint32_t y_count = IS_SCALAR(y->address) ? 1 : ARRAY_SIZE(y->address);
-				uint32_t total_channel_count = max(x_count, y_count) * channel_count;
-				dim->array_size_address = qb_obtain_constant_U32(cxt, total_channel_count);
-			}
-			dim->dimension_count = 1;
-		}
-	}
-	return dim;
-}
-
-static void qb_release_result_dimensions(qb_compiler_context *cxt, qb_variable_dimensions *dim) {
-	qb_unlock_address(cxt, dim->array_size_address);
 }
 
 static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
@@ -4121,6 +4127,7 @@ void ZEND_FASTCALL qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 
 void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagnostic_type test_type) {
 	qb_address *value1_address, *value2_address, *result_address, *intermediate_address;
+	qb_variable_dimensions *result_dim;
 	qb_open_diagnostic_loop(cxt);
 	if(test_type != QB_DIAGNOSTIC_EMPTY) {
 		switch(test_type) {
@@ -4157,7 +4164,8 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 			}
 			default: break;
 		}
-		result_address = qb_obtain_temporary_variable(cxt, value1_address->type, value1_address->array_size_address);
+		result_dim = qb_get_address_dimensions(cxt, value1_address);
+		result_address = qb_obtain_temporary_variable(cxt, value1_address->type, result_dim);
 
 		switch(test_type) {
 			case QB_DIAGNOSTIC_INT_ADD:
@@ -4178,7 +4186,7 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 			case QB_DIAGNOSTIC_INT_MAC:
 			case QB_DIAGNOSTIC_FLOAT_MAC:
 			case QB_DIAGNOSTIC_VECTOR_MAC: {
-				intermediate_address = qb_obtain_temporary_variable(cxt, value1_address->type, value1_address->array_size_address);
+				intermediate_address = qb_obtain_temporary_variable(cxt, value1_address->type, result_dim);
 				qb_create_binary_op(cxt, &factory_multiply, value1_address, value2_address, intermediate_address);
 				qb_create_binary_op(cxt, &factory_add, result_address, intermediate_address, result_address);
 			}	break;

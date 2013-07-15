@@ -489,7 +489,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *
 		qb_create_binary_op(cxt, &factory_subtract, size_address, one_address, index_address);
 		variable_address = qb_get_array_element(cxt, container->address, index_address);
 		if(result->type != QB_OPERAND_NONE) {
-			qb_variable_dimensions *result_dim = qb_get_address_dimension(cxt, variable_address);
+			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, variable_address);
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, variable_address->type, result_dim, result_prototype, 0);
 			qb_create_unary_op(cxt, &factory_copy, variable_address, result->address);
@@ -524,7 +524,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context
 		zero_address = qb_obtain_constant_U32(cxt, 0);
 		variable_address = qb_get_array_element(cxt, container->address, zero_address);
 		if(result->type != QB_OPERAND_NONE) {
-			qb_variable_dimensions *result_dim = qb_get_address_dimension(cxt, variable_address);
+			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, variable_address);
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, variable_address->type, result_dim, result_prototype, 0);
 			qb_do_assignment(cxt, variable_address, result->address);
@@ -592,7 +592,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_contex
 		slice_address = qb_get_array_slice(cxt, container->address, offset->address, (argument_count >= 3) ? length->address : NULL);
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
-			qb_variable_dimensions *result_dim = qb_get_address_dimension(cxt, slice_address);
+			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, slice_address);
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, slice_address->type, result_dim, result_prototype, result_flags);
 			qb_create_unary_op(cxt, &factory_copy, slice_address, result->address);
@@ -795,7 +795,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 			qb_address *count_address = container->address->dimension_addresses[0];
 			qb_address *width_address;
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
-			qb_variable_dimensions *result_dim = qb_get_address_dimension(cxt, container->address);
+			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, container->address);
 			if(container->address->dimension_count > 1) {
 				width_address = container->address->array_size_addresses[1];
 			} else {

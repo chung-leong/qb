@@ -1083,7 +1083,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 	}
 
 	// need temporary variable
-	return qb_obtain_temporary_variable(cxt, desired_type, dim->array_size_address);
+	return qb_obtain_temporary_variable(cxt, desired_type, dim);
 }
 
 static void ZEND_FASTCALL qb_translate_assign(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1164,8 +1164,9 @@ static void ZEND_FASTCALL qb_translate_assign_temp(qb_compiler_context *cxt, voi
 		qb_finalize_result_prototype(cxt, result_prototype);
 		qb_do_type_coercion(cxt, value, result_prototype->final_type);
 		if(result->type != QB_OPERAND_ADDRESS) {
+			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, value->address);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, value->address->type, value->address->array_size_address);
+			result->address = qb_obtain_temporary_variable(cxt, value->address->type, result_dim);
 		}
 		qb_do_assignment(cxt, value->address, result->address);
 	}
@@ -1258,7 +1259,8 @@ static void ZEND_FASTCALL qb_do_boolean_coercion(qb_compiler_context *cxt, qb_op
 					// TODO: need qb_obtain_constant_bool()
 					operand->address = qb_obtain_constant_S32(cxt, is_true);
 				} else {
-					qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, operand->address->array_size_address);
+					qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, operand->address);
+					qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, result_dim);
 					qb_create_unary_op(cxt, &factory_boolean, operand->address, new_address);
 					operand->address = new_address;
 				}
@@ -1446,8 +1448,9 @@ static void ZEND_FASTCALL qb_translate_incdec_post(qb_compiler_context *cxt, voi
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(result->type != QB_OPERAND_NONE) {
 			// copy the value to a temporary variable before performining the increment
+			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, variable->address);
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_temporary_variable(cxt, variable->address->type, variable->address->array_size_address);
+			result->address = qb_obtain_temporary_variable(cxt, variable->address->type, result_dim);
 			qb_create_unary_op(cxt, &factory_copy, variable->address, result->address);
 		}
 		qb_create_op(cxt, op_factory, NULL, 0, variable);
@@ -1736,6 +1739,7 @@ static void ZEND_FASTCALL qb_translate_jump_set(qb_compiler_context *cxt, void *
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *zero_address;
+		qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, value->address);
 
 		qb_finalize_result_prototype(cxt, result_prototype);
 		qb_do_type_coercion(cxt, value, result_prototype->final_type);
@@ -1746,7 +1750,7 @@ static void ZEND_FASTCALL qb_translate_jump_set(qb_compiler_context *cxt, void *
 
 		// copy value to qm temporary
 		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_temporary_variable(cxt, value->address->type, value->address->array_size_address);
+		result->address = qb_obtain_temporary_variable(cxt, value->address->type, result_dim);
 		result->address->flags |= QB_ADDRESS_REUSED;
 		qb_do_assignment(cxt, value->address, result->address);
 	}
