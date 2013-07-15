@@ -27,6 +27,7 @@ typedef struct qb_class_declaration			qb_class_declaration;
 typedef struct qb_op						qb_op;
 typedef struct qb_operand					qb_operand;
 typedef struct qb_array_initializer			qb_array_initializer;
+typedef struct qb_variable_dimensions		qb_variable_dimensions;
 typedef struct qb_compiler_data_pool		qb_compiler_data_pool;
 typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_build_context				qb_build_context;
@@ -121,6 +122,13 @@ struct qb_array_initializer {
 	qb_operand *elements;
 	uint32_t element_count;
 	qb_primitive_type desired_type;
+};
+
+struct qb_variable_dimensions {
+	uint32_t dimension_count;
+	qb_address *array_size_address;
+	qb_address **dimension_addresses;
+	qb_address **array_size_addresses;
 };
 
 enum qb_result_destination_type {
@@ -283,6 +291,7 @@ struct qb_compiler_context {
 	uint32_t array_count;
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
+	qb_variable_dimensions result_dimensions;
 
 	zend_function *zend_function;
 	zend_function *zend_function_being_called;
@@ -405,9 +414,10 @@ enum {
 	QB_RESULT_SIZE_MM_PRODUCT		= 0x10000000,
 	QB_RESULT_SIZE_MV_PRODUCT		= 0x08000000,
 	QB_RESULT_SIZE_VM_PRODUCT		= 0x04000000,
+	QB_RESULT_SIZE_PIXEL_COUNT		= 0x02000000,
 
-	QB_RESULT_IS_BOOLEAN			= 0x02000000,
-	QB_RESULT_IS_STRING				= 0x01000000,
+	QB_RESULT_IS_BOOLEAN			= 0x00800000,
+	QB_RESULT_IS_STRING				= 0x00400000,
 
 	QB_RESULT_FROM_PURE_FUNCTION	= 0x00100000,
 };

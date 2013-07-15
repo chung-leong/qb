@@ -961,7 +961,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_size_address(qb_compile
 	return NULL;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_address *size_address, qb_result_prototype *result_prototype, uint32_t result_flags) {
+static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim, qb_result_prototype *result_prototype, uint32_t result_flags) {
 	if(result_prototype->destination) {
 		qb_result_destination *destination = result_prototype->destination;
 		qb_primitive_type lvalue_type = QB_TYPE_UNKNOWN;
@@ -996,7 +996,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 
 			// see if the storage types do match (i.e. they are the same or differ only by signedness)
 			if(STORAGE_TYPE_MATCH(desired_type, lvalue_type)) {
-				if(lvalue_size_address == size_address) {
+				if(lvalue_size_address == dim->array_size_address) {
 					substitute = TRUE;
 				} else {
 					// see if we're assigned to an empty variable length array
@@ -1025,12 +1025,12 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 						// substitution always happens since the lvalue will expand to match the size
 						substitute = TRUE;
 					} else {
-						if(size_address) {
+						if(dim->array_size_address) {
 							// array assignment
 							if(lvalue_size_address) {
-								if((size_address->flags & QB_ADDRESS_CONSTANT) && (lvalue_size_address->flags & QB_ADDRESS_CONSTANT)) {
+								if((dim->array_size_address->flags & QB_ADDRESS_CONSTANT) && (lvalue_size_address->flags & QB_ADDRESS_CONSTANT)) {
 									// both are fixed-length arrays--compare their sizes
-									if(VALUE(U32, size_address) == VALUE(U32, lvalue_size_address)) {
+									if(VALUE(U32, dim->array_size_address) == VALUE(U32, lvalue_size_address)) {
 										substitute = TRUE;
 									}
 								} 
@@ -1083,7 +1083,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 	}
 
 	// need temporary variable
-	return qb_obtain_temporary_variable(cxt, desired_type, size_address);
+	return qb_obtain_temporary_variable(cxt, desired_type, dim->array_size_address);
 }
 
 static void ZEND_FASTCALL qb_translate_assign(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1345,10 +1345,11 @@ static uint32_t ZEND_FASTCALL qb_do_type_coercion_for_op(qb_compiler_context *cx
 }
 
 static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, uint32_t expr_type, qb_result_prototype *result_prototype) {
-	qb_address *result_address, *result_size_address = NULL;
+	qb_address *result_address = NULL;
 	uint32_t result_flags = qb_get_result_flags(cxt, op_factory);
 	uint32_t result_type = QB_RESULT_TYPE(result_flags);
 	int32_t is_constant = FALSE;
+	qb_variable_dimensions *result_dim;
 
 #if ZEND_DEBUG
 	if(cxt->stage != QB_STAGE_OPCODE_TRANSLATION) {
@@ -1356,19 +1357,8 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 	}
 #endif
 
-	if(result_flags & QB_RESULT_SIZE_OPERAND) {
-		result_size_address = qb_get_largest_array_size(cxt, operands, operand_count);
-	} else if(result_flags & QB_RESULT_SIZE_MATRIX_COUNT) {
-		result_size_address = qb_get_largest_matrix_count(cxt, operands, operand_count);
-	} else if(result_flags & QB_RESULT_SIZE_VECTOR_COUNT) {
-		result_size_address = qb_get_largest_vector_count(cxt, operands, operand_count);
-	} else if(result_flags & QB_RESULT_SIZE_MM_PRODUCT) {
-		result_size_address = qb_get_matrix_matrix_product_size(cxt, &operands[0], &operands[1]);
-	} else if(result_flags & QB_RESULT_SIZE_MV_PRODUCT) {
-		result_size_address = qb_get_matrix_vector_product_size(cxt, &operands[0], &operands[1]);
-	} else if(result_flags & QB_RESULT_SIZE_VM_PRODUCT) {
-		result_size_address = qb_get_vector_matrix_product_size(cxt, &operands[0], &operands[1]);
-	}
+	result_dim = qb_get_result_dimensions(cxt, operands, operand_count, result_flags);
+
 	if(result_type == QB_TYPE_OPERAND) {
 		result_type = expr_type;
 	}
@@ -1386,9 +1376,9 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 	}
 
 	if(is_constant) {
-		result_address = qb_allocate_constant(cxt, result_type, result_size_address);
+		result_address = qb_allocate_constant(cxt, result_type, result_dim);
 	} else {
-		result_address = qb_obtain_write_target_address(cxt, result_type, result_size_address, result_prototype, result_flags);
+		result_address = qb_obtain_write_target_address(cxt, result_type, result_dim, result_prototype, result_flags);
 	}
 	if(result_flags & QB_RESULT_IS_BOOLEAN) {
 		qb_address *bool_address = qb_allocate_address(cxt->pool);
@@ -1403,8 +1393,9 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 		string_address->flags |= QB_ADDRESS_STRING;
 		result_address = string_address;
 	}
-	if(result_size_address) {
-		qb_unlock_address(cxt, result_size_address);
+
+	if(result_dim->array_size_address) {
+		qb_unlock_address(cxt, result_dim->array_size_address);
 	}
 	return result_address;
 }
