@@ -996,9 +996,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 
 			// see if the storage types do match (i.e. they are the same or differ only by signedness)
 			if(STORAGE_TYPE_MATCH(desired_type, lvalue_type)) {
-				if(lvalue_size_address == dim->array_size_address) {
-					substitute = TRUE;
-				} else {
+				if(lvalue_size_address) {
 					// see if we're assigned to an empty variable length array
 					int32_t lvalue_is_empty_variable_length_array = FALSE;
 					if(lvalue_size_address && !(lvalue_size_address->flags & QB_ADDRESS_READ_ONLY)) {
@@ -1025,22 +1023,22 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 						// substitution always happens since the lvalue will expand to match the size
 						substitute = TRUE;
 					} else {
-						if(dim->array_size_address) {
-							// array assignment
-							if(lvalue_size_address) {
-								if((dim->array_size_address->flags & QB_ADDRESS_CONSTANT) && (lvalue_size_address->flags & QB_ADDRESS_CONSTANT)) {
-									// both are fixed-length arrays--compare their sizes
-									if(VALUE(U32, dim->array_size_address) == VALUE(U32, lvalue_size_address)) {
-										substitute = TRUE;
-									}
+						if(dim->array_size > 0) {
+							// result size is known
+							if(lvalue_size_address->flags & QB_ADDRESS_CONSTANT) {
+								// size of lvalue is fixed	
+								uint32_t lvalue_size = VALUE(U32, lvalue_size_address);
+								if(lvalue_size == dim->array_size) {
+									substitute = TRUE;
 								} 
 							}
-						} else  {
-							// scalar assignment--lvalue must be scalar as well
-							if(!lvalue_size_address) {
-								substitute = TRUE;
-							} 
 						}
+					}
+				} else {
+					// lvalue is a scalar
+					if(dim->dimension_count == 0) {
+						// result is scalar as well
+						substitute = TRUE;
 					}
 				}
 			}
@@ -1394,10 +1392,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 		string_address->source_address = result_address;
 		string_address->flags |= QB_ADDRESS_STRING;
 		result_address = string_address;
-	}
-
-	if(result_dim->array_size_address) {
-		qb_unlock_address(cxt, result_dim->array_size_address);
 	}
 	return result_address;
 }

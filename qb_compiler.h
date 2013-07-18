@@ -27,7 +27,6 @@ typedef struct qb_class_declaration			qb_class_declaration;
 typedef struct qb_op						qb_op;
 typedef struct qb_operand					qb_operand;
 typedef struct qb_array_initializer			qb_array_initializer;
-typedef struct qb_variable_dimensions		qb_variable_dimensions;
 typedef struct qb_compiler_data_pool		qb_compiler_data_pool;
 typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_build_context				qb_build_context;
@@ -35,6 +34,7 @@ typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_result_prototype			qb_result_prototype;
 typedef struct qb_result_destination		qb_result_destination;
 typedef struct qb_temporary_variable		qb_temporary_variable;
+typedef struct qb_variable_dimensions		qb_variable_dimensions;
 
 typedef enum qb_operand_type				qb_operand_type;
 typedef enum qb_stage						qb_stage;
@@ -126,9 +126,9 @@ struct qb_array_initializer {
 
 struct qb_variable_dimensions {
 	uint32_t dimension_count;
-	qb_address *array_size_address;
-	qb_address **dimension_addresses;
-	qb_address **array_size_addresses;
+	uint32_t array_size;
+	qb_address *array_size_addresses[64];
+	qb_address *dimension_addresses[64];
 };
 
 enum qb_result_destination_type {

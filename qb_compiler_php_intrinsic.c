@@ -383,8 +383,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 
 			// use the lvalue size if the parameters are scalar
 			// this allow use to generate multiple random numbers in a single call
-			if(lvalue_size_address && !result_dim->array_size_address) {
-				result_dim->array_size_address = lvalue_size_address;
+			if(lvalue_size_address && result_dim->dimension_count == 0) {
+				result_dim->array_size = VALUE(U32, lvalue_size_address);
 				result_dim->dimension_count = 1;
 			}
 			result->type = QB_OPERAND_ADDRESS;
