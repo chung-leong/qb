@@ -170,26 +170,6 @@ static zend_always_inline uint32_t qb_get_result_flags(qb_compiler_context *cxt,
 	return f->result_flags;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_matrix_row_count(qb_compiler_context *cxt, qb_address *address) {
-	if(address->dimension_count >= 2) {
-		qb_address *dimension_address = address->dimension_addresses[address->dimension_count - 2];
-		return VALUE(U32, dimension_address);
-	}
-	return 1;
-}
-
-static uint32_t ZEND_FASTCALL qb_get_matrix_column_count(qb_compiler_context *cxt, qb_address *address) {
-	if(address->dimension_count >= 1) {
-		qb_address *dimension_address = address->dimension_addresses[address->dimension_count - 1];
-		return VALUE(U32, dimension_address);
-	}
-	return 1;
-}
-
-static zend_always_inline uint32_t qb_get_vector_width(qb_compiler_context *cxt, qb_address *address) {
-	return qb_get_matrix_column_count(cxt, address);
-}
-
 static void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
 
 static qb_op * ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -1410,7 +1390,7 @@ static qb_op * ZEND_FASTCALL qb_append_sampling_op(qb_compiler_context *cxt, voi
 	qb_address *image_address = operands[0].address;
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
-	uint32_t channel_count = qb_get_vector_width(cxt, image_address);
+	uint32_t channel_count = VALUE(U32, image_address->dimension_addresses[image_address->dimension_count - 1]);
 	qb_opcode opcode = f->opcodes[channel_count - 3][QB_TYPE_F64 - image_address->type];
 	qb_op *qop;
 
@@ -1454,7 +1434,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_op(qb_compiler_context *cxt, void 
 	qb_vector_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = (operand_count >= 2) ? operands[1].address : NULL;
-	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
+	uint32_t dimension1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
 	qb_op *qop;
 	qb_opcode opcode;
 	uint32_t i;
@@ -1560,7 +1540,7 @@ static qb_op * ZEND_FASTCALL qb_append_refract(qb_compiler_context *cxt, void *f
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
 	qb_address *eta_address = operands[2].address;
-	uint32_t dimension1 = qb_get_vector_width(cxt, address1);
+	uint32_t dimension1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
 	qb_op *qop;
 	qb_opcode opcode;
 
@@ -1634,10 +1614,10 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m1_rows = qb_get_matrix_row_count(cxt, address1);
-	uint32_t m1_cols = qb_get_matrix_column_count(cxt, address1);
-	uint32_t m2_rows = qb_get_matrix_row_count(cxt, address2);
-	uint32_t m2_cols = qb_get_matrix_column_count(cxt, address2);
+	uint32_t m1_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
+	uint32_t m1_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+	uint32_t m2_rows = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 2]);
+	uint32_t m2_cols = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 	qb_op *qop;
 	qb_opcode opcode;
 
@@ -1666,7 +1646,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt
 static qb_matrix_op_factory factory_mm_multiply_cm = { 
 	qb_append_matrix_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
 	{	QB_MUL_MM_F64_F64_F64,			QB_MUL_MM_F32_F32_F32,	},
 	{
 		{	QB_MUL_MM_2X2_F64_F64_F64,		QB_MUL_MM_2X2_F32_F32_F32,	},
@@ -1680,9 +1660,9 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m_rows = qb_get_matrix_row_count(cxt, address1);
-	uint32_t m_cols = qb_get_matrix_column_count(cxt, address1);
-	uint32_t v_width = qb_get_vector_width(cxt, address1);
+	uint32_t m_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
+	uint32_t m_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+	uint32_t v_width = VALUE(U32, address2->dimension_addresses[address1->dimension_count - 1]);
 	qb_op *qop;
 	qb_opcode opcode;
 
@@ -1711,7 +1691,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt
 static qb_matrix_op_factory factory_mv_multiply_cm = { 
 	qb_append_matrix_vector_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
 	{	QB_MUL_MV_F64_F64_F64,			QB_MUL_MV_F32_F32_F32,	},
 	{
 		{	QB_MUL_MV_2X2_F64_F64_F64,		QB_MUL_MV_2X2_F32_F32_F32,	},
@@ -1725,9 +1705,9 @@ static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t v_width = qb_get_vector_width(cxt, address1);
-	uint32_t m_rows = qb_get_matrix_row_count(cxt, address2);
-	uint32_t m_cols = qb_get_matrix_column_count(cxt, address2);
+	uint32_t v_width = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+	uint32_t m_rows = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 2]);
+	uint32_t m_cols = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 	qb_op *qop;
 	qb_opcode opcode;
 
@@ -1755,7 +1735,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt
 static qb_matrix_op_factory factory_vm_multiply_cm = { 
 	qb_append_vector_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_TYPE_OPERAND,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
 	{	QB_MUL_VM_F64_F64_F64,			QB_MUL_VM_F32_F32_F32,	},
 	{
 		{	QB_MUL_VM_2X2_F64_F64_F64,		QB_MUL_VM_2X2_F32_F32_F32,	},
@@ -1779,21 +1759,21 @@ static qb_op * ZEND_FASTCALL qb_append_equivalent_matrix_op(qb_compiler_context 
 static qb_equivalent_matrix_op_factory factory_mm_multiply_rm = { 
 	qb_append_equivalent_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_TYPE_OPERAND,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MM_PRODUCT | QB_RESULT_IS_ROW_MAJOR | QB_TYPE_OPERAND,
 	&factory_mm_multiply_cm,
 };
 
 static qb_equivalent_matrix_op_factory factory_mv_multiply_rm = { 
 	qb_append_equivalent_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_TYPE_OPERAND,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_MV_PRODUCT | QB_RESULT_IS_ROW_MAJOR | QB_TYPE_OPERAND,
 	&factory_vm_multiply_cm,
 };
 
 static qb_equivalent_matrix_op_factory factory_vm_multiply_rm = { 
 	qb_append_equivalent_matrix_op,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_TYPE_OPERAND,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_SIZE_VM_PRODUCT | QB_RESULT_IS_ROW_MAJOR | QB_TYPE_OPERAND,
 	&factory_mv_multiply_cm,
 };
 
@@ -1835,8 +1815,8 @@ static qb_matrix_op_factory_selector factory_vm_multiply = {
 static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_vector_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
-	uint32_t m1_rows = qb_get_matrix_row_count(cxt, address1);
-	uint32_t m1_cols = qb_get_matrix_column_count(cxt, address1);
+	uint32_t m1_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
+	uint32_t m1_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
 	qb_op *qop;
 	qb_opcode opcode;
 	uint32_t i;

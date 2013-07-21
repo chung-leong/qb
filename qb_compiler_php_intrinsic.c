@@ -28,11 +28,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_con
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *address = arguments[0].address;
-		uint32_t vector_width = qb_get_vector_width(cxt, address);
+		uint32_t vector_width;
 
 		if(address->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address)) {
 			qb_abort("%s() expects an array with fixed dimension as parameter", f->name);
 		}
+
+		vector_width = VALUE(U32, address->dimension_addresses[address->dimension_count - 1]);
 		if(vector_width > 4096) {
 			qb_abort("Dimension is too large");
 		}
@@ -55,13 +57,15 @@ static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_co
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *address1 = arguments[0].address;
 		qb_address *address2 = arguments[1].address;
-		uint32_t vector_width1 = qb_get_vector_width(cxt, address1);
-		uint32_t vector_width2 = qb_get_vector_width(cxt, address2);
+		uint32_t vector_width1, vector_width2;
 
 		if((address1->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address1))
 		|| (address2->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address2))) {
 			qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
 		}
+
+		vector_width1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+		vector_width2 = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 		if(vector_width1 != vector_width2) {
 			qb_abort("Dimension of first parameter (%d) does not match dimension of second parameter (%d)", vector_width1, vector_width2);
 		}
@@ -87,13 +91,15 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt,
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *address1 = arguments[0].address;
 		qb_address *address2 = arguments[1].address;
-		uint32_t vector_width1 = qb_get_vector_width(cxt, address1);
-		uint32_t vector_width2 = qb_get_vector_width(cxt, address2);
+		uint32_t vector_width1, vector_width2;
 
 		if((address1->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address1))
 		|| (address2->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address2))) {
 			qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
 		}
+
+		vector_width1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+		vector_width2 = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 		if(vector_width1 != vector_width2) {
 			qb_abort("Dimension of first parameter (%d) does not match dimension of second parameter (%d)", vector_width1, vector_width2);
 		}
@@ -117,13 +123,17 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cx
 			result->result_prototype = result_prototype;
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_address *m1_address = arguments[0].address;
-		qb_address *m2_address = arguments[1].address;
-		uint32_t m1_cols = qb_get_matrix_column_count(cxt, m1_address);
-		uint32_t m1_rows = qb_get_matrix_row_count(cxt, m1_address);
-		uint32_t m2_cols = qb_get_matrix_column_count(cxt, m2_address);
-		uint32_t m2_rows = qb_get_matrix_row_count(cxt, m2_address);
+		qb_address *m1_address, *m1_row_address, *m1_col_address;
+		qb_address *m2_address, *m2_row_address, *m2_col_address;
+		uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+		uint32_t m1_cols, m1_rows, m2_cols, m2_rows;
 
+		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
+		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
+		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
+
+		m1_address = arguments[0].address;
+		m2_address = arguments[1].address;
 		if(!(m1_address->dimension_count >= 2 && m2_address->dimension_count >= 2)) {
 			qb_abort("%s() expects two-dimensional arrays as parameters", f->name);
 		}
@@ -131,6 +141,15 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cx
 		|| (m2_address->dimension_count == 2 && IS_EXPANDABLE_ARRAY(m2_address))) {
 			qb_abort("%s() expects arrays with two fixed dimensions as parameters", f->name);
 		}
+
+		m1_col_address = m1_address->dimension_addresses[m1_address->dimension_count + column_offset];
+		m2_col_address = m2_address->dimension_addresses[m2_address->dimension_count + column_offset];
+		m1_row_address = m1_address->dimension_addresses[m1_address->dimension_count + row_offset];
+		m2_row_address = m2_address->dimension_addresses[m2_address->dimension_count + row_offset];
+		m1_cols = VALUE(U32, m1_col_address);
+		m1_rows = VALUE(U32, m1_row_address);
+		m2_cols = VALUE(U32, m2_col_address);
+		m2_rows = VALUE(U32, m2_row_address);
 		if(m1_cols != m2_rows) {
 			qb_abort("Number of columns in first matrix (%d) does not match number of rows in second matrix (%d)", m1_cols, m2_rows);
 		}
@@ -154,12 +173,17 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cx
 			result->result_prototype = result_prototype;
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_address *m_address = arguments[0].address;
-		qb_address *v_address = arguments[1].address;
-		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
-		uint32_t m_rows = qb_get_matrix_column_count(cxt, m_address);
-		uint32_t v_width = qb_get_vector_width(cxt, v_address);
+		qb_address *m_address, *m_row_address, *m_col_address;
+		qb_address *v_address, *v_width_address;
+		uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+		uint32_t m_cols, m_rows, v_width;
 
+		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
+		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
+		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
+
+		m_address = arguments[0].address;
+		v_address = arguments[1].address;
 		if(!(m_address->dimension_count >= 2)) {
 			qb_abort("%s() expects a two-dimensional array as first parameter", f->name);
 		}
@@ -172,6 +196,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cx
 		if(v_address->dimension_count == 1 && IS_EXPANDABLE_ARRAY(v_address)) {
 			qb_abort("%s() expects an array with fixed dimension as second parameter", f->name);
 		}
+
+		m_col_address = m_address->dimension_addresses[m_address->dimension_count + column_offset];
+		m_row_address = m_address->dimension_addresses[m_address->dimension_count + row_offset];
+		v_width_address = v_address->dimension_addresses[v_address->dimension_count - 1];
+		m_cols = VALUE(U32, m_col_address);
+		m_rows = VALUE(U32, m_row_address);
+		v_width = VALUE(U32, v_width_address);
 		if(m_cols != v_width) {
 			qb_abort("Number of columns in matrix (%d) does not match number of elements in vector (%d)", m_cols, v_width);
 		}
@@ -195,12 +226,17 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 			result->result_prototype = result_prototype;
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_address *v_address = arguments[0].address;
-		qb_address *m_address = arguments[1].address;
-		uint32_t v_width = qb_get_vector_width(cxt, v_address);
-		uint32_t m_rows = qb_get_matrix_row_count(cxt, m_address);
-		uint32_t m_cols = qb_get_matrix_column_count(cxt, m_address);
+		qb_address *m_address, *m_row_address, *m_col_address;
+		qb_address *v_address, *v_width_address;
+		uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+		uint32_t m_cols, m_rows, v_width;
 
+		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
+		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
+		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
+
+		v_address = arguments[0].address;
+		m_address = arguments[1].address;
 		if(!(v_address->dimension_count >= 1)) {
 			qb_abort("%s() expects an array as first parameter", f->name);
 		}
@@ -213,6 +249,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 		if(m_address->dimension_count == 2 && IS_EXPANDABLE_ARRAY(m_address)) {
 			qb_abort("%s() expects an array with two fixed dimensions as second parameter", f->name);
 		}
+
+		m_col_address = m_address->dimension_addresses[m_address->dimension_count + column_offset];
+		m_row_address = m_address->dimension_addresses[m_address->dimension_count + row_offset];
+		v_width_address = v_address->dimension_addresses[v_address->dimension_count - 1];
+		m_cols = VALUE(U32, m_col_address);
+		m_rows = VALUE(U32, m_row_address);
+		v_width = VALUE(U32, v_width_address);
 		if(v_width != m_rows) {
 			qb_abort("Number of elements in vector (%d) does not match number of rows in matrix (%d)", v_width, m_rows);
 		}
@@ -241,8 +284,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 			result->result_prototype = result_prototype;
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		uint32_t channel_count = qb_get_vector_width(cxt, image->address);
-		if(!(image->address->type >= QB_TYPE_F32 && image->address->dimension_count == 3 && (channel_count == 3 || channel_count == 4))) {
+		uint32_t channel_count = (image->address->dimension_count == 3) ? VALUE(U32, image->address->dimension_addresses[image->address->dimension_count - 1]) : 0;
+		if(!(image->address->type >= QB_TYPE_F32 && (channel_count == 3 || channel_count == 4))) {
 			qb_abort("%s() expects an image in floating-point representation", f->name);
 		}
 
@@ -268,13 +311,15 @@ static void ZEND_FASTCALL qb_translate_intrinsic_blend(qb_compiler_context *cxt,
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *address1 = arguments[0].address;
 		qb_address *address2 = arguments[1].address;
-		uint32_t vector_width1 = qb_get_vector_width(cxt, address1);
-		uint32_t vector_width2 = qb_get_vector_width(cxt, address2);
+		uint32_t vector_width1, vector_width2;
 
 		if((address1->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address1))
 		|| (address2->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address2))) {
 			qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
 		}
+
+		vector_width1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+		vector_width2 = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 		if(vector_width1 != 4 || vector_width2 != 4) {
 			qb_abort("%s() only accepts four-channel pixels", f->name);
 		}
@@ -298,11 +343,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_complex(qb_compiler_context *cx
 		uint32_t i;
 		for(i = 0; i < argument_count; i++) {
 			qb_address *address = arguments[i].address;
-			uint32_t vector_width = qb_get_vector_width(cxt, address);
+			uint32_t vector_width;
 
 			if((address->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address))) {
 				qb_abort("%s() expects arrays with one fixed dimension as parameters", f->name);
 			}
+
+			vector_width = VALUE(U32, address->dimension_addresses[address->dimension_count - 1]);
 			if(vector_width != 2) {
 				qb_abort("%s() expects complex numbers expressed as two-dimensional arrays", f->name);
 			}
@@ -1158,8 +1205,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unary_matrix_op(qb_compiler_con
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *address = arguments[0].address;
-		uint32_t matrix_cols = qb_get_matrix_column_count(cxt, address);
-		uint32_t matrix_rows = qb_get_matrix_row_count(cxt, address);
 
 		if(address->dimension_count == 2 && IS_EXPANDABLE_ARRAY(address)) {
 			qb_abort("%s() expects an array with fixed dimensions as parameter", f->name);
@@ -1182,12 +1227,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_square_matrix_op(qb_compiler_co
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *address = arguments[0].address;
-		uint32_t matrix_cols = qb_get_matrix_column_count(cxt, address);
-		uint32_t matrix_rows = qb_get_matrix_row_count(cxt, address);
+		uint32_t matrix_cols, matrix_rows;
 
 		if(address->dimension_count == 2 && IS_EXPANDABLE_ARRAY(address)) {
 			qb_abort("%s() expects an array with fixed dimensions as parameter", f->name);
 		}
+
+		matrix_cols = VALUE(U32, address->dimension_addresses[address->dimension_count - 1]); 
+		matrix_rows = VALUE(U32, address->dimension_addresses[address->dimension_count - 2]);
 		if(matrix_cols != matrix_rows) {
 			qb_abort("%s() expects a square matrix as parameter", f->name);
 		}
