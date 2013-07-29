@@ -3913,7 +3913,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			for(p = EG(function_table)->pListTail; p; p = p->pListLast) {
 				zend_function *zfunc = p->pData;
 				if(zfunc->type == ZEND_USER_FUNCTION) {
-					if(action == QB_SCAN_ALL || zfunc->op_array.filename == current_filename) {
+					if(action == QB_SCAN_ALL || strcmp(zfunc->op_array.filename, current_filename) == 0) {
 						int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
 						if(fd_index == -1) {
 							qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc);
