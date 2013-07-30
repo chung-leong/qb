@@ -35,7 +35,7 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_sample_bilinear_3x_$type($cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
+				"void ZEND_FASTCALL qb_sample_bilinear_3x_$type($cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
 					"int32_t ix = qb_quick_floor$f(x - 0.5$f);",
 					"int32_t iy = qb_quick_floor$f(y - 0.5$f);",
 					"$cType fx = (x - 0.5$f) - floor$f(x - 0.5$f);",
@@ -68,7 +68,7 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_sample_bilinear_4x_$type($cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
+				"void ZEND_FASTCALL qb_sample_bilinear_4x_$type($cType *__restrict pixels, uint32_t width, uint32_t height, $cType x, $cType y, $cType *__restrict res_ptr) {",
 					"int32_t ix = qb_quick_floor$f(x - 0.5$f);",
 					"int32_t iy = qb_quick_floor$f(y - 0.5$f);",
 					"$cType fx = (x - 0.5$f) - floor$f(x - 0.5$f);",

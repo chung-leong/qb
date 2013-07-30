@@ -15,7 +15,7 @@ class QBLengthHandler extends QBSIMDHandler {
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_calculate_array_length_2x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_array_length_2x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -33,7 +33,7 @@ class QBLengthHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_array_length_3x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_array_length_3x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -51,7 +51,7 @@ class QBLengthHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_array_length_4x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_array_length_4x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -69,7 +69,7 @@ class QBLengthHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_array_length_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_array_length_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",

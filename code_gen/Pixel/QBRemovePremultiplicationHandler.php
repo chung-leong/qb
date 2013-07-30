@@ -11,7 +11,7 @@ class QBRemovePremultiplicationHandler extends QBHandler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_remove_premultiplication_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_remove_premultiplication_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"while(res_ptr < res_end) {",

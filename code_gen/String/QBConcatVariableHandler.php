@@ -31,7 +31,7 @@ class QBConcatVariableHandler extends QBHandler {
 		
 		$functions = array(
 			array(
-				"static uint32_t ZEND_FASTCALL qb_convert_scalar_to_string_$type(qb_interpreter_context *cxt, $cType v, uint8_t *res_ptr) {",
+				"uint32_t ZEND_FASTCALL qb_convert_scalar_to_string_$type(qb_interpreter_context *cxt, $cType v, uint8_t *res_ptr) {",
 					"char sprintf_buffer[64];",
 					"uint32_t len = $sprintf;",
 					"if(res_ptr) {",
@@ -41,7 +41,7 @@ class QBConcatVariableHandler extends QBHandler {
 				"}",
 			),
 			array(
-				"static uint32_t ZEND_FASTCALL qb_convert_array_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint8_t *res_ptr) {",
+				"uint32_t ZEND_FASTCALL qb_convert_array_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint8_t *res_ptr) {",
 					"uint32_t len, total = 2;",
 					"if(res_ptr) {",
 						"*res_ptr = '[';",

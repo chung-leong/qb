@@ -15,7 +15,7 @@ class QBArrayMaxHandler extends QBHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_max_$type(qb_interpreter_context *__restrict cxt, $cType *elements, uint32_t count) {",
+				"$cType ZEND_FASTCALL qb_calculate_array_max_$type(qb_interpreter_context *__restrict cxt, $cType *elements, uint32_t count) {",
 					"if(count > 0) {",
 						"uint32_t i;",
 						"$cType biggest = elements[0];",

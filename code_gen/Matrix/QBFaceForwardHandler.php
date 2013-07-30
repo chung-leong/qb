@@ -11,7 +11,7 @@ class QBFaceForwardHandler extends QBSIMDHandler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_calculate_face_forward_2x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_face_forward_2x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",
@@ -41,7 +41,7 @@ class QBFaceForwardHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_face_forward_3x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_face_forward_3x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",
@@ -73,7 +73,7 @@ class QBFaceForwardHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_face_forward_4x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_face_forward_4x_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",
@@ -107,7 +107,7 @@ class QBFaceForwardHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_face_forward_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_face_forward_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",

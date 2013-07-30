@@ -29,7 +29,7 @@ class QBArrayReverseHandler extends QBHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_reverse_array_elements_$type($cType *elements, uint32_t count, uint32_t width, $cType *res_ptr) {",
+				"void ZEND_FASTCALL qb_reverse_array_elements_$type($cType *elements, uint32_t count, uint32_t width, $cType *res_ptr) {",
 					"uint32_t i, j;",
 					"if(width == 1) {",
 						"for(i = 0, j = count - 1; i < ((count + 1) & ~1) / 2; i++, j--) {",

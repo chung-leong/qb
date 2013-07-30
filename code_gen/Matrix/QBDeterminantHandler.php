@@ -14,7 +14,7 @@ class QBDeterminantHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_2x2_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_2x2_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -31,7 +31,7 @@ class QBDeterminantHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_3x3_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_3x3_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -53,7 +53,7 @@ class QBDeterminantHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_4x4_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_4x4_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -81,7 +81,7 @@ class QBDeterminantHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_calculate_cm_matrix_determinant_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
 					"if(dim == 4) {",
 						"qb_calculate_cm_matrix_determinant_4x4_$type(op1_start, op1_end, res_start, res_end);",
 					"} else {",

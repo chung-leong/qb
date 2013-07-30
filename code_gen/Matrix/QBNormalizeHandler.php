@@ -12,7 +12,7 @@ class QBNormalizeHandler extends QBSIMDHandler {
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_normalize_array_2x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_normalize_array_2x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -32,7 +32,7 @@ class QBNormalizeHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_normalize_array_3x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_normalize_array_3x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -53,7 +53,7 @@ class QBNormalizeHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_normalize_array_4x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_normalize_array_4x_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -75,7 +75,7 @@ class QBNormalizeHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_normalize_array_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_normalize_array_$type($cType *op1_start, $cType *op1_end, uint32_t dim, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",

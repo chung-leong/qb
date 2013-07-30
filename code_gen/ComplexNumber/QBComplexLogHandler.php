@@ -3,12 +3,12 @@
 class QBComplexLogHandler extends QBComplexNumberHandler {
 
 	public function getHelperFunctions() {
-		$type = $this->getOperandType($this->srcCount + 1);
-		$cType = $this->getOperandCType($this->srcCount + 1);
+		$type = $this->getOperandType(2);
+		$cType = $this->getOperandCType(2);
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_calculate_complex_log_$type(qb_complex_$type *z, qb_complex_$type *res) {",
+				"void ZEND_FASTCALL qb_calculate_complex_log_$type(qb_complex_$type *z, qb_complex_$type *res) {",
 					"$cType w = sqrt$f(z->r * z->r + z->i * z->i);",
 					"$cType r = log$f(w);",
 					"$cType i = atan2$f(z->i, z->r);",

@@ -7,12 +7,12 @@ class QBComplexDivideHandler extends QBComplexNumberHandler {
 	}
 
 	public function getHelperFunctions() {
-		$type = $this->getOperandType($this->srcCount + 1);
-		$cType = $this->getOperandCType($this->srcCount + 1);
+		$type = $this->getOperandType(3);
+		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_divide_complex_$type(qb_complex_$type *a, qb_complex_$type *b, qb_complex_$type *res) {",
+				"void ZEND_FASTCALL qb_divide_complex_$type(qb_complex_$type *a, qb_complex_$type *b, qb_complex_$type *res) {",
 					"$cType w = b->r * b->r + b->i * b->i;",
 					"$cType r = ((a->r * b->r) + (a->i * b->i)) / w;",
 					"$cType i = ((a->i * b->r) - (a->r * b->i)) / w;",

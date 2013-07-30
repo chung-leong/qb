@@ -7,12 +7,12 @@ class QBComplexPowHandler extends QBComplexNumberHandler {
 	}
 
 	public function getHelperFunctions() {
-		$type = $this->getOperandType($this->srcCount + 1);
-		$cType = $this->getOperandCType($this->srcCount + 1);
+		$type = $this->getOperandType(3);
+		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_calculate_complex_pow_$type(qb_complex_$type *b, qb_complex_$type *e, qb_complex_$type *res) {",
+				"void ZEND_FASTCALL qb_calculate_complex_pow_$type(qb_complex_$type *b, qb_complex_$type *e, qb_complex_$type *res) {",
 					"$cType u = atan2$f(b->i, b->r);",
 					"$cType v = b->r * b->r + b->i * b->i;",
 					"$cType w = 1;",

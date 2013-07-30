@@ -29,7 +29,7 @@ class QBSubarrayPositionHandler extends QBHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static int32_t ZEND_FASTCALL qb_find_subarray_$type($cType *elements, uint32_t count, $cType *needle, uint32_t needle_width, uint32_t start_index) {",
+				"int32_t ZEND_FASTCALL qb_find_subarray_$type($cType *elements, uint32_t count, $cType *needle, uint32_t needle_width, uint32_t start_index) {",
 					"if(needle_width > 0) {",
 						"uint32_t i, j;",
 						"for(i = start_index; i < count - needle_width; i++) {",

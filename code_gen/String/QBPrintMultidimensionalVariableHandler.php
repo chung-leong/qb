@@ -27,7 +27,7 @@ class QBPrintMultidimensionalVariableHandler extends QBHandler {
 
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_print_multidimensional_array_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint32_t *size, uint32_t *size_end) {",
+				"void ZEND_FASTCALL qb_print_multidimensional_array_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint32_t *size, uint32_t *size_end) {",
 					"USE_TSRM",
 					"if(size == size_end) {",
 						"qb_print_array_$type(cxt, ptr, end);",

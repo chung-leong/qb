@@ -15,7 +15,7 @@ class QBArrayProductHandler extends QBHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static $cType ZEND_FASTCALL qb_calculate_array_product_$type(qb_interpreter_context *__restrict cxt, $cType *elements, uint32_t count) {",
+				"$cType ZEND_FASTCALL qb_calculate_array_product_$type(qb_interpreter_context *__restrict cxt, $cType *elements, uint32_t count) {",
 					"uint32_t i;",
 					"$cType product = 1;",
 					"for(i = 0; i < count; i++) {",

@@ -24,7 +24,7 @@ class QBConcatMultidimensionalVariableHandler extends QBHandler {
 
 		$functions = array(
 			array(
-				"static uint32_t ZEND_FASTCALL qb_convert_multidimensional_array_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint32_t *size, uint32_t *size_end, uint8_t *res_ptr) {",
+				"uint32_t ZEND_FASTCALL qb_convert_multidimensional_array_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint32_t *size, uint32_t *size_end, uint8_t *res_ptr) {",
 					"if(size == size_end) {",
 						"return qb_convert_array_to_string_$type(cxt, ptr, end, res_ptr);",
 					"} else {",

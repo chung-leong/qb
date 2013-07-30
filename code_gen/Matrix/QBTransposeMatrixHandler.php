@@ -11,7 +11,7 @@ class QBTransposeMatrixHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_transpose_cm_matrix_2x2_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_transpose_cm_matrix_2x2_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -35,7 +35,7 @@ class QBTransposeMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_transpose_cm_matrix_3x3_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_transpose_cm_matrix_3x3_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -69,7 +69,7 @@ class QBTransposeMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_transpose_cm_matrix_4x4_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_transpose_cm_matrix_4x4_$type($cType *op1_start, $cType *op1_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"for(;;) {",
@@ -117,7 +117,7 @@ class QBTransposeMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_transpose_cm_matrix_$type($cType *op1_start, $cType *op1_end, uint32_t m1_row, uint32_t m1_col, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_transpose_cm_matrix_$type($cType *op1_start, $cType *op1_end, uint32_t m1_row, uint32_t m1_col, $cType *res_start, $cType *res_end) {",
 					"ALLOCA_FLAG(use_heap)",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",						

@@ -26,7 +26,7 @@ class QBArraySearchHandler extends QBHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static int32_t ZEND_FASTCALL qb_find_element_$type($cType *elements, uint32_t count, $cType needle) {",
+				"int32_t ZEND_FASTCALL qb_find_element_$type($cType *elements, uint32_t count, $cType needle) {",
 					"uint32_t i;",
 					"for(i = 0; i < count; i++) {",
 						"if(elements[i] == needle) {",
@@ -37,7 +37,7 @@ class QBArraySearchHandler extends QBHandler {
 				"}",
 			),
 			array(
-				"static int32_t ZEND_FASTCALL qb_find_elements_$type($cType *elements, uint32_t count, $cType *needle, uint32_t needle_width) {",
+				"int32_t ZEND_FASTCALL qb_find_elements_$type($cType *elements, uint32_t count, $cType *needle, uint32_t needle_width) {",
 					"uint32_t i, j, k;",
 					"for(i = 0, j = 0; j < count; i++, j += needle_width) {",
 						"if(elements[j] == needle[0]) {",

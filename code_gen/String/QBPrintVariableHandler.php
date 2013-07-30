@@ -22,7 +22,7 @@ class QBPrintVariableHandler extends QBHandler {
 		
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_print_scalar_$type(qb_interpreter_context *cxt, $cType v) {",
+				"void ZEND_FASTCALL qb_print_scalar_$type(qb_interpreter_context *cxt, $cType v) {",
 					"USE_TSRM",
 					"char sprintf_buffer[64];",
 					"uint32_t len = $sprintf;",
@@ -30,7 +30,7 @@ class QBPrintVariableHandler extends QBHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_print_array_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end) {",
+				"void ZEND_FASTCALL qb_print_array_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end) {",
 					"USE_TSRM",
 					"php_write(\"[\", 1 TSRMLS_CC);",
 					"while(ptr != end) {",

@@ -20,7 +20,7 @@ abstract class QBCompareHandler extends QBHandler {
 		if(!preg_match('/^I/', $type)) {
 			$functions = array(
 				array(
-					"static int32_t ZEND_FASTCALL qb_compare_array_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end) {",
+					"int32_t ZEND_FASTCALL qb_compare_array_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end) {",
 						"if(op1_start != op1_end && op2_start != op2_end) {",
 							"$cType *op1_ptr = op1_start, *op2_ptr = op2_start;",
 							"int32_t end1 = 0, end2 = 0;",

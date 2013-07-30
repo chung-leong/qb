@@ -13,7 +13,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_2x2_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_2x2_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",
@@ -42,7 +42,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_3x3_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_3x3_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",
@@ -81,7 +81,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_3x3_padded_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_3x3_padded_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",
@@ -120,7 +120,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_4x4_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_4x4_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
 					"$cType *__restrict res_ptr = res_start;",
 					"$cType *__restrict op1_ptr = op1_start;",
 					"$cType *__restrict op2_ptr = op2_start;",
@@ -173,7 +173,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_$type($cType *op1_start, $cType *op1_end, uint32_t m1_row, uint32_t m1_col, $cType *op2_start, $cType *op2_end, uint32_t m2_row, uint32_t m2_col, $cType *res_start, $cType *res_end) {",
+				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_$type($cType *op1_start, $cType *op1_end, uint32_t m1_row, uint32_t m1_col, $cType *op2_start, $cType *op2_end, uint32_t m2_row, uint32_t m2_col, $cType *res_start, $cType *res_end) {",
 					"ALLOCA_FLAG(use_heap)",
 					"$cType *__restrict buffer = do_alloca(m1_row * m2_col * sizeof($cType), use_heap);",
 					"$cType *__restrict res_ptr = res_start;",

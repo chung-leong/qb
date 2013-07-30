@@ -7,12 +7,12 @@ class QBComplexMultiplyHandler extends QBComplexNumberHandler {
 	}
 
 	public function getHelperFunctions() {
-		$type = $this->getOperandType($this->srcCount + 1);
-		$cType = $this->getOperandCType($this->srcCount + 1);
+		$type = $this->getOperandType(3);
+		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"static void ZEND_FASTCALL qb_multiply_complex_$type(qb_complex_$type *a, qb_complex_$type *b, qb_complex_$type *res) {",
+				"void ZEND_FASTCALL qb_multiply_complex_$type(qb_complex_$type *a, qb_complex_$type *b, qb_complex_$type *res) {",
 					"$cType r = (a->r * b->r) - (a->i * b->i);",
 					"$cType i = (a->r * b->i) + (a->i * b->r);",
 					"res->r = r; res->i = i;",
