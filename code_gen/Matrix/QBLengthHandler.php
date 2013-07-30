@@ -119,13 +119,13 @@ class QBLengthHandler extends QBSIMDHandler {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
 			if($this->addressMode == "ARR") {
-				return "qb_calculate_array_length_$type(op1_start, op1_end, MATRIX2_ROWS, res_start, res_end);";
+				return "qb_calculate_array_length_$type(op1_ptr, op1_ptr + op1_count, MATRIX2_ROWS, res_ptr, res_ptr + res_count);";
 			} else {
 				return "qb_calculate_array_length_$type(op1_ptr, NULL, MATRIX2_ROWS, res_ptr, NULL);";
 			}
 		} else {
 			if($this->addressMode == "ARR") {
-				return "qb_calculate_array_length_{$this->operandSize}x_$type(op1_start, op1_end, res_start, res_end);";
+				return "qb_calculate_array_length_{$this->operandSize}x_$type(op1_ptr, op1_ptr + op1_count, res_ptr, res_ptr + res_count);";
 			} else {
 				return "qb_calculate_array_length_{$this->operandSize}x_$type(op1_ptr, NULL, res_ptr, NULL);";
 			}

@@ -3,47 +3,16 @@
 class QBHandler {
 	protected static $typeDecls = array();
 	protected static $compiler;
-	protected static $scalarAliases = array();
-
-	protected $operandSize;
 
 	protected $baseName;
 	protected $operandType;
+	protected $operandSize;
 	protected $addressMode;
 	
-	const NEED_LINE_NUMBER						= 0x0001;
-	const WILL_JUMP								= 0x0004;
-	const IS_ISSET								= 0x0008;
-	const IS_UNSET								= 0x0010;
-	const WRAP_AROUND_HANDLING					= 0x0020;
-	const IS_VECTORIZED							= 0x0040;
-	const NEED_MATRIX_DIMENSIONS				= 0x0080;
-
-	const SEARCHING_FOR_OPERANDS				= 0x1000;
-	const SEARCHING_FOR_LINE_NUMBER				= 0x2000;
-	const SEARCHING_FOR_CALLS_AND_VARIABLES		= 0x4000;
 	
 	static public function getTypeDeclarations() {
 		ksort(self::$typeDecls);
 		return self::$typeDecls;
-	}
-	
-	static public function getMacroDefinitions() {
-		$lines = array();
-		foreach(self::$scalarAliases as $name => $def) {
-			$lines[] = "#define $name	$def";
-		}
-		sort($lines);
-		return $lines;
-	}
-	
-	static public function getMacroUndefinitions() {
-		$lines = array();
-		foreach(self::$scalarAliases as $name => $def) {
-			$lines[] = "#undef $name";
-		}
-		sort($lines);
-		return $lines;
 	}
 	
 	static public function setCompiler($compiler) {
@@ -53,18 +22,8 @@ class QBHandler {
 	public function __construct($baseName, $operandType = NULL, $addressMode = NULL, $vectorWidth = null) {
 		$this->baseName = $baseName;
 		$this->operandType = $operandType;
+		$this->operandSize = ($vectorWidth) ? $vectorWidth : 1;
 		$this->addressMode = $addressMode;
-		if($vectorWidth) {
-			$this->flags |= self::IS_VECTORIZED;
-			if($vectorWidth == "variable") {
-				$this->flags |= self::NEED_MATRIX_DIMENSIONS;
-			}
-			$this->operandSize = $vectorWidth;
-		} else {
-			$this->operandSize = 1;
-		}
-		$this->initialize();
-		$this->scanCode();
 	}
 
 	public function getBaseName() {
@@ -275,6 +234,7 @@ class QBHandler {
 		}
 	}
 	
+	// return code for timeout check (Windows only)
 	protected function getTimeoutCode() {
 		if(self::$compiler == "MSVC") {
 			$lines = array();
@@ -424,63 +384,9 @@ class QBHandler {
 		return $lines;
 	}
 
-	// return code for a loop that performs the same operation on all element of an array 
-	protected function getIterationCode($expression) {
-		$lines = array();		
-		// make sure none of the input operands are empty		
-		$conditions = array();
-		if($this->srcCount > 0) {
-			for($i = 1; $i <= $this->srcCount; $i++) {
-				if($this->getOperandAddressMode($i) == "ARR") {
-					$operandSize = $this->getOperandSize($i);
-					if($operandSize) {	
-						$conditions[] = "op{$i}_count != 0";
-					}
-				}
-			}
-			$conditions = implode(" && ", $conditions);
-			$lines[] = "if($conditions) {";
-		}
-		$lines[] = "while(res_ptr < res_end) {";
-		$lines[] = 		$expression;
-		for($i = 1; $i <= $this->srcCount; $i++) {
-			$operandSize = $this->getOperandSize($i);
-			if($this->getOperandAddressMode($i) == "ARR") {
-				if($operandSize) {
-					$lines[] = 	"op{$i}_ptr += $operandSize;";
-					$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
-					$lines[] = 		"op{$i}_ptr = op{$i}_start;";
-					$lines[] = 	"}";
-				}
-			}
-		}
-		$operandSize = $this->getOperandSize($this->srcCount + 1);
-		if($operandSize) {
-			$lines[] = 	"res_ptr += $operandSize;";
-		}
-		$lines[] = "}";
-		if($this->srcCount > 0) {
-			$lines[] = "}"; // end if
-		}
-		
-		// if this code is used, then the op is capable of handling situations where wrap-around is necessary
-		if($this->srcCount > 1) {
-			$this->flags |= self::WRAP_AROUND_HANDLING;
-		}
-		return $lines;
-	}
-	
 	// return an expression for handling array operands
-	// the default implementation creates basic a loop 
 	protected function getArrayExpression() {
-		$expr = $this->getScalarExpression();
-		if($expr) {
-			if($this->flags & self::IS_VECTORIZED) {
-				// turn a basic op into a SIMD-like op
-				$expr = $this->getUnrolledCode($expr, $this->operandSize);
-			}
-			return $this->getIterationCode($expr);
-		}
+		return null;
 	}
 
 	// return an expression for handling scalar operands

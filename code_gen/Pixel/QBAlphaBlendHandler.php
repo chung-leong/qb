@@ -66,7 +66,7 @@ class QBAlphaBlendHandler extends QBHandler {
 		
 	public function getAction() {
 		$type = $this->getOperandType(1);
-		return "qb_alpha_blend_$type(op1_start, op1_end, op2_start, op2_end, res_start, res_end);";
+		return "qb_alpha_blend_$type(op1_ptr, op1_ptr + op1_count, op2_ptr, op2_ptr + op2_count, res_ptr, res_ptr + res_count);";
 	}
 }
 

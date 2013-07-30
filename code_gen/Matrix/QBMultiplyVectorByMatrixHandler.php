@@ -177,20 +177,20 @@ class QBMultiplyVectorByMatrixHandler extends QBMultiplyMatrixByMatrixHandler {
 		$type = $this->getOperandType(1);
 		if($this->operandSize == "variable") {
 			if($this->addressMode == "ARR") {
-				return "qb_multiply_vector_by_cm_matrix_$type(op1_start, op1_end, MATRIX1_COLS, op2_start, op2_end, MATRIX2_ROWS, MATRIX2_COLS, res_start, res_end);";
+				return "qb_multiply_vector_by_cm_matrix_$type(op1_ptr, op1_ptr + op1_count, MATRIX1_COLS, op2_ptr, op2_ptr + op2_count, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_ptr + res_count);";
 			} else {
 				return "qb_multiply_vector_by_cm_matrix_$type(op1_ptr, NULL, MATRIX1_COLS, op2_ptr, NULL, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, NULL);";
 			}
 		} else {
 			if($this->operandPadding) {
 				if($this->addressMode == "ARR") {
-					return "qb_multiply_vector_by_cm_matrix_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_start, op1_end, op2_start, op2_end, res_start, res_end);";
+					return "qb_multiply_vector_by_cm_matrix_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, op1_ptr + op1_count, op2_ptr, op2_ptr + op2_count, res_ptr, res_ptr + res_count);";
 				} else {
 					return "qb_multiply_vector_by_cm_matrix_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, NULL, op2_ptr, NULL, res_ptr, NULL);";
 				}
 			} else {
 				if($this->addressMode == "ARR") {
-					return "qb_multiply_vector_by_cm_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_start, op1_end, op2_start, op2_end, res_start, res_end);";
+					return "qb_multiply_vector_by_cm_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, op1_ptr + op1_count, op2_ptr, op2_ptr + op2_count, res_ptr, res_ptr + res_count);";
 				} else {
 					return "qb_multiply_vector_by_cm_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, NULL, op2_ptr, NULL, res_ptr, NULL);";
 				}

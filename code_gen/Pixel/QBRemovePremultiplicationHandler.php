@@ -42,7 +42,7 @@ class QBRemovePremultiplicationHandler extends QBHandler {
 		
 	public function getAction() {
 		$type = $this->getOperandType(1);
-		return "qb_remove_premultiplication_$type(op1_start, op1_end, res_start, res_end);";
+		return "qb_remove_premultiplication_$type(op1_ptr, op1_ptr + op1_count, res_ptr, res_ptr + res_count);";
 	}
 }
 
