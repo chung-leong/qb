@@ -2,6 +2,14 @@
 
 class QBPrintStringHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 1;
+	}
+
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function getOperandAddressMode($i) {
 		return "ARR";
 	}

@@ -2,6 +2,10 @@
 
 class QBHypotHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	protected function getScalarExpression() {
 		$type = $this->getOperandType($this->srcCount + 1);
 		$cType = $this->getOperandCType($this->srcCount + 1);

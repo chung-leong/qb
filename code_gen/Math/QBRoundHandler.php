@@ -2,6 +2,10 @@
 
 class QBRoundHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 3;
+	}
+
 	public function getOperandType($i) {
 		return ($i == 2 || $i == 3) ? "I32" : $this->operandType;
 	}

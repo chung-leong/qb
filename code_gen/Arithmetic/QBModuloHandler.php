@@ -2,6 +2,10 @@
 
 class QBModuloHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	protected function getScalarExpression() {
 		$type = $this->getOperandType(1);
 		if($type == "F32") {

@@ -2,6 +2,10 @@
 
 class QBDotProductHandler extends QBSIMDHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: 

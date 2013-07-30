@@ -2,6 +2,10 @@
 
 class QBConcatMultidimensionalVariableHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return $this->operandType;

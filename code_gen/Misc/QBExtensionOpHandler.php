@@ -2,6 +2,10 @@
 
 class QBExtensionOpHandler extends QBHandler {
 	
+	public function needsLineNumber() {
+		return true;
+	}
+
 	public function getOperandType($i) {
 		return "U32";
 	}

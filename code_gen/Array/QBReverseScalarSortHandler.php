@@ -2,6 +2,10 @@
 
 class QBReverseScalarSortHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 0;
+	}
+
 	public function getOperandAddressMode($i) {
 		return "ARR";
 	}
@@ -22,7 +26,7 @@ class QBReverseScalarSortHandler extends QBHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_sort_descending_$type(qb_interpreter_context *cxt, $cType *elements, uint32_t count) {",
+				"static void ZEND_FASTCALL qb_sort_descending_$type($cType *elements, uint32_t count) {",
 					"qsort(elements, count, sizeof($cType), qb_compare_descending_$type);",
 				"}",
 			),
@@ -32,7 +36,7 @@ class QBReverseScalarSortHandler extends QBHandler {
 	
 	public function getAction() {
 		$type = $this->getOperandType(1);
-		return "qb_sort_descending_$type(cxt, res_ptr, res_count);";
+		return "qb_sort_descending_$type(res_ptr, res_count);";
 	}
 }
 

@@ -2,6 +2,10 @@
 
 class QBBranchIfStaticVariablesInitializedHandler extends QBBranchHandler {
 
+	public function getInputOperandCount() {
+		return 0;
+	}
+
 	public function getAction() {
 		$lines = array();
 		$lines[] = "if(cxt->storage->flags & QB_STORAGE_STATIC_INITIALIZED) {";

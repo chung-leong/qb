@@ -2,6 +2,10 @@
 
 class QBSmoothStepHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 3;
+	}
+
 	protected function getScalarExpression() {
 		$cType = $this->getOperandCType(3);
 		$lines = array();

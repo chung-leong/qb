@@ -2,6 +2,10 @@
 
 class QBSubarrayPositionHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 3;
+	}
+
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: 

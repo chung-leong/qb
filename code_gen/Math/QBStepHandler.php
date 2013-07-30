@@ -2,6 +2,10 @@
 
 class QBStepHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	protected function getScalarExpression() {
 		$type = $this->getOperandType($this->srcCount + 1);
 		$f = ($type == 'F32') ? 'f' : '';

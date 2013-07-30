@@ -2,6 +2,10 @@
 
 class QBRefractHandler extends QBSIMDHandler {
 
+	public function getInputOperandCount() {
+		return 3;
+	}
+
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 3: return "VAR";

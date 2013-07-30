@@ -2,6 +2,10 @@
 
 class QBArraySearchHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: return "ARR";

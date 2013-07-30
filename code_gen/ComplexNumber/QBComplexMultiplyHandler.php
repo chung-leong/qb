@@ -2,6 +2,10 @@
 
 class QBComplexMultiplyHandler extends QBComplexNumberHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	public function getHelperFunctions() {
 		$type = $this->getOperandType($this->srcCount + 1);
 		$cType = $this->getOperandCType($this->srcCount + 1);

@@ -2,6 +2,10 @@
 
 abstract class QBBranchHandler extends QBHandler {
 
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function getInstructionStructure() {
 		if($this->flags & (self::SEARCHING_FOR_OPERANDS | self::SEARCHING_FOR_LINE_NUMBER)) {
 			return 'INSTRUCTION_STRUCTURE';
@@ -74,10 +78,6 @@ abstract class QBBranchHandler extends QBHandler {
 	protected function getArrayExpression() {
 		$name = $this->getName();
 		throw new Exception("No implemenation for employing $name in array operation\n");
-	}
-	
-	protected function initialize() {
-		$this->flags |= self::WILL_JUMP;
 	}
 }
 

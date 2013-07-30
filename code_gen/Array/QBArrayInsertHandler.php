@@ -2,6 +2,10 @@
 
 class QBArrayInsertHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	public function getOperandAddressMode($i) {
 		return ($i == 2) ? "VAR" : "ARR";
 	}

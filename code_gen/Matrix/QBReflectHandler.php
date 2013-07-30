@@ -2,6 +2,10 @@
 
 class QBReflectHandler extends QBSIMDHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	public function getHelperFunctions() {
 		$cType = $this->getOperandCType(1);
 		$type = $this->getOperandType(1);

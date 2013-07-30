@@ -2,6 +2,14 @@
 
 class QBPrintMultidimensionalVariableHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return $this->operandType;

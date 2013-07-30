@@ -2,6 +2,10 @@
 
 abstract class QBSampleHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 5;
+	}
+
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: // image

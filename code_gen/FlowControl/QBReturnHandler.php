@@ -2,6 +2,10 @@
 
 class QBReturnHandler extends QBHandler {
 
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function getCode() {
 		$lines = array();
 		$name = $this->getName();

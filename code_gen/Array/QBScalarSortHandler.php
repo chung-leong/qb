@@ -2,6 +2,10 @@
 
 class QBScalarSortHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 0;
+	}
+
 	public function getOperandAddressMode($i) {
 		return "ARR";
 	}
@@ -22,7 +26,7 @@ class QBScalarSortHandler extends QBHandler {
 				"}",
 			),
 			array(
-				"static void ZEND_FASTCALL qb_sort_ascending_$type(qb_interpreter_context *cxt, $cType *elements, uint32_t count) {",
+				"static void ZEND_FASTCALL qb_sort_ascending_$type($cType *elements, uint32_t count) {",
 					"qsort(elements, count, sizeof($cType), qb_compare_ascending_$type);",
 				"}",
 			),
@@ -31,7 +35,7 @@ class QBScalarSortHandler extends QBHandler {
 	}
 
 	public function getAction() {
-		return "qb_sort_ascending_{$this->operandType}(cxt, res_ptr, res_count);";
+		return "qb_sort_ascending_{$this->operandType}(res_ptr, res_count);";
 	}
 }
 

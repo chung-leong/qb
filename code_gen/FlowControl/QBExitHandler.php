@@ -2,6 +2,14 @@
 
 class QBExitHandler extends QBHandler {
 	
+	public function getInputOperandCount() {
+		return 0;
+	}
+
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function getOperandType($i) {
 		return "I32";
 	}

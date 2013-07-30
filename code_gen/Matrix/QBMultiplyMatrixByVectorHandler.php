@@ -4,6 +4,10 @@
 
 class QBMultiplyMatrixByVectorHandler extends QBMultiplyMatrixByMatrixHandler {
 
+	public function getInputOperandCount() {
+		return 2;
+	}
+
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);

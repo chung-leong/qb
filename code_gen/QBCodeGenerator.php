@@ -167,6 +167,37 @@ class QBCodeGenerator {
 			$lines[] = "uint32_t global_op_flags[] = {";
 			foreach($this->handlers as $handler) {
 				$flags = $handler->getOpFlags();
+				
+		$flags = array();
+		if($this->flags & self::IS_VECTORIZED) {
+			$flags[] = "QB_OP_VECTORIZED";
+			if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+				$flags[] = "QB_OP_NEED_MATRIX_DIMENSIONS";
+			}
+		}
+		if($this->addressMode == "VAR") {
+			// op can be employed in different address modes
+			$flags[] = "QB_OP_MULTI_ADDRESS";
+		}
+		if($this->flags & self::WILL_JUMP) {
+			// the op will redirect execution to another location 
+			$flags[] = "QB_OP_JUMP";
+		}
+		if($this->flags & self::NEED_LINE_NUMBER) {
+			// the line number needs to be packed into the instruction (for error reporting)
+			$flags[] = "QB_OP_NEED_LINE_NUMBER";
+		}
+		if($this->flags & self::IS_ISSET) {
+			// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
+			$flags[] = "QB_OP_ISSET";
+		}
+		if($this->flags & self::IS_UNSET) {
+			$flags[] = "QB_OP_UNSET";
+		}
+		if($this->flags & self::WRAP_AROUND_HANDLING) {
+			$flags[] = "QB_OP_PERFORM_WRAP_AROUND";
+		}
+				
 				$flags = ($flags) ? implode(" | ", $flags) : "0";
 				$name = $handler->getName();
 				$lines[] = "// $name";

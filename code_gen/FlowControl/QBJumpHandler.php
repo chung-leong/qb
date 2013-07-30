@@ -2,6 +2,14 @@
 
 class QBJumpHandler extends QBHandler {
 
+	public function getInputOperandCount() {
+		return 0;
+	}
+
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function getInstructionStructure() {
 		$instr = "qb_instruction_jump_$this->opCount";
 		if(!isset(self::$typeDecls[$instr])) {
