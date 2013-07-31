@@ -22,7 +22,7 @@ class QBComplexMultiplyHandler extends QBComplexNumberHandler {
 		return $functions;
 	}
 
-	protected function getComplexNumberExpression() {
+	protected function getScalarExpression() {
 		$type = $this->getOperandType(1);
 		return "qb_multiply_complex_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) op2_ptr, (qb_complex_$type *) res_ptr);";
 	}

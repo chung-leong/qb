@@ -34,7 +34,8 @@ class QBHandler {
 		$name = $this->baseName;
 		
 		// append operand type to the name
-		for($i = 1; $i <= $this->opCount; $i++) {
+		$opCount = $this->getOperandCount();
+		for($i = 1; $i <= $opCount; $i++) {
 			$type = $this->getOperandType($i);
 			$name .= "_$type";
 		}
@@ -52,6 +53,7 @@ class QBHandler {
 		$name = $this->getName();
 		$instr = $this->getInstructionStructure();
 		$action = $this->getAction();
+		$opCount = $this->getOperandCount();
 		$lines[] = $this->getLabelCode($name);
 		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
 		$lines[] = "{";
@@ -64,11 +66,11 @@ class QBHandler {
 			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
 			$lines[] = "#define MATRIX2_COLS			((($instr *) instruction_pointer)->matrix_dimensions & 0x03FF)";
 		}
-		for($i = 1; $i <= $this->opCount; $i++) {
+		for($i = 1; $i <= $opCount; $i++) {
 			$lines[] = $this->getOperandDeclaration($i);
 		}
 		$lines[] = "";
-		for($i = 1; $i <= $this->opCount; $i++) {
+		for($i = 1; $i <= $opCount; $i++) {
 			$lines[] = $this->getOperandRetrievalCode($i);
 		}
 		$lines[] = $action;
@@ -256,6 +258,20 @@ class QBHandler {
 		}
 	}	
 	
+	// return the variable declaration needed for retrieving operand $i
+	// this method is needed mainly because of the limitations of Visual C  
+	protected function getOperandDeclaration($i) {
+		$cType = $this->getOperandCType($i);
+		$srcCount = $this->getInputOperandCount();
+		$lines = array();
+		if($i <= $srcCount) {
+			$lines[] = "$cType *__restrict op{$i}_ptr;";
+		} else {
+			$lines[] = "$cType *__restrict res_ptr;";
+		}
+		return $lines;
+	}
+	
 	// return code for retrieving operand $i
 	// variables employed here should be declared in getOperandDeclaration() 
 	protected function getOperandRetrievalCode($i) {
@@ -350,11 +366,13 @@ class QBHandler {
 	// return list of expressions that could be the new result size (if it's bigger)
 	// the default implementation returns the sizes of all array operands
 	public function getResultSizePossibilities() {
-		if($this->dstCount) {
-			$dstMode = $this->getOperandAddressMode($this->srcCount + 1);
+		$srcCount = $this->getInputOperandCount();
+		$dstCount = $this->getOutputOperandCount();		
+		if($dstCount > 0) {
+			$dstMode = $this->getOperandAddressMode($srcCount + 1);
 			if($dstMode == "ARR") {
 				$list = array();
-				for($i = 1; $i <= $this->srcCount; $i++) {
+				for($i = 1; $i <= $srcCount; $i++) {
 					if($this->getOperandAddressMode($i) == "ARR") {
 						$list[] = "op{$i}_count";
 					}
@@ -372,8 +390,9 @@ class QBHandler {
 	
 	// multiple a scalar operation multiple times
 	protected function getUnrolledCode($expression, $count) {
+		$srcCount = $this->getInputOperandCount();
 		$arrayOperands = array();
-		for($i = 1; $i <= $this->srcCount; $i++) {
+		for($i = 1; $i <= $srcCount; $i++) {
 			if($this->getOperandAddressMode($i) == "ARR") {
 				$arrayOperands[] = $i;
 			}
@@ -401,11 +420,13 @@ class QBHandler {
 	// return codes that perform what the op is supposed to do
 	// the default implementation calls getArrayExpression() or $this->getScalarExpression()
 	public function getAction() {
+		/*
 		if(!isset($this->addressMode) && !($this->operandSize > 1)) {
 			$opName = $this->baseName;
 			$className = get_class($this);
 			throw new Exception("$opName ($className) is neither a multi-address or a vector operation; the default implementation of getAction() cannot be used");
 		}
+		*/
 		if($this->addressMode == "ARR") {
 			return $this->getArrayExpression();
 		} else {

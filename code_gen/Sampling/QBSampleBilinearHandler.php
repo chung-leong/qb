@@ -102,14 +102,63 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 					"}",
 				"}",
 			),
+			array(
+				"void ZEND_FASTCALL qb_sample_multiple_bilinear_3x_$type($cType *__restrict pixels, uint32_t width, uint32_t height, $cType *x_start, $cType *x_end, $cType *y_start, $cType *y_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict x_ptr = x_start;",
+					"$cType *__restrict y_ptr = y_start;",
+				
+					"for(;;) {",
+						"qb_sample_bilinear_3x_$type(pixels, width, height, *x_ptr, *y_ptr, res_ptr);",
+						"res_ptr += 3;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"x_ptr += 1;",
+						"if(x_ptr >= x_end) {",
+							"x_ptr = x_start;",
+						"}",
+						"y_ptr += 1;",
+						"if(y_ptr >= y_end) {",
+							"y_ptr = y_start;",
+						"}",						
+					"}",
+				"}",
+			),
+			array(
+				"void ZEND_FASTCALL qb_sample_multiple_bilinear_4x_$type($cType *__restrict pixels, uint32_t width, uint32_t height, $cType *x_start, $cType *x_end, $cType *y_start, $cType *y_end, $cType *res_start, $cType *res_end) {",
+					"$cType *__restrict res_ptr = res_start;",
+					"$cType *__restrict x_ptr = x_start;",
+					"$cType *__restrict y_ptr = y_start;",
+				
+					"for(;;) {",
+						"qb_sample_bilinear_4x_$type(pixels, width, height, *x_ptr, *y_ptr, res_ptr);",
+						"res_ptr += 4;",
+						"if(res_ptr >= res_end) {",
+							"break;",
+						"}",
+						"x_ptr += 1;",
+						"if(x_ptr >= x_end) {",
+							"x_ptr = x_start;",
+						"}",
+						"y_ptr += 1;",
+						"if(y_ptr >= y_end) {",
+							"y_ptr = y_start;",
+						"}",						
+					"}",
+				"}",
+			),
 		);
 		return $functions;
 	}
 	
 	public function getAction() {
 		$type = $this->getOperandType(1);
-		$expr = "qb_sample_bilinear_{$this->operandSize}x_$type(op1_ptr, op2, op3, op4, op5, res_ptr);";
-		return ($this->addressMode == "ARR") ? $this->getIterationCode($expr) : $expr;
+		if($this->addressMode == "ARR") {
+			return "qb_sample_multiple_bilinear_{$this->operandSize}x_$type(op1_ptr, op2, op3, op4_ptr, op5_ptr, res_ptr);";
+		} else {
+			return "qb_sample_bilinear_{$this->operandSize}x_$type(op1_ptr, op2, op3, op4, op5, res_ptr);";
+		}
 	}
 }
 

@@ -27,12 +27,6 @@ class QBExitHandler extends QBHandler {
 		$name = $this->getName();
 		$lines[] = $this->getLabelCode($name);
 		$lines[] = "{";
-			for($i = 1; $i <= $this->opCount; $i++) {
-			$lines[] = $this->getOperandDeclaration($i);
-		}
-		for($i = 1; $i <= $this->opCount; $i++) {
-			$lines[] = $this->getOperandRetrievalCode($i);
-		}
 		$lines[] =		"EG(exit_status) = op1;"; 
 		$lines[] =		"zend_bailout();";
 		$lines[] = "}";

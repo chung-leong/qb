@@ -37,7 +37,6 @@ class QBCodeGenerator {
 		} else if($output == "HANDLERS") {
 			$lines = array();
 			$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
-			$lines[] =		QBHandler::getMacroDefinitions();
 			$lines[] =		"";
 			$lines[] = 		"if(cxt) {";
 			$lines[] = 			"register void *__restrict op_handler;";
@@ -126,7 +125,6 @@ class QBCodeGenerator {
 
 			$lines = array();
 			$lines[] =		"";
-			$lines[] =		QBHandler::getMacroUndefinitions();
 			$lines[] = 	"}";
 			$lines[] = 	"";
 			if($compiler == "GCC") {

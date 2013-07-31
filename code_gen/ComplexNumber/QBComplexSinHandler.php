@@ -18,7 +18,7 @@ class QBComplexSinHandler extends QBComplexNumberHandler {
 		return $functions;
 	}
 
-	protected function getComplexNumberExpression() {
+	protected function getScalarExpression() {
 		$type = $this->getOperandType(1);
 		return "qb_calculate_complex_sin_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) res_ptr);";
 	}
