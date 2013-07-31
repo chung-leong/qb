@@ -2,37 +2,12 @@
 
 abstract class QBBranchHandler extends QBHandler {
 
+	public function getJumpTargetCount() {
+		return 2;
+	}
+	
 	public function getOutputOperandCount() {
 		return 0;
-	}
-
-	public function getInstructionStructure() {
-		if($this->flags & (self::SEARCHING_FOR_OPERANDS | self::SEARCHING_FOR_LINE_NUMBER)) {
-			return 'INSTRUCTION_STRUCTURE';
-		}
-		$instr = "qb_instruction_branch_$this->opCount";
-		if($this->flags & self::NEED_LINE_NUMBER) {
-			$instr .= '_lineno';
-		}
-		if(!isset(self::$typeDecls[$instr])) {
-			$lines = array();
-			$lines[] = "void *next_handler1;";
-			$lines[] = "int8_t *instruction_pointer1;";
-			$lines[] = "void *next_handler2;";
-			$lines[] = "int8_t *instruction_pointer2;";
-			for($i = 1; $i <= $this->opCount; $i++) {
-				$lines[] = "uint32_t operand$i;";
-			}
-			if($this->flags & self::NEED_LINE_NUMBER) {
-				$lines[] = "uint32_t line_number;";
-			}
-			self::$typeDecls[$instr] = array(
-					"typedef struct $instr {",
-						$lines,
-					"} $instr;"
-			);
-		}
-		return $instr;
 	}
 
 	public function getOperandFlags() {
@@ -45,17 +20,18 @@ abstract class QBBranchHandler extends QBHandler {
 		$lines = array();
 		$name = $this->getName();
 		$instr = $this->getInstructionStructure();
+		$opCount = $this->getOperandCount();
 		$lines[] = $this->getLabelCode($name);
 		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler1");
 		$lines[] = "{";
-		if($this->flags & self::NEED_LINE_NUMBER) {
+		if($this->needsLineNumber()) {
 			$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
 		}
 		$lines[] =		"int32_t condition;";
-		for($i = 1; $i <= $this->opCount; $i++) {
+		for($i = 1; $i <= $opCount; $i++) {
 			$lines[] =	$this->getOperandDeclaration($i);
 		}
-		for($i = 1; $i <= $this->opCount; $i++) {
+		for($i = 1; $i <= $opCount; $i++) {
 			$lines[] =	$this->getOperandRetrievalCode($i);
 		}
 		$lines[] =		$this->getTimeoutCode();
@@ -67,7 +43,7 @@ abstract class QBBranchHandler extends QBHandler {
 		$lines[] = 			$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler2");
 		$lines[] = 			"instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer2;";
 		$lines[] = 		"}";
-		if($this->flags & self::NEED_LINE_NUMBER) {
+		if($this->needsLineNumber()) {
 			$lines[] = "#undef PHP_LINE_NUMBER";
 		}
 		$lines[] = "}";

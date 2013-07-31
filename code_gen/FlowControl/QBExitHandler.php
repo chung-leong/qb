@@ -2,6 +2,10 @@
 
 class QBExitHandler extends QBHandler {
 	
+	public function getJumpTargetCount() {
+		return -1;
+	}
+	
 	public function getInputOperandCount() {
 		return 0;
 	}
@@ -33,10 +37,6 @@ class QBExitHandler extends QBHandler {
 		$lines[] =		"zend_bailout();";
 		$lines[] = "}";
 		return $lines;
-	}
-	
-	protected function initialize() {
-		$this->flags |= self::WILL_JUMP;
 	}
 }
 

@@ -31,11 +31,6 @@ class QBHandler {
 	}
 
 	public function getName() {
-		if($this->flags & self::SEARCHING_FOR_OPERANDS) {
-			// the full name isn't known during the initial scan for op count
-			return "NAME";
-		}
-		
 		$name = $this->baseName;
 		
 		// append operand type to the name
@@ -60,10 +55,10 @@ class QBHandler {
 		$lines[] = $this->getLabelCode($name);
 		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
 		$lines[] = "{";
-		if($this->flags & self::NEED_LINE_NUMBER) {
+		if($this->needsLineNumber()) {
 			$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
 		}
-		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+		if($this->needsMatrixDimensions()) {
 			$lines[] = "#define MATRIX1_ROWS			((($instr *) instruction_pointer)->matrix_dimensions >> 20)";
 			$lines[] = "#define MATRIX1_COLS			(((($instr *) instruction_pointer)->matrix_dimensions >> 10) & 0x03FF)";
 			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
@@ -77,10 +72,10 @@ class QBHandler {
 			$lines[] = $this->getOperandRetrievalCode($i);
 		}
 		$lines[] = $action;
-		if($this->flags & self::NEED_LINE_NUMBER) {
+		if($this->needsLineNumber()) {
 			$lines[] = "#undef PHP_LINE_NUMBER";
 		}
-		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+		if($this->needsMatrixDimensions()) {
 			$lines[] = "#undef MATRIX1_ROWS";
 			$lines[] = "#undef MATRIX1_COLS";
 			$lines[] = "#undef MATRIX2_ROWS";
@@ -98,27 +93,42 @@ class QBHandler {
 	
 	// return the instruction structure for the op
 	public function getInstructionStructure() {		
-		if($this->flags & (self::SEARCHING_FOR_OPERANDS | self::SEARCHING_FOR_LINE_NUMBER)) {
-			// the structure isn't known during the initial scan for operand count and line number
-			return "INSTRUCTION_STRUCTURE";
+		$opCount = $this->getOperandCount();
+		$targetCount = $this->getJumpTargetCount();
+		$instr = "qb_instruction_";
+		if($targetCount == 2) {
+			$instr .= "_branch";
+		} else if($targetCount == 1) {
+			$instr .= "_jump";
 		}
-		$instr = "qb_instruction_$this->opCount";
-		if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+		$instr .= "_{$opCount}";
+		if($this->needsMatrixDimensions()) {
 			$instr .= "_matrix";
 		}
-		if($this->flags & self::NEED_LINE_NUMBER) {
+		if($this->needsLineNumber()) {
 			$instr .= "_lineno";
 		}
 		if(!isset(self::$typeDecls[$instr])) {
 			$lines = array();
-			$lines[] = "void *next_handler;";
-			for($i = 1; $i <= $this->opCount; $i++) {
+			if($targetCount == 2) {
+				$lines[] = "void *next_handler1;";
+				$lines[] = "int8_t *instruction_pointer1;";
+				$lines[] = "void *next_handler2;";
+				$lines[] = "int8_t *instruction_pointer2;";
+			} else if($targetCount == 1) {
+				$lines[] = "void *next_handler;";
+				$lines[] = "int8_t *instruction_pointer;";
+			} else {
+				$lines[] = "void *next_handler;";
+			}
+			
+			for($i = 1; $i <= $opCount; $i++) {
 				$lines[] = "uint32_t operand{$i};";
 			}
-			if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
+			if($this->needsMatrixDimensions()) {
 				$lines[] = "uint32_t matrix_dimensions;";
 			}
-			if($this->flags & self::NEED_LINE_NUMBER) {
+			if($this->needsLineNumber()) {
 				$lines[] = "uint32_t line_number;";
 			}
 			self::$typeDecls[$instr] = array(
@@ -129,7 +139,7 @@ class QBHandler {
 		}
 		return $instr;
 	}
-
+	
 	// return the number of input operands
 	public function getInputOperandCount() {
 		return 1;
@@ -138,6 +148,11 @@ class QBHandler {
 	// return the number of output operands 
 	public function getOutputOperandCount() {
 		return 1;
+	}
+	
+	// return the number of jump targets
+	public function getJumpTargetCount() {
+		return 0;
 	}
 
 	// return the total number of operands
@@ -168,27 +183,16 @@ class QBHandler {
 		return $this->operandSize;
 	}
 	
-	public function getOperandFlags() {
-		$flags = array();
-		for($i = 1, $shift = 0; $i <= $this->opCount; $i++, $shift += 2) {
-			$mode = $this->getOperandAddressMode($i);
-			$operandInfo = "QB_OPERAND_ADDRESS_$mode";
-			if($i > $this->srcCount) {
-				$operandInfo = "($operandInfo | QB_OPERAND_WRITABLE)";
-			}
-			$flags[] = $operandInfo;
-		}
-		return $flags;
-	}
-
 	// return the address mode of operand $i
 	// by default, all operands use the same address mode
 	public function getOperandAddressMode($i) {
 		if($this->addressMode) {
 			return $this->addressMode;
 		} else {
-			if($this->flags & self::IS_VECTORIZED) {
+			if($this->operandSize > 1) {
 				return "ARR";
+			} else {
+				throw new Exception("Invalid address mode");
 			}
 		}
 	}
@@ -200,7 +204,7 @@ class QBHandler {
 	public function needsMatrixDimensions() {
 		return false;
 	}
-	
+
 	public function needsLineNumber() {
 		$opCount = $this->getOperandCount();
 		for($i = 1; $i <= $opCount; $i++) {
@@ -406,7 +410,7 @@ class QBHandler {
 			return $this->getArrayExpression();
 		} else {
 			$expr = $this->getScalarExpression();
-			if($this->flags & self::IS_VECTORIZED) {
+			if($this->isVectorized()) {
 				$expr = $this->getUnrolledCode($expr, $this->operandSize);
 			}
 			return $expr;

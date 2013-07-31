@@ -18,23 +18,23 @@ class QBCodeGenerator {
 	public function generate($handle, $compiler, $output) {
 		QBHandler::setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
-		
-		if($output == "HANDLERS") {
-			$helperExists = array();
+
+		if($output == "HELPERS") {
+			$helperDefined = array();
 			foreach($this->handlers as $handler) {
 				$functions = $handler->getHelperFunctions();
 				if($functions) {
 					foreach($functions as $lines) {
 						$line1 = $lines[0];
-						if(!isset($helperExists[$line1])) {
+						if(!isset($helperDefined[$line1])) {
 							$lines[] = "";
 							$this->writeCode($handle, $lines);
-							$helperExists[$line1] = true;
+							$helperDefined[$line1] = true;
 						}
 					}
 				}
 			}
-		
+		} else if($output == "HANDLERS") {
 			$lines = array();
 			$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
 			$lines[] =		QBHandler::getMacroDefinitions();
@@ -166,61 +166,71 @@ class QBCodeGenerator {
 			$lines = array();
 			$lines[] = "uint32_t global_op_flags[] = {";
 			foreach($this->handlers as $handler) {
-				$flags = $handler->getOpFlags();
-				
-		$flags = array();
-		if($this->flags & self::IS_VECTORIZED) {
-			$flags[] = "QB_OP_VECTORIZED";
-			if($this->flags & self::NEED_MATRIX_DIMENSIONS) {
-				$flags[] = "QB_OP_NEED_MATRIX_DIMENSIONS";
-			}
-		}
-		if($this->addressMode == "VAR") {
-			// op can be employed in different address modes
-			$flags[] = "QB_OP_MULTI_ADDRESS";
-		}
-		if($this->flags & self::WILL_JUMP) {
-			// the op will redirect execution to another location 
-			$flags[] = "QB_OP_JUMP";
-		}
-		if($this->flags & self::NEED_LINE_NUMBER) {
-			// the line number needs to be packed into the instruction (for error reporting)
-			$flags[] = "QB_OP_NEED_LINE_NUMBER";
-		}
-		if($this->flags & self::IS_ISSET) {
-			// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
-			$flags[] = "QB_OP_ISSET";
-		}
-		if($this->flags & self::IS_UNSET) {
-			$flags[] = "QB_OP_UNSET";
-		}
-		if($this->flags & self::WRAP_AROUND_HANDLING) {
-			$flags[] = "QB_OP_PERFORM_WRAP_AROUND";
-		}
-				
-				$flags = ($flags) ? implode(" | ", $flags) : "0";
+				$flags = array();
+				if($handler->isVectorized()) {
+					// op handles vectors
+					$flags[] = "QB_OP_VECTORIZED";
+				}
+				if($handler->needsMatrixDimensions()) {
+					// op needs matrix dimensions
+					$flags[] = "QB_OP_NEED_MATRIX_DIMENSIONS";
+				}
+				if($handler->hasAlternativeAddressModes()) {
+					// op can be employed in different address modes
+					$flags[] = "QB_OP_MULTI_ADDRESS";
+				}
+				if($handler->getJumpTargetCount() != 0) {
+					// op will redirect execution to another location 
+					$flags[] = "QB_OP_JUMP";
+				}
+				if($handler->needsLineNumber()) {
+					// the line number needs to be packed into the instruction (for error reporting)
+					$flags[] = "QB_OP_NEED_LINE_NUMBER";
+				}
+				if($handler instanceof QBIssetHandler) {
+					// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
+					$flags[] = "QB_OP_ISSET";
+				}
+				if($handler instanceof QBIssetHandler) {
+					$flags[] = "QB_OP_UNSET";
+				}
+				$combined = ($flags) ? implode(" | ", $flags) : "0";
 				$name = $handler->getName();
 				$lines[] = "// $name";
-				$lines[] = "$flags,";
+				$lines[] = "$combined,";
 			}
 			$lines[] = "};";
 			$lines[] = "";
 			$lines[] = "uint32_t global_operand_flags[] = {";
 			foreach($this->handlers as $handler) {
 				$name = $handler->getName();
-				$list = $handler->getOperandFlags();
-				if(count($list) > 8) {
-					$count = count($list);
-					throw new Exception("$name has too many operands ($count)! We only got 32 bits to store the operand flags!");
-				}
+				$shift = 0;
 				$flags = array();
-				foreach($list as $index => $operandFlags) {
-					$shift = $index * 4;
+				$jumpTargetCount = $handler->getJumpTargetCount();
+
+				// add jump targets
+				for($i = 1; $i <= $jumpTargetCount; $i++, $shift += 4) {
+					$flags[] = "(QB_OPERAND_JUMP_TARGET << $shift)";
+				}
+				
+				// add operands
+				for($i = 1; $i <= $opCount; $i++, $shift += 4) {
+					$mode = $this->getOperandAddressMode($i);
+					$operandFlags = "QB_OPERAND_ADDRESS_$mode";
+					if($i > $srcCount) {
+						$operandFlags = "($operandInfo | QB_OPERAND_WRITABLE)";
+					}
 					$flags[] = "($operandFlags << $shift)";
 				}
-				$flags = ($flags) ? implode(" | ", $flags) : "0";
+
+				// sanity check				
+				if(count($flags) > 8) {
+					$count = count($flags);
+					throw new Exception("$name has too many operands ($count)! We only got 32 bits to store the operand flags!");
+				}
+				$combined = ($flags) ? implode(" | ", $flags) : "0";
 				$lines[] = "// $name";
-				$lines[] = "$flags,";
+				$lines[] = "$combined,";
 			}
 			$lines[] = "};";
 			$lines[] = "";

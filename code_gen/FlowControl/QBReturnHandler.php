@@ -2,6 +2,10 @@
 
 class QBReturnHandler extends QBHandler {
 
+	public function getJumpTargetCount() {
+		return -1;
+	}
+	
 	public function getOutputOperandCount() {
 		return 0;
 	}
@@ -14,10 +18,6 @@ class QBReturnHandler extends QBHandler {
 		$lines[] = "}";
 		$lines[] = "goto label_exit;";
 		return $lines;
-	}
-	
-	protected function initialize() {
-		$this->flags |= self::WILL_JUMP;
 	}
 }
 
