@@ -51,11 +51,6 @@ abstract class QBSampleHandler extends QBHandler {
 			return $this->operandSize;
 		}
 	}
-	
-	protected function getOperandBoundCheckingType($i) {
-		// no bound checking--code translator needs to make sure only valid address get passed (i.e. disallowing sub-arrays)
-		return 0;
-	}
 }
 
 ?>

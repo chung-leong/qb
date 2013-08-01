@@ -6,54 +6,37 @@ class QBRandomMTHandler extends QBHandler {
 		return 2;
 	}
 
-	public function getHelperFunctions() {
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
-		$functions = array(
-			array(
-				"int64_t ZEND_FASTCALL qb_mt_rand_S64(qb_interpreter_context *cxt, int64_t lower_limit, uint64_t upper_limit) {",
-					"USE_TSRM",
-					"if(upper_limit > INT32_MAX || lower_limit < INT32_MIN) {",
-						"int32_t number_h = php_mt_rand(TSRMLS_C) >> 1, upper_limit_h = upper_limit >> 32, lower_limit_h = lower_limit >> 32;",
-						"uint32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = 0xFFFFFFFF, lower_limit_l = 0;",
-						"number_h = lower_limit_h + (int32_t) ((double) ( (double) upper_limit_h - lower_limit_h + 1.0) * (number_h / (PHP_MT_RAND_MAX + 1.0)));",
-						"number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));",
-						"return (uint64_t) number_h << 32 | number_l;",
-					"} else {",
-						"int32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = (int32_t) upper_limit, lower_limit_l = (int32_t) lower_limit;",
-						"number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));",
-						"return number_l;",
-					"}",
-				"}",
-			),
-			array(
-				"uint64_t ZEND_FASTCALL qb_mt_rand_U64(qb_interpreter_context *cxt, uint64_t lower_limit, uint64_t upper_limit) {",
-					"USE_TSRM",
-					"if(upper_limit > UINT32_MAX) {",
-						"uint32_t number_h = php_mt_rand(TSRMLS_C) >> 1, upper_limit_h = upper_limit >> 32, lower_limit_h = lower_limit >> 32;",
-						"uint32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = 0xFFFFFFFF, lower_limit_l = 0;",
-						"number_h = lower_limit_h + (uint32_t) ((double) ( (double) upper_limit_h - lower_limit_h + 1.0) * (number_h / (PHP_MT_RAND_MAX + 1.0)));",
-						"number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));",
-						"return (uint64_t) number_h << 32 | number_l;",
-					"} else {",
-						"uint32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = (uint32_t) upper_limit, lower_limit_l = (uint32_t) lower_limit;",
-						"number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));",
-						"return number_l;",
-					"}",
-				"}",
-			),
-		);
-		return $functions;
-	}
-	
 	protected function getActionForUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
+		$width = (int) substr($type, 1);
+		$lines = array();
 		if($type[0] == 'U') {
-			return "res = ($cType) qb_mt_rand_U64(cxt, op1, op2);";
+			if($width > 32) {
+				$lines[] = "uint32_t number_h = php_mt_rand(TSRMLS_C) >> 1, upper_limit_h = op2 >> 32, lower_limit_h = op1 >> 32;";
+				$lines[] = "uint32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = 0xFFFFFFFF, lower_limit_l = 0;";
+				$lines[] = "number_h = lower_limit_h + (uint32_t) ((double) ( (double) upper_limit_h - lower_limit_h + 1.0) * (number_h / (PHP_MT_RAND_MAX + 1.0)));";
+				$lines[] = "number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));";
+				$lines[] = "res_ptr[0] = (uint64_t) number_h << 32 | number_l;";
+			} else {
+				$lines[] = "uint32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = (uint32_t) op2, lower_limit_l = (uint32_t) op1;";
+				$lines[] = "number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));";
+				$lines[] = "res_ptr[0] = ($cType) number_l;";
+			}
 		} else {
-			return "res = ($cType) qb_mt_rand_S64(cxt, op1, op2);";
+			if($width > 32) {
+				$lines[] = "int32_t number_h = php_mt_rand(TSRMLS_C) >> 1, upper_limit_h = op2 >> 32, lower_limit_h = op1 >> 32;";
+				$lines[] = "uint32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = 0xFFFFFFFF, lower_limit_l = 0;";
+				$lines[] = "number_h = lower_limit_h + (int32_t) ((double) ( (double) upper_limit_h - lower_limit_h + 1.0) * (number_h / (PHP_MT_RAND_MAX + 1.0)));";
+				$lines[] = "number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));";
+				$lines[] = "res_ptr[0] = (uint64_t) number_h << 32 | number_l;";
+			} else {
+				$lines[] = "int32_t number_l = php_mt_rand(TSRMLS_C) >> 1, upper_limit_l = (int32_t) op2, lower_limit_l = (int32_t) op1;";
+				$lines[] = "number_l = lower_limit_l + (uint32_t) ((double) ( (double) upper_limit_l - lower_limit_l + 1.0) * (number_l / (PHP_MT_RAND_MAX + 1.0)));";
+				$lines[] = "res_ptr[0] = ($cType) number_l;";
+			}
 		}
+		return $lines;
 	}
 }
 
