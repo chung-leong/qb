@@ -6,7 +6,7 @@ class QBPowHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		$type = $this->getOperandType(3);
 		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';

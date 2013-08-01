@@ -6,7 +6,7 @@ class QBIsFiniteHandler extends QBHandler {
 		return ($i == 2) ? "I32" : $this->operandType;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "res = zend_finite(op1);";
 	}
 }

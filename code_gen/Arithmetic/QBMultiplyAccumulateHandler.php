@@ -6,7 +6,7 @@ class QBMultiplyAccumulateHandler extends QBHandler {
 		return 3;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "res = op1 + (op2 * op3);";
 	}
 }

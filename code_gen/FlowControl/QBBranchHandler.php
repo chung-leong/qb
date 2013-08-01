@@ -51,7 +51,7 @@ abstract class QBBranchHandler extends QBHandler {
 		return $lines;
 	}
 	
-	protected function getArrayExpression() {
+	protected function getActionForMultipleData() {
 		$name = $this->getName();
 		throw new Exception("No implemenation for employing $name in array operation\n");
 	}

@@ -2,216 +2,12 @@
 
 // note: using column-major order
 
-class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
+class QBMultiplyMatrixByMatrixHandler extends QBMatrixHandler {
 
 	public function getInputOperandCount() {
 		return 2;
 	}
 
-	public function getHelperFunctions() {
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
-		$functions = array(
-			array(
-				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_2x2_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
-					"$cType *__restrict res_ptr = res_start;",
-					"$cType *__restrict op1_ptr = op1_start;",
-					"$cType *__restrict op2_ptr = op2_start;",
-					"for(;;) {",
-						"$cType dot_product0 = (op1_ptr[0 * 2 + 0] * op2_ptr[0 * 2 + 0]) + (op1_ptr[0 * 2 + 1] * op2_ptr[1 * 2 + 0]);",
-						"$cType dot_product1 = (op1_ptr[0 * 2 + 0] * op2_ptr[0 * 2 + 1]) + (op1_ptr[0 * 2 + 1] * op2_ptr[1 * 2 + 1]);",
-						"$cType dot_product2 = (op1_ptr[1 * 2 + 0] * op2_ptr[0 * 2 + 0]) + (op1_ptr[1 * 2 + 1] * op2_ptr[1 * 2 + 0]);",
-						"$cType dot_product3 = (op1_ptr[1 * 2 + 0] * op2_ptr[0 * 2 + 1]) + (op1_ptr[1 * 2 + 1] * op2_ptr[1 * 2 + 1]);",
-						"res_ptr[0 * 2 + 0] = dot_product0;",
-						"res_ptr[0 * 2 + 1] = dot_product1;",
-						"res_ptr[1 * 2 + 0] = dot_product2;",
-						"res_ptr[1 * 2 + 1] = dot_product3;",
-						"res_ptr += 4;",
-						"if(res_ptr >= res_end) {",
-							"break;",
-						"}",
-						"op1_ptr += 4;",
-						"if(op1_ptr >= op1_end) {",
-							"op1_ptr = op1_start;",
-						"}",
-						"op2_ptr += 4;",
-						"if(op2_ptr >= op2_end) {",
-							"op2_ptr = op2_start;",
-						"}",
-					"}",
-				"}",
-			),
-			array(
-				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_3x3_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
-					"$cType *__restrict res_ptr = res_start;",
-					"$cType *__restrict op1_ptr = op1_start;",
-					"$cType *__restrict op2_ptr = op2_start;",
-					"for(;;) {",
-						"$cType dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 0]);",
-						"$cType dot_product1 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 1]);",
-						"$cType dot_product2 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 2]);",
-						"$cType dot_product3 = (op1_ptr[1 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[1 * 3 + 2] * op2_ptr[2 * 3 + 0]);",
-						"$cType dot_product4 = (op1_ptr[1 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[1 * 3 + 2] * op2_ptr[2 * 3 + 1]);",
-						"$cType dot_product5 = (op1_ptr[1 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[1 * 3 + 2] * op2_ptr[2 * 3 + 2]);",
-						"$cType dot_product6 = (op1_ptr[2 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[2 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2 * 3 + 0]);",
-						"$cType dot_product7 = (op1_ptr[2 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[2 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2 * 3 + 1]);",
-						"$cType dot_product8 = (op1_ptr[2 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[2 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2 * 3 + 2]);",
-						"res_ptr[0 * 3 + 0] = dot_product0;",
-						"res_ptr[0 * 3 + 1] = dot_product1;",
-						"res_ptr[0 * 3 + 2] = dot_product2;",
-						"res_ptr[1 * 3 + 0] = dot_product3;",
-						"res_ptr[1 * 3 + 1] = dot_product4;",
-						"res_ptr[1 * 3 + 2] = dot_product5;",
-						"res_ptr[2 * 3 + 0] = dot_product6;",
-						"res_ptr[2 * 3 + 1] = dot_product7;",
-						"res_ptr[2 * 3 + 2] = dot_product8;",
-						"res_ptr += 9;",
-						"if(res_ptr >= res_end) {",
-							"break;",
-						"}",
-						"op1_ptr += 9;",
-						"if(op1_ptr >= op1_end) {",
-							"op1_ptr = op1_start;",
-						"}",
-						"op2_ptr += 9;",
-						"if(op2_ptr >= op2_end) {",
-							"op2_ptr = op2_start;",
-						"}",
-					"}",
-				"}",
-			),
-			array(
-				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_3x3_padded_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
-					"$cType *__restrict res_ptr = res_start;",
-					"$cType *__restrict op1_ptr = op1_start;",
-					"$cType *__restrict op2_ptr = op2_start;",
-					"for(;;) {",
-						"$cType dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 0]);",
-						"$cType dot_product1 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 1]);",
-						"$cType dot_product2 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 2]);",
-						"$cType dot_product3 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 0]);",
-						"$cType dot_product4 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 1]);",
-						"$cType dot_product5 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 2]);",
-						"$cType dot_product6 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 0]);",
-						"$cType dot_product7 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 1]);",
-						"$cType dot_product8 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 2]);",
-						"res_ptr[0 * 4 + 0] = dot_product0;",
-						"res_ptr[0 * 4 + 1] = dot_product1;",
-						"res_ptr[0 * 4 + 2] = dot_product2;",
-						"res_ptr[1 * 4 + 0] = dot_product3;",
-						"res_ptr[1 * 4 + 1] = dot_product4;",
-						"res_ptr[1 * 4 + 2] = dot_product5;",
-						"res_ptr[2 * 4 + 0] = dot_product6;",
-						"res_ptr[2 * 4 + 1] = dot_product7;",
-						"res_ptr[2 * 4 + 2] = dot_product8;",
-						"res_ptr += 12;",
-						"if(res_ptr >= res_end) {",
-							"break;",
-						"}",
-						"op1_ptr += 12;",
-						"if(op1_ptr >= op1_end) {",
-							"op1_ptr = op1_start;",
-						"}",
-						"op2_ptr += 12;",
-						"if(op2_ptr >= op2_end) {",
-							"op2_ptr = op2_start;",
-						"}",
-					"}",
-				"}",
-			),
-			array(
-				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_4x4_$type($cType *op1_start, $cType *op1_end, $cType *op2_start, $cType *op2_end, $cType *res_start, $cType *res_end) {",
-					"$cType *__restrict res_ptr = res_start;",
-					"$cType *__restrict op1_ptr = op1_start;",
-					"$cType *__restrict op2_ptr = op2_start;",
-					"for(;;) {",
-						"$cType dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 0]);",
-						"$cType dot_product1 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 1]);",
-						"$cType dot_product2 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 2]);",
-						"$cType dot_product3 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 3]);",
-						"$cType dot_product4 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 0]);",
-						"$cType dot_product5 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 1]);",
-						"$cType dot_product6 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 2]);",
-						"$cType dot_product7 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 3]);",
-						"$cType dot_product8 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 0]);",
-						"$cType dot_product9 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 1]);",
-						"$cType dot_product10 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 2]);",
-						"$cType dot_product11 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 3]);",
-						"$cType dot_product12 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 0]);",
-						"$cType dot_product13 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 1]);",
-						"$cType dot_product14 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 2]);",
-						"$cType dot_product15 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 3]);",
-						"res_ptr[0 * 4 + 0] = dot_product0;",
-						"res_ptr[0 * 4 + 1] = dot_product1;",
-						"res_ptr[0 * 4 + 2] = dot_product2;",
-						"res_ptr[0 * 4 + 3] = dot_product3;",
-						"res_ptr[1 * 4 + 0] = dot_product4;",
-						"res_ptr[1 * 4 + 1] = dot_product5;",
-						"res_ptr[1 * 4 + 2] = dot_product6;",
-						"res_ptr[1 * 4 + 3] = dot_product7;",
-						"res_ptr[2 * 4 + 0] = dot_product8;",
-						"res_ptr[2 * 4 + 1] = dot_product9;",
-						"res_ptr[2 * 4 + 2] = dot_product10;",
-						"res_ptr[2 * 4 + 3] = dot_product11;",
-						"res_ptr[3 * 4 + 0] = dot_product12;",
-						"res_ptr[3 * 4 + 1] = dot_product13;",
-						"res_ptr[3 * 4 + 2] = dot_product14;",
-						"res_ptr[3 * 4 + 3] = dot_product15;",
-						"res_ptr += 16;",
-						"if(res_ptr >= res_end) {",
-							"break;",
-						"}",
-						"op1_ptr += 16;",
-						"if(op1_ptr >= op1_end) {",
-							"op1_ptr = op1_start;",
-						"}",
-						"op2_ptr += 16;",
-						"if(op2_ptr >= op2_end) {",
-							"op2_ptr = op2_start;",
-						"}",
-					"}",
-				"}",
-			),
-			array(
-				"void ZEND_FASTCALL qb_multiply_cm_matrix_by_matrix_$type($cType *op1_start, $cType *op1_end, uint32_t m1_row, uint32_t m1_col, $cType *op2_start, $cType *op2_end, uint32_t m2_row, uint32_t m2_col, $cType *res_start, $cType *res_end) {",
-					"ALLOCA_FLAG(use_heap)",
-					"$cType *__restrict buffer = do_alloca(m1_row * m2_col * sizeof($cType), use_heap);",
-					"$cType *__restrict res_ptr = res_start;",
-					"$cType *__restrict op1_ptr = op1_start;",
-					"$cType *__restrict op2_ptr = op2_start;",
-					"for(;;) {",
-						"uint32_t i, j, k, p, q, res_index = 0;",
-						"for(i = 0, q = 0; i < m2_col; ++i) {",
-							"for(j = 0; j < m1_row; ++j) {",
-								"$cType dot_product = 0;",
-								"for(p = 0, k = 0; p < m1_col; ++p, k += m1_row) {",
-									"dot_product += op1_ptr[k + j] * op2_ptr[p + q];",
-								"}",
-								"buffer[res_index++] = dot_product;",
-							"}",
-							"q += m1_col;",
-						"}",
-						"memcpy(res_ptr, buffer, m1_row * m2_col * sizeof($cType));",
-						"res_ptr += m1_row * m2_col;",
-						"if(res_ptr >= res_end) {",
-							"break;",
-						"}",
-						"op1_ptr += m1_row * m1_col;",
-						"if(op1_ptr >= op1_end) {",
-							"op1_ptr = op1_start;",
-						"}",
-						"op2_ptr += m2_row * m2_col;",
-						"if(op2_ptr >= op2_end) {",
-							"op2_ptr = op2_start;",
-						"}",
-					"}",
-					"free_alloca(buffer, use_heap);",
-				"}",
-			),
-		);
-		return $functions;
-	}
-	
 	public function getOperandSize($i) {
 		if($this->operandSize == "variable") {
 			switch($i) {
@@ -243,29 +39,115 @@ class QBMultiplyMatrixByMatrixHandler extends QBSIMDHandler {
 		}
 	}
 	
-	public function getAction() {
-		$type = $this->getOperandType(1);
+	public function getActionForUnitData() {
+		$type = $this->getOperandType(3);
+		$cType = $this->getOperandCType(3);
 		if($this->operandSize == "variable") {
-			if($this->addressMode == "ARR") {
-				return "qb_multiply_cm_matrix_by_matrix_$type(op1_ptr, op1_ptr + op1_count, MATRIX1_ROWS, MATRIX1_COLS, op2_ptr, op2_ptr + op2_count, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_ptr + res_count);";
-			} else {
-				return "qb_multiply_cm_matrix_by_matrix_$type(op1_ptr, NULL, MATRIX1_ROWS, MATRIX1_COLS, op2_ptr, NULL, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, NULL);";
-			}
+			$lines[] = "ALLOCA_FLAG(use_heap)";
+			$lines[] = "$cType *__restrict buffer = do_alloca(MATRIX1_ROWS * MATRIX2_COLS * sizeof($cType), use_heap);";
+			$lines[] = "uint32_t i, j, k, p, q, res_index = 0;";
+			$lines[] = "for(i = 0, q = 0; i < MATRIX2_COLS; ++i) {";
+			$lines[] = 		"for(j = 0; j < MATRIX1_ROWS; ++j) {";
+			$lines[] = 			"$cType dot_product = 0;";
+			$lines[] = 			"for(p = 0, k = 0; p < MATRIX1_COLS; ++p, k += MATRIX1_ROWS) {";
+			$lines[] = 				"dot_product += op1_ptr[k + j] * op2_ptr[p + q];";
+			$lines[] = 			"}";
+			$lines[] = 			"buffer[res_index++] = dot_product;";
+			$lines[] = 		"}";
+			$lines[] = 		"q += MATRIX1_COLS;";
+			$lines[] = "}";
+			$lines[] = "memcpy(res_ptr, buffer, MATRIX1_ROWS * MATRIX2_COLS * sizeof($cType));";
+			$lines[] = "free_alloca(buffer, use_heap);";
 		} else {
-			if($this->operandPadding) {
-				if($this->addressMode == "ARR") {
-					return "qb_multiply_cm_matrix_by_matrix_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, op1_ptr + op1_count, op2_ptr, op2_ptr + op2_count, res_ptr, res_ptr + res_count);";
-				} else {
-					return "qb_multiply_cm_matrix_by_matrix_{$this->operandSize}x{$this->operandSize}_padded_$type(op1_ptr, NULL, op2_ptr, NULL, res_ptr, NULL);";
-				}
-			} else {
-				if($this->addressMode == "ARR") {
-					return "qb_multiply_cm_matrix_by_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, op1_ptr + op1_count, op2_ptr, op2_ptr + op2_count, res_ptr, res_ptr + res_count);";
-				} else {
-					return "qb_multiply_cm_matrix_by_matrix_{$this->operandSize}x{$this->operandSize}_$type(op1_ptr, NULL, op2_ptr, NULL, res_ptr, NULL);";
-				}
+			switch($this->operandSize) {
+				case 2: {
+					$lines[] = "$cType dot_product0 = (op1_ptr[0 * 2 + 0] * op2_ptr[0 * 2 + 0]) + (op1_ptr[0 * 2 + 1] * op2_ptr[1 * 2 + 0]);";
+					$lines[] = "$cType dot_product1 = (op1_ptr[0 * 2 + 0] * op2_ptr[0 * 2 + 1]) + (op1_ptr[0 * 2 + 1] * op2_ptr[1 * 2 + 1]);";
+					$lines[] = "$cType dot_product2 = (op1_ptr[1 * 2 + 0] * op2_ptr[0 * 2 + 0]) + (op1_ptr[1 * 2 + 1] * op2_ptr[1 * 2 + 0]);";
+					$lines[] = "$cType dot_product3 = (op1_ptr[1 * 2 + 0] * op2_ptr[0 * 2 + 1]) + (op1_ptr[1 * 2 + 1] * op2_ptr[1 * 2 + 1]);";
+					$lines[] = "res_ptr[0 * 2 + 0] = dot_product0;";
+					$lines[] = "res_ptr[0 * 2 + 1] = dot_product1;";
+					$lines[] = "res_ptr[1 * 2 + 0] = dot_product2;";
+					$lines[] = "res_ptr[1 * 2 + 1] = dot_product3;";
+				}	break;
+				case 3: {
+					if($this->operandPadding) {
+						$lines[] = "$cType dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 0]);";
+						$lines[] = "$cType dot_product1 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 1]);";
+						$lines[] = "$cType dot_product2 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 2]);";
+						$lines[] = "$cType dot_product3 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 0]);";
+						$lines[] = "$cType dot_product4 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 1]);";
+						$lines[] = "$cType dot_product5 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 2]);";
+						$lines[] = "$cType dot_product6 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 0]);";
+						$lines[] = "$cType dot_product7 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 1]);";
+						$lines[] = "$cType dot_product8 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 2]);";
+						$lines[] = "res_ptr[0 * 4 + 0] = dot_product0;";
+						$lines[] = "res_ptr[0 * 4 + 1] = dot_product1;";
+						$lines[] = "res_ptr[0 * 4 + 2] = dot_product2;";
+						$lines[] = "res_ptr[1 * 4 + 0] = dot_product3;";
+						$lines[] = "res_ptr[1 * 4 + 1] = dot_product4;";
+						$lines[] = "res_ptr[1 * 4 + 2] = dot_product5;";
+						$lines[] = "res_ptr[2 * 4 + 0] = dot_product6;";
+						$lines[] = "res_ptr[2 * 4 + 1] = dot_product7;";
+						$lines[] = "res_ptr[2 * 4 + 2] = dot_product8;";
+					} else {
+						$lines[] = "$cType dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 0]);";
+						$lines[] = "$cType dot_product1 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 1]);";
+						$lines[] = "$cType dot_product2 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 2]);";
+						$lines[] = "$cType dot_product3 = (op1_ptr[1 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[1 * 3 + 2] * op2_ptr[2 * 3 + 0]);";
+						$lines[] = "$cType dot_product4 = (op1_ptr[1 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[1 * 3 + 2] * op2_ptr[2 * 3 + 1]);";
+						$lines[] = "$cType dot_product5 = (op1_ptr[1 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[1 * 3 + 2] * op2_ptr[2 * 3 + 2]);";
+						$lines[] = "$cType dot_product6 = (op1_ptr[2 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[2 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2 * 3 + 0]);";
+						$lines[] = "$cType dot_product7 = (op1_ptr[2 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[2 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2 * 3 + 1]);";
+						$lines[] = "$cType dot_product8 = (op1_ptr[2 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[2 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2 * 3 + 2]);";
+						$lines[] = "res_ptr[0 * 3 + 0] = dot_product0;";
+						$lines[] = "res_ptr[0 * 3 + 1] = dot_product1;";
+						$lines[] = "res_ptr[0 * 3 + 2] = dot_product2;";
+						$lines[] = "res_ptr[1 * 3 + 0] = dot_product3;";
+						$lines[] = "res_ptr[1 * 3 + 1] = dot_product4;";
+						$lines[] = "res_ptr[1 * 3 + 2] = dot_product5;";
+						$lines[] = "res_ptr[2 * 3 + 0] = dot_product6;";
+						$lines[] = "res_ptr[2 * 3 + 1] = dot_product7;";
+						$lines[] = "res_ptr[2 * 3 + 2] = dot_product8;";
+					}
+				}	break;
+				case 4: {
+					$lines[] = "$cType dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 0]);";
+					$lines[] = "$cType dot_product1 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 1]);";
+					$lines[] = "$cType dot_product2 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 2]);";
+					$lines[] = "$cType dot_product3 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 3]);";
+					$lines[] = "$cType dot_product4 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 0]);";
+					$lines[] = "$cType dot_product5 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 1]);";
+					$lines[] = "$cType dot_product6 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 2]);";
+					$lines[] = "$cType dot_product7 = (op1_ptr[1 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[1 * 4 + 3] * op2_ptr[3 * 4 + 3]);";
+					$lines[] = "$cType dot_product8 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 0]);";
+					$lines[] = "$cType dot_product9 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 1]);";
+					$lines[] = "$cType dot_product10 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 2]);";
+					$lines[] = "$cType dot_product11 = (op1_ptr[2 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[2 * 4 + 3] * op2_ptr[3 * 4 + 3]);";
+					$lines[] = "$cType dot_product12 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 0]);";
+					$lines[] = "$cType dot_product13 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 1]);";
+					$lines[] = "$cType dot_product14 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 2]);";
+					$lines[] = "$cType dot_product15 = (op1_ptr[3 * 4 + 0] * op2_ptr[0 * 4 + 3]) + (op1_ptr[3 * 4 + 1] * op2_ptr[1 * 4 + 3]) + (op1_ptr[3 * 4 + 2] * op2_ptr[2 * 4 + 3]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3 * 4 + 3]);";
+					$lines[] = "res_ptr[0 * 4 + 0] = dot_product0;";
+					$lines[] = "res_ptr[0 * 4 + 1] = dot_product1;";
+					$lines[] = "res_ptr[0 * 4 + 2] = dot_product2;";
+					$lines[] = "res_ptr[0 * 4 + 3] = dot_product3;";
+					$lines[] = "res_ptr[1 * 4 + 0] = dot_product4;";
+					$lines[] = "res_ptr[1 * 4 + 1] = dot_product5;";
+					$lines[] = "res_ptr[1 * 4 + 2] = dot_product6;";
+					$lines[] = "res_ptr[1 * 4 + 3] = dot_product7;";
+					$lines[] = "res_ptr[2 * 4 + 0] = dot_product8;";
+					$lines[] = "res_ptr[2 * 4 + 1] = dot_product9;";
+					$lines[] = "res_ptr[2 * 4 + 2] = dot_product10;";
+					$lines[] = "res_ptr[2 * 4 + 3] = dot_product11;";
+					$lines[] = "res_ptr[3 * 4 + 0] = dot_product12;";
+					$lines[] = "res_ptr[3 * 4 + 1] = dot_product13;";
+					$lines[] = "res_ptr[3 * 4 + 2] = dot_product14;";
+					$lines[] = "res_ptr[3 * 4 + 3] = dot_product15;";
+				}	break;
 			}
 		}
+		return $lines;
 	}
 }
 

@@ -2,26 +2,17 @@
 
 class QBComplexTanhHandler extends QBComplexNumberHandler {
 
-	public function getHelperFunctions() {
+	protected function getActionForUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);
 		$f = ($type == 'F32') ? 'f' : '';
-		$functions = array(
-			array(
-				"void ZEND_FASTCALL qb_calculate_complex_tanh_$type(qb_complex_$type *z, qb_complex_$type *res) {",
-					"$cType w = 1 / (cosh$f(2.0 * z->r) + cos$f(2.0 * z->i));",
-					"$cType r = w * sinh$f(2.0 * z->r);",
-					"$cType i = w * sin$f(2.0 * z->i);",
-					"res->r = r; res->i = i;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-	
-	protected function getScalarExpression() {
-		$type = $this->getOperandType(1);
-		return "qb_calculate_complex_tanh_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) res_ptr);";
+		$lines = array();
+		$lines[] = "$cType w = 1 / (cosh$f(2.0 * op1_ptr[0]) + cos$f(2.0 * op1_ptr[1]));";
+		$lines[] = $lines[] = "$cType r = w * sinh$f(2.0 * op1_ptr[0]);";
+		$lines[] = $lines[] = "$cType i = w * sin$f(2.0 * op1_ptr[1]);";
+		$lines[] = "res_ptr[0] = r;";
+		$lines[] = $lines[] = "res_ptr[1] = i;";
+		return $lines;
 	}
 }
 

@@ -2,26 +2,17 @@
 
 class QBComplexLogHandler extends QBComplexNumberHandler {
 
-	public function getHelperFunctions() {
+	protected function getActionForUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);
 		$f = ($type == 'F32') ? 'f' : '';
-		$functions = array(
-			array(
-				"void ZEND_FASTCALL qb_calculate_complex_log_$type(qb_complex_$type *z, qb_complex_$type *res) {",
-					"$cType w = sqrt$f(z->r * z->r + z->i * z->i);",
-					"$cType r = log$f(w);",
-					"$cType i = atan2$f(z->i, z->r);",
-					"res->r = r; res->i = i;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-
-	protected function getScalarExpression() {
-		$type = $this->getOperandType(1);
-		return "qb_calculate_complex_log_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) res_ptr);";
+		$lines = array();
+		$lines[] = "$cType w = sqrt$f(op1_ptr[0] * op1_ptr[0] + op1_ptr[1] * op1_ptr[1]);";
+		$lines[] = "$cType r = log$f(w);";
+		$lines[] = "$cType i = atan2$f(op1_ptr[1], op1_ptr[0]);";
+		$lines[] = "res_ptr[0] = r;";
+		$lines[] = "res_ptr[1] = i;";
+		return $lines;
 	}
 }
 

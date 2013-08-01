@@ -6,7 +6,7 @@ class QBAddHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "res = op1 + op2;";
 	}
 }

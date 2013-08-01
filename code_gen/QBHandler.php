@@ -110,36 +110,36 @@ class QBHandler {
 		if($this->needsLineNumber()) {
 			$instr .= "_lineno";
 		}
-		if(!isset(self::$typeDecls[$instr])) {
-			$lines = array();
-			if($targetCount == 2) {
-				$lines[] = "void *next_handler1;";
-				$lines[] = "int8_t *instruction_pointer1;";
-				$lines[] = "void *next_handler2;";
-				$lines[] = "int8_t *instruction_pointer2;";
-			} else if($targetCount == 1) {
-				$lines[] = "void *next_handler;";
-				$lines[] = "int8_t *instruction_pointer;";
-			} else {
-				$lines[] = "void *next_handler;";
-			}
-			
-			for($i = 1; $i <= $opCount; $i++) {
-				$lines[] = "uint32_t operand{$i};";
-			}
-			if($this->needsMatrixDimensions()) {
-				$lines[] = "uint32_t matrix_dimensions;";
-			}
-			if($this->needsLineNumber()) {
-				$lines[] = "uint32_t line_number;";
-			}
-			self::$typeDecls[$instr] = array(
-					"typedef struct $instr {",
-					$lines,
-					"} $instr;"
-			);
-		}
 		return $instr;
+	}
+	
+	public function getInstructionStructureDefinition() {
+		$instr = $this->getInstructionStructure();
+		$lines = array();
+		$lines[] = "typedef struct $instr {";
+		if($targetCount == 2) {
+			$lines[] = "void *next_handler1;";
+			$lines[] = "int8_t *instruction_pointer1;";
+			$lines[] = "void *next_handler2;";
+			$lines[] = "int8_t *instruction_pointer2;";
+		} else if($targetCount == 1) {
+			$lines[] = "void *next_handler;";
+			$lines[] = "int8_t *instruction_pointer;";
+		} else {
+			$lines[] = "void *next_handler;";
+		}
+		
+		for($i = 1; $i <= $opCount; $i++) {
+			$lines[] = "uint32_t operand{$i};";
+		}
+		if($this->needsMatrixDimensions()) {
+			$lines[] = "uint32_t matrix_dimensions;";
+		}
+		if($this->needsLineNumber()) {
+			$lines[] = "uint32_t line_number;";
+		}
+		$lines[] = "} $instr;";
+		return $lines;
 	}
 	
 	// return the number of input operands
@@ -171,10 +171,10 @@ class QBHandler {
 	// return the C-type of operand $i
 	public function getOperandCType($i) {
 		static $cTypes = array(
-				"I08" => "int8_t",		"I16" => "int16_t",			"I32" => "int32_t",			"I64" => "int64_t",
-				"S08" => "int8_t",		"S16" => "int16_t",			"S32" => "int32_t",			"S64" => "int64_t",
-				"U08" => "uint8_t",		"U16" => "uint16_t",		"U32" => "uint32_t",		"U64" => "uint64_t",
-				"F32" => "float32_t",	"F64" => "float64_t",
+			"I08" => "int8_t",		"I16" => "int16_t",			"I32" => "int32_t",			"I64" => "int64_t",
+			"S08" => "int8_t",		"S16" => "int16_t",			"S32" => "int32_t",			"S64" => "int64_t",
+			"U08" => "uint8_t",		"U16" => "uint16_t",		"U32" => "uint32_t",		"U64" => "uint64_t",
+			"F32" => "float32_t",	"F64" => "float64_t",
 		);
 		$operandType = $this->getOperandType($i);
 		return $cTypes[$operandType];
@@ -402,23 +402,23 @@ class QBHandler {
 		for($i = 0; $i < $count; $i++) {
 			$patterns = array('/\bres\b/', '/\bop(' . $nums . ')\b/');
 			$replacements = array("res_ptr[{$i}]", "op\\1_ptr[{$i}]");
-			$lines[] = preg_replace($patterns, $replacements, $expression);
+			preg_replace($patterns, $replacements, $expression);
 		}
 		return $lines;
 	}
 
 	// return an expression for handling array operands
-	protected function getArrayExpression() {
+	protected function getActionForMultipleData() {
 		return null;
 	}
 
 	// return an expression for handling scalar operands
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return null;
 	}
 
 	// return codes that perform what the op is supposed to do
-	// the default implementation calls getArrayExpression() or $this->getScalarExpression()
+	// the default implementation calls getActionForMultipleData() or $this->getActionForUnitData()
 	public function getAction() {
 		/*
 		if(!isset($this->addressMode) && !($this->operandSize > 1)) {
@@ -428,9 +428,9 @@ class QBHandler {
 		}
 		*/
 		if($this->addressMode == "ARR") {
-			return $this->getArrayExpression();
+			return $this->getActionForMultipleData();
 		} else {
-			$expr = $this->getScalarExpression();
+			$expr = $this->getActionForUnitData();
 			if($this->isVectorized()) {
 				$expr = $this->getUnrolledCode($expr, $this->operandSize);
 			}

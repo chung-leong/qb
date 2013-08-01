@@ -2,7 +2,7 @@
 
 class QBLessThanVectorHandler extends QBCompareVectorHandler {
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "res = (op1 < op2);";
 	}
 }

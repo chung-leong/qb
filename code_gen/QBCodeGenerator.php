@@ -345,7 +345,7 @@ class QBCodeGenerator {
 			// set up the function reference table
 			$references = array();
 			foreach($this->handlers as $handler) {
-				$calls = $handler->getFunctionsUsed();
+				//$calls = $handler->getFunctionsUsed();
 				$indices = array();
 				if($calls) {
 					foreach($calls as $name) {

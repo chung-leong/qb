@@ -6,7 +6,7 @@ class QBDecrementHandler extends QBHandler {
 		return 0;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "--res;";
 	}
 }

@@ -6,7 +6,7 @@ class QBFlooredDivisionModuloHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		$cType = $this->getOperandCType(1);
 		return "res = ($cType) (op1 - op2 * floor(op1 / op2));";
 	}

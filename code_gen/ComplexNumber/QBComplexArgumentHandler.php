@@ -18,7 +18,7 @@ class QBComplexArgumentHandler extends QBComplexNumberHandler {
 		}
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		$cType = $this->getOperandCType(1);
 		return "res_ptr[0] = ($cType) atan2(op1_ptr[1], op1_ptr[0]);";
 	}

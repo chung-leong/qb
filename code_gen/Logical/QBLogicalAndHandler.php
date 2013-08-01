@@ -12,7 +12,7 @@ class QBLogicalAndHandler extends QBHandler {
 		return ($i == 3) ? "VAR" : $this->addressMode;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "res = op1 && op2;";
 	}
 }

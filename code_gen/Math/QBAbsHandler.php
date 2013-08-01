@@ -2,7 +2,7 @@
 
 class QBAbsHandler extends QBHandler {
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		$functions = array(
 			"S08" => "abs",
 			"S16" => "abs",

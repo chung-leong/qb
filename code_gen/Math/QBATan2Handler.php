@@ -6,7 +6,7 @@ class QBATan2Handler extends QBHandler {
 		return 2;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);
 		$f = ($type == 'F32') ? 'f' : '';

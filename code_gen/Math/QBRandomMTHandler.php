@@ -46,7 +46,7 @@ class QBRandomMTHandler extends QBHandler {
 		return $functions;
 	}
 	
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
 		if($type[0] == 'U') {

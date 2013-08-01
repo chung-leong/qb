@@ -2,7 +2,7 @@
 
 class QBCopyHandler extends QBHandler {
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "res = op1;";
 	}
 }

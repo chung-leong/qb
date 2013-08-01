@@ -6,7 +6,7 @@ class QBBranchOnNotEqualHandler extends QBBranchHandler {
 		return 2;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		return "condition = (op1 != op2);";
 	}
 }

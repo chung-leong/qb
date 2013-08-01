@@ -1,6 +1,6 @@
 <?php
 
-class QBSIMDHandler extends QBHandler {
+class QBMatrixHandler extends QBHandler {
 
 	protected $operandPadding = 0;
 

@@ -2,26 +2,17 @@
 
 class QBComplexExpHandler extends QBComplexNumberHandler {
 
-	public function getHelperFunctions() {
+	protected function getActionForUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);
 		$f = ($type == 'F32') ? 'f' : '';
-		$functions = array(
-			array(
-				"void ZEND_FASTCALL qb_calculate_complex_exp_$type(qb_complex_$type *z, qb_complex_$type *res) {",
-					"$cType w = exp$f(z->r);",
-					"$cType r = w * cos$f(z->i);",
-					"$cType i = w * sin$f(z->i);",
-					"res->r = r; res->i = i;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-
-	protected function getScalarExpression() {
-		$type = $this->getOperandType(1);
-		return "qb_calculate_complex_exp_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) res_ptr);";
+		$lines = array();
+		$lines[] = "$cType w = exp$f(op1_ptr[0]);";
+		$lines[] = "$cType r = w * cos$f(op1_ptr[1]);";
+		$lines[] = "$cType i = w * sin$f(op1_ptr[1]);";
+		$lines[] = "res_ptr[0] = r;";
+		$lines[] = "res_ptr[1] = i;";
+		return $lines;
 	}
 }
 

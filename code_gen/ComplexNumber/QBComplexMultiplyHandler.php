@@ -6,25 +6,16 @@ class QBComplexMultiplyHandler extends QBComplexNumberHandler {
 		return 2;
 	}
 
-	public function getHelperFunctions() {
+	protected function getActionForUnitData() {
 		$type = $this->getOperandType(3);
 		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';
-		$functions = array(
-			array(
-				"void ZEND_FASTCALL qb_multiply_complex_$type(qb_complex_$type *a, qb_complex_$type *b, qb_complex_$type *res) {",
-					"$cType r = (a->r * b->r) - (a->i * b->i);",
-					"$cType i = (a->r * b->i) + (a->i * b->r);",
-					"res->r = r; res->i = i;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-
-	protected function getScalarExpression() {
-		$type = $this->getOperandType(1);
-		return "qb_multiply_complex_$type((qb_complex_$type *) op1_ptr, (qb_complex_$type *) op2_ptr, (qb_complex_$type *) res_ptr);";
+		$lines = array();
+		$lines[] = "$cType r = (op1_ptr[0] * op2_ptr[0]) - (op1_ptr[1] * op2_ptr[1]);";
+		$lines[] = "$cType i = (op1_ptr[0] * op2_ptr[1]) + (op1_ptr[1] * op2_ptr[0]);";
+		$lines[] = "res_ptr[0] = r;";
+		$lines[] = "res_ptr[1] = i;";
+		return $lines;
 	}
 }
 

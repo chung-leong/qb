@@ -28,7 +28,7 @@ class QBPackHandler extends QBHandler {
 		return $size;
 	}
 
-	protected function getScalarExpression() {
+	protected function getActionForUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$width = intval(substr($type, 1));
