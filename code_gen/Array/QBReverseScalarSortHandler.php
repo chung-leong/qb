@@ -25,18 +25,16 @@ class QBReverseScalarSortHandler extends QBHandler {
 					"}",
 				"}",
 			),
-			array(
-				"static void ZEND_FASTCALL qb_sort_descending_$type($cType *elements, uint32_t count) {",
-					"qsort(elements, count, sizeof($cType), qb_compare_descending_$type);",
-				"}",
-			),
 		);
 		return $functions;
 	}
 	
-	public function getAction() {
+	public function getActionForUnitData() {
 		$type = $this->getOperandType(1);
-		return "qb_sort_descending_$type(res_ptr, res_count);";
+		$cType = $this->getOperandCType(1);
+		$lines = array();
+		$lines[] = "qsort(res_ptr, res_count, sizeof($cType), qb_compare_descending_$type);";
+		return $lines;
 	}
 }
 

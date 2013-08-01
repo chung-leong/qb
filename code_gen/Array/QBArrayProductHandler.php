@@ -10,27 +10,16 @@ class QBArrayProductHandler extends QBHandler {
 		}
 	}
 
-	public function getHelperFunctions() {
+	public function getActionForUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
-		$functions = array(
-			array(
-				"$cType ZEND_FASTCALL qb_calculate_array_product_$type(qb_interpreter_context *__restrict cxt, $cType *elements, uint32_t count) {",
-					"uint32_t i;",
-					"$cType product = 1;",
-					"for(i = 0; i < count; i++) {",
-						"product *= elements[i];",
-					"}",
-					"return product;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-
-	public function getAction() {
-		$type = $this->getOperandType(1);
-		return "res = qb_calculate_array_product_$type(cxt, op1_ptr, op1_count);";
+		$lines[] = "uint32_t i;";
+		$lines[] = "$cType product = 1;";
+		$lines[] = "for(i = 0; i < op1_count; i++) {";
+		$lines[] = 		"product *= op1_ptr[i];";
+		$lines[] = "}";
+		$lines[] = "res = product;";
+		return $lines;
 	}
 }
 

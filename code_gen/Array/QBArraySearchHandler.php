@@ -9,63 +9,50 @@ class QBArraySearchHandler extends QBHandler {
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: return "ARR";
-			case 3: return "VAR";
+			case 2: return "ARR";
 			default: return $this->addressMode;
 		}
 	}
 	
 	public function getOperandType($i) {
 		switch($i) {
+			case 1: return $this->operandType;
+			case 2: return $this->operandType;
 			case 3: return "I32";
-			default: return $this->operandType;
 		}
 	}
 
-	public function getHelperFunctions() {
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
-		$functions = array(
-			array(
-				"int32_t ZEND_FASTCALL qb_find_element_$type($cType *elements, uint32_t count, $cType needle) {",
-					"uint32_t i;",
-					"for(i = 0; i < count; i++) {",
-						"if(elements[i] == needle) {",
-							"return i;",
-						"}",
-					"}",
-					"return -1;",
-				"}",
-			),
-			array(
-				"int32_t ZEND_FASTCALL qb_find_elements_$type($cType *elements, uint32_t count, $cType *needle, uint32_t needle_width) {",
-					"uint32_t i, j, k;",
-					"for(i = 0, j = 0; j < count; i++, j += needle_width) {",
-						"if(elements[j] == needle[0]) {",
-							"for(k = 1; k < needle_width; k++) {",
-								"if(elements[j + k] != needle[k]) {",
-									"break;",
-								"}",
-							"}",
-							"if(k == needle_width) {",
-								"return i;",
-							"}",
-						"}",
-					"}",
-					"return -1;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-	
-	protected function getActionForMultipleData() {
-		$type = $this->getOperandType(1);
-		return "res = qb_find_elements_$type(op1_ptr, op1_count, op2_ptr, op2_count);";
-	}
-	
 	protected function getActionForUnitData() {
 		$type = $this->getOperandType(1);
-		return "res = qb_find_element_$type(op1_ptr, op1_count, op2);";
+		$cType = $this->getOperandCType(1);
+		$lines = array();
+		$lines[] = "int32_t index = -1;";
+		$lines[] = "if(op2_count == 1)";
+		$lines[] = 		"uint32_t i;";
+		$lines[] = 		"for(i = 0; i < op1_count; i++) {";
+		$lines[] = 			"if(op1_ptr[i] == needle) {";
+		$lines[] = 				"index = i;";
+		$lines[] =				"break;";
+		$lines[] = 			"}";
+		$lines[] = 		"}";
+		$lines[] = "} else {";
+		$lines[] = 		"uint32_t i, j, k;";
+		$lines[] = 		"for(i = 0, j = 0; j < op1_count; i++, j += needle_width) {";
+		$lines[] = 			"if(op1_ptr[j] == needle[0]) {";
+		$lines[] = 				"for(k = 1; k < needle_width; k++) {";
+		$lines[] = 					"if(op1_ptr[j + k] != needle[k]) {";
+		$lines[] = 						"break;";
+		$lines[] = 					"}";
+		$lines[] = 				"}";
+		$lines[] = 				"if(k == needle_width) {";
+		$lines[] = 					"index = i;";
+		$lines[] = 					"break;";
+		$lines[] = 				"}";
+		$lines[] = 			"}";
+		$lines[] = 		"}";
+		$lines[] = "}";
+		$lines[] = "res = index;";
+		return $lines;
 	}
 }
 

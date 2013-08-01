@@ -25,17 +25,16 @@ class QBScalarSortHandler extends QBHandler {
 					"}",
 				"}",
 			),
-			array(
-				"static void ZEND_FASTCALL qb_sort_ascending_$type($cType *elements, uint32_t count) {",
-					"qsort(elements, count, sizeof($cType), qb_compare_ascending_$type);",
-				"}",
-			),
 		);
 		return $functions;
 	}
 
-	public function getAction() {
-		return "qb_sort_ascending_{$this->operandType}(res_ptr, res_count);";
+	public function getActionForUnitData() {
+		$type = $this->getOperandType(1);
+		$cType = $this->getOperandCType(1);
+		$lines = array();
+		$lines[] = "qsort(res_ptr, res_count, sizeof($cType), qb_compare_ascending_$type);";
+		return $lines;
 	}
 }
 

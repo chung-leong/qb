@@ -10,8 +10,7 @@ class QBArrayReverseHandler extends QBHandler {
 		switch($i) {
 			case 1: return "ARR";
 			case 2: return "VAR";
-			case 3: return "VAR";
-			case 4: return "ARR";
+			case 3: return "ARR";
 		}
 	}
 	
@@ -19,42 +18,32 @@ class QBArrayReverseHandler extends QBHandler {
 		switch($i) {
 			case 1: return $this->operandType;
 			case 2: return "U32";
-			case 3: return "U32";
-			case 4: return $this->operandType;
+			case 3: return $this->operandType;
 		}
 	}
 	
-	public function getHelperFunctions() {
+	public function getActionForUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
-		$functions = array(
-			array(
-				"void ZEND_FASTCALL qb_reverse_array_elements_$type($cType *elements, uint32_t count, uint32_t width, $cType *res_ptr) {",
-					"uint32_t i, j;",
-					"if(width == 1) {",
-						"for(i = 0, j = count - 1; i < ((count + 1) & ~1) / 2; i++, j--) {",
-							"$cType t = elements[i];",
-							"res_ptr[i] = elements[j];",
-							"res_ptr[j] = t;",
-						"}",
-					"} else {",
-						"ALLOCA_FLAG(use_heap)",
-						"$cType *t = do_alloca(width * sizeof($cType), use_heap);",
-						"for(i = 0, j = count - 1; i < ((count + 1) & ~1) / 2; i++, j--) {",
-							"memcpy(t, &elements[i * width], width * sizeof($cType));",
-							"memcpy(&res_ptr[i * width], &elements[j * width], width * sizeof($cType));",
-							"memcpy(&res_ptr[j * width], t, width * sizeof($cType));",
-						"}",
-						"free_alloca(t, use_heap);",
-					"}",
-				"}",
-			),
-		);
-		return $functions;
-	}
-
-	public function getAction() {
-		return "qb_reverse_array_elements_{$this->operandType}(op1_ptr, op2, op3, res_ptr);";
+		$lines = array();
+		$lines[] = "uint32_t i, j;";
+		$lines[] = "if(op2 == 1) {";
+		$lines[] = 		"for(i = 0, j = op1_count - 1; i <= j; i++, j--) {";
+		$lines[] = 			"$cType t = op1_ptr[i];";
+		$lines[] = 			"res_ptr[i] = op1_ptr[j];";
+		$lines[] = 			"res_ptr[j] = t;";
+		$lines[] = 		"}";
+		$lines[] = "} else {";
+		$lines[] = 		"ALLOCA_FLAG(use_heap)";
+		$lines[] = 		"$cType *t = do_alloca(width * sizeof($cType), use_heap);";
+		$lines[] = 		"for(i = 0, j = op1_count - op2; i <= j; i += op2, j -= op2) {";
+		$lines[] = 			"memcpy(t, op1_ptr + i, op2 * sizeof($cType));";
+		$lines[] = 			"memcpy(res_ptr + i, op1_ptr + j, op2 * sizeof($cType));";
+		$lines[] = 			"memcpy(res_ptr + j, t, op2 * sizeof($cType));";
+		$lines[] = 		"}";
+		$lines[] = 		"free_alloca(t, use_heap);";
+		$lines[] = "}";
+		return $lines;
 	}	
 }
 
