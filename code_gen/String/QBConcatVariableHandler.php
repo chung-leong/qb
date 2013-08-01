@@ -1,6 +1,6 @@
 <?php
 
-class QBConcatVariableHandler extends QBHandler {
+class QBConcatVariableHandler extends QBPrintHandler {
 
 	public function getOperandType($i) {
 		return ($i == 2) ? "U08" : $this->operandType;
@@ -14,66 +14,32 @@ class QBConcatVariableHandler extends QBHandler {
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
-
-		if($type == "F32") {		
-			$format = '"%.*G"';
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision / 2, v)";
-		} else if($type == "F64") {
-			$format = '"%.*G"';
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, cxt->floating_point_precision, v)";
-		} else {
-			// use macros in inttypes.h
-			$size = intval(substr($type, 1));
-			$sign = ($type[0] == 'U') ? 'u' : 'd';
-			$format = '"%" PRI' . $sign . $size;
-			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, v)";
-		}
-		
 		$functions = array(
 			array(
-				"uint32_t ZEND_FASTCALL qb_convert_scalar_to_string_$type(qb_interpreter_context *cxt, $cType v, uint8_t *res_ptr) {",
+				"uint32_t ZEND_FASTCALL qb_get_scalar_sprintf_length_$type(qb_interpreter_context *cxt, $cType op1) {",
 					"char sprintf_buffer[64];",
 					"uint32_t len = $sprintf;",
-					"if(res_ptr) {",
-						"memcpy(res_ptr, sprintf_buffer, len);",
-					"}",
 					"return len;",
 				"}",
 			),
 			array(
-				"uint32_t ZEND_FASTCALL qb_convert_array_to_string_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint8_t *res_ptr) {",
-					"uint32_t len, total = 2;",
-					"if(res_ptr) {",
-						"*res_ptr = '[';",
-						"res_ptr++;",
-					"}",
-					"while(ptr != end) {",
-						"len = qb_convert_scalar_to_string_$type(cxt, *ptr, res_ptr);",
+				"uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_$type(qb_interpreter_context *cxt, $cType *op1_ptr, uint32_t op1_count) {",
+					"uint32_t len, total = 0;",
+					"$cType *op1_end = op1_ptr + op1_count;",
+					"while(op1_ptr < op1_end) {",
+						"char sprintf_buffer[64];",
+						"uint32_t len = $sprintf;",
 						"total += len;",
-						"if(res_ptr) {",
-							"res_ptr += len;",
-						"}",
-						"ptr++;",
-						"if(ptr != end) {",
-							"total += 2;",
-							"if(res_ptr) {",
-								"*res_ptr = ',';",
-								"res_ptr++;",
-								"*res_ptr = ' ';",
-								"res_ptr++;",
-							"}",
-						"}",
+						"op1_ptr++;",
 					"}",
-					"if(res_ptr) {",
-						"*res_ptr = ']';",
-					"}",
+					"total += op1_count * 2;";
 					"return total;",
 				"}",
 			),
 		);
 		return $functions;
 	}	
-	
+
 	public function getResultSizePossibilities() {
 		return "res_count + string_length";
 	}
@@ -81,19 +47,41 @@ class QBConcatVariableHandler extends QBHandler {
 	public function getResultSizeCalculation() {
 		$type = $this->getOperandType(1);
 		if($this->addressMode == "ARR") {
-			return "string_length = qb_convert_array_to_string_$type(cxt, op1_ptr, op1_end, NULL);";
+			return "string_length = qb_get_array_sprintf_length_$type(cxt, op1_ptr, op1_count);";
 		} else {
-			return "string_length = qb_convert_scalar_to_string_$type(cxt, op1, NULL);";
+			return "string_length = qb_get_scalar_sprintf_length_$type(cxt, op1);";
 		}		 
 	}
 	
-	public function getAction() {
-		$type = $this->getOperandType(1);
-		if($this->addressMode == "ARR") {
-			return "qb_convert_array_to_string_$type(cxt, op1_ptr, op1_end, res_ptr + res_count_before);";
-		} else {
-			return "qb_convert_scalar_to_string_$type(cxt, op1, res_ptr + res_count_before);";
-		}		 
+	public function getActionOnUnitData() {
+		$sprintf = $this->getSprintf();
+		$lines = array();
+		$lines[] = "char sprintf_buffer[64];";
+		$lines[] = "uint32_t len = $sprintf;";
+		$lines[] = "memcpy(res_ptr, sprintf_buffer, len);";
+		return $lines;	
+	}
+	
+	public function getActionOnMultipleData() {
+		$sprintf = $this->getSprintf();
+		$cType = $this->getOperandCType(1);
+		$lines = array();
+		$lines[] = "uint32_t len, pos = 0;";
+		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
+		$lines[] = "res_ptr[pos++] = '[';";
+		$lines[] = "while(op1_ptr < op1_end) {";
+		$lines[] = 		"char sprintf_buffer[64];";
+		$lines[] = 		"uint32_t len = $sprintf;";
+		$lines[] = 		"memcpy(res_ptr + pos, sprintf_buffer, len);";
+		$lines[] = 		"pos += len;";
+		$lines[] = 		"if(op1_ptr != op1_end) {";
+		$lines[] = 			"res_ptr[pos++] = ',';";
+		$lines[] = 			"res_ptr[pos++] = ' ';";
+		$lines[] = 		"}";
+		$lines[] = 		"op1_ptr++";
+		$lines[] = "}";
+		$lines[] = "res_ptr[pos++] = ']';";
+		return $lines;
 	}
 }
 

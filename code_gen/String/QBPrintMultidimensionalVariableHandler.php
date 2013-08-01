@@ -1,6 +1,6 @@
 <?php
 
-class QBPrintMultidimensionalVariableHandler extends QBHandler {
+class QBPrintMultidimensionalVariableHandler extends QBPrintHandler {
 
 	public function getInputOperandCount() {
 		return 2;
@@ -21,37 +21,40 @@ class QBPrintMultidimensionalVariableHandler extends QBHandler {
 		return "ARR";
 	}
 
-	public function getHelperFunctions() {
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
-
-		$functions = array(
-			array(
-				"void ZEND_FASTCALL qb_print_multidimensional_array_$type(qb_interpreter_context *cxt, $cType *ptr, $cType *end, uint32_t *size, uint32_t *size_end) {",
-					"USE_TSRM",
-					"if(size == size_end) {",
-						"qb_print_array_$type(cxt, ptr, end);",
-					"} else {",
-						"uint32_t count = *size;",
-						"php_write(\"[\", 1 TSRMLS_CC);",
-						"while(ptr < end) {",
-							"qb_print_multidimensional_array_$type(cxt, ptr, ptr + count, size + 1, size_end);",
-							"ptr += count;",
-							"if(ptr != end) {",
-								"php_write(\", \", 2 TSRMLS_CC);",
-							"}",
-						"}",
-						"php_write(\"]\", 1 TSRMLS_CC);",
-					"}",
-				"}",
-			),
-		);
-		return $functions;
-	}
-			
-	public function getAction() {
-		$type = $this->getOperandType(1);
-		return "qb_print_multidimensional_array_$type(cxt, op1_ptr, op1_end, op2_ptr, op2_end);";
+	public function getActionOnUnitData() {
+		$sprintf = $this->getSprintf();
+		$cType = $this->getOperandType(1);
+		$lines = array();
+		$lines[] = "USE_TSRM";
+		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
+		$lines[] = "uint32_t depth = 0;";
+		$lines[] = "uint32_t counts[64];";
+		$lines[] = "memset(counts, 0, sizeof(uint32_t) * op2_count);";
+		$lines[] = "php_write(\"[\", 1 TSRMLS_CC);";
+		$lines[] = "while(op1_ptr < op1_end || depth > 0) {";
+		$lines[] = 		"if(counts[depth] < op2_ptr[depth]) {";
+		$lines[] = 			"if(counts[depth] > 0) {";
+		$lines[] = 				"php_write(\", \", 2 TSRMLS_CC);";
+		$lines[] = 			"}";
+		$lines[] = 			"if(depth + 1 == op2_count) {";
+		$lines[] = 				"char sprintf_buffer[64];";
+		$lines[] = 				"uint32_t len = $sprintf;";
+		$lines[] = 				"php_write(sprintf_buffer, len TSRMLS_CC);";
+		$lines[] = 				"op1_ptr++;";
+		$lines[] = 				"counts[depth]++;";
+		$lines[] = 			"} else {";
+		$lines[] = 				"php_write(\"[\", 1 TSRMLS_CC);";
+		$lines[] = 				"depth++;";
+		$lines[] = 			"}";
+		$lines[] = 		"} else {";
+		$lines[] = 			"php_write(\"]\", 1 TSRMLS_CC);";
+		$lines[] = 			"counts[depth] = 0;";
+		$lines[] = 			"depth--;";
+		$lines[] = 			"counts[depth]++;";
+		$lines[] = 		"}";
+		$lines[] = "}";
+		$lines[] = "php_write(\"]\", 1 TSRMLS_CC);";
+		return $lines;
 	}
 }
 

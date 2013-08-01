@@ -21,14 +21,6 @@ class QBUTF8EncodeHandler extends QBHandler {
 		$functions = array(
 			file("$folder/bh_utf8.c", FILE_IGNORE_NEW_LINES),
 			array(
-				"void ZEND_FASTCALL qb_encode_utf8_$type($cType *codepoints, uint32_t count, uint8_t *buffer) {",
-					"uint32_t length = 0, i;",
-					"for(i = 0; i < count; i++) {",
-						"length += encode(codepoints[i], buffer + length);",
-					"}",
-				"}",
-			),
-			array(
 				"uint32_t ZEND_FASTCALL qb_get_utf8_encoded_length_$type($cType *codepoints, uint32_t count) {",
 					"uint32_t length = 0, i;",
 					"uint8_t buffer[4];",
@@ -51,9 +43,13 @@ class QBUTF8EncodeHandler extends QBHandler {
 		return "string_length = qb_get_utf8_encoded_length_$type(op1_ptr, op1_count);";
 	}
 	
-	public function getAction() {
-		$type = $this->getOperandType(1);
-		return "qb_encode_utf8_$type(op1_ptr, op1_count, res_ptr);";
+	public function getActionForUnitData() {
+		$lines = array();
+		$lines[] = "uint32_t length = 0, i;";
+		$lines[] = "for(i = 0; i < op1_count; i++) {";
+		$lines[] = 		"length += encode(op1_ptr[i], res_ptr + length);";
+		$lines[] = "}";
+		return $lines;
 	}
 }
 

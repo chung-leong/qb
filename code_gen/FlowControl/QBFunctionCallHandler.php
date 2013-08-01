@@ -47,20 +47,8 @@ class QBFunctionCallHandler extends QBHandler {
 		return $lines;
 	}
 	
-	public function getFunctionsUsed() {
-		return array(
-			"qb_initialize_function_call",
-			"qb_copy_argument",
-			"qb_execute_function_call",
-			"qb_finalize_function_call",
-			"qb_resync_argument",
-		);
-	}
-		
-	public function getOpFlags() {
-		$flags = parent::getOpFlags();
-		$flags[] = "QB_OP_VARIABLE_LENGTH";
-		return $flags;
+	public function isVariableLength() {
+		return true;
 	}
 
 	public function getHelperFunctions() {

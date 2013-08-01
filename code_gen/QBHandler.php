@@ -203,6 +203,10 @@ class QBHandler {
 		return $this->operandSize != 1;
 	}
 	
+	public function isVariableLength() {
+		return false;
+	}
+	
 	public function needsMatrixDimensions() {
 		return false;
 	}
