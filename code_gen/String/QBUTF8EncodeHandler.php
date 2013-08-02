@@ -41,7 +41,7 @@ class QBUTF8EncodeHandler extends QBHandler {
 		return "string_length = qb_get_utf8_encoded_length_$type(op1_ptr, op1_count);";
 	}
 	
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "uint32_t length = 0, i;";
 		$lines[] = "for(i = 0; i < op1_count; i++) {";

@@ -6,7 +6,7 @@ class QBFaceForwardHandler extends QBMatrixHandler {
 		return 2;
 	}
 
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
 		$lines = array();

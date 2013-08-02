@@ -6,7 +6,7 @@ class QBReflectHandler extends QBMatrixHandler {
 		return 2;
 	}
 
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
 		if($this->operandSize == "variable") {

@@ -6,7 +6,7 @@ class QBRandomHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
 		$width = (int) substr($type, 1);

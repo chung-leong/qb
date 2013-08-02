@@ -6,7 +6,7 @@ class QBHypotHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(3);
 		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';

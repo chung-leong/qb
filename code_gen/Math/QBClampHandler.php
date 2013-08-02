@@ -6,7 +6,7 @@ class QBClampHandler extends QBHandler {
 		return 3;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$lines = array();
 		$lines[] = "if(op1 < op2) {";

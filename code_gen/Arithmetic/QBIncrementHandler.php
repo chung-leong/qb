@@ -6,7 +6,7 @@ class QBIncrementHandler extends QBHandler {
 		return 0;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "++res;";
 	}
 }

@@ -2,7 +2,7 @@
 
 class QBNotEqualVectorHandler extends QBCompareVectorHandler {
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = (op1 != op2);";
 	}
 }

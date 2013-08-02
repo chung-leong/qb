@@ -20,7 +20,7 @@ class QBCastHandler extends QBHandler {
 		return $name;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(2);
 		if($this->operandType2[0] == 'F' && $this->operandType1[0] != 'F') {
 			if(intval(substr($this->operandType1, 1)) != 64) {

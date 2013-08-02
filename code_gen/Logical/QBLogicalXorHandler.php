@@ -10,7 +10,7 @@ class QBLogicalXorHandler extends QBHandler {
 		return ($i == 3) ? "VAR" : $this->addressMode;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = !op1 != !op2;";
 	}
 }

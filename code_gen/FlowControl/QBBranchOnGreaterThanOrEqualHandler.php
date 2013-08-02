@@ -6,7 +6,7 @@ class QBBranchOnGreaterThanOrEqualHandler extends QBBranchHandler {
 		return 2;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "condition = (op1 >= op2);";
 	}
 }

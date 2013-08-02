@@ -2,7 +2,7 @@
 
 class QBSignHandler extends QBHandler {
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "if(op1 < 0) {";
 		$lines[] =		"res = -1;";

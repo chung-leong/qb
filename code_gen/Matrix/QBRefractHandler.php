@@ -13,7 +13,7 @@ class QBRefractHandler extends QBMatrixHandler {
 		}
 	}
 
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(4);
 		$type = $this->getOperandType(4);
 		$f = ($type == 'F32') ? 'f' : '';

@@ -35,7 +35,7 @@ class QBDistanceHandler extends QBMatrixHandler {
 		}
 	}
 	
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$type = $this->getOperandType(3);
 		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';

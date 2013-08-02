@@ -6,7 +6,7 @@ class QBDivideHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$lines = array();
 		if($type[0] != 'F') {

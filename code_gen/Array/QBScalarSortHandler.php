@@ -29,7 +29,7 @@ class QBScalarSortHandler extends QBHandler {
 		return $functions;
 	}
 
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$lines = array();

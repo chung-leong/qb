@@ -6,7 +6,7 @@ class QBNotVectorHandler extends QBCompareVectorHandler {
 		return 1;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = (!op1);";
 	}
 }

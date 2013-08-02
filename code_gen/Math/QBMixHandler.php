@@ -6,7 +6,7 @@ class QBMixHandler extends QBHandler {
 		return 3;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = op1 * (1 - op3) + op2 * op3;";
 	}
 }

@@ -6,7 +6,7 @@ class QBMinHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = (op1 < op2) ? op1 : op2;";
 	}
 }

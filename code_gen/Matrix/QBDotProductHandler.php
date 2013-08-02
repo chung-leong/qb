@@ -35,7 +35,7 @@ class QBDotProductHandler extends QBMatrixHandler {
 		}
 	}
 	
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
 		if($this->operandSize == "variable") {

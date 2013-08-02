@@ -24,7 +24,7 @@ class QBMultiplyMatrixByVectorHandler extends QBMultiplyMatrixByMatrixHandler {
 		}
 	}
 	
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$lines = array();
 		if($this->operandSize == "variable") {

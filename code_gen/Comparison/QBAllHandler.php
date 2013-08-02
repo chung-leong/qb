@@ -10,7 +10,7 @@ class QBAllHandler extends QBHandler {
 		return ($i == 1) ? "ARR" : $this->addressMode;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$lines[] = array();
 		$lines[] = "res = 1;";
 		$lines[] = "while(op1_ptr != op1_end) {";

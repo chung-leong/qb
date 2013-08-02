@@ -6,7 +6,7 @@ class QBIsNANHandler extends QBHandler {
 		return ($i == 2) ? "I32" : $this->operandType;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = zend_isnan(op1);";
 	}
 }

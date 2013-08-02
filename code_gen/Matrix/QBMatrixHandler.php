@@ -26,6 +26,10 @@ class QBMatrixHandler extends QBHandler {
 		}
 	}
 	
+	public function needsUnrolling() {
+		return false;
+	}
+	
 	public function needsMatrixDimensions() {
 		return ($this->operandSize == "variable");
 	}

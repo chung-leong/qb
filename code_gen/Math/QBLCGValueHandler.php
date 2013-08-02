@@ -6,7 +6,7 @@ class QBLCGValueHandler extends QBHandler {
 		return 0;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		return "res = ($cType) php_combined_lcg(TSRMLS_C);";
 	}

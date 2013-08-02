@@ -22,7 +22,7 @@ class QBArraySearchHandler extends QBHandler {
 		}
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$lines = array();

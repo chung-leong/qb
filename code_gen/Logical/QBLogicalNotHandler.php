@@ -6,7 +6,7 @@ class QBLogicalNotHandler extends QBHandler {
 		return ($i == 2) ? "VAR" : $this->addressMode;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = !op1;";
 	}
 }

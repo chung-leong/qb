@@ -9,7 +9,6 @@ class QBHandler {
 	protected $operandSize;
 	protected $addressMode;
 	
-	
 	static public function getTypeDeclarations() {
 		ksort(self::$typeDecls);
 		return self::$typeDecls;
@@ -235,6 +234,10 @@ class QBHandler {
 		return false;
 	}
 		
+	public function needsUnrolling() {
+		return $this->isVectorized();
+	}
+	
 	// return code for the handle label	
 	protected function getLabelCode($name) {
 		if(self::$compiler == "GCC") {
@@ -420,7 +423,13 @@ class QBHandler {
 		for($i = 0; $i < $count; $i++) {
 			$patterns = array('/\bres\b/', '/\bop(' . $nums . ')\b/');
 			$replacements = array("res_ptr[{$i}]", "op\\1_ptr[{$i}]");
-			preg_replace($patterns, $replacements, $expression);
+			if(is_array($expression)) {
+				foreach($expression as $subexpression) {
+					$lines[] = preg_replace($patterns, $replacements, $subexpression);
+				}
+			} else {
+				$lines[] = preg_replace($patterns, $replacements, $expression);
+			}
 		}
 		return $lines;
 	}
@@ -480,10 +489,12 @@ class QBHandler {
 		$opName = substr($className, 2, -7);
 		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
 		$opName = strtolower($opName);
+		$name = "qb_do_{$opName}";
+		if($this->operandSize != 1 && is_int($this->operandSize)) {
+			$name .= "_{$this->operandSize}x";
+		}
 		if($this->addressMode == "ARR") {
-			$name = "qb_do_{$opName}_multiple_times";
-		} else {
-			$name = "qb_do_{$opName}";
+			$name .= "_multiple_times";
 		}
 		if($this->operandType) {
 			$name .= "_{$this->operandType}";
@@ -499,14 +510,6 @@ class QBHandler {
 			$variables[] = (($includeType) ? "qb_interpreter_context *" : "") . "cxt";
 		}
 		
-		// see if matrix dimensions are needed
-		if($this->needsMatrixDimensions()) {
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_rows";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_cols";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_rows";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_cols";
-		}
-		
 		// add input operands
 		$srcCount = $this->getInputOperandCount();
 		for($i = 1; $i <= $srcCount; $i++) {
@@ -518,13 +521,21 @@ class QBHandler {
 			}
 		}
 		
+		// see if matrix dimensions are needed
+		if($this->needsMatrixDimensions()) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_rows";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_cols";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_rows";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_cols";
+		}
+		
 		// add output operand		
 		$dstCount = $this->getOutputOperandCount();
 		if($dstCount > 0) {
 			$cType = $this->getOperandCType($srcCount + 1);
 			$addressMode = $this->getOperandAddressMode($srcCount + 1);
 			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "res_ptr";
-			if($addressMode == "ARR" && (!$this->isVectorized() || !$this->isMultipleData())) {
+			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
 				$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
 			}
 		}
@@ -545,17 +556,17 @@ class QBHandler {
 			$parameters = $this->getFunctionParameters(true);
 			$parameterList = implode(", ", $parameters);
 			if($this->isMultipleData()) {
-				$action = $this->getActionForMultipleData();
+				$action = $this->getActionOnMultipleData();
 				if(!$action) {
-					$action = $this->getActionForUnitData();
-					if($this->isVectorized()) {
-						$action = $this->getUnrolledCode($action, $this->operandSize);
-					}
-					$action = $this->getIterationCode($action);
+					$originalAddressMode = $this->addressMode;
+					$this->addressMode = "VAR";
+					$scalarExpression = $this->getAction();
+					$this->addressMode = $originalAddressMode;
+					$action = $this->getIterationCode($scalarExpression);
 				}
 			} else {
-				$action = $this->getActionForUnitData();
-				if($this->isVectorized()) {
+				$action = $this->getActionOnUnitData();
+				if($this->needsUnrolling()) {
 					$action = $this->getUnrolledCode($action, $this->operandSize);
 				}
 			}
@@ -567,13 +578,13 @@ class QBHandler {
 		}
 	}
 	
-	// return an expression for handling array operands
-	protected function getActionForMultipleData() {
+	// return an expression for handling a single unit of data (typically a scalar)
+	protected function getActionOnUnitData() {
 		return null;
 	}
 
-	// return an expression for handling scalar operands
-	protected function getActionForUnitData() {
+	// return an expression for handling multiple units of data
+	protected function getActionOnMultipleData() {
 		return null;
 	}
 

@@ -2,7 +2,7 @@
 
 class QBBitwiseNotHandler extends QBHandler {
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		return "res = ~op1;";
 	}
 }

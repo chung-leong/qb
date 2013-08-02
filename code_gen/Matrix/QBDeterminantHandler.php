@@ -34,7 +34,7 @@ class QBDeterminantHandler extends QBMatrixHandler {
 		}
 	}
 	
-	public function getActionForUnitData() {
+	public function getActionOnUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);
 		$lines = array();

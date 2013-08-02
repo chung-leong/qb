@@ -6,7 +6,7 @@ class QBModuloHandler extends QBHandler {
 		return 2;
 	}
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		if($type == "F32") {
 			return "res = fmodf(op1, op2);";

@@ -2,7 +2,7 @@
 
 class QBAbsHandler extends QBHandler {
 
-	protected function getActionForUnitData() {
+	protected function getActionOnUnitData() {
 		$functions = array(
 			"S08" => "abs",
 			"S16" => "abs",
