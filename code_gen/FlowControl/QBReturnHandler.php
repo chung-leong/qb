@@ -6,6 +6,10 @@ class QBReturnHandler extends QBHandler {
 		return -1;
 	}
 	
+	public function getInputOperandCount() {
+		return 0;
+	}
+	
 	public function getOutputOperandCount() {
 		return 0;
 	}

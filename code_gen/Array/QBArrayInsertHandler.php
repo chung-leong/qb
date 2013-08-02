@@ -18,7 +18,7 @@ class QBArrayInsertHandler extends QBHandler {
 		return "res_count + op1_count";
 	}
 	
-	public function getAction() {
+	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$lines = array();

@@ -199,8 +199,12 @@ class QBHandler {
 		}
 	}
 	
+	public function isMultipleData() {
+		return ($this->addressMode == "ARR");
+	}	
+	
 	public function isVectorized() {
-		return $this->operandSize != 1;
+		return ($this->operandSize != 1);
 	}
 	
 	public function isVariableLength() {
@@ -208,6 +212,10 @@ class QBHandler {
 	}
 	
 	public function needsMatrixDimensions() {
+		return false;
+	}
+
+	public function needsInterpreterContext() {
 		return false;
 	}
 
@@ -410,7 +418,82 @@ class QBHandler {
 		}
 		return $lines;
 	}
+	
+	protected function getFunctionForMultipleData() {
+		$className = get_class($this);
+		$opName = substr($className, 2, -7);
+		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
+		$opName = strtolower($opName);
+		$name = "qb_do_{$opName}_multiple_times";
+		return $name;
+	}
 
+	protected function getFunctionForUnitData() {
+		$className = get_class($this);
+		$opName = substr($className, 2, -7);
+		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
+		$opName = strtolower($opName);
+		$name = "qb_do_{$opName}";
+		return $name;
+	}
+
+	// linearize an array
+	protected function linearizeArray($array) {
+		$result = array();
+		foreach($array as $element) {
+			if($element !== NULL) {
+				if(is_array($element)) {
+					$sub_array = $this->linearizeArray($element);					
+					array_splice($result, count($result), 0, $sub_array);
+				} else {
+					$result[] = $element;
+				}
+			}
+		}
+		return $result;
+	}
+	
+	protected function getFunctionParameters($includeType) {
+		$variables = array();
+		
+		// see if the interpretator context is needed
+		if($this->needsInterpreterContext()) {
+			$variables[] = (($includeType) ? "qb_interpreter_context *" : "") . "cxt";
+		}
+		
+		// see if matrix dimensions are needed
+		if($this->needsMatrixDimensions()) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_rows";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_cols";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_rows";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_cols";
+		}
+		
+		// add input operands
+		$srcCount = $this->getInputOperandCount();
+		for($i = 1; $i <= $srcCount; $i++) {
+			$cType = $this->getOperandCType($i);
+			$addressMode = $this->getOperandAddressMode($i);
+			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "op{$i}_ptr";
+			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
+				$variables[] = (($includeType) ? "uint32_t " : "") . "op{$i}_count";
+			}
+		}
+
+		// add output operand		
+		$dstCount = $this->getOutputOperandCount();
+		if($dstCount > 0) {
+			$cType = $this->getOperandCType($srcCount + 1);
+			$addressMode = $this->getOperandAddressMode($srcCount + 1);
+			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "res_ptr";
+			if($addressMode == "ARR" && (!$this->isVectorized() || !$this->isMultipleData())) {
+				$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
+			}
+		}
+		
+		return $variables;
+	}
+	
 	// return an expression for handling array operands
 	protected function getActionForMultipleData() {
 		return null;
@@ -424,22 +507,16 @@ class QBHandler {
 	// return codes that perform what the op is supposed to do
 	// the default implementation calls getActionForMultipleData() or $this->getActionForUnitData()
 	public function getAction() {
-		/*
-		if(!isset($this->addressMode) && !($this->operandSize > 1)) {
-			$opName = $this->baseName;
-			$className = get_class($this);
-			throw new Exception("$opName ($className) is neither a multi-address or a vector operation; the default implementation of getAction() cannot be used");
-		}
-		*/
 		if($this->addressMode == "ARR") {
-			return $this->getActionForMultipleData();
+			$handler = $this->getFunctionForMultipleData();
 		} else {
-			$expr = $this->getActionForUnitData();
-			if($this->isVectorized()) {
-				$expr = $this->getUnrolledCode($expr, $this->operandSize);
-			}
-			return $expr;
+			$handler = $this->getFunctionForUnitData();
 		}
+		$parameters = $this->getFunctionParameters(false);
+		$parameterList = implode(", ", $parameters);
+		$lines = array();
+		$lines[] = "$handler($parameterList);";
+		return $lines;
 	}
 }
 

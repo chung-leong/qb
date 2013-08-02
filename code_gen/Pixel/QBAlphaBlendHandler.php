@@ -10,11 +10,11 @@ class QBAlphaBlendHandler extends QBHandler {
 		return "ARR";
 	}
 
-	public function getOperandSize() {
+	public function getOperandSize($i) {
 		return 4;
 	}
 		
-	public function getAction() {
+	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
 		$lines = array();

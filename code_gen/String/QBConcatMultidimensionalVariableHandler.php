@@ -31,7 +31,7 @@ class QBConcatMultidimensionalVariableHandler extends QBPrintHandler {
 					"while(op1_ptr < op1_end) {",
 						"char sprintf_buffer[64];",
 						"uint32_t len = sprintf(sprintf_buffer, \"%d\", *op1_ptr);",
-						"total += len;";
+						"total += len;",
 						"op1_ptr++;",
 					"}",
 					"while(op2_ptr < op2_end) {",

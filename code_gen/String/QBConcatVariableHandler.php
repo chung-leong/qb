@@ -14,6 +14,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
+		$sprintf = $this->getSprintf();
 		$functions = array(
 			array(
 				"uint32_t ZEND_FASTCALL qb_get_scalar_sprintf_length_$type(qb_interpreter_context *cxt, $cType op1) {",
@@ -32,7 +33,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 						"total += len;",
 						"op1_ptr++;",
 					"}",
-					"total += op1_count * 2;";
+					"total += op1_count * 2;",
 					"return total;",
 				"}",
 			),

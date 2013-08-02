@@ -16,7 +16,7 @@ class QBConcatStringHandler extends QBHandler {
 		return "res_count + op1_count";
 	}
 	
-	public function getAction() {
+	public function getActionOnUnitData() {
 		return "memcpy(res_ptr + res_count_before, op1_ptr, op1_count);";
 	}
 }

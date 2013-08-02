@@ -22,7 +22,7 @@ class QBUnpackHandler extends QBHandler {
 		}
 	}
 	
-	public function getAction() {
+	public function getActionOnUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);
 		$width = intval(substr($type, 1));

@@ -3,7 +3,7 @@
 class QBArrayReverseHandler extends QBHandler {
 
 	public function getInputOperandCount() {
-		return 3;
+		return 2;
 	}
 
 	public function getOperandAddressMode($i) {

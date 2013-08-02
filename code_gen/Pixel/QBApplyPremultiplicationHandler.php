@@ -6,7 +6,7 @@ class QBApplyPremultiplicationHandler extends QBHandler {
 		return "ARR";
 	}
 	
-	public function getOperandSize() {
+	public function getOperandSize($i) {
 		return 4;
 	}
 
