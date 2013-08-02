@@ -19,24 +19,13 @@ class QBCodeGenerator {
 		QBHandler::setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 	
-		$structs = array();
-	
-		$structDefined = array();
-		foreach($this->handlers as $handler) {
-			$struct = $handler->getInstructionStructureDefinition();
-			$line1 = $struct[0];
-			if(!isset($structDefined[$line1])) {
-				$structs[] = $struct;
-				$structDefined[$line1] = true;
-			}
-		}
-
-		$this->writeCode($handle, array("#pragma pack(push,1)", ""));
+		fwrite($handle, "#pragma pack(push,1)\n\n");
+		$structs = $this->getStructureDefinitions();
 		foreach($structs as $struct) {
 			$this->writeCode($handle, $struct);
-			$this->writeCode($handle, array(""));
+			fwrite($handle, "\n");
 		}
-		$this->writeCode($handle, array("#pragma pack(pop)", ""));
+		fwrite($handle, "#pragma pack(pop)\n\n");
 
 		$lines = array();
 		$lines[] = "extern void *op_handlers[];";
@@ -48,45 +37,23 @@ class QBCodeGenerator {
 		QBHandler::setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 
-		$functions = array();
-
-		// add helper functions first
-		$functionDefined = array();
-		foreach($this->handlers as $handler) {
-			$helpers = $handler->getHelperFunctions();
-			if($helpers) {
-				foreach($helpers as $helper) {
-					$line1 = $helper[0];
-					if(!isset($functionDefined[$line1])) {
-						$functions[] = $helper;
-						$functionDefined[$line1] = true;
-					}
-				}
-			}
-		}
-		
-		// add handler functions
-		foreach($this->handlers as $handler) {
-			$function = $handler->getFunctionDefinition();
-			if($function) {
-				$line1 = $function[0];
-				if(!isset($functionDefined[$line1])) {
-					$functions[] = $function;
-					$functionDefined[$line1] = true;
-				}
-			}
-		}
-		
+		$wasInline = true;
+		$functions = $this->getFunctionDefinitions();
 		foreach($functions as $function) {
 			$line1 = $function[0];
 			
 			// add the whole thing if it's an inline function
 			if(preg_match('/\b(zend_inline|zend_always_inline)\b/', $line1)) {
+				if(!$wasInline) {
+					fwrite($handle, "\n");
+				}
 				$this->writeCode($handle, $function);
-				$this->writeCode($handle, array(""));
+				fwrite($handle, "\n");
+				$wasInline = true;
 			} else {
 				$prototype = preg_replace('/\s*{\s*$/', ';', $line1);
-				$this->writeCode($handle, array($prototype));
+				fwrite($handle, "$prototype\n");
+				$wasInline = false;
 			}
 		}
 	}
@@ -95,19 +62,10 @@ class QBCodeGenerator {
 		QBHandler::setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 		
-		$functionDefined = array();
-		foreach($this->handlers as $handler) {
-			$functions = $handler->getHelperFunctions();
-			if($functions) {
-				foreach($functions as $lines) {
-					$line1 = $lines[0];
-					if(!isset($functionDefined[$line1])) {
-						$lines[] = "";
-						$this->writeCode($handle, $lines);
-						$functionDefined[$line1] = true;
-					}
-				}
-			}
+		$functions = $this->getFunctionDefinitions();
+		foreach($functions as $lines) {
+			$this->writeCode($handle, $lines);
+			fwrite($handle, "\n");
 		}
 	}
 	
@@ -574,7 +532,7 @@ class QBCodeGenerator {
 		fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n\n");
 	}
 
-	public function writeNativeDebugStub() {
+	public function writeNativeDebugStub($handle) {
 		fwrite($handle, "#if NATIVE_COMPILE_ENABLED && ZEND_DEBUG\n");
 		fwrite($handle, "#include \"qb_native_proc_debug.c\"\n");
 		fwrite($handle, "#ifdef HAVE_NATIVE_PROC_RECORDS\n");
@@ -585,6 +543,51 @@ class QBCodeGenerator {
 		fwrite($handle, "uint32_t native_proc_table_size = 0;\n");
 		fwrite($handle, "#endif\n");
 		fwrite($handle, "#endif\n");
+	}
+	
+	protected function getFunctionDefinitions() {
+		// add helper functions first
+		$helperFunctions = array();
+		foreach($this->handlers as $handler) {
+			$helpers = $handler->getHelperFunctions();
+			if($helpers) {
+				foreach($helpers as $helper) {
+					$line1 = $helper[0];
+					if(!isset($helperFunctions[$line1])) {
+						$helperFunctions[$line1] = $helper;
+					}
+				}
+			}
+		}
+		ksort($helperFunctions);
+
+		// add handler functions
+		$handlerFunctions = array();
+		foreach($this->handlers as $handler) {
+			$function = $handler->getFunctionDefinition();
+			if($function) {
+				$line1 = $function[0];
+				if(!isset($handlerFunctions[$line1])) {
+					$handlerFunctions[$line1] = $function;
+				}
+			}
+		}
+		ksort($handlerFunctions);
+		
+		return array_merge(array_values($helperFunctions), array_values($handlerFunctions));
+	}
+
+	protected function getStructureDefinitions() {
+		$structs = array();
+		foreach($this->handlers as $handler) {
+			$struct = $handler->getInstructionStructureDefinition();
+			$line1 = $struct[0];
+			if(!isset($structs[$line1])) {
+				$structs[$line1] = $struct;
+			}
+		}
+		ksort($structs);
+		return array_values($structs);
 	}
 
 	protected function parseFunctionDeclaration($line) {
@@ -635,7 +638,6 @@ class QBCodeGenerator {
 		}
 	}
 	
-
 	protected function writeCode($handle, $lines) {
 		foreach($lines as $line) {
 			if($line !== null) {

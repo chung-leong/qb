@@ -17,9 +17,7 @@ class QBUTF8EncodeHandler extends QBHandler {
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
-		$folder = dirname(__FILE__);
 		$functions = array(
-			file("$folder/bh_utf8.c", FILE_IGNORE_NEW_LINES),
 			array(
 				"uint32_t ZEND_FASTCALL qb_get_utf8_encoded_length_$type($cType *codepoints, uint32_t count) {",
 					"uint32_t length = 0, i;",

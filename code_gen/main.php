@@ -44,8 +44,6 @@ fwrite($handle, "\n");
 $generator->writeTypeDeclarations($handle, 'GCC');
 $generator->writeFunctionPrototypes($handle, 'GCC');
 
-die();
-
 echo "Creating qb_interpreter_msvc.h\n";
 $handle = fopen("$targetFolder/qb_interpreter_msvc.h", "w");
 fwrite($handle, $copyright);
@@ -60,7 +58,7 @@ fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
 fwrite($handle, "\n");
 $generator->writeMainLoop($handle, 'GCC');
-$generator->writeDebugStub($handle, 'GCC');
+$generator->writeNativeDebugStub($handle, 'GCC');
 
 echo "Creating qb_interpreter_msvc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
@@ -69,12 +67,13 @@ fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
 fwrite($handle, "\n");
 $generator->writeMainLoop($handle, 'MSVC');
-$generator->writeDebugStub($handle, 'MSVC');
+$generator->writeNativeDebugStub($handle, 'MSVC');
 
 echo "Creating qb_interpreter_functions_gcc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_functions_gcc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
+fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
 fwrite($handle, "\n");
 $generator->writeFunctionDefinitions($handle, 'GCC');
 $generator->writeNativeSymbolTable($handle, 'GCC');
@@ -83,9 +82,12 @@ echo "Creating qb_interpreter_functions_msvc.c\n";
 $handle = fopen("$targetFolder/qb_interpreter_functions_msvc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
+fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
 fwrite($handle, "\n");
 $generator->writeFunctionDefinitions($handle, 'MSVC', 'FUNCTION DEFINITIONS');
 $generator->writeNativeSymbolTable($handle, 'MSVC', 'NATIVE SYMBOLS');
+
+die();
 
 echo "Creating qb_opcodes.h\n";
 $handle = fopen("$targetFolder/qb_opcodes.h", "w");

@@ -13,6 +13,12 @@ class QBCastHandler extends QBHandler {
 	public function getOperandType($i) {
 		return ($i == 1) ? $this->operandType1 : $this->operandType2;
 	}
+	
+	protected function getFunctionName() {
+		$name = parent::getFunctionName();
+		$name .= "_{$this->operandType1}_{$this->operandType2}";
+		return $name;
+	}
 
 	protected function getActionForUnitData() {
 		$cType = $this->getOperandCType(2);

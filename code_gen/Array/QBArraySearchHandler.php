@@ -27,7 +27,7 @@ class QBArraySearchHandler extends QBHandler {
 		$cType = $this->getOperandCType(1);
 		$lines = array();
 		$lines[] = "int32_t index = -1;";
-		$lines[] = "if(op2_count == 1)";
+		$lines[] = "if(op2_count == 1) {";
 		$lines[] = 		"uint32_t i;";
 		$lines[] = 		"for(i = 0; i < op1_count; i++) {";
 		$lines[] = 			"if(op1_ptr[i] == needle) {";

@@ -40,7 +40,6 @@ class QBMultiplyMatrixByMatrixHandler extends QBMatrixHandler {
 	}
 	
 	public function getActionForUnitData() {
-		$type = $this->getOperandType(3);
 		$cType = $this->getOperandCType(3);
 		if($this->operandSize == "variable") {
 			$lines[] = "ALLOCA_FLAG(use_heap)";

@@ -97,7 +97,7 @@ class QBHandler {
 	public function getInstructionStructure() {		
 		$opCount = $this->getOperandCount();
 		$targetCount = $this->getJumpTargetCount();
-		$instr = "qb_instruction_";
+		$instr = "qb_instruction";
 		if($targetCount == 2) {
 			$instr .= "_branch";
 		} else if($targetCount == 1) {
@@ -179,6 +179,10 @@ class QBHandler {
 			"F32" => "float32_t",	"F64" => "float64_t",
 		);
 		$operandType = $this->getOperandType($i);
+		if(!$operandType) {
+			$className = get_class($this);
+			throw new Exception("$i is not a valid index for $className");
+		}
 		return $cTypes[$operandType];
 	}
 	
@@ -421,6 +425,56 @@ class QBHandler {
 		return $lines;
 	}
 	
+	// return code for a loop that performs the same operation on all element of an array 
+	protected function getIterationCode($expression) {
+		$srcCount = $this->getInputOperandCount();
+		$lines = array();		
+		
+		// make sure none of the input operands are empty		
+		$condition = false;
+		$operandCounts = array();
+		for($i = 1; $i <= $srcCount; $i++) {
+			$operandSize = $this->getOperandSize($i);
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+				$operandCounts[] = "op{$i}_count";
+			}
+		}
+		$operandCounts[] = "res_count";
+		// use bitwise AND here, just in case the compiler doesn't optimize correctly
+		$condition = implode(" & ", $operandCounts);
+		$lines[] = "if($condition) {";
+		for($i = 1; $i <= $srcCount; $i++) {
+			$cType = $this->getOperandCType($i);
+			$lines[] =	"$cType *op{$i}_start = op{$i}_ptr, *op{$i}_end = op{$i}_ptr + op{$i}_count;";
+		}
+		$cType = $this->getOperandCType($srcCount + 1);
+		$lines[] =		"$cType *res_end = res_ptr + res_count;";
+		$lines[] = 		"for(;;) {";
+		$lines[] = 			$expression;
+		$lines[] =			"";
+		$operandSize = $this->getOperandSize($srcCount + 1);
+		// group incrementations together since they can happen in parallel
+		$lines[] = 			"res_ptr += $operandSize;";
+		for($i = 1; $i <= $srcCount; $i++) {
+			$operandSize = $this->getOperandSize($i);
+			$lines[] =		"op{$i}_ptr += $operandSize;";
+		}
+		$lines[] =			"if(res_ptr >= res_end) {";
+		$lines[] =				"break;";
+		$lines[] =			"}";
+		for($i = 1; $i <= $srcCount; $i++) {
+			$operandSize = $this->getOperandSize($i);
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+				$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
+				$lines[] = 		"op{$i}_ptr = op{$i}_start;";
+				$lines[] = 	"}";
+			}
+		}
+		$lines[] = 		"}";	// end for
+		$lines[] = "}"; 		// end if
+		return $lines;
+	}
+	
 	protected function getFunctionName() {
 		$className = get_class($this);
 		$opName = substr($className, 2, -7);
@@ -430,6 +484,9 @@ class QBHandler {
 			$name = "qb_do_{$opName}_multiple_times";
 		} else {
 			$name = "qb_do_{$opName}";
+		}
+		if($this->operandType) {
+			$name .= "_{$this->operandType}";
 		}
 		return $name;
 	}
@@ -475,22 +532,39 @@ class QBHandler {
 		return $variables;
 	}
 	
+	
+	protected function isOverridden($methodName) {
+		$child  = new ReflectionClass($this);
+		$method = $child->getMethod($methodName);
+		return ($method->class != 'QBHandler');
+	}
+	
 	public function getFunctionDefinition() {
-		$function = $this->getFunctionName();
-		$action = $this->getAction();
-		
-		// see if the default behavior is used
-		if(strpos($action[0], $function) === false) {
-			return null;
+		if(!$this->isOverridden('getAction') && !$this->isOverridden('getCode')) {
+			$function = $this->getFunctionName();
+			$parameters = $this->getFunctionParameters(true);
+			$parameterList = implode(", ", $parameters);
+			if($this->isMultipleData()) {
+				$action = $this->getActionForMultipleData();
+				if(!$action) {
+					$action = $this->getActionForUnitData();
+					if($this->isVectorized()) {
+						$action = $this->getUnrolledCode($action, $this->operandSize);
+					}
+					$action = $this->getIterationCode($action);
+				}
+			} else {
+				$action = $this->getActionForUnitData();
+				if($this->isVectorized()) {
+					$action = $this->getUnrolledCode($action, $this->operandSize);
+				}
+			}
+			$lines = array();
+			$lines[] = "void ZEND_FASTCALL $function($parameterList) {";
+			$lines[] = $action;
+			$lines[] = "}";
+			return $lines;
 		}
-		
-		$parameters = $this->getFunctionParameters(true);
-		$parameterList = implode(", ", $parameters);
-		$lines = array();
-		$lines[] = "void $function($parameterList) {";
-		$lines[] = $action;
-		$lines[] = "}";
-		return $lines;
 	}
 	
 	// return an expression for handling array operands

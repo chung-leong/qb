@@ -18,6 +18,7 @@ class QBPrintVariableHandler extends QBPrintHandler {
 
 	public function getActionForMultipleData() {
 		$sprintf = $this->getSprintf();
+		$cType = $this->getOperandCType(1);
 		$lines = array();
 		$lines[] = "USE_TSRM";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
