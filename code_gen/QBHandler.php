@@ -115,6 +115,8 @@ class QBHandler {
 	
 	public function getInstructionStructureDefinition() {
 		$instr = $this->getInstructionStructure();
+		$targetCount = $this->getJumpTargetCount();
+		$opCount = $this->getOperandCount();
 		$lines = array();
 		$lines[] = "typedef struct $instr {";
 		if($targetCount == 2) {
@@ -419,40 +421,19 @@ class QBHandler {
 		return $lines;
 	}
 	
-	protected function getFunctionForMultipleData() {
+	protected function getFunctionName() {
 		$className = get_class($this);
 		$opName = substr($className, 2, -7);
 		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
 		$opName = strtolower($opName);
-		$name = "qb_do_{$opName}_multiple_times";
-		return $name;
-	}
-
-	protected function getFunctionForUnitData() {
-		$className = get_class($this);
-		$opName = substr($className, 2, -7);
-		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
-		$opName = strtolower($opName);
-		$name = "qb_do_{$opName}";
-		return $name;
-	}
-
-	// linearize an array
-	protected function linearizeArray($array) {
-		$result = array();
-		foreach($array as $element) {
-			if($element !== NULL) {
-				if(is_array($element)) {
-					$sub_array = $this->linearizeArray($element);					
-					array_splice($result, count($result), 0, $sub_array);
-				} else {
-					$result[] = $element;
-				}
-			}
+		if($this->addressMode == "ARR") {
+			$name = "qb_do_{$opName}_multiple_times";
+		} else {
+			$name = "qb_do_{$opName}";
 		}
-		return $result;
+		return $name;
 	}
-	
+
 	protected function getFunctionParameters($includeType) {
 		$variables = array();
 		
@@ -479,7 +460,7 @@ class QBHandler {
 				$variables[] = (($includeType) ? "uint32_t " : "") . "op{$i}_count";
 			}
 		}
-
+		
 		// add output operand		
 		$dstCount = $this->getOutputOperandCount();
 		if($dstCount > 0) {
@@ -494,6 +475,24 @@ class QBHandler {
 		return $variables;
 	}
 	
+	public function getFunctionDefinition() {
+		$function = $this->getFunctionName();
+		$action = $this->getAction();
+		
+		// see if the default behavior is used
+		if(strpos($action[0], $function) === false) {
+			return null;
+		}
+		
+		$parameters = $this->getFunctionParameters(true);
+		$parameterList = implode(", ", $parameters);
+		$lines = array();
+		$lines[] = "void $function($parameterList) {";
+		$lines[] = $action;
+		$lines[] = "}";
+		return $lines;
+	}
+	
 	// return an expression for handling array operands
 	protected function getActionForMultipleData() {
 		return null;
@@ -505,19 +504,29 @@ class QBHandler {
 	}
 
 	// return codes that perform what the op is supposed to do
-	// the default implementation calls getActionForMultipleData() or $this->getActionForUnitData()
 	public function getAction() {
-		if($this->addressMode == "ARR") {
-			$handler = $this->getFunctionForMultipleData();
-		} else {
-			$handler = $this->getFunctionForUnitData();
-		}
+		$function = $this->getFunctionName();
 		$parameters = $this->getFunctionParameters(false);
 		$parameterList = implode(", ", $parameters);
 		$lines = array();
-		$lines[] = "$handler($parameterList);";
+		$lines[] = "$function($parameterList);";
 		return $lines;
+	}	
+}
+
+function array_linearize($array) {
+	$result = array();
+	foreach($array as $element) {
+		if($element !== NULL) {
+			if(is_array($element)) {
+				$sub_array = array_linearize($element);					
+				array_splice($result, count($result), 0, $sub_array);
+			} else {
+				$result[] = $element;
+			}
+		}
 	}
+	return $result;
 }
 
 ?>

@@ -14,486 +14,577 @@ class QBCodeGenerator {
 			$this->addHandlers();
 		}
 	}
+	
+	public function writeTypeDeclarations($handle, $compiler) {
+		QBHandler::setCompiler($compiler);
+		$this->currentIndentationLevel = 0;
+	
+		$structs = array();
+	
+		$structDefined = array();
+		foreach($this->handlers as $handler) {
+			$struct = $handler->getInstructionStructureDefinition();
+			$line1 = $struct[0];
+			if(!isset($structDefined[$line1])) {
+				$structs[] = $struct;
+				$structDefined[$line1] = true;
+			}
+		}
 
-	public function generate($handle, $compiler, $output) {
+		$this->writeCode($handle, array("#pragma pack(push,1)", ""));
+		foreach($structs as $struct) {
+			$this->writeCode($handle, $struct);
+			$this->writeCode($handle, array(""));
+		}
+		$this->writeCode($handle, array("#pragma pack(pop)", ""));
+
+		$lines = array();
+		$lines[] = "extern void *op_handlers[];";
+		$lines[] = "";
+		$this->writeCode($handle, $lines);
+	}
+	
+	public function writeFunctionPrototypes($handle, $compiler) {
 		QBHandler::setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 
-		if($output == "HELPERS") {
-			$helperDefined = array();
-			foreach($this->handlers as $handler) {
-				$functions = $handler->getHelperFunctions();
-				if($functions) {
-					foreach($functions as $lines) {
-						$line1 = $lines[0];
-						if(!isset($helperDefined[$line1])) {
-							$lines[] = "";
-							$this->writeCode($handle, $lines);
-							$helperDefined[$line1] = true;
-						}
-					}
-				}
-			}
-		} else if($output == "HANDLERS") {
-			$lines = array();
-			$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
-			$lines[] =		"";
-			$lines[] = 		"if(cxt) {";
-			$lines[] = 			"register void *__restrict op_handler;";
-			$lines[] = 			"register int8_t *__restrict instruction_pointer;";
-			$lines[] = 			"int8_t *__restrict segments[MAX_SEGMENT_COUNT];";
-			$lines[] = 			"int8_t *__restrict segment0;";
-			$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
-			$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
-			$lines[] =			"uint32_t selector, index, index_selector, index_index, size_index;";
-			$lines[] = 			"uint32_t string_length;";
-			$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
-			$lines[] = 			"uint32_t op1_start_index, op2_start_index, op3_start_index, op4_start_index, op5_start_index;";
-			$lines[] =			"uint32_t op1_count, op2_count, op3_count, op4_count, op5_count;";
-			$lines[] = 			"uint32_t res_start_index, res_count, res_count_before;";
-			
-			if($compiler == "MSVC") {
-				$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
-				$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
-			}
-			$lines[] =			"USE_TSRM";
-			$lines[] = 			"";
-			$lines[] = 			"{";
-			$lines[] = 				"uint32_t i;";
-			$lines[] = 				"instruction_pointer = cxt->function->instructions;";
-			$lines[] = 				"op_handler = *((void **) instruction_pointer);";
-			$lines[] = 				"instruction_pointer += sizeof(void *);";
-			$lines[] =				"// copy values from cxt onto the stack so they can be accessed without two second deferences";
-			$lines[] = 				"for(i = 0; i < cxt->storage->segment_count; i++) {";
-			$lines[] = 					"qb_memory_segment *segment = &cxt->storage->segments[i];";
-			$lines[] = 					"segments[i] = segment->memory;";
-			$lines[] = 					"segment_element_counts[i] = *segment->array_size_pointer;";
-			$lines[] = 					"segment_expandable[i] = (segment->flags & QB_SEGMENT_EXPANDABLE);";
-			$lines[] =					"// set the pointers in the segment structure to local variables here so we can update";
-			$lines[] =					"// them as well when we expand the segment";
-			$lines[] =					"segment->stack_ref_memory = &segments[i];";
-			$lines[] =					"segment->stack_ref_element_count = &segment_element_counts[i];";
-			$lines[] = 				"}";
-			$lines[] =				"// store pointer to segment 0 in a separate variable to enable better optimization";
-			$lines[] =				"// since segment 0 and 1 will never be enlarged, we don't have to worry about it changing";
-			$lines[] =				"segment0 = segments[0];";			
-			if($compiler == "GCC") {
-				$lines[] = 			"goto *op_handler;";
-			}
-			$lines[] = 			"}";
-			$lines[] = "";
-			if($compiler == "MSVC") {
-				// Visual C doesn't support computed goto so we have to use a giant switch() statement instead
-				$lines[] = 		"do {";
-				$lines[] = 			"switch((int) op_handler) {";
-			}
-			$this->writeCode($handle, $lines);
-			
-			foreach($this->handlers as $handler) {
-				$lines = $handler->getCode();
-				$lines[] = "";
-				$this->writeCode($handle, $lines);
-			}
-			
-			$lines = array();
-			if($compiler == "MSVC") {
-				$lines[] = 			"default:";
-				$lines[] = 				"__assume(0);";
-				$lines[] = 			"}";
-				$lines[] = 		"} while(1);";
-			}
-			$lines[] = 			"label_exit:";
-			$lines[] = 			"{";
-			$lines[] = 				"uint32_t i;";
-			$lines[] =				"// point the stack_ref pointer back to variables in the structure";
-			$lines[] = 				"for(i = 0; i < cxt->storage->segment_count; i++) {";
-			$lines[] = 					"qb_memory_segment *segment = &cxt->storage->segments[i];";
-			$lines[] =					"segment->stack_ref_memory = &segment->memory;";
-			$lines[] =					"segment->stack_ref_element_count = &segment->element_count;";
-			$lines[] = 				"}";
-			$lines[] = 				"return;";
-			$lines[] = 			"}";
-			if($compiler == "GCC") {
-				$lines[] = 	"} else {";
-				foreach($this->handlers as $handler) {
-					$name = $handler->getName();
-					$lines[] = 		"op_handlers[QB_$name] = &&label_$name;";
-				}
-			}
-			$lines[] = 		"}";
-			$this->writeCode($handle, $lines);
+		$functions = array();
 
-			$lines = array();
-			$lines[] =		"";
-			$lines[] = 	"}";
-			$lines[] = 	"";
-			if($compiler == "GCC") {
-				$lines[] = 	"void *op_handlers[QB_OPCODE_COUNT];";
-			}
-			$this->writeCode($handle, $lines);
-		} else if($output == "DECLARATIONS") {
-			$this->writeCode($handle, array("#pragma pack(push,1)", ""));
-			$decls = QBHandler::getTypeDeclarations();
-			foreach($decls as $lines) {
-				$lines[] = "";
-				$this->writeCode($handle, $lines);
-			}
-			$this->writeCode($handle, array("#pragma pack(pop)", ""));
-
-			$lines = array();
-			$lines[] = "extern void *op_handlers[];";
-			$lines[] = "";
-			$this->writeCode($handle, $lines);
-		} else if($output == "CODES") {
-			$lines = array();
-			$lines[] = "enum qb_opcode {";
-			foreach($this->handlers as $handler) {
-				$name = $handler->getName();
-				if(preg_match("/(\w+)_VAR$/", $name, $m)) {
-					$baseName = $m[1];
-					$lines[] = "QB_$baseName,";
-					$lines[] = "QB_$name = QB_$baseName,";
-				} else {
-					$lines[] = "QB_$name,";
-				}
-			}
-			$lines[] = "QB_OPCODE_COUNT";
-			$lines[] = "};";
-			$this->writeCode($handle, $lines);
-		} else if($output == "FLAGS") {
-			$lines = array();
-			$lines[] = "uint32_t global_op_flags[] = {";
-			foreach($this->handlers as $handler) {
-				$flags = array();
-				if($handler->isVectorized()) {
-					// op handles vectors
-					$flags[] = "QB_OP_VECTORIZED";
-				}
-				if($handler->needsMatrixDimensions()) {
-					// op needs matrix dimensions
-					$flags[] = "QB_OP_NEED_MATRIX_DIMENSIONS";
-				}
-				if($handler->hasAlternativeAddressModes()) {
-					// op can be employed in different address modes
-					$flags[] = "QB_OP_MULTI_ADDRESS";
-				}
-				if($handler->getJumpTargetCount() != 0) {
-					// op will redirect execution to another location 
-					$flags[] = "QB_OP_JUMP";
-				}
-				if($handler->needsLineNumber()) {
-					// the line number needs to be packed into the instruction (for error reporting)
-					$flags[] = "QB_OP_NEED_LINE_NUMBER";
-				}
-				if($handler instanceof QBIssetHandler) {
-					// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
-					$flags[] = "QB_OP_ISSET";
-				}
-				if($handler instanceof QBIssetHandler) {
-					$flags[] = "QB_OP_UNSET";
-				}
-				$combined = ($flags) ? implode(" | ", $flags) : "0";
-				$name = $handler->getName();
-				$lines[] = "// $name";
-				$lines[] = "$combined,";
-			}
-			$lines[] = "};";
-			$lines[] = "";
-			$lines[] = "uint32_t global_operand_flags[] = {";
-			foreach($this->handlers as $handler) {
-				$name = $handler->getName();
-				$shift = 0;
-				$flags = array();
-				$jumpTargetCount = $handler->getJumpTargetCount();
-
-				// add jump targets
-				for($i = 1; $i <= $jumpTargetCount; $i++, $shift += 4) {
-					$flags[] = "(QB_OPERAND_JUMP_TARGET << $shift)";
-				}
-				
-				// add operands
-				for($i = 1; $i <= $opCount; $i++, $shift += 4) {
-					$mode = $this->getOperandAddressMode($i);
-					$operandFlags = "QB_OPERAND_ADDRESS_$mode";
-					if($i > $srcCount) {
-						$operandFlags = "($operandInfo | QB_OPERAND_WRITABLE)";
-					}
-					$flags[] = "($operandFlags << $shift)";
-				}
-
-				// sanity check				
-				if(count($flags) > 8) {
-					$count = count($flags);
-					throw new Exception("$name has too many operands ($count)! We only got 32 bits to store the operand flags!");
-				}
-				$combined = ($flags) ? implode(" | ", $flags) : "0";
-				$lines[] = "// $name";
-				$lines[] = "$combined,";
-			}
-			$lines[] = "};";
-			$lines[] = "";
-			
-			$this->writeCode($handle, $lines);
-		} else if($output == "NAMES") {
-			$opnames = array();
-			foreach($this->handlers as $handler) {
-				$opnames[] = $handler->getName();
-			}
-			$folder = dirname(__FILE__);
-			$zend_opnames = file("$folder/zend_op_names.txt", FILE_IGNORE_NEW_LINES);
-			$pbj_opnames = file("$folder/pixel_bender_op_names.txt", FILE_IGNORE_NEW_LINES);
-
-			fwrite($handle, "#ifdef HAVE_ZLIB\n");
-			$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, true, true);
-			$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, true, true);
-			$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, true, true);
-			fwrite($handle, "#else\n");
-			$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, false, true);
-			$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, false, true);
-			$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, false, true);
-			fwrite($handle, "#endif\n");
-		} else if($output == "NATIVE CODE") {
-			$actions = array();
-			foreach($this->handlers as $index => $handler) {
-				$code = null;
-				try {
-					$lines = $handler->getAction();
-					if($lines) {
-						$code = $this->formatCode($lines);
-					}
-				} catch(Exception $e) {
-				}
-				$actions[$index] = $code;
-			}
-
-			$resultSizePossibilities = array();
-			foreach($this->handlers as $index => $handler) {
-				$expressions = $handler->getResultSizePossibilities();
-				if($expressions) {
-					if($expressions) {
-						if(is_array($expressions)) {
-							$list = "";
-							foreach($expressions as $expr) {
-								$list .= $expr . "\x00";
-							}
-						} else {
-							$list = $expressions . "\x00";
-						}
-						$resultSizePossibilities[$index] = $list;
+		// add helper functions first
+		$functionDefined = array();
+		foreach($this->handlers as $handler) {
+			$helpers = $handler->getHelperFunctions();
+			if($helpers) {
+				foreach($helpers as $helper) {
+					$line1 = $helper[0];
+					if(!isset($functionDefined[$line1])) {
+						$functions[] = $helper;
+						$functionDefined[$line1] = true;
 					}
 				}
 			}
-			
-			$resultSizeCalculations = array();
-			foreach($this->handlers as $index => $handler) {
-				$lines = $handler->getResultSizeCalculation();
-				if($lines) {
-					$resultSizeCalculations[$index] = $this->formatCode($lines);
-				} else {
-					$resultSizeCalculations[$index] = null;
-				}
-			}
-			
-			// scan for function prototypes
-			$functionDecls = array();
-			$processed = array();
-			foreach($this->handlers as $handler) {
-				$functions = $handler->getHelperFunctions();
-				if($functions) {
-					foreach($functions as $lines) {
-						$line1 = $lines[0];
-						if(!preg_match('/\bzend_always_inline\b/', $line1)) {
-							if(!isset($processed[$line1])) {
-								$decl = $this->parseFunctionDeclaration($line1);
-								if($decl) {
-									$functionDecls[$decl->name] = $decl;
-									$processed[$line1] = true;
-								}
-							}
-						}
-					}
-				}
-			}
-			$folder = dirname(__FILE__);
-			$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-			$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
-			$lines = array_filter(array_merge($common, $compilerSpecific));
-			foreach($lines as $line) {
-				$decl = $this->parseFunctionDeclaration($line);
-				$functionDecls[$decl->name] = $decl;
-			}						
-			ksort($functionDecls);
-			
-			// set up the prototype table
-			$prototypeIndices = array();
-			$prototypes = array();
-			$index = 0;
-			foreach($functionDecls as $decl) {
-				$parameterDecls = implode(", ", $decl->parameterDecls);
-				if($decl->inline) {
-					$prototypes[] = "static zend_always_inline $decl->returnType $decl->name($parameterDecls) {{$decl->body}}";
-				} else {
-					if($decl->fastcall && $compiler != "MSVC") {
-						$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
-					} else {
-						$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
-					}
-				}
-				$prototypeIndices[$decl->name] = $index++;
-			}
-			
-			// set up the function reference table
-			$references = array();
-			foreach($this->handlers as $handler) {
-				//$calls = $handler->getFunctionsUsed();
-				$indices = array();
-				if($calls) {
-					foreach($calls as $name) {
-						if(!preg_match('/^__builtin/', $name)) {
-							$index = $prototypeIndices[$name];
-							if($index !== null) {
-								$indices[] = $index;
-							}
-						}
-					}
-				}
-				// indicate the end of the list
-				$indices[] = 0xFFFFFFFF;
-				$record = "";
-				foreach($indices as $index) {
-					$record .= pack("V", $index);
-				}
-				$references[] = $record;
-			}
-			
-			fwrite($handle, "#ifdef HAVE_ZLIB\n");
-			$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
-			$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, true, true);
-			$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, true, true);
-			$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, true, true);
-			$this->writeCompressTable($handle, "compressed_table_native_references", $references, true, false);
-			fwrite($handle, "#else\n");
-			$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, false, true);
-			$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, false, true);
-			$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, false, true);
-			$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, false, true);
-			$this->writeCompressTable($handle, "compressed_table_native_references", $references, false, false);
-			fwrite($handle, "#endif\n");
-		} else if($output == "NATIVE SYMBOLS") {
-			// parse for declaration of helper functions 
-			$functionDecls = array();
-			$needWrapper = array();
-			$processed = array();
-			foreach($this->handlers as $handler) {
-				$functions = $handler->getHelperFunctions();
-				if($functions) {
-					foreach($functions as $lines) {
-						$line1 = $lines[0];
-						if(!preg_match('/\bzend_always_inline\b/', $line1)) {
-							if(!isset($processed[$line1])) {
-								$decl = $this->parseFunctionDeclaration($line1);
-								if($decl) {
-									$functionDecls[$decl->name] = $decl;
-									$processed[$line1] = true;
-								}
-							}
-						}
-					}
-				}
-			}
-			// add other functions 
-			$folder = dirname(__FILE__);			
-			$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-			$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
-			$intrinsic = file(($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
-			$lines = array_filter(array_merge($common, $compilerSpecific, $intrinsic));
-			foreach($lines as $line) {
-				$decl = $this->parseFunctionDeclaration($line);
-				if($decl) {
-					$functionDecls[$decl->name] = $decl;
-				}
-			}
-			ksort($functionDecls);
-						
-			// print out wrappers
-			$wrappers = array();
-			foreach($functionDecls as $decl) {
-				$needWrapper = ($decl->static) || ($decl->fastcall &&  $compiler == "MSVC");
-				if($compiler == "MSVC") {
-					if($decl->name == "floor") {
-						$needWrapper = true;
-					}
-				}
-				if($needWrapper) {
-					$parameterDecls = implode(", ", $decl->parameterDecls);
-					$parameters = implode(", ", $decl->parameters);
-					$fcall = "{$decl->name}($parameters)";
-					$wrapper = "{$decl->name}_wrapper";
-					$wrappers[$decl->name] = $wrapper;
-					if($compiler == "MSVC") {
-						fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
-					} else {
-						fwrite($handle, "{$decl->returnType} ZEND_FASTCALL $wrapper($parameterDecls) {\n");
-					}
-					if($decl->returnType != 'void') {
-						fwrite($handle, "	return $fcall;\n");
-					} else {
-						fwrite($handle, "	$fcall;\n");
-					}
-					fwrite($handle, "}\n\n");
-				}
-			}
-		
-			// make sure that functions called by the op handlers are accounted for
-			$functionsInUse = array();
-			foreach($this->handlers as $index => $handler) {
-				$addition = array_diff($handler->getFunctionsUsed(), $functionsInUse);
-				foreach($addition as $name) {
-					if(!preg_match('/^__builtin/', $name)) {						
-						$functionsInUse[] = $name;
-						
-						if(!isset($functionDecls[$name])) {
-							throw new Exception("Missing declaration for '$name'");						
-						}
-					}
-				}
-			}
-			
-			// print out prototypes of intrinsics
-			foreach($intrinsic as $line) {
-				fwrite($handle, "$line\n");
-			}
-			fwrite($handle, "\n");
-			
-			fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
-			foreach($functionDecls as $name => $decl) {
-				if(!$decl->inline) {
-					if(isset($wrappers[$decl->name])) {
-						$symbol = $wrappers[$decl->name];
-					} else {
-						$symbol = $name;
-					}
-					fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
-				} else {
-					// a function body will be generated inside the object file
-					// need to indicate that the symbol is known 
-					fwrite($handle, "	{	0,	\"$name\",	(void*) -1	},\n");
-				}
-			}
-			fwrite($handle, "};\n\n");
-			fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n\n");
-		} else if($output == "NATIVE DEBUG") {
-			fwrite($handle, "#if NATIVE_COMPILE_ENABLED && ZEND_DEBUG\n");
-			fwrite($handle, "#include \"qb_native_proc_debug.c\"\n");
-			fwrite($handle, "#ifdef HAVE_NATIVE_PROC_RECORDS\n");
-			fwrite($handle, "qb_native_proc_record *native_proc_table = native_proc_records;\n");
-			fwrite($handle, "uint32_t native_proc_table_size = sizeof(native_proc_records) / sizeof(qb_native_proc_record);\n");
-			fwrite($handle, "#else\n");
-			fwrite($handle, "qb_native_proc_record *native_proc_table = NULL;\n");
-			fwrite($handle, "uint32_t native_proc_table_size = 0;\n");
-			fwrite($handle, "#endif\n");
-			fwrite($handle, "#endif\n");
 		}
+		
+		// add handler functions
+		foreach($this->handlers as $handler) {
+			$function = $handler->getFunctionDefinition();
+			if($function) {
+				$line1 = $function[0];
+				if(!isset($functionDefined[$line1])) {
+					$functions[] = $function;
+					$functionDefined[$line1] = true;
+				}
+			}
+		}
+		
+		foreach($functions as $function) {
+			$line1 = $function[0];
+			
+			// add the whole thing if it's an inline function
+			if(preg_match('/\b(zend_inline|zend_always_inline)\b/', $line1)) {
+				$this->writeCode($handle, $function);
+				$this->writeCode($handle, array(""));
+			} else {
+				$prototype = preg_replace('/\s*{\s*$/', ';', $line1);
+				$this->writeCode($handle, array($prototype));
+			}
+		}
+	}
+
+	public function writeFunctionDefinitions($handle, $compiler) {
+		QBHandler::setCompiler($compiler);
+		$this->currentIndentationLevel = 0;
+		
+		$functionDefined = array();
+		foreach($this->handlers as $handler) {
+			$functions = $handler->getHelperFunctions();
+			if($functions) {
+				foreach($functions as $lines) {
+					$line1 = $lines[0];
+					if(!isset($functionDefined[$line1])) {
+						$lines[] = "";
+						$this->writeCode($handle, $lines);
+						$functionDefined[$line1] = true;
+					}
+				}
+			}
+		}
+	}
+	
+	public function writeMainLoop($handle, $compiler) {
+		QBHandler::setCompiler($compiler);
+		$this->currentIndentationLevel = 0;
+		
+		$lines = array();
+		$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
+		$lines[] =		"";
+		$lines[] = 		"if(cxt) {";
+		$lines[] = 			"register void *__restrict op_handler;";
+		$lines[] = 			"register int8_t *__restrict instruction_pointer;";
+		$lines[] = 			"int8_t *__restrict segments[MAX_SEGMENT_COUNT];";
+		$lines[] = 			"int8_t *__restrict segment0;";
+		$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
+		$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
+		$lines[] =			"uint32_t selector, index, index_selector, index_index, size_index;";
+		$lines[] = 			"uint32_t string_length;";
+		$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
+		$lines[] = 			"uint32_t op1_start_index, op2_start_index, op3_start_index, op4_start_index, op5_start_index;";
+		$lines[] =			"uint32_t op1_count, op2_count, op3_count, op4_count, op5_count;";
+		$lines[] = 			"uint32_t res_start_index, res_count, res_count_before;";
+		
+		if($compiler == "MSVC") {
+			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
+			$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
+		}
+		$lines[] =			"USE_TSRM";
+		$lines[] = 			"";
+		$lines[] = 			"{";
+		$lines[] = 				"uint32_t i;";
+		$lines[] = 				"instruction_pointer = cxt->function->instructions;";
+		$lines[] = 				"op_handler = *((void **) instruction_pointer);";
+		$lines[] = 				"instruction_pointer += sizeof(void *);";
+		$lines[] =				"// copy values from cxt onto the stack so they can be accessed without two second deferences";
+		$lines[] = 				"for(i = 0; i < cxt->storage->segment_count; i++) {";
+		$lines[] = 					"qb_memory_segment *segment = &cxt->storage->segments[i];";
+		$lines[] = 					"segments[i] = segment->memory;";
+		$lines[] = 					"segment_element_counts[i] = *segment->array_size_pointer;";
+		$lines[] = 					"segment_expandable[i] = (segment->flags & QB_SEGMENT_EXPANDABLE);";
+		$lines[] =					"// set the pointers in the segment structure to local variables here so we can update";
+		$lines[] =					"// them as well when we expand the segment";
+		$lines[] =					"segment->stack_ref_memory = &segments[i];";
+		$lines[] =					"segment->stack_ref_element_count = &segment_element_counts[i];";
+		$lines[] = 				"}";
+		$lines[] =				"// store pointer to segment 0 in a separate variable to enable better optimization";
+		$lines[] =				"// since segment 0 and 1 will never be enlarged, we don't have to worry about it changing";
+		$lines[] =				"segment0 = segments[0];";			
+		if($compiler == "GCC") {
+			$lines[] = 			"goto *op_handler;";
+		}
+		$lines[] = 			"}";
+		$lines[] = "";
+		if($compiler == "MSVC") {
+			// Visual C doesn't support computed goto so we have to use a giant switch() statement instead
+			$lines[] = 		"do {";
+			$lines[] = 			"switch((int) op_handler) {";
+		}
+		$this->writeCode($handle, $lines);
+		
+		foreach($this->handlers as $handler) {
+			$lines = $handler->getCode();
+			$lines[] = "";
+			$this->writeCode($handle, $lines);
+		}
+		
+		$lines = array();
+		if($compiler == "MSVC") {
+			$lines[] = 			"default:";
+			$lines[] = 				"__assume(0);";
+			$lines[] = 			"}";
+			$lines[] = 		"} while(1);";
+		}
+		$lines[] = 			"label_exit:";
+		$lines[] = 			"{";
+		$lines[] = 				"uint32_t i;";
+		$lines[] =				"// point the stack_ref pointer back to variables in the structure";
+		$lines[] = 				"for(i = 0; i < cxt->storage->segment_count; i++) {";
+		$lines[] = 					"qb_memory_segment *segment = &cxt->storage->segments[i];";
+		$lines[] =					"segment->stack_ref_memory = &segment->memory;";
+		$lines[] =					"segment->stack_ref_element_count = &segment->element_count;";
+		$lines[] = 				"}";
+		$lines[] = 				"return;";
+		$lines[] = 			"}";
+		if($compiler == "GCC") {
+			$lines[] = 	"} else {";
+			foreach($this->handlers as $handler) {
+				$name = $handler->getName();
+				$lines[] = 		"op_handlers[QB_$name] = &&label_$name;";
+			}
+		}
+		$lines[] = 		"}";
+		$this->writeCode($handle, $lines);
+
+		$lines = array();
+		$lines[] =		"";
+		$lines[] = 	"}";
+		$lines[] = 	"";
+		if($compiler == "GCC") {
+			$lines[] = 	"void *op_handlers[QB_OPCODE_COUNT];";
+		}
+		$this->writeCode($handle, $lines);
+	}
+	
+	public function writeOpCodes($handle, $compiler) {
+		$this->currentIndentationLevel = 0;
+		
+		$lines = array();
+		$lines[] = "enum qb_opcode {";
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			// if an op has a name ending in _VAR, there will also be ones ending in _ELV, and possible _ARR
+			if(preg_match("/(\w+)_VAR$/", $name, $m)) {
+				$baseName = $m[1];
+				$lines[] = "QB_$baseName,";
+				$lines[] = "QB_$name = QB_$baseName,";
+			} else {
+				$lines[] = "QB_$name,";
+			}
+		}
+		$lines[] = "QB_OPCODE_COUNT";
+		$lines[] = "};";
+		$this->writeCode($handle, $lines);
+	}
+	
+	public function writeOpFlags($handle) {
+		$this->currentIndentationLevel = 0;
+		
+		$lines = array();
+		$lines[] = "uint32_t global_op_flags[] = {";
+		foreach($this->handlers as $handler) {
+			$flags = array();
+			if($handler->isVectorized()) {
+				// op handles vectors
+				$flags[] = "QB_OP_VECTORIZED";
+			}
+			if($handler->needsMatrixDimensions()) {
+				// op needs matrix dimensions
+				$flags[] = "QB_OP_NEED_MATRIX_DIMENSIONS";
+			}
+			if($handler->hasAlternativeAddressModes()) {
+				// op can be employed in different address modes
+				$flags[] = "QB_OP_MULTI_ADDRESS";
+			}
+			if($handler->getJumpTargetCount() != 0) {
+				// op will redirect execution to another location 
+				$flags[] = "QB_OP_JUMP";
+			}
+			if($handler->needsLineNumber()) {
+				// the line number needs to be packed into the instruction (for error reporting)
+				$flags[] = "QB_OP_NEED_LINE_NUMBER";
+			}
+			if($handler instanceof QBIssetHandler) {
+				// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
+				$flags[] = "QB_OP_ISSET";
+			}
+			if($handler instanceof QBIssetHandler) {
+				$flags[] = "QB_OP_UNSET";
+			}
+			$combined = ($flags) ? implode(" | ", $flags) : "0";
+			$name = $handler->getName();
+			$lines[] = "// $name";
+			$lines[] = "$combined,";
+		}
+		$lines[] = "};";
+		$lines[] = "";
+		$lines[] = "uint32_t global_operand_flags[] = {";
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$shift = 0;
+			$flags = array();
+			$jumpTargetCount = $handler->getJumpTargetCount();
+
+			// add jump targets
+			for($i = 1; $i <= $jumpTargetCount; $i++, $shift += 4) {
+				$flags[] = "(QB_OPERAND_JUMP_TARGET << $shift)";
+			}
+			
+			// add operands
+			for($i = 1; $i <= $opCount; $i++, $shift += 4) {
+				$mode = $this->getOperandAddressMode($i);
+				$operandFlags = "QB_OPERAND_ADDRESS_$mode";
+				if($i > $srcCount) {
+					$operandFlags = "($operandInfo | QB_OPERAND_WRITABLE)";
+				}
+				$flags[] = "($operandFlags << $shift)";
+			}
+
+			// sanity check				
+			if(count($flags) > 8) {
+				$count = count($flags);
+				throw new Exception("$name has too many operands ($count)! We only got 32 bits to store the operand flags!");
+			}
+			$combined = ($flags) ? implode(" | ", $flags) : "0";
+			$lines[] = "// $name";
+			$lines[] = "$combined,";
+		}
+		$lines[] = "};";
+		$lines[] = "";
+		
+		$this->writeCode($handle, $lines);
+	}
+	
+	public function writeOpNames($handle) {
+		$this->currentIndentationLevel = 0;
+		
+		$opnames = array();
+		foreach($this->handlers as $handler) {
+			$opnames[] = $handler->getName();
+		}
+		$folder = dirname(__FILE__);
+		$zend_opnames = file("$folder/zend_op_names.txt", FILE_IGNORE_NEW_LINES);
+		$pbj_opnames = file("$folder/pixel_bender_op_names.txt", FILE_IGNORE_NEW_LINES);
+
+		fwrite($handle, "#ifdef HAVE_ZLIB\n");
+		$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, true, true);
+		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, true, true);
+		$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, true, true);
+		fwrite($handle, "#else\n");
+		$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, false, true);
+		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, false, true);
+		$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, false, true);
+		fwrite($handle, "#endif\n");
+	}
+
+	public function writeNativeCodeTables($handle, $compiler) {
+		QBHandler::setCompiler($compiler);
+		$this->currentIndentationLevel = 0;
+		
+		$actions = array();
+		foreach($this->handlers as $index => $handler) {
+			$code = null;
+			try {
+				$lines = $handler->getAction();
+				if($lines) {
+					$code = $this->formatCode($lines);
+				}
+			} catch(Exception $e) {
+			}
+			$actions[$index] = $code;
+		}
+
+		$resultSizePossibilities = array();
+		foreach($this->handlers as $index => $handler) {
+			$expressions = $handler->getResultSizePossibilities();
+			if($expressions) {
+				if($expressions) {
+					if(is_array($expressions)) {
+						$list = "";
+						foreach($expressions as $expr) {
+							$list .= $expr . "\x00";
+						}
+					} else {
+						$list = $expressions . "\x00";
+					}
+					$resultSizePossibilities[$index] = $list;
+				}
+			}
+		}
+		
+		$resultSizeCalculations = array();
+		foreach($this->handlers as $index => $handler) {
+			$lines = $handler->getResultSizeCalculation();
+			if($lines) {
+				$resultSizeCalculations[$index] = $this->formatCode($lines);
+			} else {
+				$resultSizeCalculations[$index] = null;
+			}
+		}
+		
+		// scan for function prototypes
+		$functionDecls = array();
+		$processed = array();
+		foreach($this->handlers as $handler) {
+			$functions = $handler->getHelperFunctions();
+			if($functions) {
+				foreach($functions as $lines) {
+					$line1 = $lines[0];
+					if(!preg_match('/\bzend_always_inline\b/', $line1)) {
+						if(!isset($processed[$line1])) {
+							$decl = $this->parseFunctionDeclaration($line1);
+							if($decl) {
+								$functionDecls[$decl->name] = $decl;
+								$processed[$line1] = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		$folder = dirname(__FILE__);
+		$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+		$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+		$lines = array_filter(array_merge($common, $compilerSpecific));
+		foreach($lines as $line) {
+			$decl = $this->parseFunctionDeclaration($line);
+			$functionDecls[$decl->name] = $decl;
+		}						
+		ksort($functionDecls);
+		
+		// set up the prototype table
+		$prototypeIndices = array();
+		$prototypes = array();
+		$index = 0;
+		foreach($functionDecls as $decl) {
+			$parameterDecls = implode(", ", $decl->parameterDecls);
+			if($decl->inline) {
+				$prototypes[] = "static zend_always_inline $decl->returnType $decl->name($parameterDecls) {{$decl->body}}";
+			} else {
+				if($decl->fastcall && $compiler != "MSVC") {
+					$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
+				} else {
+					$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
+				}
+			}
+			$prototypeIndices[$decl->name] = $index++;
+		}
+		
+		// set up the function reference table
+		$references = array();
+		foreach($this->handlers as $handler) {
+			$calls = null; //$handler->getFunctionsUsed();
+			$indices = array();
+			if($calls) {
+				foreach($calls as $name) {
+					if(!preg_match('/^__builtin/', $name)) {
+						$index = $prototypeIndices[$name];
+						if($index !== null) {
+							$indices[] = $index;
+						}
+					}
+				}
+			}
+			// indicate the end of the list
+			$indices[] = 0xFFFFFFFF;
+			$record = "";
+			foreach($indices as $index) {
+				$record .= pack("V", $index);
+			}
+			$references[] = $record;
+		}
+		
+		fwrite($handle, "#ifdef HAVE_ZLIB\n");
+		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
+		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, true, true);
+		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, true, true);
+		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, true, true);
+		$this->writeCompressTable($handle, "compressed_table_native_references", $references, true, false);
+		fwrite($handle, "#else\n");
+		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, false, true);
+		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, false, true);
+		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, false, true);
+		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, false, true);
+		$this->writeCompressTable($handle, "compressed_table_native_references", $references, false, false);
+		fwrite($handle, "#endif\n");
+	}
+	
+	public function writeNativeSymbolTable($handle, $compiler) {
+		QBHandler::setCompiler($compiler);
+		$this->currentIndentationLevel = 0;
+		
+		// parse for declaration of helper functions 
+		$functionDecls = array();
+		$needWrapper = array();
+		$processed = array();
+		foreach($this->handlers as $handler) {
+			$functions = $handler->getHelperFunctions();
+			if($functions) {
+				foreach($functions as $lines) {
+					$line1 = $lines[0];
+					if(!preg_match('/\bzend_always_inline\b/', $line1)) {
+						if(!isset($processed[$line1])) {
+							$decl = $this->parseFunctionDeclaration($line1);
+							if($decl) {
+								$functionDecls[$decl->name] = $decl;
+								$processed[$line1] = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		// add other functions 
+		$folder = dirname(__FILE__);			
+		$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+		$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+		$intrinsic = file(($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+		$lines = array_filter(array_merge($common, $compilerSpecific, $intrinsic));
+		foreach($lines as $line) {
+			$decl = $this->parseFunctionDeclaration($line);
+			if($decl) {
+				$functionDecls[$decl->name] = $decl;
+			}
+		}
+		ksort($functionDecls);
+					
+		// print out wrappers
+		$wrappers = array();
+		foreach($functionDecls as $decl) {
+			$needWrapper = ($decl->static) || ($decl->fastcall &&  $compiler == "MSVC");
+			if($compiler == "MSVC") {
+				if($decl->name == "floor") {
+					$needWrapper = true;
+				}
+			}
+			if($needWrapper) {
+				$parameterDecls = implode(", ", $decl->parameterDecls);
+				$parameters = implode(", ", $decl->parameters);
+				$fcall = "{$decl->name}($parameters)";
+				$wrapper = "{$decl->name}_wrapper";
+				$wrappers[$decl->name] = $wrapper;
+				if($compiler == "MSVC") {
+					fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
+				} else {
+					fwrite($handle, "{$decl->returnType} ZEND_FASTCALL $wrapper($parameterDecls) {\n");
+				}
+				if($decl->returnType != 'void') {
+					fwrite($handle, "	return $fcall;\n");
+				} else {
+					fwrite($handle, "	$fcall;\n");
+				}
+				fwrite($handle, "}\n\n");
+			}
+		}
+	
+		// make sure that functions called by the op handlers are accounted for
+		$functionsInUse = array();
+		foreach($this->handlers as $index => $handler) {
+			$addition = $functionsInUse; // array_diff($handler->getFunctionsUsed(), $functionsInUse);
+			foreach($addition as $name) {
+				if(!preg_match('/^__builtin/', $name)) {						
+					$functionsInUse[] = $name;
+					
+					if(!isset($functionDecls[$name])) {
+						throw new Exception("Missing declaration for '$name'");						
+					}
+				}
+			}
+		}
+		
+		// print out prototypes of intrinsics
+		foreach($intrinsic as $line) {
+			fwrite($handle, "$line\n");
+		}
+		fwrite($handle, "\n");
+		
+		fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
+		foreach($functionDecls as $name => $decl) {
+			if(!$decl->inline) {
+				if(isset($wrappers[$decl->name])) {
+					$symbol = $wrappers[$decl->name];
+				} else {
+					$symbol = $name;
+				}
+				fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
+			} else {
+				// a function body will be generated inside the object file
+				// need to indicate that the symbol is known 
+				fwrite($handle, "	{	0,	\"$name\",	(void*) -1	},\n");
+			}
+		}
+		fwrite($handle, "};\n\n");
+		fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n\n");
+	}
+
+	public function writeNativeDebugStub() {
+		fwrite($handle, "#if NATIVE_COMPILE_ENABLED && ZEND_DEBUG\n");
+		fwrite($handle, "#include \"qb_native_proc_debug.c\"\n");
+		fwrite($handle, "#ifdef HAVE_NATIVE_PROC_RECORDS\n");
+		fwrite($handle, "qb_native_proc_record *native_proc_table = native_proc_records;\n");
+		fwrite($handle, "uint32_t native_proc_table_size = sizeof(native_proc_records) / sizeof(qb_native_proc_record);\n");
+		fwrite($handle, "#else\n");
+		fwrite($handle, "qb_native_proc_record *native_proc_table = NULL;\n");
+		fwrite($handle, "uint32_t native_proc_table_size = 0;\n");
+		fwrite($handle, "#endif\n");
+		fwrite($handle, "#endif\n");
 	}
 
 	protected function parseFunctionDeclaration($line) {
