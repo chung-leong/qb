@@ -57,7 +57,7 @@ $width = imagesx($src);
 $height = imagesy($src);
 $dst = imagecreatetruecolor($width, $height);
 
-$A = array(50, 0);
+$A = array(150, 10);
 $B = array($width - 80, 150);
 $C = array($width - 100, $height - 100);
 $D = array(0, $height - 50);
