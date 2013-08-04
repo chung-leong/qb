@@ -36,10 +36,8 @@ class QBPackHandler extends QBHandler {
 		if($type[0] == 'F') {
 			// accommodate native compiler, for which op1 might be a macro defined as a literal
 			$lines = array();
-			$lines[] = "{";
-			$lines[] = 		"$cType v = op1;";
-			$lines[] = 		"*((uint{$width}_t *) res_ptr) = $macro(*((uint{$width}_t *) &v));";
-			$lines[] = "}";
+			$lines[] = "$cType v = op1;";
+			$lines[] = "*((uint{$width}_t *) res_ptr) = $macro(*((uint{$width}_t *) &v));";
 			return $lines;
 		} else {
 			return "*((uint{$width}_t *) res_ptr) = $macro(op1);";

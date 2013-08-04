@@ -17,7 +17,12 @@ class QBPrintHandler extends QBHandler {
 			$format = '"%" PRI' . $sign . $size;
 			$sprintf = "snprintf(sprintf_buffer, sizeof(sprintf_buffer), $format, op1)";
 		}
+		return $sprintf;
 	}	
+	
+	protected function getFunctionType() {
+		return 'extern';
+	}
 }
 
 ?>

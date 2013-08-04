@@ -238,6 +238,159 @@ class QBHandler {
 		return $this->isVectorized();
 	}
 	
+	protected function getFunctionName() {
+		$className = get_class($this);
+		$opName = substr($className, 2, -7);
+		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
+		$opName = strtolower($opName);
+		$name = "qb_do_{$opName}";
+		if($this->operandSize != 1 && is_int($this->operandSize)) {
+			$name .= "_{$this->operandSize}x";
+		}
+		if($this->addressMode == "ARR") {
+			$name .= "_multiple_times";
+		}
+		if($this->operandType) {
+			$name .= "_{$this->operandType}";
+		}
+		return $name;
+	}
+
+	protected function getFunctionParameters($includeType) {
+		$variables = array();
+		
+		// see if the interpretator context is needed
+		if($this->needsInterpreterContext()) {
+			$variables[] = (($includeType) ? "qb_interpreter_context *" : "") . "cxt";
+		}
+		
+		// add input operands
+		$srcCount = $this->getInputOperandCount();
+		for($i = 1; $i <= $srcCount; $i++) {
+			$cType = $this->getOperandCType($i);
+			$addressMode = $this->getOperandAddressMode($i);
+			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "op{$i}_ptr";
+			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
+				$variables[] = (($includeType) ? "uint32_t " : "") . "op{$i}_count";
+			}
+		}
+		
+		// see if matrix dimensions are needed
+		if($this->needsMatrixDimensions()) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_rows";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_cols";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_rows";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_cols";
+		}
+		
+		// add output operand		
+		$dstCount = $this->getOutputOperandCount();
+		if($dstCount > 0) {
+			$cType = $this->getOperandCType($srcCount + 1);
+			$addressMode = $this->getOperandAddressMode($srcCount + 1);
+			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "res_ptr";
+			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
+				$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
+			}
+		}
+		
+		return $variables;
+	}
+	
+	protected function getFunctionType() {
+		if(!$this->isOverridden('getAction') && !$this->isOverridden('getCode')) {
+			if($this->isMultipleData()) {
+				return 'extern';
+			} else {
+				$action = $this->getActionOnUnitData();
+				$count = count($action, true);
+				if($count > 1) {
+					if($count > 16) {
+						return 'extern';
+					} else {
+						$lines = array_linearize($action);
+						$hasLoop = false;
+						foreach($lines as $line) {
+							if(preg_match('/\b(for|while)\b/', $line)) {
+								$hasLoop = true;
+							}
+						}
+						if($hasLoop) {
+							return 'extern';
+						} else {
+							return 'inline';
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public function getFunctionDefinition() {
+		$functionType = $this->getFunctionType();
+		if($functionType) {
+			$function = $this->getFunctionName();
+			$parameters = $this->getFunctionParameters(true);
+			$parameterList = implode(", ", $parameters);
+			$expressions = $this->getActionExpressions();
+			switch($functionType) {
+				case 'inline': $typeDecl = "static zend_always_inline void"; break;
+				case 'extern': $typeDecl = "void ZEND_FASTCALL"; break;
+			}
+			$lines = array();
+			$lines[] = "$typeDecl $function($parameterList) {";
+			$lines[] = $expressions;
+			$lines[] = "}";
+			return $lines;
+		}
+		return null;
+	}
+	
+	// return codes that perform what the op is supposed to do
+	public function getAction() {
+		$functionType = $this->getFunctionType();
+		if($functionType) {	
+			$function = $this->getFunctionName();
+			$parameters = $this->getFunctionParameters(false);
+			$parameterList = implode(", ", $parameters);
+			$lines = array();
+			$lines[] = "$function($parameterList);";
+			return $lines;
+		} else {
+			return $this->getActionExpressions();
+		}
+	}	
+	
+	// return an expression for handling a single unit of data (typically a scalar)
+	protected function getActionOnUnitData() {
+		return null;
+	}
+
+	// return an expression for handling multiple units of data
+	protected function getActionOnMultipleData() {
+		return null;
+	}
+	
+	protected function getActionExpressions() {
+		if($this->isMultipleData()) {
+			$action = $this->getActionOnMultipleData();
+			if(!$action) {
+				$originalAddressMode = $this->addressMode;
+				$this->addressMode = "VAR";
+				$scalarExpression = $this->getAction();
+				$this->addressMode = $originalAddressMode;
+				$action = $this->getIterationCode($scalarExpression);
+			}
+		} else {
+			$action = $this->getActionOnUnitData();
+			if($this->needsUnrolling()) {
+				$action = $this->getUnrolledCode($action, $this->operandSize);
+			}
+		}
+		return $action;
+	}
+	
 	// return code for the handle label	
 	protected function getLabelCode($name) {
 		if(self::$compiler == "GCC") {
@@ -484,119 +637,11 @@ class QBHandler {
 		return $lines;
 	}
 	
-	protected function getFunctionName() {
-		$className = get_class($this);
-		$opName = substr($className, 2, -7);
-		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
-		$opName = strtolower($opName);
-		$name = "qb_do_{$opName}";
-		if($this->operandSize != 1 && is_int($this->operandSize)) {
-			$name .= "_{$this->operandSize}x";
-		}
-		if($this->addressMode == "ARR") {
-			$name .= "_multiple_times";
-		}
-		if($this->operandType) {
-			$name .= "_{$this->operandType}";
-		}
-		return $name;
-	}
-
-	protected function getFunctionParameters($includeType) {
-		$variables = array();
-		
-		// see if the interpretator context is needed
-		if($this->needsInterpreterContext()) {
-			$variables[] = (($includeType) ? "qb_interpreter_context *" : "") . "cxt";
-		}
-		
-		// add input operands
-		$srcCount = $this->getInputOperandCount();
-		for($i = 1; $i <= $srcCount; $i++) {
-			$cType = $this->getOperandCType($i);
-			$addressMode = $this->getOperandAddressMode($i);
-			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "op{$i}_ptr";
-			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
-				$variables[] = (($includeType) ? "uint32_t " : "") . "op{$i}_count";
-			}
-		}
-		
-		// see if matrix dimensions are needed
-		if($this->needsMatrixDimensions()) {
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_rows";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_cols";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_rows";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_cols";
-		}
-		
-		// add output operand		
-		$dstCount = $this->getOutputOperandCount();
-		if($dstCount > 0) {
-			$cType = $this->getOperandCType($srcCount + 1);
-			$addressMode = $this->getOperandAddressMode($srcCount + 1);
-			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "res_ptr";
-			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
-				$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
-			}
-		}
-		
-		return $variables;
-	}
-	
-	
 	protected function isOverridden($methodName) {
 		$child  = new ReflectionClass($this);
 		$method = $child->getMethod($methodName);
 		return ($method->class != 'QBHandler');
 	}
-	
-	public function getFunctionDefinition() {
-		if(!$this->isOverridden('getAction') && !$this->isOverridden('getCode')) {
-			$function = $this->getFunctionName();
-			$parameters = $this->getFunctionParameters(true);
-			$parameterList = implode(", ", $parameters);
-			if($this->isMultipleData()) {
-				$action = $this->getActionOnMultipleData();
-				if(!$action) {
-					$originalAddressMode = $this->addressMode;
-					$this->addressMode = "VAR";
-					$scalarExpression = $this->getAction();
-					$this->addressMode = $originalAddressMode;
-					$action = $this->getIterationCode($scalarExpression);
-				}
-			} else {
-				$action = $this->getActionOnUnitData();
-				if($this->needsUnrolling()) {
-					$action = $this->getUnrolledCode($action, $this->operandSize);
-				}
-			}
-			$lines = array();
-			$lines[] = "void ZEND_FASTCALL $function($parameterList) {";
-			$lines[] = $action;
-			$lines[] = "}";
-			return $lines;
-		}
-	}
-	
-	// return an expression for handling a single unit of data (typically a scalar)
-	protected function getActionOnUnitData() {
-		return null;
-	}
-
-	// return an expression for handling multiple units of data
-	protected function getActionOnMultipleData() {
-		return null;
-	}
-
-	// return codes that perform what the op is supposed to do
-	public function getAction() {
-		$function = $this->getFunctionName();
-		$parameters = $this->getFunctionParameters(false);
-		$parameterList = implode(", ", $parameters);
-		$lines = array();
-		$lines[] = "$function($parameterList);";
-		return $lines;
-	}	
 }
 
 function array_linearize($array) {

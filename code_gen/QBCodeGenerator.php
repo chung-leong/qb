@@ -43,7 +43,7 @@ class QBCodeGenerator {
 			$line1 = $function[0];
 			
 			// add the whole thing if it's an inline function
-			if(preg_match('/\b(zend_inline|zend_always_inline)\b/', $line1)) {
+			if(preg_match('/\b(inline|zend_always_inline|static)\b/', $line1)) {
 				if(!$wasInline) {
 					fwrite($handle, "\n");
 				}
