@@ -30,7 +30,7 @@ class QBMatrixHandler extends QBHandler {
 		return false;
 	}
 	
-	public function needsMatrixDimensions() {
+	public function needsMatrixDimensions($which = null) {
 		return ($this->operandSize == "variable");
 	}
 }

@@ -33,7 +33,7 @@ class QBMultiplyMatrixByVectorHandler extends QBMultiplyMatrixByMatrixHandler {
 			$lines[] = "uint32_t i, j, k;";
 			$lines[] = "for(i = 0; i < MATRIX1_ROWS; ++i) {";
 			$lines[] = 		"$cType dot_product = 0;";
-			$lines[] = 		"for(j = 0, k = i; j < MATRIX1_COLS; ++j, k += m_col) {";
+			$lines[] = 		"for(j = 0, k = i; j < MATRIX1_COLS; ++j, k += MATRIX1_COLS) {";
 			$lines[] = 			"dot_product += op1_ptr[k] * op2_ptr[j];";
 			$lines[] = 		"}";
 			$lines[] = 		"buffer[i] = dot_product;";

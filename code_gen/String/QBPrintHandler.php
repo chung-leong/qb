@@ -2,6 +2,10 @@
 
 class QBPrintHandler extends QBHandler {
 
+	public function needsInterpreterContext() {
+		return true;
+	}
+
 	protected function getSprintf() {
 		$type = $this->getOperandType(1);
 		if($type == "F32") {		

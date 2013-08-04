@@ -20,15 +20,15 @@ class QBRefractHandler extends QBMatrixHandler {
 		if($this->operandSize == "variable") {
 			$lines[] = "uint32_t i;";
 			$lines[] = "$cType dot_product, k;";
-			$lines[] = "qb_calculate_dot_product_$type(op1_ptr, NULL, op2_ptr, NULL, MATRIX2_ROWS, &dot_product, NULL);";
+			$lines[] = "qb_calculate_dot_product_$type(op1_ptr, NULL, op2_ptr, NULL, MATRIX1_ROWS, &dot_product, NULL);";
 			$lines[] = "k = ($cType) (1.0 - (eta * eta) * (1.0 - dot_product * dot_product));";
 			$lines[] = "if(k < 0.0) {";
-			$lines[] = 		"for(i = 0; i < MATRIX2_ROWS; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
 			$lines[] = 			"res_ptr[0] = 0.0;";
 			$lines[] = 		"}";
 			$lines[] = "} else {";
 			$lines[] = 		"$cType m = eta * dot_product + sqrt$f(k);";
-			$lines[] = 		"for(i = 0; i < MATRIX2_ROWS; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
 			$lines[] = 			"res_ptr[i] = eta * op1_ptr[i] - m * op2_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "}";

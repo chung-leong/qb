@@ -27,6 +27,14 @@ class QBCodeGenerator {
 		}
 		fwrite($handle, "#pragma pack(pop)\n\n");
 
+		$lines = array();		
+		for($i = 1; $i <= 6; $i++) {
+			$lines[] = "#define op{$i}		*op{$i}_ptr";
+		}
+		$lines[] = "#define res		*res_ptr";
+		$lines[] = "";
+		$this->writeCode($handle, $lines);
+
 		$lines = array();
 		$lines[] = "extern void *op_handlers[];";
 		$lines[] = "";
@@ -43,7 +51,7 @@ class QBCodeGenerator {
 			$line1 = $function[0];
 			
 			// add the whole thing if it's an inline function
-			if(preg_match('/\b(inline|zend_always_inline|static)\b/', $line1)) {
+			if(preg_match('/\b(inline|zend_always_inline)\b/', $line1)) {
 				if(!$wasInline) {
 					fwrite($handle, "\n");
 				}
@@ -63,9 +71,13 @@ class QBCodeGenerator {
 		$this->currentIndentationLevel = 0;
 		
 		$functions = $this->getFunctionDefinitions();
-		foreach($functions as $lines) {
-			$this->writeCode($handle, $lines);
-			fwrite($handle, "\n");
+		foreach($functions as $function) {
+			$line1 = $function[0];
+		
+			if(!preg_match('/\b(inline|zend_always_inline)\b/', $line1)) {
+				$this->writeCode($handle, $function);
+				fwrite($handle, "\n");
+			}
 		}
 	}
 	
@@ -171,7 +183,7 @@ class QBCodeGenerator {
 		$this->writeCode($handle, $lines);
 	}
 	
-	public function writeOpCodes($handle, $compiler) {
+	public function writeOpCodes($handle) {
 		$this->currentIndentationLevel = 0;
 		
 		$lines = array();
@@ -246,11 +258,13 @@ class QBCodeGenerator {
 			}
 			
 			// add operands
+			$opCount = $handler->getOperandCount();
+			$srcCount = $handler->getInputOperandCount();
 			for($i = 1; $i <= $opCount; $i++, $shift += 4) {
-				$mode = $this->getOperandAddressMode($i);
+				$mode = $handler->getOperandAddressMode($i);
 				$operandFlags = "QB_OPERAND_ADDRESS_$mode";
 				if($i > $srcCount) {
-					$operandFlags = "($operandInfo | QB_OPERAND_WRITABLE)";
+					$operandFlags = "($operandFlags | QB_OPERAND_WRITABLE)";
 				}
 				$flags[] = "($operandFlags << $shift)";
 			}
@@ -1035,7 +1049,7 @@ class QBCodeGenerator {
 				$this->handlers[] = new QBHypotHandler("HYPOT", $elementType, $addressMode);
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new QBLCGValueHandler("LCG", $elementType, $addressMode);
+				$this->handlers[] = new QBLCGHandler("LCG", $elementType, $addressMode);
 			}
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new QBIsFiniteHandler("FIN", $elementType, $addressMode);
@@ -1295,8 +1309,8 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_3X", $elementType, null, 3);
 			$this->handlers[] = new QBNormalizeHandler("NORM_3X", $elementType, "ARR", 3);
-			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, null);
-			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, "ARR");
+			$this->handlers[] = new QBCrossProductHandler("CROSS_3X", $elementType, null, 3);
+			$this->handlers[] = new QBCrossProductHandler("CROSS_3X", $elementType, "ARR", 3);
 			$this->handlers[] = new QBFaceForwardHandler("FORE_3X", $elementType, null, 3);
 			$this->handlers[] = new QBFaceForwardHandler("FORE_3X", $elementType, "ARR", 3);
 			$this->handlers[] = new QBReflectHandler("REFL_3X", $elementType, null, 3);
@@ -1349,6 +1363,8 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM_2X", $elementType, null, 2);
 			$this->handlers[] = new QBNormalizeHandler("NORM_2X", $elementType, "ARR", 2);
+			$this->handlers[] = new QBCrossProductHandler("CROSS_2X", $elementType, null, 2);
+			$this->handlers[] = new QBCrossProductHandler("CROSS_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBFaceForwardHandler("FORE_2X", $elementType, null, 2);
 			$this->handlers[] = new QBFaceForwardHandler("FORE_2X", $elementType, "ARR", 2);
 			$this->handlers[] = new QBReflectHandler("REFL_2X", $elementType, null, 2);

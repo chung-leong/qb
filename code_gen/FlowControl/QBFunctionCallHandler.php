@@ -55,7 +55,7 @@ class QBFunctionCallHandler extends QBHandler {
 		if($this->addressMode == "VAR") {
 			$functions = array(
 				array(
-					"uint32_t zend_always_inline qb_decode_fcall_variable_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {",
+					"static zend_always_inline uint32_t qb_decode_fcall_variable_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {",
 						"uint32_t operand1 = operands[0];",
 						"uint32_t var_operand2 = operands[1];",
 						"uint32_t type = operand1 & 0x00FF;",

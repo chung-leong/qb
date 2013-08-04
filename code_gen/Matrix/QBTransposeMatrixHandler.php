@@ -19,7 +19,7 @@ class QBTransposeMatrixHandler extends QBMatrixHandler {
 		$cType = $this->getOperandCType(2);
 		$lines = array();
 		if($this->operandSize == "variable") {
-			$lines[] = $lines[] = "ALLOCA_FLAG(use_heap)";
+			$lines[] = "ALLOCA_FLAG(use_heap)";
 			$lines[] = "$cType *__restrict buffer = do_alloca(MATRIX1_ROWS * MATRIX1_COLS * sizeof($cType), use_heap);";
 			$lines[] = "uint32_t i, j, k, p;";
 			$lines[] = "for(i = 0, p = 0; i < MATRIX1_ROWS; i++) {";

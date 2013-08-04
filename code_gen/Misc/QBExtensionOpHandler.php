@@ -2,7 +2,7 @@
 
 class QBExtensionOpHandler extends QBHandler {
 	
-	public function needsLineNumber() {
+	public function needsLineNumber($where = null) {
 		return true;
 	}
 

@@ -5,13 +5,13 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 	protected function getPixelRetrievalExpression($offsetX, $offsetY) {
 		$pixel = "p$offsetX$offsetY";
 		$lines = array();
-		$lines[] = "if((((uint32_t) ix + $offsetX) < width) && (((uint32_t) iy + $offsetY) < height)) {";
-		$lines[] =		"uint32_t index = (((iy + $offsetY) * width) + (ix + $offsetX)) * $this->operandSize;";
-		$lines[] =		"{$pixel}[0] = pixels[index + 0];";
-		$lines[] =		"{$pixel}[1] = pixels[index + 1];";
-		$lines[] =		"{$pixel}[2] = pixels[index + 2];";
+		$lines[] = "if((((uint32_t) ix + $offsetX) < op2) && (((uint32_t) iy + $offsetY) < op3)) {";
+		$lines[] =		"uint32_t index = (((iy + $offsetY) * op2) + (ix + $offsetX)) * $this->operandSize;";
+		$lines[] =		"{$pixel}[0] = op1_ptr[index + 0];";
+		$lines[] =		"{$pixel}[1] = op1_ptr[index + 1];";
+		$lines[] =		"{$pixel}[2] = op1_ptr[index + 2];";
 		if($this->operandSize == 4) {
-			$lines[] =	"{$pixel}[3] = pixels[index + 3];";
+			$lines[] =	"{$pixel}[3] = op1_ptr[index + 3];";
 		}
 		$lines[] = "} else {";
 		$lines[] =		"{$pixel}[0] = 0;";
@@ -31,16 +31,16 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 		$lines = array();
 		$lines[] = "int32_t ix = qb_quick_floor$f(op4 - 0.5$f);";
 		$lines[] = "int32_t iy = qb_quick_floor$f(op5 - 0.5$f);";
-		$lines[] = "$cType fx = (x - 0.5$f) - floor$f(op4 - 0.5$f);";
-		$lines[] = "$cType fy = (y - 0.5$f) - floor$f(op5 - 0.5$f);";
+		$lines[] = "$cType fx = (op4 - 0.5$f) - floor$f(op4 - 0.5$f);";
+		$lines[] = "$cType fy = (op5 - 0.5$f) - floor$f(op5 - 0.5$f);";
 		$lines[] = "if(fx + fy == 0) {";
 		$lines[] = 		"if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {";
-		$lines[] = 			"uint32_t index = ((iy * width) + ix) * 4;";
-		$lines[] = 			"res_ptr[0] = pixels[index + 0];";
-		$lines[] = 			"res_ptr[1] = pixels[index + 1];";
-		$lines[] = 			"res_ptr[2] = pixels[index + 2];";
+		$lines[] = 			"uint32_t index = ((iy * op2) + ix) * 4;";
+		$lines[] = 			"res_ptr[0] = op1_ptr[index + 0];";
+		$lines[] = 			"res_ptr[1] = op1_ptr[index + 1];";
+		$lines[] = 			"res_ptr[2] = op1_ptr[index + 2];";
 		if($this->operandSize == 4) {
-			$lines[] = 		"res_ptr[3] = pixels[index + 3];";
+			$lines[] = 		"res_ptr[3] = op1_ptr[index + 3];";
 		}
 		$lines[] = 		"} else {";
 		$lines[] = 			"res_ptr[0] = 0;";

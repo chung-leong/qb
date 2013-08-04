@@ -27,11 +27,11 @@ class QBSubarrayPositionFromEndHandler extends QBHandler {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$lines = array();
-		$lines[] = "int32_t index = -1";		
+		$lines[] = "int32_t index = -1;";		
 		$lines[] = "if(op2_count > 0) {";
 		$lines[] = 		"uint32_t i, j;";
-		$lines[] = 		"if(start_index < 0) {";
-		$lines[] = 			"for(i = op1_count + start_index; (int32_t) i >= 0; i--) {";
+		$lines[] = 		"if(op3 < 0) {";
+		$lines[] = 			"for(i = op1_count + op3; (int32_t) i >= 0; i--) {";
 		$lines[] = 				"if(op1_ptr[i] == op2_ptr[0]) {";
 		$lines[] = 					"for(j = 1; j < op2_count; j++) {";
 		$lines[] = 						"if(op1_ptr[i + j] != op2_ptr[j]) {";
@@ -45,7 +45,7 @@ class QBSubarrayPositionFromEndHandler extends QBHandler {
 		$lines[] = 				"}";
 		$lines[] = 			"}";
 		$lines[] = 		"} else {";
-		$lines[] = 			"for(i = op1_count - 1; (int32_t) i >= start_index; i--) {";
+		$lines[] = 			"for(i = op1_count - 1; (int32_t) i >= op3; i--) {";
 		$lines[] = 				"if(op1_ptr[i] == op2_ptr[0]) {";
 		$lines[] = 					"for(j = 1; j < op2_count; j++) {";
 		$lines[] = 						"if(op1_ptr[i + j] != op2_ptr[j]) {";
@@ -60,7 +60,7 @@ class QBSubarrayPositionFromEndHandler extends QBHandler {
 		$lines[] = 			"}";
 		$lines[] = 		"}";
 		$lines[] = "}";
-		$lines[] = "res = index";
+		$lines[] = "res = index;";
 		return $lines;
 	}
 }

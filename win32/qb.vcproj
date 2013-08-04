@@ -529,6 +529,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="..\CREDITS"
+				>
+			</File>
+			<File
 				RelativePath="..\qb.c"
 				>
 			</File>
@@ -837,6 +841,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_interpreter_functions_gcc.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_interpreter_functions_msvc.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_interpreter_gcc.c"
 				>
 				<FileConfiguration
@@ -971,6 +991,14 @@
 			</File>
 			<File
 				RelativePath="..\qb_interpreter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_interpreter_gcc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_interpreter_msvc.h"
 				>
 			</File>
 			<File

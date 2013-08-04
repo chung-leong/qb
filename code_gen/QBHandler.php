@@ -216,19 +216,25 @@ class QBHandler {
 		return false;
 	}
 	
-	public function needsMatrixDimensions() {
+	public function needsMatrixDimensions($which = null) {
 		return false;
 	}
 
 	public function needsInterpreterContext() {
 		return false;
 	}
+	
+	public function hasAlternativeAddressModes() {
+		return ($this->addressMode == 'VAR');
+	}
 
-	public function needsLineNumber() {
-		$opCount = $this->getOperandCount();
-		for($i = 1; $i <= $opCount; $i++) {
-			if($this->getOperandAddressMode($i) != "VAR") {
-				return true;
+	public function needsLineNumber($where = null) {
+		if(!$where || $where == "retrieval") {
+			$opCount = $this->getOperandCount();
+			for($i = 1; $i <= $opCount; $i++) {
+				if($this->getOperandAddressMode($i) != "VAR") {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -277,10 +283,10 @@ class QBHandler {
 		
 		// see if matrix dimensions are needed
 		if($this->needsMatrixDimensions()) {
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_rows";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_cols";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_rows";
-			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_cols";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX1_ROWS";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX1_COLS";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX2_ROWS";
+			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX2_COLS";
 		}
 		
 		// add output operand		
@@ -292,6 +298,10 @@ class QBHandler {
 			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
 				$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
 			}
+		}
+		
+		if($this->needsLineNumber("function")) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "PHP_LINE_NUMBER";
 		}
 		
 		return $variables;
@@ -607,7 +617,10 @@ class QBHandler {
 		$lines[] = "if($condition) {";
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);
-			$lines[] =	"$cType *op{$i}_start = op{$i}_ptr, *op{$i}_end = op{$i}_ptr + op{$i}_count;";
+			$operandSize = $this->getOperandSize($i);
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+				$lines[] =	"$cType *op{$i}_start = op{$i}_ptr, *op{$i}_end = op{$i}_ptr + op{$i}_count;";
+			}
 		}
 		$cType = $this->getOperandCType($srcCount + 1);
 		$lines[] =		"$cType *res_end = res_ptr + res_count;";
@@ -619,7 +632,9 @@ class QBHandler {
 		$lines[] = 			"res_ptr += $operandSize;";
 		for($i = 1; $i <= $srcCount; $i++) {
 			$operandSize = $this->getOperandSize($i);
-			$lines[] =		"op{$i}_ptr += $operandSize;";
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+				$lines[] =		"op{$i}_ptr += $operandSize;";
+			}
 		}
 		$lines[] =			"if(res_ptr >= res_end) {";
 		$lines[] =				"break;";

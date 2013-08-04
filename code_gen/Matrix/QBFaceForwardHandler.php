@@ -13,13 +13,13 @@ class QBFaceForwardHandler extends QBMatrixHandler {
 		if($this->operandSize == "variable") {
 			$lines[] = "uint32_t i;";
 			$lines[] = "$cType dot_product;";
-			$lines[] = "qb_calculate_dot_product_$type(op1_ptr, NULL, op2_ptr, NULL, MATRIX2_ROWS, &dot_product, NULL);";
+			$lines[] = "qb_calculate_dot_product_$type(op1_ptr, NULL, op2_ptr, NULL, MATRIX1_ROWS, &dot_product, NULL);";
 			$lines[] = "if(dot_product > 0) {";
-			$lines[] = 		"for(i = 0; i < dim; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
 			$lines[] = 			"res_ptr[i] = op1_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "} else {";
-			$lines[] = 		"for(i = 0; i < dim; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
 			$lines[] = 			"res_ptr[i] = -op1_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "}";

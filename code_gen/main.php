@@ -87,8 +87,6 @@ fwrite($handle, "\n");
 $generator->writeFunctionDefinitions($handle, 'MSVC', 'FUNCTION DEFINITIONS');
 $generator->writeNativeSymbolTable($handle, 'MSVC', 'NATIVE SYMBOLS');
 
-die();
-
 echo "Creating qb_opcodes.h\n";
 $handle = fopen("$targetFolder/qb_opcodes.h", "w");
 fwrite($handle, $copyright);

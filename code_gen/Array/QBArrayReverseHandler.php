@@ -35,7 +35,7 @@ class QBArrayReverseHandler extends QBHandler {
 		$lines[] = 		"}";
 		$lines[] = "} else {";
 		$lines[] = 		"ALLOCA_FLAG(use_heap)";
-		$lines[] = 		"$cType *t = do_alloca(width * sizeof($cType), use_heap);";
+		$lines[] = 		"$cType *t = do_alloca(op2 * sizeof($cType), use_heap);";
 		$lines[] = 		"for(i = 0, j = op1_count - op2; i <= j; i += op2, j -= op2) {";
 		$lines[] = 			"memcpy(t, op1_ptr + i, op2 * sizeof($cType));";
 		$lines[] = 			"memcpy(res_ptr + i, op1_ptr + j, op2 * sizeof($cType));";

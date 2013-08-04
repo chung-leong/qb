@@ -5,6 +5,22 @@ class QBDivideHandler extends QBHandler {
 	public function getInputOperandCount() {
 		return 2;
 	}
+	
+	public function needsInterpreterContext() {
+		$type = $this->getOperandType(1);
+		if($type[0] != 'F') {
+			return true;
+		}
+	}
+	
+	public function needsLineNumber($where = null) {
+		$type = $this->getOperandType(1);
+		if($type[0] != 'F') {
+			return true;
+		} else {
+			return parent::needsLineNumber($where);
+		}
+	}
 
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(1);

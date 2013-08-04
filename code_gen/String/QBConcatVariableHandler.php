@@ -17,7 +17,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		$sprintf = $this->getSprintf();
 		$functions = array(
 			array(
-				"uint32_t ZEND_FASTCALL qb_get_scalar_sprintf_length_$type(qb_interpreter_context *cxt, $cType op1) {",
+				"uint32_t ZEND_FASTCALL qb_get_scalar_sprintf_length_$type(qb_interpreter_context *cxt, $cType *op1_ptr) {",
 					"char sprintf_buffer[64];",
 					"uint32_t len = $sprintf;",
 					"return len;",
@@ -79,7 +79,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		$lines[] = 			"res_ptr[pos++] = ',';";
 		$lines[] = 			"res_ptr[pos++] = ' ';";
 		$lines[] = 		"}";
-		$lines[] = 		"op1_ptr++";
+		$lines[] = 		"op1_ptr++;";
 		$lines[] = "}";
 		$lines[] = "res_ptr[pos++] = ']';";
 		return $lines;
