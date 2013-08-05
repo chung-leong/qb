@@ -25,7 +25,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 			),
 			array(
 				"uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_$type(qb_interpreter_context *cxt, $cType *op1_ptr, uint32_t op1_count) {",
-					"uint32_t len, total = 0;",
+					"uint32_t total = 0;",
 					"$cType *op1_end = op1_ptr + op1_count;",
 					"while(op1_ptr < op1_end) {",
 						"char sprintf_buffer[64];",
@@ -67,7 +67,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		$sprintf = $this->getSprintf();
 		$cType = $this->getOperandCType(1);
 		$lines = array();
-		$lines[] = "uint32_t len, pos = 0;";
+		$lines[] = "uint32_t pos = 0;";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
 		$lines[] = "res_ptr[pos++] = '[';";
 		$lines[] = "while(op1_ptr < op1_end) {";

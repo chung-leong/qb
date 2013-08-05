@@ -24,7 +24,7 @@ class QBPrintHandler extends QBHandler {
 		return $sprintf;
 	}	
 	
-	protected function getFunctionType() {
+	public function getFunctionType() {
 		return 'extern';
 	}
 }

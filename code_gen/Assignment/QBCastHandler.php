@@ -14,7 +14,7 @@ class QBCastHandler extends QBHandler {
 		return ($i == 1) ? $this->operandType1 : $this->operandType2;
 	}
 	
-	protected function getFunctionName() {
+	public function getFunctionName() {
 		$name = parent::getFunctionName();
 		$name .= "_{$this->operandType1}_{$this->operandType2}";
 		return $name;

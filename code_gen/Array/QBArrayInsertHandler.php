@@ -18,6 +18,10 @@ class QBArrayInsertHandler extends QBHandler {
 		return "res_count + op1_count";
 	}
 	
+	public function needsOriginalSize() {
+		return true;
+	}
+	
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);

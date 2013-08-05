@@ -39,6 +39,11 @@ class QBHandler {
 			$name .= "_$type";
 		}
 		
+		// append the vector size
+		if($this->operandSize > 1) {
+			$name .= "_{$this->operandSize}X";
+		}
+		
 		// append the address mode
 		if($this->addressMode) {
 			$name .= "_$this->addressMode";
@@ -59,9 +64,11 @@ class QBHandler {
 		if($this->needsLineNumber()) {
 			$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
 		}
-		if($this->needsMatrixDimensions()) {
+		if($this->needsMatrixDimensions(1)) {
 			$lines[] = "#define MATRIX1_ROWS			((($instr *) instruction_pointer)->matrix_dimensions >> 20)";
 			$lines[] = "#define MATRIX1_COLS			(((($instr *) instruction_pointer)->matrix_dimensions >> 10) & 0x03FF)";
+		}
+		if($this->needsMatrixDimensions(2)) {
 			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
 			$lines[] = "#define MATRIX2_COLS			((($instr *) instruction_pointer)->matrix_dimensions & 0x03FF)";
 		}
@@ -76,9 +83,11 @@ class QBHandler {
 		if($this->needsLineNumber()) {
 			$lines[] = "#undef PHP_LINE_NUMBER";
 		}
-		if($this->needsMatrixDimensions()) {
+		if($this->needsMatrixDimensions(1)) {
 			$lines[] = "#undef MATRIX1_ROWS";
 			$lines[] = "#undef MATRIX1_COLS";
+		}
+		if($this->needsMatrixDimensions(2)) {
 			$lines[] = "#undef MATRIX2_ROWS";
 			$lines[] = "#undef MATRIX2_COLS";
 		}
@@ -224,6 +233,10 @@ class QBHandler {
 		return false;
 	}
 	
+	public function needsOriginalSize() {
+		return false;
+	}
+	
 	public function hasAlternativeAddressModes() {
 		return ($this->addressMode == 'VAR');
 	}
@@ -244,7 +257,7 @@ class QBHandler {
 		return $this->isVectorized();
 	}
 	
-	protected function getFunctionName() {
+	public function getFunctionName() {
 		$className = get_class($this);
 		$opName = substr($className, 2, -7);
 		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
@@ -262,7 +275,7 @@ class QBHandler {
 		return $name;
 	}
 
-	protected function getFunctionParameters($includeType) {
+	public function getFunctionParameters($includeType) {
 		$variables = array();
 		
 		// see if the interpretator context is needed
@@ -282,9 +295,11 @@ class QBHandler {
 		}
 		
 		// see if matrix dimensions are needed
-		if($this->needsMatrixDimensions()) {
+		if($this->needsMatrixDimensions(1)) {
 			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX1_ROWS";
 			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX1_COLS";
+		}
+		if($this->needsMatrixDimensions(2)) {
 			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX2_ROWS";
 			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX2_COLS";
 		}
@@ -300,6 +315,11 @@ class QBHandler {
 			}
 		}
 		
+		// see if the original size is needed
+		if($this->needsOriginalSize()) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "res_count_before";
+		}
+		
 		if($this->needsLineNumber("function")) {
 			$variables[] = (($includeType) ? "uint32_t " : "") . "PHP_LINE_NUMBER";
 		}
@@ -307,7 +327,7 @@ class QBHandler {
 		return $variables;
 	}
 	
-	protected function getFunctionType() {
+	public function getFunctionType() {
 		if(!$this->isOverridden('getAction') && !$this->isOverridden('getCode')) {
 			if($this->isMultipleData()) {
 				return 'extern';

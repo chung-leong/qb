@@ -39,11 +39,17 @@ class QBDeterminantHandler extends QBMatrixHandler {
 		$cType = $this->getOperandCType(2);
 		$lines = array();
 		if($this->operandSize == "variable") {
+			$determinantHandler4X = new QBDeterminantHandler($this->baseName, $this->operandType, "VAR", 4);
+			$determinantHandlerVar = new QBDeterminantHandler($this->baseName, $this->operandType, "VAR", "variable");
+			$function4X = $determinantHandler4X->getFunctionName();
+			$functionVar = $determinantHandlerVar->getFunctionName();
+			
 			$lines[] = "if(MATRIX1_ROWS == 4) {";
-			$lines[] = 		"qb_calculate_cm_matrix_determinant_4x4_$type(op1_ptr, op1_ptr + op1_count, res_ptr, res_ptr + res_count);";
+			$lines[] = 		"$function4X(op1_ptr, res_ptr);";
 			$lines[] = "} else {";
 			$lines[] = 		"ALLOCA_FLAG(use_heap)";
-			$lines[] = 		"$cType *__restrict minor = do_alloca((MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1) * sizeof($cType), use_heap);";
+			$lines[] =		"uint32_t minor_size = (MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1);";
+			$lines[] = 		"$cType *__restrict minor = do_alloca(minor_size * sizeof($cType), use_heap);";
 			$lines[] = 		"uint32_t i, j, k, m, n;";
 			$lines[] = 		"$cType sign = 1, det = 0;";
 			$lines[] = 		"for(m = 0; m < MATRIX1_ROWS; m++) {";
@@ -57,7 +63,7 @@ class QBDeterminantHandler extends QBMatrixHandler {
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"qb_calculate_cm_matrix_determinant_$type(minor, NULL, MATRIX1_ROWS - 1, &minor_det, NULL);";
+			$lines[] = 			"$functionVar(minor, MATRIX1_ROWS - 1, MATRIX1_COLS - 1, &minor_det);";
 			$lines[] = 			"det += a * minor_det * sign;";
 			$lines[] = 			"sign = -sign;";
 			$lines[] = 		"}";
