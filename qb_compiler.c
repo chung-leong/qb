@@ -1994,8 +1994,8 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 			}
 		}
 	} else if(result_flags & QB_RESULT_SIZE_MM_PRODUCT) {
-		qb_address *m1_address, *m1_size_address, *m1_row_address, *m1_col_address;
-		qb_address *m2_address, *m2_size_address, *m2_row_address, *m2_col_address;
+		qb_address *m1_address, *m1_size_address, *m1_col_address;
+		qb_address *m2_address, *m2_size_address, *m2_row_address;
 		uint32_t i, m1_count, m2_count, res_count;
 
 		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
@@ -2007,8 +2007,6 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 		m1_size_address = m1_address->array_size_addresses[m1_address->dimension_count - 2];
 		m2_size_address = m2_address->array_size_addresses[m2_address->dimension_count - 2];
 		m1_col_address = m1_address->dimension_addresses[m1_address->dimension_count + column_offset];
-		m2_col_address = m2_address->dimension_addresses[m2_address->dimension_count + column_offset];
-		m1_row_address = m1_address->dimension_addresses[m1_address->dimension_count + row_offset];
 		m2_row_address = m2_address->dimension_addresses[m2_address->dimension_count + row_offset];
 
 		if(m1_address->dimension_count > 1) {
@@ -2068,13 +2066,11 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 			dim->dimension_addresses[dim->dimension_count + row_offset] = m2_row_address;
 		}
 	} else if((result_flags & QB_RESULT_SIZE_MV_PRODUCT) || (result_flags & QB_RESULT_SIZE_VM_PRODUCT)) {
-		qb_address *m_address, *m_size_address, *m_row_address, *m_col_address;
+		qb_address *m_address, *m_size_address;
 		qb_address *v_address, *v_width_address;
 		uint32_t i, m_count, v_count, res_count;
 
 		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
-		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
-		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
 
 		if(result_flags & QB_RESULT_SIZE_MV_PRODUCT) { 
 			m_address = operands[0].address;
@@ -2085,8 +2081,6 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 		}
 		v_width_address = v_address->array_size_addresses[v_address->dimension_count - 1];
 		m_size_address = m_address->array_size_addresses[m_address->dimension_count - 2];
-		m_col_address = m_address->dimension_addresses[m_address->dimension_count + column_offset];
-		m_row_address = m_address->dimension_addresses[m_address->dimension_count + row_offset];
 
 		if(v_address->dimension_count > 1) {
 			if(IS_VARIABLE_LENGTH_ARRAY(v_address)) {

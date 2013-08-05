@@ -30,7 +30,7 @@ class QBConcatMultidimensionalVariableHandler extends QBPrintHandler {
 					"uint32_t total = 0, multiplier = 1;",
 					"while(op1_ptr < op1_end) {",
 						"char sprintf_buffer[64];",
-						"uint32_t len = sprintf(sprintf_buffer, \"%d\", *op1_ptr);",
+						"uint32_t len = $sprintf;",
 						"total += len;",
 						"op1_ptr++;",
 					"}",

@@ -43460,6 +43460,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_4x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_4_lineno);
@@ -46233,6 +46234,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_3x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_4_lineno);
@@ -48840,6 +48842,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_2x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_4_lineno);
@@ -51481,6 +51484,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_F32(op1_ptr, op2_ptr, op3_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 #undef PHP_LINE_NUMBER
 #undef MATRIX1_ROWS
 #undef MATRIX1_COLS
@@ -64222,6 +64226,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_4x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_4_lineno);
@@ -66839,6 +66844,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_3x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_4_lineno);
@@ -69446,6 +69452,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_2x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_4_lineno);
@@ -72087,6 +72094,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
+			qb_do_refract_F64(op1_ptr, op2_ptr, op3_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 #undef PHP_LINE_NUMBER
 #undef MATRIX1_ROWS
 #undef MATRIX1_COLS

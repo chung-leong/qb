@@ -940,7 +940,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 							if(qop->flags & QB_OP_ISSET && operand_address_mode == QB_ADDRESS_MODE_ELV) {
 								qb_printf(cxt, "#define op%d_ptr	((%s *) isset_pointer)\n", operand_number, type_cnames[address->type]);
 							} else {
-								qb_printf(cxt, "#define op%d_ptr	&op%d\n", operand_number);
+								qb_printf(cxt, "#define op%d_ptr	&op%d\n", operand_number, operand_number);
 							}
 						}
 					}

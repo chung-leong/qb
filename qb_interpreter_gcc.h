@@ -867,6 +867,8 @@ void ZEND_FASTCALL qb_do_refract_3x_multiple_times_F32(float32_t * __restrict op
 void ZEND_FASTCALL qb_do_refract_3x_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, float64_t * __restrict op3_ptr, float64_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_refract_4x_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, float32_t * __restrict op3_ptr, float32_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_refract_4x_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, float64_t * __restrict op3_ptr, float64_t * __restrict res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_refract_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr);
+void ZEND_FASTCALL qb_do_refract_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, float64_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr);
 void ZEND_FASTCALL qb_do_refract_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, float32_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_refract_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, float64_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_round_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict op3_ptr, uint32_t op3_count, float32_t * __restrict res_ptr, uint32_t res_count);
@@ -1932,6 +1934,96 @@ static zend_always_inline void qb_do_reflect_4x_F64(float64_t * __restrict op1_p
 	res_ptr[1] = (float64_t) (op1_ptr[1] - 2.0 * dot_product * op2_ptr[1]);
 	res_ptr[2] = (float64_t) (op1_ptr[2] - 2.0 * dot_product * op2_ptr[2]);
 	res_ptr[3] = (float64_t) (op1_ptr[3] - 2.0 * dot_product * op2_ptr[3]);
+}
+
+static zend_always_inline void qb_do_refract_2x_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict op3_ptr, float32_t * __restrict res_ptr) {
+	float32_t dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);
+	float32_t k = (float32_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		res_ptr[0] = 
+		res_ptr[1] = 0.0;
+	} else {
+		float32_t m = op3 * dot_product + sqrtf(k);
+		res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];
+		res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];
+	}
+}
+
+static zend_always_inline void qb_do_refract_2x_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, float64_t * __restrict op3_ptr, float64_t * __restrict res_ptr) {
+	float64_t dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);
+	float64_t k = (float64_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		res_ptr[0] = 
+		res_ptr[1] = 0.0;
+	} else {
+		float64_t m = op3 * dot_product + sqrt(k);
+		res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];
+		res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];
+	}
+}
+
+static zend_always_inline void qb_do_refract_3x_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict op3_ptr, float32_t * __restrict res_ptr) {
+	float32_t dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);
+	float32_t k = (float32_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		res_ptr[0] = 
+		res_ptr[1] = 
+		res_ptr[2] = 0.0;
+	} else {
+		float32_t m = op3 * dot_product + sqrtf(k);
+		res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];
+		res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];
+		res_ptr[2] = op3 * op1_ptr[2] - m * op2_ptr[2];
+	}
+}
+
+static zend_always_inline void qb_do_refract_3x_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, float64_t * __restrict op3_ptr, float64_t * __restrict res_ptr) {
+	float64_t dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);
+	float64_t k = (float64_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		res_ptr[0] = 
+		res_ptr[1] = 
+		res_ptr[2] = 0.0;
+	} else {
+		float64_t m = op3 * dot_product + sqrt(k);
+		res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];
+		res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];
+		res_ptr[2] = op3 * op1_ptr[2] - m * op2_ptr[2];
+	}
+}
+
+static zend_always_inline void qb_do_refract_4x_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict op3_ptr, float32_t * __restrict res_ptr) {
+	float32_t dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);
+	float32_t k = (float32_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		res_ptr[0] = 
+		res_ptr[1] = 
+		res_ptr[2] = 
+		res_ptr[3] = 0.0;
+	} else {
+		float32_t m = op3 * dot_product + sqrtf(k);
+		res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];
+		res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];
+		res_ptr[2] = op3 * op1_ptr[2] - m * op2_ptr[2];
+		res_ptr[3] = op3 * op1_ptr[3] - m * op2_ptr[3];
+	}
+}
+
+static zend_always_inline void qb_do_refract_4x_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, float64_t * __restrict op3_ptr, float64_t * __restrict res_ptr) {
+	float64_t dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);
+	float64_t k = (float64_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		res_ptr[0] = 
+		res_ptr[1] = 
+		res_ptr[2] = 
+		res_ptr[3] = 0.0;
+	} else {
+		float64_t m = op3 * dot_product + sqrt(k);
+		res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];
+		res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];
+		res_ptr[2] = op3 * op1_ptr[2] - m * op2_ptr[2];
+		res_ptr[3] = op3 * op1_ptr[3] - m * op2_ptr[3];
+	}
 }
 
 static zend_always_inline void qb_do_remove_premultiplication_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict res_ptr, uint32_t res_count) {

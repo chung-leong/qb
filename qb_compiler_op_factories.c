@@ -1457,7 +1457,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_op(qb_compiler_context *cxt, void 
 		qop->operands[i].address = operands[i].address;
 	}
 	qop->operands[operand_count] = *result;
-	qop->matrix_dimensions = V_DIMENSIONS(dimension1);
+	qop->matrix_dimensions = V_DIMENSIONS(dimension1)
 	return qop;
 }
 

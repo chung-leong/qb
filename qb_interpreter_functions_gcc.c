@@ -851,7 +851,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_F32(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -869,7 +869,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_F64(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -887,7 +887,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S08(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -905,7 +905,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S16(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -923,7 +923,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S32(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -941,7 +941,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S64(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -959,7 +959,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U08(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -977,7 +977,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U16(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -995,7 +995,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U32(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -1013,7 +1013,7 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U64(qb_interpreter_context
 	uint32_t total = 0, multiplier = 1;
 	while(op1_ptr < op1_end) {
 		char sprintf_buffer[64];
-		uint32_t len = sprintf(sprintf_buffer, "%d", *op1_ptr);
+		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1);
 		total += len;
 		op1_ptr++;
 	}
@@ -12654,6 +12654,7 @@ void ZEND_FASTCALL qb_do_refract_2x_multiple_times_F32(float32_t * __restrict op
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_2x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -12677,6 +12678,7 @@ void ZEND_FASTCALL qb_do_refract_2x_multiple_times_F64(float64_t * __restrict op
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_2x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -12700,6 +12702,7 @@ void ZEND_FASTCALL qb_do_refract_3x_multiple_times_F32(float32_t * __restrict op
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_3x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -12723,6 +12726,7 @@ void ZEND_FASTCALL qb_do_refract_3x_multiple_times_F64(float64_t * __restrict op
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_3x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -12746,6 +12750,7 @@ void ZEND_FASTCALL qb_do_refract_4x_multiple_times_F32(float32_t * __restrict op
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_4x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -12769,6 +12774,7 @@ void ZEND_FASTCALL qb_do_refract_4x_multiple_times_F64(float64_t * __restrict op
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_4x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -12786,10 +12792,45 @@ void ZEND_FASTCALL qb_do_refract_4x_multiple_times_F64(float64_t * __restrict op
 	}
 }
 
+void ZEND_FASTCALL qb_do_refract_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr) {
+	uint32_t i;
+	float32_t dot_product, k;
+	qb_do_dot_product_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, &dot_product);
+	k = (float32_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		for(i = 0; i < MATRIX1_ROWS; i++) {
+			res_ptr[0] = 0.0;
+		}
+	} else {
+		float32_t m = op3 * dot_product + sqrtf(k);
+		for(i = 0; i < MATRIX1_ROWS; i++) {
+			res_ptr[i] = op3 * op1_ptr[i] - m * op2_ptr[i];
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_refract_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, float64_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr) {
+	uint32_t i;
+	float64_t dot_product, k;
+	qb_do_dot_product_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, &dot_product);
+	k = (float64_t) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));
+	if(k < 0.0) {
+		for(i = 0; i < MATRIX1_ROWS; i++) {
+			res_ptr[0] = 0.0;
+		}
+	} else {
+		float64_t m = op3 * dot_product + sqrt(k);
+		for(i = 0; i < MATRIX1_ROWS; i++) {
+			res_ptr[i] = op3 * op1_ptr[i] - m * op2_ptr[i];
+		}
+	}
+}
+
 void ZEND_FASTCALL qb_do_refract_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, float32_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
 	if(res_count) {
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_F32(op1_ptr, op2_ptr, op3_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
@@ -12803,6 +12844,7 @@ void ZEND_FASTCALL qb_do_refract_multiple_times_F64(float64_t * __restrict op1_p
 	if(res_count) {
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
+			qb_do_refract_F64(op1_ptr, op2_ptr, op3_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
