@@ -11,14 +11,14 @@ class QBLengthHandler extends QBMatrixHandler {
 
 	public function getResultSizePossibilities() {
 		if($this->addressMode == "ARR") {
-			return "vector_op1_count";
+			return "vector_count";
 		}
 	}
 	
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
 			$vectorSize = $this->getOperandSize(1);
-			return "vector_op1_count = op1_count / $vectorSize;";
+			return "vector_count = op1_count / $vectorSize;";
 		}
 	}
 	

@@ -53,7 +53,7 @@ class QBConcatMultidimensionalVariableHandler extends QBPrintHandler {
 
 	public function getResultSizeCalculation() {
 		$type = $this->getOperandType(1);
-		return "string_length = qb_get_multidimensional_array_sprintf_length_$type(cxt, op1_ptr, op1_end, op2_ptr, op2_end, NULL);";
+		return "string_length = qb_get_multidimensional_array_sprintf_length_$type(cxt, op1_ptr, op1_count, op2_ptr, op2_count);";
 	}
 	
 	public function getActionOnUnitData() {

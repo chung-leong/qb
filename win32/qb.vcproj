@@ -809,26 +809,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\qb_data_tables_gcc.c"
-				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS_VC6|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\qb_data_tables_msvc.c"
 				>
 			</File>
@@ -841,64 +821,8 @@
 				>
 			</File>
 			<File
-				RelativePath="..\qb_interpreter_functions_gcc.c"
-				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\qb_interpreter_functions_msvc.c"
 				>
-			</File>
-			<File
-				RelativePath="..\qb_interpreter_gcc.c"
-				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_TS_VC6|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS_VC6|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_interpreter_msvc.c"
@@ -991,10 +915,6 @@
 			</File>
 			<File
 				RelativePath="..\qb_interpreter.h"
-				>
-			</File>
-			<File
-				RelativePath="..\qb_interpreter_gcc.h"
 				>
 			</File>
 			<File

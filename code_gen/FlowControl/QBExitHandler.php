@@ -7,7 +7,7 @@ class QBExitHandler extends QBHandler {
 	}
 	
 	public function getInputOperandCount() {
-		return 0;
+		return 1;
 	}
 
 	public function getOutputOperandCount() {
@@ -25,8 +25,16 @@ class QBExitHandler extends QBHandler {
 	public function getCode() {
 		$lines = array();
 		$name = $this->getName();
+		$opCount = $this->getOperandCount();
 		$lines[] = $this->getLabelCode($name);
 		$lines[] = "{";
+		// retrieve operands (none by default)
+		for($i = 1; $i <= $opCount; $i++) {
+			$lines[] = $this->getOperandDeclaration($i);
+		}
+		for($i = 1; $i <= $opCount; $i++) {
+			$lines[] = $this->getOperandRetrievalCode($i);
+		}
 		$lines[] =		"EG(exit_status) = op1;"; 
 		$lines[] =		"zend_bailout();";
 		$lines[] = "}";

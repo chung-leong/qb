@@ -32,16 +32,16 @@ class QBHandler {
 	public function getName() {
 		$name = $this->baseName;
 		
+		// append the vector size
+		if($this->operandSize > 1) {
+			$name .= "_{$this->operandSize}X";
+		}
+		
 		// append operand type to the name
 		$opCount = $this->getOperandCount();
 		for($i = 1; $i <= $opCount; $i++) {
 			$type = $this->getOperandType($i);
 			$name .= "_$type";
-		}
-		
-		// append the vector size
-		if($this->operandSize > 1) {
-			$name .= "_{$this->operandSize}X";
 		}
 		
 		// append the address mode

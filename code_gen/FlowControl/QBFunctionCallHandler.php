@@ -6,6 +6,18 @@ class QBFunctionCallHandler extends QBHandler {
 		parent::__construct($name, NULL, $addressMode);
 	}
 	
+	public function getInputOperandCount() {
+		return null;
+	}
+	
+	public function getOutputOperandCount() {
+		return null;
+	}
+	
+	public function needsLineNumber($where = null) {
+		return true;
+	}
+	
 	public function getCode() {
 		$lines = array();
 		$name = $this->getName();
@@ -119,24 +131,25 @@ class QBFunctionCallHandler extends QBHandler {
 			return $functions;
 		} 
 	}
+
+	public function getInstructionStructure() {		
+		return "qb_instruction_fcall";
+	}
 	
-	public function getInstructionStructure() {
-		$instr = "qb_instruction_fcall";
-		if(!isset(self::$typeDecls[$instr])) {
-			$lines = array();
-			$lines[] = "void *next_handler;";
-			$lines[] = "uint16_t operand_size;";
-			$lines[] = "uint16_t argument_count;";
-			$lines[] = "uint32_t line_number;";
-			$lines[] = "uint32_t symbol_index;";
-			$lines[] = "uint32_t operands[1];";
-			self::$typeDecls[$instr] = array(
-					"typedef struct $instr {",
-						$lines,
-					"} $instr;"
-			);
-		}
-		return $instr;
+	public function getInstructionStructureDefinition() {
+		$instr = $this->getInstructionStructure();
+		$targetCount = $this->getJumpTargetCount();
+		$opCount = $this->getOperandCount();
+		$lines = array();
+		$lines[] = "typedef struct $instr {";
+		$lines[] = "void *next_handler;";
+		$lines[] = "uint16_t operand_size;";
+		$lines[] = "uint16_t argument_count;";
+		$lines[] = "uint32_t line_number;";
+		$lines[] = "uint32_t symbol_index;";
+		$lines[] = "uint32_t operands[1];";
+		$lines[] = "} $instr;";
+		return $lines;
 	}
 }
 

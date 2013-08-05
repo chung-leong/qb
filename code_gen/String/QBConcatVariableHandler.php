@@ -50,7 +50,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		if($this->addressMode == "ARR") {
 			return "string_length = qb_get_array_sprintf_length_$type(cxt, op1_ptr, op1_count);";
 		} else {
-			return "string_length = qb_get_scalar_sprintf_length_$type(cxt, op1);";
+			return "string_length = qb_get_scalar_sprintf_length_$type(cxt, op1_ptr);";
 		}		 
 	}
 	

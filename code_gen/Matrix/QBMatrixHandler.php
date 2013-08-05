@@ -48,10 +48,7 @@ class QBMatrixHandler extends QBHandler {
 	
 	public function needsMatrixDimensions($which = null) {
 		if($this->operandSize == "variable") {
-			if(!$which) {
-				// need dimensions in general
-				return true;				
-			} else if($which <= $this->getInputOperandCount()) {
+			if(!$which || $which <= $this->getInputOperandCount()) {
 				return true;
 			}
 		} 

@@ -6,6 +6,16 @@ class QBUnsetHandler extends QBHandler {
 		return 0;
 	}
 	
+	protected function getOperandDeclaration($i) {
+		$addressMode = $this->getOperandAddressMode($i);
+		if($addressMode == "ELV" || $addressMode == "ARR") {
+			// don't need any thing
+			return null;
+		} else {
+			return parent::getOperandDeclaration($i);
+		}
+	}
+	
 	protected function getOperandRetrievalCode($i) {
 		$instr = $this->getInstructionStructure();
 		$cType = $this->getOperandCType($i);
