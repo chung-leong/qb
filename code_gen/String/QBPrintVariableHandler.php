@@ -2,10 +2,14 @@
 
 class QBPrintVariableHandler extends QBPrintHandler {
 
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function needsInterpreterContext() {
 		return true;
 	}
-
+	
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf();
 		$lines = array();

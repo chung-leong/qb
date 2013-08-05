@@ -2,6 +2,10 @@
 
 class QBExtensionOpHandler extends QBHandler {
 	
+	public function getOutputOperandCount() {
+		return 0;
+	}
+
 	public function needsLineNumber($where = null) {
 		return true;
 	}

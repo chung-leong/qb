@@ -839,7 +839,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 			qb_abort("%s expects an array as the first parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
-			qb_address *count_address = container->address->dimension_addresses[0];
 			qb_address *width_address;
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, container->address);
@@ -850,7 +849,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 			}
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, container->address->type, result_dim, result_prototype, result_flags);
-			qb_create_ternary_op(cxt, f->extra, container->address, count_address, width_address, result->address);
+			qb_create_binary_op(cxt, f->extra, container->address, width_address, result->address);
 		}
 	}
 }
