@@ -75,7 +75,7 @@ if test "$PHP_QB" != "no"; then
     ;;
   esac
 
-  extra_sources="qb_types.c qb_compiler.c qb_native_compiler.c qb_interpreter.c qb_interpreter_gcc.c qb_extractor.c qb_data_tables_gcc.c qb_compat.c"
+  extra_sources="qb_types.c qb_compiler.c qb_native_compiler.c qb_interpreter.c qb_interpreter_gcc.c qb_interpreter_functions_gcc.c qb_extractor.c qb_data_tables_gcc.c qb_compat.c"
 
   PHP_NEW_EXTENSION(qb, qb.c $extra_sources, $ext_shared, , $qb_cflags)
 fi
