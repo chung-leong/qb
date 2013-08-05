@@ -19,6 +19,16 @@ class QBCrossProductHandler extends QBMatrixHandler {
 		}
 	}
 
+	public function needsMatrixDimensions($which = null) {
+		if($this->operandSize == "variable") {
+			if($which == 1) {
+				// only need the first, since the second must have the same size
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);

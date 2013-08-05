@@ -20,6 +20,9 @@ class QBInvertMatrixHandler extends QBMatrixHandler {
 		$f = ($type == "F32") ? 'f' : '';
 		$lines = array();
 		if($this->operandSize == "variable") {
+			$determinantHandler = new QBDeterminantHandler(NULL, $this->operandType, "VAR", "variable");
+			$determinantFunction = $determinantHandler->getFunctionName();
+			
 			$lines[] = "ALLOCA_FLAG(use_heap)";
 			$lines[] = "$cType *__restrict minor = do_alloca((MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1) * sizeof($cType), use_heap);";
 			$lines[] = "$cType *__restrict cofactors = do_alloca(MATRIX1_ROWS * MATRIX1_COLS * sizeof($cType), use_heap);";
@@ -38,7 +41,7 @@ class QBInvertMatrixHandler extends QBMatrixHandler {
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"qb_calculate_cm_matrix_determinant_$type(minor, NULL, MATRIX1_ROWS - 1, &minor_det, NULL);";
+			$lines[] = 			"$determinantFunction(minor, MATRIX1_ROWS - 1, MATRIX1_COLS - 1, &minor_det);";
 			$lines[] = 			"cofactors[p] = minor_det * sign;";
 			$lines[] = 			"p++;";
 			$lines[] = 			"if(n == 0) {";

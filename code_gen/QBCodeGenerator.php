@@ -45,23 +45,27 @@ class QBCodeGenerator {
 		QBHandler::setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 
-		$wasInline = true;
 		$functions = $this->getFunctionDefinitions();
+		$inlinePattern = '/\b(inline|zend_always_inline)\b/';
+		
+		// add non-inline functions first
 		foreach($functions as $function) {
 			$line1 = $function[0];
 			
-			// add the whole thing if it's an inline function
-			if(preg_match('/\b(inline|zend_always_inline)\b/', $line1)) {
-				if(!$wasInline) {
-					fwrite($handle, "\n");
-				}
-				$this->writeCode($handle, $function);
-				fwrite($handle, "\n");
-				$wasInline = true;
-			} else {
+			if(!preg_match($inlinePattern, $line1)) {
 				$prototype = preg_replace('/\s*{\s*$/', ';', $line1);
 				fwrite($handle, "$prototype\n");
-				$wasInline = false;
+			}
+		}
+		fwrite($handle, "\n");
+		
+		// add inline-functions
+		foreach($functions as $function) {
+			$line1 = $function[0];
+			
+			if(preg_match($inlinePattern, $line1)) {
+				$this->writeCode($handle, $function);
+				fwrite($handle, "\n");
 			}
 		}
 	}

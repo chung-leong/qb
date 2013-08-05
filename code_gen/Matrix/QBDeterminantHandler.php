@@ -39,13 +39,13 @@ class QBDeterminantHandler extends QBMatrixHandler {
 		$cType = $this->getOperandCType(2);
 		$lines = array();
 		if($this->operandSize == "variable") {
-			$determinantHandler4X = new QBDeterminantHandler($this->baseName, $this->operandType, "VAR", 4);
-			$determinantHandlerVar = new QBDeterminantHandler($this->baseName, $this->operandType, "VAR", "variable");
-			$function4X = $determinantHandler4X->getFunctionName();
-			$functionVar = $determinantHandlerVar->getFunctionName();
+			$determinantHandler4X = new QBDeterminantHandler(NULL, $this->operandType, "VAR", 4);
+			$determinantHandler = new QBDeterminantHandler(NULL, $this->operandType, "VAR", "variable");
+			$determinantFunction4X = $determinantHandler4X->getFunctionName();
+			$determinantFunction = $determinantHandler->getFunctionName();
 			
 			$lines[] = "if(MATRIX1_ROWS == 4) {";
-			$lines[] = 		"$function4X(op1_ptr, res_ptr);";
+			$lines[] = 		"$determinantFunction4X(op1_ptr, res_ptr);";
 			$lines[] = "} else {";
 			$lines[] = 		"ALLOCA_FLAG(use_heap)";
 			$lines[] =		"uint32_t minor_size = (MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1);";
@@ -63,7 +63,7 @@ class QBDeterminantHandler extends QBMatrixHandler {
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"$functionVar(minor, MATRIX1_ROWS - 1, MATRIX1_COLS - 1, &minor_det);";
+			$lines[] = 			"$determinantFunction(minor, MATRIX1_ROWS - 1, MATRIX1_COLS - 1, &minor_det);";
 			$lines[] = 			"det += a * minor_det * sign;";
 			$lines[] = 			"sign = -sign;";
 			$lines[] = 		"}";

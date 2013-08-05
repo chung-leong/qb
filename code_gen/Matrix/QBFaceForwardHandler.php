@@ -11,9 +11,12 @@ class QBFaceForwardHandler extends QBMatrixHandler {
 		$type = $this->getOperandType(3);
 		$lines = array();
 		if($this->operandSize == "variable") {
+			$dotProductHandler = new QBDotProductHandler(NULL, $this->operandType, "VAR", $this->operandSize);
+			$dotProductFunction = $dotProductHandler->getFunctionName();
+			
 			$lines[] = "uint32_t i;";
 			$lines[] = "$cType dot_product;";
-			$lines[] = "qb_calculate_dot_product_$type(op1_ptr, NULL, op2_ptr, NULL, MATRIX1_ROWS, &dot_product, NULL);";
+			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, &dot_product);";
 			$lines[] = "if(dot_product > 0) {";
 			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
 			$lines[] = 			"res_ptr[i] = op1_ptr[i];";
@@ -26,8 +29,7 @@ class QBFaceForwardHandler extends QBMatrixHandler {
 		} else {
 			switch($this->operandSize) {
 				case 2: {
-					$lines[] = "$cType dot_product;";
-					$lines[] = "qb_calculate_dot_product_2x_$type(op1_ptr, NULL, op2_ptr, NULL, &dot_product, NULL);";
+					$lines[] = "$cType dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);";
 					$lines[] = "if(dot_product > 0) {";
 					$lines[] = 		"res_ptr[0] = op1_ptr[0];";
 					$lines[] = 		"res_ptr[1] = op1_ptr[1];";
@@ -37,8 +39,7 @@ class QBFaceForwardHandler extends QBMatrixHandler {
 					$lines[] = "}";
 				}	break;
 				case 3: {
-					$lines[] = "$cType dot_product;";
-					$lines[] = "qb_calculate_dot_product_3x_$type(op1_ptr, NULL, op2_ptr, NULL, &dot_product, NULL);";
+					$lines[] = "$cType dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);";
 					$lines[] = "if(dot_product > 0) {";
 					$lines[] = 		"res_ptr[0] = op1_ptr[0];";
 					$lines[] = 		"res_ptr[1] = op1_ptr[1];";
@@ -50,8 +51,7 @@ class QBFaceForwardHandler extends QBMatrixHandler {
 					$lines[] = "}";
 				}	break;
 				case 4: {
-					$lines[] = "$cType dot_product;";
-					$lines[] = "qb_calculate_dot_product_4x_$type(op1_ptr, NULL, op2_ptr, NULL, &dot_product, NULL);";
+					$lines[] = "$cType dot_product = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);";
 					$lines[] = "if(dot_product > 0) {";
 					$lines[] = 		"res_ptr[0] = op1_ptr[0];";
 					$lines[] = 		"res_ptr[1] = op1_ptr[1];";
