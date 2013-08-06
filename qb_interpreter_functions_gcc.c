@@ -225,7 +225,7 @@ int qb_compare_descending_U64(const void *a, const void *b) {
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -261,7 +261,7 @@ int32_t ZEND_FASTCALL qb_compare_array_F32(float32_t * __restrict op1_ptr, uint3
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -297,7 +297,7 @@ int32_t ZEND_FASTCALL qb_compare_array_F64(float64_t * __restrict op1_ptr, uint3
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_S08(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		int8_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int8_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -333,7 +333,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S08(int8_t * __restrict op1_ptr, uint32_t
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_S16(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		int16_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int16_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -369,7 +369,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S16(int16_t * __restrict op1_ptr, uint32_
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_S32(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		int32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -405,7 +405,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S32(int32_t * __restrict op1_ptr, uint32_
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_S64(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		int64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -441,7 +441,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S64(int64_t * __restrict op1_ptr, uint32_
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_U08(uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		uint8_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint8_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -477,7 +477,7 @@ int32_t ZEND_FASTCALL qb_compare_array_U08(uint8_t * __restrict op1_ptr, uint32_
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_U16(uint16_t * __restrict op1_ptr, uint32_t op1_count, uint16_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		uint16_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint16_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -513,7 +513,7 @@ int32_t ZEND_FASTCALL qb_compare_array_U16(uint16_t * __restrict op1_ptr, uint32
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_U32(uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		uint32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -549,7 +549,7 @@ int32_t ZEND_FASTCALL qb_compare_array_U32(uint32_t * __restrict op1_ptr, uint32
 }
 
 int32_t ZEND_FASTCALL qb_compare_array_U64(uint64_t * __restrict op1_ptr, uint32_t op1_count, uint64_t * __restrict op2_ptr, uint32_t op2_count) {
-	if(op1_count & op2_count) {
+	if(op1_count && op2_count) {
 		uint64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		int32_t end1 = 0, end2 = 0;
@@ -6192,28 +6192,38 @@ void ZEND_FASTCALL qb_do_determinant_F64(float64_t * __restrict op1_ptr, uint32_
 }
 
 void ZEND_FASTCALL qb_do_determinant_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_determinant_F32(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_determinant_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_determinant_F64(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}
@@ -6382,28 +6392,48 @@ void ZEND_FASTCALL qb_do_distance_F64(float64_t * __restrict op1_ptr, float64_t 
 }
 
 void ZEND_FASTCALL qb_do_distance_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_distance_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_distance_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_distance_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
@@ -6968,55 +6998,51 @@ void ZEND_FASTCALL qb_do_dot_product_F64(float64_t * __restrict op1_ptr, float64
 }
 
 void ZEND_FASTCALL qb_do_dot_product_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_dot_product_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_dot_product_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_dot_product_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
 			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
 		}
 	}
-}
-
-void ZEND_FASTCALL qb_do_equal_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F32(op1_ptr, op1_count, op2_ptr, op2_count) == 0);
-}
-
-void ZEND_FASTCALL qb_do_equal_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F64(op1_ptr, op1_count, op2_ptr, op2_count) == 0);
-}
-
-void ZEND_FASTCALL qb_do_equal_multiple_times_I08(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S08(op1_ptr, op1_count, op2_ptr, op2_count) == 0);
-}
-
-void ZEND_FASTCALL qb_do_equal_multiple_times_I16(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S16(op1_ptr, op1_count, op2_ptr, op2_count) == 0);
-}
-
-void ZEND_FASTCALL qb_do_equal_multiple_times_I32(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S32(op1_ptr, op1_count, op2_ptr, op2_count) == 0);
-}
-
-void ZEND_FASTCALL qb_do_equal_multiple_times_I64(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S64(op1_ptr, op1_count, op2_ptr, op2_count) == 0);
 }
 
 void ZEND_FASTCALL qb_do_equal_vector_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr, uint32_t res_count) {
@@ -7452,28 +7478,48 @@ void ZEND_FASTCALL qb_do_face_forward_F64(float64_t * __restrict op1_ptr, float6
 }
 
 void ZEND_FASTCALL qb_do_face_forward_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_face_forward_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_face_forward_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_face_forward_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
@@ -8256,28 +8302,38 @@ void ZEND_FASTCALL qb_do_invert_matrix_F64(float64_t * __restrict op1_ptr, uint3
 }
 
 void ZEND_FASTCALL qb_do_invert_matrix_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_invert_matrix_F32(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_ROWS * MATRIX1_COLS;
+			op1_ptr += MATRIX1_ROWS * MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_invert_matrix_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_invert_matrix_F64(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_ROWS * MATRIX1_COLS;
+			op1_ptr += MATRIX1_ROWS * MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}
@@ -8558,111 +8614,41 @@ void ZEND_FASTCALL qb_do_length_F64(float64_t * __restrict op1_ptr, uint32_t MAT
 }
 
 void ZEND_FASTCALL qb_do_length_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_length_F32(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_length_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_length_F64(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += 1;
+			op1_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
 			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
 		}
 	}
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F32(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F64(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_S08(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S08(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_S16(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S16(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_S32(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S32(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_S64(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S64(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_U08(uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U08(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_U16(uint16_t * __restrict op1_ptr, uint32_t op1_count, uint16_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U16(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_U32(uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U32(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_multiple_times_U64(uint64_t * __restrict op1_ptr, uint32_t op1_count, uint64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U64(op1_ptr, op1_count, op2_ptr, op2_count) == -1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F32(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F64(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_S08(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S08(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_S16(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S16(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_S32(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S32(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_S64(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S64(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_U08(uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U08(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_U16(uint16_t * __restrict op1_ptr, uint32_t op1_count, uint16_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U16(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_U32(uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U32(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
-}
-
-void ZEND_FASTCALL qb_do_less_than_or_equal_multiple_times_U64(uint64_t * __restrict op1_ptr, uint32_t op1_count, uint64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_U64(op1_ptr, op1_count, op2_ptr, op2_count) != 1);
 }
 
 void ZEND_FASTCALL qb_do_less_than_or_equal_vector_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr, uint32_t res_count) {
@@ -11061,28 +11047,48 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_F64(float64_t * __restrict op
 }
 
 void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_multiply_matrix_by_matrix_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * MATRIX2_COLS);
+			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
+			op2_ptr += (MATRIX2_ROWS * MATRIX2_COLS);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_multiply_matrix_by_matrix_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * MATRIX2_COLS);
+			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
+			op2_ptr += (MATRIX2_ROWS * MATRIX2_COLS);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
@@ -11263,28 +11269,48 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_F64(float64_t * __restrict op
 }
 
 void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_multiply_matrix_by_vector_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * 1);
+			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
+			op2_ptr += (MATRIX2_ROWS * 1);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_multiply_matrix_by_vector_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * 1);
+			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
+			op2_ptr += (MATRIX2_ROWS * 1);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
@@ -11705,28 +11731,48 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_F64(float64_t * __restrict op
 }
 
 void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_multiply_vector_by_matrix_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (1 * MATRIX2_COLS);
+			op1_ptr += (1 * MATRIX1_COLS);
+			op2_ptr += (MATRIX2_ROWS * MATRIX2_COLS);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_multiply_vector_by_matrix_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (1 * MATRIX2_COLS);
+			op1_ptr += (1 * MATRIX1_COLS);
+			op2_ptr += (MATRIX2_ROWS * MATRIX2_COLS);
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
@@ -12111,55 +12157,41 @@ void ZEND_FASTCALL qb_do_normalize_F64(float64_t * __restrict op1_ptr, uint32_t 
 }
 
 void ZEND_FASTCALL qb_do_normalize_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_normalize_F32(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_normalize_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_normalize_F64(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
 			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
 		}
 	}
-}
-
-void ZEND_FASTCALL qb_do_not_equal_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F32(op1_ptr, op1_count, op2_ptr, op2_count) != 0);
-}
-
-void ZEND_FASTCALL qb_do_not_equal_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_F64(op1_ptr, op1_count, op2_ptr, op2_count) != 0);
-}
-
-void ZEND_FASTCALL qb_do_not_equal_multiple_times_I08(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S08(op1_ptr, op1_count, op2_ptr, op2_count) != 0);
-}
-
-void ZEND_FASTCALL qb_do_not_equal_multiple_times_I16(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S16(op1_ptr, op1_count, op2_ptr, op2_count) != 0);
-}
-
-void ZEND_FASTCALL qb_do_not_equal_multiple_times_I32(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S32(op1_ptr, op1_count, op2_ptr, op2_count) != 0);
-}
-
-void ZEND_FASTCALL qb_do_not_equal_multiple_times_I64(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr) {
-	res = (qb_compare_array_S64(op1_ptr, op1_count, op2_ptr, op2_count) != 0);
 }
 
 void ZEND_FASTCALL qb_do_not_equal_vector_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, int32_t * __restrict res_ptr, uint32_t res_count) {
@@ -13528,28 +13560,48 @@ void ZEND_FASTCALL qb_do_reflect_F64(float64_t * __restrict op1_ptr, float64_t *
 }
 
 void ZEND_FASTCALL qb_do_reflect_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_reflect_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_reflect_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_reflect_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
@@ -13734,28 +13786,48 @@ void ZEND_FASTCALL qb_do_refract_F64(float64_t * __restrict op1_ptr, float64_t *
 }
 
 void ZEND_FASTCALL qb_do_refract_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, float32_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_refract_F32(op1_ptr, op2_ptr, op3_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_refract_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, float64_t * __restrict op3_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_refract_F64(op1_ptr, op2_ptr, op3_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_COLS;
+			op1_ptr += MATRIX1_COLS;
+			op2_ptr += MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
 			}
 		}
 	}
@@ -16032,28 +16104,38 @@ void ZEND_FASTCALL qb_do_transpose_matrix_F64(float64_t * __restrict op1_ptr, ui
 }
 
 void ZEND_FASTCALL qb_do_transpose_matrix_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_transpose_matrix_F32(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_ROWS * MATRIX1_COLS;
+			op1_ptr += MATRIX1_ROWS * MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_transpose_matrix_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr, uint32_t res_count) {
-	if(res_count) {
+	if(op1_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
 			qb_do_transpose_matrix_F64(op1_ptr, MATRIX1_ROWS, MATRIX1_COLS, res_ptr);
 			
 			res_ptr += MATRIX1_ROWS * MATRIX1_COLS;
+			op1_ptr += MATRIX1_ROWS * MATRIX1_COLS;
 			if(res_ptr >= res_end) {
 				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
 			}
 		}
 	}

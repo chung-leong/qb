@@ -2039,7 +2039,7 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 				// just leave the entire list as a linear array
 				dim->dimension_count = 1;
 			} else {
-				if(m1_count < m2_count || (m1_count == m2_count && (m1_address->dimension_count - 2) <= (m2_address->dimension_count - 2))) {
+				if(m1_count > m2_count || (m1_count == m2_count && (m1_address->dimension_count - 2) >= (m2_address->dimension_count - 2))) {
 					// use the first matrix parameter's dimensions
 					dim->dimension_count = (m1_address->dimension_count - 2) + 2;
 					if(dim->dimension_count > 1) {
@@ -2048,7 +2048,7 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 						}
 					}
 				} else {
-					// use the vector parameter's dimensions
+					// use the second matrix parameter's dimensions
 					dim->dimension_count = (m2_address->dimension_count - 2) + 2;
 					if(dim->dimension_count > 1) {
 						for(i = 0; i < m2_address->dimension_count - 2; i++) {

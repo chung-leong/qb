@@ -628,7 +628,7 @@ class QBHandler {
 		$operandCounts = array();
 		for($i = 1; $i <= $srcCount; $i++) {
 			$operandSize = $this->getOperandSize($i);
-			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize !== 0) {
 				$operandCounts[] = "op{$i}_count";
 			}
 		}
@@ -639,7 +639,7 @@ class QBHandler {
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);
 			$operandSize = $this->getOperandSize($i);
-			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize !== 0) {
 				$lines[] =	"$cType *op{$i}_start = op{$i}_ptr, *op{$i}_end = op{$i}_ptr + op{$i}_count;";
 			}
 		}
@@ -653,7 +653,7 @@ class QBHandler {
 		$lines[] = 			"res_ptr += $operandSize;";
 		for($i = 1; $i <= $srcCount; $i++) {
 			$operandSize = $this->getOperandSize($i);
-			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize !== 0) {
 				$lines[] =		"op{$i}_ptr += $operandSize;";
 			}
 		}
@@ -662,7 +662,7 @@ class QBHandler {
 		$lines[] =			"}";
 		for($i = 1; $i <= $srcCount; $i++) {
 			$operandSize = $this->getOperandSize($i);
-			if($this->getOperandAddressMode($i) == "ARR" && $operandSize != 0) {
+			if($this->getOperandAddressMode($i) == "ARR" && $operandSize !== 0) {
 				$lines[] = 	"if(op{$i}_ptr >= op{$i}_end) {";
 				$lines[] = 		"op{$i}_ptr = op{$i}_start;";
 				$lines[] = 	"}";

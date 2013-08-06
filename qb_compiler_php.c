@@ -1023,7 +1023,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 						// substitution always happens since the lvalue will expand to match the size
 						substitute = TRUE;
 					} else {
-						if(dim->array_size > 0) {
+						if(dim && dim->array_size > 0) {
 							// result size is known
 							if(lvalue_size_address->flags & QB_ADDRESS_CONSTANT) {
 								// size of lvalue is fixed	
@@ -1036,7 +1036,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 					}
 				} else {
 					// lvalue is a scalar
-					if(dim->dimension_count == 0) {
+					if(!dim || dim->dimension_count == 0) {
 						// result is scalar as well
 						substitute = TRUE;
 					}
