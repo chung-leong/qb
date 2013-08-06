@@ -39,6 +39,7 @@ class QBSubarrayPositionHandler extends QBHandler {
 		$lines[] = 				"}";
 		$lines[] = 				"if(j == op2_count) {";
 		$lines[] = 					"index = i;";
+		$lines[] = 					"break;";
 		$lines[] = 				"}";
 		$lines[] = 			"}";
 		$lines[] = 		"}";

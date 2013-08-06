@@ -1662,7 +1662,7 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt
 	qb_address *address2 = operands[1].address;
 	uint32_t m_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
 	uint32_t m_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
-	uint32_t v_width = VALUE(U32, address2->dimension_addresses[address1->dimension_count - 1]);
+	uint32_t v_width = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 	qb_op *qop;
 	qb_opcode opcode;
 

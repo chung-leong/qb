@@ -416,13 +416,12 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 
 		if(argument_count == 0) {
 			min_address = qb_obtain_constant(cxt, 0, expr_type);
-			max_address = qb_obtain_constant(cxt, (int64_t) integer_upper_bounds[expr_type], expr_type);
-
+			max_address = qb_obtain_constant(cxt, (int64_t) integer_upper_bounds[expr_type], expr_type);			
 		} else {
 			min_address = arguments[0].address;
 			max_address = arguments[1].address;
 		}
-		result_dim = qb_get_result_dimensions(cxt, arguments, 2, QB_RESULT_SIZE_OPERAND);
+		result_dim = qb_get_result_dimensions(cxt, arguments, argument_count, QB_RESULT_SIZE_OPERAND);
 
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);

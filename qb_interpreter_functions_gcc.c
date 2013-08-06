@@ -15068,6 +15068,7 @@ void ZEND_FASTCALL qb_do_subarray_position_F32(float32_t * __restrict op1_ptr, u
 				}
 				if(j == op2_count) {
 					index = i;
+					break;
 				}
 			}
 		}
@@ -15088,6 +15089,7 @@ void ZEND_FASTCALL qb_do_subarray_position_F64(float64_t * __restrict op1_ptr, u
 				}
 				if(j == op2_count) {
 					index = i;
+					break;
 				}
 			}
 		}
@@ -15108,6 +15110,7 @@ void ZEND_FASTCALL qb_do_subarray_position_I08(int8_t * __restrict op1_ptr, uint
 				}
 				if(j == op2_count) {
 					index = i;
+					break;
 				}
 			}
 		}
@@ -15128,6 +15131,7 @@ void ZEND_FASTCALL qb_do_subarray_position_I16(int16_t * __restrict op1_ptr, uin
 				}
 				if(j == op2_count) {
 					index = i;
+					break;
 				}
 			}
 		}
@@ -15148,6 +15152,7 @@ void ZEND_FASTCALL qb_do_subarray_position_I32(int32_t * __restrict op1_ptr, uin
 				}
 				if(j == op2_count) {
 					index = i;
+					break;
 				}
 			}
 		}
@@ -15168,6 +15173,7 @@ void ZEND_FASTCALL qb_do_subarray_position_I64(int64_t * __restrict op1_ptr, uin
 				}
 				if(j == op2_count) {
 					index = i;
+					break;
 				}
 			}
 		}
