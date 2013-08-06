@@ -406,8 +406,9 @@ class QBHandler {
 		if($this->isMultipleData()) {
 			$action = $this->getActionOnMultipleData();
 			if(!$action) {
+				// change the address mode temporarily
 				$originalAddressMode = $this->addressMode;
-				$this->addressMode = "VAR";
+				$this->addressMode = ($this->operandSize > 1) ? null : "VAR";
 				$scalarExpression = $this->getAction();
 				$this->addressMode = $originalAddressMode;
 				$action = $this->getIterationCode($scalarExpression);

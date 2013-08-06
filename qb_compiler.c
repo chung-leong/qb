@@ -2408,16 +2408,16 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 	return result_address;
 }
 
-static qb_address *ZEND_FASTCALL qb_get_subarray_sizes(qb_compiler_context *cxt, qb_address *address) {
-	qb_address *subarray_sizes_address = qb_obtain_temporary_fixed_length_array(cxt, QB_TYPE_U32, address->dimension_count - 1);
+static qb_address *ZEND_FASTCALL qb_get_array_dimensions(qb_compiler_context *cxt, qb_address *address) {
+	qb_address *dimensions_address = qb_obtain_temporary_fixed_length_array(cxt, QB_TYPE_U32, address->dimension_count);
 	uint32_t i;
-	for(i = 1; i < address->dimension_count; i++) {
-		qb_address *index_address = qb_obtain_constant_U32(cxt, i - 1);
-		qb_address *src_array_size_address = address->array_size_addresses[i];
-		qb_address *dst_array_size_address = qb_get_array_element(cxt, subarray_sizes_address, index_address);
-		qb_create_unary_op(cxt, &factory_copy, src_array_size_address, dst_array_size_address);
+	for(i = 0; i < address->dimension_count; i++) {
+		qb_address *index_address = qb_obtain_constant_U32(cxt, i);
+		qb_address *src_dimension_address = address->dimension_addresses[i];
+		qb_address *dst_dimension_address = qb_get_array_element(cxt, dimensions_address, index_address);
+		qb_create_unary_op(cxt, &factory_copy, src_dimension_address, dst_dimension_address);
 	}
-	return subarray_sizes_address;
+	return dimensions_address;
 }
 
 static int32_t ZEND_FASTCALL qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, const char *name, uint32_t name_length) {
@@ -4062,7 +4062,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			for(p = EG(function_table)->pListTail; p; p = p->pListLast) {
 				zend_function *zfunc = p->pData;
 				if(zfunc->type == ZEND_USER_FUNCTION) {
-					if(action == QB_SCAN_ALL || zfunc->op_array.filename == current_filename) {
+					if(action == QB_SCAN_ALL || strcmp(zfunc->op_array.filename, current_filename) == 0) {
 						int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
 						if(fd_index == -1) {
 							qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc);

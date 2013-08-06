@@ -27,9 +27,11 @@ class QBPrintMultidimensionalVariableHandler extends QBPrintHandler {
 		$lines = array();
 		$lines[] = "USE_TSRM";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
-		$lines[] = "uint32_t depth = 0;";
-		$lines[] = "uint32_t counts[64];";
-		$lines[] = "memset(counts, 0, sizeof(uint32_t) * op2_count);";
+		$lines[] = "uint32_t depth = 0, i;";
+		$lines[] = "uint32_t counts[MAX_DIMENSION];";
+		$lines[] = "for(i = 0; i < op2_count; i++) {";
+		$lines[] = 		"counts[i] = 0;";
+		$lines[] = "}";
 		$lines[] = "php_write(\"[\", 1 TSRMLS_CC);";
 		$lines[] = "while(op1_ptr < op1_end || depth > 0) {";
 		$lines[] = 		"if(counts[depth] < op2_ptr[depth]) {";

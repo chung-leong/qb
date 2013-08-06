@@ -815,7 +815,7 @@ static qb_basic_op_factory factory_any = {
 	{	0,	0,	0,	0,	QB_ANY_I32_I32,	QB_ANY_I32_I32,	0,	0,	0,	0,	},
 };
 
-static qb_address *ZEND_FASTCALL qb_get_subarray_sizes(qb_compiler_context *cxt, qb_address *address);
+static qb_address *ZEND_FASTCALL qb_get_array_dimensions(qb_compiler_context *cxt, qb_address *address);
 
 static qb_op *ZEND_FASTCALL qb_append_concat_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *f = factory;
@@ -824,7 +824,7 @@ static qb_op *ZEND_FASTCALL qb_append_concat_op(qb_compiler_context *cxt, void *
 	qb_op *qop;
 
 	if(addition->dimension_count > 1) {
-		qb_address *subarray_sizes_address = qb_get_subarray_sizes(cxt, addition);
+		qb_address *subarray_sizes_address = qb_get_array_dimensions(cxt, addition);
 		opcode = f->multidim_opcodes[QB_TYPE_F64 - addition->type];
 		qop = qb_append_op(cxt, opcode, 3);
 		qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
@@ -862,7 +862,7 @@ static qb_op *ZEND_FASTCALL qb_append_print_op(qb_compiler_context *cxt, void *f
 	qb_op *qop = NULL;
 
 	if(address->dimension_count > 1) {
-		qb_address *subarray_sizes_address = qb_get_subarray_sizes(cxt, address);
+		qb_address *subarray_sizes_address = qb_get_array_dimensions(cxt, address);
 		opcode = f->multidim_opcodes[QB_TYPE_F64 - address->type];
 		qop = qb_append_op(cxt, opcode, 2);
 		qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;

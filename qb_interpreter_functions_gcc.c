@@ -1221,8 +1221,8 @@ void ZEND_FASTCALL qb_do_add_2x_multiple_times_F32(float32_t * __restrict op1_pt
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + op2;
-			res_ptr[1] = op1 + op2;
+			res_ptr[0] = op1_ptr[0] + op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] + op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -1246,8 +1246,8 @@ void ZEND_FASTCALL qb_do_add_2x_multiple_times_F64(float64_t * __restrict op1_pt
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + op2;
-			res_ptr[1] = op1 + op2;
+			res_ptr[0] = op1_ptr[0] + op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] + op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -1271,9 +1271,9 @@ void ZEND_FASTCALL qb_do_add_3x_multiple_times_F32(float32_t * __restrict op1_pt
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + op2;
-			res_ptr[1] = op1 + op2;
-			res_ptr[2] = op1 + op2;
+			res_ptr[0] = op1_ptr[0] + op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] + op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] + op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -1297,9 +1297,9 @@ void ZEND_FASTCALL qb_do_add_3x_multiple_times_F64(float64_t * __restrict op1_pt
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + op2;
-			res_ptr[1] = op1 + op2;
-			res_ptr[2] = op1 + op2;
+			res_ptr[0] = op1_ptr[0] + op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] + op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] + op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -1323,10 +1323,10 @@ void ZEND_FASTCALL qb_do_add_4x_multiple_times_F32(float32_t * __restrict op1_pt
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + op2;
-			res_ptr[1] = op1 + op2;
-			res_ptr[2] = op1 + op2;
-			res_ptr[3] = op1 + op2;
+			res_ptr[0] = op1_ptr[0] + op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] + op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] + op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] + op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -1350,10 +1350,10 @@ void ZEND_FASTCALL qb_do_add_4x_multiple_times_F64(float64_t * __restrict op1_pt
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + op2;
-			res_ptr[1] = op1 + op2;
-			res_ptr[2] = op1 + op2;
-			res_ptr[3] = op1 + op2;
+			res_ptr[0] = op1_ptr[0] + op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] + op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] + op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] + op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -5051,68 +5051,68 @@ void ZEND_FASTCALL qb_do_concat_multidimensional_variable_U64(qb_interpreter_con
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_F32(qb_interpreter_context *cxt, float32_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_F32(qb_interpreter_context *cxt, float32_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_F64(qb_interpreter_context *cxt, float64_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_F64(qb_interpreter_context *cxt, float64_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_S08(qb_interpreter_context *cxt, int8_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_S08(qb_interpreter_context *cxt, int8_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_S16(qb_interpreter_context *cxt, int16_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_S16(qb_interpreter_context *cxt, int16_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_S32(qb_interpreter_context *cxt, int32_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_S32(qb_interpreter_context *cxt, int32_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_S64(qb_interpreter_context *cxt, int64_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_S64(qb_interpreter_context *cxt, int64_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_U08(qb_interpreter_context *cxt, uint8_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_U08(qb_interpreter_context *cxt, uint8_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_U16(qb_interpreter_context *cxt, uint16_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_U16(qb_interpreter_context *cxt, uint16_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_U32(qb_interpreter_context *cxt, uint32_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_U32(qb_interpreter_context *cxt, uint32_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_U64(qb_interpreter_context *cxt, uint64_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_concat_variable_U64(qb_interpreter_context *cxt, uint64_t * __restrict op1_ptr, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
 	char sprintf_buffer[64];
 	uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1);
 	memcpy(res_ptr, sprintf_buffer, len);
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_F32(qb_interpreter_context *cxt, float32_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_F32(qb_interpreter_context *cxt, float32_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	float32_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5120,17 +5120,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_F32(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_F64(qb_interpreter_context *cxt, float64_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_F64(qb_interpreter_context *cxt, float64_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	float64_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5138,17 +5138,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_F64(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S08(qb_interpreter_context *cxt, int8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S08(qb_interpreter_context *cxt, int8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	int8_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5156,17 +5156,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S08(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S16(qb_interpreter_context *cxt, int16_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S16(qb_interpreter_context *cxt, int16_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	int16_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5174,17 +5174,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S16(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S32(qb_interpreter_context *cxt, int32_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S32(qb_interpreter_context *cxt, int32_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	int32_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5192,17 +5192,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S32(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S64(qb_interpreter_context *cxt, int64_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S64(qb_interpreter_context *cxt, int64_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	int64_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5210,17 +5210,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_S64(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U08(qb_interpreter_context *cxt, uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U08(qb_interpreter_context *cxt, uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	uint8_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5228,17 +5228,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U08(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U16(qb_interpreter_context *cxt, uint16_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U16(qb_interpreter_context *cxt, uint16_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	uint16_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5246,17 +5246,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U16(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U32(qb_interpreter_context *cxt, uint32_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U32(qb_interpreter_context *cxt, uint32_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	uint32_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5264,17 +5264,17 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U32(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
 
-void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U64(qb_interpreter_context *cxt, uint64_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count) {
-	uint32_t pos = 0;
+void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U64(qb_interpreter_context *cxt, uint64_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict res_ptr, uint32_t res_count, uint32_t res_count_before) {
+	uint32_t pos = res_count_before;
 	uint64_t *op1_end = op1_ptr + op1_count;
 	res_ptr[pos++] = '[';
 	while(op1_ptr < op1_end) {
@@ -5282,11 +5282,11 @@ void ZEND_FASTCALL qb_do_concat_variable_multiple_times_U64(qb_interpreter_conte
 		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1);
 		memcpy(res_ptr + pos, sprintf_buffer, len);
 		pos += len;
+		op1_ptr++;
 		if(op1_ptr != op1_end) {
 			res_ptr[pos++] = ',';
 			res_ptr[pos++] = ' ';
 		}
-		op1_ptr++;
 	}
 	res_ptr[pos++] = ']';
 }
@@ -5296,8 +5296,8 @@ void ZEND_FASTCALL qb_do_copy_2x_multiple_times_F32(float32_t * __restrict op1_p
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1;
-			res_ptr[1] = op1;
+			res_ptr[0] = op1_ptr[0];
+			res_ptr[1] = op1_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -5316,8 +5316,8 @@ void ZEND_FASTCALL qb_do_copy_2x_multiple_times_F64(float64_t * __restrict op1_p
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1;
-			res_ptr[1] = op1;
+			res_ptr[0] = op1_ptr[0];
+			res_ptr[1] = op1_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -5336,9 +5336,9 @@ void ZEND_FASTCALL qb_do_copy_3x_multiple_times_F32(float32_t * __restrict op1_p
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1;
-			res_ptr[1] = op1;
-			res_ptr[2] = op1;
+			res_ptr[0] = op1_ptr[0];
+			res_ptr[1] = op1_ptr[1];
+			res_ptr[2] = op1_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -5357,9 +5357,9 @@ void ZEND_FASTCALL qb_do_copy_3x_multiple_times_F64(float64_t * __restrict op1_p
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1;
-			res_ptr[1] = op1;
-			res_ptr[2] = op1;
+			res_ptr[0] = op1_ptr[0];
+			res_ptr[1] = op1_ptr[1];
+			res_ptr[2] = op1_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -5378,10 +5378,10 @@ void ZEND_FASTCALL qb_do_copy_4x_multiple_times_F32(float32_t * __restrict op1_p
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1;
-			res_ptr[1] = op1;
-			res_ptr[2] = op1;
-			res_ptr[3] = op1;
+			res_ptr[0] = op1_ptr[0];
+			res_ptr[1] = op1_ptr[1];
+			res_ptr[2] = op1_ptr[2];
+			res_ptr[3] = op1_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -5400,10 +5400,10 @@ void ZEND_FASTCALL qb_do_copy_4x_multiple_times_F64(float64_t * __restrict op1_p
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1;
-			res_ptr[1] = op1;
-			res_ptr[2] = op1;
-			res_ptr[3] = op1;
+			res_ptr[0] = op1_ptr[0];
+			res_ptr[1] = op1_ptr[1];
+			res_ptr[2] = op1_ptr[2];
+			res_ptr[3] = op1_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -6315,8 +6315,8 @@ void ZEND_FASTCALL qb_do_divide_2x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 / op2;
-			res_ptr[1] = op1 / op2;
+			res_ptr[0] = op1_ptr[0] / op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] / op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -6340,8 +6340,8 @@ void ZEND_FASTCALL qb_do_divide_2x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 / op2;
-			res_ptr[1] = op1 / op2;
+			res_ptr[0] = op1_ptr[0] / op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] / op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -6365,9 +6365,9 @@ void ZEND_FASTCALL qb_do_divide_3x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 / op2;
-			res_ptr[1] = op1 / op2;
-			res_ptr[2] = op1 / op2;
+			res_ptr[0] = op1_ptr[0] / op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] / op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] / op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -6391,9 +6391,9 @@ void ZEND_FASTCALL qb_do_divide_3x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 / op2;
-			res_ptr[1] = op1 / op2;
-			res_ptr[2] = op1 / op2;
+			res_ptr[0] = op1_ptr[0] / op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] / op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] / op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -6417,10 +6417,10 @@ void ZEND_FASTCALL qb_do_divide_4x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 / op2;
-			res_ptr[1] = op1 / op2;
-			res_ptr[2] = op1 / op2;
-			res_ptr[3] = op1 / op2;
+			res_ptr[0] = op1_ptr[0] / op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] / op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] / op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] / op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -6444,10 +6444,10 @@ void ZEND_FASTCALL qb_do_divide_4x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 / op2;
-			res_ptr[1] = op1 / op2;
-			res_ptr[2] = op1 / op2;
-			res_ptr[3] = op1 / op2;
+			res_ptr[0] = op1_ptr[0] / op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] / op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] / op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] / op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -9117,8 +9117,8 @@ void ZEND_FASTCALL qb_do_modulo_2x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = fmodf(op1, op2);
-			res_ptr[1] = fmodf(op1, op2);
+			res_ptr[0] = fmodf(op1_ptr[0], op2_ptr[0]);
+			res_ptr[1] = fmodf(op1_ptr[1], op2_ptr[1]);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -9142,8 +9142,8 @@ void ZEND_FASTCALL qb_do_modulo_2x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = fmod(op1, op2);
-			res_ptr[1] = fmod(op1, op2);
+			res_ptr[0] = fmod(op1_ptr[0], op2_ptr[0]);
+			res_ptr[1] = fmod(op1_ptr[1], op2_ptr[1]);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -9167,9 +9167,9 @@ void ZEND_FASTCALL qb_do_modulo_3x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = fmodf(op1, op2);
-			res_ptr[1] = fmodf(op1, op2);
-			res_ptr[2] = fmodf(op1, op2);
+			res_ptr[0] = fmodf(op1_ptr[0], op2_ptr[0]);
+			res_ptr[1] = fmodf(op1_ptr[1], op2_ptr[1]);
+			res_ptr[2] = fmodf(op1_ptr[2], op2_ptr[2]);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -9193,9 +9193,9 @@ void ZEND_FASTCALL qb_do_modulo_3x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = fmod(op1, op2);
-			res_ptr[1] = fmod(op1, op2);
-			res_ptr[2] = fmod(op1, op2);
+			res_ptr[0] = fmod(op1_ptr[0], op2_ptr[0]);
+			res_ptr[1] = fmod(op1_ptr[1], op2_ptr[1]);
+			res_ptr[2] = fmod(op1_ptr[2], op2_ptr[2]);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -9219,10 +9219,10 @@ void ZEND_FASTCALL qb_do_modulo_4x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = fmodf(op1, op2);
-			res_ptr[1] = fmodf(op1, op2);
-			res_ptr[2] = fmodf(op1, op2);
-			res_ptr[3] = fmodf(op1, op2);
+			res_ptr[0] = fmodf(op1_ptr[0], op2_ptr[0]);
+			res_ptr[1] = fmodf(op1_ptr[1], op2_ptr[1]);
+			res_ptr[2] = fmodf(op1_ptr[2], op2_ptr[2]);
+			res_ptr[3] = fmodf(op1_ptr[3], op2_ptr[3]);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -9246,10 +9246,10 @@ void ZEND_FASTCALL qb_do_modulo_4x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = fmod(op1, op2);
-			res_ptr[1] = fmod(op1, op2);
-			res_ptr[2] = fmod(op1, op2);
-			res_ptr[3] = fmod(op1, op2);
+			res_ptr[0] = fmod(op1_ptr[0], op2_ptr[0]);
+			res_ptr[1] = fmod(op1_ptr[1], op2_ptr[1]);
+			res_ptr[2] = fmod(op1_ptr[2], op2_ptr[2]);
+			res_ptr[3] = fmod(op1_ptr[3], op2_ptr[3]);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -9513,8 +9513,8 @@ void ZEND_FASTCALL qb_do_multiply_2x_multiple_times_F32(float32_t * __restrict o
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 * op2;
-			res_ptr[1] = op1 * op2;
+			res_ptr[0] = op1_ptr[0] * op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] * op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -9538,8 +9538,8 @@ void ZEND_FASTCALL qb_do_multiply_2x_multiple_times_F64(float64_t * __restrict o
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 * op2;
-			res_ptr[1] = op1 * op2;
+			res_ptr[0] = op1_ptr[0] * op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] * op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -9563,9 +9563,9 @@ void ZEND_FASTCALL qb_do_multiply_3x_multiple_times_F32(float32_t * __restrict o
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 * op2;
-			res_ptr[1] = op1 * op2;
-			res_ptr[2] = op1 * op2;
+			res_ptr[0] = op1_ptr[0] * op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] * op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] * op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -9589,9 +9589,9 @@ void ZEND_FASTCALL qb_do_multiply_3x_multiple_times_F64(float64_t * __restrict o
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 * op2;
-			res_ptr[1] = op1 * op2;
-			res_ptr[2] = op1 * op2;
+			res_ptr[0] = op1_ptr[0] * op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] * op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] * op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -9615,10 +9615,10 @@ void ZEND_FASTCALL qb_do_multiply_4x_multiple_times_F32(float32_t * __restrict o
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 * op2;
-			res_ptr[1] = op1 * op2;
-			res_ptr[2] = op1 * op2;
-			res_ptr[3] = op1 * op2;
+			res_ptr[0] = op1_ptr[0] * op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] * op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] * op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] * op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -9642,10 +9642,10 @@ void ZEND_FASTCALL qb_do_multiply_4x_multiple_times_F64(float64_t * __restrict o
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 * op2;
-			res_ptr[1] = op1 * op2;
-			res_ptr[2] = op1 * op2;
-			res_ptr[3] = op1 * op2;
+			res_ptr[0] = op1_ptr[0] * op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] * op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] * op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] * op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -9670,8 +9670,8 @@ void ZEND_FASTCALL qb_do_multiply_accumulate_2x_multiple_times_F32(float32_t * _
 		float32_t *op3_start = op3_ptr, *op3_end = op3_ptr + op3_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + (op2 * op3);
-			res_ptr[1] = op1 + (op2 * op3);
+			res_ptr[0] = op1_ptr[0] + (op2_ptr[0] * op3_ptr[0]);
+			res_ptr[1] = op1_ptr[1] + (op2_ptr[1] * op3_ptr[1]);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -9700,8 +9700,8 @@ void ZEND_FASTCALL qb_do_multiply_accumulate_2x_multiple_times_F64(float64_t * _
 		float64_t *op3_start = op3_ptr, *op3_end = op3_ptr + op3_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + (op2 * op3);
-			res_ptr[1] = op1 + (op2 * op3);
+			res_ptr[0] = op1_ptr[0] + (op2_ptr[0] * op3_ptr[0]);
+			res_ptr[1] = op1_ptr[1] + (op2_ptr[1] * op3_ptr[1]);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -9730,9 +9730,9 @@ void ZEND_FASTCALL qb_do_multiply_accumulate_3x_multiple_times_F32(float32_t * _
 		float32_t *op3_start = op3_ptr, *op3_end = op3_ptr + op3_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + (op2 * op3);
-			res_ptr[1] = op1 + (op2 * op3);
-			res_ptr[2] = op1 + (op2 * op3);
+			res_ptr[0] = op1_ptr[0] + (op2_ptr[0] * op3_ptr[0]);
+			res_ptr[1] = op1_ptr[1] + (op2_ptr[1] * op3_ptr[1]);
+			res_ptr[2] = op1_ptr[2] + (op2_ptr[2] * op3_ptr[2]);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -9761,9 +9761,9 @@ void ZEND_FASTCALL qb_do_multiply_accumulate_3x_multiple_times_F64(float64_t * _
 		float64_t *op3_start = op3_ptr, *op3_end = op3_ptr + op3_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + (op2 * op3);
-			res_ptr[1] = op1 + (op2 * op3);
-			res_ptr[2] = op1 + (op2 * op3);
+			res_ptr[0] = op1_ptr[0] + (op2_ptr[0] * op3_ptr[0]);
+			res_ptr[1] = op1_ptr[1] + (op2_ptr[1] * op3_ptr[1]);
+			res_ptr[2] = op1_ptr[2] + (op2_ptr[2] * op3_ptr[2]);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -9792,10 +9792,10 @@ void ZEND_FASTCALL qb_do_multiply_accumulate_4x_multiple_times_F32(float32_t * _
 		float32_t *op3_start = op3_ptr, *op3_end = op3_ptr + op3_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + (op2 * op3);
-			res_ptr[1] = op1 + (op2 * op3);
-			res_ptr[2] = op1 + (op2 * op3);
-			res_ptr[3] = op1 + (op2 * op3);
+			res_ptr[0] = op1_ptr[0] + (op2_ptr[0] * op3_ptr[0]);
+			res_ptr[1] = op1_ptr[1] + (op2_ptr[1] * op3_ptr[1]);
+			res_ptr[2] = op1_ptr[2] + (op2_ptr[2] * op3_ptr[2]);
+			res_ptr[3] = op1_ptr[3] + (op2_ptr[3] * op3_ptr[3]);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -9824,10 +9824,10 @@ void ZEND_FASTCALL qb_do_multiply_accumulate_4x_multiple_times_F64(float64_t * _
 		float64_t *op3_start = op3_ptr, *op3_end = op3_ptr + op3_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 + (op2 * op3);
-			res_ptr[1] = op1 + (op2 * op3);
-			res_ptr[2] = op1 + (op2 * op3);
-			res_ptr[3] = op1 + (op2 * op3);
+			res_ptr[0] = op1_ptr[0] + (op2_ptr[0] * op3_ptr[0]);
+			res_ptr[1] = op1_ptr[1] + (op2_ptr[1] * op3_ptr[1]);
+			res_ptr[2] = op1_ptr[2] + (op2_ptr[2] * op3_ptr[2]);
+			res_ptr[3] = op1_ptr[3] + (op2_ptr[3] * op3_ptr[3]);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -11013,8 +11013,8 @@ void ZEND_FASTCALL qb_do_negate_2x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = - op1;
-			res_ptr[1] = - op1;
+			res_ptr[0] = - op1_ptr[0];
+			res_ptr[1] = - op1_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -11033,8 +11033,8 @@ void ZEND_FASTCALL qb_do_negate_2x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = - op1;
-			res_ptr[1] = - op1;
+			res_ptr[0] = - op1_ptr[0];
+			res_ptr[1] = - op1_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -11053,9 +11053,9 @@ void ZEND_FASTCALL qb_do_negate_3x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = - op1;
-			res_ptr[1] = - op1;
-			res_ptr[2] = - op1;
+			res_ptr[0] = - op1_ptr[0];
+			res_ptr[1] = - op1_ptr[1];
+			res_ptr[2] = - op1_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -11074,9 +11074,9 @@ void ZEND_FASTCALL qb_do_negate_3x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = - op1;
-			res_ptr[1] = - op1;
-			res_ptr[2] = - op1;
+			res_ptr[0] = - op1_ptr[0];
+			res_ptr[1] = - op1_ptr[1];
+			res_ptr[2] = - op1_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -11095,10 +11095,10 @@ void ZEND_FASTCALL qb_do_negate_4x_multiple_times_F32(float32_t * __restrict op1
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = - op1;
-			res_ptr[1] = - op1;
-			res_ptr[2] = - op1;
-			res_ptr[3] = - op1;
+			res_ptr[0] = - op1_ptr[0];
+			res_ptr[1] = - op1_ptr[1];
+			res_ptr[2] = - op1_ptr[2];
+			res_ptr[3] = - op1_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -11117,10 +11117,10 @@ void ZEND_FASTCALL qb_do_negate_4x_multiple_times_F64(float64_t * __restrict op1
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = - op1;
-			res_ptr[1] = - op1;
-			res_ptr[2] = - op1;
-			res_ptr[3] = - op1;
+			res_ptr[0] = - op1_ptr[0];
+			res_ptr[1] = - op1_ptr[1];
+			res_ptr[2] = - op1_ptr[2];
+			res_ptr[3] = - op1_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -11489,9 +11489,11 @@ void ZEND_FASTCALL qb_do_pow_multiple_times_F64(float64_t * __restrict op1_ptr, 
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_F32(qb_interpreter_context *cxt, float32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	float32_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11521,9 +11523,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_F32(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_F64(qb_interpreter_context *cxt, float64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	float64_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11553,9 +11557,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_F64(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_S08(qb_interpreter_context *cxt, int8_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	int8_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11585,9 +11591,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_S08(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_S16(qb_interpreter_context *cxt, int16_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	int16_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11617,9 +11625,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_S16(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_S32(qb_interpreter_context *cxt, int32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	int32_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11649,9 +11659,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_S32(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_S64(qb_interpreter_context *cxt, int64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	int64_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11681,9 +11693,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_S64(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_U08(qb_interpreter_context *cxt, uint8_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	uint8_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11713,9 +11727,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_U08(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_U16(qb_interpreter_context *cxt, uint16_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	uint16_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11745,9 +11761,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_U16(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_U32(qb_interpreter_context *cxt, uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	uint32_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -11777,9 +11795,11 @@ void ZEND_FASTCALL qb_do_print_multidimensional_variable_U32(qb_interpreter_cont
 void ZEND_FASTCALL qb_do_print_multidimensional_variable_U64(qb_interpreter_context *cxt, uint64_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
 	USE_TSRM
 	uint64_t *op1_end = op1_ptr + op1_count;
-	uint32_t depth = 0;
-	uint32_t counts[64];
-	memset(counts, 0, sizeof(uint32_t) * op2_count);
+	uint32_t depth = 0, i;
+	uint32_t counts[MAX_DIMENSION];
+	for(i = 0; i < op2_count; i++) {
+		counts[i] = 0;
+	}
 	php_write("[", 1 TSRMLS_CC);
 	while(op1_ptr < op1_end || depth > 0) {
 		if(counts[depth] < op2_ptr[depth]) {
@@ -14434,8 +14454,8 @@ void ZEND_FASTCALL qb_do_subtract_2x_multiple_times_F32(float32_t * __restrict o
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 - op2;
-			res_ptr[1] = op1 - op2;
+			res_ptr[0] = op1_ptr[0] - op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] - op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -14459,8 +14479,8 @@ void ZEND_FASTCALL qb_do_subtract_2x_multiple_times_F64(float64_t * __restrict o
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 - op2;
-			res_ptr[1] = op1 - op2;
+			res_ptr[0] = op1_ptr[0] - op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] - op2_ptr[1];
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -14484,9 +14504,9 @@ void ZEND_FASTCALL qb_do_subtract_3x_multiple_times_F32(float32_t * __restrict o
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 - op2;
-			res_ptr[1] = op1 - op2;
-			res_ptr[2] = op1 - op2;
+			res_ptr[0] = op1_ptr[0] - op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] - op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] - op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -14510,9 +14530,9 @@ void ZEND_FASTCALL qb_do_subtract_3x_multiple_times_F64(float64_t * __restrict o
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 - op2;
-			res_ptr[1] = op1 - op2;
-			res_ptr[2] = op1 - op2;
+			res_ptr[0] = op1_ptr[0] - op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] - op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] - op2_ptr[2];
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -14536,10 +14556,10 @@ void ZEND_FASTCALL qb_do_subtract_4x_multiple_times_F32(float32_t * __restrict o
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 - op2;
-			res_ptr[1] = op1 - op2;
-			res_ptr[2] = op1 - op2;
-			res_ptr[3] = op1 - op2;
+			res_ptr[0] = op1_ptr[0] - op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] - op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] - op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] - op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -14563,10 +14583,10 @@ void ZEND_FASTCALL qb_do_subtract_4x_multiple_times_F64(float64_t * __restrict o
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res_ptr[0] = op1 - op2;
-			res_ptr[1] = op1 - op2;
-			res_ptr[2] = op1 - op2;
-			res_ptr[3] = op1 - op2;
+			res_ptr[0] = op1_ptr[0] - op2_ptr[0];
+			res_ptr[1] = op1_ptr[1] - op2_ptr[1];
+			res_ptr[2] = op1_ptr[2] - op2_ptr[2];
+			res_ptr[3] = op1_ptr[3] - op2_ptr[3];
 			
 			res_ptr += 4;
 			op1_ptr += 4;

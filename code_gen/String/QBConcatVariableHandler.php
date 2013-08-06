@@ -41,6 +41,10 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		return $functions;
 	}	
 
+	public function needsOriginalSize() {
+		return true;
+	}
+		
 	public function getResultSizePossibilities() {
 		return "res_count + string_length";
 	}
@@ -67,7 +71,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		$sprintf = $this->getSprintf();
 		$cType = $this->getOperandCType(1);
 		$lines = array();
-		$lines[] = "uint32_t pos = 0;";
+		$lines[] = "uint32_t pos = res_count_before;";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
 		$lines[] = "res_ptr[pos++] = '[';";
 		$lines[] = "while(op1_ptr < op1_end) {";
@@ -75,11 +79,11 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		$lines[] = 		"uint32_t len = $sprintf;";
 		$lines[] = 		"memcpy(res_ptr + pos, sprintf_buffer, len);";
 		$lines[] = 		"pos += len;";
+		$lines[] = 		"op1_ptr++;";
 		$lines[] = 		"if(op1_ptr != op1_end) {";
 		$lines[] = 			"res_ptr[pos++] = ',';";
 		$lines[] = 			"res_ptr[pos++] = ' ';";
 		$lines[] = 		"}";
-		$lines[] = 		"op1_ptr++;";
 		$lines[] = "}";
 		$lines[] = "res_ptr[pos++] = ']';";
 		return $lines;

@@ -4880,7 +4880,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S32(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S32(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -4922,7 +4922,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S32(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S32(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -4965,7 +4965,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_S32(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_S32(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -8418,7 +8418,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U32(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U32(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -8460,7 +8460,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U32(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U32(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -8503,7 +8503,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_U32(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_U32(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -13032,7 +13032,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S08(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S08(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -13074,7 +13074,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S08(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S08(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -13117,7 +13117,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_S08(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_S08(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -16298,7 +16298,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U08(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U08(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -16340,7 +16340,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U08(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U08(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -16383,7 +16383,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_U08(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_U08(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -20912,7 +20912,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S16(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S16(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -20954,7 +20954,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S16(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S16(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -20997,7 +20997,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_S16(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_S16(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -24394,7 +24394,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U16(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U16(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -24436,7 +24436,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U16(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U16(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -24479,7 +24479,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_U16(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_U16(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -29162,7 +29162,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S64(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S64(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -29204,7 +29204,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_S64(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_S64(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -29247,7 +29247,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_S64(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_S64(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -32512,7 +32512,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U64(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U64(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -32554,7 +32554,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_U64(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_U64(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -32597,7 +32597,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_U64(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_U64(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -40946,7 +40946,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_F32(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_F32(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -40988,7 +40988,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_F32(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_F32(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -41031,7 +41031,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_F32(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_F32(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -61832,7 +61832,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_F64(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_F64(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -61874,7 +61874,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_F64(cxt, op1_ptr, res_ptr, res_count);
+					qb_do_concat_variable_F64(cxt, op1_ptr, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -61917,7 +61917,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 					
-					qb_do_concat_variable_multiple_times_F64(cxt, op1_ptr, op1_count, res_ptr, res_count);
+					qb_do_concat_variable_multiple_times_F64(cxt, op1_ptr, op1_count, res_ptr, res_count, res_count_before);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
