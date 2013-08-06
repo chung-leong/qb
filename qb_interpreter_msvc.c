@@ -39761,7 +39761,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					index = ((qb_instruction_2 *) instruction_pointer)->operand2;
 					res_ptr = ((float32_t *) segment0) + index;
 					
-					res = rsqrtf(op1);
+					res = qb_fast_rsqrtf(op1);
 				}
 				instruction_pointer += sizeof(qb_instruction_2);
 				break;
@@ -39797,7 +39797,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((float32_t *) segments[selector]) + index;
 					
-					res = rsqrtf(op1);
+					res = qb_fast_rsqrtf(op1);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -60647,7 +60647,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					index = ((qb_instruction_2 *) instruction_pointer)->operand2;
 					res_ptr = ((float64_t *) segment0) + index;
 					
-					res = rsqrt(op1);
+					res = qb_fast_rsqrt(op1);
 				}
 				instruction_pointer += sizeof(qb_instruction_2);
 				break;
@@ -60683,7 +60683,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					}
 					res_ptr = ((float64_t *) segments[selector]) + index;
 					
-					res = rsqrt(op1);
+					res = qb_fast_rsqrt(op1);
 #undef PHP_LINE_NUMBER
 				}
 				instruction_pointer += sizeof(qb_instruction_2_lineno);

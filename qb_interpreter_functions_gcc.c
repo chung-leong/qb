@@ -6269,7 +6269,7 @@ void ZEND_FASTCALL qb_do_distance_F32(float32_t * __restrict op1_ptr, float32_t 
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		sum += (op1_ptr[i] - op2_ptr[i]) * (op1_ptr[i] - op2_ptr[i]);
 	}
-	res = sqrtf(sum);
+	res = qb_fast_sqrtf(sum);
 }
 
 void ZEND_FASTCALL qb_do_distance_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t * __restrict res_ptr) {
@@ -6278,7 +6278,7 @@ void ZEND_FASTCALL qb_do_distance_F64(float64_t * __restrict op1_ptr, float64_t 
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		sum += (op1_ptr[i] - op2_ptr[i]) * (op1_ptr[i] - op2_ptr[i]);
 	}
-	res = sqrt(sum);
+	res = qb_fast_sqrt(sum);
 }
 
 void ZEND_FASTCALL qb_do_distance_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
@@ -8301,7 +8301,7 @@ void ZEND_FASTCALL qb_do_length_F32(float32_t * __restrict op1_ptr, uint32_t MAT
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		sum += op1_ptr[i] * op1_ptr[i];
 	}
-	res = sqrtf(sum);
+	res = qb_fast_sqrtf(sum);
 }
 
 void ZEND_FASTCALL qb_do_length_F64(float64_t * __restrict op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t * __restrict res_ptr) {
@@ -8310,7 +8310,7 @@ void ZEND_FASTCALL qb_do_length_F64(float64_t * __restrict op1_ptr, uint32_t MAT
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		sum += op1_ptr[i] * op1_ptr[i];
 	}
-	res = sqrt(sum);
+	res = qb_fast_sqrt(sum);
 }
 
 void ZEND_FASTCALL qb_do_length_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t * __restrict res_ptr, uint32_t res_count) {
@@ -11368,7 +11368,7 @@ void ZEND_FASTCALL qb_do_normalize_F32(float32_t * __restrict op1_ptr, uint32_t 
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		sum += op1_ptr[i] * op1_ptr[i];
 	}
-	r = rsqrtf(sum);
+	r = qb_fast_rsqrtf(sum);
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		res_ptr[i] = op1_ptr[i] * r;
 	}
@@ -11380,7 +11380,7 @@ void ZEND_FASTCALL qb_do_normalize_F64(float64_t * __restrict op1_ptr, uint32_t 
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		sum += op1_ptr[i] * op1_ptr[i];
 	}
-	r = rsqrt(sum);
+	r = qb_fast_rsqrt(sum);
 	for(i = 0; i < MATRIX1_ROWS; i++) {
 		res_ptr[i] = op1_ptr[i] * r;
 	}
@@ -12802,7 +12802,7 @@ void ZEND_FASTCALL qb_do_refract_F32(float32_t * __restrict op1_ptr, float32_t *
 			res_ptr[0] = 0.0;
 		}
 	} else {
-		float32_t m = op3 * dot_product + sqrtf(k);
+		float32_t m = op3 * dot_product + qb_fast_sqrtf(k);
 		for(i = 0; i < MATRIX1_ROWS; i++) {
 			res_ptr[i] = op3 * op1_ptr[i] - m * op2_ptr[i];
 		}
@@ -12819,7 +12819,7 @@ void ZEND_FASTCALL qb_do_refract_F64(float64_t * __restrict op1_ptr, float64_t *
 			res_ptr[0] = 0.0;
 		}
 	} else {
-		float64_t m = op3 * dot_product + sqrt(k);
+		float64_t m = op3 * dot_product + qb_fast_sqrt(k);
 		for(i = 0; i < MATRIX1_ROWS; i++) {
 			res_ptr[i] = op3 * op1_ptr[i] - m * op2_ptr[i];
 		}
@@ -12917,7 +12917,7 @@ void ZEND_FASTCALL qb_do_rsqrt_multiple_times_F32(float32_t * __restrict op1_ptr
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res = rsqrtf(op1);
+			res = qb_fast_rsqrtf(op1);
 			
 			res_ptr += 1;
 			op1_ptr += 1;
@@ -12936,7 +12936,7 @@ void ZEND_FASTCALL qb_do_rsqrt_multiple_times_F64(float64_t * __restrict op1_ptr
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			res = rsqrt(op1);
+			res = qb_fast_rsqrt(op1);
 			
 			res_ptr += 1;
 			op1_ptr += 1;
@@ -15225,6 +15225,10 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_decode_fcall_mix_operand",	qb_decode_fcall_mix_operand	},
 	{	0,	"qb_enlarge_segment",	qb_enlarge_segment	},
 	{	0,	"qb_execute_function_call",	qb_execute_function_call	},
+	{	0,	"qb_fast_rsqrt",	qb_fast_rsqrt	},
+	{	0,	"qb_fast_rsqrtf",	qb_fast_rsqrtf	},
+	{	0,	"qb_fast_sqrt",	qb_fast_sqrt	},
+	{	0,	"qb_fast_sqrtf",	qb_fast_sqrtf	},
 	{	0,	"qb_finalize_function_call",	qb_finalize_function_call	},
 	{	0,	"qb_get_array_sprintf_length_F32",	qb_get_array_sprintf_length_F32	},
 	{	0,	"qb_get_array_sprintf_length_F64",	qb_get_array_sprintf_length_F64	},
@@ -15265,8 +15269,6 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_shrink_segment",	qb_shrink_segment	},
 	{	0,	"round",	round	},
 	{	0,	"roundf",	roundf	},
-	{	0,	"rsqrt",	rsqrt	},
-	{	0,	"rsqrtf",	rsqrtf	},
 	{	0,	"sin",	sin	},
 	{	0,	"sincos",	sincos	},
 	{	0,	"sincosf",	sincosf	},

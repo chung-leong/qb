@@ -490,6 +490,41 @@ double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
 }
 #endif
 
+#if __SSE2__
+#include <emmintrin.h>
+#endif
+
+float qb_fast_rsqrtf(float a) {
+	float r;
+#if __SSE2__
+	float half = 0.5f;
+	float three = 3.0f;
+	__m128 arg, nr, muls, beta, gamma, final;
+	arg = _mm_load_ss(&a);
+	nr = _mm_rsqrt_ss(arg);
+	muls = _mm_mul_ss(_mm_mul_ss(arg, nr), nr);
+	beta = _mm_mul_ss(_mm_load_ss(&half), nr);
+	gamma = _mm_sub_ss(_mm_load_ss(&three), muls);
+	final = _mm_mul_ss(beta, gamma);
+	_mm_store_ss(&r, final);
+#else
+	r = 1.0f / sqrtf(a);
+#endif
+	return r;
+}
+
+double qb_fast_rsqrt(double a) {
+	return 1.0 / sqrt(a);
+}
+
+float qb_fast_sqrtf(float a) {
+	return a * qb_fast_rsqrtf(a);
+}
+
+double qb_fast_sqrt(double a) {
+	return sqrt(a);
+}
+
 uint32_t type_sizes[QB_TYPE_COUNT] = {
 	sizeof(int8_t),
 	sizeof(uint8_t),

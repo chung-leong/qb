@@ -71,14 +71,6 @@ double round(double x) {
 	return floor(x + 0.5);
 }
 
-double rsqrt(double x) {
-	return 1 / sqrt(x);
-}
-
-float rsqrtf(float x) {
-	return (float) (1 / sqrt(x));
-}
-
 #else
 #ifndef HAVE_EXP2F
 float exp2f(float x) {

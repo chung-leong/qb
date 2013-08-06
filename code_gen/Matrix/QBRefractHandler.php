@@ -30,7 +30,7 @@ class QBRefractHandler extends QBMatrixHandler {
 			$lines[] = 			"res_ptr[0] = 0.0;";
 			$lines[] = 		"}";
 			$lines[] = "} else {";
-			$lines[] = 		"$cType m = op3 * dot_product + sqrt$f(k);";
+			$lines[] = 		"$cType m = op3 * dot_product + qb_fast_sqrt$f(k);";
 			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
 			$lines[] = 			"res_ptr[i] = op3 * op1_ptr[i] - m * op2_ptr[i];";
 			$lines[] = 		"}";
@@ -44,7 +44,7 @@ class QBRefractHandler extends QBMatrixHandler {
 					$lines[] = 		"res_ptr[0] = ";
 					$lines[] = 		"res_ptr[1] = 0.0;";
 					$lines[] = "} else {";
-					$lines[] = 		"$cType m = op3 * dot_product + sqrt$f(k);";
+					$lines[] = 		"$cType m = op3 * dot_product + qb_fast_sqrt$f(k);";
 					$lines[] = 		"res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];";
 					$lines[] = 		"res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];";
 					$lines[] = "}";
@@ -57,7 +57,7 @@ class QBRefractHandler extends QBMatrixHandler {
 					$lines[] = 		"res_ptr[1] = ";
 					$lines[] = 		"res_ptr[2] = 0.0;";
 					$lines[] = "} else {";
-					$lines[] = 		"$cType m = op3 * dot_product + sqrt$f(k);";
+					$lines[] = 		"$cType m = op3 * dot_product + qb_fast_sqrt$f(k);";
 					$lines[] = 		"res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];";
 					$lines[] = 		"res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];";
 					$lines[] = 		"res_ptr[2] = op3 * op1_ptr[2] - m * op2_ptr[2];";
@@ -72,7 +72,7 @@ class QBRefractHandler extends QBMatrixHandler {
 					$lines[] = 		"res_ptr[2] = ";
 					$lines[] = 		"res_ptr[3] = 0.0;";
 					$lines[] = 	"} else {";
-					$lines[] = 		"$cType m = op3 * dot_product + sqrt$f(k);";
+					$lines[] = 		"$cType m = op3 * dot_product + qb_fast_sqrt$f(k);";
 					$lines[] = 		"res_ptr[0] = op3 * op1_ptr[0] - m * op2_ptr[0];";
 					$lines[] = 		"res_ptr[1] = op3 * op1_ptr[1] - m * op2_ptr[1];";
 					$lines[] = 		"res_ptr[2] = op3 * op1_ptr[2] - m * op2_ptr[2];";

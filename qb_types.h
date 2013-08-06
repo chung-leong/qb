@@ -481,20 +481,6 @@ static zend_always_inline int32_t qb_quick_roundf(float f) {
 #endif
 }
 
-#pragma pack(push,1)
-
-struct qb_complex_F32 {
-	float32_t r;
-	float32_t i;
-};
-
-struct qb_complex_F64 {
-	float64_t r;
-	float64_t i;
-};
-
-#pragma pack(pop)
-
 int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent);
 
 struct qb_block_allocator {
@@ -518,6 +504,11 @@ void ZEND_FASTCALL qb_destroy_block_allocator(qb_block_allocator **p_allocator);
 void ZEND_FASTCALL qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t increment);
 void * ZEND_FASTCALL qb_enlarge_array(void **p_array, uint32_t count);
 void ZEND_FASTCALL qb_destroy_array(void **p_array);
+
+float qb_fast_rsqrtf(float a);
+double qb_fast_rsqrt(double a);
+float qb_fast_sqrtf(float a);
+double qb_fast_sqrt(double a);
 
 uint64_t ZEND_FASTCALL qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc);
 double ZEND_FASTCALL qb_get_high_res_timestamp(void);
