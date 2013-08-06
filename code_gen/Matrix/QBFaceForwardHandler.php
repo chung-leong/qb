@@ -18,11 +18,11 @@ class QBFaceForwardHandler extends QBMatrixHandler {
 			$lines[] = "$cType dot_product;";
 			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, &dot_product);";
 			$lines[] = "if(dot_product > 0) {";
-			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 			"res_ptr[i] = op1_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "} else {";
-			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 			"res_ptr[i] = -op1_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "}";

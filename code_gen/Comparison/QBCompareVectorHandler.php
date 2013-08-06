@@ -10,8 +10,17 @@ abstract class QBCompareVectorHandler extends QBHandler {
 		return "ARR";
 	}
 	
+	public function isMultipleData() {
+		return true;
+	}
+	
 	public function getOperandType($i) {
 		return ($i == 3) ? "I32" : $this->operandType;
+	}
+	
+	public function getActionOnMultipleData() {
+		$expr = $this->getActionOnUnitData();
+		return $this->getIterationCode($expr);
 	}
 }
 

@@ -1,5 +1,7 @@
 <?php
 
+// only use in Pixel Bender (no unit-data version needed)
+
 class QBApplyPremultiplicationHandler extends QBHandler {
 
 	public function getOperandAddressMode($i) {
@@ -10,7 +12,11 @@ class QBApplyPremultiplicationHandler extends QBHandler {
 		return 4;
 	}
 
-	public function getActionOnUnitData() {
+	public function isMultipleData() {
+		return true;
+	}
+
+	public function getActionOnMultipleData() {
 		$cType = $this->getOperandCType(2);
 		$type = $this->getOperandType(2);
 		$lines = array();
@@ -26,7 +32,7 @@ class QBApplyPremultiplicationHandler extends QBHandler {
 		$lines[] = 		"res_ptr[2] = op1_ptr[2];";
 		$lines[] = 		"res_ptr[3] = op1_ptr[3];";
 		$lines[] = "}";
-		return $lines;
+		return $this->getIterationCode($lines);
 	}
 }
 

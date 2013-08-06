@@ -35,13 +35,13 @@ function test_function() {
 }
 
 qb_compile();
-
+ini_set('precision', 10);
 test_function();
 
 ?>
 --EXPECT--
 1
 3.741657
-11.18034
-7.4161984870957
-[2, 4, 5.4772255750517]
+11.18
+7.416198487
+[2, 4, 5.477225575]

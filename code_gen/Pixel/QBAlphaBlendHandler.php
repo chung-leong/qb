@@ -14,7 +14,11 @@ class QBAlphaBlendHandler extends QBHandler {
 		return 4;
 	}
 		
-	public function getActionOnUnitData() {
+	public function isMultipleData() {
+		return true;
+	}
+
+	public function getActionOnMultipleData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);
 		$lines = array();
@@ -46,7 +50,7 @@ class QBAlphaBlendHandler extends QBHandler {
 		$lines[] = 		"res_ptr[2] = op1_ptr[2];";
 		$lines[] = 		"res_ptr[3] = op1_ptr[3];";
 		$lines[] = "}";		
-		return $lines;
+		return $this->getIterationCode($lines);
 	}
 }
 

@@ -8,7 +8,7 @@ Matrix-matrix multiplication test
  * 
  * @engine	qb
  * @local	float32[3][3]		$m
- * @local	float32[3][4]		$[ab]
+ * @local	float32[3][4]		$a
  * @local	float32[2][3][3]	$c
  * 
  * @return	void
@@ -25,8 +25,7 @@ function test_function() {
 		array(5,  6,  7,  8),
 		array(9, 10, 11, 12),
 	);
-	$b = mm_mult($m, $a);	
-	echo "$b\n";
+	echo mm_mult($m, $a), "\n";	
 	
 	$c[0] = $m;
 	$c[1] = $m * 0.5;
@@ -34,7 +33,7 @@ function test_function() {
 	echo "$c\n";
 }
 
-ini_set("qb.column_major_matrix", true);
+ini_set("qb.row_major_matrix", true);
 
 qb_compile();
 

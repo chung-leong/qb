@@ -63,7 +63,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		$lines = array();
 		$lines[] = "char sprintf_buffer[64];";
 		$lines[] = "uint32_t len = $sprintf;";
-		$lines[] = "memcpy(res_ptr, sprintf_buffer, len);";
+		$lines[] = "memcpy(res_ptr + res_count_before, sprintf_buffer, len);";
 		return $lines;	
 	}
 	

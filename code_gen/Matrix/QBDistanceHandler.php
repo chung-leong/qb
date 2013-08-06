@@ -42,7 +42,7 @@ class QBDistanceHandler extends QBMatrixHandler {
 		if($this->operandSize == "variable") {
 			$lines[] = "uint32_t i;";
 			$lines[] = "$cType sum = 0;";
-			$lines[] = "for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = "for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 		"sum += (op1_ptr[i] - op2_ptr[i]) * (op1_ptr[i] - op2_ptr[i]);";
 			$lines[] = "}";
 			$lines[] = "res = qb_fast_sqrt$f(sum);";

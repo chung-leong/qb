@@ -2152,7 +2152,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 == op2);
+			qb_do_equal_vector_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -2210,7 +2210,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 != op2);
+			qb_do_not_equal_vector_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -2268,7 +2268,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -2326,7 +2326,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -2370,7 +2370,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (!op1);
+			qb_do_not_vector_multiple_times_I32(op1_ptr, op1_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -6832,7 +6832,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -6890,7 +6890,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -10356,7 +10356,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 == op2);
+			qb_do_equal_vector_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -10414,7 +10414,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 != op2);
+			qb_do_not_equal_vector_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -10472,7 +10472,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -10530,7 +10530,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -14342,7 +14342,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -14400,7 +14400,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -18036,7 +18036,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 == op2);
+			qb_do_equal_vector_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -18094,7 +18094,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 != op2);
+			qb_do_not_equal_vector_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -18152,7 +18152,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -18210,7 +18210,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -22310,7 +22310,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -22368,7 +22368,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -26086,7 +26086,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 == op2);
+			qb_do_equal_vector_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -26144,7 +26144,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 != op2);
+			qb_do_not_equal_vector_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -26202,7 +26202,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -26260,7 +26260,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -30514,7 +30514,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -30572,7 +30572,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -34128,7 +34128,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 == op2);
+			qb_do_equal_vector_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -34186,7 +34186,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 != op2);
+			qb_do_not_equal_vector_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -34244,7 +34244,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -34302,7 +34302,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -41982,7 +41982,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_alpha_blend_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_do_alpha_blend_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -42026,7 +42026,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_apply_premultiplication_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_do_apply_premultiplication_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -42070,7 +42070,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_remove_premultiplication_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_do_remove_premultiplication_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -54894,7 +54894,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 == op2);
+			qb_do_equal_vector_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -54952,7 +54952,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 != op2);
+			qb_do_not_equal_vector_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -55010,7 +55010,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 < op2);
+			qb_do_less_than_vector_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -55068,7 +55068,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			res = (op1 <= op2);
+			qb_do_less_than_or_equal_vector_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -62748,7 +62748,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_alpha_blend_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_do_alpha_blend_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
@@ -62792,7 +62792,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_apply_premultiplication_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_do_apply_premultiplication_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
@@ -62836,7 +62836,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_remove_premultiplication_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_do_remove_premultiplication_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);

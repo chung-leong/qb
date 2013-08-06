@@ -26,7 +26,7 @@ class QBReflectHandler extends QBMatrixHandler {
 			$lines[] = "uint32_t i;";
 			$lines[] = "$cType dot_product;";
 			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, &dot_product);";
-			$lines[] = "for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = "for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 		"res_ptr[i] = ($cType) (op1_ptr[i] - 2.0 * dot_product * op2_ptr[i]);";
 			$lines[] = "}";
 		} else {

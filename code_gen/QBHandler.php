@@ -266,7 +266,7 @@ class QBHandler {
 		if($this->operandSize != 1 && is_int($this->operandSize)) {
 			$name .= "_{$this->operandSize}x";
 		}
-		if($this->addressMode == "ARR") {
+		if($this->isMultipleData()) {
 			$name .= "_multiple_times";
 		}
 		if($this->operandType) {
@@ -634,7 +634,7 @@ class QBHandler {
 		}
 		$operandCounts[] = "res_count";
 		// use bitwise AND here, just in case the compiler doesn't optimize correctly
-		$condition = implode(" & ", $operandCounts);
+		$condition = implode(" && ", $operandCounts);
 		$lines[] = "if($condition) {";
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);

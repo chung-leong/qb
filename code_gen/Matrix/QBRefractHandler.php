@@ -26,12 +26,12 @@ class QBRefractHandler extends QBMatrixHandler {
 			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, &dot_product);";
 			$lines[] = "k = ($cType) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));";
 			$lines[] = "if(k < 0.0) {";
-			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 			"res_ptr[0] = 0.0;";
 			$lines[] = 		"}";
 			$lines[] = "} else {";
 			$lines[] = 		"$cType m = op3 * dot_product + qb_fast_sqrt$f(k);";
-			$lines[] = 		"for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = 		"for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 			"res_ptr[i] = op3 * op1_ptr[i] - m * op2_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "}";

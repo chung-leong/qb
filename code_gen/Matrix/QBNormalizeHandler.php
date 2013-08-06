@@ -14,11 +14,11 @@ class QBNormalizeHandler extends QBMatrixHandler {
 		if($this->operandSize == "variable") {
 			$lines[] = "uint32_t i;";
 			$lines[] = "$cType sum = 0, r;";
-			$lines[] = "for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = "for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 		"sum += op1_ptr[i] * op1_ptr[i];";
 			$lines[] = "}";
 			$lines[] = "r = qb_fast_rsqrt$f(sum);";
-			$lines[] = "for(i = 0; i < MATRIX1_ROWS; i++) {";
+			$lines[] = "for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 		"res_ptr[i] = op1_ptr[i] * r;";
 			$lines[] = "}";
 		} else {

@@ -920,7 +920,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_c
 
 static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim) {
 	qb_address *address;
-	if(dim->dimension_count > 0) {
+	if(dim && dim->dimension_count > 0) {
 		if(dim->array_size != 0) {
 			address = qb_obtain_temporary_fixed_length_array(cxt, desired_type, dim->array_size);
 		} else {
@@ -1994,22 +1994,22 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 			}
 		}
 	} else if(result_flags & QB_RESULT_SIZE_MM_PRODUCT) {
-		qb_address *m1_address, *m1_size_address, *m1_col_address;
-		qb_address *m2_address, *m2_size_address, *m2_row_address;
+		qb_address *m1_address, *m1_size_address, *m1_row_address;
+		qb_address *m2_address, *m2_size_address, *m2_col_address;
 		uint32_t i, m1_count, m2_count, res_count;
 
 		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
-		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
+		int32_t col_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
 		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
 
 		m1_address = operands[0].address;
 		m2_address = operands[1].address;
 		m1_size_address = m1_address->array_size_addresses[m1_address->dimension_count - 2];
 		m2_size_address = m2_address->array_size_addresses[m2_address->dimension_count - 2];
-		m1_col_address = m1_address->dimension_addresses[m1_address->dimension_count + column_offset];
-		m2_row_address = m2_address->dimension_addresses[m2_address->dimension_count + row_offset];
+		m1_row_address = m1_address->dimension_addresses[m1_address->dimension_count + row_offset];
+		m2_col_address = m2_address->dimension_addresses[m2_address->dimension_count + col_offset];
 
-		if(m1_address->dimension_count > 1) {
+		if(m1_address->dimension_count > 2) {
 			if(IS_VARIABLE_LENGTH_ARRAY(m1_address)) {
 				m1_count = UINT32_MAX;
 			} else {
@@ -2032,7 +2032,7 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 			if(res_count == UINT32_MAX) {
 				dim->array_size = 0;
 			} else {
-				dim->array_size = res_count * VALUE(U32, m1_col_address) * VALUE(U32, m2_row_address);
+				dim->array_size = res_count * VALUE(U32, m1_row_address) * VALUE(U32, m2_col_address);
 			}
 			if(m1_count == UINT32_MAX && m2_count == UINT32_MAX) {
 				// can't feature out the result matrix count
@@ -2056,14 +2056,14 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 						}
 					}
 				}
-				dim->dimension_addresses[dim->dimension_count + column_offset] = m1_col_address;
-				dim->dimension_addresses[dim->dimension_count + row_offset] = m2_row_address;
+				dim->dimension_addresses[dim->dimension_count + row_offset] = m1_row_address;
+				dim->dimension_addresses[dim->dimension_count + col_offset] = m2_col_address;
 			}
 		} else {
-			dim->array_size = VALUE(U32, m1_col_address) * VALUE(U32, m2_row_address);
+			dim->array_size = VALUE(U32, m1_row_address) * VALUE(U32, m2_col_address);
 			dim->dimension_count = 2;
-			dim->dimension_addresses[dim->dimension_count + column_offset] = m1_col_address;
-			dim->dimension_addresses[dim->dimension_count + row_offset] = m2_row_address;
+			dim->dimension_addresses[dim->dimension_count + row_offset] = m1_row_address;
+			dim->dimension_addresses[dim->dimension_count + col_offset] = m2_col_address;
 		}
 	} else if((result_flags & QB_RESULT_SIZE_MV_PRODUCT) || (result_flags & QB_RESULT_SIZE_VM_PRODUCT)) {
 		qb_address *m_address, *m_size_address;

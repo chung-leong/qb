@@ -1614,10 +1614,10 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt
 	qb_matrix_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m1_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
-	uint32_t m1_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
-	uint32_t m2_rows = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 2]);
-	uint32_t m2_cols = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
+	uint32_t m1_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+	uint32_t m1_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
+	uint32_t m2_rows = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
+	uint32_t m2_cols = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 2]);
 	qb_op *qop;
 	qb_opcode opcode;
 
@@ -2035,7 +2035,7 @@ static qb_basic_op_factory factory_subarray_rpos = {
 };
 
 static qb_basic_op_factory factory_array_reverse = {
-	qb_append_ternary_op,
+	qb_append_binary_op,
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_AREV_F64_U32_F64,	QB_AREV_F32_U32_F32,	QB_AREV_I64_U32_I64,	QB_AREV_I64_U32_I64,	QB_AREV_I32_U32_I32,	QB_AREV_I32_U32_I32,	QB_AREV_I16_U32_I16,	QB_AREV_I16_U32_I16,	QB_AREV_I08_U32_I08,	QB_AREV_I08_U32_I08		},
