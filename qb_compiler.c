@@ -2872,7 +2872,7 @@ static void ZEND_FASTCALL qb_encode_address(qb_compiler_context *cxt, qb_address
 				index_address = qb_obtain_constant_U32(cxt, value);
 			}
 			index_index = ELEMENT_COUNT(index_address->segment_offset, index_address->type);
-			operand = (index_index << 16) | (index_address->segment_selector << 8) | address->segment_selector;
+			operand = (index_index << 8) | address->segment_selector;
 			*((uint32_t *) *p_ip) = operand; *p_ip += sizeof(uint32_t);
 		}	break;
 		case QB_ADDRESS_MODE_ARR: {

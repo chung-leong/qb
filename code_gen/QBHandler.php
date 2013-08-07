@@ -494,9 +494,8 @@ class QBHandler {
 			}
 		} else if($addressMode == "ELV") {
 			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
-			$lines[] = "index_selector = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x00FF;";
-			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 16;";
-			$lines[] = "index = ((uint32_t *) segments[index_selector])[index_index];";
+			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 8;";
+			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
 			
 			if($i <= $srcCount) {				
 				// abort on out-of-bound
@@ -506,12 +505,10 @@ class QBHandler {
 				$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + index;";				
 			} else {
 				// expand the segment or abort
-				$lines[] = "if(segment_expandable[selector]) {";
-				$lines[] = 		"if(index >= segment_element_counts[selector]) {";
+				$lines[] = "if(UNEXPECTED(index >= segment_element_counts[selector])) {";
+				$lines[] = 		"if(segment_expandable[selector]) {";
 				$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], index + 1);";
-				$lines[] = 		"}";
-				$lines[] = 	"} else {";
-				$lines[] = 		"if(UNEXPECTED(index >= segment_element_counts[selector])) {";
+				$lines[] = 		"} else {";
 				$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, 1, PHP_LINE_NUMBER);";
 				$lines[] = 		"}";
 				$lines[] = "}";
@@ -547,16 +544,12 @@ class QBHandler {
 						$lines[] = "}";
 					}
 				}
-				$lines[] = "if(segment_expandable[selector]) {";
-				$lines[] = 		"if(res_start_index + res_count > segment_element_counts[selector]) {";
+				$lines[] = "if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {";
+				$lines[] = 		"if(segment_expandable[selector]) {";
 				$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);";
-				$lines[] = 		"} else if(UNEXPECTED(res_start_index + res_count < res_start_index)) {";
+				$lines[] = 		"} else {";
 				$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);";
 				$lines[] =		"}";
-				$lines[] = "} else {";
-				$lines[] = 		"if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {";
-				$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);";
-				$lines[] = 		"}";
 				$lines[] = "}";
 				$lines[] = "res_ptr = (($cType *) segments[selector]) + res_start_index;";
 			}
