@@ -35,7 +35,7 @@ class QBSampleBilinearHandler extends QBSampleHandler {
 		$lines[] = "$cType fy = (op5 - 0.5$f) - floor$f(op5 - 0.5$f);";
 		$lines[] = "if(fx + fy == 0) {";
 		$lines[] = 		"if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {";
-		$lines[] = 			"uint32_t index = ((iy * op2) + ix) * 4;";
+		$lines[] = 			"uint32_t index = ((iy * op2) + ix) * $this->operandSize;";
 		$lines[] = 			"res_ptr[0] = op1_ptr[index + 0];";
 		$lines[] = 			"res_ptr[1] = op1_ptr[index + 1];";
 		$lines[] = 			"res_ptr[2] = op1_ptr[index + 2];";

@@ -518,7 +518,11 @@ double qb_fast_rsqrt(double a) {
 }
 
 float qb_fast_sqrtf(float a) {
-	return a * qb_fast_rsqrtf(a);
+	if(a != 0) {
+		return a * qb_fast_rsqrtf(a);
+	} else {
+		return 0;
+	}
 }
 
 double qb_fast_sqrt(double a) {

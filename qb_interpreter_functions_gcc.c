@@ -14037,7 +14037,7 @@ void ZEND_FASTCALL qb_do_sample_bilinear_3x_F32(float32_t * __restrict op1_ptr, 
 	float32_t fy = (op5 - 0.5f) - floorf(op5 - 0.5f);
 	if(fx + fy == 0) {
 		if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
-			uint32_t index = ((iy * op2) + ix) * 4;
+			uint32_t index = ((iy * op2) + ix) * 3;
 			res_ptr[0] = op1_ptr[index + 0];
 			res_ptr[1] = op1_ptr[index + 1];
 			res_ptr[2] = op1_ptr[index + 2];
@@ -14107,7 +14107,7 @@ void ZEND_FASTCALL qb_do_sample_bilinear_3x_F64(float64_t * __restrict op1_ptr, 
 	float64_t fy = (op5 - 0.5) - floor(op5 - 0.5);
 	if(fx + fy == 0) {
 		if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {
-			uint32_t index = ((iy * op2) + ix) * 4;
+			uint32_t index = ((iy * op2) + ix) * 3;
 			res_ptr[0] = op1_ptr[index + 0];
 			res_ptr[1] = op1_ptr[index + 1];
 			res_ptr[2] = op1_ptr[index + 2];
