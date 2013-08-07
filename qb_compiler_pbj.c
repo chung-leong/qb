@@ -507,9 +507,9 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_matrix_address(qb_compiler_conte
 		matrix_address->dimension_addresses = qb_allocate_pointers(cxt->pool, 2);
 		matrix_address->array_size_address =
 		matrix_address->array_size_addresses[0] = cxt->pbj_int_numerals[row_count * col_count];
-		matrix_address->dimension_addresses[0] = cxt->pbj_int_numerals[row_count];
+		matrix_address->dimension_addresses[0] = cxt->pbj_int_numerals[col_count];
 		matrix_address->array_size_addresses[1] =
-		matrix_address->dimension_addresses[1] = cxt->pbj_int_numerals[col_count];
+		matrix_address->dimension_addresses[1] = cxt->pbj_int_numerals[row_count];
 		reg->matrix_address = matrix_address;
 
 		for(i = 0; i < reg_count; i++) {
