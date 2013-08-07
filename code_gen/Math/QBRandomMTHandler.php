@@ -10,6 +10,11 @@ class QBRandomMTHandler extends QBHandler {
 		return true;
 	}
 
+	public function getfunctionType() {
+		// there's no benefit from inlining the operation
+		return "extern";
+	}	
+	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$type = $this->getOperandType(3);

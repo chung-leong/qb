@@ -42,6 +42,15 @@ class QBMatrixHandler extends QBHandler {
 		return $name;
 	}
 	
+	public function getfunctionType() {
+		if(substr($this->operandType, 1) == 64) {
+			// if it's double precision, overhead from function call probably doesn't matter
+			return "extern";
+		} else {
+			return parent::getFunctionType();
+		}
+	}
+	
 	public function needsUnrolling() {
 		return false;
 	}

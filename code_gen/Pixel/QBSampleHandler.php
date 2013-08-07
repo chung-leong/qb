@@ -44,6 +44,15 @@ abstract class QBSampleHandler extends QBHandler {
 		}
 	}
 	
+	public function getfunctionType() {
+		if(substr($this->operandType, 1) == 64) {
+			// sampling at double precision is included for completeness only--don't inline any handler
+			return "extern";
+		} else {
+			return parent::getFunctionType();
+		}
+	}
+	
 	public function needsUnrolling() {
 		return false;
 	}
