@@ -22,9 +22,8 @@ class QBUnsetHandler extends QBHandler {
 		$addressMode = $this->getOperandAddressMode($i);
 		if($addressMode == "ELV") {
 			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
-			$lines[] = "index_selector = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x00FF;";
-			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 16;";
-			$lines[] = "index = ((uint32_t *) segments[index_selector])[index_index];";
+			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 8;";
+			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
 			
 			// shrink the segment at index
 			$lines[] = "if(index < segment_element_counts[selector]) {";

@@ -99,7 +99,7 @@ class QBCodeGenerator {
 		$lines[] = 			"int8_t *__restrict segment0;";
 		$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
 		$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
-		$lines[] =			"uint32_t selector, index, index_selector, index_index, size_index;";
+		$lines[] =			"uint32_t selector, index, index_index, size_index;";
 		$lines[] = 			"uint32_t string_length;";
 		$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
 		$lines[] = 			"uint32_t op1_start_index, op2_start_index, op3_start_index, op4_start_index, op5_start_index;";
@@ -241,6 +241,9 @@ class QBCodeGenerator {
 			}
 			if($handler instanceof QBIssetHandler) {
 				$flags[] = "QB_OP_UNSET";
+			}
+			if($handler->isVariableLength()) {
+				$flags[] = "QB_OP_VARIABLE_LENGTH";
 			}
 			$combined = ($flags) ? implode(" | ", $flags) : "0";
 			$name = $handler->getName();

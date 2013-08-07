@@ -33,7 +33,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		int8_t *__restrict segment0;
 		int32_t segment_expandable[MAX_SEGMENT_COUNT];
 		uint32_t segment_element_counts[MAX_SEGMENT_COUNT];
-		uint32_t selector, index, index_selector, index_index, size_index;
+		uint32_t selector, index, index_index, size_index;
 		uint32_t string_length;
 		uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;
 		uint32_t op1_start_index, op2_start_index, op3_start_index, op4_start_index, op5_start_index;
@@ -3317,9 +3317,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					int32_t *__restrict res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index >= segment_element_counts[selector]) {
 						op1_ptr = NULL;
 					} else {
@@ -3354,9 +3353,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index < segment_element_counts[selector]) {
 						qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, 1);
 					}
@@ -10960,9 +10958,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					int32_t *__restrict res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index >= segment_element_counts[selector]) {
 						op1_ptr = NULL;
 					} else {
@@ -10997,9 +10994,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index < segment_element_counts[selector]) {
 						qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, 1);
 					}
@@ -18353,9 +18349,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					int32_t *__restrict res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index >= segment_element_counts[selector]) {
 						op1_ptr = NULL;
 					} else {
@@ -18390,9 +18385,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index < segment_element_counts[selector]) {
 						qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, 1);
 					}
@@ -26086,9 +26080,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					int32_t *__restrict res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index >= segment_element_counts[selector]) {
 						op1_ptr = NULL;
 					} else {
@@ -26123,9 +26116,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index < segment_element_counts[selector]) {
 						qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, 1);
 					}
@@ -33141,9 +33133,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					int32_t *__restrict res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index >= segment_element_counts[selector]) {
 						op1_ptr = NULL;
 					} else {
@@ -33178,9 +33169,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index < segment_element_counts[selector]) {
 						qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, 1);
 					}
@@ -52548,9 +52538,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					int32_t *__restrict res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index >= segment_element_counts[selector]) {
 						op1_ptr = NULL;
 					} else {
@@ -52585,9 +52574,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-					index_selector = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x00FF;
-					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 16;
-					index = ((uint32_t *) segments[index_selector])[index_index];
+					index_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8;
+					index = ((uint32_t *) segment0)[index_index];
 					if(index < segment_element_counts[selector]) {
 						qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, 1);
 					}

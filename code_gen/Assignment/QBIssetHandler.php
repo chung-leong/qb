@@ -25,9 +25,8 @@ class QBIssetHandler extends QBHandler {
 		$lines = array();
 		if($addressMode == "ELV") {
 			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
-			$lines[] = "index_selector = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x00FF;";
-			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 16;";
-			$lines[] = "index = ((uint32_t *) segments[index_selector])[index_index];";
+			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 8;";
+			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
 			
 			// set pointer to null
 			$lines[] = "if(index >= segment_element_counts[selector]) {";

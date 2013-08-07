@@ -615,9 +615,8 @@ uint32_t ZEND_FASTCALL qb_decode_fcall_mix_operand(qb_interpreter_context *__res
 	} else {
 		uint32_t elv_operand2 = operands[operand_count++];
 		uint32_t selector = elv_operand2 & 0x00FF;
-		uint32_t index_selector = (elv_operand2 >> 8) & 0x00FF;
-		uint32_t index_index = elv_operand2 >> 16;
-		uint32_t index = ((uint32_t *) segments[index_selector])[index_index];
+		uint32_t index_index = elv_operand2 >> 8;
+		uint32_t index = ((uint32_t *) segments[0])[index_index];
 		cxt->argument_address = &cxt->value_address;
 		cxt->value_address.type = type;
 		cxt->value_address.flags = flags;
@@ -629,131 +628,171 @@ uint32_t ZEND_FASTCALL qb_decode_fcall_mix_operand(qb_interpreter_context *__res
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_F32(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	float32_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		float32_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision / 2, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_F64(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	float64_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		float64_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%.*G", cxt->floating_point_precision, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_S08(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	int8_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		int8_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId8, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_S16(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	int16_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		int16_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId16, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_S32(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	int32_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		int32_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId32, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_S64(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	int64_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		int64_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRId64, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_U08(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	uint8_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		uint8_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu8, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_U16(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	uint16_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		uint16_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu16, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_U32(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	uint32_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		uint32_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu32, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_U64(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
-	uint64_t *op1_end = op1_ptr + op1_count;
-	while(op1_ptr < op1_end) {
-		char sprintf_buffer[64];
-		uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1);
-		total += len;
-		op1_ptr++;
+	if(op1_count) {
+		uint64_t *op1_end = op1_ptr + op1_count;
+		while(op1_ptr < op1_end) {
+			char sprintf_buffer[64];
+			uint32_t len = snprintf(sprintf_buffer, sizeof(sprintf_buffer), "%" PRIu64, op1);
+			total += len;
+			op1_ptr++;
+		}
+		total += op1_count * 2;
+	} else {
+		total = 2;
 	}
-	total += op1_count * 2;
 	return total;
 }
 
