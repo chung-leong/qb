@@ -4,10 +4,7 @@ Logical short-circuiting test
 <?php
 
 /**
- * A test function
- * 
  * @engine	qb
- * 
  * @return	int32
  * 
  */
@@ -16,22 +13,42 @@ function A() {
 	return true;
 }
 
+/**
+ * @engine	qb
+ * @return	int32
+ * 
+ */
 function B() {
 	echo "B() = true\n";
 	return true;
 }
 
+/**
+ * @engine	qb
+ * @return	int32
+ * 
+ */
 function C() {
 	echo "C() = false\n";
 	return false;
 }
 
+/**
+ * @engine	qb
+ * @return	int32
+ * 
+ */
 function D() {
 	echo "D() = false\n";
 	return false;
 }
 
 
+/**
+ * @engine	qb
+ * @return	void
+ * 
+ */
 function test_function() {
 	if(A() && B()) {
 		echo "A() && B() = true\n";
@@ -86,7 +103,6 @@ function test_function() {
 	} else {
 		echo "(C() || D()) || (A() || B()) = false\n";
 	}	
-	return $n;
 }
 
 qb_compile();
@@ -94,7 +110,7 @@ qb_compile();
 test_function();
 
 ?>
---EXPECTREGEX--
+--EXPECT--
 A() = true
 B() = true
 A() && B() = true

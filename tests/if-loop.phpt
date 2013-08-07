@@ -27,6 +27,6 @@ echo test_function(5), "\n";
 echo test_function(15), "\n";
 
 ?>
---EXPECTREGEX--
+--EXPECT--
 25
 10

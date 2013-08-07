@@ -2042,18 +2042,14 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 				if(m1_count > m2_count || (m1_count == m2_count && (m1_address->dimension_count - 2) >= (m2_address->dimension_count - 2))) {
 					// use the first matrix parameter's dimensions
 					dim->dimension_count = (m1_address->dimension_count - 2) + 2;
-					if(dim->dimension_count > 1) {
-						for(i = 0; i < m1_address->dimension_count - 2; i++) {
-							dim->dimension_addresses[i] = m1_address->dimension_addresses[i];
-						}
+					for(i = 0; i < m1_address->dimension_count - 2; i++) {
+						dim->dimension_addresses[i] = m1_address->dimension_addresses[i];
 					}
 				} else {
 					// use the second matrix parameter's dimensions
 					dim->dimension_count = (m2_address->dimension_count - 2) + 2;
-					if(dim->dimension_count > 1) {
-						for(i = 0; i < m2_address->dimension_count - 2; i++) {
-							dim->dimension_addresses[i] = m2_address->dimension_addresses[i];
-						}
+					for(i = 0; i < m2_address->dimension_count - 2; i++) {
+						dim->dimension_addresses[i] = m2_address->dimension_addresses[i];
 					}
 				}
 				dim->dimension_addresses[dim->dimension_count + row_offset] = m1_row_address;
@@ -2115,18 +2111,14 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 				if(v_count < m_count || (v_count == m_count && (v_address->dimension_count - 1) <= (m_address->dimension_count - 2))) {
 					// use the matrix parameter's dimensions
 					dim->dimension_count = (m_address->dimension_count - 2) + 1;
-					if(dim->dimension_count > 1) {
-						for(i = 0; i < m_address->dimension_count - 2; i++) {
-							dim->dimension_addresses[i] = m_address->dimension_addresses[i];
-						}
+					for(i = 0; i < m_address->dimension_count - 2; i++) {
+						dim->dimension_addresses[i] = m_address->dimension_addresses[i];
 					}
 				} else {
 					// use the vector parameter's dimensions
 					dim->dimension_count = (v_address->dimension_count - 1) + 1;
-					if(dim->dimension_count > 1) {
-						for(i = 0; i < v_address->dimension_count - 1; i++) {
-							dim->dimension_addresses[i] = v_address->dimension_addresses[i];
-						}
+					for(i = 0; i < v_address->dimension_count - 1; i++) {
+						dim->dimension_addresses[i] = v_address->dimension_addresses[i];
 					}
 				}
 				dim->dimension_addresses[dim->dimension_count - 1] = v_width_address;
@@ -2136,26 +2128,40 @@ static qb_variable_dimensions *qb_get_result_dimensions(qb_compiler_context *cxt
 			dim->dimension_count = 1;
 		}
 	} else if(result_flags & QB_RESULT_SIZE_PIXEL_COUNT) {
-		/*
-		qb_operand *image = &operands[0], *x = &operands[1], *y = &operands[2];
-		uint32_t channel_count = qb_get_vector_width(cxt, image->address);
-		if(IS_SCALAR(x->address) && IS_SCALAR(y->address)) {
-			dim->array_size_address = qb_obtain_constant_U32(cxt, channel_count);
-		} else {
-			if(IS_EXPANDABLE_ARRAY(x->address)) {
-				// indicate the length of result is variable 
-				dim->array_size_address = x->address->array_size_address;
-			} else if(IS_EXPANDABLE_ARRAY(y->address)) {
-				dim->array_size_address = y->address->array_size_address;
-			} else {
-				uint32_t x_count = IS_SCALAR(x->address) ? 1: ARRAY_SIZE(x->address);
-				uint32_t y_count = IS_SCALAR(y->address) ? 1 : ARRAY_SIZE(y->address);
-				uint32_t total_channel_count = max(x_count, y_count) * channel_count;
-				dim->array_size_address = qb_obtain_constant_U32(cxt, total_channel_count);
-			}
+		qb_address *image_address = operands[0].address;
+		qb_address *x_address = operands[1].address;
+		qb_address *y_address = operands[2].address;
+		qb_address *channel_count_address = image_address->dimension_addresses[image_address->dimension_count - 1];
+		uint32_t channel_count = VALUE(U32, channel_count_address), i;
+		if(IS_SCALAR(x_address) && IS_SCALAR(y_address)) {
+			dim->array_size = channel_count;
 			dim->dimension_count = 1;
+		} else {
+			if(IS_VARIABLE_LENGTH_ARRAY(x_address) || IS_VARIABLE_LENGTH_ARRAY(y_address)) {
+				// don't know how many pixels will be returned
+				dim->array_size = 0;
+				dim->dimension_count = 1;
+			} else {
+				uint32_t x_count = IS_SCALAR(x_address) ? 1: ARRAY_SIZE(x_address);
+				uint32_t y_count = IS_SCALAR(y_address) ? 1 : ARRAY_SIZE(y_address);
+				dim->array_size = max(x_count, y_count) * channel_count;
+
+				if(x_count > y_count || (x_count == y_count && x_address->dimension_count >= y_address->dimension_count)) {
+					// use x's dimensions
+					dim->dimension_count = x_address->dimension_count + 1;
+					for(i = 0; i < x_address->dimension_count; i++) {
+						dim->dimension_addresses[i] = x_address->dimension_addresses[i];
+					}
+				} else {
+					// use y's dimensions
+					dim->dimension_count = y_address->dimension_count + 1;
+					for(i = 0; i < y_address->dimension_count; i++) {
+						dim->dimension_addresses[i] = y_address->dimension_addresses[i];
+					}
+				}
+				dim->dimension_addresses[dim->dimension_count - 1] = channel_count_address;
+			}
 		}
-		*/
 	}
 	return dim;
 }

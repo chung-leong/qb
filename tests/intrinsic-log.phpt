@@ -22,9 +22,9 @@ function test_function() {
 }
 
 qb_compile();
-
+ini_set('precision', 10);
 test_function();
 
 ?>
---EXPECTREGEX--
-2 (0.9999999|1)
+--EXPECT--
+2 1
