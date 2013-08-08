@@ -97,8 +97,14 @@ class QBCodeGenerator {
 		$lines[] = 			"register int8_t *__restrict instruction_pointer;";
 		$lines[] = 			"int8_t *__restrict segments[MAX_SEGMENT_COUNT];";
 		$lines[] = 			"int8_t *__restrict segment0;";
-		$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
 		$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
+		$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
+		$lines[] =			"uint32_t selector, index, index_index, size_index;";
+		$lines[] = 			"uint32_t string_length;";
+		$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
+		$lines[] = 			"uint32_t op1_start_index, op2_start_index, op3_start_index, op4_start_index, op5_start_index;";
+		$lines[] =			"uint32_t op1_count, op2_count, op3_count, op4_count, op5_count;";
+		$lines[] = 			"uint32_t res_start_index, res_count, res_count_before;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";

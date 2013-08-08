@@ -15,12 +15,6 @@ abstract class QBBranchHandler extends QBHandler {
 		array_splice($flags, 0, 0, array("QB_OPERAND_JUMP_TARGET", "QB_OPERAND_JUMP_TARGET"));
 		return $flags;
 	}
-	
-	public function getOperandDeclarations() {
-		$lines = parent::getOperandDeclarations();
-		$lines[] = "int32_t condition;";
-		return $lines;
-	}
 
 	public function getCode() {
 		$lines = array();
@@ -33,8 +27,13 @@ abstract class QBBranchHandler extends QBHandler {
 		if($this->needsLineNumber()) {
 			$lines[] = "#define PHP_LINE_NUMBER	(($instr *) instruction_pointer)->line_number";
 		}
-		$lines[] =		$this->getOperandDeclarations();
-		$lines[] =		$this->getOperandRetrievalCode();
+		$lines[] =		"int32_t condition;";
+		for($i = 1; $i <= $opCount; $i++) {
+			$lines[] =	$this->getOperandDeclaration($i);
+		}
+		for($i = 1; $i <= $opCount; $i++) {
+			$lines[] =	$this->getOperandRetrievalCode($i);
+		}
 		$lines[] =		$this->getTimeoutCode();
 		// code returned by getAction() sets the variable condition
 		$lines[] = 		$this->getAction();

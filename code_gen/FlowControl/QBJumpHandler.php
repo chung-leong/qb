@@ -23,8 +23,12 @@ class QBJumpHandler extends QBHandler {
 		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
 		$lines[] = "{";
 		// retrieve operands (none by default)
-		$lines[] = $this->getOperandDeclarations();
-		$lines[] = $this->getOperandRetrievalCode();
+		for($i = 1; $i <= $opCount; $i++) {
+			$lines[] = $this->getOperandDeclaration($i);
+		}
+		for($i = 1; $i <= $opCount; $i++) {
+			$lines[] = $this->getOperandRetrievalCode($i);
+		}
 		// check time limit (Windows only)
 		$lines[] = $this->getTimeoutCode();
 		// in case a descendant class wants to do something before the jump occurs		

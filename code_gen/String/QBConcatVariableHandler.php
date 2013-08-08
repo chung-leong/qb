@@ -50,23 +50,16 @@ class QBConcatVariableHandler extends QBPrintHandler {
 	}
 		
 	public function getResultSizePossibilities() {
-		return "res_count + expr_count";
+		return "res_count + string_length";
 	}
 
 	public function getResultSizeCalculation() {
 		$type = $this->getOperandType(1);
 		if($this->addressMode == "ARR") {
-			return "expr_count = qb_get_array_sprintf_length_$type(cxt, op1_ptr, op1_count);";
+			return "string_length = qb_get_array_sprintf_length_$type(cxt, op1_ptr, op1_count);";
 		} else {
-			return "expr_count = qb_get_scalar_sprintf_length_$type(cxt, op1_ptr);";
+			return "string_length = qb_get_scalar_sprintf_length_$type(cxt, op1_ptr);";
 		}		 
-	}
-	
-	protected function getOperandDeclarations() {
-		$lines = parent::getOperandDeclarations();
-		$lines[] = "uint32_t expr_count;";
-		$lines[] = "";
-		return $lines;
 	}
 	
 	public function getActionOnUnitData() {

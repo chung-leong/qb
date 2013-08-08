@@ -13,11 +13,17 @@ class QBDotProductHandler extends QBMatrixHandler {
 			case 3: return $this->addressMode;
 		}
 	}
-			
+		
+	public function getResultSizePossibilities() {
+		if($this->addressMode == "ARR") {
+			return "vector_count";
+		}
+	}
+	
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
 			$vectorSize = $this->getOperandSize(1);
-			return "expr_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
+			return "vector_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
 		}
 	}
 	

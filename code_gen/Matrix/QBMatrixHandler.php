@@ -63,19 +63,4 @@ class QBMatrixHandler extends QBHandler {
 		} 
 		return false;
 	}
-	
-	public function getResultSizePossibilities() {		
-		if($this->getResultSizeCalculation()) {
-			return "expr_count";
-		}
-	}
-					   
-	protected function getOperandDeclarations() {
-		$lines = parent::getOperandDeclarations();
-		if($this->getResultSizeCalculation()) {
-			$lines[] = "uint32_t expr_count;";
-			$lines[] = "";
-		}
-		return $lines;
-	}
 }

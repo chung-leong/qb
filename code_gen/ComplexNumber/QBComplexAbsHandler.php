@@ -7,24 +7,15 @@ class QBComplexAbsHandler extends QBComplexNumberHandler {
 	}
 	
 	public function getResultSizePossibilities() {
-		if($this->getResultSizeCalculation()) {
-			return "expr_count";
+		if($this->addressMode == "ARR") {
+			return "vector_count";
 		}
 	}
 	
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
-			return "expr_count = op1_count / 2;";
+			return "vector_count = op1_count / 2;";
 		}
-	}
-	
-	protected function getOperandDeclarations() {
-		$lines = parent::getOperandDeclarations();
-		if($this->getResultSizeCalculation()) {
-			$lines[] = "uint32_t expr_count;";
-			$lines[] = "";
-		}
-		return $lines;
 	}
 
 	protected function getActionOnUnitData() {
