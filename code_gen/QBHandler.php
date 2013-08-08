@@ -288,7 +288,7 @@ class QBHandler {
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);
 			$addressMode = $this->getOperandAddressMode($i);
-			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "op{$i}_ptr";
+			$variables[] = (($includeType) ? "$cType *" : "") . "op{$i}_ptr";
 			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
 				$variables[] = (($includeType) ? "uint32_t " : "") . "op{$i}_count";
 			}
@@ -309,7 +309,7 @@ class QBHandler {
 		if($dstCount > 0) {
 			$cType = $this->getOperandCType($srcCount + 1);
 			$addressMode = $this->getOperandAddressMode($srcCount + 1);
-			$variables[] = (($includeType) ? "$cType * __restrict " : "") . "res_ptr";
+			$variables[] = (($includeType) ? "$cType *" : "") . "res_ptr";
 			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
 				$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
 			}
@@ -470,9 +470,9 @@ class QBHandler {
 		$srcCount = $this->getInputOperandCount();
 		$lines = array();
 		if($i <= $srcCount) {
-			$lines[] = "$cType *__restrict op{$i}_ptr;";
+			$lines[] = "$cType *op{$i}_ptr;";
 		} else {
-			$lines[] = "$cType *__restrict res_ptr;";
+			$lines[] = "$cType *res_ptr;";
 		}
 		return $lines;
 	}
