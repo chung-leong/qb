@@ -50,15 +50,15 @@ class QBConcatVariableHandler extends QBPrintHandler {
 	}
 		
 	public function getResultSizePossibilities() {
-		return "res_count + string_length";
+		return "res_count + expr_count";
 	}
 
 	public function getResultSizeCalculation() {
 		$type = $this->getOperandType(1);
 		if($this->addressMode == "ARR") {
-			return "string_length = qb_get_array_sprintf_length_$type(cxt, op1_ptr, op1_count);";
+			return "expr_count = qb_get_array_sprintf_length_$type(cxt, op1_ptr, op1_count);";
 		} else {
-			return "string_length = qb_get_scalar_sprintf_length_$type(cxt, op1_ptr);";
+			return "expr_count = qb_get_scalar_sprintf_length_$type(cxt, op1_ptr);";
 		}		 
 	}
 	

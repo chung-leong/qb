@@ -1,18 +1,12 @@
 <?php
 
 class QBHandler {
-	protected static $typeDecls = array();
 	protected static $compiler;
 
 	protected $baseName;
 	protected $operandType;
 	protected $operandSize;
 	protected $addressMode;
-	
-	static public function getTypeDeclarations() {
-		ksort(self::$typeDecls);
-		return self::$typeDecls;
-	}
 	
 	static public function setCompiler($compiler) {
 		self::$compiler = $compiler;
@@ -518,15 +512,14 @@ class QBHandler {
 			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
 			$lines[] = "index_index = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x03FF;";
 			$lines[] = "size_index = (($instr *) instruction_pointer)->operand{$i} >> 20;";
+			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
 			if($i <= $srcCount) {
-				$lines[] = "op{$i}_start_index = ((uint32_t *) segment0)[index_index];";
 				$lines[] = "op{$i}_count = ((uint32_t *) segment0)[size_index];";
-				$lines[] = "if(UNEXPECTED(op{$i}_start_index + op{$i}_count > segment_element_counts[selector] || op{$i}_start_index + op{$i}_count < op{$i}_start_index)) {";
-				$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], op{$i}_start_index, op{$i}_count, PHP_LINE_NUMBER);";
+				$lines[] = "if(UNEXPECTED(index + op{$i}_count > segment_element_counts[selector] || index + op{$i}_count < index)) {";
+				$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, op{$i}_count, PHP_LINE_NUMBER);";
 				$lines[] = "}";
-				$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + op{$i}_start_index;";
+				$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + index;";
 			} else {
-				$lines[] = "res_start_index = ((uint32_t *) segment0)[index_index];";
 				$lines[] = "res_count = res_count_before = ((uint32_t *) segment0)[size_index];";				
 				$result_size_possiblities = $this->getResultSizePossibilities();
 				if(!is_array($result_size_possiblities)) {
@@ -544,14 +537,14 @@ class QBHandler {
 						$lines[] = "}";
 					}
 				}
-				$lines[] = "if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {";
+				$lines[] = "if(UNEXPECTED(res_count > res_count_before || index + res_count > segment_element_counts[selector] || index + res_count < index)) {";
 				$lines[] = 		"if(segment_expandable[selector]) {";
-				$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);";
+				$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], index + res_count);";
 				$lines[] = 		"} else {";
-				$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);";
+				$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, res_count, PHP_LINE_NUMBER);";
 				$lines[] =		"}";
 				$lines[] = "}";
-				$lines[] = "res_ptr = (($cType *) segments[selector]) + res_start_index;";
+				$lines[] = "res_ptr = (($cType *) segments[selector]) + index;";
 			}
 		} else {
 			$className = get_class($this);

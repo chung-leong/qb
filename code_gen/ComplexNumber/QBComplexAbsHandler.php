@@ -8,13 +8,13 @@ class QBComplexAbsHandler extends QBComplexNumberHandler {
 	
 	public function getResultSizePossibilities() {
 		if($this->addressMode == "ARR") {
-			return "vector_count";
+			return "expr_count";
 		}
 	}
 	
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
-			return "vector_count = op1_count / 2;";
+			return "expr_count = op1_count / 2;";
 		}
 	}
 

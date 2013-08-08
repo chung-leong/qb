@@ -34,11 +34,11 @@ class QBUTF8DecodeHandler extends QBHandler {
 	}	
 	
 	public function getResultSizePossibilities() {
-		return "string_length";
+		return "expr_count";
 	}
 
 	public function getResultSizeCalculation() {
-		return "string_length = qb_get_utf8_codepoint_count(op1_ptr, op1_count);";
+		return "expr_count = qb_get_utf8_codepoint_count(op1_ptr, op1_count);";
 	}
 	
 	public function getActionOnUnitData() {

@@ -22,7 +22,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBMatrixHandler {
 	
 	public function getResultSizePossibilities() {
 		if($this->addressMode == "ARR") {
-			return "mmult_res_count";
+			return "expr_count";
 		}
 	}
 	
@@ -32,9 +32,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBMatrixHandler {
 			$matrixSize1 = $this->getOperandSize(1); 
 			$matrixSize2 = $this->getOperandSize(2);
 			$outputSize = $this->getOperandSize(3);
-			$lines[] = "matrix1_count = op1_count / $matrixSize1;";
-			$lines[] = "matrix2_count = op2_count / $matrixSize2;";
-			$lines[] = "mmult_res_count = ((matrix1_count > matrix2_count) ? matrix1_count : matrix2_count) * $outputSize;";
+			$lines[] = "expr_count = (((op1_count / $matrixSize1) > (op2_count / $matrixSize2)) ? (op1_count / $matrixSize1) : (op2_count / $matrixSize2)) * $outputSize;";
 			return $lines;
 		}
 	}

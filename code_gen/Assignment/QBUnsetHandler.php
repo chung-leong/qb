@@ -34,10 +34,10 @@ class QBUnsetHandler extends QBHandler {
 			$lines[] = "index_index = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x03FF;";
 			$lines[] = "size_index = (($instr *) instruction_pointer)->operand{$i} >> 20;";
 
-			$lines[] = "res_start_index = ((uint32_t *) segment0)[index_index];";
+			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
 			$lines[] = "res_count = ((uint32_t *) segment0)[size_index];";				
-			$lines[] = "if(res_start_index + res_count <= segment_element_counts[selector] && res_start_index + res_count >= res_start_index) {";
-			$lines[] = 		"qb_shrink_segment(cxt, &cxt->storage->segments[selector], res_start_index, res_count);";
+			$lines[] = "if(index + res_count <= segment_element_counts[selector] && index + res_count >= index) {";
+			$lines[] = 		"qb_shrink_segment(cxt, &cxt->storage->segments[selector], index, res_count);";
 			$lines[] = "}";
 		} else {
 			return parent::getOperandRetrievalCode($i);

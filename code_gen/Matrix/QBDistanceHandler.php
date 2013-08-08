@@ -16,14 +16,14 @@ class QBDistanceHandler extends QBMatrixHandler {
 	
 	public function getResultSizePossibilities() {
 		if($this->addressMode == "ARR") {
-			return "vector_count";
+			return "expr_count";
 		}
 	}
 	
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
 			$vectorSize = $this->getOperandSize(1);
-			return "vector_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
+			return "expr_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
 		}
 	}
 	
