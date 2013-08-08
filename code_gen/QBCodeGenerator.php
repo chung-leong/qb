@@ -97,9 +97,6 @@ class QBCodeGenerator {
 		$lines[] = 			"register int8_t *__restrict instruction_pointer;";
 		$lines[] = 			"int8_t *__restrict segments[MAX_SEGMENT_COUNT];";
 		$lines[] = 			"int8_t *__restrict segment0;";
-		$lines[] =			"uint32_t selector, index, index_index, size_index, expr_count;";
-		$lines[] =			"uint32_t op1_count, op2_count, op3_count, op4_count, op5_count;";
-		$lines[] = 			"uint32_t res_count, res_count_before;";
 		$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
 		$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
 		

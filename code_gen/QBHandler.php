@@ -66,13 +66,8 @@ class QBHandler {
 			$lines[] = "#define MATRIX2_ROWS			MATRIX1_COLS";
 			$lines[] = "#define MATRIX2_COLS			((($instr *) instruction_pointer)->matrix_dimensions & 0x03FF)";
 		}
-		for($i = 1; $i <= $opCount; $i++) {
-			$lines[] = $this->getOperandDeclaration($i);
-		}
-		$lines[] = "";
-		for($i = 1; $i <= $opCount; $i++) {
-			$lines[] = $this->getOperandRetrievalCode($i);
-		}
+		$lines[] = $this->getOperandDeclarations();
+		$lines[] = $this->getOperandRetrievalCode();
 		$lines[] = $action;
 		if($this->needsLineNumber()) {
 			$lines[] = "#undef PHP_LINE_NUMBER";
@@ -457,100 +452,130 @@ class QBHandler {
 		}
 	}	
 	
-	// return the variable declaration needed for retrieving operand $i
+	// return the variable declarations needed for retrieving operands
 	// this method is needed mainly because of the limitations of Visual C  
-	protected function getOperandDeclaration($i) {
-		$cType = $this->getOperandCType($i);
+	protected function getOperandDeclarations() {
+		$opCount = $this->getOperandCount();
 		$srcCount = $this->getInputOperandCount();
 		$lines = array();
-		if($i <= $srcCount) {
-			$lines[] = "$cType *__restrict op{$i}_ptr;";
-		} else {
-			$lines[] = "$cType *__restrict res_ptr;";
+		for($i = 1; $i <= $opCount; $i++) {
+			$cType = $this->getOperandCType($i);
+			$addressMode = $this->getOperandAddressMode($i);
+			$lines[] = "uint32_t index;";
+			if($addressMode == "ELV" || $addressMode == "ARR") {
+				$lines[] = "uint32_t selector;";
+				$lines[] = "uint32_t index_index;";
+				if($addressMode == "ARR") {
+					$lines[] = "uint32_t size_index;";
+					if($i <= $srcCount) {
+						$lines[] = "uint32_t op{$i}_count;";
+					} else {
+						$lines[] = "uint32_t res_count;";
+						$lines[] = "uint32_t res_count_before;";
+					}
+				}				
+			}
+			if($i <= $srcCount) {
+				$lines[] = "$cType *__restrict op{$i}_ptr;";
+			} else {
+				$lines[] = "$cType *__restrict res_ptr;";
+			}
 		}
+		$lines = array_unique($lines);
+		$lines[] = "";
 		return $lines;
 	}
 	
-	// return code for retrieving operand $i
-	// variables employed here should be declared in getOperandDeclaration() 
-	protected function getOperandRetrievalCode($i) {
+	// return code for unpacking operands 
+	protected function getOperandUnpackCode($i, $addressMode) {
 		$instr = $this->getInstructionStructure();
-		$cType = $this->getOperandCType($i);
-		$addressMode = $this->getOperandAddressMode($i);
-		$srcCount = $this->getInputOperandCount();
 		if($addressMode == "VAR") {
 			$lines[] = "index = (($instr *) instruction_pointer)->operand{$i};";
-			if($i <= $srcCount) {
-				$lines[] = "op{$i}_ptr = (($cType *) segment0) + index;";
-			} else {
-				$j = $i - $srcCount;
-				$lines[] = "res_ptr = (($cType *) segment0) + index;";
-			}
 		} else if($addressMode == "ELV") {
 			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
 			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 8;";
 			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
-			
-			if($i <= $srcCount) {				
-				// abort on out-of-bound
-				$lines[] = "if(UNEXPECTED(index >= segment_element_counts[selector])) {";
-				$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, 1, PHP_LINE_NUMBER);";
-				$lines[] = "}";
-				$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + index;";				
-			} else {
-				// expand the segment or abort
-				$lines[] = "if(UNEXPECTED(index >= segment_element_counts[selector])) {";
-				$lines[] = 		"if(segment_expandable[selector]) {";
-				$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], index + 1);";
-				$lines[] = 		"} else {";
-				$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, 1, PHP_LINE_NUMBER);";
-				$lines[] = 		"}";
-				$lines[] = "}";
-				$lines[] = "res_ptr = (($cType *) segments[selector]) + index;";
-			}
 		} else if($addressMode == "ARR") {
 			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
 			$lines[] = "index_index = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x03FF;";
 			$lines[] = "size_index = (($instr *) instruction_pointer)->operand{$i} >> 20;";
 			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
-			if($i <= $srcCount) {
-				$lines[] = "op{$i}_count = ((uint32_t *) segment0)[size_index];";
-				$lines[] = "if(UNEXPECTED(index + op{$i}_count > segment_element_counts[selector] || index + op{$i}_count < index)) {";
-				$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, op{$i}_count, PHP_LINE_NUMBER);";
-				$lines[] = "}";
-				$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + index;";
-			} else {
-				$lines[] = "res_count = res_count_before = ((uint32_t *) segment0)[size_index];";				
-				$result_size_possiblities = $this->getResultSizePossibilities();
-				if(!is_array($result_size_possiblities)) {
-					$result_size_possiblities = ($result_size_possiblities !== null) ? array($result_size_possiblities) : array();
-				}
-				$lines[] = $this->getResultSizeCalculation();
-				// set res_count to the largest of the possible values
-				foreach($result_size_possiblities as $expr) {
-					if(preg_match('/res_count \+/', $expr)) {
-						// if the expression involves adding to the res_count, then it's obviously going to be bigger than it
-						$lines[] = "res_count = $expr;";
-					} else {
-						$lines[] = "if($expr > res_count) {";
-						$lines[] = 		"res_count = $expr;";
-						$lines[] = "}";
-					}
-				}
-				$lines[] = "if(UNEXPECTED(res_count > res_count_before || index + res_count > segment_element_counts[selector] || index + res_count < index)) {";
-				$lines[] = 		"if(segment_expandable[selector]) {";
-				$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], index + res_count);";
-				$lines[] = 		"} else {";
-				$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, res_count, PHP_LINE_NUMBER);";
-				$lines[] =		"}";
-				$lines[] = "}";
-				$lines[] = "res_ptr = (($cType *) segments[selector]) + index;";
-			}
-		} else {
-			$className = get_class($this);
-			die("Invalid address mode for operand $i in $className: $addressMode\n");
 		}
 		$lines[] = "";
+		return $lines;
+	}
+	
+	// return code for retrieving operands
+	// variables employed here should be declared in getOperandDeclaration() 
+	protected function getOperandRetrievalCode() {
+		$opCount = $this->getOperandCount();
+		$srcCount = $this->getInputOperandCount();
+		$lines = array();
+		for($i = 1; $i <= $opCount; $i++) {
+			$cType = $this->getOperandCType($i);
+			$addressMode = $this->getOperandAddressMode($i);
+			$lines[] = $this->getOperandUnpackCode($i, $addressMode);
+			if($addressMode == "VAR") {
+				if($i <= $srcCount) {
+					$lines[] = "op{$i}_ptr = (($cType *) segment0) + index;";
+				} else {
+					$lines[] = "res_ptr = (($cType *) segment0) + index;";
+				}
+			} else if($addressMode == "ELV") {
+				if($i <= $srcCount) {				
+					// abort on out-of-bound
+					$lines[] = "if(UNEXPECTED(index >= segment_element_counts[selector])) {";
+					$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, 1, PHP_LINE_NUMBER);";
+					$lines[] = "}";
+					$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + index;";				
+				} else {
+					// expand the segment or abort
+					$lines[] = "if(UNEXPECTED(index >= segment_element_counts[selector])) {";
+					$lines[] = 		"if(segment_expandable[selector]) {";
+					$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], index + 1);";
+					$lines[] = 		"} else {";
+					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, 1, PHP_LINE_NUMBER);";
+					$lines[] = 		"}";
+					$lines[] = "}";
+					$lines[] = "res_ptr = (($cType *) segments[selector]) + index;";
+				}
+			} else if($addressMode == "ARR") {
+				if($i <= $srcCount) {
+					$lines[] = "op{$i}_count = ((uint32_t *) segment0)[size_index];";
+					$lines[] = "if(UNEXPECTED(index + op{$i}_count > segment_element_counts[selector] || index + op{$i}_count < index)) {";
+					$lines[] = 		"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, op{$i}_count, PHP_LINE_NUMBER);";
+					$lines[] = "}";
+					$lines[] = "op{$i}_ptr = (($cType *) segments[selector]) + index;";
+				} else {
+					$lines[] = "res_count = res_count_before = ((uint32_t *) segment0)[size_index];";				
+					$result_size_possiblities = $this->getResultSizePossibilities();
+					if(!is_array($result_size_possiblities)) {
+						$result_size_possiblities = ($result_size_possiblities !== null) ? array($result_size_possiblities) : array();
+					}
+					$lines[] = $this->getResultSizeCalculation();
+					// set res_count to the largest of the possible values
+					foreach($result_size_possiblities as $expr) {
+						if(preg_match('/res_count \+/', $expr)) {
+							// if the expression involves adding to the res_count, then it's obviously going to be bigger than it
+							$lines[] = "res_count = $expr;";
+						} else {
+							$lines[] = "if($expr > res_count) {";
+							$lines[] = 		"res_count = $expr;";
+							$lines[] = "}";
+						}
+					}
+					$lines[] = "if(UNEXPECTED(res_count > res_count_before || index + res_count > segment_element_counts[selector] || index + res_count < index)) {";
+					$lines[] = 		"if(segment_expandable[selector]) {";
+					$lines[] = 			"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], index + res_count);";
+					$lines[] = 		"} else {";
+					$lines[] =			"qb_abort_range_error(cxt, &cxt->storage->segments[selector], index, res_count, PHP_LINE_NUMBER);";
+					$lines[] =		"}";
+					$lines[] = "}";
+					$lines[] = "res_ptr = (($cType *) segments[selector]) + index;";
+				}
+			}
+			$lines[] = "";
+		}
 		return $lines;
 	}
 	

@@ -56,6 +56,13 @@ class QBConcatMultidimensionalVariableHandler extends QBPrintHandler {
 		return "expr_count = qb_get_multidimensional_array_sprintf_length_$type(cxt, op1_ptr, op1_count, op2_ptr, op2_count);";
 	}
 	
+	protected function getOperandDeclarations() {
+		$lines = parent::getOperandDeclarations();
+		$lines[] = "uint32_t expr_count;";
+		$lines[] = "";
+		return $lines;
+	}
+	
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf();
 		$cType = $this->getOperandCType(1);

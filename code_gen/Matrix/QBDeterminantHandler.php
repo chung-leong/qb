@@ -9,12 +9,6 @@ class QBDeterminantHandler extends QBMatrixHandler {
 		}
 	}
 
-	public function getResultSizePossibilities() {
-		if($this->addressMode == "ARR") {
-			return "expr_count";
-		}
-	}
-	
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
 			$matrixSize = $this->getOperandSize(1);

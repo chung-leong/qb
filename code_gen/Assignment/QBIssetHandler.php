@@ -11,45 +11,46 @@ class QBIssetHandler extends QBHandler {
 	}
 
 	public function getAction() {
-		if($this->addressMode == "VAR") {
+		$addressMode = $this->getOperandAddressMode(1);
+		if($addressMode == "VAR") {
 			return "res = (op1 != 0);";
-		} else {
+		} else if($addressMode == "ELV") {
 			return "res = (op1_ptr) && (op1 != 0);";
+		} else if($addressMode == "ARR") {
+			return "res = (op1_count > 0);";
 		}
 	}
 	
-	protected function getOperandRetrievalCode($i) {
-		$instr = $this->getInstructionStructure();
-		$cType = $this->getOperandCType($i);
-		$addressMode = $this->getOperandAddressMode($i);
+	protected function getOperandRetrievalCode() {
+		$cType = $this->getOperandCType(1);
+		$addressMode = $this->getOperandAddressMode(1);
 		$lines = array();
-		if($addressMode == "ELV") {
-			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
-			$lines[] = "index_index = (($instr *) instruction_pointer)->operand{$i} >> 8;";
-			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
-			
+		$lines[] = $this->getOperandUnpackCode(1, $addressMode);
+		if($addressMode == "VAR") {
+			$lines[] = "op1_ptr = (($cType *) segment0) + index;";
+		} else if($addressMode == "ELV") {
 			// set pointer to null
 			$lines[] = "if(index >= segment_element_counts[selector]) {";
-			$lines[] = 		"op{$i}_ptr = NULL;";
+			$lines[] = 		"op1_ptr = NULL;";
 			$lines[] = "} else {";
-			$lines[] = 		"op{$i}_ptr = (($cType *) segments[selector]) + index;";				
+			$lines[] = 		"op1_ptr = (($cType *) segments[selector]) + index;";				
 			$lines[] = "}";
 		} else if($addressMode == "ARR") {
-			$lines[] = "selector = (($instr *) instruction_pointer)->operand{$i} & 0x00FF;";
-			$lines[] = "index_index = ((($instr *) instruction_pointer)->operand{$i} >> 8) & 0x03FF;";
-			$lines[] = "size_index = (($instr *) instruction_pointer)->operand{$i} >> 20;";
-			
-			$lines[] = "op{$i}_start_index = ((uint32_t *) segment0)[index_index];";
-			$lines[] = "op{$i}_count = ((uint32_t *) segment0)[size_index];";
-			$lines[] = "if(op{$i}_start_index + op{$i}_count > segment_element_counts[selector]) {";
-			$lines[] = 		"op{$i}_ptr = NULL;";
+			$lines[] = "index = ((uint32_t *) segment0)[index_index];";
+			$lines[] = "op1_count = ((uint32_t *) segment0)[size_index];";
+			$lines[] = "if(index + op1_count > segment_element_counts[selector] || index + op1_count < index) {";
+			$lines[] = 		"op1_ptr = NULL;";
 			$lines[] = "} else {";
-			$lines[] = 		"op{$i}_ptr = (($cType *) segments[selector]) + op{$i}_start_index;";
+			$lines[] = 		"op1_ptr = (($cType *) segments[selector]) + index;";
 			$lines[] = "}";
-		} else {
-			return parent::getOperandRetrievalCode($i);
 		}
 		$lines[] = "";
+		
+		$cType = $this->getOperandCType(2);
+		$addressMode = $this->getOperandAddressMode(2);
+		$lines[] = $this->getOperandUnpackCode(2, "VAR");
+		$lines[] = "res_ptr = (($cType *) segment0) + index;";
+		$lines[] = "";		
 		return $lines;
 	}
 }

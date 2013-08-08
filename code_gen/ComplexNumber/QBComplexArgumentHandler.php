@@ -18,6 +18,15 @@ class QBComplexArgumentHandler extends QBComplexNumberHandler {
 		}
 	}
 
+	protected function getOperandDeclarations() {
+		$lines = parent::getOperandDeclarations();
+		if($this->addressMode == "ARR") {
+			$lines[] = "uint32_t expr_count;";
+			$lines[] = "";
+		}
+		return $lines;
+	}
+	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		return "res_ptr[0] = ($cType) atan2(op1_ptr[1], op1_ptr[0]);";

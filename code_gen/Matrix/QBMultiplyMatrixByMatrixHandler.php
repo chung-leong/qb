@@ -19,13 +19,7 @@ class QBMultiplyMatrixByMatrixHandler extends QBMatrixHandler {
 			return ($this->operandSize + $this->operandPadding) * $this->operandSize;
 		}
 	}
-	
-	public function getResultSizePossibilities() {
-		if($this->addressMode == "ARR") {
-			return "expr_count";
-		}
-	}
-	
+		
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
 			$lines = array();

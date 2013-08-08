@@ -14,12 +14,6 @@ class QBDistanceHandler extends QBMatrixHandler {
 		}
 	}
 	
-	public function getResultSizePossibilities() {
-		if($this->addressMode == "ARR") {
-			return "expr_count";
-		}
-	}
-	
 	public function getResultSizeCalculation() {
 		if($this->addressMode == "ARR") {
 			$vectorSize = $this->getOperandSize(1);
@@ -35,7 +29,7 @@ class QBDistanceHandler extends QBMatrixHandler {
 		}
 	}
 	
-	public function getActionOnUnitData() {
+	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(3);
 		$cType = $this->getOperandCType(3);
 		$f = ($type == 'F32') ? 'f' : '';

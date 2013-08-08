@@ -62,6 +62,13 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		}		 
 	}
 	
+	protected function getOperandDeclarations() {
+		$lines = parent::getOperandDeclarations();
+		$lines[] = "uint32_t expr_count;";
+		$lines[] = "";
+		return $lines;
+	}
+	
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf();
 		$lines = array();

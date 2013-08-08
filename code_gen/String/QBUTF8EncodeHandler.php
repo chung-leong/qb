@@ -41,6 +41,13 @@ class QBUTF8EncodeHandler extends QBHandler {
 		return "expr_count = qb_get_utf8_encoded_length_$type(op1_ptr, op1_count);";
 	}
 	
+	protected function getOperandDeclarations() {
+		$lines = parent::getOperandDeclarations();
+		$lines[] = "uint32_t expr_count;";
+		$lines[] = "";
+		return $lines;
+	}
+	
 	public function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "uint32_t length = 0, i;";
