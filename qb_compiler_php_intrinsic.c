@@ -128,7 +128,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cx
 		uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 		uint32_t m1_cols, m1_rows, m2_cols, m2_rows;
 
-		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
 		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
 		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
 
@@ -178,7 +178,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cx
 		uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 		uint32_t m_cols, m_rows, v_width;
 
-		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
 		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
 		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
 
@@ -231,7 +231,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 		uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 		uint32_t m_cols, m_rows, v_width;
 
-		qb_matrix_order order = qb_get_matrix_order(cxt, result_flags);
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
 		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
 		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
 
@@ -292,7 +292,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			qb_variable_dimensions *result_dim;
-			result_dim = qb_get_result_dimensions(cxt, arguments, argument_count, QB_RESULT_SIZE_PIXEL_COUNT);
+			result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, image->address->type, result_dim, result_prototype, result_flags);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
@@ -421,7 +421,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 			min_address = arguments[0].address;
 			max_address = arguments[1].address;
 		}
-		result_dim = qb_get_result_dimensions(cxt, arguments, argument_count, QB_RESULT_SIZE_OPERAND);
+		result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
 
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
@@ -470,7 +470,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt,
 
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
-			result_dim = qb_get_result_dimensions(cxt, arguments, argument_count, result_flags);
+			result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, expr_type, result_dim, result_prototype, result_flags);
 			qb_create_ternary_op(cxt, f->extra, address, precision_address, mode_address, result->address);
@@ -880,7 +880,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context
 				result->type = QB_OPERAND_ADDRESS;
 				result->address = qb_obtain_write_target_address(cxt, expr_type, result_dim, result_prototype, result_flags);
 				qb_create_op(cxt, f->extra, arguments, argument_count, result);
-				qb_release_result_dimensions(cxt, result_dim);
 			}
 		}
 	}
@@ -918,7 +917,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_utf8_encode(qb_compiler_context
 				result->address->flags |= QB_ADDRESS_STRING;
 			}
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
-			qb_release_result_dimensions(cxt, result_dim);
 		}
 	}
 }
@@ -963,7 +961,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_pack(qb_compiler_context *cxt, 
 				result->address->flags |= QB_ADDRESS_STRING;
 			}
 			qb_create_op(cxt, f->extra, arguments, 1, result);
-			qb_release_result_dimensions(cxt, result_dim);
 		}
 	}
 }

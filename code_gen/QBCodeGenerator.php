@@ -1264,6 +1264,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR", 4);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null, 4);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR", 4);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, null, 4);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, "ARR", 4);
 			
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, null, 4);
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, "ARR", 4);
@@ -1324,6 +1326,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR", 3);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null, 3);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR", 3);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, null, 3);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, "ARR", 3);
 			
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, null, 3);
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, "ARR", 3);
@@ -1378,6 +1382,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR", 2);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null, 2);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR", 2);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, null, 2);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, "ARR", 2);
 			
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, null, 2);
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, "ARR", 2);
