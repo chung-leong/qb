@@ -520,6 +520,10 @@ void ZEND_FASTCALL qb_do_cross_product_2x_multiple_times_F64(float64_t * __restr
 void ZEND_FASTCALL qb_do_cross_product_3x_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, float64_t * __restrict res_ptr);
 void ZEND_FASTCALL qb_do_cross_product_3x_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, float32_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_cross_product_3x_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, float64_t * __restrict res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_cross_product_4x_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict op3_ptr, float32_t * __restrict res_ptr);
+void ZEND_FASTCALL qb_do_cross_product_4x_F64(float64_t * __restrict op1_ptr, float64_t * __restrict op2_ptr, float64_t * __restrict op3_ptr, float64_t * __restrict res_ptr);
+void ZEND_FASTCALL qb_do_cross_product_4x_multiple_times_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count, float32_t * __restrict op3_ptr, uint32_t op3_count, float32_t * __restrict res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_cross_product_4x_multiple_times_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count, float64_t * __restrict op3_ptr, uint32_t op3_count, float64_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_decrement_2x_multiple_times_F32(float32_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_decrement_2x_multiple_times_F64(float64_t * __restrict res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_decrement_3x_multiple_times_F32(float32_t * __restrict res_ptr, uint32_t res_count);
@@ -1206,6 +1210,7 @@ static zend_always_inline void qb_do_complex_tanh_F32(float32_t * __restrict op1
 static zend_always_inline void qb_do_cross_product_2x_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict res_ptr) {
 	float32_t k = (op1_ptr[0] * op2_ptr[1]) - (op1_ptr[1] * op2_ptr[0]);
 	res_ptr[0] = k;
+	res_ptr[1] = k;
 }
 
 static zend_always_inline void qb_do_cross_product_3x_F32(float32_t * __restrict op1_ptr, float32_t * __restrict op2_ptr, float32_t * __restrict res_ptr) {

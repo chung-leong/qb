@@ -91,7 +91,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt,
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *address1 = arguments[0].address;
 		qb_address *address2 = arguments[1].address;
-		uint32_t vector_width1, vector_width2;
+		qb_address *address3 = (argument_count >= 3) ? arguments[0].address : NULL;
+		uint32_t vector_width1, vector_width2, vector_width3;
 
 		if((address1->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address1))
 		|| (address2->dimension_count == 1 && IS_EXPANDABLE_ARRAY(address2))) {
@@ -103,8 +104,19 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt,
 		if(vector_width1 != vector_width2) {
 			qb_abort("Dimension of first parameter (%d) does not match dimension of second parameter (%d)", vector_width1, vector_width2);
 		}
-		if(vector_width1 != 3) {
-			qb_abort("%s() only accepts three-dimensional vectors", f->name);
+		if(address3) {
+			vector_width3 = VALUE(U32, address3->dimension_addresses[address3->dimension_count - 1]);
+			if(vector_width1 != vector_width3) {
+				qb_abort("Dimension of first parameter (%d) does not match dimension of third parameter (%d)", vector_width1, vector_width3);
+			}
+		}
+		if(!(vector_width1 >= 2 && vector_width1 <= 4)) {
+			qb_abort("%s() only accepts two, three, and four-dimensional vectors", f->name);
+		}
+		if(address3 && vector_width1 != 4) {
+			qb_abort("%s() only accepts a third parameter when given four-dimensional vectors", f->name);
+		} else if(!address3 && vector_width1 == 4) {
+			qb_abort("%s() requires a third parameter when given four-dimensional vectors", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
@@ -1321,7 +1333,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"length",				qb_translate_intrinsic_unary_vector_op,		1,		1,		&factory_length				},
 	{	0,	"distance",				qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_distance			},
 	{	0,	"dot",					qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_dot_product		},
-	{	0,	"cross",				qb_translate_intrinsic_cross,				2,		2,		&factory_cross_product		},
+	{	0,	"cross",				qb_translate_intrinsic_cross,				2,		3,		&factory_cross_product		},
 	{	0,	"faceforward",			qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_faceforward		},
 	{	0,	"reflect",				qb_translate_intrinsic_binary_vector_op,	2,		2,		&factory_reflect			},
 	{	0,	"refract",				qb_translate_intrinsic_binary_vector_op,	3,		3,		&factory_refract			},

@@ -1258,6 +1258,8 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, null, 4);
 			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, "ARR", 4);
+			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, null, 4);
+			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, "ARR", 4);
 			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, null, 4);
 			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, "ARR", 4);
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, null, 4);

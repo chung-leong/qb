@@ -1826,29 +1826,44 @@ static qb_vector_op_factory factory_refract = {
 };
 
 static qb_op * ZEND_FASTCALL qb_append_cross(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_basic_op_factory *f = factory;
+	qb_vector_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_address *address3 = (operand_count == 3) ? operands[2].address : NULL;
+	uint32_t dimension1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+	qb_opcode opcode;
 	qb_op *qop;
+
+	opcode = f->opcodes_fixed_size[dimension1 - 2][QB_TYPE_F64 - address1->type];
 	if(address1->dimension_count > 1 || address2->dimension_count > 1) {
 		opcode = opcode + 1;
 	}
-	qop = qb_append_op(cxt, opcode, 3);
+	qop = qb_append_op(cxt, opcode, (address3) ? 4 : 3);
 	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
 	qop->operands[0].address = address1;
 	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
 	qop->operands[1].address = address2;
-	qop->operands[2] = *result;
+	if(address3) {
+		qop->operands[2].type = QB_OPERAND_ADDRESS_ARR;
+		qop->operands[2].address = address3;
+		qop->operands[3] = *result;
+	} else {
+		qop->operands[2] = *result;
+	}
 	return qop;
 }
 
-static qb_float_op_factory factory_cross_product = {
+static qb_vector_op_factory factory_cross_product = {
 	qb_append_cross,
 	qb_set_matching_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_TYPE_OPERAND,
-	{	QB_CROSS_3X_F64_F64_F64,		QB_CROSS_3X_F32_F32_F32,	},
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{	0,	0,	},
+	{
+		{	QB_CROSS_2X_F64_F64_F64,		QB_CROSS_2X_F32_F32_F32,		},
+		{	QB_CROSS_3X_F64_F64_F64,		QB_CROSS_3X_F32_F32_F32,		},
+		{	QB_CROSS_4X_F64_F64_F64_F64,	QB_CROSS_4X_F32_F32_F32_F32,	},
+	},
 };
 
 static qb_op * ZEND_FASTCALL qb_append_matrix_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
