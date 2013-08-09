@@ -37,9 +37,23 @@ class QBMatrixHandler extends QBHandler {
 	}
 	
 	public function getFunctionName() {
-		$name = parent::getFunctionName();
-		if($this->operandPadding) {
-			$name = str_replace("{$this->operandSize}x", "{$this->operandSize}x_padded", $name);
+		$className = get_class($this);
+		$opName = substr($className, 2, -7);
+		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
+		$opName = strtolower($opName);
+		$name = "qb_do_{$opName}";
+		if($this->operandPadding > 0) {
+			$name .= "_{$this->operandSize}x_padded";
+		} else {
+			if($this->operandSize != 1 && is_int($this->operandSize)) {
+				$name .= "_{$this->operandSize}x";
+			}
+		}
+		if($this->isMultipleData()) {
+			$name .= "_multiple_times";
+		}
+		if($this->operandType) {
+			$name .= "_{$this->operandType}";
 		}
 		return $name;
 	}

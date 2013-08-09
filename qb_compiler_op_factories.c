@@ -2253,24 +2253,26 @@ static qb_op * ZEND_FASTCALL qb_append_matrix_op(qb_compiler_context *cxt, void 
 	return qop;
 }
 
-static void ZEND_FASTCALL qb_set_matrix_op_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void ZEND_FASTCALL qb_set_matrix_transpose_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *matrix_address = operands[0].address;
-	if(matrix_address->dimension_count > 2) {
-		dim->dimension_count = 1;
-		if(IS_VARIABLE_LENGTH_ARRAY(matrix_address)) {
-			dim->array_size = 0;
+	uint32_t i;
+
+	dim->dimension_count = matrix_address->dimension_count;
+	dim->array_size = ARRAY_SIZE(matrix_address);
+	for(i = 0; i < dim->dimension_count; i++) {
+		if(i == dim->dimension_count - 2) {
+			dim->dimension_addresses[i] = matrix_address->dimension_addresses[i + 1];
+		} else if(i == dim->dimension_count - 1) {
+			dim->dimension_addresses[i] = matrix_address->dimension_addresses[i - 1];
 		} else {
-			qb_address *matrix_size_address = matrix_address->array_size_addresses[matrix_address->dimension_count - 2];
-			uint32_t matrix_size = VALUE(U32, matrix_size_address);
-			uint32_t element_count = ARRAY_SIZE(matrix_address);
-			dim->array_size = element_count / matrix_size;
+			dim->dimension_addresses[i] = matrix_address->dimension_addresses[i];
 		}
 	}
 }
 
 static qb_matrix_op_factory factory_transpose = { 
 	qb_append_matrix_op,
-	qb_set_matching_result_dimensions,
+	qb_set_matrix_transpose_dimensions,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_MTRAN_F64_F64,				QB_MTRAN_F32_F32,	},
@@ -2295,6 +2297,21 @@ static qb_matrix_op_factory factory_inverse = {
 	},
 	0,
 };
+
+static void ZEND_FASTCALL qb_set_matrix_op_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_address *matrix_address = operands[0].address;
+	if(matrix_address->dimension_count > 2) {
+		dim->dimension_count = 1;
+		if(IS_VARIABLE_LENGTH_ARRAY(matrix_address)) {
+			dim->array_size = 0;
+		} else {
+			qb_address *matrix_size_address = matrix_address->array_size_addresses[matrix_address->dimension_count - 2];
+			uint32_t matrix_size = VALUE(U32, matrix_size_address);
+			uint32_t element_count = ARRAY_SIZE(matrix_address);
+			dim->array_size = element_count / matrix_size;
+		}
+	}
+}
 
 static qb_matrix_op_factory factory_determinant = { 
 	qb_append_matrix_op,
