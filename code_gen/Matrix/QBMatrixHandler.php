@@ -3,14 +3,16 @@
 class QBMatrixHandler extends QBHandler {
 
 	protected $operandPadding = 0;
+	protected $order;
 
-	public function __construct($name, $operandType, $addressMode, $vectorSize = "variable") {
+	public function __construct($name, $operandType, $addressMode, $vectorSize = "variable", $order = "column-major") {
 		if(gettype($vectorSize) == 'string') {
 			if(preg_match('/\\+P$/i', $vectorSize)) {
 				$vectorSize = (int) $vectorSize;
 				$this->operandPadding = 1;
 			}
 		}
+		$this->order = $order;
 		parent::__construct($name, $operandType, $addressMode, $vectorSize);
 	}
 	
