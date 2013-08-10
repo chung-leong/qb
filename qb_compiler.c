@@ -2556,16 +2556,41 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 					}
 				}
 			} else {
-				if(qop->operand_count == 3 && (qop->operands[2].address->flags & QB_ADDRESS_TEMPORARY)) {
-					qb_op *next_qop = cxt->ops[i + 1];
-					if(next_qop->operand_count == 3 && (next_qop->operands[0].address == qop->operands[2].address || next_qop->operands[1].address == qop->operands[2].address)) {
+				if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && (qop->operands[2].address->flags & QB_ADDRESS_TEMPORARY)) {
+					qb_op *next_qop = cxt->ops[i + 1];					
+					if(next_qop->operand_count == 3 && !(next_qop->flags & QB_OP_JUMP) && (next_qop->operands[0].address == qop->operands[2].address || next_qop->operands[1].address == qop->operands[2].address)) {
 						qb_opcode new_opcode = 0;
 						if((qop->opcode == QB_MUL_S32_S32_S32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
 							new_opcode = QB_MAC_S32_S32_S32_S32;
 						} else if((qop->opcode == QB_MUL_S64_S64_S64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
 							new_opcode = QB_MAC_S64_S64_S64_S64;
 						} else if((qop->opcode == QB_MUL_U32_U32_U32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
-							new_opcode = QB_MAC_U32_U32_U32_U32;
+							// the temporary variable could be reused in a foreach-list construct
+							// should come up with a cleaner way to deal with this
+							int32_t reused = FALSE;
+							uint32_t k, qop_checked;
+							for(k = i + 2, qop_checked = 0; k < cxt->op_count - 1 && qop_checked <= 3; k++) {
+								qb_op *qop_ahead = cxt->ops[k];
+								if(qop_ahead->opcode != QB_NOP) {
+									if(!(qop_ahead->flags & QB_OP_JUMP)) {
+										if(qop_ahead->operand_count == 3 && qop_ahead->operands[1].address == qop->operands[2].address) {
+											// an add
+											reused = TRUE;
+											break;
+										} else if(qop_ahead->operand_count == 2 && qop_ahead->operands[0].address->array_index_address == qop->operands[2].address) {
+											// an array element to variable assignment
+											reused = TRUE;
+											break;
+										} else if(qop_ahead->operands[qop_ahead->operand_count - 1].address == qop->operands[2].address) {
+											break;
+										}
+									}
+									qop_checked++;
+								}
+							}
+							if(!reused) {
+								new_opcode = QB_MAC_U32_U32_U32_U32;
+							}
 						} else if((qop->opcode == QB_MUL_U64_U64_U64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
 							new_opcode = QB_MAC_U64_U64_U64_U64;
 						} else if((qop->opcode == QB_MUL_F32_F32_F32) && (next_qop->opcode == QB_ADD_F32_F32_F32)) {
@@ -2585,7 +2610,7 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 						} else if((qop->opcode == QB_MUL_4X_F64_F64_F64) && (next_qop->opcode == QB_ADD_4X_F64_F64_F64)) {
 							new_opcode = QB_MAC_4X_F64_F64_F64_F64;
 						}
-						if(new_opcode) {
+						if(new_opcode && 0) {
 							qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);
 							if(next_qop->operands[0].address == qop->operands[2].address) {
 								new_operands[0] = next_qop->operands[1];
@@ -3634,7 +3659,7 @@ static qb_variable * ZEND_FASTCALL qb_find_variable_with_size_address(qb_compile
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address *address) {
+static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address *address, int32_t ignore_index) {
 	uint32_t i;
 	if(address->flags & QB_ADDRESS_CONSTANT) {
 		if(!IS_SCALAR(address)) {
@@ -3682,18 +3707,20 @@ static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address 
 	} else if(address->source_address) {
 		if(address->source_address->dimension_count == address->dimension_count + 1) {
 			// array element
-			qb_print_address(cxt, address->source_address);
-			php_printf("[");
-			if(address->array_index_address) {
-				qb_print_address(cxt, address->array_index_address);
-			} else {
-				php_printf("%u", ELEMENT_COUNT(address->segment_offset, address->type));
+			qb_print_address(cxt, address->source_address, TRUE);
+			if(!ignore_index) {
+				php_printf("[");
+				if(address->array_index_address) {
+					qb_print_address(cxt, address->array_index_address, FALSE);
+				} else {
+					php_printf("%u", ELEMENT_COUNT(address->segment_offset, address->type));
+				}
+				php_printf("]");
 			}
-			php_printf("]");
 		} else if(address->source_address->type != address->type) {
 			// a cast
 			php_printf("(%s) ", type_names[address->type]);
-			qb_print_address(cxt, address->source_address); 
+			qb_print_address(cxt, address->source_address, FALSE); 
 		}
 	} else {
 		qb_variable *qvar;
@@ -3738,7 +3765,7 @@ static void ZEND_FASTCALL qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint
 			case QB_OPERAND_ADDRESS_ELC:
 			case QB_OPERAND_ADDRESS_ELV:
 			case QB_OPERAND_ADDRESS_ARR: {
-				qb_print_address(cxt, operand->address);
+				qb_print_address(cxt, operand->address, FALSE);
 			}	break;
 			case QB_OPERAND_JUMP_TARGET: {
 				uint32_t target_qop_index = qb_get_jump_target_absolute_index(cxt, index, operand->jump_target_index);
