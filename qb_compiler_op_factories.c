@@ -224,6 +224,7 @@ static qb_op * ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factor
 	}
 #endif
 
+	// unlock the operands after the op is created
 	for(i = 0; i < operand_count; i++) {
 		qb_operand *operand = &operands[i];
 		if(operand->type == QB_OPERAND_ADDRESS) {

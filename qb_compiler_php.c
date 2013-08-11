@@ -779,23 +779,38 @@ static void ZEND_FASTCALL qb_retire_operand(qb_compiler_context *cxt, uint32_t z
 				if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 					temp_variable->operand = *operand;
 				} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-					if(memcmp(&temp_variable->operand, operand, sizeof(qb_operand)) != 0) {
-						// unlock what was there before if it's different
-						qb_unlock_operand(cxt, &temp_variable->operand);
-					}
 					if(temp_variable->last_access_op_index == cxt->zend_op_index) {
 						// unlock the operand if the current op is the last to access it
 						qb_unlock_operand(cxt, operand);
 						temp_variable->operand.type = QB_OPERAND_EMPTY;
 						temp_variable->operand.generic_pointer = NULL;
 					} else {
-						// lock it otherwise
-						temp_variable->operand = *operand;
-						qb_lock_operand(cxt, operand);
+						if(memcmp(&temp_variable->operand, operand, sizeof(qb_operand)) != 0) {
+							// unlock what was there before if it's different
+							qb_unlock_operand(cxt, &temp_variable->operand);
+							temp_variable->operand = *operand;
+							qb_lock_operand(cxt, &temp_variable->operand);
+						}
 					}
 				}
 			}
 		}	break;
+	}
+}
+
+static void ZEND_FASTCALL qb_lock_temporary_variables(qb_compiler_context *cxt) {
+	uint32_t i = 0;
+	for(i = 0; i < cxt->temp_variable_count; i++) {
+		qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
+		if(temp_variable->operand.type == QB_OPERAND_ADDRESS) {
+			qb_address *address = temp_variable->operand.address;
+			if(address->source_address) {
+				qb_lock_address(cxt, address->source_address);
+			}
+			if(address->array_index_address) {
+				qb_lock_address(cxt, address->array_index_address);
+			}
+		}
 	}
 }
 
@@ -2873,6 +2888,9 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 			if(need_return_value) {
 				qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->result), &cxt->zend_op->result, &result);
 			}
+
+			// lock operands kept as temporary variables
+			qb_lock_temporary_variables(cxt);
 		} else {
 			qb_abort("Unsupported language feature");
 		}
