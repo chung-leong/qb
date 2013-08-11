@@ -11,7 +11,7 @@ class QBInArrayHandler extends QBArraySearchHandler {
 		$searchFunction = $searchHandler->getFunctionName();
 		$lines = array();
 		$lines[] = "int32_t index;";
-		$lines[] = "$searchFunction(op1_ptr, op1_count, op2_ptr, &index);";
+		$lines[] = "$searchFunction(op1_ptr, op1_count, op2, &index);";
 		$lines[] = "res = (index != -1);";
 		return $lines;
 	}

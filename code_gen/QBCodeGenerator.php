@@ -28,14 +28,6 @@ class QBCodeGenerator {
 		}
 		fwrite($handle, "#pragma pack(pop)\n\n");
 
-		$lines = array();		
-		for($i = 1; $i <= 6; $i++) {
-			$lines[] = "#define op{$i}		*op{$i}_ptr";
-		}
-		$lines[] = "#define res		*res_ptr";
-		$lines[] = "";
-		$this->writeCode($handle, $lines);
-
 		$lines = array();
 		$lines[] = "extern void *op_handlers[];";
 		$lines[] = "";
@@ -91,6 +83,11 @@ class QBCodeGenerator {
 		$this->currentIndentationLevel = 0;
 		
 		$lines = array();
+		for($i = 1; $i < 6; $i++) {
+			$lines[] = "#define op$i	(*op{$i}_ptr)";
+		}
+		$lines[] = "#define res		(*res_ptr)";
+		$lines[] = "";			
 		$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
 		$lines[] =		"";
 		$lines[] = 		"if(cxt) {";

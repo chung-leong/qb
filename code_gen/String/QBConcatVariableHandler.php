@@ -14,12 +14,13 @@ class QBConcatVariableHandler extends QBPrintHandler {
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
-		$sprintf = $this->getSprintf();
+		$sprintf_scalar = $this->getSprintf("op1");
+		$sprintf_array = $this->getSprintf("*op1_ptr");
 		$functions = array(
 			array(
-				"uint32_t ZEND_FASTCALL qb_get_scalar_sprintf_length_$type(qb_interpreter_context *cxt, $cType *op1_ptr) {",
+				"uint32_t ZEND_FASTCALL qb_get_scalar_sprintf_length_$type(qb_interpreter_context *cxt, $cType op1) {",
 					"char sprintf_buffer[64];",
-					"uint32_t len = $sprintf;",
+					"uint32_t len = $sprintf_scalar;",
 					"return len;",
 				"}",
 			),
@@ -30,7 +31,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 						"$cType *op1_end = op1_ptr + op1_count;",
 						"while(op1_ptr < op1_end) {",
 							"char sprintf_buffer[64];",
-							"uint32_t len = $sprintf;",
+							"uint32_t len = $sprintf_array;",
 							"total += len;",
 							"op1_ptr++;",
 						"}",
@@ -58,12 +59,12 @@ class QBConcatVariableHandler extends QBPrintHandler {
 		if($this->addressMode == "ARR") {
 			return "string_length = qb_get_array_sprintf_length_$type(cxt, op1_ptr, op1_count);";
 		} else {
-			return "string_length = qb_get_scalar_sprintf_length_$type(cxt, op1_ptr);";
+			return "string_length = qb_get_scalar_sprintf_length_$type(cxt, op1);";
 		}		 
 	}
 	
 	public function getActionOnUnitData() {
-		$sprintf = $this->getSprintf();
+		$sprintf = $this->getSprintf("op1");
 		$lines = array();
 		$lines[] = "char sprintf_buffer[64];";
 		$lines[] = "uint32_t len = $sprintf;";
@@ -72,7 +73,7 @@ class QBConcatVariableHandler extends QBPrintHandler {
 	}
 	
 	public function getActionOnMultipleData() {
-		$sprintf = $this->getSprintf();
+		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);
 		$lines = array();
 		$lines[] = "uint32_t pos = res_count_before;";

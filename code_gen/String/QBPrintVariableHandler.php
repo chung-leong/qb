@@ -11,7 +11,7 @@ class QBPrintVariableHandler extends QBPrintHandler {
 	}
 	
 	public function getActionOnUnitData() {
-		$sprintf = $this->getSprintf();
+		$sprintf = $this->getSprintf("op1");
 		$lines = array();
 		$lines[] = "USE_TSRM";
 		$lines[] = "char sprintf_buffer[64];";
@@ -21,7 +21,7 @@ class QBPrintVariableHandler extends QBPrintHandler {
 	}
 
 	public function getActionOnMultipleData() {
-		$sprintf = $this->getSprintf();
+		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);
 		$lines = array();
 		$lines[] = "USE_TSRM";

@@ -483,7 +483,7 @@ typedef struct qb_native_proc_record {\
 static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
 	int32_t *prototype_indices, index;
-	uint32_t *required[PROTOTYPE_COUNT];
+	uint32_t required[PROTOTYPE_COUNT];
 	qb_op *qop;
 
 	// see which functions are required
@@ -504,14 +504,6 @@ static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 		}
 	}
 
-	// print the macro needed by function definition
-	qb_print(cxt, "\n");
-	for(i = 1; i <= 6; i++) {
-		qb_printf(cxt, "#define op%d	*op%d_ptr\n", i, i);
-	}
-	qb_print(cxt, "#define res	*res_ptr\n");
-	qb_print(cxt, "\n");
-
 	// print prototypes, maintaining correct order
 	for(i = 0; i < PROTOTYPE_COUNT; i++) {
 		if(required[i]) {
@@ -520,13 +512,6 @@ static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 			qb_print(cxt, "\n");
 		}
 	}
-
-	// undefine macros
-	qb_print(cxt, "\n");
-	for(i = 1; i <= 6; i++) {
-		qb_printf(cxt, "#undef op%d\n", i);
-	}
-	qb_print(cxt, "#undef res\n");
 	qb_print(cxt, "\n");
 }
 

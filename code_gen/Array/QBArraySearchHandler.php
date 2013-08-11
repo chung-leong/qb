@@ -29,7 +29,7 @@ class QBArraySearchHandler extends QBHandler {
 		$lines[] = "int32_t index = -1;";
 		$lines[] = "uint32_t i;";
 		$lines[] = "for(i = 0; i < op1_count; i++) {";
-		$lines[] = 		"if(op1_ptr[i] == op2_ptr[0]) {";
+		$lines[] = 		"if(op1_ptr[i] == op2) {";
 		$lines[] = 			"index = i;";
 		$lines[] =			"break;";
 		$lines[] = 		"}";

@@ -21,7 +21,7 @@ class QBConcatMultidimensionalVariableHandler extends QBPrintHandler {
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
-		$sprintf = $this->getSprintf();
+		$sprintf = $this->getSprintf("*op1_ptr");
 		$functions = array(
 			array(
 				"uint32_t qb_get_multidimensional_array_sprintf_length_$type(qb_interpreter_context *cxt, $cType *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {",
@@ -57,7 +57,7 @@ class QBConcatMultidimensionalVariableHandler extends QBPrintHandler {
 	}
 	
 	public function getActionOnUnitData() {
-		$sprintf = $this->getSprintf();
+		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);
 		$lines = array();
 		$lines[] = "USE_TSRM";

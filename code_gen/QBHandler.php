@@ -288,9 +288,13 @@ class QBHandler {
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);
 			$addressMode = $this->getOperandAddressMode($i);
-			$variables[] = (($includeType) ? "$cType *" : "") . "op{$i}_ptr";
-			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
-				$variables[] = (($includeType) ? "uint32_t " : "") . "op{$i}_count";
+			if($addressMode == "ARR") {
+				$variables[] = (($includeType) ? "$cType *" : "") . "op{$i}_ptr";
+				if(!$this->isVectorized() || $this->isMultipleData()) {
+					$variables[] = (($includeType) ? "uint32_t " : "") . "op{$i}_count";
+				}
+			} else {
+				$variables[] = (($includeType) ? "$cType " : "") . "op{$i}";
 			}
 		}
 		
@@ -309,9 +313,13 @@ class QBHandler {
 		if($dstCount > 0) {
 			$cType = $this->getOperandCType($srcCount + 1);
 			$addressMode = $this->getOperandAddressMode($srcCount + 1);
-			$variables[] = (($includeType) ? "$cType *" : "") . "res_ptr";
-			if($addressMode == "ARR" && (!$this->isVectorized() || $this->isMultipleData())) {
-				$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
+			if($addressMode == "ARR") {
+				$variables[] = (($includeType) ? "$cType *" : "") . "res_ptr";
+				if(!$this->isVectorized() || $this->isMultipleData()) {
+					$variables[] = (($includeType) ? "uint32_t " : "") . "res_count";
+				}
+			} else {
+				$variables[] = (($includeType) ? "$cType *" : "") . "res_ptr";
 			}
 		}
 		
@@ -368,7 +376,27 @@ class QBHandler {
 				case 'inline': $typeDecl = "static zend_always_inline void"; break;
 				case 'extern': $typeDecl = "void ZEND_FASTCALL"; break;
 			}
-			$lines = array();
+
+			// replace op# with (*op#_ptr) for array operands and res with (*res_ptr)
+			$expressions = is_array($expressions) ? array_linearize($expressions) : array($expressions);
+			$srcCount = $this->getInputOperandCount();
+			$arrayOperands = array();
+			for($i = 1; $i <= $srcCount; $i++) {
+				if($this->getOperandAddressMode($i) == "ARR") {
+					$arrayOperands[] = $i;
+				}
+			}
+			if($arrayOperands) {
+				$inputOperandRegExp = '/\bop(' . implode('|', $arrayOperands) . ')\b/';
+			}
+			foreach($expressions as &$expression) {
+				if($arrayOperands) {
+					$expression = preg_replace($inputOperandRegExp, '(*op\1_ptr)', $expression);
+				}
+				$expression = preg_replace('/\bres\b/', '(*res_ptr)', $expression);
+			}
+			
+			$lines = array();			
 			$lines[] = "$typeDecl $function($parameterList) {";
 			$lines[] = $expressions;
 			$lines[] = "}";

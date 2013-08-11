@@ -22,7 +22,7 @@ class QBPrintMultidimensionalVariableHandler extends QBPrintHandler {
 	}
 
 	public function getActionOnUnitData() {
-		$sprintf = $this->getSprintf();
+		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);
 		$lines = array();
 		$lines[] = "USE_TSRM";
