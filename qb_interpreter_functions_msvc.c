@@ -17012,59 +17012,59 @@ void ZEND_FASTCALL qb_do_utf8encode_U32(uint32_t * __restrict op1_ptr, uint32_t 
 	}
 }
 
-float acosf_wrapper(float x) {
+zend_always_inline float acosf_wrapper(float x) {
 	return acosf(x);
 }
 
-float acoshf_wrapper(float x) {
+zend_always_inline float acoshf_wrapper(float x) {
 	return acoshf(x);
 }
 
-float asinf_wrapper(float x) {
+zend_always_inline float asinf_wrapper(float x) {
 	return asinf(x);
 }
 
-float asinhf_wrapper(float x) {
+zend_always_inline float asinhf_wrapper(float x) {
 	return asinhf(x);
 }
 
-float atan2f_wrapper(float x, float y) {
+zend_always_inline float atan2f_wrapper(float x, float y) {
 	return atan2f(x, y);
 }
 
-float atanf_wrapper(float x) {
+zend_always_inline float atanf_wrapper(float x) {
 	return atanf(x);
 }
 
-float atanhf_wrapper(float x) {
+zend_always_inline float atanhf_wrapper(float x) {
 	return atanhf(x);
 }
 
-float ceilf_wrapper(float x) {
+zend_always_inline float ceilf_wrapper(float x) {
 	return ceilf(x);
 }
 
-float cosf_wrapper(float x) {
+zend_always_inline float cosf_wrapper(float x) {
 	return cosf(x);
 }
 
-float coshf_wrapper(float x) {
+zend_always_inline float coshf_wrapper(float x) {
 	return coshf(x);
 }
 
-float exp2f_wrapper(float x) {
+zend_always_inline float exp2f_wrapper(float x) {
 	return exp2f(x);
 }
 
-float expf_wrapper(float x) {
+zend_always_inline float expf_wrapper(float x) {
 	return expf(x);
 }
 
-float expm1f_wrapper(float x) {
+zend_always_inline float expm1f_wrapper(float x) {
 	return expm1f(x);
 }
 
-float fabsf_wrapper(float x) {
+zend_always_inline float fabsf_wrapper(float x) {
 	return fabsf(x);
 }
 
@@ -17072,35 +17072,35 @@ double floor_wrapper(double x) {
 	return floor(x);
 }
 
-float floorf_wrapper(float x) {
+zend_always_inline float floorf_wrapper(float x) {
 	return floorf(x);
 }
 
-float fmodf_wrapper(float n, float d) {
+zend_always_inline float fmodf_wrapper(float n, float d) {
 	return fmodf(n, d);
 }
 
-float hypotf_wrapper(float x, float y) {
+zend_always_inline float hypotf_wrapper(float x, float y) {
 	return hypotf(x, y);
 }
 
-float log10f_wrapper(float x) {
+zend_always_inline float log10f_wrapper(float x) {
 	return log10f(x);
 }
 
-float log1pf_wrapper(float x) {
+zend_always_inline float log1pf_wrapper(float x) {
 	return log1pf(x);
 }
 
-float log2f_wrapper(float x) {
+zend_always_inline float log2f_wrapper(float x) {
 	return log2f(x);
 }
 
-float logf_wrapper(float x) {
+zend_always_inline float logf_wrapper(float x) {
 	return logf(x);
 }
 
-float powf_wrapper(float x, float y) {
+zend_always_inline float powf_wrapper(float x, float y) {
 	return powf(x, y);
 }
 
@@ -17272,27 +17272,23 @@ void qb_shrink_segment_wrapper(qb_interpreter_context *__restrict cxt, qb_memory
 	qb_shrink_segment(cxt, segment, start_index, count);
 }
 
-float roundf_wrapper(float x) {
-	return roundf(x);
-}
-
-float sinf_wrapper(float x) {
+zend_always_inline float sinf_wrapper(float x) {
 	return sinf(x);
 }
 
-float sinhf_wrapper(float x) {
+zend_always_inline float sinhf_wrapper(float x) {
 	return sinhf(x);
 }
 
-float sqrtf_wrapper(float x) {
+zend_always_inline float sqrtf_wrapper(float x) {
 	return sqrtf(x);
 }
 
-float tanf_wrapper(float x) {
+zend_always_inline float tanf_wrapper(float x) {
 	return tanf(x);
 }
 
-float tanhf_wrapper(float x) {
+zend_always_inline float tanhf_wrapper(float x) {
 	return tanhf(x);
 }
 
@@ -17355,55 +17351,54 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"_php_math_round",	_php_math_round	},
 	{	0,	"abs",	abs	},
 	{	0,	"acos",	acos	},
-	{	0,	"acosf",	acosf_wrapper	},
+	{	0,	"acosf",	(void*) -1	},
 	{	0,	"acosh",	acosh	},
-	{	0,	"acoshf",	acoshf_wrapper	},
+	{	0,	"acoshf",	(void*) -1	},
 	{	0,	"asin",	asin	},
-	{	0,	"asinf",	asinf_wrapper	},
+	{	0,	"asinf",	(void*) -1	},
 	{	0,	"asinh",	asinh	},
-	{	0,	"asinhf",	asinhf_wrapper	},
+	{	0,	"asinhf",	(void*) -1	},
 	{	0,	"atan",	atan	},
 	{	0,	"atan2",	atan2	},
-	{	0,	"atan2f",	atan2f_wrapper	},
-	{	0,	"atanf",	atanf_wrapper	},
+	{	0,	"atan2f",	(void*) -1	},
+	{	0,	"atanf",	(void*) -1	},
 	{	0,	"atanh",	atanh	},
-	{	0,	"atanhf",	atanhf_wrapper	},
+	{	0,	"atanhf",	(void*) -1	},
 	{	0,	"ceil",	ceil	},
-	{	0,	"ceilf",	ceilf_wrapper	},
+	{	0,	"ceilf",	(void*) -1	},
 	{	0,	"cos",	cos	},
-	{	0,	"cosf",	cosf_wrapper	},
+	{	0,	"cosf",	(void*) -1	},
 	{	0,	"cosh",	cosh	},
-	{	0,	"coshf",	coshf_wrapper	},
+	{	0,	"coshf",	(void*) -1	},
 	{	0,	"exp",	exp	},
 	{	0,	"exp2",	exp2	},
-	{	0,	"exp2f",	exp2f_wrapper	},
-	{	0,	"expf",	expf_wrapper	},
+	{	0,	"exp2f",	(void*) -1	},
+	{	0,	"expf",	(void*) -1	},
 	{	0,	"expm1",	expm1	},
-	{	0,	"expm1f",	expm1f_wrapper	},
+	{	0,	"expm1f",	(void*) -1	},
 	{	0,	"fabs",	fabs	},
-	{	0,	"fabsf",	fabsf_wrapper	},
+	{	0,	"fabsf",	(void*) -1	},
 	{	0,	"floor",	floor_wrapper	},
-	{	0,	"floorf",	floorf_wrapper	},
+	{	0,	"floorf",	(void*) -1	},
 	{	0,	"fmod",	fmod	},
-	{	0,	"fmodf",	fmodf_wrapper	},
+	{	0,	"fmodf",	(void*) -1	},
 	{	0,	"hypot",	hypot	},
-	{	0,	"hypotf",	hypotf_wrapper	},
+	{	0,	"hypotf",	(void*) -1	},
 	{	0,	"llabs",	llabs	},
 	{	0,	"log",	log	},
 	{	0,	"log10",	log10	},
-	{	0,	"log10f",	log10f_wrapper	},
+	{	0,	"log10f",	(void*) -1	},
 	{	0,	"log1p",	log1p	},
-	{	0,	"log1pf",	log1pf_wrapper	},
+	{	0,	"log1pf",	(void*) -1	},
 	{	0,	"log2",	log2	},
-	{	0,	"log2f",	log2f_wrapper	},
-	{	0,	"logf",	logf_wrapper	},
+	{	0,	"log2f",	(void*) -1	},
+	{	0,	"logf",	(void*) -1	},
 	{	0,	"memcpy",	memcpy	},
 	{	0,	"memmove",	memmove	},
-	{	0,	"memset",	memset	},
 	{	0,	"php_combined_lcg",	php_combined_lcg	},
 	{	0,	"php_write",	php_write	},
 	{	0,	"pow",	pow	},
-	{	0,	"powf",	powf_wrapper	},
+	{	0,	"powf",	(void*) -1	},
 	{	0,	"qb_abort",	qb_abort	},
 	{	0,	"qb_abort_divide_by_zero_error",	qb_abort_divide_by_zero_error	},
 	{	0,	"qb_abort_range_error",	qb_abort_range_error	},
@@ -17483,20 +17478,16 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_resync_argument",	qb_resync_argument_wrapper	},
 	{	0,	"qb_run_zend_extension_op",	qb_run_zend_extension_op_wrapper	},
 	{	0,	"qb_shrink_segment",	qb_shrink_segment_wrapper	},
-	{	0,	"round",	round	},
-	{	0,	"roundf",	roundf_wrapper	},
 	{	0,	"sin",	sin	},
-	{	0,	"sinf",	sinf_wrapper	},
+	{	0,	"sinf",	(void*) -1	},
 	{	0,	"sinh",	sinh	},
-	{	0,	"sinhf",	sinhf_wrapper	},
-	{	0,	"snprintf",	snprintf	},
+	{	0,	"sinhf",	(void*) -1	},
 	{	0,	"sqrt",	sqrt	},
-	{	0,	"sqrtf",	sqrtf_wrapper	},
-	{	0,	"strlen",	strlen	},
+	{	0,	"sqrtf",	(void*) -1	},
 	{	0,	"tan",	tan	},
-	{	0,	"tanf",	tanf_wrapper	},
+	{	0,	"tanf",	(void*) -1	},
 	{	0,	"tanh",	tanh	},
-	{	0,	"tanhf",	tanhf_wrapper	},
+	{	0,	"tanhf",	(void*) -1	},
 	{	0,	"zend_bailout",	zend_bailout_wrapper	},
 	{	0,	"zend_finite",	zend_finite_wrapper	},
 	{	0,	"zend_isinf",	zend_isinf_wrapper	},

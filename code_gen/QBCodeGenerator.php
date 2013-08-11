@@ -358,65 +358,87 @@ class QBCodeGenerator {
 			}
 		}
 		
-		// scan for function prototypes
-		$functionDecls = array();
-		$processed = array();
-		foreach($this->handlers as $handler) {
-			$functions = $handler->getHelperFunctions();
-			if($functions) {
-				foreach($functions as $lines) {
-					$line1 = $lines[0];
-					if(!preg_match('/\bzend_always_inline\b/', $line1)) {
-						if(!isset($processed[$line1])) {
-							$decl = $this->parseFunctionDeclaration($line1);
-							if($decl) {
-								$functionDecls[$decl->name] = $decl;
-								$processed[$line1] = true;
-							}
-						}
-					}
-				}
-			}
-		}
+		// create function declaration table, adding the generated function first
+		$functionDefinitions = $this->getFunctionDefinitions();
+		
+		// then prepend the list with ones that aren't generated
 		$folder = dirname(__FILE__);
 		$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
 		$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
-		$lines = array_filter(array_merge($common, $compilerSpecific));
-		foreach($lines as $line) {
-			$decl = $this->parseFunctionDeclaration($line);
-			$functionDecls[$decl->name] = $decl;
+		foreach(array_merge($common, $compilerSpecific) as $line) {
+			array_unshift($functionDefinitions, array($line));
 		}						
-		ksort($functionDecls);
+
+		// produce function prototypes from definition and 
+		// create a reverse look-up table for the indices
+		$functionDeclarations = array();
+		$functionIndices = array();
+		$functionRefCounts = array();
 		
-		// set up the prototype table
-		$prototypeIndices = array();
-		$prototypes = array();
-		$index = 0;
-		foreach($functionDecls as $decl) {
-			$parameterDecls = implode(", ", $decl->parameterDecls);
-			if($decl->inline) {
-				$prototypes[] = "static zend_always_inline $decl->returnType $decl->name($parameterDecls) {{$decl->body}}";
-			} else {
-				if($decl->fastcall && $compiler != "MSVC") {
-					$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
-				} else {
-					$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
+		// list the non-inlined functions first
+		$inlinePattern = '/\b(inline|zend_always_inline)\b/';
+		foreach($functionDefinitions as $lines) {
+			$line1 = $lines[0];
+			if(preg_match('/(\w+)\(/', $line1, $m)) {
+				$functionName = $m[1];
+				if(!preg_match($inlinePattern, $line1)) {
+					// just the prototype--replace { and everything after it with ;
+					// get rid of ZEND_FASTCALL as well
+					$prototype = preg_replace('/\s*{.*$/', ';', $line1);					
+					$prototype = preg_replace('/\bZEND_FASTCALL\s*/', '', $prototype);
+					$functionIndices[$functionName] = count($functionDeclarations);
+					$functionDeclarations[] = $prototype;
+					$functionRefCounts[] = 0;
 				}
 			}
-			$prototypeIndices[$decl->name] = $index++;
+		}
+		// then list the inlined functions
+		foreach($functionDefinitions as $lines) {
+			$line1 = $lines[0];
+			if(preg_match('/(\w+)\(/', $line1, $m)) {
+				$functionName = $m[1];
+				if(preg_match($inlinePattern, $line1)) {
+					// need all the lines
+					$functionIndices[$functionName] = count($functionDeclarations);
+					$functionDeclarations[] = $this->formatCode($lines);
+					$functionRefCounts[] = 0;
+				}
+			}
 		}
 		
 		// set up the function reference table
 		$references = array();
 		foreach($this->handlers as $handler) {
-			$calls = null; //$handler->getFunctionsUsed();
 			$indices = array();
-			if($calls) {
-				foreach($calls as $name) {
-					if(!preg_match('/^__builtin/', $name)) {
-						$index = $prototypeIndices[$name];
-						if($index !== null) {
-							$indices[] = $index;
+			$action = $handler->getCode();
+			if($action) {
+				if(is_scalar($action)) {
+					$action = array($action);
+				} else {
+					$action = array_linearize($action);
+				}
+				foreach($action as $line) {
+					// look for tokens that might be function calls
+					if(preg_match_all('/(\w+)\(/', $line, $m)) {
+						$names = $m[1];
+						while($names) {
+							$name = array_shift($names);
+							if(isset($functionIndices[$name])){
+								$index = $functionIndices[$name];
+								if(!in_array($index, $indices)) {
+									$indices[] = $index;
+									$functionRefCounts[$index]++;
+								
+									// if it's calling an inline function, we'll need to declare
+									// functions called by the inline function
+									$decl = $functionDeclarations[$index];
+									if(strpos($decl, '{') !== false) {
+										if(preg_match_all('/(\w+)\(/', $decl, $m)) {
+												$names = array_merge($names, $m[1]);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -430,17 +452,25 @@ class QBCodeGenerator {
 			$references[] = $record;
 		}
 		
+		// if a function is never called, then make it empty
+		foreach($functionDeclarations as $index => &$decl) {
+			if(!$functionRefCounts[$index]) {
+				$decl = "";
+			}
+		}
+		file_put_contents("decl.txt", print_r($functionDeclarations, true));
+		
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, true, true);
-		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, true, true);
+		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, true, false);
 		fwrite($handle, "#else\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, false, true);
-		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, false, true);
+		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, false, false);
 		fwrite($handle, "#endif\n");
 	}
@@ -696,7 +726,12 @@ class QBCodeGenerator {
 				if(is_array($line)) {
 					$code .= $this->formatLines($line);
 				} else {
-					$this->currentIndentationLevel -= substr_count($line, "}");
+					$closeBracketCount = substr_count($line, "}");
+					$openBracketCount = substr_count($line, "{");
+					if($closeBracketCount == $openBracketCount) {
+						$closeBracketCount = $openBracketCount = 0;
+					}
+					$this->currentIndentationLevel -= $closeBracketCount;
 					if(!preg_match('/^#/', $line)) {
 						$line = str_repeat("\t", $this->currentIndentationLevel) . $line;
 					}
@@ -704,7 +739,7 @@ class QBCodeGenerator {
 					if($this->currentIndentationLevel < 0) {
 						throw new Exception("There's a problem with the code indentation\n");
 					}
-					$this->currentIndentationLevel += substr_count($line, "{");
+					$this->currentIndentationLevel += $openBracketCount;
 				}
 			}
 		}
