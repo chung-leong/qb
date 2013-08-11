@@ -41346,10 +41346,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_4_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_4_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict op3_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *op3_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_4_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_4_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -41414,10 +41414,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_4_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_4_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict op3_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *op3_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_4_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_4_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42030,8 +42030,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42073,8 +42073,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42392,9 +42392,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42446,9 +42446,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42503,9 +42503,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42557,9 +42557,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42614,9 +42614,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42668,8 +42668,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42711,8 +42711,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42751,7 +42751,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict res_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -42780,7 +42780,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict res_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -44604,9 +44604,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -44658,9 +44658,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -44712,9 +44712,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -44766,9 +44766,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -44820,8 +44820,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -44862,8 +44862,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -47240,9 +47240,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -47294,9 +47294,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -47348,9 +47348,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -47402,9 +47402,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict op2_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *op2_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -47456,8 +47456,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -47497,8 +47497,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
-					float32_t *__restrict op1_ptr;
-					float32_t *__restrict res_ptr;
+					float32_t *op1_ptr;
+					float32_t *res_ptr;
 					
 					selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -61535,10 +61535,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_4_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_4_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict op3_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *op3_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_4_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_4_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -61603,10 +61603,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_4_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_4_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict op3_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *op3_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_4_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_4_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -61671,9 +61671,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -61725,9 +61725,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -61945,10 +61945,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_4_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_4_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict op3_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *op3_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_4_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_4_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -62003,9 +62003,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -62057,9 +62057,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -62111,9 +62111,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -62165,9 +62165,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -64591,10 +64591,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_4_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_4_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict op3_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *op3_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_4_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_4_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -64649,9 +64649,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -64703,9 +64703,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -64757,9 +64757,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -64811,9 +64811,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -67285,9 +67285,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -67339,9 +67339,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -67393,9 +67393,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
@@ -67447,9 +67447,9 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 				op_handler = ((qb_instruction_3_lineno *) instruction_pointer)->next_handler;
 				{
 #define PHP_LINE_NUMBER	((qb_instruction_3_lineno *) instruction_pointer)->line_number
-					float64_t *__restrict op1_ptr;
-					float64_t *__restrict op2_ptr;
-					float64_t *__restrict res_ptr;
+					float64_t *op1_ptr;
+					float64_t *op2_ptr;
+					float64_t *res_ptr;
 					
 					selector = ((qb_instruction_3_lineno *) instruction_pointer)->operand1 & 0x00FF;
 					index_index = (((qb_instruction_3_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
