@@ -20,7 +20,6 @@ float log10f(float x);
 float log2f(float x);
 float powf(float x, float y);
 float sqrtf(float x);
-float roundf(float x);
 float ceilf(float x);
 float floorf(float x);
 float fabsf(float x);

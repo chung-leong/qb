@@ -1357,7 +1357,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 	}
 #endif
 
-	result_dim = qb_get_result_dimensions(cxt, operands, operand_count, result_flags);
+	result_dim = qb_get_result_dimensions(cxt, op_factory, operands, operand_count);
 
 	if(result_type == QB_TYPE_OPERAND) {
 		result_type = expr_type;

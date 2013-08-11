@@ -35,6 +35,7 @@ $include = <<<INCLUDE
 #include "qb.h"
 
 INCLUDE;
+
 $generator = new QBCodeGenerator;
 
 echo "Creating qb_interpreter_gcc.h\n";

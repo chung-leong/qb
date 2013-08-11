@@ -1,5 +1,7 @@
 <?php
 
+// not affected by matrix order since inverse of M is the same as the inverse of the transpose of M
+
 class QBInvertMatrixHandler extends QBMatrixHandler {
 
 	public function getOperandAddressMode($i) {

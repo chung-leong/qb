@@ -1,6 +1,7 @@
 <?php
 
 class QBCodeGenerator {
+	protected $compiler;
 	protected $handlers = array();
 	protected $elementTypes = array("S32", "U32", "S08", "U08", "S16", "U16", "S64", "U64", "F32", "F64");
 	protected $floatTypes = array("F32", "F64");
@@ -16,7 +17,7 @@ class QBCodeGenerator {
 	}
 	
 	public function writeTypeDeclarations($handle, $compiler) {
-		QBHandler::setCompiler($compiler);
+		$this->setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 	
 		fwrite($handle, "#pragma pack(push,1)\n\n");
@@ -42,7 +43,7 @@ class QBCodeGenerator {
 	}
 	
 	public function writeFunctionPrototypes($handle, $compiler) {
-		QBHandler::setCompiler($compiler);
+		$this->setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 
 		$functions = $this->getFunctionDefinitions();
@@ -71,7 +72,7 @@ class QBCodeGenerator {
 	}
 
 	public function writeFunctionDefinitions($handle, $compiler) {
-		QBHandler::setCompiler($compiler);
+		$this->setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 		
 		$functions = $this->getFunctionDefinitions();
@@ -86,7 +87,7 @@ class QBCodeGenerator {
 	}
 	
 	public function writeMainLoop($handle, $compiler) {
-		QBHandler::setCompiler($compiler);
+		$this->setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 		
 		$lines = array();
@@ -314,7 +315,7 @@ class QBCodeGenerator {
 	}
 
 	public function writeNativeCodeTables($handle, $compiler) {
-		QBHandler::setCompiler($compiler);
+		$this->setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 		
 		$actions = array();
@@ -358,65 +359,54 @@ class QBCodeGenerator {
 			}
 		}
 		
-		// scan for function prototypes
-		$functionDecls = array();
-		$processed = array();
-		foreach($this->handlers as $handler) {
-			$functions = $handler->getHelperFunctions();
-			if($functions) {
-				foreach($functions as $lines) {
-					$line1 = $lines[0];
-					if(!preg_match('/\bzend_always_inline\b/', $line1)) {
-						if(!isset($processed[$line1])) {
-							$decl = $this->parseFunctionDeclaration($line1);
-							if($decl) {
-								$functionDecls[$decl->name] = $decl;
-								$processed[$line1] = true;
-							}
-						}
-					}
-				}
+		// create function declaration table and reverse look-up table
+		$functionDeclarations = $this->getFunctionDeclarations();
+		$functionIndices = array();
+		$functionRefCounts = array();
+		foreach($functionDeclarations as $index => &$decl) {
+			if(preg_match('/(\w+)\s*\(/', $decl, $m)) {
+				// get rid of ZEND_FASTCALL and ZEND_MACRO
+				$decl = preg_replace('/\b(ZEND_FASTCALL|ZEND_MACRO)\s*/', '', $decl);
+			
+				$functionName = $m[1];
+				$functionIndices[$functionName] = $index;
+				$functionRefCounts[$index] = 0;
 			}
-		}
-		$folder = dirname(__FILE__);
-		$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-		$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
-		$lines = array_filter(array_merge($common, $compilerSpecific));
-		foreach($lines as $line) {
-			$decl = $this->parseFunctionDeclaration($line);
-			$functionDecls[$decl->name] = $decl;
-		}						
-		ksort($functionDecls);
-		
-		// set up the prototype table
-		$prototypeIndices = array();
-		$prototypes = array();
-		$index = 0;
-		foreach($functionDecls as $decl) {
-			$parameterDecls = implode(", ", $decl->parameterDecls);
-			if($decl->inline) {
-				$prototypes[] = "static zend_always_inline $decl->returnType $decl->name($parameterDecls) {{$decl->body}}";
-			} else {
-				if($decl->fastcall && $compiler != "MSVC") {
-					$prototypes[] = "$decl->returnType ZEND_FASTCALL $decl->name($parameterDecls);";
-				} else {
-					$prototypes[] = "$decl->returnType $decl->name($parameterDecls);";
-				}
-			}
-			$prototypeIndices[$decl->name] = $index++;
 		}
 		
 		// set up the function reference table
 		$references = array();
 		foreach($this->handlers as $handler) {
-			$calls = null; //$handler->getFunctionsUsed();
 			$indices = array();
-			if($calls) {
-				foreach($calls as $name) {
-					if(!preg_match('/^__builtin/', $name)) {
-						$index = $prototypeIndices[$name];
-						if($index !== null) {
-							$indices[] = $index;
+			$action = $handler->getCode();
+			if($action) {
+				if(is_scalar($action)) {
+					$action = array($action);
+				} else {
+					$action = array_linearize($action);
+				}
+				foreach($action as $line) {
+					// look for tokens that might be function calls
+					if(preg_match_all('/(\w+)\s*\(/', $line, $m)) {
+						$names = $m[1];
+						while($names) {
+							$name = array_shift($names);
+							if(isset($functionIndices[$name])){
+								$index = $functionIndices[$name];
+								if(!in_array($index, $indices)) {
+									$indices[] = $index;
+									$functionRefCounts[$index]++;
+								
+									// if it's calling an inline function, we'll need to declare
+									// functions called by the inline function
+									$decl = $functionDeclarations[$index];
+									if(strpos($decl, '{') !== false) {
+										if(preg_match_all('/(\w+)\s*\(/', $decl, $m)) {
+												$names = array_merge($names, $m[1]);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -430,104 +420,109 @@ class QBCodeGenerator {
 			$references[] = $record;
 		}
 		
+		// if a function is never called, then make it empty
+		foreach($functionDeclarations as $index => &$decl) {
+			if(!$functionRefCounts[$index]) {
+				$decl = "";
+			}
+		}
+		
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, true, true);
-		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, true, true);
+		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, true, false);
 		fwrite($handle, "#else\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, false, true);
-		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $prototypes, false, true);
+		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, false, false);
 		fwrite($handle, "#endif\n");
 	}
 	
 	public function writeNativeSymbolTable($handle, $compiler) {
-		QBHandler::setCompiler($compiler);
+		$this->setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 		
 		// parse for declaration of helper functions 
-		$functionDecls = array();
-		$needWrapper = array();
-		$processed = array();
-		foreach($this->handlers as $handler) {
-			$functions = $handler->getHelperFunctions();
-			if($functions) {
-				foreach($functions as $lines) {
-					$line1 = $lines[0];
-					if(!preg_match('/\bzend_always_inline\b/', $line1)) {
-						if(!isset($processed[$line1])) {
-							$decl = $this->parseFunctionDeclaration($line1);
-							if($decl) {
-								$functionDecls[$decl->name] = $decl;
-								$processed[$line1] = true;
-							}
-						}
-					}
-				}
-			}
-		}
-		// add other functions 
-		$folder = dirname(__FILE__);			
-		$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-		$compilerSpecific = file(($compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
-		$intrinsic = file(($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
-		$lines = array_filter(array_merge($common, $compilerSpecific, $intrinsic));
-		foreach($lines as $line) {
-			$decl = $this->parseFunctionDeclaration($line);
-			if($decl) {
-				$functionDecls[$decl->name] = $decl;
-			}
-		}
-		ksort($functionDecls);
-					
-		// print out wrappers
-		$wrappers = array();
-		foreach($functionDecls as $decl) {
-			$needWrapper = ($decl->static) || ($decl->fastcall &&  $compiler == "MSVC");
-			if($compiler == "MSVC") {
-				if($decl->name == "floor") {
-					$needWrapper = true;
-				}
-			}
-			if($needWrapper) {
-				$parameterDecls = implode(", ", $decl->parameterDecls);
-				$parameters = implode(", ", $decl->parameters);
-				$fcall = "{$decl->name}($parameters)";
-				$wrapper = "{$decl->name}_wrapper";
-				$wrappers[$decl->name] = $wrapper;
-				if($compiler == "MSVC") {
-					fwrite($handle, "{$decl->returnType} $wrapper($parameterDecls) {\n");
-				} else {
-					fwrite($handle, "{$decl->returnType} ZEND_FASTCALL $wrapper($parameterDecls) {\n");
-				}
-				if($decl->returnType != 'void') {
-					fwrite($handle, "	return $fcall;\n");
-				} else {
-					fwrite($handle, "	$fcall;\n");
-				}
-				fwrite($handle, "}\n\n");
-			}
-		}
-	
-		// make sure that functions called by the op handlers are accounted for
-		$functionsInUse = array();
-		foreach($this->handlers as $index => $handler) {
-			$addition = $functionsInUse; // array_diff($handler->getFunctionsUsed(), $functionsInUse);
-			foreach($addition as $name) {
-				if(!preg_match('/^__builtin/', $name)) {						
-					$functionsInUse[] = $name;
-					
-					if(!isset($functionDecls[$name])) {
-						throw new Exception("Missing declaration for '$name'");						
-					}
-				}
-			}
-		}
+		$functionDeclarations = $this->getFunctionDeclarations();
 		
+		// add intrinsics
+		$folder = dirname(__FILE__);
+		$intrinsic = file(($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+		foreach($intrinsic as $decl) {
+			$functionDeclarations[] = $decl;
+		}
+
+		// figure out what the symbols are
+		$symbols = array();
+		foreach($functionDeclarations as $decl) {
+			if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)/', $decl, $m)) {
+				$modifiers = $m[1];
+				$functionName = $m[2];
+				$target = null;
+				
+				if(strpos($decl, "{") === false) {
+					if(preg_match('/\b(ZEND_FASTCALL|ZEND_MACRO)\b/', $modifiers)) {
+						$isMacro = preg_match('/\b(ZEND_MACRO)\b/', $modifiers);
+						$returnType = trim(preg_replace('/\b(ZEND_FASTCALL|ZEND_MACRO|NO_RETURN)\b/', '', $modifiers));
+						$parameterDecls = $m[3];
+						$target = "{$functionName}_symbol";
+						if($parameterDecls) {
+							$parameterDecls = preg_split('/\s*,\s+/', $parameterDecls);
+							$parameters = array();
+							foreach($parameterDecls as $parameterDecl) {
+								$parameterDecl = trim($parameterDecl);
+								if($parameterDecl == 'void') {
+									// none
+								} else if(preg_match('/\w+$/', $parameterDecl, $m)) {
+									$parameters[] = $m[0];
+								} else if(preg_match('/.../', $parameterDecl, $m)) {
+									$parameters[] = $m[0];
+								} else {
+									throw new Exception("Unable to parse parameter declaration: $parameterDecl");
+								}
+							}
+							$parameterList = implode(", ", $parameters);
+							$parameterDecls = implode(", ", $parameterDecls);
+						} else {
+							$parameterList = "";
+							$parameterDecls = "void";
+						}
+					
+						// link name of function to itself when fastcall matches cdecl
+						if(!$isMacro) {
+							fwrite($handle, "#ifdef FASTLCALL_MATCHES_CDECL\n");
+							fwrite($handle, "#define $target	$functionName\n");
+							fwrite($handle, "#else\n");
+						}
+						// create a cdecl wrapper for it
+						fwrite($handle, "$returnType $target($parameterDecls) {\n");
+						if($returnType != 'void') {
+							fwrite($handle, "	return $functionName($parameterList);\n");
+						} else {
+							fwrite($handle, "	$functionName($parameterList);\n");
+						}
+						fwrite($handle, "}\n");
+						if(!$isMacro) {
+							fwrite($handle, "#endif\n");
+						}
+						fwrite($handle, "\n");
+					} else {
+						$target = $functionName;
+					}
+				} else {
+					// a function body could be generated inside the object file for the inline function
+					// need to indicate that the symbol is known 
+					$target = "(void*) -1";
+				}
+				$symbols[$functionName] = $target;
+			}
+		}
+		ksort($symbols);
+	
 		// print out prototypes of intrinsics
 		foreach($intrinsic as $line) {
 			fwrite($handle, "$line\n");
@@ -535,22 +530,12 @@ class QBCodeGenerator {
 		fwrite($handle, "\n");
 		
 		fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
-		foreach($functionDecls as $name => $decl) {
-			if(!$decl->inline) {
-				if(isset($wrappers[$decl->name])) {
-					$symbol = $wrappers[$decl->name];
-				} else {
-					$symbol = $name;
-				}
-				fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
-			} else {
-				// a function body will be generated inside the object file
-				// need to indicate that the symbol is known 
-				fwrite($handle, "	{	0,	\"$name\",	(void*) -1	},\n");
-			}
+		foreach($symbols as $name => $symbol) {
+			fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
 		}
 		fwrite($handle, "};\n\n");
-		fwrite($handle, "uint32_t global_native_symbol_count = sizeof(global_native_symbols) / sizeof(qb_native_symbol);\n\n");
+		$count = count($symbols);
+		fwrite($handle, "uint32_t global_native_symbol_count = $count;\n\n");
 	}
 
 	public function writeNativeDebugStub($handle) {
@@ -564,6 +549,11 @@ class QBCodeGenerator {
 		fwrite($handle, "uint32_t native_proc_table_size = 0;\n");
 		fwrite($handle, "#endif\n");
 		fwrite($handle, "#endif\n");
+	}
+
+	protected function setCompiler($compiler) {
+		QBHandler::setCompiler($compiler);
+		$this->compiler = $compiler;
 	}
 	
 	protected function getFunctionDefinitions() {
@@ -597,6 +587,41 @@ class QBCodeGenerator {
 		
 		return array_merge(array_values($helperFunctions), array_values($handlerFunctions));
 	}
+	
+	protected function getFunctionDeclarations() {
+		$functionDeclarations = array();
+		
+		// add the generated function first
+		$functionDefinitions = $this->getFunctionDefinitions();
+		
+		// then prepend the list with ones that aren't generated
+		$folder = dirname(__FILE__);
+		$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+		$compilerSpecific = file(($this->compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+		foreach(array_merge($common, $compilerSpecific) as $line) {
+			array_unshift($functionDefinitions, array($line));
+		}						
+
+		// declare non-inlined functions first
+		$inlinePattern = '/\b(inline|zend_always_inline)\b/';
+		foreach($functionDefinitions as $lines) {
+			$line1 = $lines[0];
+			if(!preg_match($inlinePattern, $line1)) {
+				// just the prototype--replace { and everything after it with ;
+				$prototype = preg_replace('/\s*{.*$/', ';', $line1);					
+				$functionDeclarations[] = $prototype;
+			}
+		}
+		// then inlined functions
+		foreach($functionDefinitions as $lines) {
+			$line1 = $lines[0];
+			if(preg_match($inlinePattern, $line1)) {
+				// need all the lines
+				$functionDeclarations[] = $this->formatCode($lines);
+			}
+		}
+		return $functionDeclarations;
+	}
 
 	protected function getStructureDefinitions() {
 		$structs = array();
@@ -611,54 +636,6 @@ class QBCodeGenerator {
 		return array_values($structs);
 	}
 
-	protected function parseFunctionDeclaration($line) {
-		if(preg_match('/^\s*(.*?)\s*(\w+)\s*\(([^)]*)\)\s*[{;]/', $line, $m)) {
-			$name = $m[2];
-			$wrapper = array();
-			$returnType = $m[1]; 
-			$parameterDecls = preg_split('/\s*,\s+/', $m[3]);
-			$parameters = array();
-			foreach($parameterDecls as $parameterDecl) {
-				if($parameterDecl == 'void') {
-					// none
-				} else if(preg_match('/\w+$/', $parameterDecl, $m)) {
-					$parameters[] = $m[0];
-				} else if(preg_match('/.../', $parameterDecl, $m)) {
-					$parameters[] = $m[0];
-				} else {
-					throw new Exception("Unable to parse parameter declaration: $parameterDecl");
-				}
-			}
-			$func = new stdClass;
-			$func->name = $name;
-			if(preg_match('/\bzend_always_inline\b/', $returnType)) {
-				$returnType = preg_replace('/\b__inline\b/', "", $returnType);
-				$func->inline = true;
-				if(preg_match('/{(.*)}/', $line, $m)) {
-					$func->body = $m[1];
-				}
-			} else {
-				$func->inline = false;
-			}
-			if(preg_match('/\bstatic\b/', $returnType)) {
-				$returnType = preg_replace('/\bstatic\b/', "", $returnType);
-				$func->static = true;
-			} else {
-				$func->static = false;
-			}
-			if(preg_match('/\bZEND_FASTCALL\b/', $returnType)) {
-				$returnType = preg_replace('/\bZEND_FASTCALL\b/', "", $returnType);
-				$func->fastcall = true;
-			} else {
-				$func->fastcall = false;
-			}
-			$func->returnType = trim($returnType);
-			$func->parameterDecls = $parameterDecls;
-			$func->parameters = $parameters;
-			return $func;
-		}
-	}
-	
 	protected function writeCode($handle, $lines) {
 		foreach($lines as $line) {
 			if($line !== null) {
@@ -696,7 +673,12 @@ class QBCodeGenerator {
 				if(is_array($line)) {
 					$code .= $this->formatLines($line);
 				} else {
-					$this->currentIndentationLevel -= substr_count($line, "}");
+					$closeBracketCount = substr_count($line, "}");
+					$openBracketCount = substr_count($line, "{");
+					if($closeBracketCount == $openBracketCount) {
+						$closeBracketCount = $openBracketCount = 0;
+					}
+					$this->currentIndentationLevel -= $closeBracketCount;
 					if(!preg_match('/^#/', $line)) {
 						$line = str_repeat("\t", $this->currentIndentationLevel) . $line;
 					}
@@ -704,7 +686,7 @@ class QBCodeGenerator {
 					if($this->currentIndentationLevel < 0) {
 						throw new Exception("There's a problem with the code indentation\n");
 					}
-					$this->currentIndentationLevel += substr_count($line, "{");
+					$this->currentIndentationLevel += $openBracketCount;
 				}
 			}
 		}
@@ -1258,12 +1240,18 @@ class QBCodeGenerator {
 			}
 			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, null, 4);
 			$this->handlers[] = new QBNormalizeHandler("NORM", $elementType, "ARR", 4);
+			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, null, 4);
+			$this->handlers[] = new QBCrossProductHandler("CROSS", $elementType, "ARR", 4);
 			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, null, 4);
 			$this->handlers[] = new QBFaceForwardHandler("FORE", $elementType, "ARR", 4);
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, null, 4);
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR", 4);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null, 4);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR", 4);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, null, 4);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, "ARR", 4);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN_RM", $elementType, null, 4, "row-major");
+			$this->handlers[] = new QBTransformVectorHandler("TRAN_RM", $elementType, "ARR", 4, "row-major");
 			
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, null, 4);
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, "ARR", 4);
@@ -1324,6 +1312,10 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR", 3);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null, 3);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR", 3);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, null, 3);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, "ARR", 3);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN_RM", $elementType, null, 3, "row-major");
+			$this->handlers[] = new QBTransformVectorHandler("TRAN_RM", $elementType, "ARR", 3, "row-major");
 			
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, null, 3);
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, "ARR", 3);
@@ -1378,6 +1370,10 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBReflectHandler("REFL", $elementType, "ARR", 2);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, null, 2);
 			$this->handlers[] = new QBRefractHandler("REFR", $elementType, "ARR", 2);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, null, 2);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN", $elementType, "ARR", 2);
+			$this->handlers[] = new QBTransformVectorHandler("TRAN_RM", $elementType, null, 2, "row-major");
+			$this->handlers[] = new QBTransformVectorHandler("TRAN_RM", $elementType, "ARR", 2, "row-major");
 			
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, null, 2);
 			$this->handlers[] = new QBCopyHandler("MOV", $elementType, "ARR", 2);

@@ -290,9 +290,7 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define PRIu64	"STRING(PRIu64)"\n");
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
 	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
-#ifndef _MSC_VER
-	qb_print(cxt, "#define ZEND_FASTCALL	"STRING(ZEND_FASTCALL)"\n");
-#endif
+	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I64(v)	"STRING(SWAP_BE_I64(v))"\n");
@@ -480,14 +478,16 @@ typedef struct qb_native_proc_record {\
 	qb_print(cxt, "\n");
 }
 
-#define PROTOTYPE_COUNT		500
+#define PROTOTYPE_COUNT		1200
 
 static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
 	int32_t *prototype_indices, index;
-	uint32_t printed[PROTOTYPE_COUNT];
+	uint32_t *required[PROTOTYPE_COUNT];
 	qb_op *qop;
-	memset(printed, 0, sizeof(printed));
+
+	// see which functions are required
+	memset(required, 0, sizeof(required));
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
 		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
@@ -497,17 +497,36 @@ static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 				prototype_indices = cxt->op_function_usages[qop->opcode];
 				for(k = 0; prototype_indices[k] != 0xFFFFFFFF; k++) {
 					index = prototype_indices[k];
-					if(!printed[index]) {
-						const char *prototype = cxt->function_prototypes[index];
-						qb_print(cxt, prototype);
-						qb_print(cxt, "\n");
-						printed[index] = TRUE;
-					}
+					required[index] = TRUE;
 				}
 			}
 
 		}
 	}
+
+	// print the macro needed by function definition
+	qb_print(cxt, "\n");
+	for(i = 1; i <= 6; i++) {
+		qb_printf(cxt, "#define op%d	*op%d_ptr\n", i, i);
+	}
+	qb_print(cxt, "#define res	*res_ptr\n");
+	qb_print(cxt, "\n");
+
+	// print prototypes, maintaining correct order
+	for(i = 0; i < PROTOTYPE_COUNT; i++) {
+		if(required[i]) {
+			const char *prototype = cxt->function_prototypes[i];
+			qb_print(cxt, prototype);
+			qb_print(cxt, "\n");
+		}
+	}
+
+	// undefine macros
+	qb_print(cxt, "\n");
+	for(i = 1; i <= 6; i++) {
+		qb_printf(cxt, "#undef op%d\n", i);
+	}
+	qb_print(cxt, "#undef res\n");
 	qb_print(cxt, "\n");
 }
 

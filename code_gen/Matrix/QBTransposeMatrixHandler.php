@@ -1,5 +1,7 @@
 <?php
 
+// not affected by matrix order
+
 class QBTransposeMatrixHandler extends QBMatrixHandler {
 
 	public function getOperandAddressMode($i) {

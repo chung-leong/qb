@@ -1,5 +1,7 @@
 <?php
 
+// not affected by matrix order since determinant of M is the same as the determinant of the transpose of M
+
 class QBDeterminantHandler extends QBMatrixHandler {
 
 	public function getOperandAddressMode($i) {
