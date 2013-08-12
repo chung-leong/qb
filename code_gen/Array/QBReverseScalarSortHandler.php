@@ -10,6 +10,10 @@ class QBReverseScalarSortHandler extends QBHandler {
 		return "ARR";
 	}
 	
+	public function getFunctionType() {
+		return "extern";
+	}
+	
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);

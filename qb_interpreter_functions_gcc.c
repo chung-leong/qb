@@ -14520,6 +14520,46 @@ void ZEND_FASTCALL qb_do_remove_premultiplication_multiple_times_F64(float64_t *
 	}
 }
 
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_F32(float32_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(float32_t), qb_compare_descending_F32);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_F64(float64_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(float64_t), qb_compare_descending_F64);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_S08(int8_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int8_t), qb_compare_descending_S08);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_S16(int16_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int16_t), qb_compare_descending_S16);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_S32(int32_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int32_t), qb_compare_descending_S32);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_S64(int64_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int64_t), qb_compare_descending_S64);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_U08(uint8_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint8_t), qb_compare_descending_U08);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_U16(uint16_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint16_t), qb_compare_descending_U16);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_U32(uint32_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint32_t), qb_compare_descending_U32);
+}
+
+void ZEND_FASTCALL qb_do_reverse_scalar_sort_U64(uint64_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint64_t), qb_compare_descending_U64);
+}
+
 void ZEND_FASTCALL qb_do_round_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && op3_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -15140,6 +15180,46 @@ void ZEND_FASTCALL qb_do_sample_nearest_4x_multiple_times_F64(float64_t *op1_ptr
 			}
 		}
 	}
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_F32(float32_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(float32_t), qb_compare_ascending_F32);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_F64(float64_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(float64_t), qb_compare_ascending_F64);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_S08(int8_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int8_t), qb_compare_ascending_S08);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_S16(int16_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int16_t), qb_compare_ascending_S16);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_S32(int32_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int32_t), qb_compare_ascending_S32);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_S64(int64_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(int64_t), qb_compare_ascending_S64);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_U08(uint8_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint8_t), qb_compare_ascending_U08);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_U16(uint16_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint16_t), qb_compare_ascending_U16);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_U32(uint32_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint32_t), qb_compare_ascending_U32);
+}
+
+void ZEND_FASTCALL qb_do_scalar_sort_U64(uint64_t *res_ptr, uint32_t res_count) {
+	qsort(res_ptr, res_count, sizeof(uint64_t), qb_compare_ascending_U64);
 }
 
 void ZEND_FASTCALL qb_do_shift_left_multiple_times_S08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -22893,6 +22973,86 @@ void qb_do_remove_premultiplication_multiple_times_F64_symbol(float64_t *op1_ptr
 #endif
 
 #ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_F32_symbol	qb_do_reverse_scalar_sort_F32
+#else
+void qb_do_reverse_scalar_sort_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_F32(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_F64_symbol	qb_do_reverse_scalar_sort_F64
+#else
+void qb_do_reverse_scalar_sort_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_F64(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_S08_symbol	qb_do_reverse_scalar_sort_S08
+#else
+void qb_do_reverse_scalar_sort_S08_symbol(int8_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_S08(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_S16_symbol	qb_do_reverse_scalar_sort_S16
+#else
+void qb_do_reverse_scalar_sort_S16_symbol(int16_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_S16(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_S32_symbol	qb_do_reverse_scalar_sort_S32
+#else
+void qb_do_reverse_scalar_sort_S32_symbol(int32_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_S32(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_S64_symbol	qb_do_reverse_scalar_sort_S64
+#else
+void qb_do_reverse_scalar_sort_S64_symbol(int64_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_S64(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_U08_symbol	qb_do_reverse_scalar_sort_U08
+#else
+void qb_do_reverse_scalar_sort_U08_symbol(uint8_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_U08(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_U16_symbol	qb_do_reverse_scalar_sort_U16
+#else
+void qb_do_reverse_scalar_sort_U16_symbol(uint16_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_U16(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_U32_symbol	qb_do_reverse_scalar_sort_U32
+#else
+void qb_do_reverse_scalar_sort_U32_symbol(uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_U32(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_reverse_scalar_sort_U64_symbol	qb_do_reverse_scalar_sort_U64
+#else
+void qb_do_reverse_scalar_sort_U64_symbol(uint64_t *res_ptr, uint32_t res_count) {
+	qb_do_reverse_scalar_sort_U64(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
 #define qb_do_round_multiple_times_F32_symbol	qb_do_round_multiple_times_F32
 #else
 void qb_do_round_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23033,6 +23193,86 @@ void qb_do_sample_nearest_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint3
 #else
 void qb_do_sample_nearest_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *res_ptr, uint32_t res_count) {
 	qb_do_sample_nearest_4x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_F32_symbol	qb_do_scalar_sort_F32
+#else
+void qb_do_scalar_sort_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_F32(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_F64_symbol	qb_do_scalar_sort_F64
+#else
+void qb_do_scalar_sort_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_F64(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_S08_symbol	qb_do_scalar_sort_S08
+#else
+void qb_do_scalar_sort_S08_symbol(int8_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_S08(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_S16_symbol	qb_do_scalar_sort_S16
+#else
+void qb_do_scalar_sort_S16_symbol(int16_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_S16(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_S32_symbol	qb_do_scalar_sort_S32
+#else
+void qb_do_scalar_sort_S32_symbol(int32_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_S32(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_S64_symbol	qb_do_scalar_sort_S64
+#else
+void qb_do_scalar_sort_S64_symbol(int64_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_S64(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_U08_symbol	qb_do_scalar_sort_U08
+#else
+void qb_do_scalar_sort_U08_symbol(uint8_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_U08(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_U16_symbol	qb_do_scalar_sort_U16
+#else
+void qb_do_scalar_sort_U16_symbol(uint16_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_U16(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_U32_symbol	qb_do_scalar_sort_U32
+#else
+void qb_do_scalar_sort_U32_symbol(uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_U32(res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_scalar_sort_U64_symbol	qb_do_scalar_sort_U64
+#else
+void qb_do_scalar_sort_U64_symbol(uint64_t *res_ptr, uint32_t res_count) {
+	qb_do_scalar_sort_U64(res_ptr, res_count);
 }
 #endif
 
@@ -24559,6 +24799,16 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_refract_multiple_times_F64",	qb_do_refract_multiple_times_F64_symbol	},
 	{	0,	"qb_do_remove_premultiplication_multiple_times_F32",	qb_do_remove_premultiplication_multiple_times_F32_symbol	},
 	{	0,	"qb_do_remove_premultiplication_multiple_times_F64",	qb_do_remove_premultiplication_multiple_times_F64_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_F32",	qb_do_reverse_scalar_sort_F32_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_F64",	qb_do_reverse_scalar_sort_F64_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_S08",	qb_do_reverse_scalar_sort_S08_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_S16",	qb_do_reverse_scalar_sort_S16_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_S32",	qb_do_reverse_scalar_sort_S32_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_S64",	qb_do_reverse_scalar_sort_S64_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_U08",	qb_do_reverse_scalar_sort_U08_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_U16",	qb_do_reverse_scalar_sort_U16_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_U32",	qb_do_reverse_scalar_sort_U32_symbol	},
+	{	0,	"qb_do_reverse_scalar_sort_U64",	qb_do_reverse_scalar_sort_U64_symbol	},
 	{	0,	"qb_do_round_multiple_times_F32",	qb_do_round_multiple_times_F32_symbol	},
 	{	0,	"qb_do_round_multiple_times_F64",	qb_do_round_multiple_times_F64_symbol	},
 	{	0,	"qb_do_rsqrt_multiple_times_F32",	qb_do_rsqrt_multiple_times_F32_symbol	},
@@ -24579,6 +24829,16 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_sample_nearest_4x_F64",	qb_do_sample_nearest_4x_F64_symbol	},
 	{	0,	"qb_do_sample_nearest_4x_multiple_times_F32",	qb_do_sample_nearest_4x_multiple_times_F32_symbol	},
 	{	0,	"qb_do_sample_nearest_4x_multiple_times_F64",	qb_do_sample_nearest_4x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_scalar_sort_F32",	qb_do_scalar_sort_F32_symbol	},
+	{	0,	"qb_do_scalar_sort_F64",	qb_do_scalar_sort_F64_symbol	},
+	{	0,	"qb_do_scalar_sort_S08",	qb_do_scalar_sort_S08_symbol	},
+	{	0,	"qb_do_scalar_sort_S16",	qb_do_scalar_sort_S16_symbol	},
+	{	0,	"qb_do_scalar_sort_S32",	qb_do_scalar_sort_S32_symbol	},
+	{	0,	"qb_do_scalar_sort_S64",	qb_do_scalar_sort_S64_symbol	},
+	{	0,	"qb_do_scalar_sort_U08",	qb_do_scalar_sort_U08_symbol	},
+	{	0,	"qb_do_scalar_sort_U16",	qb_do_scalar_sort_U16_symbol	},
+	{	0,	"qb_do_scalar_sort_U32",	qb_do_scalar_sort_U32_symbol	},
+	{	0,	"qb_do_scalar_sort_U64",	qb_do_scalar_sort_U64_symbol	},
 	{	0,	"qb_do_shift_left_multiple_times_S08",	qb_do_shift_left_multiple_times_S08_symbol	},
 	{	0,	"qb_do_shift_left_multiple_times_S16",	qb_do_shift_left_multiple_times_S16_symbol	},
 	{	0,	"qb_do_shift_left_multiple_times_S32",	qb_do_shift_left_multiple_times_S32_symbol	},
@@ -24734,5 +24994,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1020;
+uint32_t global_native_symbol_count = 1040;
 

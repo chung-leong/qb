@@ -4835,7 +4835,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int32_t), qb_compare_ascending_S32);
+			qb_do_scalar_sort_S32(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -4861,7 +4861,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int32_t), qb_compare_descending_S32);
+			qb_do_reverse_scalar_sort_S32(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -7814,7 +7814,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint32_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint32_t), qb_compare_ascending_U32);
+			qb_do_scalar_sort_U32(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -7840,7 +7840,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint32_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint32_t), qb_compare_descending_U32);
+			qb_do_reverse_scalar_sort_U32(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -12012,7 +12012,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int8_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int8_t), qb_compare_ascending_S08);
+			qb_do_scalar_sort_S08(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -12038,7 +12038,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int8_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int8_t), qb_compare_descending_S08);
+			qb_do_reverse_scalar_sort_S08(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -15005,7 +15005,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint8_t), qb_compare_ascending_U08);
+			qb_do_scalar_sort_U08(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -15031,7 +15031,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint8_t), qb_compare_descending_U08);
+			qb_do_reverse_scalar_sort_U08(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -19467,7 +19467,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int16_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int16_t), qb_compare_ascending_S16);
+			qb_do_scalar_sort_S16(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -19493,7 +19493,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int16_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int16_t), qb_compare_descending_S16);
+			qb_do_reverse_scalar_sort_S16(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -22392,7 +22392,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint16_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint16_t), qb_compare_ascending_U16);
+			qb_do_scalar_sort_U16(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -22418,7 +22418,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint16_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint16_t), qb_compare_descending_U16);
+			qb_do_reverse_scalar_sort_U16(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -26998,7 +26998,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int64_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int64_t), qb_compare_ascending_S64);
+			qb_do_scalar_sort_S64(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -27024,7 +27024,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int64_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(int64_t), qb_compare_descending_S64);
+			qb_do_reverse_scalar_sort_S64(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -29805,7 +29805,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint64_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint64_t), qb_compare_ascending_U64);
+			qb_do_scalar_sort_U64(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -29831,7 +29831,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint64_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(uint64_t), qb_compare_descending_U64);
+			qb_do_reverse_scalar_sort_U64(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -37784,7 +37784,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(float32_t), qb_compare_ascending_F32);
+			qb_do_scalar_sort_F32(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -37810,7 +37810,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(float32_t), qb_compare_descending_F32);
+			qb_do_reverse_scalar_sort_F32(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -57853,7 +57853,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(float64_t), qb_compare_ascending_F64);
+			qb_do_scalar_sort_F64(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
@@ -57879,7 +57879,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
-			qsort(res_ptr, res_count, sizeof(float64_t), qb_compare_descending_F64);
+			qb_do_reverse_scalar_sort_F64(res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_1_lineno);
