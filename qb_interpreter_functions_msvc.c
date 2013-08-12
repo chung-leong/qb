@@ -8800,6 +8800,16 @@ void ZEND_FASTCALL qb_do_is_nan_multiple_times_F64(float64_t *op1_ptr, uint32_t 
 	}
 }
 
+void ZEND_FASTCALL qb_do_lcg_F32(qb_interpreter_context *cxt, float32_t *res_ptr) {
+	USE_TSRM
+	(*res_ptr) = (float32_t) php_combined_lcg(TSRMLS_C);
+}
+
+void ZEND_FASTCALL qb_do_lcg_F64(qb_interpreter_context *cxt, float64_t *res_ptr) {
+	USE_TSRM
+	(*res_ptr) = (float64_t) php_combined_lcg(TSRMLS_C);
+}
+
 void ZEND_FASTCALL qb_do_lcg_multiple_times_F32(qb_interpreter_context *cxt, float32_t *res_ptr, uint32_t res_count) {
 	if(res_count) {
 		float32_t *res_end = res_ptr + res_count;
@@ -20777,6 +20787,22 @@ void qb_do_is_nan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 #endif
 
 #ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_lcg_F32_symbol	qb_do_lcg_F32
+#else
+void qb_do_lcg_F32_symbol(qb_interpreter_context *cxt, float32_t *res_ptr) {
+	qb_do_lcg_F32(cxt, res_ptr);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
+#define qb_do_lcg_F64_symbol	qb_do_lcg_F64
+#else
+void qb_do_lcg_F64_symbol(qb_interpreter_context *cxt, float64_t *res_ptr) {
+	qb_do_lcg_F64(cxt, res_ptr);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
 #define qb_do_lcg_multiple_times_F32_symbol	qb_do_lcg_multiple_times_F32
 #else
 void qb_do_lcg_multiple_times_F32_symbol(qb_interpreter_context *cxt, float32_t *res_ptr, uint32_t res_count) {
@@ -24553,8 +24579,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_is_infinite_multiple_times_F64",	qb_do_is_infinite_multiple_times_F64_symbol	},
 	{	0,	"qb_do_is_nan_multiple_times_F32",	qb_do_is_nan_multiple_times_F32_symbol	},
 	{	0,	"qb_do_is_nan_multiple_times_F64",	qb_do_is_nan_multiple_times_F64_symbol	},
-	{	0,	"qb_do_lcg_F32",	(void*) -1	},
-	{	0,	"qb_do_lcg_F64",	(void*) -1	},
+	{	0,	"qb_do_lcg_F32",	qb_do_lcg_F32_symbol	},
+	{	0,	"qb_do_lcg_F64",	qb_do_lcg_F64_symbol	},
 	{	0,	"qb_do_lcg_multiple_times_F32",	qb_do_lcg_multiple_times_F32_symbol	},
 	{	0,	"qb_do_lcg_multiple_times_F64",	qb_do_lcg_multiple_times_F64_symbol	},
 	{	0,	"qb_do_length_2x_F32",	(void*) -1	},

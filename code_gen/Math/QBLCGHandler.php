@@ -10,6 +10,11 @@ class QBLCGHandler extends QBHandler {
 		return true;
 	}
 
+	public function getFunctionType() {
+		// the operation is slow--no use inlining it
+		return "extern";
+	}
+	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$lines = array();

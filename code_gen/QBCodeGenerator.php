@@ -362,14 +362,15 @@ class QBCodeGenerator {
 		$functionRefCounts = array();
 		foreach($functionDeclarations as $index => &$decl) {
 			if(preg_match('/(\w+)\s*\(/', $decl, $m)) {
+				$functionName = $m[1];
+				
 				// get rid of ZEND_FASTCALL and ZEND_MACRO
 				$decl = preg_replace('/\b(ZEND_FASTCALL|ZEND_MACRO)\s*/', '', $decl);
-			
-				$functionName = $m[1];
 				$functionIndices[$functionName] = $index;
 				$functionRefCounts[$index] = 0;
 			}
 		}
+		unset($decl);
 		
 		// set up the function reference table
 		$references = array();
@@ -445,6 +446,7 @@ class QBCodeGenerator {
 				$decl = "";
 			}
 		}
+		unset($decl);
 		
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);

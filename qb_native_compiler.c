@@ -1431,7 +1431,7 @@ static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_co
 	}
 
 	// delete the temporary c file
-	//DeleteFile(cxt->c_file_path);
+	DeleteFile(cxt->c_file_path);
 	return TRUE;
 }
 #endif	// _MSC_VER

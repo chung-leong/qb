@@ -659,6 +659,8 @@ void ZEND_FASTCALL qb_do_is_infinite_multiple_times_F32(float32_t *op1_ptr, uint
 void ZEND_FASTCALL qb_do_is_infinite_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_is_nan_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_is_nan_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_lcg_F32(qb_interpreter_context *cxt, float32_t *res_ptr);
+void ZEND_FASTCALL qb_do_lcg_F64(qb_interpreter_context *cxt, float64_t *res_ptr);
 void ZEND_FASTCALL qb_do_lcg_multiple_times_F32(qb_interpreter_context *cxt, float32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_lcg_multiple_times_F64(qb_interpreter_context *cxt, float64_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_length_2x_F64(float64_t *op1_ptr, float64_t *res_ptr);
@@ -1439,16 +1441,6 @@ static zend_always_inline void qb_do_in_array_I64(int64_t *op1_ptr, uint32_t op1
 	int32_t index;
 	qb_do_array_search_I64(op1_ptr, op1_count, op2, &index);
 	(*res_ptr) = (index != -1);
-}
-
-static zend_always_inline void qb_do_lcg_F32(qb_interpreter_context *cxt, float32_t *res_ptr) {
-	USE_TSRM
-	(*res_ptr) = (float32_t) php_combined_lcg(TSRMLS_C);
-}
-
-static zend_always_inline void qb_do_lcg_F64(qb_interpreter_context *cxt, float64_t *res_ptr) {
-	USE_TSRM
-	(*res_ptr) = (float64_t) php_combined_lcg(TSRMLS_C);
 }
 
 static zend_always_inline void qb_do_length_2x_F32(float32_t *op1_ptr, float32_t *res_ptr) {
