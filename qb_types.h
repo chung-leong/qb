@@ -329,14 +329,6 @@ uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, i
 #define __qb_clamp_float64(f, max)				qb_clamp_float64_0_##max(f)
 #define qb_clamp_float64(f, max)				__qb_clamp_float64(f, max)
 
-#ifdef QB_LITTLE_ENDIAN
-	#define FP_EXPONENT_INDEX	1
-	#define FP_MANTISSA_INDEX	0
-#else
-	#define FP_EXPONENT_INDEX	0
-	#define FP_MANTISSA_INDEX	1
-#endif
-
 #if defined(__i386__)
 	#ifdef __SSE2__
 		#define FAST_FLOAT_TO_INT
@@ -381,7 +373,7 @@ static zend_always_inline int32_t qb_clamp_float64_0_255(float64_t f) {
 #else
 	int32_t n, sig, mask1, mask2;
 	f++;
-	n = ((int32_t *) &f)[FP_EXPONENT_INDEX];
+	n = ((int32_t *) &f)[1];
 	sig = n >> 12;
 	mask1 = -(n >= 0x40000000);
 	mask2 = -(n >= 0x3FF00000) & 0xFF;
@@ -425,59 +417,11 @@ static zend_always_inline int32_t qb_clamp_float64_0_127(float64_t f) {
 #else
 	int32_t n, sig, mask1, mask2;
 	f++;
-	n = ((int32_t *) &f)[FP_EXPONENT_INDEX];
+	n = ((int32_t *) &f)[1];
 	sig = n >> 13;
 	mask1 = -(n >= 0x40000000);
 	mask2 = -(n >= 0x3FF00000) & 0x7F;
 	return (sig | mask1) & mask2;
-#endif
-}
-
-static zend_always_inline int32_t qb_quick_floor(double f) {
-#ifdef FAST_FLOAT_TO_INT
-	return (int32_t) floor(f);
-#else
-	int32_t n;
-	if(f < INT16_MIN) {
-		return INT16_MIN;
-	} else if(f > INT16_MAX) {
-		return INT16_MAX;
-	}
-	f += 103079215104.0;
-	n = ((long *) &f)[FP_MANTISSA_INDEX];
-	return n >> 16;
-#endif
-}
-
-static zend_always_inline int32_t qb_quick_round(double f) {
-#ifdef FAST_FLOAT_TO_INT
-	return (int32_t) round(f);
-#else
-	int32_t n;
-	if(f < INT16_MIN) {
-		return INT16_MIN;
-	} else if(f > INT16_MAX) {
-		return INT16_MAX;
-	}
-	f += 103079215104.5;
-	n = ((long *) &f)[FP_MANTISSA_INDEX];
-	return n >> 16;
-#endif
-}
-
-static zend_always_inline int32_t qb_quick_floorf(float f) {
-#ifdef FAST_FLOAT_TO_INT
-	return (int32_t) floorf(f);
-#else
-	return qb_quick_floor(f);
-#endif
-}
-
-static zend_always_inline int32_t qb_quick_roundf(float f) {
-#ifdef FAST_FLOAT_TO_INT
-	return (int32_t) roundf(f);
-#else
-	return qb_quick_round(f);
 #endif
 }
 

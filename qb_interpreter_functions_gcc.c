@@ -626,6 +626,18 @@ uint32_t ZEND_FASTCALL qb_decode_fcall_mix_operand(qb_interpreter_context *__res
 	return operand_count;
 }
 
+uint32_t ZEND_FASTCALL qb_decode_fcall_variable_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {
+	uint32_t operand1 = operands[0];
+	uint32_t var_operand2 = operands[1];
+	uint32_t type = operand1 & 0x00FF;
+	uint32_t flags = operand1 >> 16;
+	uint32_t index = var_operand2;
+	cxt->value_address.type = type;
+	cxt->value_address.flags = flags;
+	cxt->value_address.segment_offset = index << type_size_shifts[type];
+	return 2;
+}
+
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_F32(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count) {
 	uint32_t total = 0;
 	if(op1_count) {
@@ -17261,6 +17273,14 @@ uint32_t qb_decode_fcall_mix_operand_symbol(qb_interpreter_context *__restrict c
 #endif
 
 #ifdef FASTLCALL_MATCHES_CDECL
+#define qb_decode_fcall_variable_operand_symbol	qb_decode_fcall_variable_operand
+#else
+uint32_t qb_decode_fcall_variable_operand_symbol(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {
+	return qb_decode_fcall_variable_operand(cxt, segments, operands);
+}
+#endif
+
+#ifdef FASTLCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_F32_symbol	qb_get_array_sprintf_length_F32
 #else
 uint32_t qb_get_array_sprintf_length_F32_symbol(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count) {
@@ -24038,7 +24058,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_compare_descending_U64",	qb_compare_descending_U64	},
 	{	0,	"qb_copy_argument",	qb_copy_argument_symbol	},
 	{	0,	"qb_decode_fcall_mix_operand",	qb_decode_fcall_mix_operand_symbol	},
-	{	0,	"qb_decode_fcall_variable_operand",	(void*) -1	},
+	{	0,	"qb_decode_fcall_variable_operand",	qb_decode_fcall_variable_operand_symbol	},
 	{	0,	"qb_do_abs_multiple_times_F32",	qb_do_abs_multiple_times_F32_symbol	},
 	{	0,	"qb_do_abs_multiple_times_F64",	qb_do_abs_multiple_times_F64_symbol	},
 	{	0,	"qb_do_abs_multiple_times_S08",	qb_do_abs_multiple_times_S08_symbol	},
@@ -24972,6 +24992,10 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_get_utf8_encoded_length_U16",	qb_get_utf8_encoded_length_U16_symbol	},
 	{	0,	"qb_get_utf8_encoded_length_U32",	qb_get_utf8_encoded_length_U32_symbol	},
 	{	0,	"qb_initialize_function_call",	qb_initialize_function_call_symbol	},
+	{	0,	"qb_quick_floor",	(void*) -1	},
+	{	0,	"qb_quick_floorf",	(void*) -1	},
+	{	0,	"qb_quick_round",	(void*) -1	},
+	{	0,	"qb_quick_roundf",	(void*) -1	},
 	{	0,	"qb_resync_argument",	qb_resync_argument_symbol	},
 	{	0,	"qb_run_zend_extension_op",	qb_run_zend_extension_op_symbol	},
 	{	0,	"qb_shrink_segment",	qb_shrink_segment_symbol	},
@@ -24994,5 +25018,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1040;
+uint32_t global_native_symbol_count = 1044;
 

@@ -269,7 +269,10 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define restrict	__restrict\n");
 	qb_print(cxt, "#define NULL	"STRING(NULL)"\n");
 	qb_print(cxt, "#define M_PI	"STRING(M_PI)"\n");
-	qb_print(cxt, "#define MAX_DIMENSION		64\n");
+	qb_print(cxt, "#define MAX_DIMENSION	"STRING(MAX_DIMENSION)"\n");
+#ifdef FAST_FLOAT_TO_INT
+	qb_print(cxt, "#define FAST_FLOAT_TO_INT\n");
+#endif
 #ifdef QB_LITTLE_ENDIAN
 	qb_print(cxt, "#define QB_LITTLE_ENDIAN\n");
 #else
@@ -1428,7 +1431,7 @@ static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_co
 	}
 
 	// delete the temporary c file
-	DeleteFile(cxt->c_file_path);
+	//DeleteFile(cxt->c_file_path);
 	return TRUE;
 }
 #endif	// _MSC_VER
@@ -1614,7 +1617,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 			symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name);
-			if(!symbol_address) {
+			if(!symbol_address || symbol_address == (void *) -1) {
 				qb_abort("Missing symbol: %s\n", symbol_name);
 			}
 		} else {
@@ -1743,7 +1746,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 			symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name);
-			if(!symbol_address) {
+			if(!symbol_address || symbol_address == (void *) -1) {
 				qb_abort("Missing symbol: %s\n", symbol_name);
 			}
 		} else {
@@ -1875,7 +1878,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho64(qb_native_compiler_context *cxt) {
 				struct nlist_64 *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
 				symbol_address = qb_find_symbol(cxt, symbol_name);
-				if(!symbol_address) {
+				if(!symbol_address || symbol_address == (void *) -1) {
 					qb_abort("Missing symbol: %s\n", symbol_name);
 					return FALSE;
 				}
@@ -1997,7 +2000,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 				struct nlist *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
 				symbol_address = qb_find_symbol(cxt, symbol_name);
-				if(!symbol_address) {
+				if(!symbol_address || symbol_address == (void *) -1) {
 					qb_abort("Missing symbol: %s\n", symbol_name);
 					return FALSE;
 				}
@@ -2086,7 +2089,7 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 					symbol_address = qb_find_symbol(cxt, symbol_name);
-					if(!symbol_address) {
+					if(!symbol_address || symbol_address == (void *) -1) {
 						qb_abort("Missing symbol: %s\n", symbol_name);
 					}
 				} else {

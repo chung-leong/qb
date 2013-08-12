@@ -7,4 +7,4 @@ echo phpversion("qb"), "\n";
 
 ?>
 --EXPECT--
-1.3
+1.4

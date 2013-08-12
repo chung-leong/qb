@@ -384,11 +384,12 @@ class QBCodeGenerator {
 				}
 				foreach($action as $line) {
 					// look for tokens that might be function calls
+					$line = preg_replace('/#define \w+\s*/', '', $line);
 					if(preg_match_all('/(\w+)\s*\(/', $line, $m)) {
 						$names = $m[1];
 						while($names) {
 							$name = array_shift($names);
-							if(isset($functionIndices[$name])){
+							if(isset($functionIndices[$name])) {
 								$index = $functionIndices[$name];
 								if(!in_array($index, $indices)) {
 									$indices[] = $index;
@@ -402,6 +403,27 @@ class QBCodeGenerator {
 												$names = array_merge($names, $m[1]);
 										}
 									}
+								}
+							} else {
+								switch($name) {
+									case 'if':
+									case 'for':
+									case 'while':
+									case 'sizeof':
+									case 'return':
+									case 'QB_G':
+									case 'EG':
+									case 'SWAP_LE_I16':
+									case 'SWAP_LE_I32':
+									case 'SWAP_LE_I64':
+									case 'SWAP_BE_I16':
+									case 'SWAP_BE_I32':
+									case 'SWAP_BE_I64':
+									case 'UNEXPECTED':
+									case 'USE_TSRM':
+										break;
+									default:
+										throw new Exception("Missing function declaration for $name");
 								}
 							}
 						}

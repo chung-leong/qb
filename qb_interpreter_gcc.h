@@ -211,6 +211,7 @@ int32_t ZEND_FASTCALL qb_compare_array_U16(uint16_t * __restrict op1_ptr, uint32
 int32_t ZEND_FASTCALL qb_compare_array_U32(uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count);
 int32_t ZEND_FASTCALL qb_compare_array_U64(uint64_t * __restrict op1_ptr, uint32_t op1_count, uint64_t * __restrict op2_ptr, uint32_t op2_count);
 uint32_t ZEND_FASTCALL qb_decode_fcall_mix_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands);
+uint32_t ZEND_FASTCALL qb_decode_fcall_variable_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands);
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_F32(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count);
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_F64(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count);
 uint32_t ZEND_FASTCALL qb_get_array_sprintf_length_S08(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count);
@@ -1058,16 +1059,52 @@ void ZEND_FASTCALL qb_do_utf8decode_U32(uint8_t *op1_ptr, uint32_t op1_count, ui
 void ZEND_FASTCALL qb_do_utf8encode_U16(uint16_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_utf8encode_U32(uint32_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count);
 
-static zend_always_inline uint32_t qb_decode_fcall_variable_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {
-	uint32_t operand1 = operands[0];
-	uint32_t var_operand2 = operands[1];
-	uint32_t type = operand1 & 0x00FF;
-	uint32_t flags = operand1 >> 16;
-	uint32_t index = var_operand2;
-	cxt->value_address.type = type;
-	cxt->value_address.flags = flags;
-	cxt->value_address.segment_offset = index << type_size_shifts[type];
-	return 2;
+static zend_always_inline int32_t qb_quick_floor(double f) {
+#ifdef FAST_FLOAT_TO_INT
+	return (int32_t) floor(f);
+#else
+	int32_t n;
+	if(f < -32768) {
+		return -32768;
+	} else if(f > 32767) {
+		return 32767;
+	}
+	f += 103079215104.0;
+	n = ((long *) &f)[0];
+	return n >> 16;
+#endif
+}
+
+static zend_always_inline int32_t qb_quick_floorf(float f) {
+#ifdef FAST_FLOAT_TO_INT
+	return (int32_t) floorf(f);
+#else
+	return qb_quick_floor(f);
+#endif
+}
+
+static zend_always_inline int32_t qb_quick_round(double f) {
+#ifdef FAST_FLOAT_TO_INT
+	return (int32_t) round(f);
+#else
+	int32_t n;
+	if(f < -32768) {
+		return -32768;
+	} else if(f > 32767) {
+		return 32767;
+	}
+	f += 103079215103.5;
+	n = ((long *) &f)[0];
+	return n >> 16;
+#endif
+}
+
+static zend_always_inline int32_t qb_quick_roundf(float f) {
+#ifdef FAST_FLOAT_TO_INT
+	return (int32_t) roundf(f);
+#else
+	return qb_quick_round(f);
+#endif
 }
 
 static zend_always_inline void qb_do_array_insert_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, float32_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
