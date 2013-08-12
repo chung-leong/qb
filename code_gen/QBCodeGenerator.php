@@ -237,7 +237,7 @@ class QBCodeGenerator {
 				// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
 				$flags[] = "QB_OP_ISSET";
 			}
-			if($handler instanceof QBIssetHandler) {
+			if($handler instanceof QBUnsetHandler) {
 				$flags[] = "QB_OP_UNSET";
 			}
 			if($handler->isVariableLength()) {
