@@ -283,6 +283,58 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_transform(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *m_address, *m_row_address, *m_col_address;
+		qb_address *v_address, *v_width_address;
+		uint32_t m_cols, m_rows, v_width;
+
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
+		int32_t column_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
+		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
+
+		m_address = arguments[0].address;
+		v_address = arguments[1].address;
+		if(!(m_address->dimension_count >= 2)) {
+			qb_abort("%s() expects a two-dimensional array as first parameter", f->name);
+		}
+		if(m_address->dimension_count == 2 && IS_EXPANDABLE_ARRAY(m_address)) {
+			qb_abort("%s() expects an array with two fixed dimensions as first parameter", f->name);
+		}
+		if(!(v_address->dimension_count >= 1)) {
+			qb_abort("%s() expects an array as second parameter", f->name);
+		}
+		if(v_address->dimension_count == 1 && IS_EXPANDABLE_ARRAY(v_address)) {
+			qb_abort("%s() expects an array with fixed dimension as second parameter", f->name);
+		}
+
+		m_col_address = m_address->dimension_addresses[m_address->dimension_count + column_offset];
+		m_row_address = m_address->dimension_addresses[m_address->dimension_count + row_offset];
+		v_width_address = v_address->dimension_addresses[v_address->dimension_count - 1];
+		m_cols = VALUE(U32, m_col_address);
+		m_rows = VALUE(U32, m_row_address);
+		v_width = VALUE(U32, v_width_address);
+		if(!(v_width >= 2 && v_width <= 4)) {
+			qb_abort("%s() can only handle vectors with 2, 3, or 4 elements", f->name);
+		}
+		if(m_cols != v_width + 1 || m_rows != v_width) {
+			qb_abort("%s() expects a %dx%d matrix when given a vector with %d elements", f->name, v_width, v_width + 1, v_width);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
+			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_sample_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *image = &arguments[0], *x = &arguments[1], *y = &arguments[2];
 
@@ -865,6 +917,42 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_range(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_operand *start = &arguments[0];
+	qb_operand *end = &arguments[1];
+	qb_operand *interval = (argument_count >= 3) ? &arguments[2] : NULL;
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(!IS_SCALAR(start->address)) {
+			qb_abort("%s expects a scalar as the first parameter", f->name);
+		}
+		if(!IS_SCALAR(end->address)) {
+			qb_abort("%s expects a scalar as the second parameter", f->name);
+		}
+		if(interval && !IS_SCALAR(interval->address)) {
+			qb_abort("%s expects a scalar as the third parameter", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			qb_address *interval_address;
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
+			if(interval) {
+				interval_address = interval->address;
+			} else {
+				interval_address = qb_obtain_constant(cxt, 1, start->address->type);
+			}
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_write_target_address(cxt, start->address->type, result_dim, result_prototype, result_flags);
+			qb_create_ternary_op(cxt, f->extra, start->address, end->address, interval_address, result->address);
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *source = &arguments[0];
 	qb_do_type_coercion(cxt, source, QB_TYPE_U08);
@@ -1355,6 +1443,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"transpose_rm",			qb_translate_intrinsic_unary_matrix_op,		1,		1,		&factory_transpose			},
 	{	0,	"det_rm",				qb_translate_intrinsic_square_matrix_op,	1,		1,		&factory_determinant		},
 	{	0,	"inverse_rm",			qb_translate_intrinsic_square_matrix_op,	1,		1,		&factory_inverse			},
+	{	0,	"transform_cm",			qb_translate_intrinsic_transform,			2,		2,		&factory_transform_cm		},
+	{	0,	"transform_rm",			qb_translate_intrinsic_transform,			2,		2,		&factory_transform_rm		},
+	{	0,	"transform",			qb_translate_intrinsic_transform,			2,		2,		&factory_transform			},
 	{	0,	"sample_nearest",		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_nearest		},
 	{	0,	"sample_bilinear",		qb_translate_intrinsic_sample_op,			3,		3,		&factory_sample_bilinear	},
 	{	0,	"blend",				qb_translate_intrinsic_blend,				2,		2,		&factory_alpha_blend		},
@@ -1375,6 +1466,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"rsort",				qb_translate_intrinsic_sort,				1,		1,		&factory_rsort				},
 	{	0,	"array_reverse",		qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_reverse		},
 	{	0,	"array_splice",			qb_translate_intrinsic_array_splice,		2,		4,		NULL						},
+	{	0,	"range",				qb_translate_intrinsic_range,				2,		3,		&factory_range				},
 	{	0,	"utf8_decode",			qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
 	{	0,	"cabs",					qb_translate_intrinsic_complex,				1,		1,		&factory_complex_abs		},

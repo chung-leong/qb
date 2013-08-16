@@ -871,7 +871,7 @@ NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_mem
 			qb_abort("Array index %d is out of range: %s", max_index, var_name);
 		}
 	} else {
-		qb_abort("Illegal memory access on segment %d at index %d", segment_selector, index);
+		qb_abort("Illegal memory access on segment %d at index %d", segment_selector, index + count - 1);
 	}
 }
 

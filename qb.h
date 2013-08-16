@@ -97,14 +97,17 @@
 	#define NATIVE_COMPILE_ENABLED	1
 #endif
 
-#ifndef ZEND_FASTCALL
-	#if defined(__GNUC__) && ZEND_GCC_VERSION >= 3004 && defined(__i386__)
-		# define ZEND_FASTCALL __attribute__((fastcall))
-	#elif defined(_MSC_VER) && defined(_M_IX86)
-		# define ZEND_FASTCALL __fastcall
-	#else
-		# define ZEND_FASTCALL
-	#endif
+#ifdef ZEND_FASTCALL
+	#undef ZEND_FASTCALL
+#endif
+
+#if defined(__GNUC__) && ZEND_GCC_VERSION >= 3004 && defined(__i386__)
+	# define ZEND_FASTCALL __attribute__((fastcall))
+#elif defined(_MSC_VER) && defined(_M_IX86)
+	# define ZEND_FASTCALL __fastcall
+#else
+	# define ZEND_FASTCALL
+	# define FASTCALL_MATCHES_CDECL
 #endif
 
 #define QB_EXTNAME	"qb"

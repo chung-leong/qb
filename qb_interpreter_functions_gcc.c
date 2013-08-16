@@ -1076,6 +1076,205 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U64(qb_interpreter_context
 	return total;
 }
 
+uint32_t qb_get_range_length_F32(float32_t op1, float32_t op2, float32_t op3) {
+	float32_t count;
+	float32_t distance;
+	float32_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	if(count > 4294967295) {
+		count = 4294967295;
+	}
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_F64(float64_t op1, float64_t op2, float64_t op3) {
+	float64_t count;
+	float64_t distance;
+	float64_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	if(count > 4294967295) {
+		count = 4294967295;
+	}
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_S08(int8_t op1, int8_t op2, int8_t op3) {
+	int8_t count;
+	int8_t distance;
+	int8_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_S16(int16_t op1, int16_t op2, int16_t op3) {
+	int16_t count;
+	int16_t distance;
+	int16_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_S32(int32_t op1, int32_t op2, int32_t op3) {
+	int32_t count;
+	int32_t distance;
+	int32_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_S64(int64_t op1, int64_t op2, int64_t op3) {
+	int64_t count;
+	int64_t distance;
+	int64_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_U08(uint8_t op1, uint8_t op2, int8_t op3) {
+	uint8_t count;
+	uint8_t distance;
+	uint8_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_U16(uint16_t op1, uint16_t op2, int16_t op3) {
+	uint16_t count;
+	uint16_t distance;
+	uint16_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_U32(uint32_t op1, uint32_t op2, int32_t op3) {
+	uint32_t count;
+	uint32_t distance;
+	uint32_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	return (uint32_t) count;
+}
+
+uint32_t qb_get_range_length_U64(uint64_t op1, uint64_t op2, int64_t op3) {
+	uint64_t count;
+	uint64_t distance;
+	uint64_t interval;
+	if(op3 > 0 && op2 >= op1) {
+		distance = op2 - op1;
+		interval = op3;
+	} else if(op3 < 0 && op1 >= op2) {
+		distance = op1 - op2;
+		interval = -op3;
+	} else {
+		distance = 0;
+		interval = 1;
+	}
+	distance += interval;
+	count = (interval != 1) ? distance / interval : distance;
+	if(count > 4294967295) {
+		count = 4294967295;
+	}
+	return (uint32_t) count;
+}
+
 void ZEND_FASTCALL qb_do_abs_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -11105,7 +11304,7 @@ void ZEND_FASTCALL qb_do_multiply_accumulate_multiple_times_U64(uint64_t *op1_pt
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0 * 2 + 0] * op2_ptr[0 * 2 + 0]) + (op1_ptr[0 * 2 + 1] * op2_ptr[1 * 2 + 0]);
 	float64_t dot_product1 = (op1_ptr[0 * 2 + 0] * op2_ptr[0 * 2 + 1]) + (op1_ptr[0 * 2 + 1] * op2_ptr[1 * 2 + 1]);
 	float64_t dot_product2 = (op1_ptr[1 * 2 + 0] * op2_ptr[0 * 2 + 0]) + (op1_ptr[1 * 2 + 1] * op2_ptr[1 * 2 + 0]);
@@ -11116,13 +11315,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_2x_F64(float64_t *op1_ptr, fl
 	res_ptr[1 * 2 + 1] = dot_product3;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -11140,13 +11339,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -11164,7 +11363,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_3x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
 	float32_t dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 0]);
 	float32_t dot_product1 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 1]);
 	float32_t dot_product2 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 2]);
@@ -11185,7 +11384,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_F32(float32_t *op1_ptr, fl
 	res_ptr[2 * 3 + 2] = dot_product8;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 0]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 0]);
 	float64_t dot_product1 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 1]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 1]);
 	float64_t dot_product2 = (op1_ptr[0 * 3 + 0] * op2_ptr[0 * 3 + 2]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1 * 3 + 2]) + (op1_ptr[0 * 3 + 2] * op2_ptr[2 * 3 + 2]);
@@ -11206,13 +11405,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_F64(float64_t *op1_ptr, fl
 	res_ptr[2 * 3 + 2] = dot_product8;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_3x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 9;
 			op1_ptr += 9;
@@ -11230,13 +11429,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_3x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 9;
 			op1_ptr += 9;
@@ -11254,7 +11453,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_padded_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_3x_padded_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
 	float32_t dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 0]);
 	float32_t dot_product1 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 1]);
 	float32_t dot_product2 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 2]);
@@ -11275,7 +11474,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_3x_padded_F32(float32_t *op1_
 	res_ptr[2 * 4 + 2] = dot_product8;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_4x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
 	float32_t dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 0]);
 	float32_t dot_product1 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 1]);
 	float32_t dot_product2 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 2]);
@@ -11310,7 +11509,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_F32(float32_t *op1_ptr, fl
 	res_ptr[3 * 4 + 3] = dot_product15;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 0]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 0]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 0]);
 	float64_t dot_product1 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 1]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 1]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 1]);
 	float64_t dot_product2 = (op1_ptr[0 * 4 + 0] * op2_ptr[0 * 4 + 2]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1 * 4 + 2]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[0 * 4 + 3] * op2_ptr[3 * 4 + 2]);
@@ -11345,13 +11544,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_F64(float64_t *op1_ptr, fl
 	res_ptr[3 * 4 + 3] = dot_product15;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_4x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 16;
 			op1_ptr += 16;
@@ -11369,13 +11568,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_4x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 16;
 			op1_ptr += 16;
@@ -11393,7 +11592,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_F32(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_F32(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
 	ALLOCA_FLAG(use_heap)
 	float32_t *__restrict buffer = do_alloca(MATRIX1_ROWS * MATRIX2_COLS * sizeof(float32_t), use_heap);
 	uint32_t i, j, k, p, q, res_index = 0;
@@ -11411,7 +11610,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_F32(float32_t *op1_ptr, float
 	free_alloca(buffer, use_heap);
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_F64(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_F64(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
 	ALLOCA_FLAG(use_heap)
 	float64_t *__restrict buffer = do_alloca(MATRIX1_ROWS * MATRIX2_COLS * sizeof(float64_t), use_heap);
 	uint32_t i, j, k, p, q, res_index = 0;
@@ -11429,13 +11628,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_F64(float64_t *op1_ptr, float
 	free_alloca(buffer, use_heap);
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * MATRIX2_COLS);
 			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
@@ -11453,13 +11652,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_multiple_times_F32(float32_t 
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_cm_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_matrix_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+			qb_do_multiply_matrix_by_matrix_cm_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * MATRIX2_COLS);
 			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
@@ -11477,20 +11676,20 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_matrix_multiple_times_F64(float64_t 
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0 * 2 + 0] * op2_ptr[0]) + (op1_ptr[1 * 2 + 0] * op2_ptr[1]);
 	float64_t dot_product1 = (op1_ptr[0 * 2 + 1] * op2_ptr[0]) + (op1_ptr[1 * 2 + 1] * op2_ptr[1]);
 	res_ptr[0] = dot_product0;
 	res_ptr[1] = dot_product1;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 4;
@@ -11508,13 +11707,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_2x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 4;
@@ -11532,7 +11731,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_2x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0]) + (op1_ptr[1 * 3 + 0] * op2_ptr[1]) + (op1_ptr[2 * 3 + 0] * op2_ptr[2]);
 	float64_t dot_product1 = (op1_ptr[0 * 3 + 1] * op2_ptr[0]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1]) + (op1_ptr[2 * 3 + 1] * op2_ptr[2]);
 	float64_t dot_product2 = (op1_ptr[0 * 3 + 2] * op2_ptr[0]) + (op1_ptr[1 * 3 + 2] * op2_ptr[1]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2]);
@@ -11541,13 +11740,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_3x_F64(float64_t *op1_ptr, fl
 	res_ptr[2] = dot_product2;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_3x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 9;
@@ -11565,13 +11764,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_3x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_3x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 9;
@@ -11589,7 +11788,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_3x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0]) + (op1_ptr[1 * 4 + 0] * op2_ptr[1]) + (op1_ptr[2 * 4 + 0] * op2_ptr[2]) + (op1_ptr[3 * 4 + 0] * op2_ptr[3]);
 	float64_t dot_product1 = (op1_ptr[0 * 4 + 1] * op2_ptr[0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1]) + (op1_ptr[2 * 4 + 1] * op2_ptr[2]) + (op1_ptr[3 * 4 + 1] * op2_ptr[3]);
 	float64_t dot_product2 = (op1_ptr[0 * 4 + 2] * op2_ptr[0]) + (op1_ptr[1 * 4 + 2] * op2_ptr[1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2]) + (op1_ptr[3 * 4 + 2] * op2_ptr[3]);
@@ -11600,13 +11799,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_4x_F64(float64_t *op1_ptr, fl
 	res_ptr[3] = dot_product3;
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_4x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 16;
@@ -11624,13 +11823,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_4x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_4x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 16;
@@ -11648,7 +11847,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_4x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_F32(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_F32(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
 	ALLOCA_FLAG(use_heap)
 	float32_t *buffer = do_alloca(MATRIX1_ROWS * sizeof(float32_t), use_heap);
 	uint32_t i, j, k;
@@ -11663,7 +11862,7 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_F32(float32_t *op1_ptr, float
 	free_alloca(buffer, use_heap);
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_F64(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_F64(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
 	ALLOCA_FLAG(use_heap)
 	float64_t *buffer = do_alloca(MATRIX1_ROWS * sizeof(float64_t), use_heap);
 	uint32_t i, j, k;
@@ -11678,13 +11877,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_F64(float64_t *op1_ptr, float
 	free_alloca(buffer, use_heap);
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * 1);
 			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
@@ -11702,13 +11901,13 @@ void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_multiple_times_F32(float32_t 
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_matrix_by_vector_cm_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_matrix_by_vector_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+			qb_do_multiply_matrix_by_vector_cm_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (MATRIX1_ROWS * 1);
 			op1_ptr += (MATRIX1_ROWS * MATRIX1_COLS);
@@ -11966,20 +12165,20 @@ void ZEND_FASTCALL qb_do_multiply_multiple_times_U64(uint64_t *op1_ptr, uint32_t
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0] * op2_ptr[0 * 2 + 0]) + (op1_ptr[1] * op2_ptr[0 * 2 + 1]);
 	float64_t dot_product1 = (op1_ptr[0] * op2_ptr[1 * 2 + 0]) + (op1_ptr[1] * op2_ptr[1 * 2 + 1]);
 	res_ptr[0] = dot_product0;
 	res_ptr[1] = dot_product1;
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -11997,13 +12196,13 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_2x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 2;
@@ -12021,7 +12220,7 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_2x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0] * op2_ptr[0 * 3 + 0]) + (op1_ptr[1] * op2_ptr[0 * 3 + 1]) + (op1_ptr[2] * op2_ptr[0 * 3 + 2]);
 	float64_t dot_product1 = (op1_ptr[0] * op2_ptr[1 * 3 + 0]) + (op1_ptr[1] * op2_ptr[1 * 3 + 1]) + (op1_ptr[2] * op2_ptr[1 * 3 + 2]);
 	float64_t dot_product2 = (op1_ptr[0] * op2_ptr[2 * 3 + 0]) + (op1_ptr[1] * op2_ptr[2 * 3 + 1]) + (op1_ptr[2] * op2_ptr[2 * 3 + 2]);
@@ -12030,13 +12229,13 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_3x_F64(float64_t *op1_ptr, fl
 	res_ptr[2] = dot_product2;
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_3x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -12054,13 +12253,13 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_3x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_3x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 3;
@@ -12078,7 +12277,7 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_3x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
 	float64_t dot_product0 = (op1_ptr[0] * op2_ptr[0 * 4 + 0]) + (op1_ptr[1] * op2_ptr[0 * 4 + 1]) + (op1_ptr[2] * op2_ptr[0 * 4 + 2]) + (op1_ptr[3] * op2_ptr[0 * 4 + 3]);
 	float64_t dot_product1 = (op1_ptr[0] * op2_ptr[1 * 4 + 0]) + (op1_ptr[1] * op2_ptr[1 * 4 + 1]) + (op1_ptr[2] * op2_ptr[1 * 4 + 2]) + (op1_ptr[3] * op2_ptr[1 * 4 + 3]);
 	float64_t dot_product2 = (op1_ptr[0] * op2_ptr[2 * 4 + 0]) + (op1_ptr[1] * op2_ptr[2 * 4 + 1]) + (op1_ptr[2] * op2_ptr[2 * 4 + 2]) + (op1_ptr[3] * op2_ptr[2 * 4 + 3]);
@@ -12089,13 +12288,13 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_4x_F64(float64_t *op1_ptr, fl
 	res_ptr[3] = dot_product3;
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_4x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -12113,13 +12312,13 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_4x_multiple_times_F32(float32
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_4x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 4;
@@ -12137,7 +12336,7 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_4x_multiple_times_F64(float64
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_F32(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_F32(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
 	ALLOCA_FLAG(use_heap)
 	float32_t *buffer = do_alloca(MATRIX2_ROWS * sizeof(float32_t), use_heap);
 	uint32_t i, j, k;
@@ -12152,7 +12351,7 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_F32(float32_t *op1_ptr, float
 	free_alloca(buffer, use_heap);
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_F64(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_F64(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
 	ALLOCA_FLAG(use_heap)
 	float64_t *buffer = do_alloca(MATRIX2_ROWS * sizeof(float64_t), use_heap);
 	uint32_t i, j, k;
@@ -12167,13 +12366,13 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_F64(float64_t *op1_ptr, float
 	free_alloca(buffer, use_heap);
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (1 * MATRIX2_COLS);
 			op1_ptr += (1 * MATRIX1_COLS);
@@ -12191,13 +12390,13 @@ void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_multiple_times_F32(float32_t 
 	}
 }
 
-void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_multiply_vector_by_matrix_cm_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_multiply_vector_by_matrix_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+			qb_do_multiply_vector_by_matrix_cm_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 			
 			res_ptr += (1 * MATRIX2_COLS);
 			op1_ptr += (1 * MATRIX1_COLS);
@@ -13975,6 +14174,106 @@ void ZEND_FASTCALL qb_do_random_multiple_times_U64(qb_interpreter_context *cxt, 
 				op2_ptr = op2_start;
 			}
 		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_F32(float32_t op1, float32_t op2, float32_t op3, uint32_t string_length, float32_t *res_ptr, uint32_t res_count) {
+	float32_t *res_end = res_ptr + string_length;
+	float32_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_F64(float64_t op1, float64_t op2, float64_t op3, uint32_t string_length, float64_t *res_ptr, uint32_t res_count) {
+	float64_t *res_end = res_ptr + string_length;
+	float64_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_S08(int8_t op1, int8_t op2, int8_t op3, uint32_t string_length, int8_t *res_ptr, uint32_t res_count) {
+	int8_t *res_end = res_ptr + string_length;
+	int8_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_S16(int16_t op1, int16_t op2, int16_t op3, uint32_t string_length, int16_t *res_ptr, uint32_t res_count) {
+	int16_t *res_end = res_ptr + string_length;
+	int16_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_S32(int32_t op1, int32_t op2, int32_t op3, uint32_t string_length, int32_t *res_ptr, uint32_t res_count) {
+	int32_t *res_end = res_ptr + string_length;
+	int32_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_S64(int64_t op1, int64_t op2, int64_t op3, uint32_t string_length, int64_t *res_ptr, uint32_t res_count) {
+	int64_t *res_end = res_ptr + string_length;
+	int64_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_U08(uint8_t op1, uint8_t op2, int8_t op3, uint32_t string_length, uint8_t *res_ptr, uint32_t res_count) {
+	uint8_t *res_end = res_ptr + string_length;
+	uint8_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_U16(uint16_t op1, uint16_t op2, int16_t op3, uint32_t string_length, uint16_t *res_ptr, uint32_t res_count) {
+	uint16_t *res_end = res_ptr + string_length;
+	uint16_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_U32(uint32_t op1, uint32_t op2, int32_t op3, uint32_t string_length, uint32_t *res_ptr, uint32_t res_count) {
+	uint32_t *res_end = res_ptr + string_length;
+	uint32_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
+	}
+}
+
+void ZEND_FASTCALL qb_do_range_U64(uint64_t op1, uint64_t op2, int64_t op3, uint32_t string_length, uint64_t *res_ptr, uint32_t res_count) {
+	uint64_t *res_end = res_ptr + string_length;
+	uint64_t num = op1;
+	while(res_ptr < res_end) {
+		*res_ptr = num;
+		res_ptr++;
+		num += op3;
 	}
 }
 
@@ -16610,20 +16909,20 @@ void ZEND_FASTCALL qb_do_tanh_multiple_times_F64(float64_t *op1_ptr, uint32_t op
 	}
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	float64_t dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1]) + op1_ptr[0 * 3 + 2];
-	float64_t dot_product1 = (op1_ptr[1 * 3 + 0] * op2_ptr[0]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1]) + op1_ptr[1 * 3 + 2];
+void ZEND_FASTCALL qb_do_transform_vector_cm_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	float64_t dot_product0 = (op1_ptr[0 * 2 + 0] * op2_ptr[0]) + (op1_ptr[1 * 2 + 0] * op2_ptr[1]) + op1_ptr[2 * 2 + 0];
+	float64_t dot_product1 = (op1_ptr[0 * 2 + 1] * op2_ptr[0]) + (op1_ptr[1 * 2 + 1] * op2_ptr[1]) + op1_ptr[2 * 2 + 1];
 	res_ptr[0] = dot_product0;
 	res_ptr[1] = dot_product1;
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_transform_vector_cm_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_transform_vector_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_transform_vector_cm_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 6;
@@ -16641,13 +16940,13 @@ void ZEND_FASTCALL qb_do_transform_vector_2x_multiple_times_F32(float32_t *op1_p
 	}
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_transform_vector_cm_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_transform_vector_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_transform_vector_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 2;
 			op1_ptr += 6;
@@ -16665,22 +16964,22 @@ void ZEND_FASTCALL qb_do_transform_vector_2x_multiple_times_F64(float64_t *op1_p
 	}
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	float64_t dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2]) + op1_ptr[0 * 4 + 3];
-	float64_t dot_product1 = (op1_ptr[1 * 4 + 0] * op2_ptr[0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2]) + op1_ptr[1 * 4 + 3];
-	float64_t dot_product2 = (op1_ptr[2 * 4 + 0] * op2_ptr[0]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2]) + op1_ptr[2 * 4 + 3];
+void ZEND_FASTCALL qb_do_transform_vector_cm_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	float64_t dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0]) + (op1_ptr[1 * 3 + 0] * op2_ptr[1]) + (op1_ptr[2 * 3 + 0] * op2_ptr[2]) + op1_ptr[3 * 3 + 0];
+	float64_t dot_product1 = (op1_ptr[0 * 3 + 1] * op2_ptr[0]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1]) + (op1_ptr[2 * 3 + 1] * op2_ptr[2]) + op1_ptr[3 * 3 + 1];
+	float64_t dot_product2 = (op1_ptr[0 * 3 + 2] * op2_ptr[0]) + (op1_ptr[1 * 3 + 2] * op2_ptr[1]) + (op1_ptr[2 * 3 + 2] * op2_ptr[2]) + op1_ptr[3 * 3 + 2];
 	res_ptr[0] = dot_product0;
 	res_ptr[1] = dot_product1;
 	res_ptr[2] = dot_product2;
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_transform_vector_cm_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_transform_vector_3x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_transform_vector_cm_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 12;
@@ -16698,13 +16997,13 @@ void ZEND_FASTCALL qb_do_transform_vector_3x_multiple_times_F32(float32_t *op1_p
 	}
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_transform_vector_cm_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_transform_vector_3x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_transform_vector_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 3;
 			op1_ptr += 12;
@@ -16722,24 +17021,24 @@ void ZEND_FASTCALL qb_do_transform_vector_3x_multiple_times_F64(float64_t *op1_p
 	}
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	float64_t dot_product0 = (op1_ptr[0 * 5 + 0] * op2_ptr[0]) + (op1_ptr[0 * 5 + 1] * op2_ptr[1]) + (op1_ptr[0 * 5 + 2] * op2_ptr[2]) + (op1_ptr[0 * 5 + 3] * op2_ptr[3]) + op1_ptr[0 * 5 + 4];
-	float64_t dot_product1 = (op1_ptr[1 * 5 + 0] * op2_ptr[0]) + (op1_ptr[1 * 5 + 1] * op2_ptr[1]) + (op1_ptr[1 * 5 + 2] * op2_ptr[2]) + (op1_ptr[1 * 5 + 3] * op2_ptr[3]) + op1_ptr[1 * 5 + 4];
-	float64_t dot_product2 = (op1_ptr[2 * 5 + 0] * op2_ptr[0]) + (op1_ptr[2 * 5 + 1] * op2_ptr[1]) + (op1_ptr[2 * 5 + 2] * op2_ptr[2]) + (op1_ptr[2 * 5 + 3] * op2_ptr[3]) + op1_ptr[2 * 5 + 4];
-	float64_t dot_product3 = (op1_ptr[3 * 5 + 0] * op2_ptr[0]) + (op1_ptr[3 * 5 + 1] * op2_ptr[1]) + (op1_ptr[3 * 5 + 2] * op2_ptr[2]) + (op1_ptr[3 * 5 + 3] * op2_ptr[3]) + op1_ptr[3 * 5 + 4];
+void ZEND_FASTCALL qb_do_transform_vector_cm_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	float64_t dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0]) + (op1_ptr[1 * 4 + 0] * op2_ptr[1]) + (op1_ptr[2 * 4 + 0] * op2_ptr[2]) + (op1_ptr[3 * 4 + 0] * op2_ptr[3]) + op1_ptr[4 * 4 + 0];
+	float64_t dot_product1 = (op1_ptr[0 * 4 + 1] * op2_ptr[0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1]) + (op1_ptr[2 * 4 + 1] * op2_ptr[2]) + (op1_ptr[3 * 4 + 1] * op2_ptr[3]) + op1_ptr[4 * 4 + 1];
+	float64_t dot_product2 = (op1_ptr[0 * 4 + 2] * op2_ptr[0]) + (op1_ptr[1 * 4 + 2] * op2_ptr[1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2]) + (op1_ptr[3 * 4 + 2] * op2_ptr[3]) + op1_ptr[4 * 4 + 2];
+	float64_t dot_product3 = (op1_ptr[0 * 4 + 3] * op2_ptr[0]) + (op1_ptr[1 * 4 + 3] * op2_ptr[1]) + (op1_ptr[2 * 4 + 3] * op2_ptr[2]) + (op1_ptr[3 * 4 + 3] * op2_ptr[3]) + op1_ptr[4 * 4 + 3];
 	res_ptr[0] = dot_product0;
 	res_ptr[1] = dot_product1;
 	res_ptr[2] = dot_product2;
 	res_ptr[3] = dot_product3;
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_transform_vector_cm_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float32_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_transform_vector_4x_F32(op1_ptr, op2_ptr, res_ptr);
+			qb_do_transform_vector_cm_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 20;
@@ -16757,13 +17056,184 @@ void ZEND_FASTCALL qb_do_transform_vector_4x_multiple_times_F32(float32_t *op1_p
 	}
 }
 
-void ZEND_FASTCALL qb_do_transform_vector_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_transform_vector_cm_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
 		float64_t *res_end = res_ptr + res_count;
 		for(;;) {
-			qb_do_transform_vector_4x_F64(op1_ptr, op2_ptr, res_ptr);
+			qb_do_transform_vector_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
+			
+			res_ptr += 4;
+			op1_ptr += 20;
+			op2_ptr += 4;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_2x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	float64_t dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1]) + op1_ptr[0 * 3 + 2];
+	float64_t dot_product1 = (op1_ptr[1 * 3 + 0] * op2_ptr[0]) + (op1_ptr[1 * 3 + 1] * op2_ptr[1]) + op1_ptr[1 * 3 + 2];
+	res_ptr[0] = dot_product0;
+	res_ptr[1] = dot_product1;
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		float32_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_transform_vector_rm_2x_F32(op1_ptr, op2_ptr, res_ptr);
+			
+			res_ptr += 2;
+			op1_ptr += 6;
+			op2_ptr += 2;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		float64_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_transform_vector_rm_2x_F64(op1_ptr, op2_ptr, res_ptr);
+			
+			res_ptr += 2;
+			op1_ptr += 6;
+			op2_ptr += 2;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_3x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	float64_t dot_product0 = (op1_ptr[0 * 4 + 0] * op2_ptr[0]) + (op1_ptr[0 * 4 + 1] * op2_ptr[1]) + (op1_ptr[0 * 4 + 2] * op2_ptr[2]) + op1_ptr[0 * 4 + 3];
+	float64_t dot_product1 = (op1_ptr[1 * 4 + 0] * op2_ptr[0]) + (op1_ptr[1 * 4 + 1] * op2_ptr[1]) + (op1_ptr[1 * 4 + 2] * op2_ptr[2]) + op1_ptr[1 * 4 + 3];
+	float64_t dot_product2 = (op1_ptr[2 * 4 + 0] * op2_ptr[0]) + (op1_ptr[2 * 4 + 1] * op2_ptr[1]) + (op1_ptr[2 * 4 + 2] * op2_ptr[2]) + op1_ptr[2 * 4 + 3];
+	res_ptr[0] = dot_product0;
+	res_ptr[1] = dot_product1;
+	res_ptr[2] = dot_product2;
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		float32_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_transform_vector_rm_3x_F32(op1_ptr, op2_ptr, res_ptr);
+			
+			res_ptr += 3;
+			op1_ptr += 12;
+			op2_ptr += 3;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		float64_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_transform_vector_rm_3x_F64(op1_ptr, op2_ptr, res_ptr);
+			
+			res_ptr += 3;
+			op1_ptr += 12;
+			op2_ptr += 3;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_4x_F64(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	float64_t dot_product0 = (op1_ptr[0 * 5 + 0] * op2_ptr[0]) + (op1_ptr[0 * 5 + 1] * op2_ptr[1]) + (op1_ptr[0 * 5 + 2] * op2_ptr[2]) + (op1_ptr[0 * 5 + 3] * op2_ptr[3]) + op1_ptr[0 * 5 + 4];
+	float64_t dot_product1 = (op1_ptr[1 * 5 + 0] * op2_ptr[0]) + (op1_ptr[1 * 5 + 1] * op2_ptr[1]) + (op1_ptr[1 * 5 + 2] * op2_ptr[2]) + (op1_ptr[1 * 5 + 3] * op2_ptr[3]) + op1_ptr[1 * 5 + 4];
+	float64_t dot_product2 = (op1_ptr[2 * 5 + 0] * op2_ptr[0]) + (op1_ptr[2 * 5 + 1] * op2_ptr[1]) + (op1_ptr[2 * 5 + 2] * op2_ptr[2]) + (op1_ptr[2 * 5 + 3] * op2_ptr[3]) + op1_ptr[2 * 5 + 4];
+	float64_t dot_product3 = (op1_ptr[3 * 5 + 0] * op2_ptr[0]) + (op1_ptr[3 * 5 + 1] * op2_ptr[1]) + (op1_ptr[3 * 5 + 2] * op2_ptr[2]) + (op1_ptr[3 * 5 + 3] * op2_ptr[3]) + op1_ptr[3 * 5 + 4];
+	res_ptr[0] = dot_product0;
+	res_ptr[1] = dot_product1;
+	res_ptr[2] = dot_product2;
+	res_ptr[3] = dot_product3;
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	if(op1_count && op2_count && res_count) {
+		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		float32_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_transform_vector_rm_4x_F32(op1_ptr, op2_ptr, res_ptr);
+			
+			res_ptr += 4;
+			op1_ptr += 20;
+			op2_ptr += 4;
+			if(res_ptr >= res_end) {
+				break;
+			}
+			if(op1_ptr >= op1_end) {
+				op1_ptr = op1_start;
+			}
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_transform_vector_rm_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	if(op1_count && op2_count && res_count) {
+		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		float64_t *res_end = res_ptr + res_count;
+		for(;;) {
+			qb_do_transform_vector_rm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			
 			res_ptr += 4;
 			op1_ptr += 20;
@@ -17114,7 +17584,7 @@ void ZEND_FASTCALL qb_do_utf8encode_U32(uint32_t *op1_ptr, uint32_t op1_count, u
 	}
 }
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_run_zend_extension_op_symbol	qb_run_zend_extension_op
 #else
 void qb_run_zend_extension_op_symbol(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
@@ -17138,7 +17608,7 @@ int zend_finite_symbol(double n) {
 	return zend_finite(n);
 }
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_shrink_segment_symbol	qb_shrink_segment
 #else
 void qb_shrink_segment_symbol(qb_interpreter_context *__restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
@@ -17146,7 +17616,7 @@ void qb_shrink_segment_symbol(qb_interpreter_context *__restrict cxt, qb_memory_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_resync_argument_symbol	qb_resync_argument
 #else
 void qb_resync_argument_symbol(qb_interpreter_context *cxt, uint32_t argument_index) {
@@ -17154,7 +17624,7 @@ void qb_resync_argument_symbol(qb_interpreter_context *cxt, uint32_t argument_in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_initialize_function_call_symbol	qb_initialize_function_call
 #else
 void qb_initialize_function_call_symbol(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number) {
@@ -17162,7 +17632,7 @@ void qb_initialize_function_call_symbol(qb_interpreter_context *cxt, zend_functi
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_finalize_function_call_symbol	qb_finalize_function_call
 #else
 void qb_finalize_function_call_symbol(qb_interpreter_context *cxt) {
@@ -17170,7 +17640,7 @@ void qb_finalize_function_call_symbol(qb_interpreter_context *cxt) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_execute_function_call_symbol	qb_execute_function_call
 #else
 void qb_execute_function_call_symbol(qb_interpreter_context *cxt) {
@@ -17178,7 +17648,7 @@ void qb_execute_function_call_symbol(qb_interpreter_context *cxt) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_enlarge_segment_symbol	qb_enlarge_segment
 #else
 void qb_enlarge_segment_symbol(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size) {
@@ -17186,7 +17656,7 @@ void qb_enlarge_segment_symbol(qb_interpreter_context *cxt, qb_memory_segment *s
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_copy_argument_symbol	qb_copy_argument
 #else
 void qb_copy_argument_symbol(qb_interpreter_context *cxt, uint32_t argument_index) {
@@ -17194,7 +17664,7 @@ void qb_copy_argument_symbol(qb_interpreter_context *cxt, uint32_t argument_inde
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_F32_symbol	qb_compare_array_F32
 #else
 int32_t qb_compare_array_F32_symbol(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17202,7 +17672,7 @@ int32_t qb_compare_array_F32_symbol(float32_t * __restrict op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_F64_symbol	qb_compare_array_F64
 #else
 int32_t qb_compare_array_F64_symbol(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17210,7 +17680,7 @@ int32_t qb_compare_array_F64_symbol(float64_t * __restrict op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S08_symbol	qb_compare_array_S08
 #else
 int32_t qb_compare_array_S08_symbol(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17218,7 +17688,7 @@ int32_t qb_compare_array_S08_symbol(int8_t * __restrict op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S16_symbol	qb_compare_array_S16
 #else
 int32_t qb_compare_array_S16_symbol(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17226,7 +17696,7 @@ int32_t qb_compare_array_S16_symbol(int16_t * __restrict op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S32_symbol	qb_compare_array_S32
 #else
 int32_t qb_compare_array_S32_symbol(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17234,7 +17704,7 @@ int32_t qb_compare_array_S32_symbol(int32_t * __restrict op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S64_symbol	qb_compare_array_S64
 #else
 int32_t qb_compare_array_S64_symbol(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17242,7 +17712,7 @@ int32_t qb_compare_array_S64_symbol(int64_t * __restrict op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U08_symbol	qb_compare_array_U08
 #else
 int32_t qb_compare_array_U08_symbol(uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17250,7 +17720,7 @@ int32_t qb_compare_array_U08_symbol(uint8_t * __restrict op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U16_symbol	qb_compare_array_U16
 #else
 int32_t qb_compare_array_U16_symbol(uint16_t * __restrict op1_ptr, uint32_t op1_count, uint16_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17258,7 +17728,7 @@ int32_t qb_compare_array_U16_symbol(uint16_t * __restrict op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U32_symbol	qb_compare_array_U32
 #else
 int32_t qb_compare_array_U32_symbol(uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17266,7 +17736,7 @@ int32_t qb_compare_array_U32_symbol(uint32_t * __restrict op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U64_symbol	qb_compare_array_U64
 #else
 int32_t qb_compare_array_U64_symbol(uint64_t * __restrict op1_ptr, uint32_t op1_count, uint64_t * __restrict op2_ptr, uint32_t op2_count) {
@@ -17274,7 +17744,7 @@ int32_t qb_compare_array_U64_symbol(uint64_t * __restrict op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_decode_fcall_mix_operand_symbol	qb_decode_fcall_mix_operand
 #else
 uint32_t qb_decode_fcall_mix_operand_symbol(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {
@@ -17282,7 +17752,7 @@ uint32_t qb_decode_fcall_mix_operand_symbol(qb_interpreter_context *__restrict c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_decode_fcall_variable_operand_symbol	qb_decode_fcall_variable_operand
 #else
 uint32_t qb_decode_fcall_variable_operand_symbol(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {
@@ -17290,7 +17760,7 @@ uint32_t qb_decode_fcall_variable_operand_symbol(qb_interpreter_context *__restr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_F32_symbol	qb_get_array_sprintf_length_F32
 #else
 uint32_t qb_get_array_sprintf_length_F32_symbol(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count) {
@@ -17298,7 +17768,7 @@ uint32_t qb_get_array_sprintf_length_F32_symbol(qb_interpreter_context *cxt, flo
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_F64_symbol	qb_get_array_sprintf_length_F64
 #else
 uint32_t qb_get_array_sprintf_length_F64_symbol(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count) {
@@ -17306,7 +17776,7 @@ uint32_t qb_get_array_sprintf_length_F64_symbol(qb_interpreter_context *cxt, flo
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_S08_symbol	qb_get_array_sprintf_length_S08
 #else
 uint32_t qb_get_array_sprintf_length_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count) {
@@ -17314,7 +17784,7 @@ uint32_t qb_get_array_sprintf_length_S08_symbol(qb_interpreter_context *cxt, int
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_S16_symbol	qb_get_array_sprintf_length_S16
 #else
 uint32_t qb_get_array_sprintf_length_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count) {
@@ -17322,7 +17792,7 @@ uint32_t qb_get_array_sprintf_length_S16_symbol(qb_interpreter_context *cxt, int
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_S32_symbol	qb_get_array_sprintf_length_S32
 #else
 uint32_t qb_get_array_sprintf_length_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count) {
@@ -17330,7 +17800,7 @@ uint32_t qb_get_array_sprintf_length_S32_symbol(qb_interpreter_context *cxt, int
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_S64_symbol	qb_get_array_sprintf_length_S64
 #else
 uint32_t qb_get_array_sprintf_length_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count) {
@@ -17338,7 +17808,7 @@ uint32_t qb_get_array_sprintf_length_S64_symbol(qb_interpreter_context *cxt, int
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_U08_symbol	qb_get_array_sprintf_length_U08
 #else
 uint32_t qb_get_array_sprintf_length_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count) {
@@ -17346,7 +17816,7 @@ uint32_t qb_get_array_sprintf_length_U08_symbol(qb_interpreter_context *cxt, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_U16_symbol	qb_get_array_sprintf_length_U16
 #else
 uint32_t qb_get_array_sprintf_length_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count) {
@@ -17354,7 +17824,7 @@ uint32_t qb_get_array_sprintf_length_U16_symbol(qb_interpreter_context *cxt, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_U32_symbol	qb_get_array_sprintf_length_U32
 #else
 uint32_t qb_get_array_sprintf_length_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count) {
@@ -17362,7 +17832,7 @@ uint32_t qb_get_array_sprintf_length_U32_symbol(qb_interpreter_context *cxt, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_array_sprintf_length_U64_symbol	qb_get_array_sprintf_length_U64
 #else
 uint32_t qb_get_array_sprintf_length_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count) {
@@ -17370,7 +17840,7 @@ uint32_t qb_get_array_sprintf_length_U64_symbol(qb_interpreter_context *cxt, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_F32_symbol	qb_get_scalar_sprintf_length_F32
 #else
 uint32_t qb_get_scalar_sprintf_length_F32_symbol(qb_interpreter_context *cxt, float32_t op1) {
@@ -17378,7 +17848,7 @@ uint32_t qb_get_scalar_sprintf_length_F32_symbol(qb_interpreter_context *cxt, fl
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_F64_symbol	qb_get_scalar_sprintf_length_F64
 #else
 uint32_t qb_get_scalar_sprintf_length_F64_symbol(qb_interpreter_context *cxt, float64_t op1) {
@@ -17386,7 +17856,7 @@ uint32_t qb_get_scalar_sprintf_length_F64_symbol(qb_interpreter_context *cxt, fl
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_S08_symbol	qb_get_scalar_sprintf_length_S08
 #else
 uint32_t qb_get_scalar_sprintf_length_S08_symbol(qb_interpreter_context *cxt, int8_t op1) {
@@ -17394,7 +17864,7 @@ uint32_t qb_get_scalar_sprintf_length_S08_symbol(qb_interpreter_context *cxt, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_S16_symbol	qb_get_scalar_sprintf_length_S16
 #else
 uint32_t qb_get_scalar_sprintf_length_S16_symbol(qb_interpreter_context *cxt, int16_t op1) {
@@ -17402,7 +17872,7 @@ uint32_t qb_get_scalar_sprintf_length_S16_symbol(qb_interpreter_context *cxt, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_S32_symbol	qb_get_scalar_sprintf_length_S32
 #else
 uint32_t qb_get_scalar_sprintf_length_S32_symbol(qb_interpreter_context *cxt, int32_t op1) {
@@ -17410,7 +17880,7 @@ uint32_t qb_get_scalar_sprintf_length_S32_symbol(qb_interpreter_context *cxt, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_S64_symbol	qb_get_scalar_sprintf_length_S64
 #else
 uint32_t qb_get_scalar_sprintf_length_S64_symbol(qb_interpreter_context *cxt, int64_t op1) {
@@ -17418,7 +17888,7 @@ uint32_t qb_get_scalar_sprintf_length_S64_symbol(qb_interpreter_context *cxt, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_U08_symbol	qb_get_scalar_sprintf_length_U08
 #else
 uint32_t qb_get_scalar_sprintf_length_U08_symbol(qb_interpreter_context *cxt, uint8_t op1) {
@@ -17426,7 +17896,7 @@ uint32_t qb_get_scalar_sprintf_length_U08_symbol(qb_interpreter_context *cxt, ui
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_U16_symbol	qb_get_scalar_sprintf_length_U16
 #else
 uint32_t qb_get_scalar_sprintf_length_U16_symbol(qb_interpreter_context *cxt, uint16_t op1) {
@@ -17434,7 +17904,7 @@ uint32_t qb_get_scalar_sprintf_length_U16_symbol(qb_interpreter_context *cxt, ui
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_U32_symbol	qb_get_scalar_sprintf_length_U32
 #else
 uint32_t qb_get_scalar_sprintf_length_U32_symbol(qb_interpreter_context *cxt, uint32_t op1) {
@@ -17442,7 +17912,7 @@ uint32_t qb_get_scalar_sprintf_length_U32_symbol(qb_interpreter_context *cxt, ui
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_scalar_sprintf_length_U64_symbol	qb_get_scalar_sprintf_length_U64
 #else
 uint32_t qb_get_scalar_sprintf_length_U64_symbol(qb_interpreter_context *cxt, uint64_t op1) {
@@ -17450,7 +17920,7 @@ uint32_t qb_get_scalar_sprintf_length_U64_symbol(qb_interpreter_context *cxt, ui
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_utf8_codepoint_count_symbol	qb_get_utf8_codepoint_count
 #else
 uint32_t qb_get_utf8_codepoint_count_symbol(uint8_t *op1_ptr, uint32_t op1_count) {
@@ -17458,7 +17928,7 @@ uint32_t qb_get_utf8_codepoint_count_symbol(uint8_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_utf8_encoded_length_U16_symbol	qb_get_utf8_encoded_length_U16
 #else
 uint32_t qb_get_utf8_encoded_length_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count) {
@@ -17466,7 +17936,7 @@ uint32_t qb_get_utf8_encoded_length_U16_symbol(uint16_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_get_utf8_encoded_length_U32_symbol	qb_get_utf8_encoded_length_U32
 #else
 uint32_t qb_get_utf8_encoded_length_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count) {
@@ -17474,7 +17944,7 @@ uint32_t qb_get_utf8_encoded_length_U32_symbol(uint32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_abs_multiple_times_F32_symbol	qb_do_abs_multiple_times_F32
 #else
 void qb_do_abs_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17482,7 +17952,7 @@ void qb_do_abs_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_abs_multiple_times_F64_symbol	qb_do_abs_multiple_times_F64
 #else
 void qb_do_abs_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17490,7 +17960,7 @@ void qb_do_abs_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_abs_multiple_times_S08_symbol	qb_do_abs_multiple_times_S08
 #else
 void qb_do_abs_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -17498,7 +17968,7 @@ void qb_do_abs_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_abs_multiple_times_S16_symbol	qb_do_abs_multiple_times_S16
 #else
 void qb_do_abs_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -17506,7 +17976,7 @@ void qb_do_abs_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_abs_multiple_times_S32_symbol	qb_do_abs_multiple_times_S32
 #else
 void qb_do_abs_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -17514,7 +17984,7 @@ void qb_do_abs_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_abs_multiple_times_S64_symbol	qb_do_abs_multiple_times_S64
 #else
 void qb_do_abs_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -17522,7 +17992,7 @@ void qb_do_abs_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_acos_multiple_times_F32_symbol	qb_do_acos_multiple_times_F32
 #else
 void qb_do_acos_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17530,7 +18000,7 @@ void qb_do_acos_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_acos_multiple_times_F64_symbol	qb_do_acos_multiple_times_F64
 #else
 void qb_do_acos_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17538,7 +18008,7 @@ void qb_do_acos_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_acosh_multiple_times_F32_symbol	qb_do_acosh_multiple_times_F32
 #else
 void qb_do_acosh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17546,7 +18016,7 @@ void qb_do_acosh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_acosh_multiple_times_F64_symbol	qb_do_acosh_multiple_times_F64
 #else
 void qb_do_acosh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17554,7 +18024,7 @@ void qb_do_acosh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_2x_multiple_times_F32_symbol	qb_do_add_2x_multiple_times_F32
 #else
 void qb_do_add_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17562,7 +18032,7 @@ void qb_do_add_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_2x_multiple_times_F64_symbol	qb_do_add_2x_multiple_times_F64
 #else
 void qb_do_add_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17570,7 +18040,7 @@ void qb_do_add_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_3x_multiple_times_F32_symbol	qb_do_add_3x_multiple_times_F32
 #else
 void qb_do_add_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17578,7 +18048,7 @@ void qb_do_add_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_3x_multiple_times_F64_symbol	qb_do_add_3x_multiple_times_F64
 #else
 void qb_do_add_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17586,7 +18056,7 @@ void qb_do_add_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_4x_multiple_times_F32_symbol	qb_do_add_4x_multiple_times_F32
 #else
 void qb_do_add_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17594,7 +18064,7 @@ void qb_do_add_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_4x_multiple_times_F64_symbol	qb_do_add_4x_multiple_times_F64
 #else
 void qb_do_add_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17602,7 +18072,7 @@ void qb_do_add_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_multiple_times_F32_symbol	qb_do_add_multiple_times_F32
 #else
 void qb_do_add_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17610,7 +18080,7 @@ void qb_do_add_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_multiple_times_F64_symbol	qb_do_add_multiple_times_F64
 #else
 void qb_do_add_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17618,7 +18088,7 @@ void qb_do_add_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_multiple_times_I08_symbol	qb_do_add_multiple_times_I08
 #else
 void qb_do_add_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -17626,7 +18096,7 @@ void qb_do_add_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_multiple_times_I16_symbol	qb_do_add_multiple_times_I16
 #else
 void qb_do_add_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -17634,7 +18104,7 @@ void qb_do_add_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_multiple_times_I32_symbol	qb_do_add_multiple_times_I32
 #else
 void qb_do_add_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -17642,7 +18112,7 @@ void qb_do_add_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_add_multiple_times_I64_symbol	qb_do_add_multiple_times_I64
 #else
 void qb_do_add_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -17650,7 +18120,7 @@ void qb_do_add_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_all_I32_symbol	qb_do_all_I32
 #else
 void qb_do_all_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr) {
@@ -17658,7 +18128,7 @@ void qb_do_all_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_alpha_blend_multiple_times_F32_symbol	qb_do_alpha_blend_multiple_times_F32
 #else
 void qb_do_alpha_blend_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17666,7 +18136,7 @@ void qb_do_alpha_blend_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_alpha_blend_multiple_times_F64_symbol	qb_do_alpha_blend_multiple_times_F64
 #else
 void qb_do_alpha_blend_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17674,7 +18144,7 @@ void qb_do_alpha_blend_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_any_I32_symbol	qb_do_any_I32
 #else
 void qb_do_any_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr) {
@@ -17682,7 +18152,7 @@ void qb_do_any_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_apply_premultiplication_multiple_times_F32_symbol	qb_do_apply_premultiplication_multiple_times_F32
 #else
 void qb_do_apply_premultiplication_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -17690,7 +18160,7 @@ void qb_do_apply_premultiplication_multiple_times_F32_symbol(float32_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_apply_premultiplication_multiple_times_F64_symbol	qb_do_apply_premultiplication_multiple_times_F64
 #else
 void qb_do_apply_premultiplication_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -17698,7 +18168,7 @@ void qb_do_apply_premultiplication_multiple_times_F64_symbol(float64_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_F32_symbol	qb_do_array_max_F32
 #else
 void qb_do_array_max_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
@@ -17706,7 +18176,7 @@ void qb_do_array_max_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_F64_symbol	qb_do_array_max_F64
 #else
 void qb_do_array_max_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr) {
@@ -17714,7 +18184,7 @@ void qb_do_array_max_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_S08_symbol	qb_do_array_max_S08
 #else
 void qb_do_array_max_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr) {
@@ -17722,7 +18192,7 @@ void qb_do_array_max_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_S16_symbol	qb_do_array_max_S16
 #else
 void qb_do_array_max_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr) {
@@ -17730,7 +18200,7 @@ void qb_do_array_max_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_S32_symbol	qb_do_array_max_S32
 #else
 void qb_do_array_max_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr) {
@@ -17738,7 +18208,7 @@ void qb_do_array_max_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_S64_symbol	qb_do_array_max_S64
 #else
 void qb_do_array_max_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr) {
@@ -17746,7 +18216,7 @@ void qb_do_array_max_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_U08_symbol	qb_do_array_max_U08
 #else
 void qb_do_array_max_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr) {
@@ -17754,7 +18224,7 @@ void qb_do_array_max_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_U16_symbol	qb_do_array_max_U16
 #else
 void qb_do_array_max_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr) {
@@ -17762,7 +18232,7 @@ void qb_do_array_max_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_U32_symbol	qb_do_array_max_U32
 #else
 void qb_do_array_max_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr) {
@@ -17770,7 +18240,7 @@ void qb_do_array_max_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_U64_symbol	qb_do_array_max_U64
 #else
 void qb_do_array_max_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr) {
@@ -17778,7 +18248,7 @@ void qb_do_array_max_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_F32_symbol	qb_do_array_min_F32
 #else
 void qb_do_array_min_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
@@ -17786,7 +18256,7 @@ void qb_do_array_min_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_F64_symbol	qb_do_array_min_F64
 #else
 void qb_do_array_min_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr) {
@@ -17794,7 +18264,7 @@ void qb_do_array_min_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_S08_symbol	qb_do_array_min_S08
 #else
 void qb_do_array_min_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr) {
@@ -17802,7 +18272,7 @@ void qb_do_array_min_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_S16_symbol	qb_do_array_min_S16
 #else
 void qb_do_array_min_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr) {
@@ -17810,7 +18280,7 @@ void qb_do_array_min_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_S32_symbol	qb_do_array_min_S32
 #else
 void qb_do_array_min_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr) {
@@ -17818,7 +18288,7 @@ void qb_do_array_min_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_S64_symbol	qb_do_array_min_S64
 #else
 void qb_do_array_min_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr) {
@@ -17826,7 +18296,7 @@ void qb_do_array_min_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_U08_symbol	qb_do_array_min_U08
 #else
 void qb_do_array_min_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr) {
@@ -17834,7 +18304,7 @@ void qb_do_array_min_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_U16_symbol	qb_do_array_min_U16
 #else
 void qb_do_array_min_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr) {
@@ -17842,7 +18312,7 @@ void qb_do_array_min_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_U32_symbol	qb_do_array_min_U32
 #else
 void qb_do_array_min_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr) {
@@ -17850,7 +18320,7 @@ void qb_do_array_min_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_min_U64_symbol	qb_do_array_min_U64
 #else
 void qb_do_array_min_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr) {
@@ -17858,7 +18328,7 @@ void qb_do_array_min_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_F32_symbol	qb_do_array_product_F32
 #else
 void qb_do_array_product_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
@@ -17866,7 +18336,7 @@ void qb_do_array_product_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, floa
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_F64_symbol	qb_do_array_product_F64
 #else
 void qb_do_array_product_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr) {
@@ -17874,7 +18344,7 @@ void qb_do_array_product_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, floa
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_S08_symbol	qb_do_array_product_S08
 #else
 void qb_do_array_product_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr) {
@@ -17882,7 +18352,7 @@ void qb_do_array_product_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_S16_symbol	qb_do_array_product_S16
 #else
 void qb_do_array_product_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr) {
@@ -17890,7 +18360,7 @@ void qb_do_array_product_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_S32_symbol	qb_do_array_product_S32
 #else
 void qb_do_array_product_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr) {
@@ -17898,7 +18368,7 @@ void qb_do_array_product_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_S64_symbol	qb_do_array_product_S64
 #else
 void qb_do_array_product_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr) {
@@ -17906,7 +18376,7 @@ void qb_do_array_product_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_U08_symbol	qb_do_array_product_U08
 #else
 void qb_do_array_product_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr) {
@@ -17914,7 +18384,7 @@ void qb_do_array_product_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_U16_symbol	qb_do_array_product_U16
 #else
 void qb_do_array_product_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr) {
@@ -17922,7 +18392,7 @@ void qb_do_array_product_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_U32_symbol	qb_do_array_product_U32
 #else
 void qb_do_array_product_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr) {
@@ -17930,7 +18400,7 @@ void qb_do_array_product_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_U64_symbol	qb_do_array_product_U64
 #else
 void qb_do_array_product_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr) {
@@ -17938,7 +18408,7 @@ void qb_do_array_product_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_reverse_F32_symbol	qb_do_array_reverse_F32
 #else
 void qb_do_array_reverse_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, float32_t *res_ptr, uint32_t res_count) {
@@ -17946,7 +18416,7 @@ void qb_do_array_reverse_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_reverse_F64_symbol	qb_do_array_reverse_F64
 #else
 void qb_do_array_reverse_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, float64_t *res_ptr, uint32_t res_count) {
@@ -17954,7 +18424,7 @@ void qb_do_array_reverse_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_reverse_I08_symbol	qb_do_array_reverse_I08
 #else
 void qb_do_array_reverse_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, int8_t *res_ptr, uint32_t res_count) {
@@ -17962,7 +18432,7 @@ void qb_do_array_reverse_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_reverse_I16_symbol	qb_do_array_reverse_I16
 #else
 void qb_do_array_reverse_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, int16_t *res_ptr, uint32_t res_count) {
@@ -17970,7 +18440,7 @@ void qb_do_array_reverse_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_reverse_I32_symbol	qb_do_array_reverse_I32
 #else
 void qb_do_array_reverse_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, int32_t *res_ptr, uint32_t res_count) {
@@ -17978,7 +18448,7 @@ void qb_do_array_reverse_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_reverse_I64_symbol	qb_do_array_reverse_I64
 #else
 void qb_do_array_reverse_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, int64_t *res_ptr, uint32_t res_count) {
@@ -17986,7 +18456,7 @@ void qb_do_array_reverse_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_F32_symbol	qb_do_array_search_F32
 #else
 void qb_do_array_search_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t op2, int32_t *res_ptr) {
@@ -17994,7 +18464,7 @@ void qb_do_array_search_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_F64_symbol	qb_do_array_search_F64
 #else
 void qb_do_array_search_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t op2, int32_t *res_ptr) {
@@ -18002,7 +18472,7 @@ void qb_do_array_search_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_I08_symbol	qb_do_array_search_I08
 #else
 void qb_do_array_search_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t op2, int32_t *res_ptr) {
@@ -18010,7 +18480,7 @@ void qb_do_array_search_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_I16_symbol	qb_do_array_search_I16
 #else
 void qb_do_array_search_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t op2, int32_t *res_ptr) {
@@ -18018,7 +18488,7 @@ void qb_do_array_search_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_I32_symbol	qb_do_array_search_I32
 #else
 void qb_do_array_search_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t op2, int32_t *res_ptr) {
@@ -18026,7 +18496,7 @@ void qb_do_array_search_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_I64_symbol	qb_do_array_search_I64
 #else
 void qb_do_array_search_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t op2, int32_t *res_ptr) {
@@ -18034,7 +18504,7 @@ void qb_do_array_search_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_multiple_times_F32_symbol	qb_do_array_search_multiple_times_F32
 #else
 void qb_do_array_search_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -18042,7 +18512,7 @@ void qb_do_array_search_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_multiple_times_F64_symbol	qb_do_array_search_multiple_times_F64
 #else
 void qb_do_array_search_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -18050,7 +18520,7 @@ void qb_do_array_search_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_multiple_times_I08_symbol	qb_do_array_search_multiple_times_I08
 #else
 void qb_do_array_search_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -18058,7 +18528,7 @@ void qb_do_array_search_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_multiple_times_I16_symbol	qb_do_array_search_multiple_times_I16
 #else
 void qb_do_array_search_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -18066,7 +18536,7 @@ void qb_do_array_search_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_multiple_times_I32_symbol	qb_do_array_search_multiple_times_I32
 #else
 void qb_do_array_search_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -18074,7 +18544,7 @@ void qb_do_array_search_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_search_multiple_times_I64_symbol	qb_do_array_search_multiple_times_I64
 #else
 void qb_do_array_search_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -18082,7 +18552,7 @@ void qb_do_array_search_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_F32_symbol	qb_do_array_sum_F32
 #else
 void qb_do_array_sum_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
@@ -18090,7 +18560,7 @@ void qb_do_array_sum_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_F64_symbol	qb_do_array_sum_F64
 #else
 void qb_do_array_sum_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr) {
@@ -18098,7 +18568,7 @@ void qb_do_array_sum_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_S08_symbol	qb_do_array_sum_S08
 #else
 void qb_do_array_sum_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr) {
@@ -18106,7 +18576,7 @@ void qb_do_array_sum_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_S16_symbol	qb_do_array_sum_S16
 #else
 void qb_do_array_sum_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr) {
@@ -18114,7 +18584,7 @@ void qb_do_array_sum_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_S32_symbol	qb_do_array_sum_S32
 #else
 void qb_do_array_sum_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr) {
@@ -18122,7 +18592,7 @@ void qb_do_array_sum_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_S64_symbol	qb_do_array_sum_S64
 #else
 void qb_do_array_sum_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr) {
@@ -18130,7 +18600,7 @@ void qb_do_array_sum_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_U08_symbol	qb_do_array_sum_U08
 #else
 void qb_do_array_sum_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr) {
@@ -18138,7 +18608,7 @@ void qb_do_array_sum_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_U16_symbol	qb_do_array_sum_U16
 #else
 void qb_do_array_sum_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr) {
@@ -18146,7 +18616,7 @@ void qb_do_array_sum_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_U32_symbol	qb_do_array_sum_U32
 #else
 void qb_do_array_sum_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr) {
@@ -18154,7 +18624,7 @@ void qb_do_array_sum_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_sum_U64_symbol	qb_do_array_sum_U64
 #else
 void qb_do_array_sum_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr) {
@@ -18162,7 +18632,7 @@ void qb_do_array_sum_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_asin_multiple_times_F32_symbol	qb_do_asin_multiple_times_F32
 #else
 void qb_do_asin_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18170,7 +18640,7 @@ void qb_do_asin_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_asin_multiple_times_F64_symbol	qb_do_asin_multiple_times_F64
 #else
 void qb_do_asin_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18178,7 +18648,7 @@ void qb_do_asin_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_asinh_multiple_times_F32_symbol	qb_do_asinh_multiple_times_F32
 #else
 void qb_do_asinh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18186,7 +18656,7 @@ void qb_do_asinh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_asinh_multiple_times_F64_symbol	qb_do_asinh_multiple_times_F64
 #else
 void qb_do_asinh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18194,7 +18664,7 @@ void qb_do_asinh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_atan2_multiple_times_F32_symbol	qb_do_atan2_multiple_times_F32
 #else
 void qb_do_atan2_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18202,7 +18672,7 @@ void qb_do_atan2_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_atan2_multiple_times_F64_symbol	qb_do_atan2_multiple_times_F64
 #else
 void qb_do_atan2_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18210,7 +18680,7 @@ void qb_do_atan2_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_atan_multiple_times_F32_symbol	qb_do_atan_multiple_times_F32
 #else
 void qb_do_atan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18218,7 +18688,7 @@ void qb_do_atan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_atan_multiple_times_F64_symbol	qb_do_atan_multiple_times_F64
 #else
 void qb_do_atan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18226,7 +18696,7 @@ void qb_do_atan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_atanh_multiple_times_F32_symbol	qb_do_atanh_multiple_times_F32
 #else
 void qb_do_atanh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18234,7 +18704,7 @@ void qb_do_atanh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_atanh_multiple_times_F64_symbol	qb_do_atanh_multiple_times_F64
 #else
 void qb_do_atanh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18242,7 +18712,7 @@ void qb_do_atanh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_and_multiple_times_I08_symbol	qb_do_bitwise_and_multiple_times_I08
 #else
 void qb_do_bitwise_and_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18250,7 +18720,7 @@ void qb_do_bitwise_and_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_and_multiple_times_I16_symbol	qb_do_bitwise_and_multiple_times_I16
 #else
 void qb_do_bitwise_and_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18258,7 +18728,7 @@ void qb_do_bitwise_and_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_and_multiple_times_I32_symbol	qb_do_bitwise_and_multiple_times_I32
 #else
 void qb_do_bitwise_and_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18266,7 +18736,7 @@ void qb_do_bitwise_and_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_and_multiple_times_I64_symbol	qb_do_bitwise_and_multiple_times_I64
 #else
 void qb_do_bitwise_and_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18274,7 +18744,7 @@ void qb_do_bitwise_and_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_not_multiple_times_I08_symbol	qb_do_bitwise_not_multiple_times_I08
 #else
 void qb_do_bitwise_not_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18282,7 +18752,7 @@ void qb_do_bitwise_not_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_not_multiple_times_I16_symbol	qb_do_bitwise_not_multiple_times_I16
 #else
 void qb_do_bitwise_not_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18290,7 +18760,7 @@ void qb_do_bitwise_not_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_not_multiple_times_I32_symbol	qb_do_bitwise_not_multiple_times_I32
 #else
 void qb_do_bitwise_not_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18298,7 +18768,7 @@ void qb_do_bitwise_not_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_not_multiple_times_I64_symbol	qb_do_bitwise_not_multiple_times_I64
 #else
 void qb_do_bitwise_not_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18306,7 +18776,7 @@ void qb_do_bitwise_not_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_or_multiple_times_I08_symbol	qb_do_bitwise_or_multiple_times_I08
 #else
 void qb_do_bitwise_or_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18314,7 +18784,7 @@ void qb_do_bitwise_or_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_or_multiple_times_I16_symbol	qb_do_bitwise_or_multiple_times_I16
 #else
 void qb_do_bitwise_or_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18322,7 +18792,7 @@ void qb_do_bitwise_or_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_or_multiple_times_I32_symbol	qb_do_bitwise_or_multiple_times_I32
 #else
 void qb_do_bitwise_or_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18330,7 +18800,7 @@ void qb_do_bitwise_or_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_or_multiple_times_I64_symbol	qb_do_bitwise_or_multiple_times_I64
 #else
 void qb_do_bitwise_or_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18338,7 +18808,7 @@ void qb_do_bitwise_or_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_xor_multiple_times_I08_symbol	qb_do_bitwise_xor_multiple_times_I08
 #else
 void qb_do_bitwise_xor_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18346,7 +18816,7 @@ void qb_do_bitwise_xor_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_xor_multiple_times_I16_symbol	qb_do_bitwise_xor_multiple_times_I16
 #else
 void qb_do_bitwise_xor_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18354,7 +18824,7 @@ void qb_do_bitwise_xor_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_xor_multiple_times_I32_symbol	qb_do_bitwise_xor_multiple_times_I32
 #else
 void qb_do_bitwise_xor_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18362,7 +18832,7 @@ void qb_do_bitwise_xor_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_bitwise_xor_multiple_times_I64_symbol	qb_do_bitwise_xor_multiple_times_I64
 #else
 void qb_do_bitwise_xor_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18370,7 +18840,7 @@ void qb_do_bitwise_xor_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_boolean_cast_multiple_times_F32_symbol	qb_do_boolean_cast_multiple_times_F32
 #else
 void qb_do_boolean_cast_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18378,7 +18848,7 @@ void qb_do_boolean_cast_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_boolean_cast_multiple_times_F64_symbol	qb_do_boolean_cast_multiple_times_F64
 #else
 void qb_do_boolean_cast_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18386,7 +18856,7 @@ void qb_do_boolean_cast_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_boolean_cast_multiple_times_I08_symbol	qb_do_boolean_cast_multiple_times_I08
 #else
 void qb_do_boolean_cast_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18394,7 +18864,7 @@ void qb_do_boolean_cast_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_boolean_cast_multiple_times_I16_symbol	qb_do_boolean_cast_multiple_times_I16
 #else
 void qb_do_boolean_cast_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18402,7 +18872,7 @@ void qb_do_boolean_cast_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_boolean_cast_multiple_times_I32_symbol	qb_do_boolean_cast_multiple_times_I32
 #else
 void qb_do_boolean_cast_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18410,7 +18880,7 @@ void qb_do_boolean_cast_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_boolean_cast_multiple_times_I64_symbol	qb_do_boolean_cast_multiple_times_I64
 #else
 void qb_do_boolean_cast_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18418,7 +18888,7 @@ void qb_do_boolean_cast_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_F64_symbol	qb_do_cast_multiple_times_F32_F64
 #else
 void qb_do_cast_multiple_times_F32_F64_symbol(float32_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18426,7 +18896,7 @@ void qb_do_cast_multiple_times_F32_F64_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_S08_symbol	qb_do_cast_multiple_times_F32_S08
 #else
 void qb_do_cast_multiple_times_F32_S08_symbol(float32_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18434,7 +18904,7 @@ void qb_do_cast_multiple_times_F32_S08_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_S16_symbol	qb_do_cast_multiple_times_F32_S16
 #else
 void qb_do_cast_multiple_times_F32_S16_symbol(float32_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18442,7 +18912,7 @@ void qb_do_cast_multiple_times_F32_S16_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_S32_symbol	qb_do_cast_multiple_times_F32_S32
 #else
 void qb_do_cast_multiple_times_F32_S32_symbol(float32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18450,7 +18920,7 @@ void qb_do_cast_multiple_times_F32_S32_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_S64_symbol	qb_do_cast_multiple_times_F32_S64
 #else
 void qb_do_cast_multiple_times_F32_S64_symbol(float32_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18458,7 +18928,7 @@ void qb_do_cast_multiple_times_F32_S64_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_U08_symbol	qb_do_cast_multiple_times_F32_U08
 #else
 void qb_do_cast_multiple_times_F32_U08_symbol(float32_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -18466,7 +18936,7 @@ void qb_do_cast_multiple_times_F32_U08_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_U16_symbol	qb_do_cast_multiple_times_F32_U16
 #else
 void qb_do_cast_multiple_times_F32_U16_symbol(float32_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -18474,7 +18944,7 @@ void qb_do_cast_multiple_times_F32_U16_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_U32_symbol	qb_do_cast_multiple_times_F32_U32
 #else
 void qb_do_cast_multiple_times_F32_U32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -18482,7 +18952,7 @@ void qb_do_cast_multiple_times_F32_U32_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F32_U64_symbol	qb_do_cast_multiple_times_F32_U64
 #else
 void qb_do_cast_multiple_times_F32_U64_symbol(float32_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -18490,7 +18960,7 @@ void qb_do_cast_multiple_times_F32_U64_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_F32_symbol	qb_do_cast_multiple_times_F64_F32
 #else
 void qb_do_cast_multiple_times_F64_F32_symbol(float64_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18498,7 +18968,7 @@ void qb_do_cast_multiple_times_F64_F32_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_S08_symbol	qb_do_cast_multiple_times_F64_S08
 #else
 void qb_do_cast_multiple_times_F64_S08_symbol(float64_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18506,7 +18976,7 @@ void qb_do_cast_multiple_times_F64_S08_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_S16_symbol	qb_do_cast_multiple_times_F64_S16
 #else
 void qb_do_cast_multiple_times_F64_S16_symbol(float64_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18514,7 +18984,7 @@ void qb_do_cast_multiple_times_F64_S16_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_S32_symbol	qb_do_cast_multiple_times_F64_S32
 #else
 void qb_do_cast_multiple_times_F64_S32_symbol(float64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18522,7 +18992,7 @@ void qb_do_cast_multiple_times_F64_S32_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_S64_symbol	qb_do_cast_multiple_times_F64_S64
 #else
 void qb_do_cast_multiple_times_F64_S64_symbol(float64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18530,7 +19000,7 @@ void qb_do_cast_multiple_times_F64_S64_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_U08_symbol	qb_do_cast_multiple_times_F64_U08
 #else
 void qb_do_cast_multiple_times_F64_U08_symbol(float64_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -18538,7 +19008,7 @@ void qb_do_cast_multiple_times_F64_U08_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_U16_symbol	qb_do_cast_multiple_times_F64_U16
 #else
 void qb_do_cast_multiple_times_F64_U16_symbol(float64_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -18546,7 +19016,7 @@ void qb_do_cast_multiple_times_F64_U16_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_U32_symbol	qb_do_cast_multiple_times_F64_U32
 #else
 void qb_do_cast_multiple_times_F64_U32_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -18554,7 +19024,7 @@ void qb_do_cast_multiple_times_F64_U32_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_F64_U64_symbol	qb_do_cast_multiple_times_F64_U64
 #else
 void qb_do_cast_multiple_times_F64_U64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -18562,7 +19032,7 @@ void qb_do_cast_multiple_times_F64_U64_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_I16_I08_symbol	qb_do_cast_multiple_times_I16_I08
 #else
 void qb_do_cast_multiple_times_I16_I08_symbol(int16_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18570,7 +19040,7 @@ void qb_do_cast_multiple_times_I16_I08_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_I32_I08_symbol	qb_do_cast_multiple_times_I32_I08
 #else
 void qb_do_cast_multiple_times_I32_I08_symbol(int32_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18578,7 +19048,7 @@ void qb_do_cast_multiple_times_I32_I08_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_I32_I16_symbol	qb_do_cast_multiple_times_I32_I16
 #else
 void qb_do_cast_multiple_times_I32_I16_symbol(int32_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18586,7 +19056,7 @@ void qb_do_cast_multiple_times_I32_I16_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_I64_I08_symbol	qb_do_cast_multiple_times_I64_I08
 #else
 void qb_do_cast_multiple_times_I64_I08_symbol(int64_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -18594,7 +19064,7 @@ void qb_do_cast_multiple_times_I64_I08_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_I64_I16_symbol	qb_do_cast_multiple_times_I64_I16
 #else
 void qb_do_cast_multiple_times_I64_I16_symbol(int64_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18602,7 +19072,7 @@ void qb_do_cast_multiple_times_I64_I16_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_I64_I32_symbol	qb_do_cast_multiple_times_I64_I32
 #else
 void qb_do_cast_multiple_times_I64_I32_symbol(int64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18610,7 +19080,7 @@ void qb_do_cast_multiple_times_I64_I32_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S08_F32_symbol	qb_do_cast_multiple_times_S08_F32
 #else
 void qb_do_cast_multiple_times_S08_F32_symbol(int8_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18618,7 +19088,7 @@ void qb_do_cast_multiple_times_S08_F32_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S08_F64_symbol	qb_do_cast_multiple_times_S08_F64
 #else
 void qb_do_cast_multiple_times_S08_F64_symbol(int8_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18626,7 +19096,7 @@ void qb_do_cast_multiple_times_S08_F64_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S08_I16_symbol	qb_do_cast_multiple_times_S08_I16
 #else
 void qb_do_cast_multiple_times_S08_I16_symbol(int8_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18634,7 +19104,7 @@ void qb_do_cast_multiple_times_S08_I16_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S08_I32_symbol	qb_do_cast_multiple_times_S08_I32
 #else
 void qb_do_cast_multiple_times_S08_I32_symbol(int8_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18642,7 +19112,7 @@ void qb_do_cast_multiple_times_S08_I32_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S08_I64_symbol	qb_do_cast_multiple_times_S08_I64
 #else
 void qb_do_cast_multiple_times_S08_I64_symbol(int8_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18650,7 +19120,7 @@ void qb_do_cast_multiple_times_S08_I64_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S16_F32_symbol	qb_do_cast_multiple_times_S16_F32
 #else
 void qb_do_cast_multiple_times_S16_F32_symbol(int16_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18658,7 +19128,7 @@ void qb_do_cast_multiple_times_S16_F32_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S16_F64_symbol	qb_do_cast_multiple_times_S16_F64
 #else
 void qb_do_cast_multiple_times_S16_F64_symbol(int16_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18666,7 +19136,7 @@ void qb_do_cast_multiple_times_S16_F64_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S16_I32_symbol	qb_do_cast_multiple_times_S16_I32
 #else
 void qb_do_cast_multiple_times_S16_I32_symbol(int16_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18674,7 +19144,7 @@ void qb_do_cast_multiple_times_S16_I32_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S16_I64_symbol	qb_do_cast_multiple_times_S16_I64
 #else
 void qb_do_cast_multiple_times_S16_I64_symbol(int16_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18682,7 +19152,7 @@ void qb_do_cast_multiple_times_S16_I64_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S32_F32_symbol	qb_do_cast_multiple_times_S32_F32
 #else
 void qb_do_cast_multiple_times_S32_F32_symbol(int32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18690,7 +19160,7 @@ void qb_do_cast_multiple_times_S32_F32_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S32_F64_symbol	qb_do_cast_multiple_times_S32_F64
 #else
 void qb_do_cast_multiple_times_S32_F64_symbol(int32_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18698,7 +19168,7 @@ void qb_do_cast_multiple_times_S32_F64_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S32_I64_symbol	qb_do_cast_multiple_times_S32_I64
 #else
 void qb_do_cast_multiple_times_S32_I64_symbol(int32_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18706,7 +19176,7 @@ void qb_do_cast_multiple_times_S32_I64_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S64_F32_symbol	qb_do_cast_multiple_times_S64_F32
 #else
 void qb_do_cast_multiple_times_S64_F32_symbol(int64_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18714,7 +19184,7 @@ void qb_do_cast_multiple_times_S64_F32_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_S64_F64_symbol	qb_do_cast_multiple_times_S64_F64
 #else
 void qb_do_cast_multiple_times_S64_F64_symbol(int64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18722,7 +19192,7 @@ void qb_do_cast_multiple_times_S64_F64_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U08_F32_symbol	qb_do_cast_multiple_times_U08_F32
 #else
 void qb_do_cast_multiple_times_U08_F32_symbol(uint8_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18730,7 +19200,7 @@ void qb_do_cast_multiple_times_U08_F32_symbol(uint8_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U08_F64_symbol	qb_do_cast_multiple_times_U08_F64
 #else
 void qb_do_cast_multiple_times_U08_F64_symbol(uint8_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18738,7 +19208,7 @@ void qb_do_cast_multiple_times_U08_F64_symbol(uint8_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U08_I16_symbol	qb_do_cast_multiple_times_U08_I16
 #else
 void qb_do_cast_multiple_times_U08_I16_symbol(uint8_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -18746,7 +19216,7 @@ void qb_do_cast_multiple_times_U08_I16_symbol(uint8_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U08_I32_symbol	qb_do_cast_multiple_times_U08_I32
 #else
 void qb_do_cast_multiple_times_U08_I32_symbol(uint8_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18754,7 +19224,7 @@ void qb_do_cast_multiple_times_U08_I32_symbol(uint8_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U08_I64_symbol	qb_do_cast_multiple_times_U08_I64
 #else
 void qb_do_cast_multiple_times_U08_I64_symbol(uint8_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18762,7 +19232,7 @@ void qb_do_cast_multiple_times_U08_I64_symbol(uint8_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U16_F32_symbol	qb_do_cast_multiple_times_U16_F32
 #else
 void qb_do_cast_multiple_times_U16_F32_symbol(uint16_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18770,7 +19240,7 @@ void qb_do_cast_multiple_times_U16_F32_symbol(uint16_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U16_F64_symbol	qb_do_cast_multiple_times_U16_F64
 #else
 void qb_do_cast_multiple_times_U16_F64_symbol(uint16_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18778,7 +19248,7 @@ void qb_do_cast_multiple_times_U16_F64_symbol(uint16_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U16_I32_symbol	qb_do_cast_multiple_times_U16_I32
 #else
 void qb_do_cast_multiple_times_U16_I32_symbol(uint16_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -18786,7 +19256,7 @@ void qb_do_cast_multiple_times_U16_I32_symbol(uint16_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U16_I64_symbol	qb_do_cast_multiple_times_U16_I64
 #else
 void qb_do_cast_multiple_times_U16_I64_symbol(uint16_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18794,7 +19264,7 @@ void qb_do_cast_multiple_times_U16_I64_symbol(uint16_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U32_F32_symbol	qb_do_cast_multiple_times_U32_F32
 #else
 void qb_do_cast_multiple_times_U32_F32_symbol(uint32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18802,7 +19272,7 @@ void qb_do_cast_multiple_times_U32_F32_symbol(uint32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U32_F64_symbol	qb_do_cast_multiple_times_U32_F64
 #else
 void qb_do_cast_multiple_times_U32_F64_symbol(uint32_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18810,7 +19280,7 @@ void qb_do_cast_multiple_times_U32_F64_symbol(uint32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U32_I64_symbol	qb_do_cast_multiple_times_U32_I64
 #else
 void qb_do_cast_multiple_times_U32_I64_symbol(uint32_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -18818,7 +19288,7 @@ void qb_do_cast_multiple_times_U32_I64_symbol(uint32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U64_F32_symbol	qb_do_cast_multiple_times_U64_F32
 #else
 void qb_do_cast_multiple_times_U64_F32_symbol(uint64_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18826,7 +19296,7 @@ void qb_do_cast_multiple_times_U64_F32_symbol(uint64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cast_multiple_times_U64_F64_symbol	qb_do_cast_multiple_times_U64_F64
 #else
 void qb_do_cast_multiple_times_U64_F64_symbol(uint64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18834,7 +19304,7 @@ void qb_do_cast_multiple_times_U64_F64_symbol(uint64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_ceil_multiple_times_F32_symbol	qb_do_ceil_multiple_times_F32
 #else
 void qb_do_ceil_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18842,7 +19312,7 @@ void qb_do_ceil_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_ceil_multiple_times_F64_symbol	qb_do_ceil_multiple_times_F64
 #else
 void qb_do_ceil_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18850,7 +19320,7 @@ void qb_do_ceil_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_clamp_multiple_times_F32_symbol	qb_do_clamp_multiple_times_F32
 #else
 void qb_do_clamp_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18858,7 +19328,7 @@ void qb_do_clamp_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_clamp_multiple_times_F64_symbol	qb_do_clamp_multiple_times_F64
 #else
 void qb_do_clamp_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18866,7 +19336,7 @@ void qb_do_clamp_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_abs_F64_symbol	qb_do_complex_abs_F64
 #else
 void qb_do_complex_abs_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18874,7 +19344,7 @@ void qb_do_complex_abs_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_abs_multiple_times_F32_symbol	qb_do_complex_abs_multiple_times_F32
 #else
 void qb_do_complex_abs_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18882,7 +19352,7 @@ void qb_do_complex_abs_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_abs_multiple_times_F64_symbol	qb_do_complex_abs_multiple_times_F64
 #else
 void qb_do_complex_abs_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18890,7 +19360,7 @@ void qb_do_complex_abs_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_argument_F64_symbol	qb_do_complex_argument_F64
 #else
 void qb_do_complex_argument_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18898,7 +19368,7 @@ void qb_do_complex_argument_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, f
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_argument_multiple_times_F32_symbol	qb_do_complex_argument_multiple_times_F32
 #else
 void qb_do_complex_argument_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18906,7 +19376,7 @@ void qb_do_complex_argument_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_argument_multiple_times_F64_symbol	qb_do_complex_argument_multiple_times_F64
 #else
 void qb_do_complex_argument_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18914,7 +19384,7 @@ void qb_do_complex_argument_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_cos_F64_symbol	qb_do_complex_cos_F64
 #else
 void qb_do_complex_cos_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18922,7 +19392,7 @@ void qb_do_complex_cos_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_cos_multiple_times_F32_symbol	qb_do_complex_cos_multiple_times_F32
 #else
 void qb_do_complex_cos_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18930,7 +19400,7 @@ void qb_do_complex_cos_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_cos_multiple_times_F64_symbol	qb_do_complex_cos_multiple_times_F64
 #else
 void qb_do_complex_cos_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18938,7 +19408,7 @@ void qb_do_complex_cos_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_cosh_F64_symbol	qb_do_complex_cosh_F64
 #else
 void qb_do_complex_cosh_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18946,7 +19416,7 @@ void qb_do_complex_cosh_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_cosh_multiple_times_F32_symbol	qb_do_complex_cosh_multiple_times_F32
 #else
 void qb_do_complex_cosh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18954,7 +19424,7 @@ void qb_do_complex_cosh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_cosh_multiple_times_F64_symbol	qb_do_complex_cosh_multiple_times_F64
 #else
 void qb_do_complex_cosh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18962,7 +19432,7 @@ void qb_do_complex_cosh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_divide_F64_symbol	qb_do_complex_divide_F64
 #else
 void qb_do_complex_divide_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18970,7 +19440,7 @@ void qb_do_complex_divide_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, flo
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_divide_multiple_times_F32_symbol	qb_do_complex_divide_multiple_times_F32
 #else
 void qb_do_complex_divide_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -18978,7 +19448,7 @@ void qb_do_complex_divide_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_divide_multiple_times_F64_symbol	qb_do_complex_divide_multiple_times_F64
 #else
 void qb_do_complex_divide_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18986,7 +19456,7 @@ void qb_do_complex_divide_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_exp_F64_symbol	qb_do_complex_exp_F64
 #else
 void qb_do_complex_exp_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -18994,7 +19464,7 @@ void qb_do_complex_exp_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_exp_multiple_times_F32_symbol	qb_do_complex_exp_multiple_times_F32
 #else
 void qb_do_complex_exp_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19002,7 +19472,7 @@ void qb_do_complex_exp_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_exp_multiple_times_F64_symbol	qb_do_complex_exp_multiple_times_F64
 #else
 void qb_do_complex_exp_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19010,7 +19480,7 @@ void qb_do_complex_exp_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_log_F64_symbol	qb_do_complex_log_F64
 #else
 void qb_do_complex_log_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19018,7 +19488,7 @@ void qb_do_complex_log_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_log_multiple_times_F32_symbol	qb_do_complex_log_multiple_times_F32
 #else
 void qb_do_complex_log_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19026,7 +19496,7 @@ void qb_do_complex_log_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_log_multiple_times_F64_symbol	qb_do_complex_log_multiple_times_F64
 #else
 void qb_do_complex_log_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19034,7 +19504,7 @@ void qb_do_complex_log_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_multiply_F64_symbol	qb_do_complex_multiply_F64
 #else
 void qb_do_complex_multiply_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19042,7 +19512,7 @@ void qb_do_complex_multiply_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, f
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_multiply_multiple_times_F32_symbol	qb_do_complex_multiply_multiple_times_F32
 #else
 void qb_do_complex_multiply_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19050,7 +19520,7 @@ void qb_do_complex_multiply_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_multiply_multiple_times_F64_symbol	qb_do_complex_multiply_multiple_times_F64
 #else
 void qb_do_complex_multiply_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19058,7 +19528,7 @@ void qb_do_complex_multiply_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_pow_F64_symbol	qb_do_complex_pow_F64
 #else
 void qb_do_complex_pow_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19066,7 +19536,7 @@ void qb_do_complex_pow_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_pow_multiple_times_F32_symbol	qb_do_complex_pow_multiple_times_F32
 #else
 void qb_do_complex_pow_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19074,7 +19544,7 @@ void qb_do_complex_pow_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_pow_multiple_times_F64_symbol	qb_do_complex_pow_multiple_times_F64
 #else
 void qb_do_complex_pow_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19082,7 +19552,7 @@ void qb_do_complex_pow_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_sin_F64_symbol	qb_do_complex_sin_F64
 #else
 void qb_do_complex_sin_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19090,7 +19560,7 @@ void qb_do_complex_sin_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_sin_multiple_times_F32_symbol	qb_do_complex_sin_multiple_times_F32
 #else
 void qb_do_complex_sin_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19098,7 +19568,7 @@ void qb_do_complex_sin_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_sin_multiple_times_F64_symbol	qb_do_complex_sin_multiple_times_F64
 #else
 void qb_do_complex_sin_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19106,7 +19576,7 @@ void qb_do_complex_sin_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_sinh_F64_symbol	qb_do_complex_sinh_F64
 #else
 void qb_do_complex_sinh_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19114,7 +19584,7 @@ void qb_do_complex_sinh_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_sinh_multiple_times_F32_symbol	qb_do_complex_sinh_multiple_times_F32
 #else
 void qb_do_complex_sinh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19122,7 +19592,7 @@ void qb_do_complex_sinh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_sinh_multiple_times_F64_symbol	qb_do_complex_sinh_multiple_times_F64
 #else
 void qb_do_complex_sinh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19130,7 +19600,7 @@ void qb_do_complex_sinh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_square_root_F64_symbol	qb_do_complex_square_root_F64
 #else
 void qb_do_complex_square_root_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19138,7 +19608,7 @@ void qb_do_complex_square_root_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_square_root_multiple_times_F32_symbol	qb_do_complex_square_root_multiple_times_F32
 #else
 void qb_do_complex_square_root_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19146,7 +19616,7 @@ void qb_do_complex_square_root_multiple_times_F32_symbol(float32_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_square_root_multiple_times_F64_symbol	qb_do_complex_square_root_multiple_times_F64
 #else
 void qb_do_complex_square_root_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19154,7 +19624,7 @@ void qb_do_complex_square_root_multiple_times_F64_symbol(float64_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_tan_F64_symbol	qb_do_complex_tan_F64
 #else
 void qb_do_complex_tan_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19162,7 +19632,7 @@ void qb_do_complex_tan_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_tan_multiple_times_F32_symbol	qb_do_complex_tan_multiple_times_F32
 #else
 void qb_do_complex_tan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19170,7 +19640,7 @@ void qb_do_complex_tan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_tan_multiple_times_F64_symbol	qb_do_complex_tan_multiple_times_F64
 #else
 void qb_do_complex_tan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19178,7 +19648,7 @@ void qb_do_complex_tan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_tanh_F64_symbol	qb_do_complex_tanh_F64
 #else
 void qb_do_complex_tanh_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19186,7 +19656,7 @@ void qb_do_complex_tanh_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_tanh_multiple_times_F32_symbol	qb_do_complex_tanh_multiple_times_F32
 #else
 void qb_do_complex_tanh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19194,7 +19664,7 @@ void qb_do_complex_tanh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_complex_tanh_multiple_times_F64_symbol	qb_do_complex_tanh_multiple_times_F64
 #else
 void qb_do_complex_tanh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19202,7 +19672,7 @@ void qb_do_complex_tanh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_F32_symbol	qb_do_concat_multidimensional_variable_F32
 #else
 void qb_do_concat_multidimensional_variable_F32_symbol(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19210,7 +19680,7 @@ void qb_do_concat_multidimensional_variable_F32_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_F64_symbol	qb_do_concat_multidimensional_variable_F64
 #else
 void qb_do_concat_multidimensional_variable_F64_symbol(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19218,7 +19688,7 @@ void qb_do_concat_multidimensional_variable_F64_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_S08_symbol	qb_do_concat_multidimensional_variable_S08
 #else
 void qb_do_concat_multidimensional_variable_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19226,7 +19696,7 @@ void qb_do_concat_multidimensional_variable_S08_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_S16_symbol	qb_do_concat_multidimensional_variable_S16
 #else
 void qb_do_concat_multidimensional_variable_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19234,7 +19704,7 @@ void qb_do_concat_multidimensional_variable_S16_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_S32_symbol	qb_do_concat_multidimensional_variable_S32
 #else
 void qb_do_concat_multidimensional_variable_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19242,7 +19712,7 @@ void qb_do_concat_multidimensional_variable_S32_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_S64_symbol	qb_do_concat_multidimensional_variable_S64
 #else
 void qb_do_concat_multidimensional_variable_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19250,7 +19720,7 @@ void qb_do_concat_multidimensional_variable_S64_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_U08_symbol	qb_do_concat_multidimensional_variable_U08
 #else
 void qb_do_concat_multidimensional_variable_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19258,7 +19728,7 @@ void qb_do_concat_multidimensional_variable_U08_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_U16_symbol	qb_do_concat_multidimensional_variable_U16
 #else
 void qb_do_concat_multidimensional_variable_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19266,7 +19736,7 @@ void qb_do_concat_multidimensional_variable_U16_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_U32_symbol	qb_do_concat_multidimensional_variable_U32
 #else
 void qb_do_concat_multidimensional_variable_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19274,7 +19744,7 @@ void qb_do_concat_multidimensional_variable_U32_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_multidimensional_variable_U64_symbol	qb_do_concat_multidimensional_variable_U64
 #else
 void qb_do_concat_multidimensional_variable_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -19282,7 +19752,7 @@ void qb_do_concat_multidimensional_variable_U64_symbol(qb_interpreter_context *c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_F32_symbol	qb_do_concat_variable_F32
 #else
 void qb_do_concat_variable_F32_symbol(qb_interpreter_context *cxt, float32_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19290,7 +19760,7 @@ void qb_do_concat_variable_F32_symbol(qb_interpreter_context *cxt, float32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_F64_symbol	qb_do_concat_variable_F64
 #else
 void qb_do_concat_variable_F64_symbol(qb_interpreter_context *cxt, float64_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19298,7 +19768,7 @@ void qb_do_concat_variable_F64_symbol(qb_interpreter_context *cxt, float64_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_S08_symbol	qb_do_concat_variable_S08
 #else
 void qb_do_concat_variable_S08_symbol(qb_interpreter_context *cxt, int8_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19306,7 +19776,7 @@ void qb_do_concat_variable_S08_symbol(qb_interpreter_context *cxt, int8_t op1, u
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_S16_symbol	qb_do_concat_variable_S16
 #else
 void qb_do_concat_variable_S16_symbol(qb_interpreter_context *cxt, int16_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19314,7 +19784,7 @@ void qb_do_concat_variable_S16_symbol(qb_interpreter_context *cxt, int16_t op1, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_S32_symbol	qb_do_concat_variable_S32
 #else
 void qb_do_concat_variable_S32_symbol(qb_interpreter_context *cxt, int32_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19322,7 +19792,7 @@ void qb_do_concat_variable_S32_symbol(qb_interpreter_context *cxt, int32_t op1, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_S64_symbol	qb_do_concat_variable_S64
 #else
 void qb_do_concat_variable_S64_symbol(qb_interpreter_context *cxt, int64_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19330,7 +19800,7 @@ void qb_do_concat_variable_S64_symbol(qb_interpreter_context *cxt, int64_t op1, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_U08_symbol	qb_do_concat_variable_U08
 #else
 void qb_do_concat_variable_U08_symbol(qb_interpreter_context *cxt, uint8_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19338,7 +19808,7 @@ void qb_do_concat_variable_U08_symbol(qb_interpreter_context *cxt, uint8_t op1, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_U16_symbol	qb_do_concat_variable_U16
 #else
 void qb_do_concat_variable_U16_symbol(qb_interpreter_context *cxt, uint16_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19346,7 +19816,7 @@ void qb_do_concat_variable_U16_symbol(qb_interpreter_context *cxt, uint16_t op1,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_U32_symbol	qb_do_concat_variable_U32
 #else
 void qb_do_concat_variable_U32_symbol(qb_interpreter_context *cxt, uint32_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19354,7 +19824,7 @@ void qb_do_concat_variable_U32_symbol(qb_interpreter_context *cxt, uint32_t op1,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_U64_symbol	qb_do_concat_variable_U64
 #else
 void qb_do_concat_variable_U64_symbol(qb_interpreter_context *cxt, uint64_t op1, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19362,7 +19832,7 @@ void qb_do_concat_variable_U64_symbol(qb_interpreter_context *cxt, uint64_t op1,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_F32_symbol	qb_do_concat_variable_multiple_times_F32
 #else
 void qb_do_concat_variable_multiple_times_F32_symbol(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19370,7 +19840,7 @@ void qb_do_concat_variable_multiple_times_F32_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_F64_symbol	qb_do_concat_variable_multiple_times_F64
 #else
 void qb_do_concat_variable_multiple_times_F64_symbol(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19378,7 +19848,7 @@ void qb_do_concat_variable_multiple_times_F64_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_S08_symbol	qb_do_concat_variable_multiple_times_S08
 #else
 void qb_do_concat_variable_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19386,7 +19856,7 @@ void qb_do_concat_variable_multiple_times_S08_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_S16_symbol	qb_do_concat_variable_multiple_times_S16
 #else
 void qb_do_concat_variable_multiple_times_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19394,7 +19864,7 @@ void qb_do_concat_variable_multiple_times_S16_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_S32_symbol	qb_do_concat_variable_multiple_times_S32
 #else
 void qb_do_concat_variable_multiple_times_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19402,7 +19872,7 @@ void qb_do_concat_variable_multiple_times_S32_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_S64_symbol	qb_do_concat_variable_multiple_times_S64
 #else
 void qb_do_concat_variable_multiple_times_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19410,7 +19880,7 @@ void qb_do_concat_variable_multiple_times_S64_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_U08_symbol	qb_do_concat_variable_multiple_times_U08
 #else
 void qb_do_concat_variable_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19418,7 +19888,7 @@ void qb_do_concat_variable_multiple_times_U08_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_U16_symbol	qb_do_concat_variable_multiple_times_U16
 #else
 void qb_do_concat_variable_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19426,7 +19896,7 @@ void qb_do_concat_variable_multiple_times_U16_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_U32_symbol	qb_do_concat_variable_multiple_times_U32
 #else
 void qb_do_concat_variable_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19434,7 +19904,7 @@ void qb_do_concat_variable_multiple_times_U32_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_concat_variable_multiple_times_U64_symbol	qb_do_concat_variable_multiple_times_U64
 #else
 void qb_do_concat_variable_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count, uint32_t res_count_before) {
@@ -19442,7 +19912,7 @@ void qb_do_concat_variable_multiple_times_U64_symbol(qb_interpreter_context *cxt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_2x_multiple_times_F32_symbol	qb_do_copy_2x_multiple_times_F32
 #else
 void qb_do_copy_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19450,7 +19920,7 @@ void qb_do_copy_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_2x_multiple_times_F64_symbol	qb_do_copy_2x_multiple_times_F64
 #else
 void qb_do_copy_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19458,7 +19928,7 @@ void qb_do_copy_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_3x_multiple_times_F32_symbol	qb_do_copy_3x_multiple_times_F32
 #else
 void qb_do_copy_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19466,7 +19936,7 @@ void qb_do_copy_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_3x_multiple_times_F64_symbol	qb_do_copy_3x_multiple_times_F64
 #else
 void qb_do_copy_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19474,7 +19944,7 @@ void qb_do_copy_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_4x_multiple_times_F32_symbol	qb_do_copy_4x_multiple_times_F32
 #else
 void qb_do_copy_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19482,7 +19952,7 @@ void qb_do_copy_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_4x_multiple_times_F64_symbol	qb_do_copy_4x_multiple_times_F64
 #else
 void qb_do_copy_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19490,7 +19960,7 @@ void qb_do_copy_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_multiple_times_F32_symbol	qb_do_copy_multiple_times_F32
 #else
 void qb_do_copy_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19498,7 +19968,7 @@ void qb_do_copy_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_multiple_times_F64_symbol	qb_do_copy_multiple_times_F64
 #else
 void qb_do_copy_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19506,7 +19976,7 @@ void qb_do_copy_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_multiple_times_I08_symbol	qb_do_copy_multiple_times_I08
 #else
 void qb_do_copy_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -19514,7 +19984,7 @@ void qb_do_copy_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_multiple_times_I16_symbol	qb_do_copy_multiple_times_I16
 #else
 void qb_do_copy_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -19522,7 +19992,7 @@ void qb_do_copy_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_multiple_times_I32_symbol	qb_do_copy_multiple_times_I32
 #else
 void qb_do_copy_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -19530,7 +20000,7 @@ void qb_do_copy_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_copy_multiple_times_I64_symbol	qb_do_copy_multiple_times_I64
 #else
 void qb_do_copy_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -19538,7 +20008,7 @@ void qb_do_copy_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cos_multiple_times_F32_symbol	qb_do_cos_multiple_times_F32
 #else
 void qb_do_cos_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19546,7 +20016,7 @@ void qb_do_cos_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cos_multiple_times_F64_symbol	qb_do_cos_multiple_times_F64
 #else
 void qb_do_cos_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19554,7 +20024,7 @@ void qb_do_cos_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cosh_multiple_times_F32_symbol	qb_do_cosh_multiple_times_F32
 #else
 void qb_do_cosh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19562,7 +20032,7 @@ void qb_do_cosh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cosh_multiple_times_F64_symbol	qb_do_cosh_multiple_times_F64
 #else
 void qb_do_cosh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19570,7 +20040,7 @@ void qb_do_cosh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_2x_F64_symbol	qb_do_cross_product_2x_F64
 #else
 void qb_do_cross_product_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -19578,7 +20048,7 @@ void qb_do_cross_product_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, f
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_2x_multiple_times_F32_symbol	qb_do_cross_product_2x_multiple_times_F32
 #else
 void qb_do_cross_product_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19586,7 +20056,7 @@ void qb_do_cross_product_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_2x_multiple_times_F64_symbol	qb_do_cross_product_2x_multiple_times_F64
 #else
 void qb_do_cross_product_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19594,7 +20064,7 @@ void qb_do_cross_product_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_3x_F64_symbol	qb_do_cross_product_3x_F64
 #else
 void qb_do_cross_product_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -19602,7 +20072,7 @@ void qb_do_cross_product_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, f
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_3x_multiple_times_F32_symbol	qb_do_cross_product_3x_multiple_times_F32
 #else
 void qb_do_cross_product_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19610,7 +20080,7 @@ void qb_do_cross_product_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_3x_multiple_times_F64_symbol	qb_do_cross_product_3x_multiple_times_F64
 #else
 void qb_do_cross_product_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19618,7 +20088,7 @@ void qb_do_cross_product_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_4x_F32_symbol	qb_do_cross_product_4x_F32
 #else
 void qb_do_cross_product_4x_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *op3_ptr, float32_t *res_ptr) {
@@ -19626,7 +20096,7 @@ void qb_do_cross_product_4x_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, f
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_4x_F64_symbol	qb_do_cross_product_4x_F64
 #else
 void qb_do_cross_product_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *op3_ptr, float64_t *res_ptr) {
@@ -19634,7 +20104,7 @@ void qb_do_cross_product_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, f
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_4x_multiple_times_F32_symbol	qb_do_cross_product_4x_multiple_times_F32
 #else
 void qb_do_cross_product_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19642,7 +20112,7 @@ void qb_do_cross_product_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_cross_product_4x_multiple_times_F64_symbol	qb_do_cross_product_4x_multiple_times_F64
 #else
 void qb_do_cross_product_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19650,7 +20120,7 @@ void qb_do_cross_product_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_2x_multiple_times_F32_symbol	qb_do_decrement_2x_multiple_times_F32
 #else
 void qb_do_decrement_2x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -19658,7 +20128,7 @@ void qb_do_decrement_2x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_2x_multiple_times_F64_symbol	qb_do_decrement_2x_multiple_times_F64
 #else
 void qb_do_decrement_2x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -19666,7 +20136,7 @@ void qb_do_decrement_2x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_3x_multiple_times_F32_symbol	qb_do_decrement_3x_multiple_times_F32
 #else
 void qb_do_decrement_3x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -19674,7 +20144,7 @@ void qb_do_decrement_3x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_3x_multiple_times_F64_symbol	qb_do_decrement_3x_multiple_times_F64
 #else
 void qb_do_decrement_3x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -19682,7 +20152,7 @@ void qb_do_decrement_3x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_4x_multiple_times_F32_symbol	qb_do_decrement_4x_multiple_times_F32
 #else
 void qb_do_decrement_4x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -19690,7 +20160,7 @@ void qb_do_decrement_4x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_4x_multiple_times_F64_symbol	qb_do_decrement_4x_multiple_times_F64
 #else
 void qb_do_decrement_4x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -19698,7 +20168,7 @@ void qb_do_decrement_4x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_multiple_times_F32_symbol	qb_do_decrement_multiple_times_F32
 #else
 void qb_do_decrement_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -19706,7 +20176,7 @@ void qb_do_decrement_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_multiple_times_F64_symbol	qb_do_decrement_multiple_times_F64
 #else
 void qb_do_decrement_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -19714,7 +20184,7 @@ void qb_do_decrement_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_multiple_times_I08_symbol	qb_do_decrement_multiple_times_I08
 #else
 void qb_do_decrement_multiple_times_I08_symbol(int8_t *res_ptr, uint32_t res_count) {
@@ -19722,7 +20192,7 @@ void qb_do_decrement_multiple_times_I08_symbol(int8_t *res_ptr, uint32_t res_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_multiple_times_I16_symbol	qb_do_decrement_multiple_times_I16
 #else
 void qb_do_decrement_multiple_times_I16_symbol(int16_t *res_ptr, uint32_t res_count) {
@@ -19730,7 +20200,7 @@ void qb_do_decrement_multiple_times_I16_symbol(int16_t *res_ptr, uint32_t res_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_multiple_times_I32_symbol	qb_do_decrement_multiple_times_I32
 #else
 void qb_do_decrement_multiple_times_I32_symbol(int32_t *res_ptr, uint32_t res_count) {
@@ -19738,7 +20208,7 @@ void qb_do_decrement_multiple_times_I32_symbol(int32_t *res_ptr, uint32_t res_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_decrement_multiple_times_I64_symbol	qb_do_decrement_multiple_times_I64
 #else
 void qb_do_decrement_multiple_times_I64_symbol(int64_t *res_ptr, uint32_t res_count) {
@@ -19746,7 +20216,7 @@ void qb_do_decrement_multiple_times_I64_symbol(int64_t *res_ptr, uint32_t res_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_degree_to_radian_multiple_times_F32_symbol	qb_do_degree_to_radian_multiple_times_F32
 #else
 void qb_do_degree_to_radian_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19754,7 +20224,7 @@ void qb_do_degree_to_radian_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_degree_to_radian_multiple_times_F64_symbol	qb_do_degree_to_radian_multiple_times_F64
 #else
 void qb_do_degree_to_radian_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19762,7 +20232,7 @@ void qb_do_degree_to_radian_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_2x_F64_symbol	qb_do_determinant_2x_F64
 #else
 void qb_do_determinant_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -19770,7 +20240,7 @@ void qb_do_determinant_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_2x_multiple_times_F32_symbol	qb_do_determinant_2x_multiple_times_F32
 #else
 void qb_do_determinant_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19778,7 +20248,7 @@ void qb_do_determinant_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_2x_multiple_times_F64_symbol	qb_do_determinant_2x_multiple_times_F64
 #else
 void qb_do_determinant_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19786,7 +20256,7 @@ void qb_do_determinant_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_3x_F64_symbol	qb_do_determinant_3x_F64
 #else
 void qb_do_determinant_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -19794,7 +20264,7 @@ void qb_do_determinant_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_3x_multiple_times_F32_symbol	qb_do_determinant_3x_multiple_times_F32
 #else
 void qb_do_determinant_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19802,7 +20272,7 @@ void qb_do_determinant_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_3x_multiple_times_F64_symbol	qb_do_determinant_3x_multiple_times_F64
 #else
 void qb_do_determinant_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19810,7 +20280,7 @@ void qb_do_determinant_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_4x_F64_symbol	qb_do_determinant_4x_F64
 #else
 void qb_do_determinant_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -19818,7 +20288,7 @@ void qb_do_determinant_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_4x_multiple_times_F32_symbol	qb_do_determinant_4x_multiple_times_F32
 #else
 void qb_do_determinant_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19826,7 +20296,7 @@ void qb_do_determinant_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_4x_multiple_times_F64_symbol	qb_do_determinant_4x_multiple_times_F64
 #else
 void qb_do_determinant_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19834,7 +20304,7 @@ void qb_do_determinant_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_F32_symbol	qb_do_determinant_F32
 #else
 void qb_do_determinant_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
@@ -19842,7 +20312,7 @@ void qb_do_determinant_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_F64_symbol	qb_do_determinant_F64
 #else
 void qb_do_determinant_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
@@ -19850,7 +20320,7 @@ void qb_do_determinant_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_multiple_times_F32_symbol	qb_do_determinant_multiple_times_F32
 #else
 void qb_do_determinant_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -19858,7 +20328,7 @@ void qb_do_determinant_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_determinant_multiple_times_F64_symbol	qb_do_determinant_multiple_times_F64
 #else
 void qb_do_determinant_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -19866,7 +20336,7 @@ void qb_do_determinant_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_2x_F64_symbol	qb_do_distance_2x_F64
 #else
 void qb_do_distance_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -19874,7 +20344,7 @@ void qb_do_distance_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_2x_multiple_times_F32_symbol	qb_do_distance_2x_multiple_times_F32
 #else
 void qb_do_distance_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19882,7 +20352,7 @@ void qb_do_distance_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_2x_multiple_times_F64_symbol	qb_do_distance_2x_multiple_times_F64
 #else
 void qb_do_distance_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19890,7 +20360,7 @@ void qb_do_distance_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_3x_F64_symbol	qb_do_distance_3x_F64
 #else
 void qb_do_distance_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -19898,7 +20368,7 @@ void qb_do_distance_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_3x_multiple_times_F32_symbol	qb_do_distance_3x_multiple_times_F32
 #else
 void qb_do_distance_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19906,7 +20376,7 @@ void qb_do_distance_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_3x_multiple_times_F64_symbol	qb_do_distance_3x_multiple_times_F64
 #else
 void qb_do_distance_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19914,7 +20384,7 @@ void qb_do_distance_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_4x_F64_symbol	qb_do_distance_4x_F64
 #else
 void qb_do_distance_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -19922,7 +20392,7 @@ void qb_do_distance_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_4x_multiple_times_F32_symbol	qb_do_distance_4x_multiple_times_F32
 #else
 void qb_do_distance_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19930,7 +20400,7 @@ void qb_do_distance_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_4x_multiple_times_F64_symbol	qb_do_distance_4x_multiple_times_F64
 #else
 void qb_do_distance_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19938,7 +20408,7 @@ void qb_do_distance_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_F32_symbol	qb_do_distance_F32
 #else
 void qb_do_distance_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
@@ -19946,7 +20416,7 @@ void qb_do_distance_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_F64_symbol	qb_do_distance_F64
 #else
 void qb_do_distance_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
@@ -19954,7 +20424,7 @@ void qb_do_distance_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_multiple_times_F32_symbol	qb_do_distance_multiple_times_F32
 #else
 void qb_do_distance_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -19962,7 +20432,7 @@ void qb_do_distance_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_distance_multiple_times_F64_symbol	qb_do_distance_multiple_times_F64
 #else
 void qb_do_distance_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -19970,7 +20440,7 @@ void qb_do_distance_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_2x_multiple_times_F32_symbol	qb_do_divide_2x_multiple_times_F32
 #else
 void qb_do_divide_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19978,7 +20448,7 @@ void qb_do_divide_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_2x_multiple_times_F64_symbol	qb_do_divide_2x_multiple_times_F64
 #else
 void qb_do_divide_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -19986,7 +20456,7 @@ void qb_do_divide_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_3x_multiple_times_F32_symbol	qb_do_divide_3x_multiple_times_F32
 #else
 void qb_do_divide_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19994,7 +20464,7 @@ void qb_do_divide_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_3x_multiple_times_F64_symbol	qb_do_divide_3x_multiple_times_F64
 #else
 void qb_do_divide_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20002,7 +20472,7 @@ void qb_do_divide_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_4x_multiple_times_F32_symbol	qb_do_divide_4x_multiple_times_F32
 #else
 void qb_do_divide_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20010,7 +20480,7 @@ void qb_do_divide_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_4x_multiple_times_F64_symbol	qb_do_divide_4x_multiple_times_F64
 #else
 void qb_do_divide_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20018,7 +20488,7 @@ void qb_do_divide_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_F32_symbol	qb_do_divide_multiple_times_F32
 #else
 void qb_do_divide_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20026,7 +20496,7 @@ void qb_do_divide_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_F64_symbol	qb_do_divide_multiple_times_F64
 #else
 void qb_do_divide_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20034,7 +20504,7 @@ void qb_do_divide_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_S08_symbol	qb_do_divide_multiple_times_S08
 #else
 void qb_do_divide_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20042,7 +20512,7 @@ void qb_do_divide_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_S16_symbol	qb_do_divide_multiple_times_S16
 #else
 void qb_do_divide_multiple_times_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20050,7 +20520,7 @@ void qb_do_divide_multiple_times_S16_symbol(qb_interpreter_context *cxt, int16_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_S32_symbol	qb_do_divide_multiple_times_S32
 #else
 void qb_do_divide_multiple_times_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20058,7 +20528,7 @@ void qb_do_divide_multiple_times_S32_symbol(qb_interpreter_context *cxt, int32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_S64_symbol	qb_do_divide_multiple_times_S64
 #else
 void qb_do_divide_multiple_times_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20066,7 +20536,7 @@ void qb_do_divide_multiple_times_S64_symbol(qb_interpreter_context *cxt, int64_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_U08_symbol	qb_do_divide_multiple_times_U08
 #else
 void qb_do_divide_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20074,7 +20544,7 @@ void qb_do_divide_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint8_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_U16_symbol	qb_do_divide_multiple_times_U16
 #else
 void qb_do_divide_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20082,7 +20552,7 @@ void qb_do_divide_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint16_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_U32_symbol	qb_do_divide_multiple_times_U32
 #else
 void qb_do_divide_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20090,7 +20560,7 @@ void qb_do_divide_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_divide_multiple_times_U64_symbol	qb_do_divide_multiple_times_U64
 #else
 void qb_do_divide_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
@@ -20098,7 +20568,7 @@ void qb_do_divide_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint64_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_2x_F64_symbol	qb_do_dot_product_2x_F64
 #else
 void qb_do_dot_product_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -20106,7 +20576,7 @@ void qb_do_dot_product_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, flo
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_2x_multiple_times_F32_symbol	qb_do_dot_product_2x_multiple_times_F32
 #else
 void qb_do_dot_product_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20114,7 +20584,7 @@ void qb_do_dot_product_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_2x_multiple_times_F64_symbol	qb_do_dot_product_2x_multiple_times_F64
 #else
 void qb_do_dot_product_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20122,7 +20592,7 @@ void qb_do_dot_product_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_3x_F64_symbol	qb_do_dot_product_3x_F64
 #else
 void qb_do_dot_product_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -20130,7 +20600,7 @@ void qb_do_dot_product_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, flo
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_3x_multiple_times_F32_symbol	qb_do_dot_product_3x_multiple_times_F32
 #else
 void qb_do_dot_product_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20138,7 +20608,7 @@ void qb_do_dot_product_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_3x_multiple_times_F64_symbol	qb_do_dot_product_3x_multiple_times_F64
 #else
 void qb_do_dot_product_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20146,7 +20616,7 @@ void qb_do_dot_product_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_4x_F64_symbol	qb_do_dot_product_4x_F64
 #else
 void qb_do_dot_product_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -20154,7 +20624,7 @@ void qb_do_dot_product_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, flo
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_4x_multiple_times_F32_symbol	qb_do_dot_product_4x_multiple_times_F32
 #else
 void qb_do_dot_product_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20162,7 +20632,7 @@ void qb_do_dot_product_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_4x_multiple_times_F64_symbol	qb_do_dot_product_4x_multiple_times_F64
 #else
 void qb_do_dot_product_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20170,7 +20640,7 @@ void qb_do_dot_product_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_F32_symbol	qb_do_dot_product_F32
 #else
 void qb_do_dot_product_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
@@ -20178,7 +20648,7 @@ void qb_do_dot_product_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_F64_symbol	qb_do_dot_product_F64
 #else
 void qb_do_dot_product_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
@@ -20186,7 +20656,7 @@ void qb_do_dot_product_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_multiple_times_F32_symbol	qb_do_dot_product_multiple_times_F32
 #else
 void qb_do_dot_product_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -20194,7 +20664,7 @@ void qb_do_dot_product_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_dot_product_multiple_times_F64_symbol	qb_do_dot_product_multiple_times_F64
 #else
 void qb_do_dot_product_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -20202,7 +20672,7 @@ void qb_do_dot_product_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_equal_vector_multiple_times_F32_symbol	qb_do_equal_vector_multiple_times_F32
 #else
 void qb_do_equal_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20210,7 +20680,7 @@ void qb_do_equal_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_equal_vector_multiple_times_F64_symbol	qb_do_equal_vector_multiple_times_F64
 #else
 void qb_do_equal_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20218,7 +20688,7 @@ void qb_do_equal_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_equal_vector_multiple_times_I08_symbol	qb_do_equal_vector_multiple_times_I08
 #else
 void qb_do_equal_vector_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20226,7 +20696,7 @@ void qb_do_equal_vector_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_equal_vector_multiple_times_I16_symbol	qb_do_equal_vector_multiple_times_I16
 #else
 void qb_do_equal_vector_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20234,7 +20704,7 @@ void qb_do_equal_vector_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_equal_vector_multiple_times_I32_symbol	qb_do_equal_vector_multiple_times_I32
 #else
 void qb_do_equal_vector_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20242,7 +20712,7 @@ void qb_do_equal_vector_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_equal_vector_multiple_times_I64_symbol	qb_do_equal_vector_multiple_times_I64
 #else
 void qb_do_equal_vector_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20250,7 +20720,7 @@ void qb_do_equal_vector_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_exp2_multiple_times_F32_symbol	qb_do_exp2_multiple_times_F32
 #else
 void qb_do_exp2_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20258,7 +20728,7 @@ void qb_do_exp2_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_exp2_multiple_times_F64_symbol	qb_do_exp2_multiple_times_F64
 #else
 void qb_do_exp2_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20266,7 +20736,7 @@ void qb_do_exp2_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_exp_m1_multiple_times_F32_symbol	qb_do_exp_m1_multiple_times_F32
 #else
 void qb_do_exp_m1_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20274,7 +20744,7 @@ void qb_do_exp_m1_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_exp_m1_multiple_times_F64_symbol	qb_do_exp_m1_multiple_times_F64
 #else
 void qb_do_exp_m1_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20282,7 +20752,7 @@ void qb_do_exp_m1_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_exp_multiple_times_F32_symbol	qb_do_exp_multiple_times_F32
 #else
 void qb_do_exp_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20290,7 +20760,7 @@ void qb_do_exp_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_exp_multiple_times_F64_symbol	qb_do_exp_multiple_times_F64
 #else
 void qb_do_exp_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20298,7 +20768,7 @@ void qb_do_exp_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_2x_F64_symbol	qb_do_face_forward_2x_F64
 #else
 void qb_do_face_forward_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -20306,7 +20776,7 @@ void qb_do_face_forward_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, fl
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_2x_multiple_times_F32_symbol	qb_do_face_forward_2x_multiple_times_F32
 #else
 void qb_do_face_forward_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20314,7 +20784,7 @@ void qb_do_face_forward_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_2x_multiple_times_F64_symbol	qb_do_face_forward_2x_multiple_times_F64
 #else
 void qb_do_face_forward_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20322,7 +20792,7 @@ void qb_do_face_forward_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_3x_F64_symbol	qb_do_face_forward_3x_F64
 #else
 void qb_do_face_forward_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -20330,7 +20800,7 @@ void qb_do_face_forward_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, fl
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_3x_multiple_times_F32_symbol	qb_do_face_forward_3x_multiple_times_F32
 #else
 void qb_do_face_forward_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20338,7 +20808,7 @@ void qb_do_face_forward_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_3x_multiple_times_F64_symbol	qb_do_face_forward_3x_multiple_times_F64
 #else
 void qb_do_face_forward_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20346,7 +20816,7 @@ void qb_do_face_forward_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_4x_F64_symbol	qb_do_face_forward_4x_F64
 #else
 void qb_do_face_forward_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -20354,7 +20824,7 @@ void qb_do_face_forward_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, fl
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_4x_multiple_times_F32_symbol	qb_do_face_forward_4x_multiple_times_F32
 #else
 void qb_do_face_forward_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20362,7 +20832,7 @@ void qb_do_face_forward_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_4x_multiple_times_F64_symbol	qb_do_face_forward_4x_multiple_times_F64
 #else
 void qb_do_face_forward_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20370,7 +20840,7 @@ void qb_do_face_forward_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_F32_symbol	qb_do_face_forward_F32
 #else
 void qb_do_face_forward_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
@@ -20378,7 +20848,7 @@ void qb_do_face_forward_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_F64_symbol	qb_do_face_forward_F64
 #else
 void qb_do_face_forward_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
@@ -20386,7 +20856,7 @@ void qb_do_face_forward_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_multiple_times_F32_symbol	qb_do_face_forward_multiple_times_F32
 #else
 void qb_do_face_forward_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -20394,7 +20864,7 @@ void qb_do_face_forward_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_face_forward_multiple_times_F64_symbol	qb_do_face_forward_multiple_times_F64
 #else
 void qb_do_face_forward_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -20402,7 +20872,7 @@ void qb_do_face_forward_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_floor_multiple_times_F32_symbol	qb_do_floor_multiple_times_F32
 #else
 void qb_do_floor_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20410,7 +20880,7 @@ void qb_do_floor_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_floor_multiple_times_F64_symbol	qb_do_floor_multiple_times_F64
 #else
 void qb_do_floor_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20418,7 +20888,7 @@ void qb_do_floor_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_floored_division_modulo_multiple_times_F32_symbol	qb_do_floored_division_modulo_multiple_times_F32
 #else
 void qb_do_floored_division_modulo_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20426,7 +20896,7 @@ void qb_do_floored_division_modulo_multiple_times_F32_symbol(float32_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_floored_division_modulo_multiple_times_F64_symbol	qb_do_floored_division_modulo_multiple_times_F64
 #else
 void qb_do_floored_division_modulo_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20434,7 +20904,7 @@ void qb_do_floored_division_modulo_multiple_times_F64_symbol(float64_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_fract_multiple_times_F32_symbol	qb_do_fract_multiple_times_F32
 #else
 void qb_do_fract_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20442,7 +20912,7 @@ void qb_do_fract_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_fract_multiple_times_F64_symbol	qb_do_fract_multiple_times_F64
 #else
 void qb_do_fract_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20450,7 +20920,7 @@ void qb_do_fract_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_hypot_multiple_times_F32_symbol	qb_do_hypot_multiple_times_F32
 #else
 void qb_do_hypot_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20458,7 +20928,7 @@ void qb_do_hypot_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_hypot_multiple_times_F64_symbol	qb_do_hypot_multiple_times_F64
 #else
 void qb_do_hypot_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20466,7 +20936,7 @@ void qb_do_hypot_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_in_array_multiple_times_F32_symbol	qb_do_in_array_multiple_times_F32
 #else
 void qb_do_in_array_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -20474,7 +20944,7 @@ void qb_do_in_array_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_in_array_multiple_times_F64_symbol	qb_do_in_array_multiple_times_F64
 #else
 void qb_do_in_array_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -20482,7 +20952,7 @@ void qb_do_in_array_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_in_array_multiple_times_I08_symbol	qb_do_in_array_multiple_times_I08
 #else
 void qb_do_in_array_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -20490,7 +20960,7 @@ void qb_do_in_array_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_in_array_multiple_times_I16_symbol	qb_do_in_array_multiple_times_I16
 #else
 void qb_do_in_array_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -20498,7 +20968,7 @@ void qb_do_in_array_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_in_array_multiple_times_I32_symbol	qb_do_in_array_multiple_times_I32
 #else
 void qb_do_in_array_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -20506,7 +20976,7 @@ void qb_do_in_array_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_in_array_multiple_times_I64_symbol	qb_do_in_array_multiple_times_I64
 #else
 void qb_do_in_array_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr) {
@@ -20514,7 +20984,7 @@ void qb_do_in_array_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_2x_multiple_times_F32_symbol	qb_do_increment_2x_multiple_times_F32
 #else
 void qb_do_increment_2x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -20522,7 +20992,7 @@ void qb_do_increment_2x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_2x_multiple_times_F64_symbol	qb_do_increment_2x_multiple_times_F64
 #else
 void qb_do_increment_2x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -20530,7 +21000,7 @@ void qb_do_increment_2x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_3x_multiple_times_F32_symbol	qb_do_increment_3x_multiple_times_F32
 #else
 void qb_do_increment_3x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -20538,7 +21008,7 @@ void qb_do_increment_3x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_3x_multiple_times_F64_symbol	qb_do_increment_3x_multiple_times_F64
 #else
 void qb_do_increment_3x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -20546,7 +21016,7 @@ void qb_do_increment_3x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_4x_multiple_times_F32_symbol	qb_do_increment_4x_multiple_times_F32
 #else
 void qb_do_increment_4x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -20554,7 +21024,7 @@ void qb_do_increment_4x_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_4x_multiple_times_F64_symbol	qb_do_increment_4x_multiple_times_F64
 #else
 void qb_do_increment_4x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -20562,7 +21032,7 @@ void qb_do_increment_4x_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t r
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_multiple_times_F32_symbol	qb_do_increment_multiple_times_F32
 #else
 void qb_do_increment_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -20570,7 +21040,7 @@ void qb_do_increment_multiple_times_F32_symbol(float32_t *res_ptr, uint32_t res_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_multiple_times_F64_symbol	qb_do_increment_multiple_times_F64
 #else
 void qb_do_increment_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -20578,7 +21048,7 @@ void qb_do_increment_multiple_times_F64_symbol(float64_t *res_ptr, uint32_t res_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_multiple_times_I08_symbol	qb_do_increment_multiple_times_I08
 #else
 void qb_do_increment_multiple_times_I08_symbol(int8_t *res_ptr, uint32_t res_count) {
@@ -20586,7 +21056,7 @@ void qb_do_increment_multiple_times_I08_symbol(int8_t *res_ptr, uint32_t res_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_multiple_times_I16_symbol	qb_do_increment_multiple_times_I16
 #else
 void qb_do_increment_multiple_times_I16_symbol(int16_t *res_ptr, uint32_t res_count) {
@@ -20594,7 +21064,7 @@ void qb_do_increment_multiple_times_I16_symbol(int16_t *res_ptr, uint32_t res_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_multiple_times_I32_symbol	qb_do_increment_multiple_times_I32
 #else
 void qb_do_increment_multiple_times_I32_symbol(int32_t *res_ptr, uint32_t res_count) {
@@ -20602,7 +21072,7 @@ void qb_do_increment_multiple_times_I32_symbol(int32_t *res_ptr, uint32_t res_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_increment_multiple_times_I64_symbol	qb_do_increment_multiple_times_I64
 #else
 void qb_do_increment_multiple_times_I64_symbol(int64_t *res_ptr, uint32_t res_count) {
@@ -20610,7 +21080,7 @@ void qb_do_increment_multiple_times_I64_symbol(int64_t *res_ptr, uint32_t res_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_2x_F32_symbol	qb_do_invert_matrix_2x_F32
 #else
 void qb_do_invert_matrix_2x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
@@ -20618,7 +21088,7 @@ void qb_do_invert_matrix_2x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_2x_F64_symbol	qb_do_invert_matrix_2x_F64
 #else
 void qb_do_invert_matrix_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -20626,7 +21096,7 @@ void qb_do_invert_matrix_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_2x_multiple_times_F32_symbol	qb_do_invert_matrix_2x_multiple_times_F32
 #else
 void qb_do_invert_matrix_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20634,7 +21104,7 @@ void qb_do_invert_matrix_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_2x_multiple_times_F64_symbol	qb_do_invert_matrix_2x_multiple_times_F64
 #else
 void qb_do_invert_matrix_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20642,7 +21112,7 @@ void qb_do_invert_matrix_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_3x_F32_symbol	qb_do_invert_matrix_3x_F32
 #else
 void qb_do_invert_matrix_3x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
@@ -20650,7 +21120,7 @@ void qb_do_invert_matrix_3x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_3x_F64_symbol	qb_do_invert_matrix_3x_F64
 #else
 void qb_do_invert_matrix_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -20658,7 +21128,7 @@ void qb_do_invert_matrix_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_3x_multiple_times_F32_symbol	qb_do_invert_matrix_3x_multiple_times_F32
 #else
 void qb_do_invert_matrix_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20666,7 +21136,7 @@ void qb_do_invert_matrix_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_3x_multiple_times_F64_symbol	qb_do_invert_matrix_3x_multiple_times_F64
 #else
 void qb_do_invert_matrix_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20674,7 +21144,7 @@ void qb_do_invert_matrix_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_4x_F32_symbol	qb_do_invert_matrix_4x_F32
 #else
 void qb_do_invert_matrix_4x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
@@ -20682,7 +21152,7 @@ void qb_do_invert_matrix_4x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_4x_F64_symbol	qb_do_invert_matrix_4x_F64
 #else
 void qb_do_invert_matrix_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -20690,7 +21160,7 @@ void qb_do_invert_matrix_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_4x_multiple_times_F32_symbol	qb_do_invert_matrix_4x_multiple_times_F32
 #else
 void qb_do_invert_matrix_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20698,7 +21168,7 @@ void qb_do_invert_matrix_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_4x_multiple_times_F64_symbol	qb_do_invert_matrix_4x_multiple_times_F64
 #else
 void qb_do_invert_matrix_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20706,7 +21176,7 @@ void qb_do_invert_matrix_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_F32_symbol	qb_do_invert_matrix_F32
 #else
 void qb_do_invert_matrix_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
@@ -20714,7 +21184,7 @@ void qb_do_invert_matrix_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, u
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_F64_symbol	qb_do_invert_matrix_F64
 #else
 void qb_do_invert_matrix_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
@@ -20722,7 +21192,7 @@ void qb_do_invert_matrix_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, u
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_multiple_times_F32_symbol	qb_do_invert_matrix_multiple_times_F32
 #else
 void qb_do_invert_matrix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -20730,7 +21200,7 @@ void qb_do_invert_matrix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_invert_matrix_multiple_times_F64_symbol	qb_do_invert_matrix_multiple_times_F64
 #else
 void qb_do_invert_matrix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -20738,7 +21208,7 @@ void qb_do_invert_matrix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_is_finite_multiple_times_F32_symbol	qb_do_is_finite_multiple_times_F32
 #else
 void qb_do_is_finite_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20746,7 +21216,7 @@ void qb_do_is_finite_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_is_finite_multiple_times_F64_symbol	qb_do_is_finite_multiple_times_F64
 #else
 void qb_do_is_finite_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20754,7 +21224,7 @@ void qb_do_is_finite_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_is_infinite_multiple_times_F32_symbol	qb_do_is_infinite_multiple_times_F32
 #else
 void qb_do_is_infinite_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20762,7 +21232,7 @@ void qb_do_is_infinite_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_is_infinite_multiple_times_F64_symbol	qb_do_is_infinite_multiple_times_F64
 #else
 void qb_do_is_infinite_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20770,7 +21240,7 @@ void qb_do_is_infinite_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_is_nan_multiple_times_F32_symbol	qb_do_is_nan_multiple_times_F32
 #else
 void qb_do_is_nan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20778,7 +21248,7 @@ void qb_do_is_nan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_is_nan_multiple_times_F64_symbol	qb_do_is_nan_multiple_times_F64
 #else
 void qb_do_is_nan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20786,7 +21256,7 @@ void qb_do_is_nan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_lcg_F32_symbol	qb_do_lcg_F32
 #else
 void qb_do_lcg_F32_symbol(qb_interpreter_context *cxt, float32_t *res_ptr) {
@@ -20794,7 +21264,7 @@ void qb_do_lcg_F32_symbol(qb_interpreter_context *cxt, float32_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_lcg_F64_symbol	qb_do_lcg_F64
 #else
 void qb_do_lcg_F64_symbol(qb_interpreter_context *cxt, float64_t *res_ptr) {
@@ -20802,7 +21272,7 @@ void qb_do_lcg_F64_symbol(qb_interpreter_context *cxt, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_lcg_multiple_times_F32_symbol	qb_do_lcg_multiple_times_F32
 #else
 void qb_do_lcg_multiple_times_F32_symbol(qb_interpreter_context *cxt, float32_t *res_ptr, uint32_t res_count) {
@@ -20810,7 +21280,7 @@ void qb_do_lcg_multiple_times_F32_symbol(qb_interpreter_context *cxt, float32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_lcg_multiple_times_F64_symbol	qb_do_lcg_multiple_times_F64
 #else
 void qb_do_lcg_multiple_times_F64_symbol(qb_interpreter_context *cxt, float64_t *res_ptr, uint32_t res_count) {
@@ -20818,7 +21288,7 @@ void qb_do_lcg_multiple_times_F64_symbol(qb_interpreter_context *cxt, float64_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_2x_F64_symbol	qb_do_length_2x_F64
 #else
 void qb_do_length_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -20826,7 +21296,7 @@ void qb_do_length_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_2x_multiple_times_F32_symbol	qb_do_length_2x_multiple_times_F32
 #else
 void qb_do_length_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20834,7 +21304,7 @@ void qb_do_length_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_2x_multiple_times_F64_symbol	qb_do_length_2x_multiple_times_F64
 #else
 void qb_do_length_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20842,7 +21312,7 @@ void qb_do_length_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_3x_F64_symbol	qb_do_length_3x_F64
 #else
 void qb_do_length_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -20850,7 +21320,7 @@ void qb_do_length_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_3x_multiple_times_F32_symbol	qb_do_length_3x_multiple_times_F32
 #else
 void qb_do_length_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20858,7 +21328,7 @@ void qb_do_length_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_3x_multiple_times_F64_symbol	qb_do_length_3x_multiple_times_F64
 #else
 void qb_do_length_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20866,7 +21336,7 @@ void qb_do_length_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_4x_F64_symbol	qb_do_length_4x_F64
 #else
 void qb_do_length_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -20874,7 +21344,7 @@ void qb_do_length_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_4x_multiple_times_F32_symbol	qb_do_length_4x_multiple_times_F32
 #else
 void qb_do_length_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -20882,7 +21352,7 @@ void qb_do_length_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_4x_multiple_times_F64_symbol	qb_do_length_4x_multiple_times_F64
 #else
 void qb_do_length_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -20890,7 +21360,7 @@ void qb_do_length_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_F32_symbol	qb_do_length_F32
 #else
 void qb_do_length_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
@@ -20898,7 +21368,7 @@ void qb_do_length_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_F64_symbol	qb_do_length_F64
 #else
 void qb_do_length_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
@@ -20906,7 +21376,7 @@ void qb_do_length_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_multiple_times_F32_symbol	qb_do_length_multiple_times_F32
 #else
 void qb_do_length_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -20914,7 +21384,7 @@ void qb_do_length_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_length_multiple_times_F64_symbol	qb_do_length_multiple_times_F64
 #else
 void qb_do_length_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -20922,7 +21392,7 @@ void qb_do_length_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_F32_symbol	qb_do_less_than_or_equal_vector_multiple_times_F32
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20930,7 +21400,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_F32_symbol(float32_t *op1_pt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_F64_symbol	qb_do_less_than_or_equal_vector_multiple_times_F64
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20938,7 +21408,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_F64_symbol(float64_t *op1_pt
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_S08_symbol	qb_do_less_than_or_equal_vector_multiple_times_S08
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20946,7 +21416,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_S08_symbol(int8_t *op1_ptr, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_S16_symbol	qb_do_less_than_or_equal_vector_multiple_times_S16
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20954,7 +21424,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_S16_symbol(int16_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_S32_symbol	qb_do_less_than_or_equal_vector_multiple_times_S32
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20962,7 +21432,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_S32_symbol(int32_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_S64_symbol	qb_do_less_than_or_equal_vector_multiple_times_S64
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20970,7 +21440,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_S64_symbol(int64_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_U08_symbol	qb_do_less_than_or_equal_vector_multiple_times_U08
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20978,7 +21448,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_U08_symbol(uint8_t *op1_ptr,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_U16_symbol	qb_do_less_than_or_equal_vector_multiple_times_U16
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20986,7 +21456,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_U16_symbol(uint16_t *op1_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_U32_symbol	qb_do_less_than_or_equal_vector_multiple_times_U32
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -20994,7 +21464,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_U32_symbol(uint32_t *op1_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_or_equal_vector_multiple_times_U64_symbol	qb_do_less_than_or_equal_vector_multiple_times_U64
 #else
 void qb_do_less_than_or_equal_vector_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21002,7 +21472,7 @@ void qb_do_less_than_or_equal_vector_multiple_times_U64_symbol(uint64_t *op1_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_F32_symbol	qb_do_less_than_vector_multiple_times_F32
 #else
 void qb_do_less_than_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21010,7 +21480,7 @@ void qb_do_less_than_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_F64_symbol	qb_do_less_than_vector_multiple_times_F64
 #else
 void qb_do_less_than_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21018,7 +21488,7 @@ void qb_do_less_than_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_S08_symbol	qb_do_less_than_vector_multiple_times_S08
 #else
 void qb_do_less_than_vector_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21026,7 +21496,7 @@ void qb_do_less_than_vector_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_S16_symbol	qb_do_less_than_vector_multiple_times_S16
 #else
 void qb_do_less_than_vector_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21034,7 +21504,7 @@ void qb_do_less_than_vector_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_S32_symbol	qb_do_less_than_vector_multiple_times_S32
 #else
 void qb_do_less_than_vector_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21042,7 +21512,7 @@ void qb_do_less_than_vector_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_S64_symbol	qb_do_less_than_vector_multiple_times_S64
 #else
 void qb_do_less_than_vector_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21050,7 +21520,7 @@ void qb_do_less_than_vector_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_U08_symbol	qb_do_less_than_vector_multiple_times_U08
 #else
 void qb_do_less_than_vector_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21058,7 +21528,7 @@ void qb_do_less_than_vector_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_U16_symbol	qb_do_less_than_vector_multiple_times_U16
 #else
 void qb_do_less_than_vector_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21066,7 +21536,7 @@ void qb_do_less_than_vector_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_U32_symbol	qb_do_less_than_vector_multiple_times_U32
 #else
 void qb_do_less_than_vector_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21074,7 +21544,7 @@ void qb_do_less_than_vector_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_less_than_vector_multiple_times_U64_symbol	qb_do_less_than_vector_multiple_times_U64
 #else
 void qb_do_less_than_vector_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21082,7 +21552,7 @@ void qb_do_less_than_vector_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log10_multiple_times_F32_symbol	qb_do_log10_multiple_times_F32
 #else
 void qb_do_log10_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21090,7 +21560,7 @@ void qb_do_log10_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log10_multiple_times_F64_symbol	qb_do_log10_multiple_times_F64
 #else
 void qb_do_log10_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21098,7 +21568,7 @@ void qb_do_log10_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log1p_multiple_times_F32_symbol	qb_do_log1p_multiple_times_F32
 #else
 void qb_do_log1p_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21106,7 +21576,7 @@ void qb_do_log1p_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log1p_multiple_times_F64_symbol	qb_do_log1p_multiple_times_F64
 #else
 void qb_do_log1p_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21114,7 +21584,7 @@ void qb_do_log1p_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log2_multiple_times_F32_symbol	qb_do_log2_multiple_times_F32
 #else
 void qb_do_log2_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21122,7 +21592,7 @@ void qb_do_log2_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log2_multiple_times_F64_symbol	qb_do_log2_multiple_times_F64
 #else
 void qb_do_log2_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21130,7 +21600,7 @@ void qb_do_log2_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log_multiple_times_F32_symbol	qb_do_log_multiple_times_F32
 #else
 void qb_do_log_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21138,7 +21608,7 @@ void qb_do_log_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_log_multiple_times_F64_symbol	qb_do_log_multiple_times_F64
 #else
 void qb_do_log_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21146,7 +21616,7 @@ void qb_do_log_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_F32_symbol	qb_do_max_multiple_times_F32
 #else
 void qb_do_max_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21154,7 +21624,7 @@ void qb_do_max_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_F64_symbol	qb_do_max_multiple_times_F64
 #else
 void qb_do_max_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21162,7 +21632,7 @@ void qb_do_max_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_S08_symbol	qb_do_max_multiple_times_S08
 #else
 void qb_do_max_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -21170,7 +21640,7 @@ void qb_do_max_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_S16_symbol	qb_do_max_multiple_times_S16
 #else
 void qb_do_max_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -21178,7 +21648,7 @@ void qb_do_max_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_S32_symbol	qb_do_max_multiple_times_S32
 #else
 void qb_do_max_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21186,7 +21656,7 @@ void qb_do_max_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_S64_symbol	qb_do_max_multiple_times_S64
 #else
 void qb_do_max_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -21194,7 +21664,7 @@ void qb_do_max_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_U08_symbol	qb_do_max_multiple_times_U08
 #else
 void qb_do_max_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -21202,7 +21672,7 @@ void qb_do_max_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, u
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_U16_symbol	qb_do_max_multiple_times_U16
 #else
 void qb_do_max_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -21210,7 +21680,7 @@ void qb_do_max_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_U32_symbol	qb_do_max_multiple_times_U32
 #else
 void qb_do_max_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -21218,7 +21688,7 @@ void qb_do_max_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_max_multiple_times_U64_symbol	qb_do_max_multiple_times_U64
 #else
 void qb_do_max_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -21226,7 +21696,7 @@ void qb_do_max_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_F32_symbol	qb_do_min_multiple_times_F32
 #else
 void qb_do_min_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21234,7 +21704,7 @@ void qb_do_min_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_F64_symbol	qb_do_min_multiple_times_F64
 #else
 void qb_do_min_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21242,7 +21712,7 @@ void qb_do_min_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_S08_symbol	qb_do_min_multiple_times_S08
 #else
 void qb_do_min_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -21250,7 +21720,7 @@ void qb_do_min_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_S16_symbol	qb_do_min_multiple_times_S16
 #else
 void qb_do_min_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -21258,7 +21728,7 @@ void qb_do_min_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_S32_symbol	qb_do_min_multiple_times_S32
 #else
 void qb_do_min_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21266,7 +21736,7 @@ void qb_do_min_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_S64_symbol	qb_do_min_multiple_times_S64
 #else
 void qb_do_min_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -21274,7 +21744,7 @@ void qb_do_min_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, i
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_U08_symbol	qb_do_min_multiple_times_U08
 #else
 void qb_do_min_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -21282,7 +21752,7 @@ void qb_do_min_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, u
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_U16_symbol	qb_do_min_multiple_times_U16
 #else
 void qb_do_min_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -21290,7 +21760,7 @@ void qb_do_min_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_U32_symbol	qb_do_min_multiple_times_U32
 #else
 void qb_do_min_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -21298,7 +21768,7 @@ void qb_do_min_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_min_multiple_times_U64_symbol	qb_do_min_multiple_times_U64
 #else
 void qb_do_min_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -21306,7 +21776,7 @@ void qb_do_min_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_mix_multiple_times_F32_symbol	qb_do_mix_multiple_times_F32
 #else
 void qb_do_mix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21314,7 +21784,7 @@ void qb_do_mix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_mix_multiple_times_F64_symbol	qb_do_mix_multiple_times_F64
 #else
 void qb_do_mix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21322,7 +21792,7 @@ void qb_do_mix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_2x_multiple_times_F32_symbol	qb_do_modulo_2x_multiple_times_F32
 #else
 void qb_do_modulo_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21330,7 +21800,7 @@ void qb_do_modulo_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_2x_multiple_times_F64_symbol	qb_do_modulo_2x_multiple_times_F64
 #else
 void qb_do_modulo_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21338,7 +21808,7 @@ void qb_do_modulo_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_3x_multiple_times_F32_symbol	qb_do_modulo_3x_multiple_times_F32
 #else
 void qb_do_modulo_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21346,7 +21816,7 @@ void qb_do_modulo_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_3x_multiple_times_F64_symbol	qb_do_modulo_3x_multiple_times_F64
 #else
 void qb_do_modulo_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21354,7 +21824,7 @@ void qb_do_modulo_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_4x_multiple_times_F32_symbol	qb_do_modulo_4x_multiple_times_F32
 #else
 void qb_do_modulo_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21362,7 +21832,7 @@ void qb_do_modulo_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_4x_multiple_times_F64_symbol	qb_do_modulo_4x_multiple_times_F64
 #else
 void qb_do_modulo_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21370,7 +21840,7 @@ void qb_do_modulo_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_F32_symbol	qb_do_modulo_multiple_times_F32
 #else
 void qb_do_modulo_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21378,7 +21848,7 @@ void qb_do_modulo_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_F64_symbol	qb_do_modulo_multiple_times_F64
 #else
 void qb_do_modulo_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21386,7 +21856,7 @@ void qb_do_modulo_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_S08_symbol	qb_do_modulo_multiple_times_S08
 #else
 void qb_do_modulo_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -21394,7 +21864,7 @@ void qb_do_modulo_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_S16_symbol	qb_do_modulo_multiple_times_S16
 #else
 void qb_do_modulo_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -21402,7 +21872,7 @@ void qb_do_modulo_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_S32_symbol	qb_do_modulo_multiple_times_S32
 #else
 void qb_do_modulo_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21410,7 +21880,7 @@ void qb_do_modulo_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_S64_symbol	qb_do_modulo_multiple_times_S64
 #else
 void qb_do_modulo_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -21418,7 +21888,7 @@ void qb_do_modulo_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_U08_symbol	qb_do_modulo_multiple_times_U08
 #else
 void qb_do_modulo_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -21426,7 +21896,7 @@ void qb_do_modulo_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_U16_symbol	qb_do_modulo_multiple_times_U16
 #else
 void qb_do_modulo_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -21434,7 +21904,7 @@ void qb_do_modulo_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_U32_symbol	qb_do_modulo_multiple_times_U32
 #else
 void qb_do_modulo_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -21442,7 +21912,7 @@ void qb_do_modulo_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_modulo_multiple_times_U64_symbol	qb_do_modulo_multiple_times_U64
 #else
 void qb_do_modulo_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -21450,7 +21920,7 @@ void qb_do_modulo_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_2x_multiple_times_F32_symbol	qb_do_multiply_2x_multiple_times_F32
 #else
 void qb_do_multiply_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21458,7 +21928,7 @@ void qb_do_multiply_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_2x_multiple_times_F64_symbol	qb_do_multiply_2x_multiple_times_F64
 #else
 void qb_do_multiply_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21466,7 +21936,7 @@ void qb_do_multiply_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_3x_multiple_times_F32_symbol	qb_do_multiply_3x_multiple_times_F32
 #else
 void qb_do_multiply_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21474,7 +21944,7 @@ void qb_do_multiply_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_3x_multiple_times_F64_symbol	qb_do_multiply_3x_multiple_times_F64
 #else
 void qb_do_multiply_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21482,7 +21952,7 @@ void qb_do_multiply_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_4x_multiple_times_F32_symbol	qb_do_multiply_4x_multiple_times_F32
 #else
 void qb_do_multiply_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21490,7 +21960,7 @@ void qb_do_multiply_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_4x_multiple_times_F64_symbol	qb_do_multiply_4x_multiple_times_F64
 #else
 void qb_do_multiply_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21498,7 +21968,7 @@ void qb_do_multiply_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_2x_multiple_times_F32_symbol	qb_do_multiply_accumulate_2x_multiple_times_F32
 #else
 void qb_do_multiply_accumulate_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21506,7 +21976,7 @@ void qb_do_multiply_accumulate_2x_multiple_times_F32_symbol(float32_t *op1_ptr, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_2x_multiple_times_F64_symbol	qb_do_multiply_accumulate_2x_multiple_times_F64
 #else
 void qb_do_multiply_accumulate_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21514,7 +21984,7 @@ void qb_do_multiply_accumulate_2x_multiple_times_F64_symbol(float64_t *op1_ptr, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_3x_multiple_times_F32_symbol	qb_do_multiply_accumulate_3x_multiple_times_F32
 #else
 void qb_do_multiply_accumulate_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21522,7 +21992,7 @@ void qb_do_multiply_accumulate_3x_multiple_times_F32_symbol(float32_t *op1_ptr, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_3x_multiple_times_F64_symbol	qb_do_multiply_accumulate_3x_multiple_times_F64
 #else
 void qb_do_multiply_accumulate_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21530,7 +22000,7 @@ void qb_do_multiply_accumulate_3x_multiple_times_F64_symbol(float64_t *op1_ptr, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_4x_multiple_times_F32_symbol	qb_do_multiply_accumulate_4x_multiple_times_F32
 #else
 void qb_do_multiply_accumulate_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21538,7 +22008,7 @@ void qb_do_multiply_accumulate_4x_multiple_times_F32_symbol(float32_t *op1_ptr, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_4x_multiple_times_F64_symbol	qb_do_multiply_accumulate_4x_multiple_times_F64
 #else
 void qb_do_multiply_accumulate_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21546,7 +22016,7 @@ void qb_do_multiply_accumulate_4x_multiple_times_F64_symbol(float64_t *op1_ptr, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_multiple_times_F32_symbol	qb_do_multiply_accumulate_multiple_times_F32
 #else
 void qb_do_multiply_accumulate_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21554,7 +22024,7 @@ void qb_do_multiply_accumulate_multiple_times_F32_symbol(float32_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_multiple_times_F64_symbol	qb_do_multiply_accumulate_multiple_times_F64
 #else
 void qb_do_multiply_accumulate_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21562,7 +22032,7 @@ void qb_do_multiply_accumulate_multiple_times_F64_symbol(float64_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_multiple_times_S32_symbol	qb_do_multiply_accumulate_multiple_times_S32
 #else
 void qb_do_multiply_accumulate_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21570,7 +22040,7 @@ void qb_do_multiply_accumulate_multiple_times_S32_symbol(int32_t *op1_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_multiple_times_S64_symbol	qb_do_multiply_accumulate_multiple_times_S64
 #else
 void qb_do_multiply_accumulate_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *op3_ptr, uint32_t op3_count, int64_t *res_ptr, uint32_t res_count) {
@@ -21578,7 +22048,7 @@ void qb_do_multiply_accumulate_multiple_times_S64_symbol(int64_t *op1_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_multiple_times_U32_symbol	qb_do_multiply_accumulate_multiple_times_U32
 #else
 void qb_do_multiply_accumulate_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *op3_ptr, uint32_t op3_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -21586,7 +22056,7 @@ void qb_do_multiply_accumulate_multiple_times_U32_symbol(uint32_t *op1_ptr, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_accumulate_multiple_times_U64_symbol	qb_do_multiply_accumulate_multiple_times_U64
 #else
 void qb_do_multiply_accumulate_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *op3_ptr, uint32_t op3_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -21594,239 +22064,239 @@ void qb_do_multiply_accumulate_multiple_times_U64_symbol(uint64_t *op1_ptr, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_2x_F64_symbol	qb_do_multiply_matrix_by_matrix_2x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_2x_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_2x_F64
 #else
-void qb_do_multiply_matrix_by_matrix_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_2x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_3x_F32_symbol	qb_do_multiply_matrix_by_matrix_3x_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_3x_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_3x_F32
 #else
-void qb_do_multiply_matrix_by_matrix_3x_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_3x_F32(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_3x_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_3x_F32(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_3x_F64_symbol	qb_do_multiply_matrix_by_matrix_3x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_3x_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_3x_F64
 #else
-void qb_do_multiply_matrix_by_matrix_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_3x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_3x_padded_F32_symbol	qb_do_multiply_matrix_by_matrix_3x_padded_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_3x_padded_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_3x_padded_F32
 #else
-void qb_do_multiply_matrix_by_matrix_3x_padded_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_3x_padded_F32(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_3x_padded_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_3x_padded_F32(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_4x_F32_symbol	qb_do_multiply_matrix_by_matrix_4x_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_4x_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_4x_F32
 #else
-void qb_do_multiply_matrix_by_matrix_4x_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_4x_F32(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_4x_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_4x_F32(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_4x_F64_symbol	qb_do_multiply_matrix_by_matrix_4x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_4x_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_4x_F64
 #else
-void qb_do_multiply_matrix_by_matrix_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_4x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_F32_symbol	qb_do_multiply_matrix_by_matrix_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_F32
 #else
-void qb_do_multiply_matrix_by_matrix_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_F64_symbol	qb_do_multiply_matrix_by_matrix_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_F64
 #else
-void qb_do_multiply_matrix_by_matrix_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_matrix_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+void qb_do_multiply_matrix_by_matrix_cm_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_matrix_cm_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_multiple_times_F32_symbol	qb_do_multiply_matrix_by_matrix_cm_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_matrix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_matrix_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_matrix_cm_multiple_times_F64_symbol	qb_do_multiply_matrix_by_matrix_cm_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_matrix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_matrix_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
+void qb_do_multiply_matrix_by_matrix_cm_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_matrix_cm_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_2x_F64_symbol	qb_do_multiply_matrix_by_vector_2x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_2x_F64_symbol	qb_do_multiply_matrix_by_vector_cm_2x_F64
 #else
-void qb_do_multiply_matrix_by_vector_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_vector_2x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_vector_cm_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_vector_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_2x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_2x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_vector_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_2x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_2x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_vector_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_3x_F64_symbol	qb_do_multiply_matrix_by_vector_3x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_3x_F64_symbol	qb_do_multiply_matrix_by_vector_cm_3x_F64
 #else
-void qb_do_multiply_matrix_by_vector_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_vector_3x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_vector_cm_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_vector_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_3x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_3x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_vector_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_3x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_3x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_vector_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_4x_F64_symbol	qb_do_multiply_matrix_by_vector_4x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_4x_F64_symbol	qb_do_multiply_matrix_by_vector_cm_4x_F64
 #else
-void qb_do_multiply_matrix_by_vector_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_vector_4x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_matrix_by_vector_cm_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_vector_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_4x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_4x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_vector_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_4x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_4x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_vector_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_F32_symbol	qb_do_multiply_matrix_by_vector_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_F32_symbol	qb_do_multiply_matrix_by_vector_cm_F32
 #else
-void qb_do_multiply_matrix_by_vector_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
-	qb_do_multiply_matrix_by_vector_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+void qb_do_multiply_matrix_by_vector_cm_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
+	qb_do_multiply_matrix_by_vector_cm_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_F64_symbol	qb_do_multiply_matrix_by_vector_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_F64_symbol	qb_do_multiply_matrix_by_vector_cm_F64
 #else
-void qb_do_multiply_matrix_by_vector_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
-	qb_do_multiply_matrix_by_vector_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+void qb_do_multiply_matrix_by_vector_cm_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
+	qb_do_multiply_matrix_by_vector_cm_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_multiple_times_F32_symbol	qb_do_multiply_matrix_by_vector_cm_multiple_times_F32
 #else
-void qb_do_multiply_matrix_by_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_matrix_by_vector_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_matrix_by_vector_cm_multiple_times_F64_symbol	qb_do_multiply_matrix_by_vector_cm_multiple_times_F64
 #else
-void qb_do_multiply_matrix_by_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_matrix_by_vector_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
+void qb_do_multiply_matrix_by_vector_cm_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_matrix_by_vector_cm_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_F32_symbol	qb_do_multiply_multiple_times_F32
 #else
 void qb_do_multiply_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -21834,7 +22304,7 @@ void qb_do_multiply_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_F64_symbol	qb_do_multiply_multiple_times_F64
 #else
 void qb_do_multiply_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -21842,7 +22312,7 @@ void qb_do_multiply_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_S08_symbol	qb_do_multiply_multiple_times_S08
 #else
 void qb_do_multiply_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -21850,7 +22320,7 @@ void qb_do_multiply_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_S16_symbol	qb_do_multiply_multiple_times_S16
 #else
 void qb_do_multiply_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -21858,7 +22328,7 @@ void qb_do_multiply_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_S32_symbol	qb_do_multiply_multiple_times_S32
 #else
 void qb_do_multiply_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -21866,7 +22336,7 @@ void qb_do_multiply_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_S64_symbol	qb_do_multiply_multiple_times_S64
 #else
 void qb_do_multiply_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -21874,7 +22344,7 @@ void qb_do_multiply_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_U08_symbol	qb_do_multiply_multiple_times_U08
 #else
 void qb_do_multiply_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -21882,7 +22352,7 @@ void qb_do_multiply_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_U16_symbol	qb_do_multiply_multiple_times_U16
 #else
 void qb_do_multiply_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -21890,7 +22360,7 @@ void qb_do_multiply_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_U32_symbol	qb_do_multiply_multiple_times_U32
 #else
 void qb_do_multiply_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -21898,7 +22368,7 @@ void qb_do_multiply_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_multiply_multiple_times_U64_symbol	qb_do_multiply_multiple_times_U64
 #else
 void qb_do_multiply_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -21906,111 +22376,111 @@ void qb_do_multiply_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_2x_F64_symbol	qb_do_multiply_vector_by_matrix_2x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_2x_F64_symbol	qb_do_multiply_vector_by_matrix_cm_2x_F64
 #else
-void qb_do_multiply_vector_by_matrix_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_vector_by_matrix_2x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_vector_by_matrix_cm_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_vector_by_matrix_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_2x_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_2x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F32
 #else
-void qb_do_multiply_vector_by_matrix_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_2x_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_2x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F64
 #else
-void qb_do_multiply_vector_by_matrix_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_3x_F64_symbol	qb_do_multiply_vector_by_matrix_3x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_3x_F64_symbol	qb_do_multiply_vector_by_matrix_cm_3x_F64
 #else
-void qb_do_multiply_vector_by_matrix_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_vector_by_matrix_3x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_vector_by_matrix_cm_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_vector_by_matrix_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_3x_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_3x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F32
 #else
-void qb_do_multiply_vector_by_matrix_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_3x_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_3x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F64
 #else
-void qb_do_multiply_vector_by_matrix_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_4x_F64_symbol	qb_do_multiply_vector_by_matrix_4x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_4x_F64_symbol	qb_do_multiply_vector_by_matrix_cm_4x_F64
 #else
-void qb_do_multiply_vector_by_matrix_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_multiply_vector_by_matrix_4x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_multiply_vector_by_matrix_cm_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_multiply_vector_by_matrix_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_4x_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_4x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F32
 #else
-void qb_do_multiply_vector_by_matrix_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_4x_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_4x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F64
 #else
-void qb_do_multiply_vector_by_matrix_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_F32_symbol	qb_do_multiply_vector_by_matrix_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_F32_symbol	qb_do_multiply_vector_by_matrix_cm_F32
 #else
-void qb_do_multiply_vector_by_matrix_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
-	qb_do_multiply_vector_by_matrix_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+void qb_do_multiply_vector_by_matrix_cm_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
+	qb_do_multiply_vector_by_matrix_cm_F32(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_F64_symbol	qb_do_multiply_vector_by_matrix_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_F64_symbol	qb_do_multiply_vector_by_matrix_cm_F64
 #else
-void qb_do_multiply_vector_by_matrix_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
-	qb_do_multiply_vector_by_matrix_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
+void qb_do_multiply_vector_by_matrix_cm_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
+	qb_do_multiply_vector_by_matrix_cm_F64(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_multiple_times_F32_symbol	qb_do_multiply_vector_by_matrix_cm_multiple_times_F32
 #else
-void qb_do_multiply_vector_by_matrix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_multiply_vector_by_matrix_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_multiply_vector_by_matrix_cm_multiple_times_F64_symbol	qb_do_multiply_vector_by_matrix_cm_multiple_times_F64
 #else
-void qb_do_multiply_vector_by_matrix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_multiply_vector_by_matrix_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
+void qb_do_multiply_vector_by_matrix_cm_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_multiply_vector_by_matrix_cm_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, MATRIX1_ROWS, MATRIX1_COLS, MATRIX2_ROWS, MATRIX2_COLS, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_2x_multiple_times_F32_symbol	qb_do_negate_2x_multiple_times_F32
 #else
 void qb_do_negate_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22018,7 +22488,7 @@ void qb_do_negate_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_2x_multiple_times_F64_symbol	qb_do_negate_2x_multiple_times_F64
 #else
 void qb_do_negate_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22026,7 +22496,7 @@ void qb_do_negate_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_3x_multiple_times_F32_symbol	qb_do_negate_3x_multiple_times_F32
 #else
 void qb_do_negate_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22034,7 +22504,7 @@ void qb_do_negate_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_3x_multiple_times_F64_symbol	qb_do_negate_3x_multiple_times_F64
 #else
 void qb_do_negate_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22042,7 +22512,7 @@ void qb_do_negate_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_4x_multiple_times_F32_symbol	qb_do_negate_4x_multiple_times_F32
 #else
 void qb_do_negate_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22050,7 +22520,7 @@ void qb_do_negate_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_4x_multiple_times_F64_symbol	qb_do_negate_4x_multiple_times_F64
 #else
 void qb_do_negate_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22058,7 +22528,7 @@ void qb_do_negate_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_multiple_times_F32_symbol	qb_do_negate_multiple_times_F32
 #else
 void qb_do_negate_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22066,7 +22536,7 @@ void qb_do_negate_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_multiple_times_F64_symbol	qb_do_negate_multiple_times_F64
 #else
 void qb_do_negate_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22074,7 +22544,7 @@ void qb_do_negate_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_multiple_times_I08_symbol	qb_do_negate_multiple_times_I08
 #else
 void qb_do_negate_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count) {
@@ -22082,7 +22552,7 @@ void qb_do_negate_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_multiple_times_I16_symbol	qb_do_negate_multiple_times_I16
 #else
 void qb_do_negate_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *res_ptr, uint32_t res_count) {
@@ -22090,7 +22560,7 @@ void qb_do_negate_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_multiple_times_I32_symbol	qb_do_negate_multiple_times_I32
 #else
 void qb_do_negate_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22098,7 +22568,7 @@ void qb_do_negate_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_negate_multiple_times_I64_symbol	qb_do_negate_multiple_times_I64
 #else
 void qb_do_negate_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *res_ptr, uint32_t res_count) {
@@ -22106,7 +22576,7 @@ void qb_do_negate_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_2x_F64_symbol	qb_do_normalize_2x_F64
 #else
 void qb_do_normalize_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -22114,7 +22584,7 @@ void qb_do_normalize_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_2x_multiple_times_F32_symbol	qb_do_normalize_2x_multiple_times_F32
 #else
 void qb_do_normalize_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22122,7 +22592,7 @@ void qb_do_normalize_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_2x_multiple_times_F64_symbol	qb_do_normalize_2x_multiple_times_F64
 #else
 void qb_do_normalize_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22130,7 +22600,7 @@ void qb_do_normalize_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_3x_F64_symbol	qb_do_normalize_3x_F64
 #else
 void qb_do_normalize_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -22138,7 +22608,7 @@ void qb_do_normalize_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_3x_multiple_times_F32_symbol	qb_do_normalize_3x_multiple_times_F32
 #else
 void qb_do_normalize_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22146,7 +22616,7 @@ void qb_do_normalize_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_3x_multiple_times_F64_symbol	qb_do_normalize_3x_multiple_times_F64
 #else
 void qb_do_normalize_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22154,7 +22624,7 @@ void qb_do_normalize_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_4x_F64_symbol	qb_do_normalize_4x_F64
 #else
 void qb_do_normalize_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -22162,7 +22632,7 @@ void qb_do_normalize_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_4x_multiple_times_F32_symbol	qb_do_normalize_4x_multiple_times_F32
 #else
 void qb_do_normalize_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22170,7 +22640,7 @@ void qb_do_normalize_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_4x_multiple_times_F64_symbol	qb_do_normalize_4x_multiple_times_F64
 #else
 void qb_do_normalize_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22178,7 +22648,7 @@ void qb_do_normalize_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_F32_symbol	qb_do_normalize_F32
 #else
 void qb_do_normalize_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
@@ -22186,7 +22656,7 @@ void qb_do_normalize_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_F64_symbol	qb_do_normalize_F64
 #else
 void qb_do_normalize_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
@@ -22194,7 +22664,7 @@ void qb_do_normalize_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_multiple_times_F32_symbol	qb_do_normalize_multiple_times_F32
 #else
 void qb_do_normalize_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -22202,7 +22672,7 @@ void qb_do_normalize_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_normalize_multiple_times_F64_symbol	qb_do_normalize_multiple_times_F64
 #else
 void qb_do_normalize_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -22210,7 +22680,7 @@ void qb_do_normalize_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_not_equal_vector_multiple_times_F32_symbol	qb_do_not_equal_vector_multiple_times_F32
 #else
 void qb_do_not_equal_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22218,7 +22688,7 @@ void qb_do_not_equal_vector_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_not_equal_vector_multiple_times_F64_symbol	qb_do_not_equal_vector_multiple_times_F64
 #else
 void qb_do_not_equal_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22226,7 +22696,7 @@ void qb_do_not_equal_vector_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_not_equal_vector_multiple_times_I08_symbol	qb_do_not_equal_vector_multiple_times_I08
 #else
 void qb_do_not_equal_vector_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22234,7 +22704,7 @@ void qb_do_not_equal_vector_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_not_equal_vector_multiple_times_I16_symbol	qb_do_not_equal_vector_multiple_times_I16
 #else
 void qb_do_not_equal_vector_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22242,7 +22712,7 @@ void qb_do_not_equal_vector_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_not_equal_vector_multiple_times_I32_symbol	qb_do_not_equal_vector_multiple_times_I32
 #else
 void qb_do_not_equal_vector_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22250,7 +22720,7 @@ void qb_do_not_equal_vector_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_not_equal_vector_multiple_times_I64_symbol	qb_do_not_equal_vector_multiple_times_I64
 #else
 void qb_do_not_equal_vector_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22258,7 +22728,7 @@ void qb_do_not_equal_vector_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_not_vector_multiple_times_I32_symbol	qb_do_not_vector_multiple_times_I32
 #else
 void qb_do_not_vector_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22266,7 +22736,7 @@ void qb_do_not_vector_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_pow_multiple_times_F32_symbol	qb_do_pow_multiple_times_F32
 #else
 void qb_do_pow_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22274,7 +22744,7 @@ void qb_do_pow_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_pow_multiple_times_F64_symbol	qb_do_pow_multiple_times_F64
 #else
 void qb_do_pow_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22282,7 +22752,7 @@ void qb_do_pow_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_F32_symbol	qb_do_print_multidimensional_variable_F32
 #else
 void qb_do_print_multidimensional_variable_F32_symbol(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22290,7 +22760,7 @@ void qb_do_print_multidimensional_variable_F32_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_F64_symbol	qb_do_print_multidimensional_variable_F64
 #else
 void qb_do_print_multidimensional_variable_F64_symbol(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22298,7 +22768,7 @@ void qb_do_print_multidimensional_variable_F64_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_S08_symbol	qb_do_print_multidimensional_variable_S08
 #else
 void qb_do_print_multidimensional_variable_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22306,7 +22776,7 @@ void qb_do_print_multidimensional_variable_S08_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_S16_symbol	qb_do_print_multidimensional_variable_S16
 #else
 void qb_do_print_multidimensional_variable_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22314,7 +22784,7 @@ void qb_do_print_multidimensional_variable_S16_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_S32_symbol	qb_do_print_multidimensional_variable_S32
 #else
 void qb_do_print_multidimensional_variable_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22322,7 +22792,7 @@ void qb_do_print_multidimensional_variable_S32_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_S64_symbol	qb_do_print_multidimensional_variable_S64
 #else
 void qb_do_print_multidimensional_variable_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22330,7 +22800,7 @@ void qb_do_print_multidimensional_variable_S64_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_U08_symbol	qb_do_print_multidimensional_variable_U08
 #else
 void qb_do_print_multidimensional_variable_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22338,7 +22808,7 @@ void qb_do_print_multidimensional_variable_U08_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_U16_symbol	qb_do_print_multidimensional_variable_U16
 #else
 void qb_do_print_multidimensional_variable_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22346,7 +22816,7 @@ void qb_do_print_multidimensional_variable_U16_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_U32_symbol	qb_do_print_multidimensional_variable_U32
 #else
 void qb_do_print_multidimensional_variable_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22354,7 +22824,7 @@ void qb_do_print_multidimensional_variable_U32_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_multidimensional_variable_U64_symbol	qb_do_print_multidimensional_variable_U64
 #else
 void qb_do_print_multidimensional_variable_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -22362,7 +22832,7 @@ void qb_do_print_multidimensional_variable_U64_symbol(qb_interpreter_context *cx
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_F32_symbol	qb_do_print_variable_F32
 #else
 void qb_do_print_variable_F32_symbol(qb_interpreter_context *cxt, float32_t op1) {
@@ -22370,7 +22840,7 @@ void qb_do_print_variable_F32_symbol(qb_interpreter_context *cxt, float32_t op1)
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_F64_symbol	qb_do_print_variable_F64
 #else
 void qb_do_print_variable_F64_symbol(qb_interpreter_context *cxt, float64_t op1) {
@@ -22378,7 +22848,7 @@ void qb_do_print_variable_F64_symbol(qb_interpreter_context *cxt, float64_t op1)
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_S08_symbol	qb_do_print_variable_S08
 #else
 void qb_do_print_variable_S08_symbol(qb_interpreter_context *cxt, int8_t op1) {
@@ -22386,7 +22856,7 @@ void qb_do_print_variable_S08_symbol(qb_interpreter_context *cxt, int8_t op1) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_S16_symbol	qb_do_print_variable_S16
 #else
 void qb_do_print_variable_S16_symbol(qb_interpreter_context *cxt, int16_t op1) {
@@ -22394,7 +22864,7 @@ void qb_do_print_variable_S16_symbol(qb_interpreter_context *cxt, int16_t op1) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_S32_symbol	qb_do_print_variable_S32
 #else
 void qb_do_print_variable_S32_symbol(qb_interpreter_context *cxt, int32_t op1) {
@@ -22402,7 +22872,7 @@ void qb_do_print_variable_S32_symbol(qb_interpreter_context *cxt, int32_t op1) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_S64_symbol	qb_do_print_variable_S64
 #else
 void qb_do_print_variable_S64_symbol(qb_interpreter_context *cxt, int64_t op1) {
@@ -22410,7 +22880,7 @@ void qb_do_print_variable_S64_symbol(qb_interpreter_context *cxt, int64_t op1) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_U08_symbol	qb_do_print_variable_U08
 #else
 void qb_do_print_variable_U08_symbol(qb_interpreter_context *cxt, uint8_t op1) {
@@ -22418,7 +22888,7 @@ void qb_do_print_variable_U08_symbol(qb_interpreter_context *cxt, uint8_t op1) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_U16_symbol	qb_do_print_variable_U16
 #else
 void qb_do_print_variable_U16_symbol(qb_interpreter_context *cxt, uint16_t op1) {
@@ -22426,7 +22896,7 @@ void qb_do_print_variable_U16_symbol(qb_interpreter_context *cxt, uint16_t op1) 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_U32_symbol	qb_do_print_variable_U32
 #else
 void qb_do_print_variable_U32_symbol(qb_interpreter_context *cxt, uint32_t op1) {
@@ -22434,7 +22904,7 @@ void qb_do_print_variable_U32_symbol(qb_interpreter_context *cxt, uint32_t op1) 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_U64_symbol	qb_do_print_variable_U64
 #else
 void qb_do_print_variable_U64_symbol(qb_interpreter_context *cxt, uint64_t op1) {
@@ -22442,7 +22912,7 @@ void qb_do_print_variable_U64_symbol(qb_interpreter_context *cxt, uint64_t op1) 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_F32_symbol	qb_do_print_variable_multiple_times_F32
 #else
 void qb_do_print_variable_multiple_times_F32_symbol(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count) {
@@ -22450,7 +22920,7 @@ void qb_do_print_variable_multiple_times_F32_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_F64_symbol	qb_do_print_variable_multiple_times_F64
 #else
 void qb_do_print_variable_multiple_times_F64_symbol(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count) {
@@ -22458,7 +22928,7 @@ void qb_do_print_variable_multiple_times_F64_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_S08_symbol	qb_do_print_variable_multiple_times_S08
 #else
 void qb_do_print_variable_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count) {
@@ -22466,7 +22936,7 @@ void qb_do_print_variable_multiple_times_S08_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_S16_symbol	qb_do_print_variable_multiple_times_S16
 #else
 void qb_do_print_variable_multiple_times_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count) {
@@ -22474,7 +22944,7 @@ void qb_do_print_variable_multiple_times_S16_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_S32_symbol	qb_do_print_variable_multiple_times_S32
 #else
 void qb_do_print_variable_multiple_times_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count) {
@@ -22482,7 +22952,7 @@ void qb_do_print_variable_multiple_times_S32_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_S64_symbol	qb_do_print_variable_multiple_times_S64
 #else
 void qb_do_print_variable_multiple_times_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count) {
@@ -22490,7 +22960,7 @@ void qb_do_print_variable_multiple_times_S64_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_U08_symbol	qb_do_print_variable_multiple_times_U08
 #else
 void qb_do_print_variable_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count) {
@@ -22498,7 +22968,7 @@ void qb_do_print_variable_multiple_times_U08_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_U16_symbol	qb_do_print_variable_multiple_times_U16
 #else
 void qb_do_print_variable_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count) {
@@ -22506,7 +22976,7 @@ void qb_do_print_variable_multiple_times_U16_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_U32_symbol	qb_do_print_variable_multiple_times_U32
 #else
 void qb_do_print_variable_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count) {
@@ -22514,7 +22984,7 @@ void qb_do_print_variable_multiple_times_U32_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_print_variable_multiple_times_U64_symbol	qb_do_print_variable_multiple_times_U64
 #else
 void qb_do_print_variable_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count) {
@@ -22522,7 +22992,7 @@ void qb_do_print_variable_multiple_times_U64_symbol(qb_interpreter_context *cxt,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_radian_to_degree_multiple_times_F32_symbol	qb_do_radian_to_degree_multiple_times_F32
 #else
 void qb_do_radian_to_degree_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22530,7 +23000,7 @@ void qb_do_radian_to_degree_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_radian_to_degree_multiple_times_F64_symbol	qb_do_radian_to_degree_multiple_times_F64
 #else
 void qb_do_radian_to_degree_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22538,7 +23008,7 @@ void qb_do_radian_to_degree_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_S08_symbol	qb_do_random_S08
 #else
 void qb_do_random_S08_symbol(qb_interpreter_context *cxt, int8_t op1, int8_t op2, int8_t *res_ptr) {
@@ -22546,7 +23016,7 @@ void qb_do_random_S08_symbol(qb_interpreter_context *cxt, int8_t op1, int8_t op2
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_S16_symbol	qb_do_random_S16
 #else
 void qb_do_random_S16_symbol(qb_interpreter_context *cxt, int16_t op1, int16_t op2, int16_t *res_ptr) {
@@ -22554,7 +23024,7 @@ void qb_do_random_S16_symbol(qb_interpreter_context *cxt, int16_t op1, int16_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_S32_symbol	qb_do_random_S32
 #else
 void qb_do_random_S32_symbol(qb_interpreter_context *cxt, int32_t op1, int32_t op2, int32_t *res_ptr) {
@@ -22562,7 +23032,7 @@ void qb_do_random_S32_symbol(qb_interpreter_context *cxt, int32_t op1, int32_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_S64_symbol	qb_do_random_S64
 #else
 void qb_do_random_S64_symbol(qb_interpreter_context *cxt, int64_t op1, int64_t op2, int64_t *res_ptr) {
@@ -22570,7 +23040,7 @@ void qb_do_random_S64_symbol(qb_interpreter_context *cxt, int64_t op1, int64_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_U08_symbol	qb_do_random_U08
 #else
 void qb_do_random_U08_symbol(qb_interpreter_context *cxt, uint8_t op1, uint8_t op2, uint8_t *res_ptr) {
@@ -22578,7 +23048,7 @@ void qb_do_random_U08_symbol(qb_interpreter_context *cxt, uint8_t op1, uint8_t o
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_U16_symbol	qb_do_random_U16
 #else
 void qb_do_random_U16_symbol(qb_interpreter_context *cxt, uint16_t op1, uint16_t op2, uint16_t *res_ptr) {
@@ -22586,7 +23056,7 @@ void qb_do_random_U16_symbol(qb_interpreter_context *cxt, uint16_t op1, uint16_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_U32_symbol	qb_do_random_U32
 #else
 void qb_do_random_U32_symbol(qb_interpreter_context *cxt, uint32_t op1, uint32_t op2, uint32_t *res_ptr) {
@@ -22594,7 +23064,7 @@ void qb_do_random_U32_symbol(qb_interpreter_context *cxt, uint32_t op1, uint32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_U64_symbol	qb_do_random_U64
 #else
 void qb_do_random_U64_symbol(qb_interpreter_context *cxt, uint64_t op1, uint64_t op2, uint64_t *res_ptr) {
@@ -22602,7 +23072,7 @@ void qb_do_random_U64_symbol(qb_interpreter_context *cxt, uint64_t op1, uint64_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_S08_symbol	qb_do_random_mt_S08
 #else
 void qb_do_random_mt_S08_symbol(qb_interpreter_context *cxt, int8_t op1, int8_t op2, int8_t *res_ptr) {
@@ -22610,7 +23080,7 @@ void qb_do_random_mt_S08_symbol(qb_interpreter_context *cxt, int8_t op1, int8_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_S16_symbol	qb_do_random_mt_S16
 #else
 void qb_do_random_mt_S16_symbol(qb_interpreter_context *cxt, int16_t op1, int16_t op2, int16_t *res_ptr) {
@@ -22618,7 +23088,7 @@ void qb_do_random_mt_S16_symbol(qb_interpreter_context *cxt, int16_t op1, int16_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_S32_symbol	qb_do_random_mt_S32
 #else
 void qb_do_random_mt_S32_symbol(qb_interpreter_context *cxt, int32_t op1, int32_t op2, int32_t *res_ptr) {
@@ -22626,7 +23096,7 @@ void qb_do_random_mt_S32_symbol(qb_interpreter_context *cxt, int32_t op1, int32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_S64_symbol	qb_do_random_mt_S64
 #else
 void qb_do_random_mt_S64_symbol(qb_interpreter_context *cxt, int64_t op1, int64_t op2, int64_t *res_ptr) {
@@ -22634,7 +23104,7 @@ void qb_do_random_mt_S64_symbol(qb_interpreter_context *cxt, int64_t op1, int64_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_U08_symbol	qb_do_random_mt_U08
 #else
 void qb_do_random_mt_U08_symbol(qb_interpreter_context *cxt, uint8_t op1, uint8_t op2, uint8_t *res_ptr) {
@@ -22642,7 +23112,7 @@ void qb_do_random_mt_U08_symbol(qb_interpreter_context *cxt, uint8_t op1, uint8_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_U16_symbol	qb_do_random_mt_U16
 #else
 void qb_do_random_mt_U16_symbol(qb_interpreter_context *cxt, uint16_t op1, uint16_t op2, uint16_t *res_ptr) {
@@ -22650,7 +23120,7 @@ void qb_do_random_mt_U16_symbol(qb_interpreter_context *cxt, uint16_t op1, uint1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_U32_symbol	qb_do_random_mt_U32
 #else
 void qb_do_random_mt_U32_symbol(qb_interpreter_context *cxt, uint32_t op1, uint32_t op2, uint32_t *res_ptr) {
@@ -22658,7 +23128,7 @@ void qb_do_random_mt_U32_symbol(qb_interpreter_context *cxt, uint32_t op1, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_U64_symbol	qb_do_random_mt_U64
 #else
 void qb_do_random_mt_U64_symbol(qb_interpreter_context *cxt, uint64_t op1, uint64_t op2, uint64_t *res_ptr) {
@@ -22666,7 +23136,7 @@ void qb_do_random_mt_U64_symbol(qb_interpreter_context *cxt, uint64_t op1, uint6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_S08_symbol	qb_do_random_mt_multiple_times_S08
 #else
 void qb_do_random_mt_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -22674,7 +23144,7 @@ void qb_do_random_mt_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_S16_symbol	qb_do_random_mt_multiple_times_S16
 #else
 void qb_do_random_mt_multiple_times_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -22682,7 +23152,7 @@ void qb_do_random_mt_multiple_times_S16_symbol(qb_interpreter_context *cxt, int1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_S32_symbol	qb_do_random_mt_multiple_times_S32
 #else
 void qb_do_random_mt_multiple_times_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22690,7 +23160,7 @@ void qb_do_random_mt_multiple_times_S32_symbol(qb_interpreter_context *cxt, int3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_S64_symbol	qb_do_random_mt_multiple_times_S64
 #else
 void qb_do_random_mt_multiple_times_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -22698,7 +23168,7 @@ void qb_do_random_mt_multiple_times_S64_symbol(qb_interpreter_context *cxt, int6
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_U08_symbol	qb_do_random_mt_multiple_times_U08
 #else
 void qb_do_random_mt_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -22706,7 +23176,7 @@ void qb_do_random_mt_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_U16_symbol	qb_do_random_mt_multiple_times_U16
 #else
 void qb_do_random_mt_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -22714,7 +23184,7 @@ void qb_do_random_mt_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_U32_symbol	qb_do_random_mt_multiple_times_U32
 #else
 void qb_do_random_mt_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -22722,7 +23192,7 @@ void qb_do_random_mt_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_mt_multiple_times_U64_symbol	qb_do_random_mt_multiple_times_U64
 #else
 void qb_do_random_mt_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -22730,7 +23200,7 @@ void qb_do_random_mt_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_S08_symbol	qb_do_random_multiple_times_S08
 #else
 void qb_do_random_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -22738,7 +23208,7 @@ void qb_do_random_multiple_times_S08_symbol(qb_interpreter_context *cxt, int8_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_S16_symbol	qb_do_random_multiple_times_S16
 #else
 void qb_do_random_multiple_times_S16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -22746,7 +23216,7 @@ void qb_do_random_multiple_times_S16_symbol(qb_interpreter_context *cxt, int16_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_S32_symbol	qb_do_random_multiple_times_S32
 #else
 void qb_do_random_multiple_times_S32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -22754,7 +23224,7 @@ void qb_do_random_multiple_times_S32_symbol(qb_interpreter_context *cxt, int32_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_S64_symbol	qb_do_random_multiple_times_S64
 #else
 void qb_do_random_multiple_times_S64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -22762,7 +23232,7 @@ void qb_do_random_multiple_times_S64_symbol(qb_interpreter_context *cxt, int64_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_U08_symbol	qb_do_random_multiple_times_U08
 #else
 void qb_do_random_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -22770,7 +23240,7 @@ void qb_do_random_multiple_times_U08_symbol(qb_interpreter_context *cxt, uint8_t
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_U16_symbol	qb_do_random_multiple_times_U16
 #else
 void qb_do_random_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -22778,7 +23248,7 @@ void qb_do_random_multiple_times_U16_symbol(qb_interpreter_context *cxt, uint16_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_U32_symbol	qb_do_random_multiple_times_U32
 #else
 void qb_do_random_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -22786,7 +23256,7 @@ void qb_do_random_multiple_times_U32_symbol(qb_interpreter_context *cxt, uint32_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_random_multiple_times_U64_symbol	qb_do_random_multiple_times_U64
 #else
 void qb_do_random_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -22794,7 +23264,87 @@ void qb_do_random_multiple_times_U64_symbol(qb_interpreter_context *cxt, uint64_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_F32_symbol	qb_do_range_F32
+#else
+void qb_do_range_F32_symbol(float32_t op1, float32_t op2, float32_t op3, uint32_t string_length, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_range_F32(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_F64_symbol	qb_do_range_F64
+#else
+void qb_do_range_F64_symbol(float64_t op1, float64_t op2, float64_t op3, uint32_t string_length, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_range_F64(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_S08_symbol	qb_do_range_S08
+#else
+void qb_do_range_S08_symbol(int8_t op1, int8_t op2, int8_t op3, uint32_t string_length, int8_t *res_ptr, uint32_t res_count) {
+	qb_do_range_S08(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_S16_symbol	qb_do_range_S16
+#else
+void qb_do_range_S16_symbol(int16_t op1, int16_t op2, int16_t op3, uint32_t string_length, int16_t *res_ptr, uint32_t res_count) {
+	qb_do_range_S16(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_S32_symbol	qb_do_range_S32
+#else
+void qb_do_range_S32_symbol(int32_t op1, int32_t op2, int32_t op3, uint32_t string_length, int32_t *res_ptr, uint32_t res_count) {
+	qb_do_range_S32(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_S64_symbol	qb_do_range_S64
+#else
+void qb_do_range_S64_symbol(int64_t op1, int64_t op2, int64_t op3, uint32_t string_length, int64_t *res_ptr, uint32_t res_count) {
+	qb_do_range_S64(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_U08_symbol	qb_do_range_U08
+#else
+void qb_do_range_U08_symbol(uint8_t op1, uint8_t op2, int8_t op3, uint32_t string_length, uint8_t *res_ptr, uint32_t res_count) {
+	qb_do_range_U08(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_U16_symbol	qb_do_range_U16
+#else
+void qb_do_range_U16_symbol(uint16_t op1, uint16_t op2, int16_t op3, uint32_t string_length, uint16_t *res_ptr, uint32_t res_count) {
+	qb_do_range_U16(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_U32_symbol	qb_do_range_U32
+#else
+void qb_do_range_U32_symbol(uint32_t op1, uint32_t op2, int32_t op3, uint32_t string_length, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_range_U32(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_range_U64_symbol	qb_do_range_U64
+#else
+void qb_do_range_U64_symbol(uint64_t op1, uint64_t op2, int64_t op3, uint32_t string_length, uint64_t *res_ptr, uint32_t res_count) {
+	qb_do_range_U64(op1, op2, op3, string_length, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_2x_F64_symbol	qb_do_reflect_2x_F64
 #else
 void qb_do_reflect_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -22802,7 +23352,7 @@ void qb_do_reflect_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_2x_multiple_times_F32_symbol	qb_do_reflect_2x_multiple_times_F32
 #else
 void qb_do_reflect_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22810,7 +23360,7 @@ void qb_do_reflect_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_2x_multiple_times_F64_symbol	qb_do_reflect_2x_multiple_times_F64
 #else
 void qb_do_reflect_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22818,7 +23368,7 @@ void qb_do_reflect_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_3x_F64_symbol	qb_do_reflect_3x_F64
 #else
 void qb_do_reflect_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -22826,7 +23376,7 @@ void qb_do_reflect_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_3x_multiple_times_F32_symbol	qb_do_reflect_3x_multiple_times_F32
 #else
 void qb_do_reflect_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22834,7 +23384,7 @@ void qb_do_reflect_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_3x_multiple_times_F64_symbol	qb_do_reflect_3x_multiple_times_F64
 #else
 void qb_do_reflect_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22842,7 +23392,7 @@ void qb_do_reflect_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_4x_F64_symbol	qb_do_reflect_4x_F64
 #else
 void qb_do_reflect_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
@@ -22850,7 +23400,7 @@ void qb_do_reflect_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_4x_multiple_times_F32_symbol	qb_do_reflect_4x_multiple_times_F32
 #else
 void qb_do_reflect_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -22858,7 +23408,7 @@ void qb_do_reflect_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_4x_multiple_times_F64_symbol	qb_do_reflect_4x_multiple_times_F64
 #else
 void qb_do_reflect_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -22866,7 +23416,7 @@ void qb_do_reflect_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_F32_symbol	qb_do_reflect_F32
 #else
 void qb_do_reflect_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
@@ -22874,7 +23424,7 @@ void qb_do_reflect_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, uint32_t M
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_F64_symbol	qb_do_reflect_F64
 #else
 void qb_do_reflect_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
@@ -22882,7 +23432,7 @@ void qb_do_reflect_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, uint32_t M
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_multiple_times_F32_symbol	qb_do_reflect_multiple_times_F32
 #else
 void qb_do_reflect_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -22890,7 +23440,7 @@ void qb_do_reflect_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reflect_multiple_times_F64_symbol	qb_do_reflect_multiple_times_F64
 #else
 void qb_do_reflect_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -22898,7 +23448,7 @@ void qb_do_reflect_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_2x_F64_symbol	qb_do_refract_2x_F64
 #else
 void qb_do_refract_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t op3, float64_t *res_ptr) {
@@ -22906,7 +23456,7 @@ void qb_do_refract_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_2x_multiple_times_F32_symbol	qb_do_refract_2x_multiple_times_F32
 #else
 void qb_do_refract_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t op3, float32_t *res_ptr, uint32_t res_count) {
@@ -22914,7 +23464,7 @@ void qb_do_refract_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_2x_multiple_times_F64_symbol	qb_do_refract_2x_multiple_times_F64
 #else
 void qb_do_refract_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t op3, float64_t *res_ptr, uint32_t res_count) {
@@ -22922,7 +23472,7 @@ void qb_do_refract_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_3x_F64_symbol	qb_do_refract_3x_F64
 #else
 void qb_do_refract_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t op3, float64_t *res_ptr) {
@@ -22930,7 +23480,7 @@ void qb_do_refract_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_3x_multiple_times_F32_symbol	qb_do_refract_3x_multiple_times_F32
 #else
 void qb_do_refract_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t op3, float32_t *res_ptr, uint32_t res_count) {
@@ -22938,7 +23488,7 @@ void qb_do_refract_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_3x_multiple_times_F64_symbol	qb_do_refract_3x_multiple_times_F64
 #else
 void qb_do_refract_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t op3, float64_t *res_ptr, uint32_t res_count) {
@@ -22946,7 +23496,7 @@ void qb_do_refract_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_4x_F64_symbol	qb_do_refract_4x_F64
 #else
 void qb_do_refract_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t op3, float64_t *res_ptr) {
@@ -22954,7 +23504,7 @@ void qb_do_refract_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_4x_multiple_times_F32_symbol	qb_do_refract_4x_multiple_times_F32
 #else
 void qb_do_refract_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t op3, float32_t *res_ptr, uint32_t res_count) {
@@ -22962,7 +23512,7 @@ void qb_do_refract_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_4x_multiple_times_F64_symbol	qb_do_refract_4x_multiple_times_F64
 #else
 void qb_do_refract_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t op3, float64_t *res_ptr, uint32_t res_count) {
@@ -22970,7 +23520,7 @@ void qb_do_refract_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_F32_symbol	qb_do_refract_F32
 #else
 void qb_do_refract_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t op3, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr) {
@@ -22978,7 +23528,7 @@ void qb_do_refract_F32_symbol(float32_t *op1_ptr, float32_t *op2_ptr, float32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_F64_symbol	qb_do_refract_F64
 #else
 void qb_do_refract_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t op3, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr) {
@@ -22986,7 +23536,7 @@ void qb_do_refract_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_multiple_times_F32_symbol	qb_do_refract_multiple_times_F32
 #else
 void qb_do_refract_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t op3, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -22994,7 +23544,7 @@ void qb_do_refract_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_refract_multiple_times_F64_symbol	qb_do_refract_multiple_times_F64
 #else
 void qb_do_refract_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t op3, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, uint32_t MATRIX2_ROWS, uint32_t MATRIX2_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -23002,7 +23552,7 @@ void qb_do_refract_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_remove_premultiplication_multiple_times_F32_symbol	qb_do_remove_premultiplication_multiple_times_F32
 #else
 void qb_do_remove_premultiplication_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23010,7 +23560,7 @@ void qb_do_remove_premultiplication_multiple_times_F32_symbol(float32_t *op1_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_remove_premultiplication_multiple_times_F64_symbol	qb_do_remove_premultiplication_multiple_times_F64
 #else
 void qb_do_remove_premultiplication_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23018,7 +23568,7 @@ void qb_do_remove_premultiplication_multiple_times_F64_symbol(float64_t *op1_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_F32_symbol	qb_do_reverse_scalar_sort_F32
 #else
 void qb_do_reverse_scalar_sort_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -23026,7 +23576,7 @@ void qb_do_reverse_scalar_sort_F32_symbol(float32_t *res_ptr, uint32_t res_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_F64_symbol	qb_do_reverse_scalar_sort_F64
 #else
 void qb_do_reverse_scalar_sort_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -23034,7 +23584,7 @@ void qb_do_reverse_scalar_sort_F64_symbol(float64_t *res_ptr, uint32_t res_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_S08_symbol	qb_do_reverse_scalar_sort_S08
 #else
 void qb_do_reverse_scalar_sort_S08_symbol(int8_t *res_ptr, uint32_t res_count) {
@@ -23042,7 +23592,7 @@ void qb_do_reverse_scalar_sort_S08_symbol(int8_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_S16_symbol	qb_do_reverse_scalar_sort_S16
 #else
 void qb_do_reverse_scalar_sort_S16_symbol(int16_t *res_ptr, uint32_t res_count) {
@@ -23050,7 +23600,7 @@ void qb_do_reverse_scalar_sort_S16_symbol(int16_t *res_ptr, uint32_t res_count) 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_S32_symbol	qb_do_reverse_scalar_sort_S32
 #else
 void qb_do_reverse_scalar_sort_S32_symbol(int32_t *res_ptr, uint32_t res_count) {
@@ -23058,7 +23608,7 @@ void qb_do_reverse_scalar_sort_S32_symbol(int32_t *res_ptr, uint32_t res_count) 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_S64_symbol	qb_do_reverse_scalar_sort_S64
 #else
 void qb_do_reverse_scalar_sort_S64_symbol(int64_t *res_ptr, uint32_t res_count) {
@@ -23066,7 +23616,7 @@ void qb_do_reverse_scalar_sort_S64_symbol(int64_t *res_ptr, uint32_t res_count) 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_U08_symbol	qb_do_reverse_scalar_sort_U08
 #else
 void qb_do_reverse_scalar_sort_U08_symbol(uint8_t *res_ptr, uint32_t res_count) {
@@ -23074,7 +23624,7 @@ void qb_do_reverse_scalar_sort_U08_symbol(uint8_t *res_ptr, uint32_t res_count) 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_U16_symbol	qb_do_reverse_scalar_sort_U16
 #else
 void qb_do_reverse_scalar_sort_U16_symbol(uint16_t *res_ptr, uint32_t res_count) {
@@ -23082,7 +23632,7 @@ void qb_do_reverse_scalar_sort_U16_symbol(uint16_t *res_ptr, uint32_t res_count)
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_U32_symbol	qb_do_reverse_scalar_sort_U32
 #else
 void qb_do_reverse_scalar_sort_U32_symbol(uint32_t *res_ptr, uint32_t res_count) {
@@ -23090,7 +23640,7 @@ void qb_do_reverse_scalar_sort_U32_symbol(uint32_t *res_ptr, uint32_t res_count)
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_reverse_scalar_sort_U64_symbol	qb_do_reverse_scalar_sort_U64
 #else
 void qb_do_reverse_scalar_sort_U64_symbol(uint64_t *res_ptr, uint32_t res_count) {
@@ -23098,7 +23648,7 @@ void qb_do_reverse_scalar_sort_U64_symbol(uint64_t *res_ptr, uint32_t res_count)
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_round_multiple_times_F32_symbol	qb_do_round_multiple_times_F32
 #else
 void qb_do_round_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23106,7 +23656,7 @@ void qb_do_round_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_round_multiple_times_F64_symbol	qb_do_round_multiple_times_F64
 #else
 void qb_do_round_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23114,7 +23664,7 @@ void qb_do_round_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_rsqrt_multiple_times_F32_symbol	qb_do_rsqrt_multiple_times_F32
 #else
 void qb_do_rsqrt_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23122,7 +23672,7 @@ void qb_do_rsqrt_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_rsqrt_multiple_times_F64_symbol	qb_do_rsqrt_multiple_times_F64
 #else
 void qb_do_rsqrt_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23130,7 +23680,7 @@ void qb_do_rsqrt_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_3x_F32_symbol	qb_do_sample_bilinear_3x_F32
 #else
 void qb_do_sample_bilinear_3x_F32_symbol(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *res_ptr) {
@@ -23138,7 +23688,7 @@ void qb_do_sample_bilinear_3x_F32_symbol(float32_t *op1_ptr, uint32_t op2, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_3x_F64_symbol	qb_do_sample_bilinear_3x_F64
 #else
 void qb_do_sample_bilinear_3x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *res_ptr) {
@@ -23146,7 +23696,7 @@ void qb_do_sample_bilinear_3x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_3x_multiple_times_F32_symbol	qb_do_sample_bilinear_3x_multiple_times_F32
 #else
 void qb_do_sample_bilinear_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23154,7 +23704,7 @@ void qb_do_sample_bilinear_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_3x_multiple_times_F64_symbol	qb_do_sample_bilinear_3x_multiple_times_F64
 #else
 void qb_do_sample_bilinear_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23162,7 +23712,7 @@ void qb_do_sample_bilinear_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_4x_F32_symbol	qb_do_sample_bilinear_4x_F32
 #else
 void qb_do_sample_bilinear_4x_F32_symbol(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *res_ptr) {
@@ -23170,7 +23720,7 @@ void qb_do_sample_bilinear_4x_F32_symbol(float32_t *op1_ptr, uint32_t op2, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_4x_F64_symbol	qb_do_sample_bilinear_4x_F64
 #else
 void qb_do_sample_bilinear_4x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *res_ptr) {
@@ -23178,7 +23728,7 @@ void qb_do_sample_bilinear_4x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_4x_multiple_times_F32_symbol	qb_do_sample_bilinear_4x_multiple_times_F32
 #else
 void qb_do_sample_bilinear_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23186,7 +23736,7 @@ void qb_do_sample_bilinear_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_bilinear_4x_multiple_times_F64_symbol	qb_do_sample_bilinear_4x_multiple_times_F64
 #else
 void qb_do_sample_bilinear_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23194,7 +23744,7 @@ void qb_do_sample_bilinear_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_nearest_3x_F64_symbol	qb_do_sample_nearest_3x_F64
 #else
 void qb_do_sample_nearest_3x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *res_ptr) {
@@ -23202,7 +23752,7 @@ void qb_do_sample_nearest_3x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_nearest_3x_multiple_times_F32_symbol	qb_do_sample_nearest_3x_multiple_times_F32
 #else
 void qb_do_sample_nearest_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23210,7 +23760,7 @@ void qb_do_sample_nearest_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_nearest_3x_multiple_times_F64_symbol	qb_do_sample_nearest_3x_multiple_times_F64
 #else
 void qb_do_sample_nearest_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23218,7 +23768,7 @@ void qb_do_sample_nearest_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_nearest_4x_F64_symbol	qb_do_sample_nearest_4x_F64
 #else
 void qb_do_sample_nearest_4x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint32_t op3, float64_t op4, float64_t op5, float64_t *res_ptr) {
@@ -23226,7 +23776,7 @@ void qb_do_sample_nearest_4x_F64_symbol(float64_t *op1_ptr, uint32_t op2, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_nearest_4x_multiple_times_F32_symbol	qb_do_sample_nearest_4x_multiple_times_F32
 #else
 void qb_do_sample_nearest_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *op5_ptr, uint32_t op5_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23234,7 +23784,7 @@ void qb_do_sample_nearest_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sample_nearest_4x_multiple_times_F64_symbol	qb_do_sample_nearest_4x_multiple_times_F64
 #else
 void qb_do_sample_nearest_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *op5_ptr, uint32_t op5_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23242,7 +23792,7 @@ void qb_do_sample_nearest_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint3
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_F32_symbol	qb_do_scalar_sort_F32
 #else
 void qb_do_scalar_sort_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
@@ -23250,7 +23800,7 @@ void qb_do_scalar_sort_F32_symbol(float32_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_F64_symbol	qb_do_scalar_sort_F64
 #else
 void qb_do_scalar_sort_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
@@ -23258,7 +23808,7 @@ void qb_do_scalar_sort_F64_symbol(float64_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_S08_symbol	qb_do_scalar_sort_S08
 #else
 void qb_do_scalar_sort_S08_symbol(int8_t *res_ptr, uint32_t res_count) {
@@ -23266,7 +23816,7 @@ void qb_do_scalar_sort_S08_symbol(int8_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_S16_symbol	qb_do_scalar_sort_S16
 #else
 void qb_do_scalar_sort_S16_symbol(int16_t *res_ptr, uint32_t res_count) {
@@ -23274,7 +23824,7 @@ void qb_do_scalar_sort_S16_symbol(int16_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_S32_symbol	qb_do_scalar_sort_S32
 #else
 void qb_do_scalar_sort_S32_symbol(int32_t *res_ptr, uint32_t res_count) {
@@ -23282,7 +23832,7 @@ void qb_do_scalar_sort_S32_symbol(int32_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_S64_symbol	qb_do_scalar_sort_S64
 #else
 void qb_do_scalar_sort_S64_symbol(int64_t *res_ptr, uint32_t res_count) {
@@ -23290,7 +23840,7 @@ void qb_do_scalar_sort_S64_symbol(int64_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_U08_symbol	qb_do_scalar_sort_U08
 #else
 void qb_do_scalar_sort_U08_symbol(uint8_t *res_ptr, uint32_t res_count) {
@@ -23298,7 +23848,7 @@ void qb_do_scalar_sort_U08_symbol(uint8_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_U16_symbol	qb_do_scalar_sort_U16
 #else
 void qb_do_scalar_sort_U16_symbol(uint16_t *res_ptr, uint32_t res_count) {
@@ -23306,7 +23856,7 @@ void qb_do_scalar_sort_U16_symbol(uint16_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_U32_symbol	qb_do_scalar_sort_U32
 #else
 void qb_do_scalar_sort_U32_symbol(uint32_t *res_ptr, uint32_t res_count) {
@@ -23314,7 +23864,7 @@ void qb_do_scalar_sort_U32_symbol(uint32_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_scalar_sort_U64_symbol	qb_do_scalar_sort_U64
 #else
 void qb_do_scalar_sort_U64_symbol(uint64_t *res_ptr, uint32_t res_count) {
@@ -23322,7 +23872,7 @@ void qb_do_scalar_sort_U64_symbol(uint64_t *res_ptr, uint32_t res_count) {
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_S08_symbol	qb_do_shift_left_multiple_times_S08
 #else
 void qb_do_shift_left_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -23330,7 +23880,7 @@ void qb_do_shift_left_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_co
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_S16_symbol	qb_do_shift_left_multiple_times_S16
 #else
 void qb_do_shift_left_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -23338,7 +23888,7 @@ void qb_do_shift_left_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_S32_symbol	qb_do_shift_left_multiple_times_S32
 #else
 void qb_do_shift_left_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -23346,7 +23896,7 @@ void qb_do_shift_left_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_S64_symbol	qb_do_shift_left_multiple_times_S64
 #else
 void qb_do_shift_left_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -23354,7 +23904,7 @@ void qb_do_shift_left_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_U08_symbol	qb_do_shift_left_multiple_times_U08
 #else
 void qb_do_shift_left_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -23362,7 +23912,7 @@ void qb_do_shift_left_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_U16_symbol	qb_do_shift_left_multiple_times_U16
 #else
 void qb_do_shift_left_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -23370,7 +23920,7 @@ void qb_do_shift_left_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_U32_symbol	qb_do_shift_left_multiple_times_U32
 #else
 void qb_do_shift_left_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -23378,7 +23928,7 @@ void qb_do_shift_left_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_left_multiple_times_U64_symbol	qb_do_shift_left_multiple_times_U64
 #else
 void qb_do_shift_left_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -23386,7 +23936,7 @@ void qb_do_shift_left_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_S08_symbol	qb_do_shift_right_multiple_times_S08
 #else
 void qb_do_shift_right_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -23394,7 +23944,7 @@ void qb_do_shift_right_multiple_times_S08_symbol(int8_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_S16_symbol	qb_do_shift_right_multiple_times_S16
 #else
 void qb_do_shift_right_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -23402,7 +23952,7 @@ void qb_do_shift_right_multiple_times_S16_symbol(int16_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_S32_symbol	qb_do_shift_right_multiple_times_S32
 #else
 void qb_do_shift_right_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -23410,7 +23960,7 @@ void qb_do_shift_right_multiple_times_S32_symbol(int32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_S64_symbol	qb_do_shift_right_multiple_times_S64
 #else
 void qb_do_shift_right_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -23418,7 +23968,7 @@ void qb_do_shift_right_multiple_times_S64_symbol(int64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_U08_symbol	qb_do_shift_right_multiple_times_U08
 #else
 void qb_do_shift_right_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -23426,7 +23976,7 @@ void qb_do_shift_right_multiple_times_U08_symbol(uint8_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_U16_symbol	qb_do_shift_right_multiple_times_U16
 #else
 void qb_do_shift_right_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -23434,7 +23984,7 @@ void qb_do_shift_right_multiple_times_U16_symbol(uint16_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_U32_symbol	qb_do_shift_right_multiple_times_U32
 #else
 void qb_do_shift_right_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -23442,7 +23992,7 @@ void qb_do_shift_right_multiple_times_U32_symbol(uint32_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_shift_right_multiple_times_U64_symbol	qb_do_shift_right_multiple_times_U64
 #else
 void qb_do_shift_right_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count, uint64_t *res_ptr, uint32_t res_count) {
@@ -23450,7 +24000,7 @@ void qb_do_shift_right_multiple_times_U64_symbol(uint64_t *op1_ptr, uint32_t op1
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sign_multiple_times_F32_symbol	qb_do_sign_multiple_times_F32
 #else
 void qb_do_sign_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23458,7 +24008,7 @@ void qb_do_sign_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sign_multiple_times_F64_symbol	qb_do_sign_multiple_times_F64
 #else
 void qb_do_sign_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23466,7 +24016,7 @@ void qb_do_sign_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sin_multiple_times_F32_symbol	qb_do_sin_multiple_times_F32
 #else
 void qb_do_sin_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23474,7 +24024,7 @@ void qb_do_sin_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sin_multiple_times_F64_symbol	qb_do_sin_multiple_times_F64
 #else
 void qb_do_sin_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23482,7 +24032,7 @@ void qb_do_sin_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sinh_multiple_times_F32_symbol	qb_do_sinh_multiple_times_F32
 #else
 void qb_do_sinh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23490,7 +24040,7 @@ void qb_do_sinh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sinh_multiple_times_F64_symbol	qb_do_sinh_multiple_times_F64
 #else
 void qb_do_sinh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23498,7 +24048,7 @@ void qb_do_sinh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_smooth_step_multiple_times_F32_symbol	qb_do_smooth_step_multiple_times_F32
 #else
 void qb_do_smooth_step_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23506,7 +24056,7 @@ void qb_do_smooth_step_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_smooth_step_multiple_times_F64_symbol	qb_do_smooth_step_multiple_times_F64
 #else
 void qb_do_smooth_step_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23514,7 +24064,7 @@ void qb_do_smooth_step_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sqrt_multiple_times_F32_symbol	qb_do_sqrt_multiple_times_F32
 #else
 void qb_do_sqrt_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23522,7 +24072,7 @@ void qb_do_sqrt_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_sqrt_multiple_times_F64_symbol	qb_do_sqrt_multiple_times_F64
 #else
 void qb_do_sqrt_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23530,7 +24080,7 @@ void qb_do_sqrt_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_step_multiple_times_F32_symbol	qb_do_step_multiple_times_F32
 #else
 void qb_do_step_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23538,7 +24088,7 @@ void qb_do_step_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_step_multiple_times_F64_symbol	qb_do_step_multiple_times_F64
 #else
 void qb_do_step_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23546,7 +24096,7 @@ void qb_do_step_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_F32_symbol	qb_do_subarray_position_F32
 #else
 void qb_do_subarray_position_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23554,7 +24104,7 @@ void qb_do_subarray_position_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_F64_symbol	qb_do_subarray_position_F64
 #else
 void qb_do_subarray_position_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23562,7 +24112,7 @@ void qb_do_subarray_position_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_I08_symbol	qb_do_subarray_position_I08
 #else
 void qb_do_subarray_position_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23570,7 +24120,7 @@ void qb_do_subarray_position_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_I16_symbol	qb_do_subarray_position_I16
 #else
 void qb_do_subarray_position_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23578,7 +24128,7 @@ void qb_do_subarray_position_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_I32_symbol	qb_do_subarray_position_I32
 #else
 void qb_do_subarray_position_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23586,7 +24136,7 @@ void qb_do_subarray_position_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_I64_symbol	qb_do_subarray_position_I64
 #else
 void qb_do_subarray_position_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23594,7 +24144,7 @@ void qb_do_subarray_position_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, in
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_from_end_F32_symbol	qb_do_subarray_position_from_end_F32
 #else
 void qb_do_subarray_position_from_end_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23602,7 +24152,7 @@ void qb_do_subarray_position_from_end_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_from_end_F64_symbol	qb_do_subarray_position_from_end_F64
 #else
 void qb_do_subarray_position_from_end_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23610,7 +24160,7 @@ void qb_do_subarray_position_from_end_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_from_end_I08_symbol	qb_do_subarray_position_from_end_I08
 #else
 void qb_do_subarray_position_from_end_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23618,7 +24168,7 @@ void qb_do_subarray_position_from_end_I08_symbol(int8_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_from_end_I16_symbol	qb_do_subarray_position_from_end_I16
 #else
 void qb_do_subarray_position_from_end_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23626,7 +24176,7 @@ void qb_do_subarray_position_from_end_I16_symbol(int16_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_from_end_I32_symbol	qb_do_subarray_position_from_end_I32
 #else
 void qb_do_subarray_position_from_end_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23634,7 +24184,7 @@ void qb_do_subarray_position_from_end_I32_symbol(int32_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subarray_position_from_end_I64_symbol	qb_do_subarray_position_from_end_I64
 #else
 void qb_do_subarray_position_from_end_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr) {
@@ -23642,7 +24192,7 @@ void qb_do_subarray_position_from_end_I64_symbol(int64_t *op1_ptr, uint32_t op1_
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_2x_multiple_times_F32_symbol	qb_do_subtract_2x_multiple_times_F32
 #else
 void qb_do_subtract_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23650,7 +24200,7 @@ void qb_do_subtract_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_2x_multiple_times_F64_symbol	qb_do_subtract_2x_multiple_times_F64
 #else
 void qb_do_subtract_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23658,7 +24208,7 @@ void qb_do_subtract_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_3x_multiple_times_F32_symbol	qb_do_subtract_3x_multiple_times_F32
 #else
 void qb_do_subtract_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23666,7 +24216,7 @@ void qb_do_subtract_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_3x_multiple_times_F64_symbol	qb_do_subtract_3x_multiple_times_F64
 #else
 void qb_do_subtract_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23674,7 +24224,7 @@ void qb_do_subtract_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_4x_multiple_times_F32_symbol	qb_do_subtract_4x_multiple_times_F32
 #else
 void qb_do_subtract_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23682,7 +24232,7 @@ void qb_do_subtract_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_4x_multiple_times_F64_symbol	qb_do_subtract_4x_multiple_times_F64
 #else
 void qb_do_subtract_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23690,7 +24240,7 @@ void qb_do_subtract_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_multiple_times_F32_symbol	qb_do_subtract_multiple_times_F32
 #else
 void qb_do_subtract_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23698,7 +24248,7 @@ void qb_do_subtract_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_multiple_times_F64_symbol	qb_do_subtract_multiple_times_F64
 #else
 void qb_do_subtract_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23706,7 +24256,7 @@ void qb_do_subtract_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_c
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_multiple_times_I08_symbol	qb_do_subtract_multiple_times_I08
 #else
 void qb_do_subtract_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int8_t *res_ptr, uint32_t res_count) {
@@ -23714,7 +24264,7 @@ void qb_do_subtract_multiple_times_I08_symbol(int8_t *op1_ptr, uint32_t op1_coun
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_multiple_times_I16_symbol	qb_do_subtract_multiple_times_I16
 #else
 void qb_do_subtract_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count) {
@@ -23722,7 +24272,7 @@ void qb_do_subtract_multiple_times_I16_symbol(int16_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_multiple_times_I32_symbol	qb_do_subtract_multiple_times_I32
 #else
 void qb_do_subtract_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count) {
@@ -23730,7 +24280,7 @@ void qb_do_subtract_multiple_times_I32_symbol(int32_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_subtract_multiple_times_I64_symbol	qb_do_subtract_multiple_times_I64
 #else
 void qb_do_subtract_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count) {
@@ -23738,7 +24288,7 @@ void qb_do_subtract_multiple_times_I64_symbol(int64_t *op1_ptr, uint32_t op1_cou
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_tan_multiple_times_F32_symbol	qb_do_tan_multiple_times_F32
 #else
 void qb_do_tan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23746,7 +24296,7 @@ void qb_do_tan_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_tan_multiple_times_F64_symbol	qb_do_tan_multiple_times_F64
 #else
 void qb_do_tan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23754,7 +24304,7 @@ void qb_do_tan_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count,
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_tanh_multiple_times_F32_symbol	qb_do_tanh_multiple_times_F32
 #else
 void qb_do_tanh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23762,7 +24312,7 @@ void qb_do_tanh_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_tanh_multiple_times_F64_symbol	qb_do_tanh_multiple_times_F64
 #else
 void qb_do_tanh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23770,79 +24320,151 @@ void qb_do_tanh_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_2x_F64_symbol	qb_do_transform_vector_2x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_2x_F64_symbol	qb_do_transform_vector_cm_2x_F64
 #else
-void qb_do_transform_vector_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_transform_vector_2x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_transform_vector_cm_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_transform_vector_cm_2x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_2x_multiple_times_F32_symbol	qb_do_transform_vector_2x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_2x_multiple_times_F32_symbol	qb_do_transform_vector_cm_2x_multiple_times_F32
 #else
-void qb_do_transform_vector_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_transform_vector_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_transform_vector_cm_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_cm_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_2x_multiple_times_F64_symbol	qb_do_transform_vector_2x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_2x_multiple_times_F64_symbol	qb_do_transform_vector_cm_2x_multiple_times_F64
 #else
-void qb_do_transform_vector_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_transform_vector_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_transform_vector_cm_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_cm_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_3x_F64_symbol	qb_do_transform_vector_3x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_3x_F64_symbol	qb_do_transform_vector_cm_3x_F64
 #else
-void qb_do_transform_vector_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_transform_vector_3x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_transform_vector_cm_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_transform_vector_cm_3x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_3x_multiple_times_F32_symbol	qb_do_transform_vector_3x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_3x_multiple_times_F32_symbol	qb_do_transform_vector_cm_3x_multiple_times_F32
 #else
-void qb_do_transform_vector_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_transform_vector_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_transform_vector_cm_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_cm_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_3x_multiple_times_F64_symbol	qb_do_transform_vector_3x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_3x_multiple_times_F64_symbol	qb_do_transform_vector_cm_3x_multiple_times_F64
 #else
-void qb_do_transform_vector_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_transform_vector_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_transform_vector_cm_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_cm_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_4x_F64_symbol	qb_do_transform_vector_4x_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_4x_F64_symbol	qb_do_transform_vector_cm_4x_F64
 #else
-void qb_do_transform_vector_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
-	qb_do_transform_vector_4x_F64(op1_ptr, op2_ptr, res_ptr);
+void qb_do_transform_vector_cm_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_transform_vector_cm_4x_F64(op1_ptr, op2_ptr, res_ptr);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_4x_multiple_times_F32_symbol	qb_do_transform_vector_4x_multiple_times_F32
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_4x_multiple_times_F32_symbol	qb_do_transform_vector_cm_4x_multiple_times_F32
 #else
-void qb_do_transform_vector_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_transform_vector_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_transform_vector_cm_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_cm_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
-#define qb_do_transform_vector_4x_multiple_times_F64_symbol	qb_do_transform_vector_4x_multiple_times_F64
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_cm_4x_multiple_times_F64_symbol	qb_do_transform_vector_cm_4x_multiple_times_F64
 #else
-void qb_do_transform_vector_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_transform_vector_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+void qb_do_transform_vector_cm_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_cm_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_2x_F64_symbol	qb_do_transform_vector_rm_2x_F64
+#else
+void qb_do_transform_vector_rm_2x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_transform_vector_rm_2x_F64(op1_ptr, op2_ptr, res_ptr);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_2x_multiple_times_F32_symbol	qb_do_transform_vector_rm_2x_multiple_times_F32
+#else
+void qb_do_transform_vector_rm_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_rm_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_2x_multiple_times_F64_symbol	qb_do_transform_vector_rm_2x_multiple_times_F64
+#else
+void qb_do_transform_vector_rm_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_rm_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_3x_F64_symbol	qb_do_transform_vector_rm_3x_F64
+#else
+void qb_do_transform_vector_rm_3x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_transform_vector_rm_3x_F64(op1_ptr, op2_ptr, res_ptr);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_3x_multiple_times_F32_symbol	qb_do_transform_vector_rm_3x_multiple_times_F32
+#else
+void qb_do_transform_vector_rm_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_rm_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_3x_multiple_times_F64_symbol	qb_do_transform_vector_rm_3x_multiple_times_F64
+#else
+void qb_do_transform_vector_rm_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_rm_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_4x_F64_symbol	qb_do_transform_vector_rm_4x_F64
+#else
+void qb_do_transform_vector_rm_4x_F64_symbol(float64_t *op1_ptr, float64_t *op2_ptr, float64_t *res_ptr) {
+	qb_do_transform_vector_rm_4x_F64(op1_ptr, op2_ptr, res_ptr);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_4x_multiple_times_F32_symbol	qb_do_transform_vector_rm_4x_multiple_times_F32
+#else
+void qb_do_transform_vector_rm_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_rm_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_transform_vector_rm_4x_multiple_times_F64_symbol	qb_do_transform_vector_rm_4x_multiple_times_F64
+#else
+void qb_do_transform_vector_rm_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_transform_vector_rm_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_2x_F64_symbol	qb_do_transpose_matrix_2x_F64
 #else
 void qb_do_transpose_matrix_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -23850,7 +24472,7 @@ void qb_do_transpose_matrix_2x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_2x_multiple_times_F32_symbol	qb_do_transpose_matrix_2x_multiple_times_F32
 #else
 void qb_do_transpose_matrix_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23858,7 +24480,7 @@ void qb_do_transpose_matrix_2x_multiple_times_F32_symbol(float32_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_2x_multiple_times_F64_symbol	qb_do_transpose_matrix_2x_multiple_times_F64
 #else
 void qb_do_transpose_matrix_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23866,7 +24488,7 @@ void qb_do_transpose_matrix_2x_multiple_times_F64_symbol(float64_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_3x_F32_symbol	qb_do_transpose_matrix_3x_F32
 #else
 void qb_do_transpose_matrix_3x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
@@ -23874,7 +24496,7 @@ void qb_do_transpose_matrix_3x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_3x_F64_symbol	qb_do_transpose_matrix_3x_F64
 #else
 void qb_do_transpose_matrix_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -23882,7 +24504,7 @@ void qb_do_transpose_matrix_3x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_3x_multiple_times_F32_symbol	qb_do_transpose_matrix_3x_multiple_times_F32
 #else
 void qb_do_transpose_matrix_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23890,7 +24512,7 @@ void qb_do_transpose_matrix_3x_multiple_times_F32_symbol(float32_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_3x_multiple_times_F64_symbol	qb_do_transpose_matrix_3x_multiple_times_F64
 #else
 void qb_do_transpose_matrix_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23898,7 +24520,7 @@ void qb_do_transpose_matrix_3x_multiple_times_F64_symbol(float64_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_4x_F32_symbol	qb_do_transpose_matrix_4x_F32
 #else
 void qb_do_transpose_matrix_4x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr) {
@@ -23906,7 +24528,7 @@ void qb_do_transpose_matrix_4x_F32_symbol(float32_t *op1_ptr, float32_t *res_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_4x_F64_symbol	qb_do_transpose_matrix_4x_F64
 #else
 void qb_do_transpose_matrix_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr) {
@@ -23914,7 +24536,7 @@ void qb_do_transpose_matrix_4x_F64_symbol(float64_t *op1_ptr, float64_t *res_ptr
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_4x_multiple_times_F32_symbol	qb_do_transpose_matrix_4x_multiple_times_F32
 #else
 void qb_do_transpose_matrix_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -23922,7 +24544,7 @@ void qb_do_transpose_matrix_4x_multiple_times_F32_symbol(float32_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_4x_multiple_times_F64_symbol	qb_do_transpose_matrix_4x_multiple_times_F64
 #else
 void qb_do_transpose_matrix_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count) {
@@ -23930,7 +24552,7 @@ void qb_do_transpose_matrix_4x_multiple_times_F64_symbol(float64_t *op1_ptr, uin
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_F32_symbol	qb_do_transpose_matrix_F32
 #else
 void qb_do_transpose_matrix_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
@@ -23938,7 +24560,7 @@ void qb_do_transpose_matrix_F32_symbol(float32_t *op1_ptr, uint32_t MATRIX1_ROWS
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_F64_symbol	qb_do_transpose_matrix_F64
 #else
 void qb_do_transpose_matrix_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
@@ -23946,7 +24568,7 @@ void qb_do_transpose_matrix_F64_symbol(float64_t *op1_ptr, uint32_t MATRIX1_ROWS
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_multiple_times_F32_symbol	qb_do_transpose_matrix_multiple_times_F32
 #else
 void qb_do_transpose_matrix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr, uint32_t res_count) {
@@ -23954,7 +24576,7 @@ void qb_do_transpose_matrix_multiple_times_F32_symbol(float32_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_transpose_matrix_multiple_times_F64_symbol	qb_do_transpose_matrix_multiple_times_F64
 #else
 void qb_do_transpose_matrix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr, uint32_t res_count) {
@@ -23962,7 +24584,7 @@ void qb_do_transpose_matrix_multiple_times_F64_symbol(float64_t *op1_ptr, uint32
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_utf8decode_U16_symbol	qb_do_utf8decode_U16
 #else
 void qb_do_utf8decode_U16_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr, uint32_t res_count) {
@@ -23970,7 +24592,7 @@ void qb_do_utf8decode_U16_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint16_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_utf8decode_U32_symbol	qb_do_utf8decode_U32
 #else
 void qb_do_utf8decode_U32_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr, uint32_t res_count) {
@@ -23978,7 +24600,7 @@ void qb_do_utf8decode_U32_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint32_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_utf8encode_U16_symbol	qb_do_utf8encode_U16
 #else
 void qb_do_utf8encode_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -23986,7 +24608,7 @@ void qb_do_utf8encode_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint8_t 
 }
 #endif
 
-#ifdef FASTLCALL_MATCHES_CDECL
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_utf8encode_U32_symbol	qb_do_utf8encode_U32
 #else
 void qb_do_utf8encode_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint8_t *res_ptr, uint32_t res_count) {
@@ -24647,40 +25269,40 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_multiply_accumulate_multiple_times_S64",	qb_do_multiply_accumulate_multiple_times_S64_symbol	},
 	{	0,	"qb_do_multiply_accumulate_multiple_times_U32",	qb_do_multiply_accumulate_multiple_times_U32_symbol	},
 	{	0,	"qb_do_multiply_accumulate_multiple_times_U64",	qb_do_multiply_accumulate_multiple_times_U64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_2x_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_2x_F64",	qb_do_multiply_matrix_by_matrix_2x_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_2x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_2x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_3x_F32",	qb_do_multiply_matrix_by_matrix_3x_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_3x_F64",	qb_do_multiply_matrix_by_matrix_3x_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_3x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_3x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_3x_padded_F32",	qb_do_multiply_matrix_by_matrix_3x_padded_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_4x_F32",	qb_do_multiply_matrix_by_matrix_4x_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_4x_F64",	qb_do_multiply_matrix_by_matrix_4x_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_4x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_4x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_F32",	qb_do_multiply_matrix_by_matrix_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_F64",	qb_do_multiply_matrix_by_matrix_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_matrix_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_2x_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_matrix_by_vector_2x_F64",	qb_do_multiply_matrix_by_vector_2x_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_2x_multiple_times_F32",	qb_do_multiply_matrix_by_vector_2x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_2x_multiple_times_F64",	qb_do_multiply_matrix_by_vector_2x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_3x_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_matrix_by_vector_3x_F64",	qb_do_multiply_matrix_by_vector_3x_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_3x_multiple_times_F32",	qb_do_multiply_matrix_by_vector_3x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_3x_multiple_times_F64",	qb_do_multiply_matrix_by_vector_3x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_3x_padded_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_matrix_by_vector_4x_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_matrix_by_vector_4x_F64",	qb_do_multiply_matrix_by_vector_4x_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_4x_multiple_times_F32",	qb_do_multiply_matrix_by_vector_4x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_4x_multiple_times_F64",	qb_do_multiply_matrix_by_vector_4x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_F32",	qb_do_multiply_matrix_by_vector_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_F64",	qb_do_multiply_matrix_by_vector_F64_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_multiple_times_F32",	qb_do_multiply_matrix_by_vector_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_matrix_by_vector_multiple_times_F64",	qb_do_multiply_matrix_by_vector_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_2x_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_2x_F64",	qb_do_multiply_matrix_by_matrix_cm_2x_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_cm_2x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_3x_F32",	qb_do_multiply_matrix_by_matrix_cm_3x_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_3x_F64",	qb_do_multiply_matrix_by_matrix_cm_3x_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_cm_3x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_3x_padded_F32",	qb_do_multiply_matrix_by_matrix_cm_3x_padded_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_4x_F32",	qb_do_multiply_matrix_by_matrix_cm_4x_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_4x_F64",	qb_do_multiply_matrix_by_matrix_cm_4x_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_cm_4x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_F32",	qb_do_multiply_matrix_by_matrix_cm_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_F64",	qb_do_multiply_matrix_by_matrix_cm_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_multiple_times_F32",	qb_do_multiply_matrix_by_matrix_cm_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_matrix_cm_multiple_times_F64",	qb_do_multiply_matrix_by_matrix_cm_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_2x_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_2x_F64",	qb_do_multiply_matrix_by_vector_cm_2x_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F32",	qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F64",	qb_do_multiply_matrix_by_vector_cm_2x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_3x_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_3x_F64",	qb_do_multiply_matrix_by_vector_cm_3x_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F32",	qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F64",	qb_do_multiply_matrix_by_vector_cm_3x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_3x_padded_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_4x_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_4x_F64",	qb_do_multiply_matrix_by_vector_cm_4x_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F32",	qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F64",	qb_do_multiply_matrix_by_vector_cm_4x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_F32",	qb_do_multiply_matrix_by_vector_cm_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_F64",	qb_do_multiply_matrix_by_vector_cm_F64_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_multiple_times_F32",	qb_do_multiply_matrix_by_vector_cm_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_matrix_by_vector_cm_multiple_times_F64",	qb_do_multiply_matrix_by_vector_cm_multiple_times_F64_symbol	},
 	{	0,	"qb_do_multiply_multiple_times_F32",	qb_do_multiply_multiple_times_F32_symbol	},
 	{	0,	"qb_do_multiply_multiple_times_F64",	qb_do_multiply_multiple_times_F64_symbol	},
 	{	0,	"qb_do_multiply_multiple_times_S08",	qb_do_multiply_multiple_times_S08_symbol	},
@@ -24691,23 +25313,23 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_multiply_multiple_times_U16",	qb_do_multiply_multiple_times_U16_symbol	},
 	{	0,	"qb_do_multiply_multiple_times_U32",	qb_do_multiply_multiple_times_U32_symbol	},
 	{	0,	"qb_do_multiply_multiple_times_U64",	qb_do_multiply_multiple_times_U64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_2x_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_vector_by_matrix_2x_F64",	qb_do_multiply_vector_by_matrix_2x_F64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_2x_multiple_times_F32",	qb_do_multiply_vector_by_matrix_2x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_2x_multiple_times_F64",	qb_do_multiply_vector_by_matrix_2x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_3x_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_vector_by_matrix_3x_F64",	qb_do_multiply_vector_by_matrix_3x_F64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_3x_multiple_times_F32",	qb_do_multiply_vector_by_matrix_3x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_3x_multiple_times_F64",	qb_do_multiply_vector_by_matrix_3x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_3x_padded_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_vector_by_matrix_4x_F32",	(void*) -1	},
-	{	0,	"qb_do_multiply_vector_by_matrix_4x_F64",	qb_do_multiply_vector_by_matrix_4x_F64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_4x_multiple_times_F32",	qb_do_multiply_vector_by_matrix_4x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_4x_multiple_times_F64",	qb_do_multiply_vector_by_matrix_4x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_F32",	qb_do_multiply_vector_by_matrix_F32_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_F64",	qb_do_multiply_vector_by_matrix_F64_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_multiple_times_F32",	qb_do_multiply_vector_by_matrix_multiple_times_F32_symbol	},
-	{	0,	"qb_do_multiply_vector_by_matrix_multiple_times_F64",	qb_do_multiply_vector_by_matrix_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_2x_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_2x_F64",	qb_do_multiply_vector_by_matrix_cm_2x_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F32",	qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F64",	qb_do_multiply_vector_by_matrix_cm_2x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_3x_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_3x_F64",	qb_do_multiply_vector_by_matrix_cm_3x_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F32",	qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F64",	qb_do_multiply_vector_by_matrix_cm_3x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_3x_padded_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_4x_F32",	(void*) -1	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_4x_F64",	qb_do_multiply_vector_by_matrix_cm_4x_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F32",	qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F64",	qb_do_multiply_vector_by_matrix_cm_4x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_F32",	qb_do_multiply_vector_by_matrix_cm_F32_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_F64",	qb_do_multiply_vector_by_matrix_cm_F64_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_multiple_times_F32",	qb_do_multiply_vector_by_matrix_cm_multiple_times_F32_symbol	},
+	{	0,	"qb_do_multiply_vector_by_matrix_cm_multiple_times_F64",	qb_do_multiply_vector_by_matrix_cm_multiple_times_F64_symbol	},
 	{	0,	"qb_do_negate_2x_multiple_times_F32",	qb_do_negate_2x_multiple_times_F32_symbol	},
 	{	0,	"qb_do_negate_2x_multiple_times_F64",	qb_do_negate_2x_multiple_times_F64_symbol	},
 	{	0,	"qb_do_negate_3x_multiple_times_F32",	qb_do_negate_3x_multiple_times_F32_symbol	},
@@ -24811,6 +25433,16 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_random_multiple_times_U16",	qb_do_random_multiple_times_U16_symbol	},
 	{	0,	"qb_do_random_multiple_times_U32",	qb_do_random_multiple_times_U32_symbol	},
 	{	0,	"qb_do_random_multiple_times_U64",	qb_do_random_multiple_times_U64_symbol	},
+	{	0,	"qb_do_range_F32",	qb_do_range_F32_symbol	},
+	{	0,	"qb_do_range_F64",	qb_do_range_F64_symbol	},
+	{	0,	"qb_do_range_S08",	qb_do_range_S08_symbol	},
+	{	0,	"qb_do_range_S16",	qb_do_range_S16_symbol	},
+	{	0,	"qb_do_range_S32",	qb_do_range_S32_symbol	},
+	{	0,	"qb_do_range_S64",	qb_do_range_S64_symbol	},
+	{	0,	"qb_do_range_U08",	qb_do_range_U08_symbol	},
+	{	0,	"qb_do_range_U16",	qb_do_range_U16_symbol	},
+	{	0,	"qb_do_range_U32",	qb_do_range_U32_symbol	},
+	{	0,	"qb_do_range_U64",	qb_do_range_U64_symbol	},
 	{	0,	"qb_do_reflect_2x_F32",	(void*) -1	},
 	{	0,	"qb_do_reflect_2x_F64",	qb_do_reflect_2x_F64_symbol	},
 	{	0,	"qb_do_reflect_2x_multiple_times_F32",	qb_do_reflect_2x_multiple_times_F32_symbol	},
@@ -24945,18 +25577,30 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_tan_multiple_times_F64",	qb_do_tan_multiple_times_F64_symbol	},
 	{	0,	"qb_do_tanh_multiple_times_F32",	qb_do_tanh_multiple_times_F32_symbol	},
 	{	0,	"qb_do_tanh_multiple_times_F64",	qb_do_tanh_multiple_times_F64_symbol	},
-	{	0,	"qb_do_transform_vector_2x_F32",	(void*) -1	},
-	{	0,	"qb_do_transform_vector_2x_F64",	qb_do_transform_vector_2x_F64_symbol	},
-	{	0,	"qb_do_transform_vector_2x_multiple_times_F32",	qb_do_transform_vector_2x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_transform_vector_2x_multiple_times_F64",	qb_do_transform_vector_2x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_transform_vector_3x_F32",	(void*) -1	},
-	{	0,	"qb_do_transform_vector_3x_F64",	qb_do_transform_vector_3x_F64_symbol	},
-	{	0,	"qb_do_transform_vector_3x_multiple_times_F32",	qb_do_transform_vector_3x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_transform_vector_3x_multiple_times_F64",	qb_do_transform_vector_3x_multiple_times_F64_symbol	},
-	{	0,	"qb_do_transform_vector_4x_F32",	(void*) -1	},
-	{	0,	"qb_do_transform_vector_4x_F64",	qb_do_transform_vector_4x_F64_symbol	},
-	{	0,	"qb_do_transform_vector_4x_multiple_times_F32",	qb_do_transform_vector_4x_multiple_times_F32_symbol	},
-	{	0,	"qb_do_transform_vector_4x_multiple_times_F64",	qb_do_transform_vector_4x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_transform_vector_cm_2x_F32",	(void*) -1	},
+	{	0,	"qb_do_transform_vector_cm_2x_F64",	qb_do_transform_vector_cm_2x_F64_symbol	},
+	{	0,	"qb_do_transform_vector_cm_2x_multiple_times_F32",	qb_do_transform_vector_cm_2x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_transform_vector_cm_2x_multiple_times_F64",	qb_do_transform_vector_cm_2x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_transform_vector_cm_3x_F32",	(void*) -1	},
+	{	0,	"qb_do_transform_vector_cm_3x_F64",	qb_do_transform_vector_cm_3x_F64_symbol	},
+	{	0,	"qb_do_transform_vector_cm_3x_multiple_times_F32",	qb_do_transform_vector_cm_3x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_transform_vector_cm_3x_multiple_times_F64",	qb_do_transform_vector_cm_3x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_transform_vector_cm_4x_F32",	(void*) -1	},
+	{	0,	"qb_do_transform_vector_cm_4x_F64",	qb_do_transform_vector_cm_4x_F64_symbol	},
+	{	0,	"qb_do_transform_vector_cm_4x_multiple_times_F32",	qb_do_transform_vector_cm_4x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_transform_vector_cm_4x_multiple_times_F64",	qb_do_transform_vector_cm_4x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_transform_vector_rm_2x_F32",	(void*) -1	},
+	{	0,	"qb_do_transform_vector_rm_2x_F64",	qb_do_transform_vector_rm_2x_F64_symbol	},
+	{	0,	"qb_do_transform_vector_rm_2x_multiple_times_F32",	qb_do_transform_vector_rm_2x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_transform_vector_rm_2x_multiple_times_F64",	qb_do_transform_vector_rm_2x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_transform_vector_rm_3x_F32",	(void*) -1	},
+	{	0,	"qb_do_transform_vector_rm_3x_F64",	qb_do_transform_vector_rm_3x_F64_symbol	},
+	{	0,	"qb_do_transform_vector_rm_3x_multiple_times_F32",	qb_do_transform_vector_rm_3x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_transform_vector_rm_3x_multiple_times_F64",	qb_do_transform_vector_rm_3x_multiple_times_F64_symbol	},
+	{	0,	"qb_do_transform_vector_rm_4x_F32",	(void*) -1	},
+	{	0,	"qb_do_transform_vector_rm_4x_F64",	qb_do_transform_vector_rm_4x_F64_symbol	},
+	{	0,	"qb_do_transform_vector_rm_4x_multiple_times_F32",	qb_do_transform_vector_rm_4x_multiple_times_F32_symbol	},
+	{	0,	"qb_do_transform_vector_rm_4x_multiple_times_F64",	qb_do_transform_vector_rm_4x_multiple_times_F64_symbol	},
 	{	0,	"qb_do_transpose_matrix_2x_F32",	(void*) -1	},
 	{	0,	"qb_do_transpose_matrix_2x_F64",	qb_do_transpose_matrix_2x_F64_symbol	},
 	{	0,	"qb_do_transpose_matrix_2x_multiple_times_F32",	qb_do_transpose_matrix_2x_multiple_times_F32_symbol	},
@@ -25004,6 +25648,16 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_get_multidimensional_array_sprintf_length_U16",	qb_get_multidimensional_array_sprintf_length_U16	},
 	{	0,	"qb_get_multidimensional_array_sprintf_length_U32",	qb_get_multidimensional_array_sprintf_length_U32	},
 	{	0,	"qb_get_multidimensional_array_sprintf_length_U64",	qb_get_multidimensional_array_sprintf_length_U64	},
+	{	0,	"qb_get_range_length_F32",	qb_get_range_length_F32	},
+	{	0,	"qb_get_range_length_F64",	qb_get_range_length_F64	},
+	{	0,	"qb_get_range_length_S08",	qb_get_range_length_S08	},
+	{	0,	"qb_get_range_length_S16",	qb_get_range_length_S16	},
+	{	0,	"qb_get_range_length_S32",	qb_get_range_length_S32	},
+	{	0,	"qb_get_range_length_S64",	qb_get_range_length_S64	},
+	{	0,	"qb_get_range_length_U08",	qb_get_range_length_U08	},
+	{	0,	"qb_get_range_length_U16",	qb_get_range_length_U16	},
+	{	0,	"qb_get_range_length_U32",	qb_get_range_length_U32	},
+	{	0,	"qb_get_range_length_U64",	qb_get_range_length_U64	},
 	{	0,	"qb_get_scalar_sprintf_length_F32",	qb_get_scalar_sprintf_length_F32_symbol	},
 	{	0,	"qb_get_scalar_sprintf_length_F64",	qb_get_scalar_sprintf_length_F64_symbol	},
 	{	0,	"qb_get_scalar_sprintf_length_S08",	qb_get_scalar_sprintf_length_S08_symbol	},
@@ -25044,5 +25698,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1044;
+uint32_t global_native_symbol_count = 1076;
 

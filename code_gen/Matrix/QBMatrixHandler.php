@@ -5,7 +5,7 @@ class QBMatrixHandler extends QBHandler {
 	protected $operandPadding = 0;
 	protected $order;
 
-	public function __construct($name, $operandType, $addressMode, $vectorSize = "variable", $order = "column-major") {
+	public function __construct($name, $operandType, $addressMode, $vectorSize, $order = null) {
 		if(gettype($vectorSize) == 'string') {
 			if(preg_match('/\\+P$/i', $vectorSize)) {
 				$vectorSize = (int) $vectorSize;
@@ -42,6 +42,11 @@ class QBMatrixHandler extends QBHandler {
 		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $opName);
 		$opName = strtolower($opName);
 		$name = "qb_do_{$opName}";
+		if($this->order == "column-major") {
+			$name .= "_cm";
+		} else if($this->order == "row-major") {
+			$name .= "_rm";
+		}
 		if($this->operandPadding > 0) {
 			$name .= "_{$this->operandSize}x_padded";
 		} else {

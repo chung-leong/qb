@@ -2343,6 +2343,103 @@ static qb_matrix_op_factory factory_determinant = {
 	0,
 };
 
+static qb_op * ZEND_FASTCALL qb_append_column_major_transform_vector_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_matrix_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	qb_address *address2 = operands[1].address;
+	uint32_t m_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
+	uint32_t m_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+	uint32_t v_width = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
+	qb_op *qop;
+	qb_opcode opcode;
+
+	if(2 <= m_rows && m_rows <= 4) {
+		opcode = f->opcodes_fixed_size[m_rows - 2][QB_TYPE_F64 - address1->type];
+	} else {
+		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
+	}
+	if(address1->dimension_count > 1 || address2->dimension_count > 2) {
+		// handling multiple matrices or vectors
+		opcode = opcode + 1;
+	}
+	qop = qb_append_op(cxt, opcode, 3);
+	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[0].address = operands[0].address;
+	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[1].address = operands[1].address;
+	qop->operands[2].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[2].address = result->address;
+	qop->matrix_dimensions = MV_DIMENSIONS(m_rows, m_cols, v_width);
+	return qop;
+}
+
+static qb_matrix_op_factory factory_transform_cm = {
+	qb_append_column_major_transform_vector_op,
+	qb_set_matrix_vector_product_dimensions,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
+	{	0,			0,	},
+	{
+		{	QB_TRAN_2X_F64_F64_F64,		QB_TRAN_2X_F32_F32_F32,	},
+		{	QB_TRAN_3X_F64_F64_F64,		QB_TRAN_3X_F32_F32_F32,	},
+		{	QB_TRAN_4X_F64_F64_F64,		QB_TRAN_4X_F32_F32_F32,	},
+	},
+	0,
+};
+
+static qb_op * ZEND_FASTCALL qb_append_row_major_transform_vector_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_matrix_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	qb_address *address2 = operands[1].address;
+	uint32_t m_cols = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
+	uint32_t m_rows = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 2]);
+	uint32_t v_width = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
+	qb_op *qop;
+	qb_opcode opcode;
+
+	if(2 <= m_rows && m_rows <= 4) {
+		opcode = f->opcodes_fixed_size[m_rows - 2][QB_TYPE_F64 - address1->type];
+	} else {
+		opcode = f->opcodes_any_size[QB_TYPE_F64 - address1->type];
+	}
+	if(address1->dimension_count > 1 || address2->dimension_count > 2) {
+		// handling multiple matrices or vectors
+		opcode = opcode + 1;
+	}
+	qop = qb_append_op(cxt, opcode, 3);
+	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[0].address = operands[0].address;
+	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[1].address = operands[1].address;
+	qop->operands[2].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[2].address = result->address;
+	qop->matrix_dimensions = MV_DIMENSIONS(m_rows, m_cols, v_width);
+	return qop;
+}
+
+static qb_matrix_op_factory factory_transform_rm = {
+	qb_append_row_major_transform_vector_op,
+	qb_set_matrix_vector_product_dimensions,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
+	{	0,			0,	},
+	{
+		{	QB_TRAN_RM_2X_F64_F64_F64,		QB_TRAN_RM_2X_F32_F32_F32,	},
+		{	QB_TRAN_RM_3X_F64_F64_F64,		QB_TRAN_RM_3X_F32_F32_F32,	},
+		{	QB_TRAN_RM_4X_F64_F64_F64,		QB_TRAN_RM_4X_F32_F32_F32,	},
+	},
+	0,
+};
+
+static qb_matrix_op_factory_selector factory_transform = {
+	qb_append_selected_matrix_op,
+	qb_set_selected_matrix_op_result_dimensions,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	(qb_op_factory *) &factory_transform_cm,
+	(qb_op_factory *) &factory_transform_rm,
+};
+
 static qb_float_op_factory factory_alpha_blend = {
 	qb_append_binary_op,
 	qb_set_matching_result_dimensions,
@@ -2516,6 +2613,55 @@ static qb_basic_op_factory factory_array_reverse = {
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_AREV_F64_U32_F64,	QB_AREV_F32_U32_F32,	QB_AREV_I64_U32_I64,	QB_AREV_I64_U32_I64,	QB_AREV_I32_U32_I32,	QB_AREV_I32_U32_I32,	QB_AREV_I16_U32_I16,	QB_AREV_I16_U32_I16,	QB_AREV_I08_U32_I08,	QB_AREV_I08_U32_I08		},
+};
+
+uint32_t qb_get_range_length_F32(float32_t op1, float32_t op2, float32_t op3);
+uint32_t qb_get_range_length_F64(float64_t op1, float64_t op2, float64_t op3);
+uint32_t qb_get_range_length_S08(int8_t op1, int8_t op2, int8_t op3);
+uint32_t qb_get_range_length_S16(int16_t op1, int16_t op2, int16_t op3);
+uint32_t qb_get_range_length_S32(int32_t op1, int32_t op2, int32_t op3);
+uint32_t qb_get_range_length_S64(int64_t op1, int64_t op2, int64_t op3);
+uint32_t qb_get_range_length_U08(uint8_t op1, uint8_t op2, int8_t op3);
+uint32_t qb_get_range_length_U16(uint16_t op1, uint16_t op2, int16_t op3);
+uint32_t qb_get_range_length_U32(uint32_t op1, uint32_t op2, int32_t op3);
+uint32_t qb_get_range_length_U64(uint64_t op1, uint64_t op2, int64_t op3);
+
+static void ZEND_FASTCALL qb_set_range_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	// the result size is known only if the all operands are constant
+	qb_address *start_address = operands[0].address;
+	qb_address *end_address = operands[1].address;
+	qb_address *interval_address = operands[2].address;
+	uint32_t current_array_size = UINT32_MAX;
+	if((start_address->flags & QB_ADDRESS_CONSTANT) && (end_address->flags & QB_ADDRESS_CONSTANT) && (interval_address->flags & QB_ADDRESS_CONSTANT)) {
+		switch(start_address->type) {
+			case QB_TYPE_S08: current_array_size = qb_get_range_length_S08(VALUE(S08, start_address), VALUE(S08, end_address), VALUE(S08, interval_address)); break;
+			case QB_TYPE_U08: current_array_size = qb_get_range_length_U08(VALUE(U08, start_address), VALUE(U08, end_address), VALUE(U08, interval_address)); break;
+			case QB_TYPE_S16: current_array_size = qb_get_range_length_S16(VALUE(S16, start_address), VALUE(S16, end_address), VALUE(S16, interval_address)); break;
+			case QB_TYPE_U16: current_array_size = qb_get_range_length_U16(VALUE(U16, start_address), VALUE(U16, end_address), VALUE(U16, interval_address)); break;
+			case QB_TYPE_S32: current_array_size = qb_get_range_length_S32(VALUE(S32, start_address), VALUE(S32, end_address), VALUE(S32, interval_address)); break;
+			case QB_TYPE_U32: current_array_size = qb_get_range_length_U32(VALUE(U32, start_address), VALUE(U32, end_address), VALUE(U32, interval_address)); break;
+			case QB_TYPE_S64: current_array_size = qb_get_range_length_S64(VALUE(S64, start_address), VALUE(S64, end_address), VALUE(S64, interval_address)); break;
+			case QB_TYPE_U64: current_array_size = qb_get_range_length_U64(VALUE(U64, start_address), VALUE(U64, end_address), VALUE(U64, interval_address)); break;
+			case QB_TYPE_F32: current_array_size = qb_get_range_length_F32(VALUE(F32, start_address), VALUE(F32, end_address), VALUE(F32, interval_address)); break;
+			case QB_TYPE_F64: current_array_size = qb_get_range_length_F64(VALUE(F64, start_address), VALUE(F64, end_address), VALUE(F64, interval_address)); break;
+			default: break;
+		}
+	}
+	dim->dimension_count = 1;
+	if(current_array_size != UINT32_MAX) {
+		dim->array_size = current_array_size;
+	} else {
+		// the array size isn't known (or the parameters are erroreous)
+		dim->array_size = 0;
+	}
+}
+
+static qb_basic_op_factory factory_range = {
+	qb_append_ternary_op,
+	qb_set_range_result_dimensions,
+	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_LVALUE_TYPE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{	QB_RANGE_F64_F64_F64_F64,	QB_RANGE_F32_F32_F32_F32,	QB_RANGE_U64_U64_S64_U64,	QB_RANGE_S64_S64_S64_S64,	QB_RANGE_U32_U32_S32_U32,	QB_RANGE_S32_S32_S32_S32,	QB_RANGE_U16_U16_S16_U16,	QB_RANGE_S16_S16_S16_S16,	QB_RANGE_U08_U08_S08_U08,	QB_RANGE_S08_S08_S08_S08	},
 };
 
 static qb_op * ZEND_FASTCALL qb_append_complex_number_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {

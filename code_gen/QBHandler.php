@@ -237,6 +237,18 @@ class QBHandler {
 		return false;
 	}
 	
+	public function needsStringLength() {
+		return false;
+	}
+	
+	public function needsVectorCount() {
+		return false;
+	}
+	
+	public function needsMatrixCount($which = null) {
+		return false;	
+	}
+	
 	public function hasAlternativeAddressModes() {
 		return ($this->addressMode == 'VAR');
 	}
@@ -306,6 +318,24 @@ class QBHandler {
 		if($this->needsMatrixDimensions(2)) {
 			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX2_ROWS";
 			$variables[] = (($includeType) ? "uint32_t " : "") . "MATRIX2_COLS";
+		}
+
+		// see if the matrix counts are needed
+		if($this->needsMatrixCount(1)) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix1_count";
+		}
+		if($this->needsMatrixCount(2)) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "matrix2_count";
+		}
+		
+		// see if the vector count is needed
+		if($this->needsVectorCount()) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "vector_count";
+		}
+
+		// see if the string length is needed
+		if($this->needsStringLength()) {
+			$variables[] = (($includeType) ? "uint32_t " : "") . "string_length";
 		}
 		
 		// add output operand		

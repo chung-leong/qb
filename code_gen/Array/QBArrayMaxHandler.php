@@ -11,7 +11,6 @@ class QBArrayMaxHandler extends QBHandler {
 	}
 
 	public function getActionOnUnitData() {
-		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$lines[] = "if(op1_count > 0) {";
 		$lines[] = 		"uint32_t i;";
