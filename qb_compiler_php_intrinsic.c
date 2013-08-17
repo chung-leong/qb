@@ -904,7 +904,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 		if(result->type != QB_OPERAND_NONE) {
 			qb_address *width_address;
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
-			qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, container->address);
+			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
 			if(container->address->dimension_count > 1) {
 				width_address = container->address->array_size_addresses[1];
 			} else {
@@ -1467,6 +1467,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_reverse",		qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_reverse		},
 	{	0,	"array_splice",			qb_translate_intrinsic_array_splice,		2,		4,		NULL						},
 	{	0,	"range",				qb_translate_intrinsic_range,				2,		3,		&factory_range				},
+	{	0,	"array_unique",			qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_unique		},
 	{	0,	"utf8_decode",			qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
 	{	0,	"cabs",					qb_translate_intrinsic_complex,				1,		1,		&factory_complex_abs		},

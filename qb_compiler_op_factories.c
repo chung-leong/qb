@@ -2609,7 +2609,7 @@ static qb_basic_op_factory factory_subarray_rpos = {
 
 static qb_basic_op_factory factory_array_reverse = {
 	qb_append_binary_op,
-	NULL,
+	qb_set_matching_result_dimensions,
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_AREV_F64_U32_F64,	QB_AREV_F32_U32_F32,	QB_AREV_I64_U32_I64,	QB_AREV_I64_U32_I64,	QB_AREV_I32_U32_I32,	QB_AREV_I32_U32_I32,	QB_AREV_I16_U32_I16,	QB_AREV_I16_U32_I16,	QB_AREV_I08_U32_I08,	QB_AREV_I08_U32_I08		},
@@ -2662,6 +2662,19 @@ static qb_basic_op_factory factory_range = {
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_RANGE_F64_F64_F64_F64,	QB_RANGE_F32_F32_F32_F32,	QB_RANGE_U64_U64_S64_U64,	QB_RANGE_S64_S64_S64_S64,	QB_RANGE_U32_U32_S32_U32,	QB_RANGE_S32_S32_S32_S32,	QB_RANGE_U16_U16_S16_U16,	QB_RANGE_S16_S16_S16_S16,	QB_RANGE_U08_U08_S08_U08,	QB_RANGE_S08_S08_S08_S08	},
+};
+
+static void ZEND_FASTCALL qb_set_variable_length_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	dim->dimension_count = 1;
+	dim->array_size = 0;
+}
+
+static qb_basic_op_factory factory_array_unique = {
+	qb_append_binary_op,
+	qb_set_variable_length_result_dimensions,
+	QB_COERCE_TO_FIRST_OPERAND_TYPE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{	QB_AUNIQ_F64_U32_F64,	QB_AUNIQ_F32_U32_F32,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I08_U32_I08,	QB_AUNIQ_I08_U32_I08	},
 };
 
 static qb_op * ZEND_FASTCALL qb_append_complex_number_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
