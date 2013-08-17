@@ -953,6 +953,38 @@ static void ZEND_FASTCALL qb_translate_intrinsic_range(qb_compiler_context *cxt,
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_array_rand(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_operand *container = &arguments[0];
+	qb_operand *count = (argument_count >= 2) ? &arguments[1] : NULL;
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as the first parameter", f->name);
+		}
+		if(count && !IS_SCALAR(count->address)) {
+			qb_abort("%s expects a scalar as the second parameter", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			qb_address *count_address;
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
+			if(count) {
+				count_address = count->address;
+			} else {
+				count_address = qb_obtain_constant_U32(cxt, 1);
+			}
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_write_target_address(cxt, container->address->type, result_dim, result_prototype, result_flags);
+			qb_create_binary_op(cxt, f->extra, container->address, count_address, result->address);
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_utf8_decode(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *source = &arguments[0];
 	qb_do_type_coercion(cxt, source, QB_TYPE_U08);
@@ -1468,6 +1500,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_splice",			qb_translate_intrinsic_array_splice,		2,		4,		NULL						},
 	{	0,	"range",				qb_translate_intrinsic_range,				2,		3,		&factory_range				},
 	{	0,	"array_unique",			qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_unique		},
+	{	0,	"array_rand",			qb_translate_intrinsic_array_rand,			1,		2,		&factory_array_rand			},
 	{	0,	"utf8_decode",			qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
 	{	0,	"cabs",					qb_translate_intrinsic_complex,				1,		1,		&factory_complex_abs		},

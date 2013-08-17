@@ -2677,6 +2677,27 @@ static qb_basic_op_factory factory_array_unique = {
 	{	QB_AUNIQ_F64_U32_F64,	QB_AUNIQ_F32_U32_F32,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I08_U32_I08,	QB_AUNIQ_I08_U32_I08	},
 };
 
+static void ZEND_FASTCALL qb_set_array_rand_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_address *count_address = operands[1].address;
+	if(count_address->flags & QB_ADDRESS_CONSTANT) {
+		uint32_t count = VALUE(U32, count_address);
+		dim->array_size = count;
+		dim->dimension_count = (count > 1) ? 1 : 0;
+	} else {
+		// don't know how many elements will be returned
+		dim->dimension_count = 1;
+		dim->array_size = 0;
+	}
+}
+
+static qb_basic_op_factory factory_array_rand = {
+	qb_append_binary_op,
+	qb_set_array_rand_result_dimensions,
+	QB_COERCE_TO_FIRST_OPERAND_TYPE,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{	QB_ARAND_F64_U32_U32,	QB_ARAND_F32_U32_U32,	QB_ARAND_I64_U32_U32,	QB_ARAND_I64_U32_U32,	QB_ARAND_I32_U32_U32,	QB_ARAND_I32_U32_U32,	QB_ARAND_I16_U32_U32,	QB_ARAND_I16_U32_U32,	QB_ARAND_I08_U32_U32,	QB_ARAND_I08_U32_U32	},
+};
+
 static qb_op * ZEND_FASTCALL qb_append_complex_number_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;

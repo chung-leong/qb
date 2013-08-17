@@ -2593,6 +2593,102 @@ void ZEND_FASTCALL qb_do_array_product_U64(uint64_t *op1_ptr, uint32_t op1_count
 	(*res_ptr) = product;
 }
 
+void ZEND_FASTCALL qb_do_array_random_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	uint32_t num_key = 0, num_req = op2, num_avail = op1_count;
+	while(num_req > 0) {
+		double randval = php_rand(TSRMLS_C);
+		if ((double) (randval / (PHP_RAND_MAX + 1.0)) < (double) num_req / (double) num_avail) {
+			*res_ptr = num_key;
+			res_ptr++;
+			num_req--;
+		}
+		num_avail--;
+		if(num_key < op1_count - 1) {
+			num_key++;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_random_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	uint32_t num_key = 0, num_req = op2, num_avail = op1_count;
+	while(num_req > 0) {
+		double randval = php_rand(TSRMLS_C);
+		if ((double) (randval / (PHP_RAND_MAX + 1.0)) < (double) num_req / (double) num_avail) {
+			*res_ptr = num_key;
+			res_ptr++;
+			num_req--;
+		}
+		num_avail--;
+		if(num_key < op1_count - 1) {
+			num_key++;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_random_I08(int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	uint32_t num_key = 0, num_req = op2, num_avail = op1_count;
+	while(num_req > 0) {
+		double randval = php_rand(TSRMLS_C);
+		if ((double) (randval / (PHP_RAND_MAX + 1.0)) < (double) num_req / (double) num_avail) {
+			*res_ptr = num_key;
+			res_ptr++;
+			num_req--;
+		}
+		num_avail--;
+		if(num_key < op1_count - 1) {
+			num_key++;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_random_I16(int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	uint32_t num_key = 0, num_req = op2, num_avail = op1_count;
+	while(num_req > 0) {
+		double randval = php_rand(TSRMLS_C);
+		if ((double) (randval / (PHP_RAND_MAX + 1.0)) < (double) num_req / (double) num_avail) {
+			*res_ptr = num_key;
+			res_ptr++;
+			num_req--;
+		}
+		num_avail--;
+		if(num_key < op1_count - 1) {
+			num_key++;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_random_I32(int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	uint32_t num_key = 0, num_req = op2, num_avail = op1_count;
+	while(num_req > 0) {
+		double randval = php_rand(TSRMLS_C);
+		if ((double) (randval / (PHP_RAND_MAX + 1.0)) < (double) num_req / (double) num_avail) {
+			*res_ptr = num_key;
+			res_ptr++;
+			num_req--;
+		}
+		num_avail--;
+		if(num_key < op1_count - 1) {
+			num_key++;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_random_I64(int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	uint32_t num_key = 0, num_req = op2, num_avail = op1_count;
+	while(num_req > 0) {
+		double randval = php_rand(TSRMLS_C);
+		if ((double) (randval / (PHP_RAND_MAX + 1.0)) < (double) num_req / (double) num_avail) {
+			*res_ptr = num_key;
+			res_ptr++;
+			num_req--;
+		}
+		num_avail--;
+		if(num_key < op1_count - 1) {
+			num_key++;
+		}
+	}
+}
+
 void ZEND_FASTCALL qb_do_array_reverse_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, float32_t *res_ptr, uint32_t res_count) {
 	uint32_t i, j;
 	if(op2 == 1) {
@@ -18763,6 +18859,54 @@ void qb_do_array_product_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint6
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_random_F32_symbol	qb_do_array_random_F32
+#else
+void qb_do_array_random_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_random_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_random_F64_symbol	qb_do_array_random_F64
+#else
+void qb_do_array_random_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_random_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_random_I08_symbol	qb_do_array_random_I08
+#else
+void qb_do_array_random_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_random_I08(op1_ptr, op1_count, op2, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_random_I16_symbol	qb_do_array_random_I16
+#else
+void qb_do_array_random_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_random_I16(op1_ptr, op1_count, op2, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_random_I32_symbol	qb_do_array_random_I32
+#else
+void qb_do_array_random_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_random_I32(op1_ptr, op1_count, op2, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_random_I64_symbol	qb_do_array_random_I64
+#else
+void qb_do_array_random_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_random_I64(op1_ptr, op1_count, op2, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_reverse_F32_symbol	qb_do_array_reverse_F32
 #else
 void qb_do_array_reverse_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, float32_t *res_ptr, uint32_t res_count) {
@@ -25209,6 +25353,12 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_array_product_U16",	qb_do_array_product_U16_symbol	},
 	{	0,	"qb_do_array_product_U32",	qb_do_array_product_U32_symbol	},
 	{	0,	"qb_do_array_product_U64",	qb_do_array_product_U64_symbol	},
+	{	0,	"qb_do_array_random_F32",	qb_do_array_random_F32_symbol	},
+	{	0,	"qb_do_array_random_F64",	qb_do_array_random_F64_symbol	},
+	{	0,	"qb_do_array_random_I08",	qb_do_array_random_I08_symbol	},
+	{	0,	"qb_do_array_random_I16",	qb_do_array_random_I16_symbol	},
+	{	0,	"qb_do_array_random_I32",	qb_do_array_random_I32_symbol	},
+	{	0,	"qb_do_array_random_I64",	qb_do_array_random_I64_symbol	},
 	{	0,	"qb_do_array_reverse_F32",	qb_do_array_reverse_F32_symbol	},
 	{	0,	"qb_do_array_reverse_F64",	qb_do_array_reverse_F64_symbol	},
 	{	0,	"qb_do_array_reverse_I08",	qb_do_array_reverse_I08_symbol	},
@@ -26146,5 +26296,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1108;
+uint32_t global_native_symbol_count = 1114;
 
