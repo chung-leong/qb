@@ -8,7 +8,7 @@ class QBArrayRandomHandler extends QBHandler {
 
 	public function getOperandType($i) {
 		switch($i) {
-			case 1: return $this->operandType;
+			case 1: return "U32";
 			case 2: return "U32";
 			case 3: return "U32";
 		}
@@ -16,7 +16,7 @@ class QBArrayRandomHandler extends QBHandler {
 	
 	public function getOperandAddressMode($i) {
 		switch($i) {
-			case 1: return "ARR";
+			case 1: return "VAR";
 			case 2: return $this->addressMode;
 			case 3: return "ARR";
 		}
@@ -28,7 +28,7 @@ class QBArrayRandomHandler extends QBHandler {
 
 	public function getActionOnUnitData() {
 		$lines = array();
-		$lines[] = "uint32_t num_key = 0, num_req = op2, num_avail = op1_count;";
+		$lines[] = "uint32_t num_key = 0, num_req = op2, num_avail = op1;";
 		$lines[] = "while(num_req > 0) {";
 		$lines[] = 		"double randval = php_rand(TSRMLS_C);";
 		$lines[] = 		"if ((double) (randval / (PHP_RAND_MAX + 1.0)) < (double) num_req / (double) num_avail) {";
@@ -37,7 +37,7 @@ class QBArrayRandomHandler extends QBHandler {
 		$lines[] = 			"num_req--;";
 		$lines[] = 		"}";
 		$lines[] = 		"num_avail--;";
-		$lines[] = 		"if(num_key < op1_count - 1) {";
+		$lines[] = 		"if(num_key < op1 - 1) {";
 		$lines[] = 			"num_key++;";
 		$lines[] = 		"}";
 		$lines[] = "}";

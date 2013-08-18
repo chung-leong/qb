@@ -954,9 +954,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_range(qb_compiler_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_rand(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 	qb_operand *container = &arguments[0];
-	qb_operand *count = (argument_count >= 2) ? &arguments[1] : NULL;
+	qb_operand *count;
+	if(argument_count >= 2) {
+		count = &arguments[1];
+		qb_do_type_coercion(cxt, count, QB_TYPE_U32);
+	} else {
+		count = NULL;
+	}
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_RESULT_PROTOTYPE;
@@ -970,17 +975,19 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_rand(qb_compiler_context 
 			qb_abort("%s expects a scalar as the second parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
+			qb_address *size_address;
 			qb_address *count_address;
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
+			size_address = container->address->dimension_addresses[0];
 			if(count) {
 				count_address = count->address;
 			} else {
 				count_address = qb_obtain_constant_U32(cxt, 1);
 			}
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_write_target_address(cxt, container->address->type, result_dim, result_prototype, result_flags);
-			qb_create_binary_op(cxt, f->extra, container->address, count_address, result->address);
+			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_U32, result_dim, result_prototype, result_flags);
+			qb_create_binary_op(cxt, f->extra, size_address, count_address, result->address);
 		}
 	}
 }

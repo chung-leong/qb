@@ -319,12 +319,7 @@ void ZEND_FASTCALL qb_do_array_product_U08(uint8_t *op1_ptr, uint32_t op1_count,
 void ZEND_FASTCALL qb_do_array_product_U16(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr);
 void ZEND_FASTCALL qb_do_array_product_U32(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr);
 void ZEND_FASTCALL qb_do_array_product_U64(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr);
-void ZEND_FASTCALL qb_do_array_random_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
-void ZEND_FASTCALL qb_do_array_random_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
-void ZEND_FASTCALL qb_do_array_random_I08(int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
-void ZEND_FASTCALL qb_do_array_random_I16(int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
-void ZEND_FASTCALL qb_do_array_random_I32(int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
-void ZEND_FASTCALL qb_do_array_random_I64(int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_random(uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_array_reverse_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, float32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_array_reverse_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, float64_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_array_reverse_I08(int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, int8_t *res_ptr, uint32_t res_count);

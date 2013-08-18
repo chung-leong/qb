@@ -1212,8 +1212,10 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBArrayReverseHandler("AREV", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayInsertHandler("AINS", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayUniqueHandler("AUNIQ", $elementTypeNoSign);
+		}
+		if($elementType == 'U32') {
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new QBArrayRandomHandler("ARAND", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new QBArrayRandomHandler("ARAND", null, $addressMode);
 			}
 		}
 	}
