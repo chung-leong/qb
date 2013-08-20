@@ -4815,15 +4815,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_SORT_S32:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_S32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int32_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -4835,21 +4839,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_S32(res_ptr, res_count);
+			qb_do_sort_S32(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_S32:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_S32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int32_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -4861,10 +4869,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_S32(res_ptr, res_count);
+			qb_do_reverse_sort_S32(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_S32_S32_VAR:
@@ -5625,6 +5633,36 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
+		goto *op_handler;
+		
+		label_SHUFFLE_U32_I32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
+		{
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
+			int32_t *res_ptr;
+			
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
+			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
+				if(segment_expandable[selector]) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);
+				} else {
+					qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);
+				}
+			}
+			res_ptr = ((int32_t *) segments[selector]) + res_start_index;
+			
+			qb_do_shuffle_I32(cxt, op1, res_ptr, res_count);
+#undef PHP_LINE_NUMBER
+		}
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_IF_LT_U32_U32_VAR:
@@ -7938,15 +7976,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
 		goto *op_handler;
 		
-		label_SORT_U32:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_U32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint32_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -7958,21 +8000,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_U32(res_ptr, res_count);
+			qb_do_sort_U32(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_U32:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_U32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint32_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -7984,10 +8030,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_U32(res_ptr, res_count);
+			qb_do_reverse_sort_U32(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_U32_U32_VAR:
@@ -12314,15 +12360,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
 		goto *op_handler;
 		
-		label_SORT_S08:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_S08:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int8_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -12334,21 +12384,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int8_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_S08(res_ptr, res_count);
+			qb_do_sort_S08(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_S08:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_S08:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int8_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -12360,10 +12414,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int8_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_S08(res_ptr, res_count);
+			qb_do_reverse_sort_S08(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_S08_S08_VAR:
@@ -13124,6 +13178,36 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
+		goto *op_handler;
+		
+		label_SHUFFLE_U32_I08:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
+		{
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
+			int8_t *res_ptr;
+			
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
+			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
+				if(segment_expandable[selector]) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);
+				} else {
+					qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);
+				}
+			}
+			res_ptr = ((int8_t *) segments[selector]) + res_start_index;
+			
+			qb_do_shuffle_I08(cxt, op1, res_ptr, res_count);
+#undef PHP_LINE_NUMBER
+		}
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_IF_LT_U08_U08_VAR:
@@ -15451,15 +15535,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
 		goto *op_handler;
 		
-		label_SORT_U08:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_U08:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint8_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -15471,21 +15559,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_U08(res_ptr, res_count);
+			qb_do_sort_U08(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_U08:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_U08:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint8_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -15497,10 +15589,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint8_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_U08(res_ptr, res_count);
+			qb_do_reverse_sort_U08(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_U08_U08_VAR:
@@ -20012,15 +20104,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_SORT_S16:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_S16:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int16_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -20032,21 +20128,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int16_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_S16(res_ptr, res_count);
+			qb_do_sort_S16(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_S16:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_S16:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int16_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -20058,10 +20158,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int16_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_S16(res_ptr, res_count);
+			qb_do_reverse_sort_S16(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_S16_S16_VAR:
@@ -20822,6 +20922,36 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
+		goto *op_handler;
+		
+		label_SHUFFLE_U32_I16:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
+		{
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
+			int16_t *res_ptr;
+			
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
+			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
+				if(segment_expandable[selector]) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);
+				} else {
+					qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);
+				}
+			}
+			res_ptr = ((int16_t *) segments[selector]) + res_start_index;
+			
+			qb_do_shuffle_I16(cxt, op1, res_ptr, res_count);
+#undef PHP_LINE_NUMBER
+		}
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_IF_LT_U16_U16_VAR:
@@ -23081,15 +23211,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
 		goto *op_handler;
 		
-		label_SORT_U16:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_U16:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint16_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -23101,21 +23235,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint16_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_U16(res_ptr, res_count);
+			qb_do_sort_U16(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_U16:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_U16:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint16_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -23127,10 +23265,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint16_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_U16(res_ptr, res_count);
+			qb_do_reverse_sort_U16(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_U16_U16_VAR:
@@ -27786,15 +27924,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_SORT_S64:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_S64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int64_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -27806,21 +27948,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_S64(res_ptr, res_count);
+			qb_do_sort_S64(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_S64:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_S64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			int64_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -27832,10 +27978,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((int64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_S64(res_ptr, res_count);
+			qb_do_reverse_sort_S64(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_S64_S64_VAR:
@@ -28596,6 +28742,36 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
+		goto *op_handler;
+		
+		label_SHUFFLE_U32_I64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
+		{
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
+			int64_t *res_ptr;
+			
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
+			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
+				if(segment_expandable[selector]) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);
+				} else {
+					qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);
+				}
+			}
+			res_ptr = ((int64_t *) segments[selector]) + res_start_index;
+			
+			qb_do_shuffle_I64(cxt, op1, res_ptr, res_count);
+#undef PHP_LINE_NUMBER
+		}
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_IF_LT_U64_U64_VAR:
@@ -30737,15 +30913,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
 		goto *op_handler;
 		
-		label_SORT_U64:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_U64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint64_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -30757,21 +30937,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_U64(res_ptr, res_count);
+			qb_do_sort_U64(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_U64:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_U64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			uint64_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -30783,10 +30967,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((uint64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_U64(res_ptr, res_count);
+			qb_do_reverse_sort_U64(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_U64_U64_VAR:
@@ -38815,15 +38999,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_SORT_F32:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_F32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			float32_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -38835,21 +39023,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_F32(res_ptr, res_count);
+			qb_do_sort_F32(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_F32:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_F32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			float32_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -38861,10 +39053,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_F32(res_ptr, res_count);
+			qb_do_reverse_sort_F32(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_F32_F32_VAR:
@@ -39625,6 +39817,36 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
+		goto *op_handler;
+		
+		label_SHUFFLE_U32_F32:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
+		{
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
+			float32_t *res_ptr;
+			
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
+			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
+				if(segment_expandable[selector]) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);
+				} else {
+					qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);
+				}
+			}
+			res_ptr = ((float32_t *) segments[selector]) + res_start_index;
+			
+			qb_do_shuffle_F32(cxt, op1, res_ptr, res_count);
+#undef PHP_LINE_NUMBER
+		}
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_VAR:
@@ -59028,15 +59250,19 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_SORT_F64:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_SORT_U32_F64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			float64_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -59048,21 +59274,25 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_scalar_sort_F64(res_ptr, res_count);
+			qb_do_sort_F64(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
-		label_RSORT_F64:
-		op_handler = ((qb_instruction_1_lineno *) instruction_pointer)->next_handler;
+		label_RSORT_U32_F64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
 		{
-#define PHP_LINE_NUMBER	((qb_instruction_1_lineno *) instruction_pointer)->line_number
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
 			float64_t *res_ptr;
 			
-			selector = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 & 0x00FF;
-			index_index = (((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 8) & 0x03FF;
-			size_index = ((qb_instruction_1_lineno *) instruction_pointer)->operand1 >> 20;
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
 			res_start_index = ((uint32_t *) segment0)[index_index];
 			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
 			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
@@ -59074,10 +59304,10 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 			}
 			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
 			
-			qb_do_reverse_scalar_sort_F64(res_ptr, res_count);
+			qb_do_reverse_sort_F64(op1, res_ptr, res_count);
 #undef PHP_LINE_NUMBER
 		}
-		instruction_pointer += sizeof(qb_instruction_1_lineno);
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_AMIN_F64_F64_VAR:
@@ -59838,6 +60068,36 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_3_lineno);
+		goto *op_handler;
+		
+		label_SHUFFLE_U32_F64:
+		op_handler = ((qb_instruction_2_lineno *) instruction_pointer)->next_handler;
+		{
+#define PHP_LINE_NUMBER	((qb_instruction_2_lineno *) instruction_pointer)->line_number
+			uint32_t *op1_ptr;
+			float64_t *res_ptr;
+			
+			index = ((qb_instruction_2_lineno *) instruction_pointer)->operand1;
+			op1_ptr = ((uint32_t *) segment0) + index;
+			
+			selector = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 & 0x00FF;
+			index_index = (((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_2_lineno *) instruction_pointer)->operand2 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = res_count_before = ((uint32_t *) segment0)[size_index];
+			if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
+				if(segment_expandable[selector]) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], res_start_index + res_count);
+				} else {
+					qb_abort_range_error(cxt, &cxt->storage->segments[selector], res_start_index, res_count, PHP_LINE_NUMBER);
+				}
+			}
+			res_ptr = ((float64_t *) segments[selector]) + res_start_index;
+			
+			qb_do_shuffle_F64(cxt, op1, res_ptr, res_count);
+#undef PHP_LINE_NUMBER
+		}
+		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
 		label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_VAR:
@@ -71590,8 +71850,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_UNPACK_LE_U08_I32_ELV] = &&label_UNPACK_LE_U08_I32_ELV;
 		op_handlers[QB_UNPACK_BE_U08_I32_VAR] = &&label_UNPACK_BE_U08_I32_VAR;
 		op_handlers[QB_UNPACK_BE_U08_I32_ELV] = &&label_UNPACK_BE_U08_I32_ELV;
-		op_handlers[QB_SORT_S32] = &&label_SORT_S32;
-		op_handlers[QB_RSORT_S32] = &&label_RSORT_S32;
+		op_handlers[QB_SORT_U32_S32] = &&label_SORT_U32_S32;
+		op_handlers[QB_RSORT_U32_S32] = &&label_RSORT_U32_S32;
 		op_handlers[QB_AMIN_S32_S32_VAR] = &&label_AMIN_S32_S32_VAR;
 		op_handlers[QB_AMAX_S32_S32_VAR] = &&label_AMAX_S32_S32_VAR;
 		op_handlers[QB_APROD_S32_S32_VAR] = &&label_APROD_S32_S32_VAR;
@@ -71613,6 +71873,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_AREV_I32_U32_I32] = &&label_AREV_I32_U32_I32;
 		op_handlers[QB_AINS_I32_U32_I32] = &&label_AINS_I32_U32_I32;
 		op_handlers[QB_AUNIQ_I32_U32_I32] = &&label_AUNIQ_I32_U32_I32;
+		op_handlers[QB_SHUFFLE_U32_I32] = &&label_SHUFFLE_U32_I32;
 		op_handlers[QB_IF_LT_U32_U32_VAR] = &&label_IF_LT_U32_U32_VAR;
 		op_handlers[QB_IF_LT_U32_U32_ELV] = &&label_IF_LT_U32_U32_ELV;
 		op_handlers[QB_IF_GT_U32_U32_VAR] = &&label_IF_GT_U32_U32_VAR;
@@ -71678,8 +71939,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_CAT_U32_U08_ELV] = &&label_CAT_U32_U08_ELV;
 		op_handlers[QB_CAT_U32_U08_ARR] = &&label_CAT_U32_U08_ARR;
 		op_handlers[QB_CAT_DIM_U32_U32_U08] = &&label_CAT_DIM_U32_U32_U08;
-		op_handlers[QB_SORT_U32] = &&label_SORT_U32;
-		op_handlers[QB_RSORT_U32] = &&label_RSORT_U32;
+		op_handlers[QB_SORT_U32_U32] = &&label_SORT_U32_U32;
+		op_handlers[QB_RSORT_U32_U32] = &&label_RSORT_U32_U32;
 		op_handlers[QB_AMIN_U32_U32_VAR] = &&label_AMIN_U32_U32_VAR;
 		op_handlers[QB_AMAX_U32_U32_VAR] = &&label_AMAX_U32_U32_VAR;
 		op_handlers[QB_APROD_U32_U32_VAR] = &&label_APROD_U32_U32_VAR;
@@ -71810,8 +72071,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_CAT_S08_U08_ELV] = &&label_CAT_S08_U08_ELV;
 		op_handlers[QB_CAT_S08_U08_ARR] = &&label_CAT_S08_U08_ARR;
 		op_handlers[QB_CAT_DIM_S08_U32_U08] = &&label_CAT_DIM_S08_U32_U08;
-		op_handlers[QB_SORT_S08] = &&label_SORT_S08;
-		op_handlers[QB_RSORT_S08] = &&label_RSORT_S08;
+		op_handlers[QB_SORT_U32_S08] = &&label_SORT_U32_S08;
+		op_handlers[QB_RSORT_U32_S08] = &&label_RSORT_U32_S08;
 		op_handlers[QB_AMIN_S08_S08_VAR] = &&label_AMIN_S08_S08_VAR;
 		op_handlers[QB_AMAX_S08_S08_VAR] = &&label_AMAX_S08_S08_VAR;
 		op_handlers[QB_APROD_S08_S08_VAR] = &&label_APROD_S08_S08_VAR;
@@ -71833,6 +72094,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_AREV_I08_U32_I08] = &&label_AREV_I08_U32_I08;
 		op_handlers[QB_AINS_I08_U32_I08] = &&label_AINS_I08_U32_I08;
 		op_handlers[QB_AUNIQ_I08_U32_I08] = &&label_AUNIQ_I08_U32_I08;
+		op_handlers[QB_SHUFFLE_U32_I08] = &&label_SHUFFLE_U32_I08;
 		op_handlers[QB_IF_LT_U08_U08_VAR] = &&label_IF_LT_U08_U08_VAR;
 		op_handlers[QB_IF_LT_U08_U08_ELV] = &&label_IF_LT_U08_U08_ELV;
 		op_handlers[QB_IF_GT_U08_U08_VAR] = &&label_IF_GT_U08_U08_VAR;
@@ -71901,8 +72163,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_CAT_U08_U08_ELV] = &&label_CAT_U08_U08_ELV;
 		op_handlers[QB_CAT_U08_U08_ARR] = &&label_CAT_U08_U08_ARR;
 		op_handlers[QB_CAT_DIM_U08_U32_U08] = &&label_CAT_DIM_U08_U32_U08;
-		op_handlers[QB_SORT_U08] = &&label_SORT_U08;
-		op_handlers[QB_RSORT_U08] = &&label_RSORT_U08;
+		op_handlers[QB_SORT_U32_U08] = &&label_SORT_U32_U08;
+		op_handlers[QB_RSORT_U32_U08] = &&label_RSORT_U32_U08;
 		op_handlers[QB_AMIN_U08_U08_VAR] = &&label_AMIN_U08_U08_VAR;
 		op_handlers[QB_AMAX_U08_U08_VAR] = &&label_AMAX_U08_U08_VAR;
 		op_handlers[QB_APROD_U08_U08_VAR] = &&label_APROD_U08_U08_VAR;
@@ -72039,8 +72301,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_UNPACK_LE_U08_I16_ELV] = &&label_UNPACK_LE_U08_I16_ELV;
 		op_handlers[QB_UNPACK_BE_U08_I16_VAR] = &&label_UNPACK_BE_U08_I16_VAR;
 		op_handlers[QB_UNPACK_BE_U08_I16_ELV] = &&label_UNPACK_BE_U08_I16_ELV;
-		op_handlers[QB_SORT_S16] = &&label_SORT_S16;
-		op_handlers[QB_RSORT_S16] = &&label_RSORT_S16;
+		op_handlers[QB_SORT_U32_S16] = &&label_SORT_U32_S16;
+		op_handlers[QB_RSORT_U32_S16] = &&label_RSORT_U32_S16;
 		op_handlers[QB_AMIN_S16_S16_VAR] = &&label_AMIN_S16_S16_VAR;
 		op_handlers[QB_AMAX_S16_S16_VAR] = &&label_AMAX_S16_S16_VAR;
 		op_handlers[QB_APROD_S16_S16_VAR] = &&label_APROD_S16_S16_VAR;
@@ -72062,6 +72324,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_AREV_I16_U32_I16] = &&label_AREV_I16_U32_I16;
 		op_handlers[QB_AINS_I16_U32_I16] = &&label_AINS_I16_U32_I16;
 		op_handlers[QB_AUNIQ_I16_U32_I16] = &&label_AUNIQ_I16_U32_I16;
+		op_handlers[QB_SHUFFLE_U32_I16] = &&label_SHUFFLE_U32_I16;
 		op_handlers[QB_IF_LT_U16_U16_VAR] = &&label_IF_LT_U16_U16_VAR;
 		op_handlers[QB_IF_LT_U16_U16_ELV] = &&label_IF_LT_U16_U16_ELV;
 		op_handlers[QB_IF_GT_U16_U16_VAR] = &&label_IF_GT_U16_U16_VAR;
@@ -72127,8 +72390,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_CAT_U16_U08_ELV] = &&label_CAT_U16_U08_ELV;
 		op_handlers[QB_CAT_U16_U08_ARR] = &&label_CAT_U16_U08_ARR;
 		op_handlers[QB_CAT_DIM_U16_U32_U08] = &&label_CAT_DIM_U16_U32_U08;
-		op_handlers[QB_SORT_U16] = &&label_SORT_U16;
-		op_handlers[QB_RSORT_U16] = &&label_RSORT_U16;
+		op_handlers[QB_SORT_U32_U16] = &&label_SORT_U32_U16;
+		op_handlers[QB_RSORT_U32_U16] = &&label_RSORT_U32_U16;
 		op_handlers[QB_AMIN_U16_U16_VAR] = &&label_AMIN_U16_U16_VAR;
 		op_handlers[QB_AMAX_U16_U16_VAR] = &&label_AMAX_U16_U16_VAR;
 		op_handlers[QB_APROD_U16_U16_VAR] = &&label_APROD_U16_U16_VAR;
@@ -72268,8 +72531,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_UNPACK_LE_U08_I64_ELV] = &&label_UNPACK_LE_U08_I64_ELV;
 		op_handlers[QB_UNPACK_BE_U08_I64_VAR] = &&label_UNPACK_BE_U08_I64_VAR;
 		op_handlers[QB_UNPACK_BE_U08_I64_ELV] = &&label_UNPACK_BE_U08_I64_ELV;
-		op_handlers[QB_SORT_S64] = &&label_SORT_S64;
-		op_handlers[QB_RSORT_S64] = &&label_RSORT_S64;
+		op_handlers[QB_SORT_U32_S64] = &&label_SORT_U32_S64;
+		op_handlers[QB_RSORT_U32_S64] = &&label_RSORT_U32_S64;
 		op_handlers[QB_AMIN_S64_S64_VAR] = &&label_AMIN_S64_S64_VAR;
 		op_handlers[QB_AMAX_S64_S64_VAR] = &&label_AMAX_S64_S64_VAR;
 		op_handlers[QB_APROD_S64_S64_VAR] = &&label_APROD_S64_S64_VAR;
@@ -72291,6 +72554,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_AREV_I64_U32_I64] = &&label_AREV_I64_U32_I64;
 		op_handlers[QB_AINS_I64_U32_I64] = &&label_AINS_I64_U32_I64;
 		op_handlers[QB_AUNIQ_I64_U32_I64] = &&label_AUNIQ_I64_U32_I64;
+		op_handlers[QB_SHUFFLE_U32_I64] = &&label_SHUFFLE_U32_I64;
 		op_handlers[QB_IF_LT_U64_U64_VAR] = &&label_IF_LT_U64_U64_VAR;
 		op_handlers[QB_IF_LT_U64_U64_ELV] = &&label_IF_LT_U64_U64_ELV;
 		op_handlers[QB_IF_GT_U64_U64_VAR] = &&label_IF_GT_U64_U64_VAR;
@@ -72351,8 +72615,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_CAT_U64_U08_ELV] = &&label_CAT_U64_U08_ELV;
 		op_handlers[QB_CAT_U64_U08_ARR] = &&label_CAT_U64_U08_ARR;
 		op_handlers[QB_CAT_DIM_U64_U32_U08] = &&label_CAT_DIM_U64_U32_U08;
-		op_handlers[QB_SORT_U64] = &&label_SORT_U64;
-		op_handlers[QB_RSORT_U64] = &&label_RSORT_U64;
+		op_handlers[QB_SORT_U32_U64] = &&label_SORT_U32_U64;
+		op_handlers[QB_RSORT_U32_U64] = &&label_RSORT_U32_U64;
 		op_handlers[QB_AMIN_U64_U64_VAR] = &&label_AMIN_U64_U64_VAR;
 		op_handlers[QB_AMAX_U64_U64_VAR] = &&label_AMAX_U64_U64_VAR;
 		op_handlers[QB_APROD_U64_U64_VAR] = &&label_APROD_U64_U64_VAR;
@@ -72600,8 +72864,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_UNPACK_LE_U08_F32_ELV] = &&label_UNPACK_LE_U08_F32_ELV;
 		op_handlers[QB_UNPACK_BE_U08_F32_VAR] = &&label_UNPACK_BE_U08_F32_VAR;
 		op_handlers[QB_UNPACK_BE_U08_F32_ELV] = &&label_UNPACK_BE_U08_F32_ELV;
-		op_handlers[QB_SORT_F32] = &&label_SORT_F32;
-		op_handlers[QB_RSORT_F32] = &&label_RSORT_F32;
+		op_handlers[QB_SORT_U32_F32] = &&label_SORT_U32_F32;
+		op_handlers[QB_RSORT_U32_F32] = &&label_RSORT_U32_F32;
 		op_handlers[QB_AMIN_F32_F32_VAR] = &&label_AMIN_F32_F32_VAR;
 		op_handlers[QB_AMAX_F32_F32_VAR] = &&label_AMAX_F32_F32_VAR;
 		op_handlers[QB_APROD_F32_F32_VAR] = &&label_APROD_F32_F32_VAR;
@@ -72623,6 +72887,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_AREV_F32_U32_F32] = &&label_AREV_F32_U32_F32;
 		op_handlers[QB_AINS_F32_U32_F32] = &&label_AINS_F32_U32_F32;
 		op_handlers[QB_AUNIQ_F32_U32_F32] = &&label_AUNIQ_F32_U32_F32;
+		op_handlers[QB_SHUFFLE_U32_F32] = &&label_SHUFFLE_U32_F32;
 		op_handlers[QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_VAR] = &&label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_VAR;
 		op_handlers[QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ELV] = &&label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ELV;
 		op_handlers[QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ARR] = &&label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ARR;
@@ -73104,8 +73369,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_UNPACK_LE_U08_F64_ELV] = &&label_UNPACK_LE_U08_F64_ELV;
 		op_handlers[QB_UNPACK_BE_U08_F64_VAR] = &&label_UNPACK_BE_U08_F64_VAR;
 		op_handlers[QB_UNPACK_BE_U08_F64_ELV] = &&label_UNPACK_BE_U08_F64_ELV;
-		op_handlers[QB_SORT_F64] = &&label_SORT_F64;
-		op_handlers[QB_RSORT_F64] = &&label_RSORT_F64;
+		op_handlers[QB_SORT_U32_F64] = &&label_SORT_U32_F64;
+		op_handlers[QB_RSORT_U32_F64] = &&label_RSORT_U32_F64;
 		op_handlers[QB_AMIN_F64_F64_VAR] = &&label_AMIN_F64_F64_VAR;
 		op_handlers[QB_AMAX_F64_F64_VAR] = &&label_AMAX_F64_F64_VAR;
 		op_handlers[QB_APROD_F64_F64_VAR] = &&label_APROD_F64_F64_VAR;
@@ -73127,6 +73392,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_AREV_F64_U32_F64] = &&label_AREV_F64_U32_F64;
 		op_handlers[QB_AINS_F64_U32_F64] = &&label_AINS_F64_U32_F64;
 		op_handlers[QB_AUNIQ_F64_U32_F64] = &&label_AUNIQ_F64_U32_F64;
+		op_handlers[QB_SHUFFLE_U32_F64] = &&label_SHUFFLE_U32_F64;
 		op_handlers[QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_VAR] = &&label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_VAR;
 		op_handlers[QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ELV] = &&label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ELV;
 		op_handlers[QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ARR] = &&label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ARR;

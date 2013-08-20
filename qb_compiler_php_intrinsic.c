@@ -859,7 +859,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 	}
 }
 
-static void ZEND_FASTCALL qb_translate_intrinsic_sort(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void ZEND_FASTCALL qb_translate_intrinsic_shuffle(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0];
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
@@ -870,10 +870,16 @@ static void ZEND_FASTCALL qb_translate_intrinsic_sort(qb_compiler_context *cxt, 
 			result->result_prototype = result_prototype;
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address) || container->address->dimension_count > 1) {
-			qb_abort("%s expects a one-dimensional array as parameter", f->name);
+		qb_address *width_address;
+		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
 		}
-		qb_create_op(cxt, f->extra, NULL, 0, container);
+		if(container->address->dimension_count > 1) {
+			width_address = container->address->array_size_addresses[1];
+		} else {
+			width_address = qb_obtain_constant_U32(cxt, 1);
+		}
+		qb_create_unary_op(cxt, f->extra, width_address, container->address);
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_constant_S32(cxt, 1);
@@ -1501,8 +1507,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"strpos",				qb_translate_intrinsic_subarray_search,		2,		3,		&factory_subarray_pos		},
 	{	0,	"array_rpos",			qb_translate_intrinsic_subarray_search,		2,		3,		&factory_subarray_rpos		},
 	{	0,	"strrpos",				qb_translate_intrinsic_subarray_search,		2,		3,		&factory_subarray_rpos		},
-	{	0,	"sort",					qb_translate_intrinsic_sort,				1,		1,		&factory_sort				},
-	{	0,	"rsort",				qb_translate_intrinsic_sort,				1,		1,		&factory_rsort				},
+	{	0,	"sort",					qb_translate_intrinsic_shuffle,				1,		1,		&factory_sort				},
+	{	0,	"rsort",				qb_translate_intrinsic_shuffle,				1,		1,		&factory_rsort				},
+	{	0,	"shuffle",				qb_translate_intrinsic_shuffle,				1,		1,		&factory_shuffle			},
 	{	0,	"array_reverse",		qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_reverse		},
 	{	0,	"array_splice",			qb_translate_intrinsic_array_splice,		2,		4,		NULL						},
 	{	0,	"range",				qb_translate_intrinsic_range,				2,		3,		&factory_range				},

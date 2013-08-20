@@ -1191,8 +1191,8 @@ class QBCodeGenerator {
 	protected function addArrayHandlers($elementType) {
 		$unsigned = preg_match('/^U/', $elementType);
 		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
-		$this->handlers[] = new QBScalarSortHandler("SORT", $elementType);
-		$this->handlers[] = new QBReverseScalarSortHandler("RSORT", $elementType);
+		$this->handlers[] = new QBSortHandler("SORT", $elementType);
+		$this->handlers[] = new QBReverseSortHandler("RSORT", $elementType);
 		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new QBArrayMinHandler("AMIN", $elementType, $addressMode);
 			$this->handlers[] = new QBArrayMaxHandler("AMAX", $elementType, $addressMode);
@@ -1212,6 +1212,7 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBArrayReverseHandler("AREV", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayInsertHandler("AINS", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayUniqueHandler("AUNIQ", $elementTypeNoSign);
+			$this->handlers[] = new QBShuffleHandler("SHUFFLE", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {
 			foreach($this->scalarAddressModes as $addressMode) {

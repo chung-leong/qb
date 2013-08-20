@@ -47,6 +47,7 @@
 #endif
 
 #include "php.h"
+#include "ext/standard/php_rand.h"
 
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 1
 	#define ZEND_ENGINE_2_1		1

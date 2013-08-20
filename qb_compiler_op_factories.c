@@ -2546,20 +2546,38 @@ static qb_basic_op_factory factory_unpack_be = {
 	{	QB_UNPACK_BE_U08_F64,	QB_UNPACK_BE_U08_F32,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I16,	QB_UNPACK_BE_U08_I16	},
 };
 
+static qb_op * ZEND_FASTCALL qb_append_shuffle_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *f = factory;
+	qb_address *address = result->address;
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
+	qb_op *qop = qb_append_op(cxt, opcode, 2);
+	qop->operands[0] = operands[0];
+	qop->operands[1] = *result;
+	return qop;
+}
+
 static qb_basic_op_factory factory_sort = {
-	qb_append_nullary_op,
+	qb_append_shuffle_op,
 	NULL,
 	0,
 	0,
-	{	QB_SORT_F64 ,	QB_SORT_F32,	QB_SORT_U64,	QB_SORT_S64,	QB_SORT_U32,	QB_SORT_S32,	QB_SORT_U16,	QB_SORT_S16,	QB_SORT_U08,	QB_SORT_S08	},
+	{	QB_SORT_U32_F64 ,	QB_SORT_U32_F32,	QB_SORT_U32_U64,	QB_SORT_U32_S64,	QB_SORT_U32_U32,	QB_SORT_U32_S32,	QB_SORT_U32_U16,	QB_SORT_U32_S16,	QB_SORT_U32_U08,	QB_SORT_U32_S08	},
 };
 
 static qb_basic_op_factory factory_rsort = {
-	qb_append_nullary_op,
+	qb_append_shuffle_op,
 	NULL,
 	0,
 	0,
-	{	QB_RSORT_F64,	QB_RSORT_F32,	QB_RSORT_U64,	QB_RSORT_S64,	QB_RSORT_U32,	QB_RSORT_S32,	QB_RSORT_U16,	QB_RSORT_S16,	QB_RSORT_U08,	QB_RSORT_S08	},
+	{	QB_RSORT_U32_F64,	QB_RSORT_U32_F32,	QB_RSORT_U32_U64,	QB_RSORT_U32_S64,	QB_RSORT_U32_U32,	QB_RSORT_U32_S32,	QB_RSORT_U32_U16,	QB_RSORT_U32_S16,	QB_RSORT_U32_U08,	QB_RSORT_U32_S08	},
+};
+
+static qb_basic_op_factory factory_shuffle = {
+	qb_append_shuffle_op,
+	NULL,
+	0,
+	0,
+	{	QB_SHUFFLE_U32_F64,	QB_SHUFFLE_U32_F32,	QB_SHUFFLE_U32_I64,	QB_SHUFFLE_U32_I64,	QB_SHUFFLE_U32_I32,	QB_SHUFFLE_U32_I32,	QB_SHUFFLE_U32_I16,	QB_SHUFFLE_U32_I16,	QB_SHUFFLE_U32_I08,	QB_SHUFFLE_U32_I08	},
 };
 
 static qb_basic_op_factory factory_array_sum = { 
