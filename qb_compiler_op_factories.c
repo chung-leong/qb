@@ -2024,8 +2024,6 @@ static void ZEND_FASTCALL qb_set_matrix_vector_product_dimensions(qb_compiler_co
 	qb_address *v_address, *v_width_address;
 	uint32_t i, m_count, v_count, res_count;
 
-	qb_matrix_order order = qb_get_matrix_order(cxt, factory);
-
 	m_address = operands[0].address;
 	v_address = operands[1].address;
 	v_width_address = v_address->array_size_addresses[v_address->dimension_count - 1];
@@ -2610,6 +2608,65 @@ static qb_basic_op_factory factory_in_array = {
 	QB_COERCE_TO_SECOND_OPERAND_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_I32,
 	{	QB_AFIND_F64_F64_I32,	QB_AFIND_F32_F32_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I08_I08_I32,	QB_AFIND_I08_I08_I32	},
+};
+
+static qb_address * ZEND_FASTCALL qb_obtain_constant_U32(qb_compiler_context *cxt, uint32_t value);
+
+static void ZEND_FASTCALL qb_set_array_merge_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	uint32_t i, final_length = 0;
+	qb_address *dimension_source = NULL;
+	for(i = 0; i < operand_count; i++) {
+		qb_address *address = operands[i].address;
+		if(IS_VARIABLE_LENGTH_ARRAY(address)) {
+			final_length = 0;
+			dimension_source = NULL;
+			break;
+		} else {
+			if(IS_SCALAR(address)) {
+				final_length += 1;
+			} else {
+				final_length += ARRAY_SIZE(address);
+			}
+		}
+		if(!dimension_source || address->dimension_count > dimension_source->dimension_count) {
+			dimension_source = address;
+		}
+	}
+	dim->array_size = final_length;
+	if(dimension_source && dimension_source->dimension_count > 1) {
+		uint32_t element_count = final_length / VALUE(U32, dimension_source->array_size_addresses[1]);
+		dim->dimension_addresses[0] = qb_obtain_constant_U32(cxt, element_count);
+		for(i = 1; i < dimension_source->dimension_count; i++) {
+			dim->dimension_addresses[i] = dimension_source->dimension_addresses[i];
+		}
+		dim->dimension_count = dimension_source->dimension_count;
+	} else {
+		dim->dimension_count = 1;
+	}
+}
+
+static qb_copy_op_factory factory_array_merge = {
+	qb_append_copy_op,
+	qb_set_array_merge_result_dimensions,
+	QB_COERCE_TO_HIGHEST_RANK,
+	QB_TYPE_OPERAND,
+	{
+		{	QB_MOV_F64_F64,	QB_MOV_F64_F32,	QB_MOV_F64_U64,	QB_MOV_F64_S64,	QB_MOV_F64_U32,	QB_MOV_F64_S32,	QB_MOV_F64_U16,	QB_MOV_F64_S16,	QB_MOV_F64_U08,	QB_MOV_F64_S08,	},
+		{	QB_MOV_F32_F64,	QB_MOV_F32_F32,	QB_MOV_F32_U64,	QB_MOV_F32_S64,	QB_MOV_F32_U32,	QB_MOV_F32_S32,	QB_MOV_F32_U16,	QB_MOV_F32_S16,	QB_MOV_F32_U08,	QB_MOV_F32_S08,	},
+		{	QB_MOV_U64_F64,	QB_MOV_U64_F32,	QB_MOV_I64_I64,	QB_MOV_I64_I64,	QB_MOV_I64_I32,	QB_MOV_I64_I32,	QB_MOV_I64_I16,	QB_MOV_I64_I16,	QB_MOV_I64_I08,	QB_MOV_I64_I08,	},
+		{	QB_MOV_S64_F64,	QB_MOV_S64_F32,	QB_MOV_I64_I64,	QB_MOV_I64_I64,	QB_MOV_I64_I32,	QB_MOV_I64_I32,	QB_MOV_I64_I16,	QB_MOV_I64_I16,	QB_MOV_I64_I08,	QB_MOV_I64_I08,	},
+		{	QB_MOV_U32_F64,	QB_MOV_U32_F32,	QB_MOV_U32_I64,	QB_MOV_U32_I64,	QB_MOV_I32_I32,	QB_MOV_I32_I32,	QB_MOV_I32_I16,	QB_MOV_I32_I16,	QB_MOV_I32_I08,	QB_MOV_I32_I08,	},
+		{	QB_MOV_S32_F64,	QB_MOV_S32_F32,	QB_MOV_S32_I64,	QB_MOV_S32_I64,	QB_MOV_I32_I32,	QB_MOV_I32_I32,	QB_MOV_I32_I16,	QB_MOV_I32_I16,	QB_MOV_I32_I08,	QB_MOV_I32_I08,	},
+		{	QB_MOV_U16_F64,	QB_MOV_U16_F32,	QB_MOV_U16_I64,	QB_MOV_U16_I64,	QB_MOV_U16_I32,	QB_MOV_U16_I32,	QB_MOV_I16_I16,	QB_MOV_I16_I16,	QB_MOV_I16_I08,	QB_MOV_I16_I08,	},
+		{	QB_MOV_S16_F64,	QB_MOV_S16_F32,	QB_MOV_S16_I64,	QB_MOV_S16_I64,	QB_MOV_S16_I32,	QB_MOV_S16_I32,	QB_MOV_I16_I16,	QB_MOV_I16_I16,	QB_MOV_I16_I08,	QB_MOV_I16_I08,	},
+		{	QB_MOV_S08_F64,	QB_MOV_S08_F32,	QB_MOV_S08_I64,	QB_MOV_S08_I64,	QB_MOV_S08_I32,	QB_MOV_S08_I32,	QB_MOV_S08_I16,	QB_MOV_S08_I16,	QB_MOV_I08_I08,	QB_MOV_I08_I08,	},
+		{	QB_MOV_U08_F64,	QB_MOV_U08_F32,	QB_MOV_U08_I64,	QB_MOV_U08_I64,	QB_MOV_U08_I32,	QB_MOV_U08_I32,	QB_MOV_U08_I16,	QB_MOV_S08_I16,	QB_MOV_I08_I08,	QB_MOV_I08_I08,	},
+	},
+	{
+		{	QB_MOV_2X_F64_F64,	QB_MOV_2X_F32_F32,	},
+		{	QB_MOV_3X_F64_F64,	QB_MOV_3X_F32_F32,	},
+		{	QB_MOV_4X_F64_F64,	QB_MOV_4X_F32_F32,	},
+	},
 };
 
 static qb_basic_op_factory factory_subarray_pos = {

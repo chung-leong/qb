@@ -1995,7 +1995,8 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 }
 
 static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address) {
-	qb_address *slice_address;
+	qb_address *slice_address, *element_size_address;
+	uint32_t element_size;
 
 	if(IS_SCALAR(container_address)) {
 		qb_abort("Illegal operation: not an array");
@@ -2028,14 +2029,44 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 			qb_create_binary_op(cxt, &factory_subtract, size_address, offset_address, length_address);
 		}
 	}
+	if(container_address->dimension_count > 1) {
+		element_size_address = container_address->dimension_addresses[1];
+		element_size = VALUE(U32, element_size_address);
+	} else {
+		element_size_address = NULL;
+		element_size = 1;
+	}
 	slice_address = qb_allocate_address(cxt->pool);
 	slice_address->type = container_address->type;
-	slice_address->flags = QB_ADDRESS_TEMPORARY | QB_ADDRESS_NON_LOCAL | (container_address->flags & QB_ADDRESS_STRING);
+	slice_address->flags = QB_ADDRESS_NON_LOCAL | (container_address->flags & (QB_ADDRESS_STRING | QB_ADDRESS_TEMPORARY));
 	slice_address->mode = QB_ADDRESS_MODE_ARR;
 	slice_address->segment_selector = container_address->segment_selector;
-	if(offset_address->flags & QB_ADDRESS_CONSTANT) {
-		slice_address->segment_offset = VALUE(U32, offset_address) << type_size_shifts[slice_address->type];
+
+	if((offset_address->flags & QB_ADDRESS_CONSTANT) && container_address->segment_offset != QB_OFFSET_INVALID) {
+		slice_address->segment_offset = container_address->segment_offset + BYTE_COUNT(VALUE(U32, offset_address), container_address->type) * element_size;
 	} else {
+		if(element_size > 1) {
+			// need to multiply the offset by the element size
+			if(offset_address->flags & QB_ADDRESS_CONSTANT) {
+				offset_address = qb_obtain_constant_U32(cxt, VALUE(U32, offset_address) * element_size);
+			} else {
+				qb_address *new_offset_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
+				qb_create_binary_op(cxt, &factory_multiply, element_size_address, offset_address, new_offset_address);
+				offset_address = new_offset_address;
+			}
+		}
+		if(container_address->segment_offset != 0) {
+			// need to add the offset of the array
+			qb_address *new_offset_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
+			qb_address *array_offset_address;
+			if(container_address->array_index_address) {
+				array_offset_address = container_address->array_index_address;
+			} else {
+				array_offset_address = qb_obtain_constant_U32(cxt, ELEMENT_COUNT(container_address->segment_offset, container_address->type));
+			}
+			qb_create_binary_op(cxt, &factory_add, array_offset_address, offset_address, new_offset_address);
+			offset_address = new_offset_address;
+		}
 		slice_address->array_index_address = offset_address;
 		slice_address->segment_offset = QB_OFFSET_INVALID;
 	}

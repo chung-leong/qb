@@ -3,7 +3,7 @@
 class QBConcatStringHandler extends QBHandler {
 
 	public function getOperandType($i) {
-		// for now, $this->operandType should be going to be U08 as well
+		// for now, $this->operandType should be U08 as well
 		return ($i == 2) ? "U08" : $this->operandType;
 	}
 
