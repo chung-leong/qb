@@ -26,8 +26,13 @@ class QBArrayRandomHandler extends QBHandler {
 		return "op2";
 	}
 
+	public function needsInterpreterContext() {
+		return true;
+	}
+
 	public function getActionOnUnitData() {
 		$lines = array();
+		$lines[] = "USE_TSRM";
 		$lines[] = "uint32_t num_key = 0, num_req = op2, num_avail = op1;";
 		$lines[] = "while(num_req > 0) {";
 		$lines[] = 		"double randval = php_rand(TSRMLS_C);";

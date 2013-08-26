@@ -108,6 +108,16 @@ typedef struct qb_instruction_4_matrix_lineno {
 	uint32_t line_number;
 } qb_instruction_4_matrix_lineno;
 
+typedef struct qb_instruction_5_lineno {
+	void *next_handler;
+	uint32_t operand1;
+	uint32_t operand2;
+	uint32_t operand3;
+	uint32_t operand4;
+	uint32_t operand5;
+	uint32_t line_number;
+} qb_instruction_5_lineno;
+
 typedef struct qb_instruction_6_lineno {
 	void *next_handler;
 	uint32_t operand1;
@@ -309,6 +319,12 @@ void ZEND_FASTCALL qb_do_alpha_blend_multiple_times_F64(float64_t *op1_ptr, uint
 void ZEND_FASTCALL qb_do_any_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *res_ptr);
 void ZEND_FASTCALL qb_do_apply_premultiplication_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_apply_premultiplication_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_column_F32(uint32_t op1, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_column_F64(uint32_t op1, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_column_I08(uint32_t op1, uint32_t op2, uint32_t op3, int8_t *op4_ptr, uint32_t op4_count, int8_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_column_I16(uint32_t op1, uint32_t op2, uint32_t op3, int16_t *op4_ptr, uint32_t op4_count, int16_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_column_I32(uint32_t op1, uint32_t op2, uint32_t op3, int32_t *op4_ptr, uint32_t op4_count, int32_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_column_I64(uint32_t op1, uint32_t op2, uint32_t op3, int64_t *op4_ptr, uint32_t op4_count, int64_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_array_max_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr);
 void ZEND_FASTCALL qb_do_array_max_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr);
 void ZEND_FASTCALL qb_do_array_max_S08(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr);
@@ -339,7 +355,7 @@ void ZEND_FASTCALL qb_do_array_product_U08(uint8_t *op1_ptr, uint32_t op1_count,
 void ZEND_FASTCALL qb_do_array_product_U16(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *res_ptr);
 void ZEND_FASTCALL qb_do_array_product_U32(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr);
 void ZEND_FASTCALL qb_do_array_product_U64(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *res_ptr);
-void ZEND_FASTCALL qb_do_array_random(uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
+void ZEND_FASTCALL qb_do_array_random(qb_interpreter_context *cxt, uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_array_reverse_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, float32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_array_reverse_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, float64_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_array_reverse_I08(int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, int8_t *res_ptr, uint32_t res_count);

@@ -2303,6 +2303,114 @@ void ZEND_FASTCALL qb_do_apply_premultiplication_multiple_times_F64(float64_t *o
 	}
 }
 
+void ZEND_FASTCALL qb_do_array_column_F32(uint32_t op1, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *res_ptr, uint32_t res_count) {
+	float32_t *op4_end = op4_ptr + op4_count;
+	op4_ptr += op1 * op3;
+	if(op3 == 1) {
+		while(op4_ptr < op4_end) {
+			*res_ptr = *op4_ptr;
+			res_ptr += 1;
+			op4_ptr += op2;
+		}
+	} else {
+		while(op4_ptr < op4_end) {
+			memcpy(res_ptr, op4_ptr, op3 * sizeof(float32_t));
+			res_ptr += op3;
+			op4_ptr += op2;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_column_F64(uint32_t op1, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *res_ptr, uint32_t res_count) {
+	float64_t *op4_end = op4_ptr + op4_count;
+	op4_ptr += op1 * op3;
+	if(op3 == 1) {
+		while(op4_ptr < op4_end) {
+			*res_ptr = *op4_ptr;
+			res_ptr += 1;
+			op4_ptr += op2;
+		}
+	} else {
+		while(op4_ptr < op4_end) {
+			memcpy(res_ptr, op4_ptr, op3 * sizeof(float64_t));
+			res_ptr += op3;
+			op4_ptr += op2;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_column_I08(uint32_t op1, uint32_t op2, uint32_t op3, int8_t *op4_ptr, uint32_t op4_count, int8_t *res_ptr, uint32_t res_count) {
+	int8_t *op4_end = op4_ptr + op4_count;
+	op4_ptr += op1 * op3;
+	if(op3 == 1) {
+		while(op4_ptr < op4_end) {
+			*res_ptr = *op4_ptr;
+			res_ptr += 1;
+			op4_ptr += op2;
+		}
+	} else {
+		while(op4_ptr < op4_end) {
+			memcpy(res_ptr, op4_ptr, op3 * sizeof(int8_t));
+			res_ptr += op3;
+			op4_ptr += op2;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_column_I16(uint32_t op1, uint32_t op2, uint32_t op3, int16_t *op4_ptr, uint32_t op4_count, int16_t *res_ptr, uint32_t res_count) {
+	int16_t *op4_end = op4_ptr + op4_count;
+	op4_ptr += op1 * op3;
+	if(op3 == 1) {
+		while(op4_ptr < op4_end) {
+			*res_ptr = *op4_ptr;
+			res_ptr += 1;
+			op4_ptr += op2;
+		}
+	} else {
+		while(op4_ptr < op4_end) {
+			memcpy(res_ptr, op4_ptr, op3 * sizeof(int16_t));
+			res_ptr += op3;
+			op4_ptr += op2;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_column_I32(uint32_t op1, uint32_t op2, uint32_t op3, int32_t *op4_ptr, uint32_t op4_count, int32_t *res_ptr, uint32_t res_count) {
+	int32_t *op4_end = op4_ptr + op4_count;
+	op4_ptr += op1 * op3;
+	if(op3 == 1) {
+		while(op4_ptr < op4_end) {
+			*res_ptr = *op4_ptr;
+			res_ptr += 1;
+			op4_ptr += op2;
+		}
+	} else {
+		while(op4_ptr < op4_end) {
+			memcpy(res_ptr, op4_ptr, op3 * sizeof(int32_t));
+			res_ptr += op3;
+			op4_ptr += op2;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_column_I64(uint32_t op1, uint32_t op2, uint32_t op3, int64_t *op4_ptr, uint32_t op4_count, int64_t *res_ptr, uint32_t res_count) {
+	int64_t *op4_end = op4_ptr + op4_count;
+	op4_ptr += op1 * op3;
+	if(op3 == 1) {
+		while(op4_ptr < op4_end) {
+			*res_ptr = *op4_ptr;
+			res_ptr += 1;
+			op4_ptr += op2;
+		}
+	} else {
+		while(op4_ptr < op4_end) {
+			memcpy(res_ptr, op4_ptr, op3 * sizeof(int64_t));
+			res_ptr += op3;
+			op4_ptr += op2;
+		}
+	}
+}
+
 void ZEND_FASTCALL qb_do_array_max_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
 	if(op1_count > 0) {
 		uint32_t i;
@@ -2693,7 +2801,8 @@ void ZEND_FASTCALL qb_do_array_product_U64(uint64_t *op1_ptr, uint32_t op1_count
 	(*res_ptr) = product;
 }
 
-void ZEND_FASTCALL qb_do_array_random(uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+void ZEND_FASTCALL qb_do_array_random(qb_interpreter_context *cxt, uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	USE_TSRM
 	uint32_t num_key = 0, num_req = op2, num_avail = op1;
 	while(num_req > 0) {
 		double randval = php_rand(TSRMLS_C);
@@ -16398,9 +16507,10 @@ void ZEND_FASTCALL qb_do_shift_right_multiple_times_U64(uint64_t *op1_ptr, uint3
 }
 
 void ZEND_FASTCALL qb_do_shuffle_F32(qb_interpreter_context *cxt, uint32_t op1, float32_t *res_ptr, uint32_t res_count) {
-	ALLOCA_FLAG(use_heap);
-	uint32_t i, n_elems, n_left, rnd_idx;
+	USE_TSRM
+	uint32_t n_elems, n_left, rnd_idx;
 	float32_t temp, *temps = NULL, *elems = res_ptr;
+	ALLOCA_FLAG(use_heap);
 	if(op1 == 1) {
 		n_elems = res_count;
 		temps = NULL;
@@ -16430,9 +16540,10 @@ void ZEND_FASTCALL qb_do_shuffle_F32(qb_interpreter_context *cxt, uint32_t op1, 
 }
 
 void ZEND_FASTCALL qb_do_shuffle_F64(qb_interpreter_context *cxt, uint32_t op1, float64_t *res_ptr, uint32_t res_count) {
-	ALLOCA_FLAG(use_heap);
-	uint32_t i, n_elems, n_left, rnd_idx;
+	USE_TSRM
+	uint32_t n_elems, n_left, rnd_idx;
 	float64_t temp, *temps = NULL, *elems = res_ptr;
+	ALLOCA_FLAG(use_heap);
 	if(op1 == 1) {
 		n_elems = res_count;
 		temps = NULL;
@@ -16462,9 +16573,10 @@ void ZEND_FASTCALL qb_do_shuffle_F64(qb_interpreter_context *cxt, uint32_t op1, 
 }
 
 void ZEND_FASTCALL qb_do_shuffle_I08(qb_interpreter_context *cxt, uint32_t op1, int8_t *res_ptr, uint32_t res_count) {
-	ALLOCA_FLAG(use_heap);
-	uint32_t i, n_elems, n_left, rnd_idx;
+	USE_TSRM
+	uint32_t n_elems, n_left, rnd_idx;
 	int8_t temp, *temps = NULL, *elems = res_ptr;
+	ALLOCA_FLAG(use_heap);
 	if(op1 == 1) {
 		n_elems = res_count;
 		temps = NULL;
@@ -16494,9 +16606,10 @@ void ZEND_FASTCALL qb_do_shuffle_I08(qb_interpreter_context *cxt, uint32_t op1, 
 }
 
 void ZEND_FASTCALL qb_do_shuffle_I16(qb_interpreter_context *cxt, uint32_t op1, int16_t *res_ptr, uint32_t res_count) {
-	ALLOCA_FLAG(use_heap);
-	uint32_t i, n_elems, n_left, rnd_idx;
+	USE_TSRM
+	uint32_t n_elems, n_left, rnd_idx;
 	int16_t temp, *temps = NULL, *elems = res_ptr;
+	ALLOCA_FLAG(use_heap);
 	if(op1 == 1) {
 		n_elems = res_count;
 		temps = NULL;
@@ -16526,9 +16639,10 @@ void ZEND_FASTCALL qb_do_shuffle_I16(qb_interpreter_context *cxt, uint32_t op1, 
 }
 
 void ZEND_FASTCALL qb_do_shuffle_I32(qb_interpreter_context *cxt, uint32_t op1, int32_t *res_ptr, uint32_t res_count) {
-	ALLOCA_FLAG(use_heap);
-	uint32_t i, n_elems, n_left, rnd_idx;
+	USE_TSRM
+	uint32_t n_elems, n_left, rnd_idx;
 	int32_t temp, *temps = NULL, *elems = res_ptr;
+	ALLOCA_FLAG(use_heap);
 	if(op1 == 1) {
 		n_elems = res_count;
 		temps = NULL;
@@ -16558,9 +16672,10 @@ void ZEND_FASTCALL qb_do_shuffle_I32(qb_interpreter_context *cxt, uint32_t op1, 
 }
 
 void ZEND_FASTCALL qb_do_shuffle_I64(qb_interpreter_context *cxt, uint32_t op1, int64_t *res_ptr, uint32_t res_count) {
-	ALLOCA_FLAG(use_heap);
-	uint32_t i, n_elems, n_left, rnd_idx;
+	USE_TSRM
+	uint32_t n_elems, n_left, rnd_idx;
 	int64_t temp, *temps = NULL, *elems = res_ptr;
+	ALLOCA_FLAG(use_heap);
 	if(op1 == 1) {
 		n_elems = res_count;
 		temps = NULL;
@@ -18911,6 +19026,54 @@ void qb_do_apply_premultiplication_multiple_times_F64_symbol(float64_t *op1_ptr,
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_column_F32_symbol	qb_do_array_column_F32
+#else
+void qb_do_array_column_F32_symbol(uint32_t op1, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_column_F32(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_column_F64_symbol	qb_do_array_column_F64
+#else
+void qb_do_array_column_F64_symbol(uint32_t op1, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_column_F64(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_column_I08_symbol	qb_do_array_column_I08
+#else
+void qb_do_array_column_I08_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int8_t *op4_ptr, uint32_t op4_count, int8_t *res_ptr, uint32_t res_count) {
+	qb_do_array_column_I08(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_column_I16_symbol	qb_do_array_column_I16
+#else
+void qb_do_array_column_I16_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int16_t *op4_ptr, uint32_t op4_count, int16_t *res_ptr, uint32_t res_count) {
+	qb_do_array_column_I16(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_column_I32_symbol	qb_do_array_column_I32
+#else
+void qb_do_array_column_I32_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int32_t *op4_ptr, uint32_t op4_count, int32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_column_I32(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_column_I64_symbol	qb_do_array_column_I64
+#else
+void qb_do_array_column_I64_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int64_t *op4_ptr, uint32_t op4_count, int64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_column_I64(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_max_F32_symbol	qb_do_array_max_F32
 #else
 void qb_do_array_max_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
@@ -19153,8 +19316,8 @@ void qb_do_array_product_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint6
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_random_symbol	qb_do_array_random
 #else
-void qb_do_array_random_symbol(uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
-	qb_do_array_random(op1, op2, res_ptr, res_count);
+void qb_do_array_random_symbol(qb_interpreter_context *cxt, uint32_t op1, uint32_t op2, uint32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_random(cxt, op1, op2, res_ptr, res_count);
 }
 #endif
 
@@ -25637,6 +25800,12 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_any_I32",	qb_do_any_I32_symbol	},
 	{	0,	"qb_do_apply_premultiplication_multiple_times_F32",	qb_do_apply_premultiplication_multiple_times_F32_symbol	},
 	{	0,	"qb_do_apply_premultiplication_multiple_times_F64",	qb_do_apply_premultiplication_multiple_times_F64_symbol	},
+	{	0,	"qb_do_array_column_F32",	qb_do_array_column_F32_symbol	},
+	{	0,	"qb_do_array_column_F64",	qb_do_array_column_F64_symbol	},
+	{	0,	"qb_do_array_column_I08",	qb_do_array_column_I08_symbol	},
+	{	0,	"qb_do_array_column_I16",	qb_do_array_column_I16_symbol	},
+	{	0,	"qb_do_array_column_I32",	qb_do_array_column_I32_symbol	},
+	{	0,	"qb_do_array_column_I64",	qb_do_array_column_I64_symbol	},
 	{	0,	"qb_do_array_insert_F32",	(void*) -1	},
 	{	0,	"qb_do_array_insert_F64",	(void*) -1	},
 	{	0,	"qb_do_array_insert_I08",	(void*) -1	},
@@ -26617,5 +26786,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1135;
+uint32_t global_native_symbol_count = 1141;
 

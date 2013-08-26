@@ -23,9 +23,10 @@ class QBShuffleHandler extends QBHandler {
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(2);
 		$lines = array();
-		$lines[] = "ALLOCA_FLAG(use_heap);";
-		$lines[] = "uint32_t i, n_elems, n_left, rnd_idx;";
+		$lines[] = "USE_TSRM";
+		$lines[] = "uint32_t n_elems, n_left, rnd_idx;";
 		$lines[] = "$cType temp, *temps = NULL, *elems = res_ptr;";
+		$lines[] = "ALLOCA_FLAG(use_heap);";
 		$lines[] = "if(op1 == 1) {";
 		$lines[] = 		"n_elems = res_count;";
 		$lines[] = 		"temps = NULL;";

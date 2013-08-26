@@ -2693,6 +2693,51 @@ static qb_basic_op_factory factory_array_reverse = {
 	{	QB_AREV_F64_U32_F64,	QB_AREV_F32_U32_F32,	QB_AREV_I64_U32_I64,	QB_AREV_I64_U32_I64,	QB_AREV_I32_U32_I32,	QB_AREV_I32_U32_I32,	QB_AREV_I16_U32_I16,	QB_AREV_I16_U32_I16,	QB_AREV_I08_U32_I08,	QB_AREV_I08_U32_I08		},
 };
 
+static qb_op * ZEND_FASTCALL qb_append_array_column(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_op *qop = qb_append_op(cxt, opcode, 5);
+	qop->operands[0] = operands[1];
+	qop->operands[1].type = QB_OPERAND_ADDRESS;
+	qop->operands[1].address = address1->array_size_addresses[1];
+	qop->operands[2].type = QB_OPERAND_ADDRESS;
+	qop->operands[2].address = (address1->dimension_count > 2) ? address1->dimension_addresses[2] : qb_obtain_constant_U32(cxt, 1);
+	qop->operands[3] = operands[0];
+	qop->operands[4] = *result;
+	return qop;
+}
+
+static void ZEND_FASTCALL qb_set_array_column_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_address *address1 = operands[0].address;
+	if(IS_VARIABLE_LENGTH_ARRAY(address1)) {
+		dim->array_size = 0;
+	} else {
+		dim->array_size = VALUE(U32, address1->dimension_addresses[0]);
+		if(address1->dimension_count > 2) {
+			dim->array_size *= VALUE(U32, address1->array_size_addresses[2]);
+		}
+	}
+	if(address1->dimension_count > 2) {
+		uint32_t i;
+		dim->dimension_count = address1->dimension_count - 1;
+		dim->dimension_addresses[0] = address1->dimension_addresses[0];
+		for(i = 2; i < address1->dimension_count; i++) {
+			dim->dimension_addresses[i - 1] = address1->dimension_addresses[i];
+		}
+	} else {
+		dim->dimension_count = 1;
+	}
+}
+
+static qb_basic_op_factory factory_array_column = {
+	qb_append_array_column,
+	qb_set_array_column_result_dimensions,
+	0,
+	0,
+	{	QB_ACOL_U32_U32_U32_F64_F64,	QB_ACOL_U32_U32_U32_F32_F32,	QB_ACOL_U32_U32_U32_I64_I64,	QB_ACOL_U32_U32_U32_I64_I64,	QB_ACOL_U32_U32_U32_I32_I32,	QB_ACOL_U32_U32_U32_I32_I32,	QB_ACOL_U32_U32_U32_I16_I16,	QB_ACOL_U32_U32_U32_I16_I16,	QB_ACOL_U32_U32_U32_I08_I08,	QB_ACOL_U32_U32_U32_I08_I08	},
+};
+
 uint32_t qb_get_range_length_F32(float32_t op1, float32_t op2, float32_t op3);
 uint32_t qb_get_range_length_F64(float64_t op1, float64_t op2, float64_t op3);
 uint32_t qb_get_range_length_S08(int8_t op1, int8_t op2, int8_t op3);
