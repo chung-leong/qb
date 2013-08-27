@@ -2669,6 +2669,71 @@ static qb_copy_op_factory factory_array_merge = {
 	},
 };
 
+static void ZEND_FASTCALL qb_set_array_fill_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_address *index_address = operands[0].address;
+	qb_address *number_address = operands[1].address;
+	qb_address *value_address = operands[2].address;
+	int32_t count_is_constant;
+	uint32_t count;
+
+	if((index_address->flags & QB_ADDRESS_CONSTANT) && (number_address->flags & QB_ADDRESS_CONSTANT)) {
+		uint32_t start_index = VALUE(U32, index_address);
+		uint32_t number = VALUE(U32, number_address);
+		count = start_index + number;
+		count_is_constant = TRUE;
+	} else {
+		count_is_constant = FALSE;
+	}
+
+	if(count_is_constant && !IS_VARIABLE_LENGTH_ARRAY(value_address)) {
+		uint32_t value_size;
+		if(IS_SCALAR(value_address)) {
+			value_size = 1;
+		} else {
+			value_size = ARRAY_SIZE(value_address);
+		}
+		dim->array_size = count * value_size;
+	} else {
+		dim->array_size = 0;
+	}
+	if(value_address->dimension_count > 0 && count_is_constant) {
+		// we can determine the first dimension if the first two parameters are constant
+		// TODO: need mechanism to make dimension available even when length isn't known
+		uint32_t i;
+		dim->dimension_count = value_address->dimension_count + 1;
+		for(i = 0; i < value_address->dimension_count; i++) {
+			dim->dimension_addresses[i + 1] = value_address->dimension_addresses[i];
+		}
+		dim->dimension_addresses[0] = qb_obtain_constant_U32(cxt, count);
+	} else {
+		dim->dimension_count = 1;
+	}
+}
+
+static qb_copy_op_factory factory_array_fill = {
+	qb_append_copy_op,
+	qb_set_array_fill_result_dimensions,
+	0,
+	QB_TYPE_OPERAND,
+	{
+		{	QB_MOV_F64_F64,	QB_MOV_F64_F32,	QB_MOV_F64_U64,	QB_MOV_F64_S64,	QB_MOV_F64_U32,	QB_MOV_F64_S32,	QB_MOV_F64_U16,	QB_MOV_F64_S16,	QB_MOV_F64_U08,	QB_MOV_F64_S08,	},
+		{	QB_MOV_F32_F64,	QB_MOV_F32_F32,	QB_MOV_F32_U64,	QB_MOV_F32_S64,	QB_MOV_F32_U32,	QB_MOV_F32_S32,	QB_MOV_F32_U16,	QB_MOV_F32_S16,	QB_MOV_F32_U08,	QB_MOV_F32_S08,	},
+		{	QB_MOV_U64_F64,	QB_MOV_U64_F32,	QB_MOV_I64_I64,	QB_MOV_I64_I64,	QB_MOV_I64_I32,	QB_MOV_I64_I32,	QB_MOV_I64_I16,	QB_MOV_I64_I16,	QB_MOV_I64_I08,	QB_MOV_I64_I08,	},
+		{	QB_MOV_S64_F64,	QB_MOV_S64_F32,	QB_MOV_I64_I64,	QB_MOV_I64_I64,	QB_MOV_I64_I32,	QB_MOV_I64_I32,	QB_MOV_I64_I16,	QB_MOV_I64_I16,	QB_MOV_I64_I08,	QB_MOV_I64_I08,	},
+		{	QB_MOV_U32_F64,	QB_MOV_U32_F32,	QB_MOV_U32_I64,	QB_MOV_U32_I64,	QB_MOV_I32_I32,	QB_MOV_I32_I32,	QB_MOV_I32_I16,	QB_MOV_I32_I16,	QB_MOV_I32_I08,	QB_MOV_I32_I08,	},
+		{	QB_MOV_S32_F64,	QB_MOV_S32_F32,	QB_MOV_S32_I64,	QB_MOV_S32_I64,	QB_MOV_I32_I32,	QB_MOV_I32_I32,	QB_MOV_I32_I16,	QB_MOV_I32_I16,	QB_MOV_I32_I08,	QB_MOV_I32_I08,	},
+		{	QB_MOV_U16_F64,	QB_MOV_U16_F32,	QB_MOV_U16_I64,	QB_MOV_U16_I64,	QB_MOV_U16_I32,	QB_MOV_U16_I32,	QB_MOV_I16_I16,	QB_MOV_I16_I16,	QB_MOV_I16_I08,	QB_MOV_I16_I08,	},
+		{	QB_MOV_S16_F64,	QB_MOV_S16_F32,	QB_MOV_S16_I64,	QB_MOV_S16_I64,	QB_MOV_S16_I32,	QB_MOV_S16_I32,	QB_MOV_I16_I16,	QB_MOV_I16_I16,	QB_MOV_I16_I08,	QB_MOV_I16_I08,	},
+		{	QB_MOV_S08_F64,	QB_MOV_S08_F32,	QB_MOV_S08_I64,	QB_MOV_S08_I64,	QB_MOV_S08_I32,	QB_MOV_S08_I32,	QB_MOV_S08_I16,	QB_MOV_S08_I16,	QB_MOV_I08_I08,	QB_MOV_I08_I08,	},
+		{	QB_MOV_U08_F64,	QB_MOV_U08_F32,	QB_MOV_U08_I64,	QB_MOV_U08_I64,	QB_MOV_U08_I32,	QB_MOV_U08_I32,	QB_MOV_U08_I16,	QB_MOV_S08_I16,	QB_MOV_I08_I08,	QB_MOV_I08_I08,	},
+	},
+	{
+		{	QB_MOV_2X_F64_F64,	QB_MOV_2X_F32_F32,	},
+		{	QB_MOV_3X_F64_F64,	QB_MOV_3X_F32_F32,	},
+		{	QB_MOV_4X_F64_F64,	QB_MOV_4X_F32_F32,	},
+	},
+};
+
 static qb_basic_op_factory factory_subarray_pos = {
 	qb_append_ternary_op,
 	NULL,

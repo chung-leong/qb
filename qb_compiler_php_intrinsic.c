@@ -626,6 +626,56 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_merge(qb_compiler_context
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_intrinsic_array_fill(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *index = &arguments[0], *number = &arguments[1], *value = &arguments[2];
+	uint32_t coercion_flags = qb_get_coercion_flags(cxt, f->extra);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, value, coercion_flags);
+	qb_do_type_coercion(cxt, index, QB_TYPE_U32);
+	qb_do_type_coercion(cxt, number, QB_TYPE_U32);
+
+	// use the lvalue type if it's higher
+	if(result_prototype->final_type != QB_TYPE_UNKNOWN) {
+		if(result_prototype->final_type > expr_type) {
+			expr_type = result_prototype->final_type;
+		}
+	}
+	qb_do_type_coercion(cxt, value, expr_type);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->preliminary_type = expr_type;
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(!IS_SCALAR(index->address)) {
+			qb_abort("%s expects the first parameter to be a scalar", f->name);
+		}
+		if(!IS_SCALAR(number->address)) {
+			qb_abort("%s expects the second parameter to be a scalar", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
+			qb_address *target_address;
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_write_target_address(cxt, expr_type, result_dim, result_prototype, result_flags);
+			if(!IS_EXPANDABLE_ARRAY(result->address)) {
+				// expandable arrays are set to zero when an unset occur and we'd only get an expandable array here
+				// if that has occurred
+				if(!(index->address->flags & QB_ADDRESS_CONSTANT) || VALUE(U32, index->address) != 0) {
+					// the start index is or might not be zero
+					// zero out the elements before it
+					qb_address *zero_address = qb_obtain_constant_U32(cxt, 0);
+					qb_address *padding_address = qb_get_array_slice(cxt, result->address, zero_address, index->address);
+					qb_create_unary_op(cxt, f->extra, zero_address, padding_address);
+				}
+			}
+			target_address = qb_get_array_slice(cxt, result->address, index->address, number->address);
+			qb_create_unary_op(cxt, f->extra, value->address, target_address);
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_array_column(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *column_index = &arguments[1];
 	uint32_t operand_flags = qb_get_coercion_flags(cxt, f->extra);
@@ -1631,6 +1681,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_shift",			qb_translate_intrinsic_array_shift,			1,		1,		NULL						},
 	{	0,	"array_push",			qb_translate_intrinsic_array_push,			2,		2,		NULL						},
 	{	0,	"array_merge",			qb_translate_intrinsic_array_merge,			2,		-1,		&factory_array_merge		},
+	{	0,	"array_fill",			qb_translate_intrinsic_array_fill,			3,		3,		&factory_array_fill			},
 	{	0,	"array_slice",			qb_translate_intrinsic_array_slice,			2,		3,		NULL						},
 	{	0,	"substr",				qb_translate_intrinsic_array_slice,			2,		3,		NULL						},
 	{	0,	"array_sum",			qb_translate_intrinsic_array_aggregate,		1,		1,		&factory_array_sum			},

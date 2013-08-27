@@ -1296,7 +1296,7 @@ static uint32_t ZEND_FASTCALL qb_do_type_coercion_for_op(qb_compiler_context *cx
 	expr_type = QB_TYPE_ANY;
 	result_type = QB_RESULT_TYPE(result_flags);
 
-	if(operand_flags & QB_COERCE_TO_LVALUE_TYPE && cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+	if(operand_flags & QB_COERCE_TO_LVALUE_TYPE && cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		// use the information gathered in the previous stage, finalizing the prototype first
 		qb_finalize_result_prototype(cxt, result_prototype);
 		expr_type = result_prototype->final_type;
