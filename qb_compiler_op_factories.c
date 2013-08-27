@@ -2698,12 +2698,12 @@ static qb_op * ZEND_FASTCALL qb_append_array_column(qb_compiler_context *cxt, vo
 	qb_address *address1 = operands[0].address;
 	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
 	qb_op *qop = qb_append_op(cxt, opcode, 5);
-	qop->operands[0] = operands[1];
+	qop->operands[0] = operands[0];
 	qop->operands[1].type = QB_OPERAND_ADDRESS;
 	qop->operands[1].address = address1->array_size_addresses[1];
 	qop->operands[2].type = QB_OPERAND_ADDRESS;
 	qop->operands[2].address = (address1->dimension_count > 2) ? address1->dimension_addresses[2] : qb_obtain_constant_U32(cxt, 1);
-	qop->operands[3] = operands[0];
+	qop->operands[3] = operands[1];
 	qop->operands[4] = *result;
 	return qop;
 }
@@ -2735,7 +2735,41 @@ static qb_basic_op_factory factory_array_column = {
 	qb_set_array_column_result_dimensions,
 	0,
 	0,
-	{	QB_ACOL_U32_U32_U32_F64_F64,	QB_ACOL_U32_U32_U32_F32_F32,	QB_ACOL_U32_U32_U32_I64_I64,	QB_ACOL_U32_U32_U32_I64_I64,	QB_ACOL_U32_U32_U32_I32_I32,	QB_ACOL_U32_U32_U32_I32_I32,	QB_ACOL_U32_U32_U32_I16_I16,	QB_ACOL_U32_U32_U32_I16_I16,	QB_ACOL_U32_U32_U32_I08_I08,	QB_ACOL_U32_U32_U32_I08_I08	},
+	{	QB_ACOL_F64_U32_U32_U32_F64,	QB_ACOL_F32_U32_U32_U32_F32,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I08_U32_U32_U32_I08,	QB_ACOL_I08_U32_U32_U32_I08	},
+};
+
+static qb_op * ZEND_FASTCALL qb_append_array_diff(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *f = factory;
+	qb_address *address1 = operands[0].address;
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address1->type];
+	qb_op *qop = qb_append_op(cxt, opcode, 4);
+	qop->operands[0] = operands[0];
+	qop->operands[1] = operands[1];
+	qop->operands[2].type = QB_OPERAND_ADDRESS;
+	qop->operands[2].address = (address1->dimension_count > 1) ? address1->array_size_addresses[1] : qb_obtain_constant_U32(cxt, 1);
+	qop->operands[3] = *result;
+	return qop;
+}
+
+static void ZEND_FASTCALL qb_set_variable_length_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	dim->dimension_count = 1;
+	dim->array_size = 0;
+}
+
+static qb_basic_op_factory factory_array_diff = {
+	qb_append_array_diff,
+	qb_set_variable_length_result_dimensions,
+	QB_COERCE_TO_FIRST_OPERAND_TYPE,
+	QB_TYPE_OPERAND,
+	{	QB_ADIFF_F64_F64_U32_F64,	QB_ADIFF_F32_F32_U32_F32,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I08_I08_U32_I08,	QB_ADIFF_I08_I08_U32_I08	},
+};
+
+static qb_basic_op_factory factory_array_intersect = {
+	qb_append_array_diff,
+	qb_set_variable_length_result_dimensions,
+	QB_COERCE_TO_FIRST_OPERAND_TYPE,
+	QB_TYPE_OPERAND,
+	{	QB_AISECT_F64_F64_U32_F64,	QB_AISECT_F32_F32_U32_F32,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I08_I08_U32_I08,	QB_AISECT_I08_I08_U32_I08	},
 };
 
 uint32_t qb_get_range_length_F32(float32_t op1, float32_t op2, float32_t op3);
@@ -2786,11 +2820,6 @@ static qb_basic_op_factory factory_range = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_RANGE_F64_F64_F64_F64,	QB_RANGE_F32_F32_F32_F32,	QB_RANGE_U64_U64_S64_U64,	QB_RANGE_S64_S64_S64_S64,	QB_RANGE_U32_U32_S32_U32,	QB_RANGE_S32_S32_S32_S32,	QB_RANGE_U16_U16_S16_U16,	QB_RANGE_S16_S16_S16_S16,	QB_RANGE_U08_U08_S08_U08,	QB_RANGE_S08_S08_S08_S08	},
 };
-
-static void ZEND_FASTCALL qb_set_variable_length_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	dim->dimension_count = 1;
-	dim->array_size = 0;
-}
 
 static qb_basic_op_factory factory_array_unique = {
 	qb_append_binary_op,

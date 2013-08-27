@@ -1213,6 +1213,8 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBArrayInsertHandler("AINS", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayUniqueHandler("AUNIQ", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayColumnHandler("ACOL", $elementTypeNoSign);
+			$this->handlers[] = new QBArrayDifferenceHandler("ADIFF", $elementTypeNoSign);
+			$this->handlers[] = new QBArrayIntersectHandler("AISECT", $elementTypeNoSign);
 			$this->handlers[] = new QBShuffleHandler("SHUFFLE", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {

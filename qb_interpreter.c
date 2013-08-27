@@ -875,13 +875,6 @@ NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_mem
 	}
 }
 
-NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number) {
-	USE_TSRM
-	QB_G(current_filename) = cxt->function->filename;
-	QB_G(current_line_number) = line_number;
-	qb_abort("Division by zero");
-}
-
 enum {
 	QB_TRANSFER_CAN_BORROW_MEMORY	= 0x0001,
 	QB_TRANSFER_CAN_SEIZE_MEMORY	= 0x0002,

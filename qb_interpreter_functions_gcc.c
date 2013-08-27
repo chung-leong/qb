@@ -24,6 +24,20 @@
 #include "qb.h"
 #include "qb_interpreter_gcc.h"
 
+NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number) {
+	USE_TSRM
+	QB_G(current_filename) = cxt->function->filename;
+	QB_G(current_line_number) = line_number;
+	qb_abort("Division by zero");
+}
+
+NO_RETURN void qb_abort_missing_column(qb_interpreter_context *restrict cxt, uint32_t column_offset, uint32_t line_number) {
+	USE_TSRM
+	QB_G(current_filename) = cxt->function->filename;
+	QB_G(current_line_number) = line_number;
+	qb_abort("Accessing non-existing column at index %d", column_offset);
+}
+
 int qb_compare_ascending_F32(const void *a, const void *b) {
 	if(*((float32_t *) a) < *((float32_t *) b)) {
 		return -1;
@@ -324,7 +338,7 @@ int qb_compare_descending_U64_array(const void *b, const void *a, const void *ex
 	return qb_compare_array_U64((uint64_t *) a, len, (uint64_t *) b, len);
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_F32(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -360,7 +374,7 @@ int32_t ZEND_FASTCALL qb_compare_array_F32(float32_t * __restrict op1_ptr, uint3
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_F64(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		float64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -396,7 +410,7 @@ int32_t ZEND_FASTCALL qb_compare_array_F64(float64_t * __restrict op1_ptr, uint3
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_S08(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_S08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		int8_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int8_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -432,7 +446,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S08(int8_t * __restrict op1_ptr, uint32_t
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_S16(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_S16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		int16_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int16_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -468,7 +482,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S16(int16_t * __restrict op1_ptr, uint32_
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_S32(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_S32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		int32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -504,7 +518,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S32(int32_t * __restrict op1_ptr, uint32_
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_S64(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_S64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		int64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		int64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -540,7 +554,7 @@ int32_t ZEND_FASTCALL qb_compare_array_S64(int64_t * __restrict op1_ptr, uint32_
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_U08(uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_U08(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		uint8_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint8_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -576,7 +590,7 @@ int32_t ZEND_FASTCALL qb_compare_array_U08(uint8_t * __restrict op1_ptr, uint32_
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_U16(uint16_t * __restrict op1_ptr, uint32_t op1_count, uint16_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_U16(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		uint16_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint16_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -612,7 +626,7 @@ int32_t ZEND_FASTCALL qb_compare_array_U16(uint16_t * __restrict op1_ptr, uint32
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_U32(uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_U32(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		uint32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -648,7 +662,7 @@ int32_t ZEND_FASTCALL qb_compare_array_U32(uint32_t * __restrict op1_ptr, uint32
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_compare_array_U64(uint64_t * __restrict op1_ptr, uint32_t op1_count, uint64_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t ZEND_FASTCALL qb_compare_array_U64(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count) {
 	if(op1_count && op2_count) {
 		uint64_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
 		uint64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
@@ -994,6 +1008,438 @@ uint32_t ZEND_FASTCALL qb_get_utf8_encoded_length_U32(uint32_t *op1_ptr, uint32_
 		length += encode(op1_ptr[i], buffer);
 	}
 	return length;
+}
+
+uint32_t qb_get_difference_count_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	float32_t *op1_end = op1_ptr + op1_count;
+	float32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_difference_count_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	float64_t *op1_end = op1_ptr + op1_count;
+	float64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_difference_count_I08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int8_t *op1_end = op1_ptr + op1_count;
+	int8_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S08(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_difference_count_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int16_t *op1_end = op1_ptr + op1_count;
+	int16_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S16(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_difference_count_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int32_t *op1_end = op1_ptr + op1_count;
+	int32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_difference_count_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int64_t *op1_end = op1_ptr + op1_count;
+	int64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_intersect_count_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	float32_t *op1_end = op1_ptr + op1_count;
+	float32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_intersect_count_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	float64_t *op1_end = op1_ptr + op1_count;
+	float64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_intersect_count_I08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int8_t *op1_end = op1_ptr + op1_count;
+	int8_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S08(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_intersect_count_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int16_t *op1_end = op1_ptr + op1_count;
+	int16_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S16(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_intersect_count_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int32_t *op1_end = op1_ptr + op1_count;
+	int32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
+}
+
+uint32_t qb_get_intersect_count_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3) {
+	int64_t *op1_end = op1_ptr + op1_count;
+	int64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				count += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+	return count;
 }
 
 uint32_t qb_get_multidimensional_array_sprintf_length_F32(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
@@ -2303,110 +2749,578 @@ void ZEND_FASTCALL qb_do_apply_premultiplication_multiple_times_F64(float64_t *o
 	}
 }
 
-void ZEND_FASTCALL qb_do_array_column_F32(uint32_t op1, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *res_ptr, uint32_t res_count) {
-	float32_t *op4_end = op4_ptr + op4_count;
-	op4_ptr += op1 * op3;
-	if(op3 == 1) {
-		while(op4_ptr < op4_end) {
-			*res_ptr = *op4_ptr;
+void ZEND_FASTCALL qb_do_array_column_F32(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, float32_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	float32_t *op1_end = op1_ptr + op1_count;
+	uint32_t column_offset = op4, column_count = op2, element_size = op3;
+	if(UNEXPECTED(column_offset >= column_count)) {
+		qb_abort_missing_column(cxt, column_offset, PHP_LINE_NUMBER);
+	}
+	op1_ptr += column_offset * element_size;
+	if(element_size == 1) {
+		while(op1_ptr < op1_end) {
+			*res_ptr = *op1_ptr;
 			res_ptr += 1;
-			op4_ptr += op2;
+			op1_ptr += column_count;
 		}
 	} else {
-		while(op4_ptr < op4_end) {
-			memcpy(res_ptr, op4_ptr, op3 * sizeof(float32_t));
-			res_ptr += op3;
-			op4_ptr += op2;
+		while(op1_ptr < op1_end) {
+			memcpy(res_ptr, op1_ptr, element_size * sizeof(float32_t));
+			res_ptr += element_size;
+			op1_ptr += column_count;
 		}
 	}
 }
 
-void ZEND_FASTCALL qb_do_array_column_F64(uint32_t op1, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *res_ptr, uint32_t res_count) {
-	float64_t *op4_end = op4_ptr + op4_count;
-	op4_ptr += op1 * op3;
-	if(op3 == 1) {
-		while(op4_ptr < op4_end) {
-			*res_ptr = *op4_ptr;
+void ZEND_FASTCALL qb_do_array_column_F64(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, float64_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	float64_t *op1_end = op1_ptr + op1_count;
+	uint32_t column_offset = op4, column_count = op2, element_size = op3;
+	if(UNEXPECTED(column_offset >= column_count)) {
+		qb_abort_missing_column(cxt, column_offset, PHP_LINE_NUMBER);
+	}
+	op1_ptr += column_offset * element_size;
+	if(element_size == 1) {
+		while(op1_ptr < op1_end) {
+			*res_ptr = *op1_ptr;
 			res_ptr += 1;
-			op4_ptr += op2;
+			op1_ptr += column_count;
 		}
 	} else {
-		while(op4_ptr < op4_end) {
-			memcpy(res_ptr, op4_ptr, op3 * sizeof(float64_t));
-			res_ptr += op3;
-			op4_ptr += op2;
+		while(op1_ptr < op1_end) {
+			memcpy(res_ptr, op1_ptr, element_size * sizeof(float64_t));
+			res_ptr += element_size;
+			op1_ptr += column_count;
 		}
 	}
 }
 
-void ZEND_FASTCALL qb_do_array_column_I08(uint32_t op1, uint32_t op2, uint32_t op3, int8_t *op4_ptr, uint32_t op4_count, int8_t *res_ptr, uint32_t res_count) {
-	int8_t *op4_end = op4_ptr + op4_count;
-	op4_ptr += op1 * op3;
-	if(op3 == 1) {
-		while(op4_ptr < op4_end) {
-			*res_ptr = *op4_ptr;
+void ZEND_FASTCALL qb_do_array_column_I08(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int8_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	int8_t *op1_end = op1_ptr + op1_count;
+	uint32_t column_offset = op4, column_count = op2, element_size = op3;
+	if(UNEXPECTED(column_offset >= column_count)) {
+		qb_abort_missing_column(cxt, column_offset, PHP_LINE_NUMBER);
+	}
+	op1_ptr += column_offset * element_size;
+	if(element_size == 1) {
+		while(op1_ptr < op1_end) {
+			*res_ptr = *op1_ptr;
 			res_ptr += 1;
-			op4_ptr += op2;
+			op1_ptr += column_count;
 		}
 	} else {
-		while(op4_ptr < op4_end) {
-			memcpy(res_ptr, op4_ptr, op3 * sizeof(int8_t));
-			res_ptr += op3;
-			op4_ptr += op2;
+		while(op1_ptr < op1_end) {
+			memcpy(res_ptr, op1_ptr, element_size * sizeof(int8_t));
+			res_ptr += element_size;
+			op1_ptr += column_count;
 		}
 	}
 }
 
-void ZEND_FASTCALL qb_do_array_column_I16(uint32_t op1, uint32_t op2, uint32_t op3, int16_t *op4_ptr, uint32_t op4_count, int16_t *res_ptr, uint32_t res_count) {
-	int16_t *op4_end = op4_ptr + op4_count;
-	op4_ptr += op1 * op3;
-	if(op3 == 1) {
-		while(op4_ptr < op4_end) {
-			*res_ptr = *op4_ptr;
+void ZEND_FASTCALL qb_do_array_column_I16(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int16_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	int16_t *op1_end = op1_ptr + op1_count;
+	uint32_t column_offset = op4, column_count = op2, element_size = op3;
+	if(UNEXPECTED(column_offset >= column_count)) {
+		qb_abort_missing_column(cxt, column_offset, PHP_LINE_NUMBER);
+	}
+	op1_ptr += column_offset * element_size;
+	if(element_size == 1) {
+		while(op1_ptr < op1_end) {
+			*res_ptr = *op1_ptr;
 			res_ptr += 1;
-			op4_ptr += op2;
+			op1_ptr += column_count;
 		}
 	} else {
-		while(op4_ptr < op4_end) {
-			memcpy(res_ptr, op4_ptr, op3 * sizeof(int16_t));
-			res_ptr += op3;
-			op4_ptr += op2;
+		while(op1_ptr < op1_end) {
+			memcpy(res_ptr, op1_ptr, element_size * sizeof(int16_t));
+			res_ptr += element_size;
+			op1_ptr += column_count;
 		}
 	}
 }
 
-void ZEND_FASTCALL qb_do_array_column_I32(uint32_t op1, uint32_t op2, uint32_t op3, int32_t *op4_ptr, uint32_t op4_count, int32_t *res_ptr, uint32_t res_count) {
-	int32_t *op4_end = op4_ptr + op4_count;
-	op4_ptr += op1 * op3;
-	if(op3 == 1) {
-		while(op4_ptr < op4_end) {
-			*res_ptr = *op4_ptr;
+void ZEND_FASTCALL qb_do_array_column_I32(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int32_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	int32_t *op1_end = op1_ptr + op1_count;
+	uint32_t column_offset = op4, column_count = op2, element_size = op3;
+	if(UNEXPECTED(column_offset >= column_count)) {
+		qb_abort_missing_column(cxt, column_offset, PHP_LINE_NUMBER);
+	}
+	op1_ptr += column_offset * element_size;
+	if(element_size == 1) {
+		while(op1_ptr < op1_end) {
+			*res_ptr = *op1_ptr;
 			res_ptr += 1;
-			op4_ptr += op2;
+			op1_ptr += column_count;
 		}
 	} else {
-		while(op4_ptr < op4_end) {
-			memcpy(res_ptr, op4_ptr, op3 * sizeof(int32_t));
-			res_ptr += op3;
-			op4_ptr += op2;
+		while(op1_ptr < op1_end) {
+			memcpy(res_ptr, op1_ptr, element_size * sizeof(int32_t));
+			res_ptr += element_size;
+			op1_ptr += column_count;
 		}
 	}
 }
 
-void ZEND_FASTCALL qb_do_array_column_I64(uint32_t op1, uint32_t op2, uint32_t op3, int64_t *op4_ptr, uint32_t op4_count, int64_t *res_ptr, uint32_t res_count) {
-	int64_t *op4_end = op4_ptr + op4_count;
-	op4_ptr += op1 * op3;
-	if(op3 == 1) {
-		while(op4_ptr < op4_end) {
-			*res_ptr = *op4_ptr;
+void ZEND_FASTCALL qb_do_array_column_I64(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int64_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	int64_t *op1_end = op1_ptr + op1_count;
+	uint32_t column_offset = op4, column_count = op2, element_size = op3;
+	if(UNEXPECTED(column_offset >= column_count)) {
+		qb_abort_missing_column(cxt, column_offset, PHP_LINE_NUMBER);
+	}
+	op1_ptr += column_offset * element_size;
+	if(element_size == 1) {
+		while(op1_ptr < op1_end) {
+			*res_ptr = *op1_ptr;
 			res_ptr += 1;
-			op4_ptr += op2;
+			op1_ptr += column_count;
 		}
 	} else {
-		while(op4_ptr < op4_end) {
-			memcpy(res_ptr, op4_ptr, op3 * sizeof(int64_t));
-			res_ptr += op3;
-			op4_ptr += op2;
+		while(op1_ptr < op1_end) {
+			memcpy(res_ptr, op1_ptr, element_size * sizeof(int64_t));
+			res_ptr += element_size;
+			op1_ptr += column_count;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_difference_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3, float32_t *res_ptr, uint32_t res_count) {
+	float32_t *op1_end = op1_ptr + op1_count;
+	float32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				memcpy(res_ptr, op1_ptr, sizeof(float32_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_difference_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3, float64_t *res_ptr, uint32_t res_count) {
+	float64_t *op1_end = op1_ptr + op1_count;
+	float64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				memcpy(res_ptr, op1_ptr, sizeof(float64_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_difference_I08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3, int8_t *res_ptr, uint32_t res_count) {
+	int8_t *op1_end = op1_ptr + op1_count;
+	int8_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S08(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int8_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_difference_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3, int16_t *res_ptr, uint32_t res_count) {
+	int16_t *op1_end = op1_ptr + op1_count;
+	int16_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S16(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int16_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_difference_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3, int32_t *res_ptr, uint32_t res_count) {
+	int32_t *op1_end = op1_ptr + op1_count;
+	int32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int32_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_difference_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3, int64_t *res_ptr, uint32_t res_count) {
+	int64_t *op1_end = op1_ptr + op1_count;
+	int64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(!found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int64_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_intersect_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3, float32_t *res_ptr, uint32_t res_count) {
+	float32_t *op1_end = op1_ptr + op1_count;
+	float32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				memcpy(res_ptr, op1_ptr, sizeof(float32_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_intersect_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3, float64_t *res_ptr, uint32_t res_count) {
+	float64_t *op1_end = op1_ptr + op1_count;
+	float64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_F64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				memcpy(res_ptr, op1_ptr, sizeof(float64_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_intersect_I08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3, int8_t *res_ptr, uint32_t res_count) {
+	int8_t *op1_end = op1_ptr + op1_count;
+	int8_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S08(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int8_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_intersect_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3, int16_t *res_ptr, uint32_t res_count) {
+	int16_t *op1_end = op1_ptr + op1_count;
+	int16_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S16(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int16_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_intersect_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3, int32_t *res_ptr, uint32_t res_count) {
+	int32_t *op1_end = op1_ptr + op1_count;
+	int32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S32(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int32_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_intersect_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3, int64_t *res_ptr, uint32_t res_count) {
+	int64_t *op1_end = op1_ptr + op1_count;
+	int64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
+	uint32_t count = 0;
+	if(op3 == 1) {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {
+				if(*op2_ptr == *op1_ptr) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				*res_ptr = *op1_ptr;
+				res_ptr++;
+			}
+			op1_ptr++;
+		}
+	} else {
+		while(op1_ptr < op1_end) {
+			int32_t found = FALSE;
+			for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {
+				if(qb_compare_array_S64(op1_ptr, op3, op2_ptr, op3) == 0) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
+				memcpy(res_ptr, op1_ptr, sizeof(int64_t) * op3);
+				res_ptr += op3;
+			}
+			op1_ptr += op3;
 		}
 	}
 }
@@ -18524,7 +19438,7 @@ void qb_copy_argument_symbol(qb_interpreter_context *cxt, uint32_t argument_inde
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_F32_symbol	qb_compare_array_F32
 #else
-int32_t qb_compare_array_F32_symbol(float32_t * __restrict op1_ptr, uint32_t op1_count, float32_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_F32(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18532,7 +19446,7 @@ int32_t qb_compare_array_F32_symbol(float32_t * __restrict op1_ptr, uint32_t op1
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_F64_symbol	qb_compare_array_F64
 #else
-int32_t qb_compare_array_F64_symbol(float64_t * __restrict op1_ptr, uint32_t op1_count, float64_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_F64(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18540,7 +19454,7 @@ int32_t qb_compare_array_F64_symbol(float64_t * __restrict op1_ptr, uint32_t op1
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S08_symbol	qb_compare_array_S08
 #else
-int32_t qb_compare_array_S08_symbol(int8_t * __restrict op1_ptr, uint32_t op1_count, int8_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_S08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_S08(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18548,7 +19462,7 @@ int32_t qb_compare_array_S08_symbol(int8_t * __restrict op1_ptr, uint32_t op1_co
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S16_symbol	qb_compare_array_S16
 #else
-int32_t qb_compare_array_S16_symbol(int16_t * __restrict op1_ptr, uint32_t op1_count, int16_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_S16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_S16(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18556,7 +19470,7 @@ int32_t qb_compare_array_S16_symbol(int16_t * __restrict op1_ptr, uint32_t op1_c
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S32_symbol	qb_compare_array_S32
 #else
-int32_t qb_compare_array_S32_symbol(int32_t * __restrict op1_ptr, uint32_t op1_count, int32_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_S32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_S32(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18564,7 +19478,7 @@ int32_t qb_compare_array_S32_symbol(int32_t * __restrict op1_ptr, uint32_t op1_c
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_S64_symbol	qb_compare_array_S64
 #else
-int32_t qb_compare_array_S64_symbol(int64_t * __restrict op1_ptr, uint32_t op1_count, int64_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_S64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_S64(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18572,7 +19486,7 @@ int32_t qb_compare_array_S64_symbol(int64_t * __restrict op1_ptr, uint32_t op1_c
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U08_symbol	qb_compare_array_U08
 #else
-int32_t qb_compare_array_U08_symbol(uint8_t * __restrict op1_ptr, uint32_t op1_count, uint8_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_U08_symbol(uint8_t *op1_ptr, uint32_t op1_count, uint8_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_U08(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18580,7 +19494,7 @@ int32_t qb_compare_array_U08_symbol(uint8_t * __restrict op1_ptr, uint32_t op1_c
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U16_symbol	qb_compare_array_U16
 #else
-int32_t qb_compare_array_U16_symbol(uint16_t * __restrict op1_ptr, uint32_t op1_count, uint16_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_U16_symbol(uint16_t *op1_ptr, uint32_t op1_count, uint16_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_U16(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18588,7 +19502,7 @@ int32_t qb_compare_array_U16_symbol(uint16_t * __restrict op1_ptr, uint32_t op1_
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U32_symbol	qb_compare_array_U32
 #else
-int32_t qb_compare_array_U32_symbol(uint32_t * __restrict op1_ptr, uint32_t op1_count, uint32_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_U32_symbol(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_U32(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -18596,7 +19510,7 @@ int32_t qb_compare_array_U32_symbol(uint32_t * __restrict op1_ptr, uint32_t op1_
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_compare_array_U64_symbol	qb_compare_array_U64
 #else
-int32_t qb_compare_array_U64_symbol(uint64_t * __restrict op1_ptr, uint32_t op1_count, uint64_t * __restrict op2_ptr, uint32_t op2_count) {
+int32_t qb_compare_array_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t *op2_ptr, uint32_t op2_count) {
 	return qb_compare_array_U64(op1_ptr, op1_count, op2_ptr, op2_count);
 }
 #endif
@@ -19028,48 +19942,144 @@ void qb_do_apply_premultiplication_multiple_times_F64_symbol(float64_t *op1_ptr,
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_column_F32_symbol	qb_do_array_column_F32
 #else
-void qb_do_array_column_F32_symbol(uint32_t op1, uint32_t op2, uint32_t op3, float32_t *op4_ptr, uint32_t op4_count, float32_t *res_ptr, uint32_t res_count) {
-	qb_do_array_column_F32(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+void qb_do_array_column_F32_symbol(qb_interpreter_context *cxt, float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, float32_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	qb_do_array_column_F32(cxt, op1_ptr, op1_count, op2, op3, op4, res_ptr, res_count, PHP_LINE_NUMBER);
 }
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_column_F64_symbol	qb_do_array_column_F64
 #else
-void qb_do_array_column_F64_symbol(uint32_t op1, uint32_t op2, uint32_t op3, float64_t *op4_ptr, uint32_t op4_count, float64_t *res_ptr, uint32_t res_count) {
-	qb_do_array_column_F64(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+void qb_do_array_column_F64_symbol(qb_interpreter_context *cxt, float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, float64_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	qb_do_array_column_F64(cxt, op1_ptr, op1_count, op2, op3, op4, res_ptr, res_count, PHP_LINE_NUMBER);
 }
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_column_I08_symbol	qb_do_array_column_I08
 #else
-void qb_do_array_column_I08_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int8_t *op4_ptr, uint32_t op4_count, int8_t *res_ptr, uint32_t res_count) {
-	qb_do_array_column_I08(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+void qb_do_array_column_I08_symbol(qb_interpreter_context *cxt, int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int8_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	qb_do_array_column_I08(cxt, op1_ptr, op1_count, op2, op3, op4, res_ptr, res_count, PHP_LINE_NUMBER);
 }
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_column_I16_symbol	qb_do_array_column_I16
 #else
-void qb_do_array_column_I16_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int16_t *op4_ptr, uint32_t op4_count, int16_t *res_ptr, uint32_t res_count) {
-	qb_do_array_column_I16(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+void qb_do_array_column_I16_symbol(qb_interpreter_context *cxt, int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int16_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	qb_do_array_column_I16(cxt, op1_ptr, op1_count, op2, op3, op4, res_ptr, res_count, PHP_LINE_NUMBER);
 }
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_column_I32_symbol	qb_do_array_column_I32
 #else
-void qb_do_array_column_I32_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int32_t *op4_ptr, uint32_t op4_count, int32_t *res_ptr, uint32_t res_count) {
-	qb_do_array_column_I32(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+void qb_do_array_column_I32_symbol(qb_interpreter_context *cxt, int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int32_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	qb_do_array_column_I32(cxt, op1_ptr, op1_count, op2, op3, op4, res_ptr, res_count, PHP_LINE_NUMBER);
 }
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_column_I64_symbol	qb_do_array_column_I64
 #else
-void qb_do_array_column_I64_symbol(uint32_t op1, uint32_t op2, uint32_t op3, int64_t *op4_ptr, uint32_t op4_count, int64_t *res_ptr, uint32_t res_count) {
-	qb_do_array_column_I64(op1, op2, op3, op4_ptr, op4_count, res_ptr, res_count);
+void qb_do_array_column_I64_symbol(qb_interpreter_context *cxt, int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, uint32_t op3, uint32_t op4, int64_t *res_ptr, uint32_t res_count, uint32_t PHP_LINE_NUMBER) {
+	qb_do_array_column_I64(cxt, op1_ptr, op1_count, op2, op3, op4, res_ptr, res_count, PHP_LINE_NUMBER);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_difference_F32_symbol	qb_do_array_difference_F32
+#else
+void qb_do_array_difference_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_difference_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_difference_F64_symbol	qb_do_array_difference_F64
+#else
+void qb_do_array_difference_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_difference_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_difference_I08_symbol	qb_do_array_difference_I08
+#else
+void qb_do_array_difference_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3, int8_t *res_ptr, uint32_t res_count) {
+	qb_do_array_difference_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_difference_I16_symbol	qb_do_array_difference_I16
+#else
+void qb_do_array_difference_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3, int16_t *res_ptr, uint32_t res_count) {
+	qb_do_array_difference_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_difference_I32_symbol	qb_do_array_difference_I32
+#else
+void qb_do_array_difference_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3, int32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_difference_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_difference_I64_symbol	qb_do_array_difference_I64
+#else
+void qb_do_array_difference_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3, int64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_difference_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_intersect_F32_symbol	qb_do_array_intersect_F32
+#else
+void qb_do_array_intersect_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_intersect_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_intersect_F64_symbol	qb_do_array_intersect_F64
+#else
+void qb_do_array_intersect_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_intersect_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_intersect_I08_symbol	qb_do_array_intersect_I08
+#else
+void qb_do_array_intersect_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3, int8_t *res_ptr, uint32_t res_count) {
+	qb_do_array_intersect_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_intersect_I16_symbol	qb_do_array_intersect_I16
+#else
+void qb_do_array_intersect_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3, int16_t *res_ptr, uint32_t res_count) {
+	qb_do_array_intersect_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_intersect_I32_symbol	qb_do_array_intersect_I32
+#else
+void qb_do_array_intersect_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3, int32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_intersect_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_intersect_I64_symbol	qb_do_array_intersect_I64
+#else
+void qb_do_array_intersect_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3, int64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_intersect_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
 }
 #endif
 
@@ -25682,6 +26692,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"powf",	powf	},
 	{	0,	"qb_abort",	qb_abort	},
 	{	0,	"qb_abort_divide_by_zero_error",	qb_abort_divide_by_zero_error	},
+	{	0,	"qb_abort_missing_column",	qb_abort_missing_column	},
 	{	0,	"qb_abort_range_error",	qb_abort_range_error	},
 	{	0,	"qb_compare_array_F32",	qb_compare_array_F32_symbol	},
 	{	0,	"qb_compare_array_F64",	qb_compare_array_F64_symbol	},
@@ -25770,12 +26781,24 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_array_column_I16",	qb_do_array_column_I16_symbol	},
 	{	0,	"qb_do_array_column_I32",	qb_do_array_column_I32_symbol	},
 	{	0,	"qb_do_array_column_I64",	qb_do_array_column_I64_symbol	},
+	{	0,	"qb_do_array_difference_F32",	qb_do_array_difference_F32_symbol	},
+	{	0,	"qb_do_array_difference_F64",	qb_do_array_difference_F64_symbol	},
+	{	0,	"qb_do_array_difference_I08",	qb_do_array_difference_I08_symbol	},
+	{	0,	"qb_do_array_difference_I16",	qb_do_array_difference_I16_symbol	},
+	{	0,	"qb_do_array_difference_I32",	qb_do_array_difference_I32_symbol	},
+	{	0,	"qb_do_array_difference_I64",	qb_do_array_difference_I64_symbol	},
 	{	0,	"qb_do_array_insert_F32",	(void*) -1	},
 	{	0,	"qb_do_array_insert_F64",	(void*) -1	},
 	{	0,	"qb_do_array_insert_I08",	(void*) -1	},
 	{	0,	"qb_do_array_insert_I16",	(void*) -1	},
 	{	0,	"qb_do_array_insert_I32",	(void*) -1	},
 	{	0,	"qb_do_array_insert_I64",	(void*) -1	},
+	{	0,	"qb_do_array_intersect_F32",	qb_do_array_intersect_F32_symbol	},
+	{	0,	"qb_do_array_intersect_F64",	qb_do_array_intersect_F64_symbol	},
+	{	0,	"qb_do_array_intersect_I08",	qb_do_array_intersect_I08_symbol	},
+	{	0,	"qb_do_array_intersect_I16",	qb_do_array_intersect_I16_symbol	},
+	{	0,	"qb_do_array_intersect_I32",	qb_do_array_intersect_I32_symbol	},
+	{	0,	"qb_do_array_intersect_I64",	qb_do_array_intersect_I64_symbol	},
 	{	0,	"qb_do_array_max_F32",	qb_do_array_max_F32_symbol	},
 	{	0,	"qb_do_array_max_F64",	qb_do_array_max_F64_symbol	},
 	{	0,	"qb_do_array_max_S08",	qb_do_array_max_S08_symbol	},
@@ -26686,6 +27709,18 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_get_array_sprintf_length_U16",	qb_get_array_sprintf_length_U16_symbol	},
 	{	0,	"qb_get_array_sprintf_length_U32",	qb_get_array_sprintf_length_U32_symbol	},
 	{	0,	"qb_get_array_sprintf_length_U64",	qb_get_array_sprintf_length_U64_symbol	},
+	{	0,	"qb_get_difference_count_F32",	qb_get_difference_count_F32	},
+	{	0,	"qb_get_difference_count_F64",	qb_get_difference_count_F64	},
+	{	0,	"qb_get_difference_count_I08",	qb_get_difference_count_I08	},
+	{	0,	"qb_get_difference_count_I16",	qb_get_difference_count_I16	},
+	{	0,	"qb_get_difference_count_I32",	qb_get_difference_count_I32	},
+	{	0,	"qb_get_difference_count_I64",	qb_get_difference_count_I64	},
+	{	0,	"qb_get_intersect_count_F32",	qb_get_intersect_count_F32	},
+	{	0,	"qb_get_intersect_count_F64",	qb_get_intersect_count_F64	},
+	{	0,	"qb_get_intersect_count_I08",	qb_get_intersect_count_I08	},
+	{	0,	"qb_get_intersect_count_I16",	qb_get_intersect_count_I16	},
+	{	0,	"qb_get_intersect_count_I32",	qb_get_intersect_count_I32	},
+	{	0,	"qb_get_intersect_count_I64",	qb_get_intersect_count_I64	},
 	{	0,	"qb_get_multidimensional_array_sprintf_length_F32",	qb_get_multidimensional_array_sprintf_length_F32	},
 	{	0,	"qb_get_multidimensional_array_sprintf_length_F64",	qb_get_multidimensional_array_sprintf_length_F64	},
 	{	0,	"qb_get_multidimensional_array_sprintf_length_S08",	qb_get_multidimensional_array_sprintf_length_S08	},
@@ -26752,5 +27787,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1121;
+uint32_t global_native_symbol_count = 1146;
 

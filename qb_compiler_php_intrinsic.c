@@ -580,7 +580,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_merge(qb_compiler_context
 		qb_address *first_address = arguments[0].address;
 		// make sure the element size match up
 		if(first_address->dimension_count > 1) {
-			first_element_size = VALUE(U32, first_address->dimension_addresses[1]);
+			first_element_size = VALUE(U32, first_address->array_size_addresses[1]);
 		} else {
 			first_element_size = 1;
 		}
@@ -588,7 +588,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_merge(qb_compiler_context
 			uint32_t element_size;
 			qb_address *address = arguments[i].address;
 			if(address->dimension_count > 1) {
-				element_size = VALUE(U32, address->dimension_addresses[1]);
+				element_size = VALUE(U32, address->array_size_addresses[1]);
 			} else {
 				element_size = 1;
 			}
@@ -648,10 +648,57 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_column(qb_compiler_contex
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
 			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
-			uint32_t current_offset = 0;
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, expr_type, result_dim, result_prototype, result_flags);
 			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_translate_intrinsic_array_diff(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->preliminary_type = expr_type;
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		uint32_t i, first_element_size;
+		qb_address *first_address = arguments[0].address;
+		// make sure the element size match up
+		if(first_address->dimension_count < 1) {
+			qb_abort("%s expects an array as the first parameter", f->name);
+		}
+		if(first_address->dimension_count > 1) {
+			first_element_size = VALUE(U32, first_address->array_size_addresses[1]);
+		} else {
+			first_element_size = 1;
+		}
+		for(i = 1; i < argument_count; i++) {
+			uint32_t element_size;
+			qb_address *address = arguments[i].address;
+			if(address->dimension_count > 1) {
+				element_size = VALUE(U32, address->array_size_addresses[1]);
+			} else {
+				element_size = 1;
+			}
+			if(element_size != first_element_size) {
+				qb_abort("elements in parameter %d are of different size", i + 1);
+			}
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
+			qb_address *result_address;
+			uint32_t i;
+			for(i = 1; i < argument_count; i++) {
+				qb_address *address = arguments[i].address;
+				result_address = qb_obtain_temporary_variable(cxt, expr_type, result_dim);
+				qb_create_binary_op(cxt, f->extra, first_address, address, result_address);
+				first_address = result_address;
+			}
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = result_address;
 		}
 	}
 }
@@ -1602,6 +1649,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"range",				qb_translate_intrinsic_range,				2,		3,		&factory_range				},
 	{	0,	"array_unique",			qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_unique		},
 	{	0,	"array_column",			qb_translate_intrinsic_array_column,		2,		2,		&factory_array_column		},
+	{	0,	"array_diff",			qb_translate_intrinsic_array_diff,			2,		-1,		&factory_array_diff			},
+	{	0,	"array_intersect",		qb_translate_intrinsic_array_diff,			2,		-1,		&factory_array_intersect	},
 	{	0,	"array_rand",			qb_translate_intrinsic_array_rand,			1,		2,		&factory_array_rand			},
 	{	0,	"utf8_decode",			qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
