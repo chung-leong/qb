@@ -129,6 +129,14 @@ typedef struct qb_instruction_6_lineno {
 	uint32_t line_number;
 } qb_instruction_6_lineno;
 
+typedef struct qb_instruction_array_resize {
+	void *next_handler;
+	uint16_t operand_size;
+	uint16_t argument_count;
+	uint32_t operand1;
+	uint32_t operands[1];
+} qb_instruction_array_resize;
+
 typedef struct qb_instruction_branch_0 {
 	void *next_handler1;
 	int8_t *instruction_pointer1;
@@ -305,6 +313,12 @@ uint32_t qb_get_unique_element_count_I08(int8_t *op1_ptr, uint32_t op1_count, ui
 uint32_t qb_get_unique_element_count_I16(int16_t *op1_ptr, uint32_t op1_count, uint32_t op2);
 uint32_t qb_get_unique_element_count_I32(int32_t *op1_ptr, uint32_t op1_count, uint32_t op2);
 uint32_t qb_get_unique_element_count_I64(int64_t *op1_ptr, uint32_t op1_count, uint32_t op2);
+void ZEND_FASTCALL qb_relocate_elements_F32(float32_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count);
+void ZEND_FASTCALL qb_relocate_elements_F64(float64_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count);
+void ZEND_FASTCALL qb_relocate_elements_I08(int8_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count);
+void ZEND_FASTCALL qb_relocate_elements_I16(int16_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count);
+void ZEND_FASTCALL qb_relocate_elements_I32(int32_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count);
+void ZEND_FASTCALL qb_relocate_elements_I64(int64_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count);
 void ZEND_FASTCALL qb_do_abs_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_abs_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void ZEND_FASTCALL qb_do_abs_multiple_times_S08(int8_t *op1_ptr, uint32_t op1_count, int8_t *res_ptr, uint32_t res_count);

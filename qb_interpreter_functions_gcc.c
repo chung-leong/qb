@@ -1457,6 +1457,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_F32(qb_interpreter_context
 		multiplier *= *op2_ptr;
 		op2_ptr++;
 	}
+	if(total == 0) {
+		total = 2;
+	}
 	return total;
 }
 
@@ -1474,6 +1477,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_F64(qb_interpreter_context
 		total += multiplier * *op2_ptr * 2;
 		multiplier *= *op2_ptr;
 		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
 	}
 	return total;
 }
@@ -1493,6 +1499,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S08(qb_interpreter_context
 		multiplier *= *op2_ptr;
 		op2_ptr++;
 	}
+	if(total == 0) {
+		total = 2;
+	}
 	return total;
 }
 
@@ -1510,6 +1519,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S16(qb_interpreter_context
 		total += multiplier * *op2_ptr * 2;
 		multiplier *= *op2_ptr;
 		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
 	}
 	return total;
 }
@@ -1529,6 +1541,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S32(qb_interpreter_context
 		multiplier *= *op2_ptr;
 		op2_ptr++;
 	}
+	if(total == 0) {
+		total = 2;
+	}
 	return total;
 }
 
@@ -1546,6 +1561,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_S64(qb_interpreter_context
 		total += multiplier * *op2_ptr * 2;
 		multiplier *= *op2_ptr;
 		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
 	}
 	return total;
 }
@@ -1565,6 +1583,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U08(qb_interpreter_context
 		multiplier *= *op2_ptr;
 		op2_ptr++;
 	}
+	if(total == 0) {
+		total = 2;
+	}
 	return total;
 }
 
@@ -1582,6 +1603,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U16(qb_interpreter_context
 		total += multiplier * *op2_ptr * 2;
 		multiplier *= *op2_ptr;
 		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
 	}
 	return total;
 }
@@ -1601,6 +1625,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U32(qb_interpreter_context
 		multiplier *= *op2_ptr;
 		op2_ptr++;
 	}
+	if(total == 0) {
+		total = 2;
+	}
 	return total;
 }
 
@@ -1618,6 +1645,9 @@ uint32_t qb_get_multidimensional_array_sprintf_length_U64(qb_interpreter_context
 		total += multiplier * *op2_ptr * 2;
 		multiplier *= *op2_ptr;
 		op2_ptr++;
+	}
+	if(total == 0) {
+		total = 2;
 	}
 	return total;
 }
@@ -2071,6 +2101,660 @@ uint32_t qb_get_unique_element_count_I64(int64_t *op1_ptr, uint32_t op1_count, u
 		}
 	}
 	return count;
+}
+
+void ZEND_FASTCALL qb_relocate_elements_F32(float32_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	uint32_t i;
+	int32_t expansion = FALSE;
+	int32_t contraction = FALSE;
+	uint32_t level = 0;
+	uint32_t copy_counts[MAX_DIMENSION + 1], zero_counts[MAX_DIMENSION + 1], skip_counts[MAX_DIMENSION + 1];
+	uint32_t remaining[MAX_DIMENSION + 1];
+	uint32_t old_cell_index, new_cell_index = 0;
+	uint32_t old_length = 1, new_length = 1;
+	// shift index by one to simplify loop logic
+	for(i = dimension_count; (int32_t) i > 0; i--) {
+		uint32_t old_dim = old_dims[i - 1];
+		uint32_t new_dim = new_dims[i - 1];
+		if(new_dim > old_dim) {
+			expansion = TRUE;
+			copy_counts[i] = old_dim;
+			zero_counts[i] = (new_dim - old_dim) * new_length;
+			skip_counts[i] = 0;
+		} else if(old_dim > new_dim) {
+			contraction = TRUE;
+			copy_counts[i] = new_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = (old_dim - new_dim) * old_length;
+		} else {
+			copy_counts[i] = old_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = 0;
+		}
+		old_length *= old_dim;
+		new_length *= new_dim;
+	}
+	copy_counts[0] = 1;
+	zero_counts[0] = 0;
+	skip_counts[0] = 0;
+	remaining[0] = -1;
+	if(contraction) {
+		// scan forward if some dimensions got smaller
+		level = 0;
+		old_cell_index = 0;
+		new_cell_index = 0;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+			}
+			// copy only when elements are moved backward
+			if(new_cell_index < old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index++;
+					old_cell_index++;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index += remaining[level];
+				old_cell_index += remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				old_cell_index += skip_counts[level];
+				new_cell_index += zero_counts[level];
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+	if(expansion) {
+		// scan backward if some dimensions got bigger
+		level = 0;
+		old_cell_index = old_length - 1;
+		new_cell_index = new_length - 1;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+				old_cell_index -= skip_counts[level];
+				// zero out new space 
+				for(i = 0; i < zero_counts[level]; i++) {
+					elements[new_cell_index] = 0;
+					new_cell_index--;
+				}
+			}
+			// copy only when elements are moved forward
+			if(new_cell_index > old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index--;
+					old_cell_index--;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index -= remaining[level];
+				old_cell_index -= remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_relocate_elements_F64(float64_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	uint32_t i;
+	int32_t expansion = FALSE;
+	int32_t contraction = FALSE;
+	uint32_t level = 0;
+	uint32_t copy_counts[MAX_DIMENSION + 1], zero_counts[MAX_DIMENSION + 1], skip_counts[MAX_DIMENSION + 1];
+	uint32_t remaining[MAX_DIMENSION + 1];
+	uint32_t old_cell_index, new_cell_index = 0;
+	uint32_t old_length = 1, new_length = 1;
+	// shift index by one to simplify loop logic
+	for(i = dimension_count; (int32_t) i > 0; i--) {
+		uint32_t old_dim = old_dims[i - 1];
+		uint32_t new_dim = new_dims[i - 1];
+		if(new_dim > old_dim) {
+			expansion = TRUE;
+			copy_counts[i] = old_dim;
+			zero_counts[i] = (new_dim - old_dim) * new_length;
+			skip_counts[i] = 0;
+		} else if(old_dim > new_dim) {
+			contraction = TRUE;
+			copy_counts[i] = new_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = (old_dim - new_dim) * old_length;
+		} else {
+			copy_counts[i] = old_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = 0;
+		}
+		old_length *= old_dim;
+		new_length *= new_dim;
+	}
+	copy_counts[0] = 1;
+	zero_counts[0] = 0;
+	skip_counts[0] = 0;
+	remaining[0] = -1;
+	if(contraction) {
+		// scan forward if some dimensions got smaller
+		level = 0;
+		old_cell_index = 0;
+		new_cell_index = 0;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+			}
+			// copy only when elements are moved backward
+			if(new_cell_index < old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index++;
+					old_cell_index++;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index += remaining[level];
+				old_cell_index += remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				old_cell_index += skip_counts[level];
+				new_cell_index += zero_counts[level];
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+	if(expansion) {
+		// scan backward if some dimensions got bigger
+		level = 0;
+		old_cell_index = old_length - 1;
+		new_cell_index = new_length - 1;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+				old_cell_index -= skip_counts[level];
+				// zero out new space 
+				for(i = 0; i < zero_counts[level]; i++) {
+					elements[new_cell_index] = 0;
+					new_cell_index--;
+				}
+			}
+			// copy only when elements are moved forward
+			if(new_cell_index > old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index--;
+					old_cell_index--;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index -= remaining[level];
+				old_cell_index -= remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_relocate_elements_I08(int8_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	uint32_t i;
+	int32_t expansion = FALSE;
+	int32_t contraction = FALSE;
+	uint32_t level = 0;
+	uint32_t copy_counts[MAX_DIMENSION + 1], zero_counts[MAX_DIMENSION + 1], skip_counts[MAX_DIMENSION + 1];
+	uint32_t remaining[MAX_DIMENSION + 1];
+	uint32_t old_cell_index, new_cell_index = 0;
+	uint32_t old_length = 1, new_length = 1;
+	// shift index by one to simplify loop logic
+	for(i = dimension_count; (int32_t) i > 0; i--) {
+		uint32_t old_dim = old_dims[i - 1];
+		uint32_t new_dim = new_dims[i - 1];
+		if(new_dim > old_dim) {
+			expansion = TRUE;
+			copy_counts[i] = old_dim;
+			zero_counts[i] = (new_dim - old_dim) * new_length;
+			skip_counts[i] = 0;
+		} else if(old_dim > new_dim) {
+			contraction = TRUE;
+			copy_counts[i] = new_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = (old_dim - new_dim) * old_length;
+		} else {
+			copy_counts[i] = old_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = 0;
+		}
+		old_length *= old_dim;
+		new_length *= new_dim;
+	}
+	copy_counts[0] = 1;
+	zero_counts[0] = 0;
+	skip_counts[0] = 0;
+	remaining[0] = -1;
+	if(contraction) {
+		// scan forward if some dimensions got smaller
+		level = 0;
+		old_cell_index = 0;
+		new_cell_index = 0;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+			}
+			// copy only when elements are moved backward
+			if(new_cell_index < old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index++;
+					old_cell_index++;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index += remaining[level];
+				old_cell_index += remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				old_cell_index += skip_counts[level];
+				new_cell_index += zero_counts[level];
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+	if(expansion) {
+		// scan backward if some dimensions got bigger
+		level = 0;
+		old_cell_index = old_length - 1;
+		new_cell_index = new_length - 1;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+				old_cell_index -= skip_counts[level];
+				// zero out new space 
+				for(i = 0; i < zero_counts[level]; i++) {
+					elements[new_cell_index] = 0;
+					new_cell_index--;
+				}
+			}
+			// copy only when elements are moved forward
+			if(new_cell_index > old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index--;
+					old_cell_index--;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index -= remaining[level];
+				old_cell_index -= remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_relocate_elements_I16(int16_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	uint32_t i;
+	int32_t expansion = FALSE;
+	int32_t contraction = FALSE;
+	uint32_t level = 0;
+	uint32_t copy_counts[MAX_DIMENSION + 1], zero_counts[MAX_DIMENSION + 1], skip_counts[MAX_DIMENSION + 1];
+	uint32_t remaining[MAX_DIMENSION + 1];
+	uint32_t old_cell_index, new_cell_index = 0;
+	uint32_t old_length = 1, new_length = 1;
+	// shift index by one to simplify loop logic
+	for(i = dimension_count; (int32_t) i > 0; i--) {
+		uint32_t old_dim = old_dims[i - 1];
+		uint32_t new_dim = new_dims[i - 1];
+		if(new_dim > old_dim) {
+			expansion = TRUE;
+			copy_counts[i] = old_dim;
+			zero_counts[i] = (new_dim - old_dim) * new_length;
+			skip_counts[i] = 0;
+		} else if(old_dim > new_dim) {
+			contraction = TRUE;
+			copy_counts[i] = new_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = (old_dim - new_dim) * old_length;
+		} else {
+			copy_counts[i] = old_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = 0;
+		}
+		old_length *= old_dim;
+		new_length *= new_dim;
+	}
+	copy_counts[0] = 1;
+	zero_counts[0] = 0;
+	skip_counts[0] = 0;
+	remaining[0] = -1;
+	if(contraction) {
+		// scan forward if some dimensions got smaller
+		level = 0;
+		old_cell_index = 0;
+		new_cell_index = 0;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+			}
+			// copy only when elements are moved backward
+			if(new_cell_index < old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index++;
+					old_cell_index++;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index += remaining[level];
+				old_cell_index += remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				old_cell_index += skip_counts[level];
+				new_cell_index += zero_counts[level];
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+	if(expansion) {
+		// scan backward if some dimensions got bigger
+		level = 0;
+		old_cell_index = old_length - 1;
+		new_cell_index = new_length - 1;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+				old_cell_index -= skip_counts[level];
+				// zero out new space 
+				for(i = 0; i < zero_counts[level]; i++) {
+					elements[new_cell_index] = 0;
+					new_cell_index--;
+				}
+			}
+			// copy only when elements are moved forward
+			if(new_cell_index > old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index--;
+					old_cell_index--;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index -= remaining[level];
+				old_cell_index -= remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_relocate_elements_I32(int32_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	uint32_t i;
+	int32_t expansion = FALSE;
+	int32_t contraction = FALSE;
+	uint32_t level = 0;
+	uint32_t copy_counts[MAX_DIMENSION + 1], zero_counts[MAX_DIMENSION + 1], skip_counts[MAX_DIMENSION + 1];
+	uint32_t remaining[MAX_DIMENSION + 1];
+	uint32_t old_cell_index, new_cell_index = 0;
+	uint32_t old_length = 1, new_length = 1;
+	// shift index by one to simplify loop logic
+	for(i = dimension_count; (int32_t) i > 0; i--) {
+		uint32_t old_dim = old_dims[i - 1];
+		uint32_t new_dim = new_dims[i - 1];
+		if(new_dim > old_dim) {
+			expansion = TRUE;
+			copy_counts[i] = old_dim;
+			zero_counts[i] = (new_dim - old_dim) * new_length;
+			skip_counts[i] = 0;
+		} else if(old_dim > new_dim) {
+			contraction = TRUE;
+			copy_counts[i] = new_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = (old_dim - new_dim) * old_length;
+		} else {
+			copy_counts[i] = old_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = 0;
+		}
+		old_length *= old_dim;
+		new_length *= new_dim;
+	}
+	copy_counts[0] = 1;
+	zero_counts[0] = 0;
+	skip_counts[0] = 0;
+	remaining[0] = -1;
+	if(contraction) {
+		// scan forward if some dimensions got smaller
+		level = 0;
+		old_cell_index = 0;
+		new_cell_index = 0;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+			}
+			// copy only when elements are moved backward
+			if(new_cell_index < old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index++;
+					old_cell_index++;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index += remaining[level];
+				old_cell_index += remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				old_cell_index += skip_counts[level];
+				new_cell_index += zero_counts[level];
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+	if(expansion) {
+		// scan backward if some dimensions got bigger
+		level = 0;
+		old_cell_index = old_length - 1;
+		new_cell_index = new_length - 1;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+				old_cell_index -= skip_counts[level];
+				// zero out new space 
+				for(i = 0; i < zero_counts[level]; i++) {
+					elements[new_cell_index] = 0;
+					new_cell_index--;
+				}
+			}
+			// copy only when elements are moved forward
+			if(new_cell_index > old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index--;
+					old_cell_index--;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index -= remaining[level];
+				old_cell_index -= remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+}
+
+void ZEND_FASTCALL qb_relocate_elements_I64(int64_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	uint32_t i;
+	int32_t expansion = FALSE;
+	int32_t contraction = FALSE;
+	uint32_t level = 0;
+	uint32_t copy_counts[MAX_DIMENSION + 1], zero_counts[MAX_DIMENSION + 1], skip_counts[MAX_DIMENSION + 1];
+	uint32_t remaining[MAX_DIMENSION + 1];
+	uint32_t old_cell_index, new_cell_index = 0;
+	uint32_t old_length = 1, new_length = 1;
+	// shift index by one to simplify loop logic
+	for(i = dimension_count; (int32_t) i > 0; i--) {
+		uint32_t old_dim = old_dims[i - 1];
+		uint32_t new_dim = new_dims[i - 1];
+		if(new_dim > old_dim) {
+			expansion = TRUE;
+			copy_counts[i] = old_dim;
+			zero_counts[i] = (new_dim - old_dim) * new_length;
+			skip_counts[i] = 0;
+		} else if(old_dim > new_dim) {
+			contraction = TRUE;
+			copy_counts[i] = new_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = (old_dim - new_dim) * old_length;
+		} else {
+			copy_counts[i] = old_dim;
+			zero_counts[i] = 0;
+			skip_counts[i] = 0;
+		}
+		old_length *= old_dim;
+		new_length *= new_dim;
+	}
+	copy_counts[0] = 1;
+	zero_counts[0] = 0;
+	skip_counts[0] = 0;
+	remaining[0] = -1;
+	if(contraction) {
+		// scan forward if some dimensions got smaller
+		level = 0;
+		old_cell_index = 0;
+		new_cell_index = 0;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+			}
+			// copy only when elements are moved backward
+			if(new_cell_index < old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index++;
+					old_cell_index++;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index += remaining[level];
+				old_cell_index += remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				old_cell_index += skip_counts[level];
+				new_cell_index += zero_counts[level];
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
+	if(expansion) {
+		// scan backward if some dimensions got bigger
+		level = 0;
+		old_cell_index = old_length - 1;
+		new_cell_index = new_length - 1;
+		for(;;) {
+			while(level < dimension_count) {
+				level++;
+				remaining[level] = copy_counts[level];
+				old_cell_index -= skip_counts[level];
+				// zero out new space 
+				for(i = 0; i < zero_counts[level]; i++) {
+					elements[new_cell_index] = 0;
+					new_cell_index--;
+				}
+			}
+			// copy only when elements are moved forward
+			if(new_cell_index > old_cell_index) {
+				while(remaining[level] != 0) {
+					elements[new_cell_index] = elements[old_cell_index];
+					new_cell_index--;
+					old_cell_index--;
+					remaining[level]--;
+				}
+			} else {
+				new_cell_index -= remaining[level];
+				old_cell_index -= remaining[level];
+				remaining[level] = 0;
+			}
+			while(remaining[level] == 0) {
+				level--;
+				remaining[level]--;
+			}
+			if(level == 0) {
+				break;
+			}
+		}
+	}
 }
 
 void ZEND_FASTCALL qb_do_abs_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -19716,6 +20400,54 @@ uint32_t qb_get_utf8_encoded_length_U32_symbol(uint32_t *op1_ptr, uint32_t op1_c
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
+#define qb_relocate_elements_F32_symbol	qb_relocate_elements_F32
+#else
+void qb_relocate_elements_F32_symbol(float32_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	qb_relocate_elements_F32(elements, old_dims, new_dims, dimension_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_relocate_elements_F64_symbol	qb_relocate_elements_F64
+#else
+void qb_relocate_elements_F64_symbol(float64_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	qb_relocate_elements_F64(elements, old_dims, new_dims, dimension_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_relocate_elements_I08_symbol	qb_relocate_elements_I08
+#else
+void qb_relocate_elements_I08_symbol(int8_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	qb_relocate_elements_I08(elements, old_dims, new_dims, dimension_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_relocate_elements_I16_symbol	qb_relocate_elements_I16
+#else
+void qb_relocate_elements_I16_symbol(int16_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	qb_relocate_elements_I16(elements, old_dims, new_dims, dimension_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_relocate_elements_I32_symbol	qb_relocate_elements_I32
+#else
+void qb_relocate_elements_I32_symbol(int32_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	qb_relocate_elements_I32(elements, old_dims, new_dims, dimension_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_relocate_elements_I64_symbol	qb_relocate_elements_I64
+#else
+void qb_relocate_elements_I64_symbol(int64_t *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {
+	qb_relocate_elements_I64(elements, old_dims, new_dims, dimension_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_abs_multiple_times_F32_symbol	qb_do_abs_multiple_times_F32
 #else
 void qb_do_abs_multiple_times_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
@@ -27765,6 +28497,12 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_quick_floorf",	(void*) -1	},
 	{	0,	"qb_quick_round",	(void*) -1	},
 	{	0,	"qb_quick_roundf",	(void*) -1	},
+	{	0,	"qb_relocate_elements_F32",	qb_relocate_elements_F32_symbol	},
+	{	0,	"qb_relocate_elements_F64",	qb_relocate_elements_F64_symbol	},
+	{	0,	"qb_relocate_elements_I08",	qb_relocate_elements_I08_symbol	},
+	{	0,	"qb_relocate_elements_I16",	qb_relocate_elements_I16_symbol	},
+	{	0,	"qb_relocate_elements_I32",	qb_relocate_elements_I32_symbol	},
+	{	0,	"qb_relocate_elements_I64",	qb_relocate_elements_I64_symbol	},
 	{	0,	"qb_resync_argument",	qb_resync_argument_symbol	},
 	{	0,	"qb_run_zend_extension_op",	qb_run_zend_extension_op_symbol	},
 	{	0,	"qb_shrink_segment",	qb_shrink_segment_symbol	},
@@ -27787,5 +28525,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1146;
+uint32_t global_native_symbol_count = 1152;
 

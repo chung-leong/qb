@@ -5830,6 +5830,60 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
+		label_ARESIZE_I32:
+		op_handler = ((qb_instruction_array_resize *) instruction_pointer)->next_handler;
+		{
+			uint32_t dimension_count = ((qb_instruction_array_resize *) instruction_pointer)->argument_count;
+			uint32_t *operands = ((qb_instruction_array_resize *) instruction_pointer)->operands;
+			uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];
+			uint32_t *dim_ptr, *new_dim_ptr, *size_ptr;
+			uint32_t old_length, new_length = 1, i;
+			int32_t changed = FALSE;
+			int32_t *res_ptr;
+			
+			selector = ((qb_instruction_array_resize *) instruction_pointer)->operand1 & 0x00FF;
+			index_index = (((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = ((uint32_t *) segment0)[size_index];
+			old_length = res_count;
+			for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+				size_ptr = ((uint32_t *) segment0) + operands[i * 3 + 0];
+				dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 1];
+				new_dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 2];
+				old_dims[i] = *dim_ptr;
+				new_dims[i] = *new_dim_ptr;
+				if(*dim_ptr != *new_dim_ptr) {
+					changed = TRUE;
+					*dim_ptr = *new_dim_ptr;
+				}
+				new_length *= *new_dim_ptr;
+				*size_ptr = new_length;
+			}
+			if(EXPECTED(changed)) {
+				if(new_length > old_length) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], new_length);
+					if(old_length > 0) {
+						res_ptr = ((int32_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I32(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				} else if(old_length < new_length) {
+					if(new_length > 0) {
+						res_ptr = ((int32_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I32(res_ptr, old_dims, new_dims, dimension_count);
+					}
+					qb_shrink_segment(cxt, &cxt->storage->segments[selector], 0, new_length);
+				} else {
+					if(old_length > 0) {
+						res_ptr = ((int32_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I32(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				}
+			}
+			instruction_pointer += sizeof(((qb_instruction_array_resize *) instruction_pointer)->next_handler) + ((qb_instruction_array_resize *) instruction_pointer)->operand_size;
+		}
+		goto *op_handler;
+		
 		label_IF_LT_U32_U32_VAR:
 		op_handler = ((qb_instruction_branch_2 *) instruction_pointer)->next_handler1;
 		{
@@ -13538,6 +13592,60 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
+		goto *op_handler;
+		
+		label_ARESIZE_I08:
+		op_handler = ((qb_instruction_array_resize *) instruction_pointer)->next_handler;
+		{
+			uint32_t dimension_count = ((qb_instruction_array_resize *) instruction_pointer)->argument_count;
+			uint32_t *operands = ((qb_instruction_array_resize *) instruction_pointer)->operands;
+			uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];
+			uint32_t *dim_ptr, *new_dim_ptr, *size_ptr;
+			uint32_t old_length, new_length = 1, i;
+			int32_t changed = FALSE;
+			int8_t *res_ptr;
+			
+			selector = ((qb_instruction_array_resize *) instruction_pointer)->operand1 & 0x00FF;
+			index_index = (((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = ((uint32_t *) segment0)[size_index];
+			old_length = res_count;
+			for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+				size_ptr = ((uint32_t *) segment0) + operands[i * 3 + 0];
+				dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 1];
+				new_dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 2];
+				old_dims[i] = *dim_ptr;
+				new_dims[i] = *new_dim_ptr;
+				if(*dim_ptr != *new_dim_ptr) {
+					changed = TRUE;
+					*dim_ptr = *new_dim_ptr;
+				}
+				new_length *= *new_dim_ptr;
+				*size_ptr = new_length;
+			}
+			if(EXPECTED(changed)) {
+				if(new_length > old_length) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], new_length);
+					if(old_length > 0) {
+						res_ptr = ((int8_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I08(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				} else if(old_length < new_length) {
+					if(new_length > 0) {
+						res_ptr = ((int8_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I08(res_ptr, old_dims, new_dims, dimension_count);
+					}
+					qb_shrink_segment(cxt, &cxt->storage->segments[selector], 0, new_length);
+				} else {
+					if(old_length > 0) {
+						res_ptr = ((int8_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I08(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				}
+			}
+			instruction_pointer += sizeof(((qb_instruction_array_resize *) instruction_pointer)->next_handler) + ((qb_instruction_array_resize *) instruction_pointer)->operand_size;
+		}
 		goto *op_handler;
 		
 		label_IF_LT_U08_U08_VAR:
@@ -21447,6 +21555,60 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
+		goto *op_handler;
+		
+		label_ARESIZE_I16:
+		op_handler = ((qb_instruction_array_resize *) instruction_pointer)->next_handler;
+		{
+			uint32_t dimension_count = ((qb_instruction_array_resize *) instruction_pointer)->argument_count;
+			uint32_t *operands = ((qb_instruction_array_resize *) instruction_pointer)->operands;
+			uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];
+			uint32_t *dim_ptr, *new_dim_ptr, *size_ptr;
+			uint32_t old_length, new_length = 1, i;
+			int32_t changed = FALSE;
+			int16_t *res_ptr;
+			
+			selector = ((qb_instruction_array_resize *) instruction_pointer)->operand1 & 0x00FF;
+			index_index = (((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = ((uint32_t *) segment0)[size_index];
+			old_length = res_count;
+			for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+				size_ptr = ((uint32_t *) segment0) + operands[i * 3 + 0];
+				dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 1];
+				new_dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 2];
+				old_dims[i] = *dim_ptr;
+				new_dims[i] = *new_dim_ptr;
+				if(*dim_ptr != *new_dim_ptr) {
+					changed = TRUE;
+					*dim_ptr = *new_dim_ptr;
+				}
+				new_length *= *new_dim_ptr;
+				*size_ptr = new_length;
+			}
+			if(EXPECTED(changed)) {
+				if(new_length > old_length) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], new_length);
+					if(old_length > 0) {
+						res_ptr = ((int16_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I16(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				} else if(old_length < new_length) {
+					if(new_length > 0) {
+						res_ptr = ((int16_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I16(res_ptr, old_dims, new_dims, dimension_count);
+					}
+					qb_shrink_segment(cxt, &cxt->storage->segments[selector], 0, new_length);
+				} else {
+					if(old_length > 0) {
+						res_ptr = ((int16_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I16(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				}
+			}
+			instruction_pointer += sizeof(((qb_instruction_array_resize *) instruction_pointer)->next_handler) + ((qb_instruction_array_resize *) instruction_pointer)->operand_size;
+		}
 		goto *op_handler;
 		
 		label_IF_LT_U16_U16_VAR:
@@ -29432,6 +29594,60 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
+		goto *op_handler;
+		
+		label_ARESIZE_I64:
+		op_handler = ((qb_instruction_array_resize *) instruction_pointer)->next_handler;
+		{
+			uint32_t dimension_count = ((qb_instruction_array_resize *) instruction_pointer)->argument_count;
+			uint32_t *operands = ((qb_instruction_array_resize *) instruction_pointer)->operands;
+			uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];
+			uint32_t *dim_ptr, *new_dim_ptr, *size_ptr;
+			uint32_t old_length, new_length = 1, i;
+			int32_t changed = FALSE;
+			int64_t *res_ptr;
+			
+			selector = ((qb_instruction_array_resize *) instruction_pointer)->operand1 & 0x00FF;
+			index_index = (((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = ((uint32_t *) segment0)[size_index];
+			old_length = res_count;
+			for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+				size_ptr = ((uint32_t *) segment0) + operands[i * 3 + 0];
+				dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 1];
+				new_dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 2];
+				old_dims[i] = *dim_ptr;
+				new_dims[i] = *new_dim_ptr;
+				if(*dim_ptr != *new_dim_ptr) {
+					changed = TRUE;
+					*dim_ptr = *new_dim_ptr;
+				}
+				new_length *= *new_dim_ptr;
+				*size_ptr = new_length;
+			}
+			if(EXPECTED(changed)) {
+				if(new_length > old_length) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], new_length);
+					if(old_length > 0) {
+						res_ptr = ((int64_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I64(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				} else if(old_length < new_length) {
+					if(new_length > 0) {
+						res_ptr = ((int64_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I64(res_ptr, old_dims, new_dims, dimension_count);
+					}
+					qb_shrink_segment(cxt, &cxt->storage->segments[selector], 0, new_length);
+				} else {
+					if(old_length > 0) {
+						res_ptr = ((int64_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_I64(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				}
+			}
+			instruction_pointer += sizeof(((qb_instruction_array_resize *) instruction_pointer)->next_handler) + ((qb_instruction_array_resize *) instruction_pointer)->operand_size;
+		}
 		goto *op_handler;
 		
 		label_IF_LT_U64_U64_VAR:
@@ -40672,6 +40888,60 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 #undef PHP_LINE_NUMBER
 		}
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
+		goto *op_handler;
+		
+		label_ARESIZE_F32:
+		op_handler = ((qb_instruction_array_resize *) instruction_pointer)->next_handler;
+		{
+			uint32_t dimension_count = ((qb_instruction_array_resize *) instruction_pointer)->argument_count;
+			uint32_t *operands = ((qb_instruction_array_resize *) instruction_pointer)->operands;
+			uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];
+			uint32_t *dim_ptr, *new_dim_ptr, *size_ptr;
+			uint32_t old_length, new_length = 1, i;
+			int32_t changed = FALSE;
+			float32_t *res_ptr;
+			
+			selector = ((qb_instruction_array_resize *) instruction_pointer)->operand1 & 0x00FF;
+			index_index = (((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = ((uint32_t *) segment0)[size_index];
+			old_length = res_count;
+			for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+				size_ptr = ((uint32_t *) segment0) + operands[i * 3 + 0];
+				dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 1];
+				new_dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 2];
+				old_dims[i] = *dim_ptr;
+				new_dims[i] = *new_dim_ptr;
+				if(*dim_ptr != *new_dim_ptr) {
+					changed = TRUE;
+					*dim_ptr = *new_dim_ptr;
+				}
+				new_length *= *new_dim_ptr;
+				*size_ptr = new_length;
+			}
+			if(EXPECTED(changed)) {
+				if(new_length > old_length) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], new_length);
+					if(old_length > 0) {
+						res_ptr = ((float32_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_F32(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				} else if(old_length < new_length) {
+					if(new_length > 0) {
+						res_ptr = ((float32_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_F32(res_ptr, old_dims, new_dims, dimension_count);
+					}
+					qb_shrink_segment(cxt, &cxt->storage->segments[selector], 0, new_length);
+				} else {
+					if(old_length > 0) {
+						res_ptr = ((float32_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_F32(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				}
+			}
+			instruction_pointer += sizeof(((qb_instruction_array_resize *) instruction_pointer)->next_handler) + ((qb_instruction_array_resize *) instruction_pointer)->operand_size;
+		}
 		goto *op_handler;
 		
 		label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_VAR:
@@ -61090,6 +61360,60 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		instruction_pointer += sizeof(qb_instruction_2_lineno);
 		goto *op_handler;
 		
+		label_ARESIZE_F64:
+		op_handler = ((qb_instruction_array_resize *) instruction_pointer)->next_handler;
+		{
+			uint32_t dimension_count = ((qb_instruction_array_resize *) instruction_pointer)->argument_count;
+			uint32_t *operands = ((qb_instruction_array_resize *) instruction_pointer)->operands;
+			uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];
+			uint32_t *dim_ptr, *new_dim_ptr, *size_ptr;
+			uint32_t old_length, new_length = 1, i;
+			int32_t changed = FALSE;
+			float64_t *res_ptr;
+			
+			selector = ((qb_instruction_array_resize *) instruction_pointer)->operand1 & 0x00FF;
+			index_index = (((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 8) & 0x03FF;
+			size_index = ((qb_instruction_array_resize *) instruction_pointer)->operand1 >> 20;
+			res_start_index = ((uint32_t *) segment0)[index_index];
+			res_count = ((uint32_t *) segment0)[size_index];
+			old_length = res_count;
+			for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+				size_ptr = ((uint32_t *) segment0) + operands[i * 3 + 0];
+				dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 1];
+				new_dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 2];
+				old_dims[i] = *dim_ptr;
+				new_dims[i] = *new_dim_ptr;
+				if(*dim_ptr != *new_dim_ptr) {
+					changed = TRUE;
+					*dim_ptr = *new_dim_ptr;
+				}
+				new_length *= *new_dim_ptr;
+				*size_ptr = new_length;
+			}
+			if(EXPECTED(changed)) {
+				if(new_length > old_length) {
+					qb_enlarge_segment(cxt, &cxt->storage->segments[selector], new_length);
+					if(old_length > 0) {
+						res_ptr = ((float64_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_F64(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				} else if(old_length < new_length) {
+					if(new_length > 0) {
+						res_ptr = ((float64_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_F64(res_ptr, old_dims, new_dims, dimension_count);
+					}
+					qb_shrink_segment(cxt, &cxt->storage->segments[selector], 0, new_length);
+				} else {
+					if(old_length > 0) {
+						res_ptr = ((float64_t *) segments[selector]) + res_start_index;
+						qb_relocate_elements_F64(res_ptr, old_dims, new_dims, dimension_count);
+					}
+				}
+			}
+			instruction_pointer += sizeof(((qb_instruction_array_resize *) instruction_pointer)->next_handler) + ((qb_instruction_array_resize *) instruction_pointer)->operand_size;
+		}
+		goto *op_handler;
+		
 		label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_VAR:
 		op_handler = ((qb_instruction_6_lineno *) instruction_pointer)->next_handler;
 		{
@@ -72867,6 +73191,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADIFF_I32_I32_U32_I32] = &&label_ADIFF_I32_I32_U32_I32;
 		op_handlers[QB_AISECT_I32_I32_U32_I32] = &&label_AISECT_I32_I32_U32_I32;
 		op_handlers[QB_SHUFFLE_U32_I32] = &&label_SHUFFLE_U32_I32;
+		op_handlers[QB_ARESIZE_I32] = &&label_ARESIZE_I32;
 		op_handlers[QB_IF_LT_U32_U32_VAR] = &&label_IF_LT_U32_U32_VAR;
 		op_handlers[QB_IF_LT_U32_U32_ELV] = &&label_IF_LT_U32_U32_ELV;
 		op_handlers[QB_IF_GT_U32_U32_VAR] = &&label_IF_GT_U32_U32_VAR;
@@ -73091,6 +73416,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADIFF_I08_I08_U32_I08] = &&label_ADIFF_I08_I08_U32_I08;
 		op_handlers[QB_AISECT_I08_I08_U32_I08] = &&label_AISECT_I08_I08_U32_I08;
 		op_handlers[QB_SHUFFLE_U32_I08] = &&label_SHUFFLE_U32_I08;
+		op_handlers[QB_ARESIZE_I08] = &&label_ARESIZE_I08;
 		op_handlers[QB_IF_LT_U08_U08_VAR] = &&label_IF_LT_U08_U08_VAR;
 		op_handlers[QB_IF_LT_U08_U08_ELV] = &&label_IF_LT_U08_U08_ELV;
 		op_handlers[QB_IF_GT_U08_U08_VAR] = &&label_IF_GT_U08_U08_VAR;
@@ -73324,6 +73650,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADIFF_I16_I16_U32_I16] = &&label_ADIFF_I16_I16_U32_I16;
 		op_handlers[QB_AISECT_I16_I16_U32_I16] = &&label_AISECT_I16_I16_U32_I16;
 		op_handlers[QB_SHUFFLE_U32_I16] = &&label_SHUFFLE_U32_I16;
+		op_handlers[QB_ARESIZE_I16] = &&label_ARESIZE_I16;
 		op_handlers[QB_IF_LT_U16_U16_VAR] = &&label_IF_LT_U16_U16_VAR;
 		op_handlers[QB_IF_LT_U16_U16_ELV] = &&label_IF_LT_U16_U16_ELV;
 		op_handlers[QB_IF_GT_U16_U16_VAR] = &&label_IF_GT_U16_U16_VAR;
@@ -73557,6 +73884,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADIFF_I64_I64_U32_I64] = &&label_ADIFF_I64_I64_U32_I64;
 		op_handlers[QB_AISECT_I64_I64_U32_I64] = &&label_AISECT_I64_I64_U32_I64;
 		op_handlers[QB_SHUFFLE_U32_I64] = &&label_SHUFFLE_U32_I64;
+		op_handlers[QB_ARESIZE_I64] = &&label_ARESIZE_I64;
 		op_handlers[QB_IF_LT_U64_U64_VAR] = &&label_IF_LT_U64_U64_VAR;
 		op_handlers[QB_IF_LT_U64_U64_ELV] = &&label_IF_LT_U64_U64_ELV;
 		op_handlers[QB_IF_GT_U64_U64_VAR] = &&label_IF_GT_U64_U64_VAR;
@@ -73893,6 +74221,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADIFF_F32_F32_U32_F32] = &&label_ADIFF_F32_F32_U32_F32;
 		op_handlers[QB_AISECT_F32_F32_U32_F32] = &&label_AISECT_F32_F32_U32_F32;
 		op_handlers[QB_SHUFFLE_U32_F32] = &&label_SHUFFLE_U32_F32;
+		op_handlers[QB_ARESIZE_F32] = &&label_ARESIZE_F32;
 		op_handlers[QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_VAR] = &&label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_VAR;
 		op_handlers[QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ELV] = &&label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ELV;
 		op_handlers[QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ARR] = &&label_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32_ARR;
@@ -74401,6 +74730,7 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADIFF_F64_F64_U32_F64] = &&label_ADIFF_F64_F64_U32_F64;
 		op_handlers[QB_AISECT_F64_F64_U32_F64] = &&label_AISECT_F64_F64_U32_F64;
 		op_handlers[QB_SHUFFLE_U32_F64] = &&label_SHUFFLE_U32_F64;
+		op_handlers[QB_ARESIZE_F64] = &&label_ARESIZE_F64;
 		op_handlers[QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_VAR] = &&label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_VAR;
 		op_handlers[QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ELV] = &&label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ELV;
 		op_handlers[QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ARR] = &&label_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64_ARR;

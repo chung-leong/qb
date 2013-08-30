@@ -420,6 +420,7 @@ class QBCodeGenerator {
 									case 'SWAP_BE_I16':
 									case 'SWAP_BE_I32':
 									case 'SWAP_BE_I64':
+									case 'EXPECTED':
 									case 'UNEXPECTED':
 									case 'USE_TSRM':
 										break;
@@ -1216,6 +1217,7 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBArrayDifferenceHandler("ADIFF", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayIntersectHandler("AISECT", $elementTypeNoSign);
 			$this->handlers[] = new QBShuffleHandler("SHUFFLE", $elementTypeNoSign);
+			$this->handlers[] = new QBArrayResizeHandler("ARESIZE", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {
 			foreach($this->scalarAddressModes as $addressMode) {

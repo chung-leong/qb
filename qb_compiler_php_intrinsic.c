@@ -1113,6 +1113,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_range(qb_compiler_context *cxt,
 	qb_operand *interval = (argument_count >= 3) ? &arguments[2] : NULL;
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
+			result_prototype->preliminary_type = result_prototype->final_type = expr_type;
 			result->type = QB_OPERAND_RESULT_PROTOTYPE;
 			result->result_prototype = result_prototype;
 		}
@@ -1153,6 +1154,12 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_rand(qb_compiler_context 
 	}
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(result->type != QB_OPERAND_NONE) {
+			if(container->type == QB_OPERAND_ADDRESS) {
+				result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+			} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+				result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+				result_prototype->final_type = container->result_prototype->final_type;
+			}
 			result->type = QB_OPERAND_RESULT_PROTOTYPE;
 			result->result_prototype = result_prototype;
 		}
@@ -1178,6 +1185,36 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_rand(qb_compiler_context 
 			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_U32, result_dim, result_prototype, result_flags);
 			qb_create_binary_op(cxt, f->extra, size_address, count_address, result->address);
 		}
+	}
+}
+
+static void ZEND_FASTCALL qb_translate_intrinsic_array_resize(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &arguments[0];
+	uint32_t i;
+	for(i = 1; i < argument_count; i++) {
+		qb_do_type_coercion(cxt, &arguments[i], QB_TYPE_U32);
+	}
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result->type = QB_OPERAND_NONE;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as the first parameter", f->name);
+		}
+		if((argument_count - 1) > container->address->dimension_count) {
+			qb_abort("the array only has %d dimension%s", container->address->dimension_count, (container->address->dimension_count > 1) ? "s" : "");
+		}
+		for(i = 1; i < argument_count; i++) {
+			qb_address *old_dimension_address = container->address->dimension_addresses[i - 1];
+			qb_address *new_dimension_address = arguments[i].address;
+			if(old_dimension_address->flags & QB_ADDRESS_CONSTANT) {
+				if(!(new_dimension_address->flags & QB_ADDRESS_CONSTANT) || VALUE(U32, old_dimension_address) != VALUE(U32, new_dimension_address)) {
+					qb_abort("cannot change array dimension that was declared to be fixed-size");
+				}
+			}
+		}
+		container->address->flags |= QB_ADDRESS_INITIALIZED;
+		qb_create_op(cxt, f->extra, arguments, argument_count, NULL);
 	}
 }
 
@@ -1703,6 +1740,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_diff",			qb_translate_intrinsic_array_diff,			2,		-1,		&factory_array_diff			},
 	{	0,	"array_intersect",		qb_translate_intrinsic_array_diff,			2,		-1,		&factory_array_intersect	},
 	{	0,	"array_rand",			qb_translate_intrinsic_array_rand,			1,		2,		&factory_array_rand			},
+	{	0,	"array_resize",			qb_translate_intrinsic_array_resize,		2,		-1,		&factory_array_resize		},
 	{	0,	"utf8_decode",			qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
 	{	0,	"cabs",					qb_translate_intrinsic_complex,				1,		1,		&factory_complex_abs		},
