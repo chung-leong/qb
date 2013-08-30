@@ -1205,15 +1205,26 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_resize(qb_compiler_contex
 			qb_abort("the array only has %d dimension%s", container->address->dimension_count, (container->address->dimension_count > 1) ? "s" : "");
 		}
 		for(i = 1; i < argument_count; i++) {
-			qb_address *old_dimension_address = container->address->dimension_addresses[i - 1];
+			qb_address *dimension_address = container->address->dimension_addresses[i - 1];
 			qb_address *new_dimension_address = arguments[i].address;
-			if(old_dimension_address->flags & QB_ADDRESS_CONSTANT) {
-				if(!(new_dimension_address->flags & QB_ADDRESS_CONSTANT) || VALUE(U32, old_dimension_address) != VALUE(U32, new_dimension_address)) {
+
+			if(!IS_SCALAR_VARIABLE(new_dimension_address)) {
+				// need to copy the dimension value to a temporary variable first
+				// since the ARESIZE instruction expects VAR addresses only
+				qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
+				qb_create_unary_op(cxt, &factory_copy, new_dimension_address, new_dimension_address);
+				new_dimension_address = arguments[i].address = new_address;
+			}
+			if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
+				if(!(new_dimension_address->flags & QB_ADDRESS_CONSTANT) || VALUE(U32, dimension_address) != VALUE(U32, new_dimension_address)) {
 					qb_abort("cannot change array dimension that was declared to be fixed-size");
 				}
+			} else {
+				dimension_address->flags &= ~QB_ADDRESS_READ_ONLY;
 			}
 		}
 		container->address->flags |= QB_ADDRESS_INITIALIZED;
+		container->address->flags &= ~QB_ADDRESS_READ_ONLY;
 		qb_create_op(cxt, f->extra, arguments, argument_count, NULL);
 	}
 }

@@ -1264,6 +1264,52 @@ static void ZEND_FASTCALL qb_initialize_zval_array(qb_interpreter_context *cxt, 
 	}
 }
 
+static void qb_reallocate_gd_image(qb_interpreter_context *cxt, gdImagePtr image, int width, int height) {
+	USE_TSRM
+	int i, scanline_size;
+	void ***p_scanlines;
+
+	if(width <= 0 || height <= 0 || width > INT_MAX / sizeof(int) || height > INT_MAX / sizeof(void *)) {
+		qb_abort("Illegal image size");
+	}
+
+	if(image->trueColor) {
+		p_scanlines = &image->tpixels;
+		scanline_size = sizeof(int) * width;
+	} else {
+		p_scanlines = &image->pixels;
+		scanline_size = sizeof(unsigned char) * width;
+	}
+
+	// free scanlines that aren't needed
+	for(i = height; i < image->sy; i++) {
+		efree((*p_scanlines)[i]);
+	}
+
+	// reallocate scanline pointer array
+	*p_scanlines = erealloc(*p_scanlines, sizeof(void *) * height);
+	image->AA_opacity = erealloc(image->AA_opacity, sizeof(void *) * height);
+	for(i = image->sy; i < height; i++) {
+		(*p_scanlines)[i] = NULL;
+	}
+
+	// reallocate the scalines themselves
+	for(i = 0; i < height; i++) {
+		(*p_scanlines)[i] = erealloc((*p_scanlines)[i], scanline_size);
+		if(image->AA_opacity[i]) {
+			image->AA_opacity[i] = erealloc(image->AA_opacity[i], sizeof(unsigned char) * width);
+			if(width > image->sx) {
+				memset(image->AA_opacity[i] + image->sx, 0, sizeof(unsigned char) * (width - image->sx));
+			}
+		} else {
+			image->AA_opacity[i] = emalloc(sizeof(unsigned char) * width);
+			memset(image->AA_opacity[i], 0, sizeof(unsigned char) * width);
+		}
+	}
+	image->sx = width;
+	image->sy = height;
+}
+
 static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
 	USE_TSRM
 	qb_address *dimension_address = address->dimension_addresses[0];
@@ -1365,6 +1411,12 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 		php_stream_write(stream, (char *) ARRAY(I08, address), byte_count);
 		php_stream_seek(stream, position, SEEK_SET);
 	} else if((image = qb_get_gd_image(cxt, zvalue))) {
+		qb_address *height_address = address->dimension_addresses[0];
+		qb_address *width_address = address->dimension_addresses[1];
+
+		if(image->sy != VALUE(S32, height_address) || image->sx != VALUE(S32, width_address)) {
+			qb_reallocate_gd_image(cxt, image, VALUE(S32, width_address), VALUE(S32, height_address));
+		}
 		if(image->trueColor) {
 			qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
 			uint32_t dimension = VALUE(U32, last_dimension_address);
