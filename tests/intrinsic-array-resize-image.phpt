@@ -11,7 +11,7 @@ Array resize test (image)
  * A test function
  * 
  * @engine	qb
- * @param	float32[][][4]	$image
+ * @param	float32[?][?][4]	$image
  * @local	uint32			$(width|height)
  * 
  * @return	void

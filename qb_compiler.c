@@ -1174,7 +1174,7 @@ enum {
 
 ulong func_decl_hashes[10];
 
-#define TYPE_DECL_REGEXP			"^\\s*(?:(?:(u?int(\\d*))|(float(\\d*)))|(void)|(integer)|(double)|(char)|(bool|boolean)|(string)|(image[34]?)|(array)|(object)|(resource)|(mixed)|(callback))\\s*((?:\\[.*?\\])*)\\s*"
+#define TYPE_DECL_REGEXP			"^\\s*(?:(?:(u?int(\\d*))|(float(\\d*)))|(void)|(integer)|(double)|(char)|(bool|boolean)|(string)|(image[134]?)|(array)|(object)|(resource)|(mixed)|(callback))\\s*((?:\\[.*?\\])*)\\s*"
 
 enum {
 	TYPE_DECL_INT = 1,
@@ -1196,12 +1196,13 @@ enum {
 	TYPE_DECL_DIMENSIONS,
 };
 
-#define TYPE_DIM_REGEXP				"\\[\\s*(?:(0x[0-9a-f]+|\\d*)|([A-Z_][A-Z0-9_]*)|(\\*?))\\s*\\]\\s*"
+#define TYPE_DIM_REGEXP				"\\[\\s*(?:(0x[0-9a-f]+|\\d*)|([A-Z_][A-Z0-9_]*)|(\\*?)|(\\\?\?))\\s*\\]\\s*"
 
 enum {
 	TYPE_DIM_INT = 1,
 	TYPE_DIM_CONSTANT,
 	TYPE_DIM_ASTERISK,
+	TYPE_DIM_QUESTION_MARK,
 };
 
 #define TYPE_DIM_ALIAS_REGEXP		"\\[\\s*(?:(\\w+)\\s*:)?\\s*((?:[A-Z_][A-Z0-9_]*\\s*,\\s*)+[A-Z_][A-Z0-9_]*)\\s*\\]"
@@ -1388,7 +1389,7 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 			decl->dimensions[1] = 0;
 			if(identifier_len == 6) {
 				const char *identifier = s + GROUP_OFFSET(TYPE_DECL_IMAGE);
-				decl->dimensions[2] = (identifier[identifier_len - 1] == '3') ? 3 : 4;
+				decl->dimensions[2] = identifier[identifier_len - 1] - '0';
 			} else {
 				decl->dimensions[2] = 4;
 			}

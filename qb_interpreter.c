@@ -596,25 +596,35 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 				uint32_t offset = 0;
 				int tpixel;
 
-				if(dimension == 3) {
+				if(dimension == 4) {
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = (float32_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-							elements[offset + 1] = (float32_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-							elements[offset + 2] = (float32_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+							elements[offset + 0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
+							elements[offset + 1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
+							elements[offset + 2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
+							elements[offset + 3] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0f / gdAlphaMax));
+							offset += 4;
+						}
+					}
+				} else if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							tpixel = gdImageTrueColorPixel(image, j, i);
+							elements[offset + 0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
+							elements[offset + 1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
+							elements[offset + 2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
 							offset += 3;
 						}
 					}
-				} else {
+				} else if(dimension == 1) {
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = (float32_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-							elements[offset + 1] = (float32_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-							elements[offset + 2] = (float32_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-							elements[offset + 3] = (float32_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-							offset += 4;
+							elements[offset + 0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax)) * 0.299f
+												 + ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax)) * 0.587f
+												 + ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax)) * 0.114f;
+							offset += 1;
 						}
 					}
 				}
@@ -623,25 +633,35 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 				uint32_t offset = 0;
 				int tpixel;
 
-				if(dimension == 3) {
+				if(dimension == 4) {
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = (float64_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-							elements[offset + 1] = (float64_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-							elements[offset + 2] = (float64_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+							elements[offset + 0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+							elements[offset + 1] = ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+							elements[offset + 2] = ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+							elements[offset + 3] = ((float64_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
+							offset += 4;
+						}
+					}
+				} else if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							tpixel = gdImageTrueColorPixel(image, j, i);
+							elements[offset + 0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+							elements[offset + 1] = ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+							elements[offset + 2] = ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
 							offset += 3;
 						}
 					}
-				} else {
+				} else if(dimension == 1) {
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = (float64_t) (gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-							elements[offset + 1] = (float64_t) (gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-							elements[offset + 2] = (float64_t) (gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-							elements[offset + 3] = (float64_t) ((gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-							offset += 4;
+							elements[offset + 0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax)) * 0.299
+												 + ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax)) * 0.587
+												 + ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax)) * 0.114;
+							offset += 1;
 						}
 					}
 				}
@@ -1266,19 +1286,21 @@ static void ZEND_FASTCALL qb_initialize_zval_array(qb_interpreter_context *cxt, 
 
 static void qb_reallocate_gd_image(qb_interpreter_context *cxt, gdImagePtr image, int width, int height) {
 	USE_TSRM
-	int i, scanline_size;
-	void ***p_scanlines;
+	int i, scanline_size, pixel_size;
+	unsigned char ***p_scanlines;
 
 	if(width <= 0 || height <= 0 || width > INT_MAX / sizeof(int) || height > INT_MAX / sizeof(void *)) {
 		qb_abort("Illegal image size");
 	}
 
 	if(image->trueColor) {
-		p_scanlines = &image->tpixels;
+		p_scanlines = (unsigned char ***) &image->tpixels;
 		scanline_size = sizeof(int) * width;
+		pixel_size = sizeof(int);
 	} else {
 		p_scanlines = &image->pixels;
 		scanline_size = sizeof(unsigned char) * width;
+		pixel_size = sizeof(unsigned char);
 	}
 
 	// free scanlines that aren't needed
@@ -1287,15 +1309,23 @@ static void qb_reallocate_gd_image(qb_interpreter_context *cxt, gdImagePtr image
 	}
 
 	// reallocate scanline pointer array
-	*p_scanlines = erealloc(*p_scanlines, sizeof(void *) * height);
-	image->AA_opacity = erealloc(image->AA_opacity, sizeof(void *) * height);
+	*p_scanlines = erealloc(*p_scanlines, sizeof(unsigned char *) * height);
+	image->AA_opacity = erealloc(image->AA_opacity, sizeof(unsigned char *) * height);
 	for(i = image->sy; i < height; i++) {
 		(*p_scanlines)[i] = NULL;
 	}
 
 	// reallocate the scalines themselves
 	for(i = 0; i < height; i++) {
-		(*p_scanlines)[i] = erealloc((*p_scanlines)[i], scanline_size);
+		if((*p_scanlines)[i]) {
+			(*p_scanlines)[i] = erealloc((*p_scanlines)[i], scanline_size);
+			if(width > image->sx) {
+				memset((*p_scanlines)[i] + image->sx * pixel_size, 0, pixel_size * (width - image->sx));
+			}
+		} else {
+			(*p_scanlines)[i] = emalloc(scanline_size);
+			memset((*p_scanlines)[i], 0, scanline_size);
+		}
 		if(image->AA_opacity[i]) {
 			image->AA_opacity[i] = erealloc(image->AA_opacity[i], sizeof(unsigned char) * width);
 			if(width > image->sx) {
@@ -1426,29 +1456,22 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 				uint32_t offset = 0;
 				int tpixel;
 
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = elements[offset++];
-						gdImageTrueColorPixel(image, j, i) = tpixel;
+				if((dimension == 1 && (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) || (dimension == 4 && (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32)) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							tpixel = elements[offset++];
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+						}
 					}
+				} else {
+					qb_abort("Illegal pixel dimension");
 				}
 			} else if(address->type == QB_TYPE_F32) {
 				CTYPE(F32) *elements = ARRAY(F32, address);
 				uint32_t offset = 0;
 				int32_t tpixel, r, g, b, a;
 
-				if(dimension == 3) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
-							g = qb_clamp_float32(elements[offset + 1], gdGreenMax);
-							b = qb_clamp_float32(elements[offset + 2], gdBlueMax);
-							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 3;
-						}
-					}
-				} else {
+				if(dimension == 4) {
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
@@ -1460,24 +1483,35 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 							offset += 4;
 						}
 					}
+				} else if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
+							g = qb_clamp_float32(elements[offset + 1], gdGreenMax);
+							b = qb_clamp_float32(elements[offset + 2], gdBlueMax);
+							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 3;
+						}
+					}
+				} else if(dimension == 1) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
+							tpixel = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 1;
+						}
+					}
+				} else {
+					qb_abort("Illegal pixel dimension");
 				}
 			} else if(address->type == QB_TYPE_F64) {
 				CTYPE(F64) *elements = ARRAY(F64, address);
 				uint32_t offset = 0;
 				int32_t tpixel, r, g, b, a;
 
-				if(dimension == 3) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
-							g = qb_clamp_float64(elements[offset + 1], gdGreenMax);
-							b = qb_clamp_float64(elements[offset + 2], gdBlueMax);
-							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 3;
-						}
-					}
-				} else {
+				if(dimension == 4) {
 					for(i = 0; i < (uint32_t) image->sy; i++) {
 						for(j = 0; j < (uint32_t) image->sx; j++) {
 							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
@@ -1489,6 +1523,28 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 							offset += 4;
 						}
 					}
+				} else if(dimension == 3) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
+							g = qb_clamp_float64(elements[offset + 1], gdGreenMax);
+							b = qb_clamp_float64(elements[offset + 2], gdBlueMax);
+							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 3;
+						}
+					}
+				} else if(dimension == 1) {
+					for(i = 0; i < (uint32_t) image->sy; i++) {
+						for(j = 0; j < (uint32_t) image->sx; j++) {
+							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
+							tpixel = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
+							gdImageTrueColorPixel(image, j, i) = tpixel;
+							offset += 1;
+						}
+					}
+				} else {
+					qb_abort("Illegal pixel dimension");
 				}
 			}
 		} else {
