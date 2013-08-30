@@ -123,7 +123,19 @@ static void ZEND_FASTCALL qb_check_pixel_array(qb_interpreter_context *cxt, gdIm
 	qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
 	if(last_dimension_address->flags & QB_ADDRESS_CONSTANT) {
 		uint32_t dimension = VALUE(U32, last_dimension_address);
-		if(!(dimension == 4 || (dimension == 3 && address->type >= QB_TYPE_F32))) {
+		int32_t valid = FALSE;
+		if(address->type >= QB_TYPE_F32) {
+			switch(dimension) {
+				case 1:
+				case 3:
+				case 4: valid = TRUE;
+			}
+		} else {
+			switch(dimension) {
+				case 4: valid = TRUE;
+			}
+		}
+		if(!valid) {
 			qb_abort("Invalid dimension for a pixel (%d): %s", dimension, qb_get_address_name(cxt, address));
 		}
 	} else {
