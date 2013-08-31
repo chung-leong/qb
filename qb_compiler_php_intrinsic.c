@@ -541,7 +541,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_push(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *container = &arguments[0], *value = &arguments[1];
+	qb_operand *container = &arguments[0], *value;
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_U32;
@@ -550,16 +550,85 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_push(qb_compiler_context 
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *size_address, *variable_address;
+		uint32_t i, container_element_size, value_size;
 		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
 			qb_abort("%s expects an array as parameter", f->name);
 		}
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
-			qb_abort("Adding element to an array that cannot expand");
+			qb_abort("adding element to an array that cannot expand");
 		}
-		qb_do_type_coercion(cxt, value, container->address->type);
+		if(container->address->dimension_count > 1) {
+			container_element_size = VALUE(U32, container->address->array_size_addresses[container->address->dimension_count - 1]);
+		} else {
+			container_element_size = 1;
+		}
+		for(i = 1; i < argument_count; i++) {
+			value = &arguments[i];
+			qb_do_type_coercion(cxt, value, container->address->type);
+			if(value->address->dimension_count > 0) {
+				value_size = ARRAY_SIZE(value->address);
+			} else {
+				value_size = 1;
+			}
+			if(value_size != container_element_size) {
+				qb_abort("elements in parameter %d are of different size", i + 1);
+			}
+		}
 		size_address = container->address->dimension_addresses[0];
 		variable_address = qb_get_array_element(cxt, container->address, size_address);
-		qb_do_assignment(cxt, value->address, variable_address);
+
+		for(i = 1; i < argument_count; i++) {
+			value = &arguments[i];
+			qb_do_assignment(cxt, value->address, variable_address);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = size_address;
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_translate_intrinsic_array_unshift(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &arguments[0], *value;
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->preliminary_type = result_prototype->final_type = QB_TYPE_U32;
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *size_address, *zero_address;
+		uint32_t i, container_element_size, value_size;
+		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
+			qb_abort("%s expects an array as parameter", f->name);
+		}
+		if(!IS_EXPANDABLE_ARRAY(container->address)) {
+			qb_abort("adding element to an array that cannot expand");
+		}
+		if(container->address->dimension_count > 1) {
+			container_element_size = VALUE(U32, container->address->array_size_addresses[container->address->dimension_count - 1]);
+		} else {
+			container_element_size = 1;
+		}
+		for(i = 1; i < argument_count; i++) {
+			value = &arguments[i];
+			qb_do_type_coercion(cxt, value, container->address->type);
+			if(value->address->dimension_count > 0) {
+				value_size = ARRAY_SIZE(value->address);
+			} else {
+				value_size = 1;
+			}
+			if(value_size != container_element_size) {
+				qb_abort("elements in parameter %d are of different size", i + 1);
+			}
+		}
+		size_address = container->address->dimension_addresses[0];
+		zero_address = qb_obtain_constant_U32(cxt, 0);
+
+		for(i = argument_count - 1; i >= 1; i--) {
+			value = &arguments[i];
+			qb_create_binary_op(cxt, &factory_array_insert, value->address, zero_address, container->address);
+		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = size_address;
@@ -1727,7 +1796,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"blend",				qb_translate_intrinsic_blend,				2,		2,		&factory_alpha_blend		},
 	{	0,	"array_pop",			qb_translate_intrinsic_array_pop,			1,		1,		NULL						},
 	{	0,	"array_shift",			qb_translate_intrinsic_array_shift,			1,		1,		NULL						},
-	{	0,	"array_push",			qb_translate_intrinsic_array_push,			2,		2,		NULL						},
+	{	0,	"array_push",			qb_translate_intrinsic_array_push,			2,		-1,		NULL						},
+	{	0,	"array_unshift",		qb_translate_intrinsic_array_unshift,		2,		-1,		NULL						},
 	{	0,	"array_merge",			qb_translate_intrinsic_array_merge,			2,		-1,		&factory_array_merge		},
 	{	0,	"array_fill",			qb_translate_intrinsic_array_fill,			3,		3,		&factory_array_fill			},
 	{	0,	"array_slice",			qb_translate_intrinsic_array_slice,			2,		3,		NULL						},
