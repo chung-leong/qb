@@ -435,6 +435,37 @@ static qb_basic_op_factory factory_array_insert = {
 	{	QB_AINS_F64_U32_F64,	QB_AINS_F32_U32_F32,	QB_AINS_I64_U32_I64,	QB_AINS_I64_U32_I64,	QB_AINS_I32_U32_I32,	QB_AINS_I32_U32_I32,	QB_AINS_I16_U32_I16,	QB_AINS_I16_U32_I16,	QB_AINS_I08_U32_I08,	QB_AINS_I08_U32_I08,	},
 };
 
+static qb_op * ZEND_FASTCALL qb_append_array_pad(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *f = factory;
+	qb_address *container_address = operands[0].address;
+	qb_address *length_address = operands[1].address;
+	qb_address *value_address = operands[2].address;
+	qb_op *qop = NULL;
+	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - container_address->type];
+	qop = qb_append_op(cxt, opcode, 4);
+	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[0].address = container_address;
+	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
+	qop->operands[1].address = value_address;
+	qop->operands[2].type = QB_OPERAND_ADDRESS_VAR;
+	qop->operands[2].address = length_address;
+	qop->operands[3] = *result;
+	return qop;
+}
+
+static void ZEND_FASTCALL qb_set_variable_length_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	dim->dimension_count = 1;
+	dim->array_size = 0;
+}
+
+static qb_basic_op_factory factory_array_pad = {
+	qb_append_array_pad,
+	qb_set_variable_length_result_dimensions,
+	0,
+	0,
+	{	QB_APAD_F64_F64_S32_F64,	QB_APAD_F32_F32_S32_F32,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I08_I08_S32_I08,	QB_APAD_I08_I08_S32_I08,	},
+};
+
 static qb_op * ZEND_FASTCALL qb_append_incdec_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_arithmetic_op_factory *f = factory;
 	qb_address *address = result->address;
@@ -2814,11 +2845,6 @@ static qb_op * ZEND_FASTCALL qb_append_array_diff(qb_compiler_context *cxt, void
 	qop->operands[2].address = (address1->dimension_count > 1) ? address1->array_size_addresses[1] : qb_obtain_constant_U32(cxt, 1);
 	qop->operands[3] = *result;
 	return qop;
-}
-
-static void ZEND_FASTCALL qb_set_variable_length_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	dim->dimension_count = 1;
-	dim->array_size = 0;
 }
 
 static qb_basic_op_factory factory_array_diff = {

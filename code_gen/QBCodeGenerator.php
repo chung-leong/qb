@@ -1218,6 +1218,7 @@ class QBCodeGenerator {
 			$this->handlers[] = new QBArrayIntersectHandler("AISECT", $elementTypeNoSign);
 			$this->handlers[] = new QBShuffleHandler("SHUFFLE", $elementTypeNoSign);
 			$this->handlers[] = new QBArrayResizeHandler("ARESIZE", $elementTypeNoSign);
+			$this->handlers[] = new QBArrayPadHandler("APAD", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {
 			foreach($this->scalarAddressModes as $addressMode) {

@@ -4309,6 +4309,156 @@ void ZEND_FASTCALL qb_do_array_min_U64(uint64_t *op1_ptr, uint32_t op1_count, ui
 	}
 }
 
+void ZEND_FASTCALL qb_do_array_pad_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t op3, float32_t *res_ptr, uint32_t res_count) {
+	if(res_count > op1_count) {
+		float32_t *res_end;
+		float32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		if(op3 > 0) {
+			memcpy(res_ptr, op1_ptr, sizeof(float32_t) * op1_count);
+			res_end = res_ptr + res_count;
+			res_ptr += op1_count;
+		} else {
+			res_end = res_ptr + (res_count - op1_count);
+			memcpy(res_end, op1_ptr, sizeof(float32_t) * op1_count);
+		}
+		while(res_ptr < res_end) {
+			*res_ptr = *op2_ptr;
+			op2_ptr++;
+			res_ptr++;
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	} else {
+		memcpy(res_ptr, op1_ptr, sizeof(float32_t) * op1_count);
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_pad_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t op3, float64_t *res_ptr, uint32_t res_count) {
+	if(res_count > op1_count) {
+		float64_t *res_end;
+		float64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		if(op3 > 0) {
+			memcpy(res_ptr, op1_ptr, sizeof(float64_t) * op1_count);
+			res_end = res_ptr + res_count;
+			res_ptr += op1_count;
+		} else {
+			res_end = res_ptr + (res_count - op1_count);
+			memcpy(res_end, op1_ptr, sizeof(float64_t) * op1_count);
+		}
+		while(res_ptr < res_end) {
+			*res_ptr = *op2_ptr;
+			op2_ptr++;
+			res_ptr++;
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	} else {
+		memcpy(res_ptr, op1_ptr, sizeof(float64_t) * op1_count);
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_pad_I08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t op3, int8_t *res_ptr, uint32_t res_count) {
+	if(res_count > op1_count) {
+		int8_t *res_end;
+		int8_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		if(op3 > 0) {
+			memcpy(res_ptr, op1_ptr, sizeof(int8_t) * op1_count);
+			res_end = res_ptr + res_count;
+			res_ptr += op1_count;
+		} else {
+			res_end = res_ptr + (res_count - op1_count);
+			memcpy(res_end, op1_ptr, sizeof(int8_t) * op1_count);
+		}
+		while(res_ptr < res_end) {
+			*res_ptr = *op2_ptr;
+			op2_ptr++;
+			res_ptr++;
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	} else {
+		memcpy(res_ptr, op1_ptr, sizeof(int8_t) * op1_count);
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_pad_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t op3, int16_t *res_ptr, uint32_t res_count) {
+	if(res_count > op1_count) {
+		int16_t *res_end;
+		int16_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		if(op3 > 0) {
+			memcpy(res_ptr, op1_ptr, sizeof(int16_t) * op1_count);
+			res_end = res_ptr + res_count;
+			res_ptr += op1_count;
+		} else {
+			res_end = res_ptr + (res_count - op1_count);
+			memcpy(res_end, op1_ptr, sizeof(int16_t) * op1_count);
+		}
+		while(res_ptr < res_end) {
+			*res_ptr = *op2_ptr;
+			op2_ptr++;
+			res_ptr++;
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	} else {
+		memcpy(res_ptr, op1_ptr, sizeof(int16_t) * op1_count);
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_pad_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr, uint32_t res_count) {
+	if(res_count > op1_count) {
+		int32_t *res_end;
+		int32_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		if(op3 > 0) {
+			memcpy(res_ptr, op1_ptr, sizeof(int32_t) * op1_count);
+			res_end = res_ptr + res_count;
+			res_ptr += op1_count;
+		} else {
+			res_end = res_ptr + (res_count - op1_count);
+			memcpy(res_end, op1_ptr, sizeof(int32_t) * op1_count);
+		}
+		while(res_ptr < res_end) {
+			*res_ptr = *op2_ptr;
+			op2_ptr++;
+			res_ptr++;
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	} else {
+		memcpy(res_ptr, op1_ptr, sizeof(int32_t) * op1_count);
+	}
+}
+
+void ZEND_FASTCALL qb_do_array_pad_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t op3, int64_t *res_ptr, uint32_t res_count) {
+	if(res_count > op1_count) {
+		int64_t *res_end;
+		int64_t *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;
+		if(op3 > 0) {
+			memcpy(res_ptr, op1_ptr, sizeof(int64_t) * op1_count);
+			res_end = res_ptr + res_count;
+			res_ptr += op1_count;
+		} else {
+			res_end = res_ptr + (res_count - op1_count);
+			memcpy(res_end, op1_ptr, sizeof(int64_t) * op1_count);
+		}
+		while(res_ptr < res_end) {
+			*res_ptr = *op2_ptr;
+			op2_ptr++;
+			res_ptr++;
+			if(op2_ptr >= op2_end) {
+				op2_ptr = op2_start;
+			}
+		}
+	} else {
+		memcpy(res_ptr, op1_ptr, sizeof(int64_t) * op1_count);
+	}
+}
+
 void ZEND_FASTCALL qb_do_array_product_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
 	uint32_t i;
 	float32_t product = 1;
@@ -20976,6 +21126,54 @@ void qb_do_array_min_U64_symbol(uint64_t *op1_ptr, uint32_t op1_count, uint64_t 
 #endif
 
 #ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_pad_F32_symbol	qb_do_array_pad_F32
+#else
+void qb_do_array_pad_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, int32_t op3, float32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_pad_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_pad_F64_symbol	qb_do_array_pad_F64
+#else
+void qb_do_array_pad_F64_symbol(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, int32_t op3, float64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_pad_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_pad_I08_symbol	qb_do_array_pad_I08
+#else
+void qb_do_array_pad_I08_symbol(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, int32_t op3, int8_t *res_ptr, uint32_t res_count) {
+	qb_do_array_pad_I08(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_pad_I16_symbol	qb_do_array_pad_I16
+#else
+void qb_do_array_pad_I16_symbol(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int32_t op3, int16_t *res_ptr, uint32_t res_count) {
+	qb_do_array_pad_I16(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_pad_I32_symbol	qb_do_array_pad_I32
+#else
+void qb_do_array_pad_I32_symbol(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t op3, int32_t *res_ptr, uint32_t res_count) {
+	qb_do_array_pad_I32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
+#define qb_do_array_pad_I64_symbol	qb_do_array_pad_I64
+#else
+void qb_do_array_pad_I64_symbol(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int32_t op3, int64_t *res_ptr, uint32_t res_count) {
+	qb_do_array_pad_I64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+}
+#endif
+
+#ifdef FASTCALL_MATCHES_CDECL
 #define qb_do_array_product_F32_symbol	qb_do_array_product_F32
 #else
 void qb_do_array_product_F32_symbol(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr) {
@@ -27551,6 +27749,12 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"qb_do_array_min_U16",	qb_do_array_min_U16_symbol	},
 	{	0,	"qb_do_array_min_U32",	qb_do_array_min_U32_symbol	},
 	{	0,	"qb_do_array_min_U64",	qb_do_array_min_U64_symbol	},
+	{	0,	"qb_do_array_pad_F32",	qb_do_array_pad_F32_symbol	},
+	{	0,	"qb_do_array_pad_F64",	qb_do_array_pad_F64_symbol	},
+	{	0,	"qb_do_array_pad_I08",	qb_do_array_pad_I08_symbol	},
+	{	0,	"qb_do_array_pad_I16",	qb_do_array_pad_I16_symbol	},
+	{	0,	"qb_do_array_pad_I32",	qb_do_array_pad_I32_symbol	},
+	{	0,	"qb_do_array_pad_I64",	qb_do_array_pad_I64_symbol	},
 	{	0,	"qb_do_array_product_F32",	qb_do_array_product_F32_symbol	},
 	{	0,	"qb_do_array_product_F64",	qb_do_array_product_F64_symbol	},
 	{	0,	"qb_do_array_product_S08",	qb_do_array_product_S08_symbol	},
@@ -28525,5 +28729,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"zend_timeout",	zend_timeout	},
 };
 
-uint32_t global_native_symbol_count = 1152;
+uint32_t global_native_symbol_count = 1158;
 
