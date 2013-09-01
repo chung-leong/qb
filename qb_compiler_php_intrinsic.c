@@ -36,7 +36,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_con
 
 		vector_width = VALUE(U32, address->dimension_addresses[address->dimension_count - 1]);
 		if(vector_width > 4096) {
-			qb_abort("Dimension is too large");
+			qb_abort("dimension is too large");
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
@@ -67,10 +67,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_binary_vector_op(qb_compiler_co
 		vector_width1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
 		vector_width2 = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 		if(vector_width1 != vector_width2) {
-			qb_abort("Dimension of first parameter (%d) does not match dimension of second parameter (%d)", vector_width1, vector_width2);
+			qb_abort("dimension of first parameter (%d) does not match dimension of second parameter (%d)", vector_width1, vector_width2);
 		}
 		if(vector_width1 > 4096) {
-			qb_abort("Dimension is too large");
+			qb_abort("dimension is too large");
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
@@ -102,12 +102,12 @@ static void ZEND_FASTCALL qb_translate_intrinsic_cross(qb_compiler_context *cxt,
 		vector_width1 = VALUE(U32, address1->dimension_addresses[address1->dimension_count - 1]);
 		vector_width2 = VALUE(U32, address2->dimension_addresses[address2->dimension_count - 1]);
 		if(vector_width1 != vector_width2) {
-			qb_abort("Dimension of first parameter (%d) does not match dimension of second parameter (%d)", vector_width1, vector_width2);
+			qb_abort("dimension of first parameter (%d) does not match dimension of second parameter (%d)", vector_width1, vector_width2);
 		}
 		if(address3) {
 			vector_width3 = VALUE(U32, address3->dimension_addresses[address3->dimension_count - 1]);
 			if(vector_width1 != vector_width3) {
-				qb_abort("Dimension of first parameter (%d) does not match dimension of third parameter (%d)", vector_width1, vector_width3);
+				qb_abort("dimension of first parameter (%d) does not match dimension of third parameter (%d)", vector_width1, vector_width3);
 			}
 		}
 		if(!(vector_width1 >= 2 && vector_width1 <= 4)) {
@@ -162,10 +162,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mm_mult(qb_compiler_context *cx
 		m2_cols = VALUE(U32, m2_col_address);
 		m2_rows = VALUE(U32, m2_row_address);
 		if(m1_cols != m2_rows) {
-			qb_abort("Number of columns in first matrix (%d) does not match number of rows in second matrix (%d)", m1_cols, m2_rows);
+			qb_abort("number of columns in first matrix (%d) does not match number of rows in second matrix (%d)", m1_cols, m2_rows);
 		}
 		if(m1_rows > 4096 || m1_cols > 4096 || m2_cols > 4096) {
-			qb_abort("Dimension is too large");
+			qb_abort("dimension is too large");
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
@@ -214,10 +214,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_mv_mult(qb_compiler_context *cx
 		m_rows = VALUE(U32, m_row_address);
 		v_width = VALUE(U32, v_width_address);
 		if(m_cols != v_width) {
-			qb_abort("Number of columns in matrix (%d) does not match number of elements in vector (%d)", m_cols, v_width);
+			qb_abort("number of columns in matrix (%d) does not match number of elements in vector (%d)", m_cols, v_width);
 		}
 		if(v_width > 4096 || m_rows > 4096) {
-			qb_abort("Dimension is too large");
+			qb_abort("dimension is too large");
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
@@ -266,10 +266,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_vm_mult(qb_compiler_context *cx
 		m_rows = VALUE(U32, m_row_address);
 		v_width = VALUE(U32, v_width_address);
 		if(v_width != m_rows) {
-			qb_abort("Number of elements in vector (%d) does not match number of rows in matrix (%d)", v_width, m_rows);
+			qb_abort("number of elements in vector (%d) does not match number of rows in matrix (%d)", v_width, m_rows);
 		}
 		if(v_width > 4096 || m_cols > 4096) {
-			qb_abort("Dimension is too large");
+			qb_abort("dimension is too large");
 		}
 
 		if(result->type != QB_OPERAND_NONE) {
@@ -886,7 +886,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *
 			qb_abort("%s expects an array as parameter", f->name);
 		}
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
-			qb_abort("Removing element to from an array that cannot shrink");
+			qb_abort("removing element to from an array that cannot shrink");
 		}
 		size_address = container->address->dimension_addresses[0];
 		index_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
@@ -924,7 +924,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context
 			qb_abort("%s expects an array as parameter", f->name);
 		}
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
-			qb_abort("Removing element from an array that cannot shrink");
+			qb_abort("removing element from an array that cannot shrink");
 		}
 		zero_address = qb_obtain_constant_U32(cxt, 0);
 		variable_address = qb_get_array_element(cxt, container->address, zero_address);
@@ -1623,7 +1623,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 			uint32_t name_len = Z_STRLEN_P(name->constant);
 			int registration_result;
 			if(zend_memnstr(name_str, "::", sizeof("::") - 1, name_str + name_len)) {
-				qb_abort("Class constants cannot be defined or redefined");
+				qb_abort("class constants cannot be defined or redefined");
 			}
 
 			if(expr->type == QB_OPERAND_ZVAL) {

@@ -450,7 +450,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_channel_address(qb_compiler_cont
 	uint32_t access_type = PBJ_CHANNEL_ACCESS_TYPE(channel, channel_count);
 #if ZEND_DEBUG
 	if(channel + channel_count > 4) {
-		qb_abort("Invalid channel");
+		qb_abort("invalid channel");
 	}
 #endif
 	if(!reg->channel_addresses[access_type]) {
@@ -679,7 +679,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_value_address(qb_compiler_contex
 			float_values = value->float4x4;
 		}	break;
 		default:
-			qb_abort("Invalid type id: %d", value->type);
+			qb_abort("invalid type id: %d", value->type);
 	}
 
 	if(int_values) {
@@ -1375,7 +1375,7 @@ void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 					// update the branch target index of the op at the top of the stack
 					qb_pbj_op *related_pop;
 					if(cxt->pbj_conditional_count == 0) {
-						qb_abort("Unexpected opcode: %02x", opcode);
+						qb_abort("unexpected opcode: %02x", opcode);
 					}
 					related_pop = cxt->pbj_conditionals[cxt->pbj_conditional_count - 1];
 					related_pop->branch_target_index = pop_index;
@@ -1498,7 +1498,7 @@ void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 		} else if(opcode == PBJ_VERSION_DATA) {
 			qb_pbj_read_I32(cxt);
 		} else {
-			qb_abort("Unknown opcode: %02x (previous opcode = %02x)", opcode, prev_opcode);
+			qb_abort("unknown opcode: %02x (previous opcode = %02x)", opcode, prev_opcode);
 			break;
 		}
 		prev_opcode = opcode;
@@ -1518,16 +1518,16 @@ void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 	}
 
 	if(!cxt->pbj_out_pixel) {
-		qb_abort("Missing output pixel");
+		qb_abort("missing output pixel");
 	}
 	if(!cxt->pbj_out_coord) {
-		qb_abort("Missing output pixel coordinates");
+		qb_abort("missing output pixel coordinates");
 	}
 	if(cxt->pbj_conditional_count > 0) {
-		qb_abort("Missing end if");
+		qb_abort("missing end if");
 	}
 	if(cxt->pbj_out_pixel->type != PBJ_TYPE_FLOAT3 && cxt->pbj_out_pixel->type != PBJ_TYPE_FLOAT4) {
-		qb_abort("Output pixel is not float3 or float4");
+		qb_abort("output pixel is not float3 or float4");
 	}
 }
 
@@ -1867,7 +1867,7 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 			if(qb_pbj_is_image(cxt, qvar->address, texture->channel_count)) {
 				texture->address = qvar->address;
 			} else {
-				qb_abort("Parameter '%s' is not of the correct type", qvar->name);
+				qb_abort("parameter '%s' is not of the correct type", qvar->name);
 			} 
 		} else {
 			// if there's only one input image, then use that one
@@ -1875,7 +1875,7 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 			if(qvar) {
 				texture->address = qvar->address;
 			} else {
-				qb_abort("Input image '%s' must be passed to the function", texture->name); 
+				qb_abort("input image '%s' must be passed to the function", texture->name);
 			}
 		}
 		// premultiplication is applied to input images with alpha channel
@@ -1891,7 +1891,7 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 			if(qvar) {
 				parameter->address = qvar->address;
 			} else {
-				qb_abort("A parameter must be passed by reference to the function to receive the result");
+				qb_abort("a parameter must be passed by reference to the function to receive the result");
 			} 
 		} else if(parameter == cxt->pbj_out_coord) {
 			// this is actually set within the function 
@@ -1915,19 +1915,19 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 						if(element_count == parameter_size) {
 							parameter->address = qvar->address;
 						} else {
-							qb_abort("Parameter '%s' is not of the correct size", qvar->name);
+							qb_abort("parameter '%s' is not of the correct size", qvar->name);
 						}
 					} else {
-						qb_abort("Parameter '%s' is not of the correct type", qvar->name);
+						qb_abort("parameter '%s' is not of the correct type", qvar->name);
 					}
 				} else {
-					qb_abort("Parameter '%s' is obtained from the input image and cannot be passed separately", parameter->name);
+					qb_abort("parameter '%s' is obtained from the input image and cannot be passed separately", parameter->name);
 				}
 
 			} else {
 				// see if it has a default value
 				if(!parameter->default_value.type) {
-					qb_abort("Parameter '%s' does not have a default value and must be passed to the function", parameter->name);
+					qb_abort("parameter '%s' does not have a default value and must be passed to the function", parameter->name);
 				}
 			}
 		}

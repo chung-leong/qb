@@ -246,7 +246,7 @@ int64_t ZEND_FASTCALL qb_zval_array_to_int64(zval *zvalue) {
 		}
 	}
 	if(!hi_dword_present || !lo_dword_present) {
-		qb_abort("Unable to convert array to int64");
+		qb_abort("unable to convert array to int64");
 	}
 	return (hi_dword & 0xFFFFFFFF) << 32 | (lo_dword & 0xFFFFFFFF);
 }

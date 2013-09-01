@@ -294,17 +294,17 @@ static void ZEND_FASTCALL qb_mark_jump_target(qb_compiler_context *cxt, uint32_t
 
 static void ZEND_FASTCALL qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
 	if(address->type >= QB_TYPE_COUNT) {
-		qb_abort("Invalid runtime type id: %x", address->type);
+		qb_abort("invalid runtime type id: %x", address->type);
 	}
 	if(address->segment_selector > 255) {
-		qb_abort("Invalid segment selector: %d", address->segment_selector);
+		qb_abort("invalid segment selector: %d", address->segment_selector);
 	}
 	if(!address->array_index_address) {
 		if(address->segment_selector == QB_SELECTOR_VARIABLE) {
 			qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 			uint32_t segment_length = BYTE_COUNT(segment->element_count, segment->type);
 			if(address->segment_offset > segment_length) {
-				qb_abort("Segment offset exceeds length of segment: %d > %d", address->segment_offset, segment->element_count);
+				qb_abort("segment offset exceeds length of segment: %d > %d", address->segment_offset, segment->element_count);
 			}
 		}
 	}
@@ -312,10 +312,10 @@ static void ZEND_FASTCALL qb_validate_address(qb_compiler_context *cxt, qb_addre
 		qb_validate_address(cxt, address->source_address);
 		if(address->source_address->dimension_count > address->dimension_count) {
 			if(address->source_address->type != address->type) {
-				qb_abort("Type mismatch");
+				qb_abort("type mismatch");
 			}
 		} else if(address->source_address->dimension_count < address->dimension_count) {
-			qb_abort("Invalid source address");
+			qb_abort("invalid source address");
 		}
 	}
 	if(address->array_size_address) {
@@ -325,7 +325,7 @@ static void ZEND_FASTCALL qb_validate_address(qb_compiler_context *cxt, qb_addre
 			qb_validate_address(cxt, address->dimension_addresses[i]);
 		}
 		if(address->array_size_address != address->array_size_addresses[0]) {
-			qb_abort("Invalid size address");
+			qb_abort("invalid size address");
 		}
 	}
 	if(address->array_index_address) {
@@ -338,13 +338,13 @@ static void ZEND_FASTCALL qb_validate_address(qb_compiler_context *cxt, qb_addre
 			if(scheme) {
 				uint32_t dimension = VALUE(U32, address->dimension_addresses[i]);
 				if(scheme->dimension != dimension) {
-					qb_abort("Index range mismatch");
+					qb_abort("index range mismatch");
 				}
 				for(j = 0; j < scheme->dimension; j++) {
 					const char *alias = scheme->aliases[j];
 					uint32_t len = strlen(alias);
 					if(len != scheme->alias_lengths[j]) {
-						qb_abort("String length is incorrect");
+						qb_abort("string length is incorrect");
 					}
 				}
 			}
@@ -418,7 +418,7 @@ static qb_address * ZEND_FASTCALL qb_create_scalar(qb_compiler_context *cxt, qb_
 	qb_address *address;
 #if ZEND_DEBUG
 	if(desired_type >= QB_TYPE_COUNT) {
-		qb_abort("Invalid type id");
+		qb_abort("invalid type id");
 	}
 #endif
 	if(end > segment->current_allocation) {
@@ -642,7 +642,7 @@ static qb_address *ZEND_FASTCALL qb_obtain_constant_float(qb_compiler_context *c
 static qb_address * ZEND_FASTCALL qb_obtain_constant(qb_compiler_context *cxt, int64_t value, qb_primitive_type desired_type) {
 #if ZEND_DEBUG
 	if(desired_type >= QB_TYPE_COUNT) {
-		qb_abort("Invalid type id");
+		qb_abort("invalid type id");
 	}
 #endif
 	if(desired_type >= QB_TYPE_F32) {
@@ -679,7 +679,7 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_conte
 
 #if ZEND_DEBUG
 	if(element_type >= QB_TYPE_COUNT) {
-		qb_abort("Invalid type id");
+		qb_abort("invalid type id");
 	}
 #endif
 	address = qb_allocate_address(cxt->pool);
@@ -701,7 +701,7 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_conte
 
 			// no memory is allocated at compile-time
 		} else {
-			qb_abort("Too many memory segments");
+			qb_abort("too many memory segments");
 		}
 	} else {
 		if(flags & QB_CREATE_IN_VARIABLE_SEGMENT) {
@@ -806,7 +806,7 @@ static qb_address * ZEND_FASTCALL qb_create_variable_length_array(qb_compiler_co
 
 #if ZEND_DEBUG
 	if(element_type >= QB_TYPE_COUNT) {
-		qb_abort("Invalid type id");
+		qb_abort("invalid type id");
 	}
 #endif
 	address = qb_allocate_address(cxt->pool);
@@ -827,7 +827,7 @@ static qb_address * ZEND_FASTCALL qb_create_variable_length_array(qb_compiler_co
 		segment->array_size_pointer = ARRAY(U32, size_address);
 		segment->dimension_pointer = ARRAY(U32, size_address);
 	} else {
-		qb_abort("Too many memory segments");
+		qb_abort("too many memory segments");
 	}
 
 	qb_initialize_array_address(cxt, selector, 0, element_type, TRUE, size_address, address);
@@ -978,7 +978,7 @@ static qb_operand * ZEND_FASTCALL qb_push_stack_item(qb_compiler_context *cxt) {
 
 static qb_operand ** ZEND_FASTCALL qb_get_stack_items(qb_compiler_context *cxt, int32_t index) {
 	if(index < 0) {
-		qb_abort("Stack underflow");
+		qb_abort("stack underflow");
 	}
 	return &cxt->stack_items[cxt->stack_item_offset + index];
 }
@@ -1019,14 +1019,14 @@ static uint32_t ZEND_FASTCALL qb_get_array_initializer_dimension_count(qb_compil
 		}
 		if(overall_sub_array_dimension_count) {
 			if(overall_sub_array_dimension_count != sub_array_dimension_count) {
-				qb_abort("Array has irregular structure");
+				qb_abort("array has irregular structure");
 			}
 		} else {
 			overall_sub_array_dimension_count = sub_array_dimension_count;
 		}
 	}
 	if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
-		qb_abort("Array initializer has too many dimensions");
+		qb_abort("array initializer has too many dimensions");
 	}
 	return overall_sub_array_dimension_count + 1;
 }
@@ -1246,7 +1246,7 @@ static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool
 				if(Z_TYPE(zconst->value) == IS_LONG) {
 					long const_value = Z_LVAL(zconst->value);
 					if(const_value <= 0) {
-						qb_abort("Constant '%s' is not a positive integer", name);
+						qb_abort("constant '%s' is not a positive integer", name);
 					}
 					dimension = const_value;
 				} else if(Z_TYPE(zconst->value) == IS_STRING) {
@@ -1260,7 +1260,7 @@ static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool
 					decl = NULL;
 				}
 			} else {
-				qb_abort("Undefined constant '%s'", name);
+				qb_abort("undefined constant '%s'", name);
 			}
 			free_alloca(name, use_heap);
 		} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
@@ -1532,7 +1532,7 @@ static void ZEND_FASTCALL qb_initialize_dimensions(qb_compiler_context *cxt, qb_
 	if(has_undefined) {
 		uint32_t array_size = 1;
 		if(address->dimension_count != initializer_address->dimension_count) {
-			qb_abort("The number of dimensions do not match");
+			qb_abort("the number of dimensions do not match");
 		}
 		for(i = address->dimension_count - 1; i >= 0; i--) {
 			qb_address *dimension_address = address->dimension_addresses[i];
@@ -1601,7 +1601,7 @@ static void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_vari
 		if(qvar->flags & QB_VARIABLE_RETURN_VALUE) {
 			// assume to be void if missing
 		} else {
-			qb_abort("Missing type declaration: %s", qvar->name);
+			qb_abort("missing type declaration: %s", qvar->name);
 		}
 	}
 }
@@ -2000,13 +2000,13 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 	uint32_t element_size;
 
 	if(IS_SCALAR(container_address)) {
-		qb_abort("Illegal operation: not an array");
+		qb_abort("illegal operation: not an array");
 	}
 	if(!IS_SCALAR(offset_address)) {
-		qb_abort("Cannot use an array as an index");
+		qb_abort("cannot use an array as an index");
 	}
 	if(length_address && !IS_SCALAR(length_address)) {
-		qb_abort("Cannot use an array as length");
+		qb_abort("cannot use an array as length");
 	}
 	if(!IS_SCALAR_VARIABLE(offset_address)) {
 		// need to copy the offset value to a temporary variable first
@@ -2104,10 +2104,10 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 	qb_primitive_type element_type = container_address->type;
 
 	if(IS_SCALAR(container_address)) {
-		qb_abort("Illegal operation: not an array");
+		qb_abort("illegal operation: not an array");
 	}
 	if(!IS_SCALAR(index_address)) {
-		qb_abort("Cannot use an array as an index");
+		qb_abort("cannot use an array as an index");
 	}
 
 	if(!IS_SCALAR_VARIABLE(index_address)) {
@@ -2215,15 +2215,15 @@ static qb_address * ZEND_FASTCALL qb_get_named_element(qb_compiler_context *cxt,
 	int32_t index;
 
 	if(IS_SCALAR(container_address)) {
-		qb_abort("Illegal operation: not an array");
+		qb_abort("illegal operation: not an array");
 	}
 	if(!container_address->index_alias_schemes || !container_address->index_alias_schemes[0]) {
-		qb_abort("Array elements are not named");
+		qb_abort("array elements are not named");
 	}
 	
 	index = qb_find_index_alias(cxt, container_address->index_alias_schemes[0], alias, alias_len);
 	if(index == -1) {
-		qb_abort("No element by the name of '%s'", alias);
+		qb_abort("no element by the name of '%s'", alias);
 	}
 	index_address = qb_obtain_constant_U32(cxt, index);
 	value_address = qb_get_array_element(cxt, container_address, index_address);
@@ -2232,37 +2232,37 @@ static qb_address * ZEND_FASTCALL qb_get_named_element(qb_compiler_context *cxt,
 
 static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
 	if(qop->opcode > QB_OPCODE_COUNT) {
-		qb_abort("Invalid opcode: %d", qop->opcode);
+		qb_abort("invalid opcode: %d", qop->opcode);
 	} else {
 		uint32_t flags = qb_get_op_flags(cxt, qop->opcode);
 		if(flags & QB_OP_VARIABLE_LENGTH) {
 			if(qop->operands[0].type != QB_OPERAND_TOTAL_LENGTH) {
-				qb_abort("The first operand must be the length of the instruction");
+				qb_abort("the first operand must be the length of the instruction");
 			}
 		} else {
 			qb_operand *operand;
 			uint32_t i, operand_flags;
 			qb_operand_type operand_type;
 			if(qb_get_operand_count(cxt, qop->opcode) != qop->operand_count) {
-				qb_abort("Wrong number of operands: %s", qb_get_op_name(cxt, qop->opcode));
+				qb_abort("wrong number of operands: %s", qb_get_op_name(cxt, qop->opcode));
 			}
 			for(i = 0; i < qop->operand_count; i++) {
 				operand = &qop->operands[i];
 				operand_flags = qb_get_operand_flags(cxt, qop->opcode, i);
 				operand_type = operand_flags & 0x07;
 				if(operand->type != operand_type) {
-					qb_abort("Operand %d is incorrect: %s", i + 1, qb_get_op_name(cxt, qop->opcode));
+					qb_abort("operand %d is incorrect: %s", i + 1, qb_get_op_name(cxt, qop->opcode));
 				}
 				if(operand_type == QB_OPERAND_JUMP_TARGET) {
 					uint32_t target_qop_index = qb_get_jump_target_absolute_index(cxt, qop_index, operand->jump_target_index);
 					qb_op *targeted_op;
 					if(target_qop_index >= cxt->op_count) {
-						qb_abort("Jump target index is not valid: %s", qb_get_op_name(cxt, qop->opcode));
+						qb_abort("jump target index is not valid: %s", qb_get_op_name(cxt, qop->opcode));
 					}
 					targeted_op = cxt->ops[target_qop_index];
 					if(target_qop_index != qop_index + 1) {
 						if(!(targeted_op->flags & QB_OP_JUMP_TARGET)) {
-							qb_abort("Missing flag on jump target: %s", qb_get_op_name(cxt, qop->opcode));
+							qb_abort("missing flag on jump target: %s", qb_get_op_name(cxt, qop->opcode));
 						}
 					}
 				} else if(operand_type >= QB_OPERAND_ADDRESS_VAR && operand_type <= QB_OPERAND_ADDRESS_ARR) {
@@ -2273,7 +2273,7 @@ static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, u
 						// the value of a constant may be set using the interpreter
 						// during constant expression evaluation
 						if(!(operand->address->flags & QB_ADDRESS_CONSTANT)) {
-							qb_abort("Write-target is marked read-only: %s", qb_get_op_name(cxt, qop->opcode));
+							qb_abort("write-target is marked read-only: %s", qb_get_op_name(cxt, qop->opcode));
 						}
 					}
 				}
@@ -2369,7 +2369,7 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 								// shouldn't really happen at runtime but we'll leave the error check in here just in case
 								const char *op_name = qb_get_op_name(cxt, qop->opcode);
 								cxt->line_number = qop->line_number;
-								qb_abort("Invalid operand for %s", op_name);
+								qb_abort("invalid operand for %s", op_name);
 							}
 						}
 					}
@@ -2701,7 +2701,7 @@ static void ZEND_FASTCALL qb_encode_address(qb_compiler_context *cxt, qb_address
 			*((uint32_t *) *p_ip) = operand; *p_ip += sizeof(uint32_t);
 		}	break;
 		default:
-			qb_abort("Invalid address type");
+			qb_abort("invalid address type");
 	}
 }
 
@@ -2769,7 +2769,7 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 				} while(prev_qop->opcode == QB_NOP);
 				op_name = qb_get_op_name(cxt, prev_qop->opcode);
 				op_length = qb_get_op_encoded_length(cxt, prev_qop);
-				qb_abort("Incorrect instruction offset (previous op: %s, length = %d)", op_name, op_length);
+				qb_abort("incorrect instruction offset (previous op: %s, length = %d)", op_name, op_length);
 			}
 #endif
 
@@ -2834,10 +2834,10 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 						qb_encode_jump_target(cxt, operand->jump_target_index, i, &ip);
 					}	break;
 					case QB_OPERAND_ADDRESS: {
-						qb_abort("Unresolved address");
+						qb_abort("unresolved address");
 					}	break;
 					default: {
-						qb_abort("Unknown operand type: %d", operand->type);
+						qb_abort("unknown operand type: %d", operand->type);
 					}	break;
 				}
 			}
@@ -3114,7 +3114,7 @@ static uint8_t * ZEND_FASTCALL qb_copy_address(qb_address *address, uint8_t *mem
 	}
 #if ZEND_DEBUG
 	if(memory + length != p) {
-		qb_abort("Length mismatch");
+		qb_abort("length mismatch");
 	}
 #endif
 	return p;
@@ -3164,7 +3164,7 @@ static uint8_t * ZEND_FASTCALL qb_copy_variable(qb_variable *qvar, uint8_t *memo
 
 #if ZEND_DEBUG
 	if(memory + length != p) {
-		qb_abort("Length mismatch");
+		qb_abort("length mismatch");
 	}
 #endif
 	return p;
@@ -3308,7 +3308,7 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 
 #if ZEND_DEBUG
 	if(memory + total_size != p) {
-		qb_abort("Length mismatch");
+		qb_abort("length mismatch");
 	}
 #endif
 
@@ -3755,7 +3755,7 @@ void ZEND_FASTCALL qb_load_external_code(qb_compiler_context *cxt, const char *i
 	if(!cxt->external_code) {
 		QB_G(current_filename) = cxt->function_declaration->zend_function->op_array.filename;
 		QB_G(current_line_number) = cxt->function_declaration->zend_function->op_array.line_start;
-		qb_abort("Unable to load file containing external code");
+		qb_abort("unable to load file containing external code");
 	}
 }
 
@@ -3783,7 +3783,7 @@ static zend_function * ZEND_FASTCALL qb_get_function(qb_build_context *cxt, zval
 	}
 #else
 	if(!zend_is_callable_ex(callable, 0, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-		qb_abort("Cannot find function");
+		qb_abort("cannot find function");
 	}
 #endif
 	zfunc = fcc.function_handler;
@@ -3791,7 +3791,7 @@ static zend_function * ZEND_FASTCALL qb_get_function(qb_build_context *cxt, zval
 		if(qb_is_compiled_function(zfunc)) {
 			return NULL;
 		} else {
-			qb_abort("Cannot compile an internal PHP function: %s", zfunc->common.function_name);
+			qb_abort("cannot compile an internal PHP function: %s", zfunc->common.function_name);
 		}
 	}
 	return zfunc;
@@ -4007,7 +4007,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			for(i = 0; i < cxt->compiler_context_count; i++) {
 				compiler_cxt = &cxt->compiler_contexts[i];
 				if(!compiler_cxt->native_proc) {
-					qb_abort("Unable to compile to native code");
+					qb_abort("unable to compile to native code");
 				}
 			}
 		}
@@ -4026,7 +4026,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 		efree(cxt);
 		QB_G(build_context) = NULL;
 	} else {
-		qb_abort("No qb functions found");
+		qb_abort("no qb functions found");
 	}
 	return SUCCESS;
 }
