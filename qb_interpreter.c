@@ -1318,6 +1318,7 @@ static void qb_reallocate_gd_image(qb_interpreter_context *cxt, gdImagePtr image
 	// free scanlines that aren't needed
 	for(i = height; i < image->sy; i++) {
 		efree((*p_scanlines)[i]);
+		efree(image->AA_opacity[i]);
 	}
 
 	// reallocate scanline pointer array

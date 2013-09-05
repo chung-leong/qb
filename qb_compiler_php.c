@@ -838,7 +838,7 @@ static void ZEND_FASTCALL qb_finalize_result_prototype(qb_compiler_context *cxt,
 				}
 			}
 		}
-		if(expr_type == QB_TYPE_ANY) {
+		if(expr_type == QB_TYPE_ANY || expr_type == QB_TYPE_UNKNOWN) {
 			// still don't know what it ought to be
 			if(result_prototype->operand_flags & QB_COERCE_TO_INTEGER) {
 				expr_type = QB_TYPE_I32;
@@ -1296,7 +1296,7 @@ static uint32_t ZEND_FASTCALL qb_do_type_coercion_for_op(qb_compiler_context *cx
 	expr_type = QB_TYPE_ANY;
 	result_type = QB_RESULT_TYPE(result_flags);
 
-	if(operand_flags & QB_COERCE_TO_LVALUE_TYPE && cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+	if(operand_flags & QB_COERCE_TO_LVALUE_TYPE && cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		// use the information gathered in the previous stage, finalizing the prototype first
 		qb_finalize_result_prototype(cxt, result_prototype);
 		expr_type = result_prototype->final_type;
@@ -1359,10 +1359,10 @@ static uint32_t ZEND_FASTCALL qb_do_type_coercion_for_op(qb_compiler_context *cx
 	return expr_type;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, uint32_t expr_type, qb_result_prototype *result_prototype) {
+static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_primitive_type expr_type, qb_result_prototype *result_prototype) {
 	qb_address *result_address = NULL;
 	uint32_t result_flags = qb_get_result_flags(cxt, op_factory);
-	uint32_t result_type = QB_RESULT_TYPE(result_flags);
+	qb_primitive_type result_type = QB_RESULT_TYPE(result_flags);
 	int32_t is_constant = FALSE;
 	qb_variable_dimensions *result_dim;
 

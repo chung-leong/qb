@@ -25,4 +25,4 @@ test_function();
 
 ?>
 --EXPECTREGEX--
-Fatal error: Missing type declaration: b in .+ \d+
+Fatal error: missing type declaration: b in .+ \d+
