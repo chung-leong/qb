@@ -96,7 +96,6 @@ class QBArrayIntersectHandler extends QBHandler {
 		$lines = array();
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
 		$lines[] = "$cType *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;";
-		$lines[] = "uint32_t count = 0;";
 		$lines[] = "if(op3 == 1) {";
 		$lines[] = 		"while(op1_ptr < op1_end) {";
 		$lines[] =			"int32_t found = FALSE;";

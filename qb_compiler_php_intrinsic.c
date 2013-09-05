@@ -657,7 +657,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pad(qb_compiler_context *
 		result->type = QB_OPERAND_RESULT_PROTOTYPE;
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		uint32_t i, container_element_size, value_size;
+		uint32_t container_element_size, value_size;
 		if(IS_SCALAR(container->address)) {
 			qb_abort("%s() expects an array as the first parameter", f->name);
 		}
@@ -879,7 +879,6 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_filter(qb_compiler_contex
 		result->type = QB_OPERAND_RESULT_PROTOTYPE;
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		uint32_t i;
 		qb_address *zero_address;
 		if(IS_SCALAR(container->address)) {
 			qb_abort("%s() expects an array as the first parameter", f->name);

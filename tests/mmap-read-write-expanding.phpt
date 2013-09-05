@@ -19,7 +19,8 @@ function test_function(&$a) {
 	$a[2] = 'N';
 	$a[3] = 'E';
 	$a[4] = 'S';
-	//echo_file_contents();
+	echo $a, "\n";
+	echo_file_contents();
 }
 
 function echo_file_contents() {
@@ -38,11 +39,13 @@ test_function($handle);
 fclose($handle);
 echo_file_contents();
 
-//unlink($path);
+unlink($path);
 
 
 ?>
 --EXPECT--
 [65, 71, 78, 69, 83]
+Length: 5
+Contents: AGNES
 Length: 5
 Contents: AGNES

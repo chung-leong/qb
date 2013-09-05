@@ -48,20 +48,7 @@ static const char * ZEND_FASTCALL qb_get_address_name(qb_interpreter_context *cx
 	return "(unknown)";
 }
 
-static gdImagePtr ZEND_FASTCALL qb_get_gd_image(qb_interpreter_context *cxt, zval *resource) {
-	USE_TSRM
-	if(Z_TYPE_P(resource) == IS_RESOURCE) {
-		static int le_gd = -1;
-		if(le_gd == -1) {
-			le_gd = zend_fetch_list_dtor_id("gd");
-		}
-		if(le_gd) {
-			gdImagePtr image = (gdImagePtr) zend_fetch_resource(&resource TSRMLS_CC, -1, NULL, NULL, 1, le_gd);
-			return image;
-		}
-	}
-	return NULL;
-}
+#include "qb_interpreter_gd_image.c"
 
 static php_stream * ZEND_FASTCALL qb_get_file_stream(qb_interpreter_context *cxt, zval *resource) {
 	USE_TSRM 
@@ -117,131 +104,6 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_bytes(qb_interpreter_
 		element_count = VALUE(U32, address->array_size_address);
 	}
 	return element_count;
-}
-
-static void ZEND_FASTCALL qb_check_pixel_array(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
-	qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
-	if(last_dimension_address->flags & QB_ADDRESS_CONSTANT) {
-		uint32_t dimension = VALUE(U32, last_dimension_address);
-		int32_t valid = FALSE;
-		if(address->type >= QB_TYPE_F32) {
-			switch(dimension) {
-				case 1:
-				case 3:
-				case 4: valid = TRUE;
-			}
-		} else {
-			switch(dimension) {
-				case 4: valid = TRUE;
-			}
-		}
-		if(!valid) {
-			qb_abort("Invalid dimension for a pixel (%d): %s", dimension, qb_get_address_name(cxt, address));
-		}
-	} else {
-		qb_abort("Undefined pixel dimension: %s", qb_get_address_name(cxt, address));
-	}
-	if((address->type & ~QB_TYPE_UNSIGNED) != QB_TYPE_I08 && address->type != QB_TYPE_F32 && address->type != QB_TYPE_F64) {
-		qb_abort("Cannot access pixels of an image as %s[4]: %s", type_names[address->type], qb_get_address_name(cxt, address));
-	}
-	if(!image->trueColor) {
-		qb_abort("Cannot access pixels of a non-true-color image as %s[4]: %s", type_names[address->type], qb_get_address_name(cxt, address));
-	}
-}
-
-static void ZEND_FASTCALL qb_set_image_dimensions(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
-	qb_address *width_address = address->dimension_addresses[1];
-	qb_address *height_address = address->dimension_addresses[0];
-	uint32_t width_expected = VALUE(U32, width_address);
-	uint32_t height_expected = VALUE(U32, height_address);
-	if(width_expected != image->sx) {
-		if(width_address->flags & QB_ADDRESS_CONSTANT) {
-			qb_abort("Declared array size (%d) does not match the width of image (%d): %s", width_expected, image->sy, qb_get_address_name(cxt, address));
-		} else if(width_expected != 0) {
-			qb_abort("Current array size (%d) does not match the width of image (%d): %s", width_expected, image->sx, qb_get_address_name(cxt, address));
-		}
-		VALUE(U32, width_address) = image->sx;
-	}
-
-	if(height_expected != image->sy) {
-		if(height_address->flags & QB_ADDRESS_CONSTANT) {
-			qb_abort("Declared array size (%d) does not match the height of image (%d): %s", height_expected, image->sy, qb_get_address_name(cxt, address));
-		} else if(height_expected != 0) {
-			qb_abort("Current array size (%d) does not match the height of image (%d): %s", height_expected, image->sy, qb_get_address_name(cxt, address));
-		}
-		VALUE(U32, height_address) = image->sy;
-	}
-}
-
-static void ZEND_FASTCALL qb_set_image_linear_size(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
-	qb_address *length_address = address->dimension_addresses[0];
-	uint32_t pixel_count = image->sx * image->sy;
-	uint32_t length_expected = VALUE(U32, length_address);
-	if(length_expected != pixel_count) {
-		if(length_address->flags & QB_ADDRESS_CONSTANT) {
-			qb_abort("Declared array size (%d) does not match the size of image (%d): %s", length_expected, pixel_count, qb_get_address_name(cxt, address));
-		} else if(length_expected != 0) {
-			qb_abort("Current array size (%d) does not match the size of image (%d): %s", length_expected, pixel_count, qb_get_address_name(cxt, address));
-		}
-	}
-	VALUE(U32, length_address) = pixel_count;
-}
-
-static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_image(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
-	uint32_t array_size, i;
-
-	if(address->dimension_count > 3) {
-		qb_abort("Type declaration has too many dimensions for an image (%d): %s", address->dimension_count, qb_get_address_name(cxt, address));
-	}
-	if(address->dimension_count == 3) {
-		// allow int8, float32, and float64 and the last dimension must be four (if the image is true color)
-		qb_check_pixel_array(cxt, image, address);
-		qb_set_image_dimensions(cxt, image, address);
-	} else if(address->dimension_count == 2) {
-		// allow either int32, representing each pixel (if the image is true color)
-		// or int8, representing representing each pixel (if the image uses a palette )
-		// or int8, float32, and float64, with the last dimension being three or four (if the image is true color)
-		if(image->trueColor) {
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
-				qb_set_image_dimensions(cxt, image, address);
-			} else {
-				qb_check_pixel_array(cxt, image, address);
-				qb_set_image_linear_size(cxt, image, address);
-			}
-		} else {
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) {
-				qb_set_image_dimensions(cxt, image, address);
-			} else {
-				qb_abort("Cannot access pixels of a non-true-color image as %s: %s", type_names[address->type], qb_get_address_name(cxt, address));
-			}
-		}
-	} else if(address->dimension_count == 1) {
-		// allow either int32, representing each pixel (if the image is true color)
-		// or int8, representing representing each pixel (if the image uses a palette)
-		if(image->trueColor) {
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
-				qb_set_image_linear_size(cxt, image, address);
-			} else {
-				qb_abort("Cannot access pixels of a true-color image as %s: %s", type_names[address->type], qb_get_address_name(cxt, address));
-			}
-		} else {
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) {
-				qb_set_image_linear_size(cxt, image, address);
-			} else {
-				qb_abort("Cannot access pixels of a non-true-color image as %s: %s", type_names[address->type], qb_get_address_name(cxt, address));
-			}
-		}
-	}
-
-	// calculate the array sizes
-	array_size = 1;
-	for(i = address->dimension_count - 1; (int32_t) i >= 0; i--) {
-		qb_address *dimension_address = address->dimension_addresses[i];
-		qb_address *array_size_address = address->array_size_addresses[i];
-		array_size *= VALUE(U32, dimension_address);
-		VALUE(U32, array_size_address) = array_size;
-	}
-	return array_size;
 }
 
 static uint32_t ZEND_FASTCALL qb_get_zend_array_size(qb_interpreter_context *cxt, zval *zvalue) {
@@ -468,7 +330,7 @@ static void ZEND_FASTCALL qb_copy_element_from_zval(qb_interpreter_context *cxt,
 
 static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
 	USE_TSRM
-	uint32_t i, j;
+	uint32_t i;
 	gdImagePtr image;
 	php_stream *stream;
 
@@ -588,110 +450,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 		php_stream_read(stream, (char *) ARRAY(I08, address), byte_count);
 		php_stream_seek(stream, position, SEEK_SET);
 	} else if((image = qb_get_gd_image(cxt, zvalue))) {
-		if(image->trueColor) {
-			qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
-			uint32_t dimension = VALUE(U32, last_dimension_address);
-
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08 || (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
-				CTYPE(I32) *elements = ARRAY(I32, address);
-				uint32_t offset = 0;
-				int tpixel;
-
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						elements[offset++] = tpixel;
-					}
-				}
-			} else if(address->type == QB_TYPE_F32) {
-				CTYPE(F32) *elements = ARRAY(F32, address);
-				uint32_t offset = 0;
-				int tpixel;
-
-				if(dimension == 4) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
-							elements[offset + 1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
-							elements[offset + 2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
-							elements[offset + 3] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0f / gdAlphaMax));
-							offset += 4;
-						}
-					}
-				} else if(dimension == 3) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
-							elements[offset + 1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
-							elements[offset + 2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
-							offset += 3;
-						}
-					}
-				} else if(dimension == 1) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax)) * 0.299f
-												 + ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax)) * 0.587f
-												 + ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax)) * 0.114f;
-							offset += 1;
-						}
-					}
-				}
-			} else if(address->type == QB_TYPE_F64) {
-				CTYPE(F64) *elements = ARRAY(F64, address);
-				uint32_t offset = 0;
-				int tpixel;
-
-				if(dimension == 4) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-							elements[offset + 1] = ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-							elements[offset + 2] = ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-							elements[offset + 3] = ((float64_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-							offset += 4;
-						}
-					}
-				} else if(dimension == 3) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-							elements[offset + 1] = ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-							elements[offset + 2] = ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-							offset += 3;
-						}
-					}
-				} else if(dimension == 1) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							tpixel = gdImageTrueColorPixel(image, j, i);
-							elements[offset + 0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax)) * 0.299
-												 + ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax)) * 0.587
-												 + ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax)) * 0.114;
-							offset += 1;
-						}
-					}
-				}
-			}
-		} else {
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) {
-				CTYPE(I08) *elements = ARRAY(I08, address);
-				uint32_t offset = 0;
-				unsigned char pixel;
-
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						pixel = gdImagePalettePixel(image, j, i);
-						elements[offset++] = pixel;
-					}
-				}
-			}
-		}
+		qb_copy_elements_from_gd_image(cxt, image, address);
 	}
 }
 
@@ -1296,68 +1055,11 @@ static void ZEND_FASTCALL qb_initialize_zval_array(qb_interpreter_context *cxt, 
 	}
 }
 
-static void qb_reallocate_gd_image(qb_interpreter_context *cxt, gdImagePtr image, int width, int height) {
-	USE_TSRM
-	int i, scanline_size, pixel_size;
-	unsigned char ***p_scanlines;
-
-	if(width <= 0 || height <= 0 || width > INT_MAX / sizeof(int) || height > INT_MAX / sizeof(void *)) {
-		qb_abort("Illegal image size");
-	}
-
-	if(image->trueColor) {
-		p_scanlines = (unsigned char ***) &image->tpixels;
-		scanline_size = sizeof(int) * width;
-		pixel_size = sizeof(int);
-	} else {
-		p_scanlines = &image->pixels;
-		scanline_size = sizeof(unsigned char) * width;
-		pixel_size = sizeof(unsigned char);
-	}
-
-	// free scanlines that aren't needed
-	for(i = height; i < image->sy; i++) {
-		efree((*p_scanlines)[i]);
-		efree(image->AA_opacity[i]);
-	}
-
-	// reallocate scanline pointer array
-	*p_scanlines = erealloc(*p_scanlines, sizeof(unsigned char *) * height);
-	image->AA_opacity = erealloc(image->AA_opacity, sizeof(unsigned char *) * height);
-	for(i = image->sy; i < height; i++) {
-		(*p_scanlines)[i] = NULL;
-	}
-
-	// reallocate the scalines themselves
-	for(i = 0; i < height; i++) {
-		if((*p_scanlines)[i]) {
-			(*p_scanlines)[i] = erealloc((*p_scanlines)[i], scanline_size);
-			if(width > image->sx) {
-				memset((*p_scanlines)[i] + image->sx * pixel_size, 0, pixel_size * (width - image->sx));
-			}
-		} else {
-			(*p_scanlines)[i] = emalloc(scanline_size);
-			memset((*p_scanlines)[i], 0, scanline_size);
-		}
-		if(image->AA_opacity[i]) {
-			image->AA_opacity[i] = erealloc(image->AA_opacity[i], sizeof(unsigned char) * width);
-			if(width > image->sx) {
-				memset(image->AA_opacity[i] + image->sx, 0, sizeof(unsigned char) * (width - image->sx));
-			}
-		} else {
-			image->AA_opacity[i] = emalloc(sizeof(unsigned char) * width);
-			memset(image->AA_opacity[i], 0, sizeof(unsigned char) * width);
-		}
-	}
-	image->sx = width;
-	image->sy = height;
-}
-
 static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
 	USE_TSRM
 	qb_address *dimension_address = address->dimension_addresses[0];
 	uint32_t dimension = VALUE(U32, dimension_address);
-	uint32_t i, j;
+	uint32_t i;
 	gdImagePtr image;
 	php_stream *stream;
 
@@ -1454,126 +1156,7 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 		php_stream_write(stream, (char *) ARRAY(I08, address), byte_count);
 		php_stream_seek(stream, position, SEEK_SET);
 	} else if((image = qb_get_gd_image(cxt, zvalue))) {
-		qb_address *height_address = address->dimension_addresses[0];
-		qb_address *width_address = address->dimension_addresses[1];
-
-		if(image->sy != VALUE(S32, height_address) || image->sx != VALUE(S32, width_address)) {
-			qb_reallocate_gd_image(cxt, image, VALUE(S32, width_address), VALUE(S32, height_address));
-		}
-		if(image->trueColor) {
-			qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
-			uint32_t dimension = VALUE(U32, last_dimension_address);
-
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08 || (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32) {
-				CTYPE(I32) *elements = ARRAY(I32, address);
-				uint32_t offset = 0;
-				int tpixel;
-
-				if((dimension == 1 && (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) || (dimension == 4 && (address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I32)) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							tpixel = elements[offset++];
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-						}
-					}
-				} else {
-					qb_abort("Illegal pixel dimension");
-				}
-			} else if(address->type == QB_TYPE_F32) {
-				CTYPE(F32) *elements = ARRAY(F32, address);
-				uint32_t offset = 0;
-				int32_t tpixel, r, g, b, a;
-
-				if(dimension == 4) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
-							g = qb_clamp_float32(elements[offset + 1], gdGreenMax);
-							b = qb_clamp_float32(elements[offset + 2], gdBlueMax);
-							a = gdAlphaTransparent - qb_clamp_float32(elements[offset + 3], gdAlphaMax);
-							tpixel = gdTrueColorAlpha(r, g, b, a);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 4;
-						}
-					}
-				} else if(dimension == 3) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
-							g = qb_clamp_float32(elements[offset + 1], gdGreenMax);
-							b = qb_clamp_float32(elements[offset + 2], gdBlueMax);
-							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 3;
-						}
-					}
-				} else if(dimension == 1) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float32(elements[offset + 0], gdRedMax);
-							tpixel = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 1;
-						}
-					}
-				} else {
-					qb_abort("Illegal pixel dimension");
-				}
-			} else if(address->type == QB_TYPE_F64) {
-				CTYPE(F64) *elements = ARRAY(F64, address);
-				uint32_t offset = 0;
-				int32_t tpixel, r, g, b, a;
-
-				if(dimension == 4) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
-							g = qb_clamp_float64(elements[offset + 1], gdGreenMax);
-							b = qb_clamp_float64(elements[offset + 2], gdBlueMax);
-							a = gdAlphaTransparent - qb_clamp_float64(elements[offset + 3], gdAlphaMax);
-							tpixel = gdTrueColorAlpha(r, g, b, a);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 4;
-						}
-					}
-				} else if(dimension == 3) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
-							g = qb_clamp_float64(elements[offset + 1], gdGreenMax);
-							b = qb_clamp_float64(elements[offset + 2], gdBlueMax);
-							tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 3;
-						}
-					}
-				} else if(dimension == 1) {
-					for(i = 0; i < (uint32_t) image->sy; i++) {
-						for(j = 0; j < (uint32_t) image->sx; j++) {
-							r = qb_clamp_float64(elements[offset + 0], gdRedMax);
-							tpixel = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
-							gdImageTrueColorPixel(image, j, i) = tpixel;
-							offset += 1;
-						}
-					}
-				} else {
-					qb_abort("Illegal pixel dimension");
-				}
-			}
-		} else {
-			if((address->type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) {
-				CTYPE(I08) *elements = ARRAY(I08, address);
-				uint32_t offset = 0;
-				unsigned char pixel;
-
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						pixel = elements[offset++];
-						gdImagePalettePixel(image, j, i) = pixel;
-					}
-				}
-			}
-		}
+		qb_copy_elements_to_gd_image(cxt, address, image);
 	}
 }
 

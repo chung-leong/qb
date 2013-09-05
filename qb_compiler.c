@@ -972,7 +972,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_conte
 		if(dim->dimension_count > 1) {
 			uint32_t i, array_size = 1;
 			qb_address *multidim_address = qb_allocate_address(cxt->pool);
-			qb_address *previous_dimension_address = NULL;
 			qb_address *previous_array_size_address = NULL;
 			*multidim_address = *address;
 			multidim_address->dimension_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
@@ -1008,7 +1007,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_conte
 				}
 				multidim_address->dimension_addresses[i] = dimension_address;
 				multidim_address->array_size_addresses[i] = array_size_address;
-				previous_dimension_address = dimension_address;
 				previous_array_size_address = array_size_address;
 			} 
 			address = multidim_address;

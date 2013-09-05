@@ -3568,7 +3568,6 @@ void ZEND_FASTCALL qb_do_array_column_I64(qb_interpreter_context *cxt, int64_t *
 void ZEND_FASTCALL qb_do_array_difference_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3, float32_t *res_ptr, uint32_t res_count) {
 	float32_t *op1_end = op1_ptr + op1_count;
 	float32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3605,7 +3604,6 @@ void ZEND_FASTCALL qb_do_array_difference_F32(float32_t *op1_ptr, uint32_t op1_c
 void ZEND_FASTCALL qb_do_array_difference_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3, float64_t *res_ptr, uint32_t res_count) {
 	float64_t *op1_end = op1_ptr + op1_count;
 	float64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3642,7 +3640,6 @@ void ZEND_FASTCALL qb_do_array_difference_F64(float64_t *op1_ptr, uint32_t op1_c
 void ZEND_FASTCALL qb_do_array_difference_I08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3, int8_t *res_ptr, uint32_t res_count) {
 	int8_t *op1_end = op1_ptr + op1_count;
 	int8_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3679,7 +3676,6 @@ void ZEND_FASTCALL qb_do_array_difference_I08(int8_t *op1_ptr, uint32_t op1_coun
 void ZEND_FASTCALL qb_do_array_difference_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3, int16_t *res_ptr, uint32_t res_count) {
 	int16_t *op1_end = op1_ptr + op1_count;
 	int16_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3716,7 +3712,6 @@ void ZEND_FASTCALL qb_do_array_difference_I16(int16_t *op1_ptr, uint32_t op1_cou
 void ZEND_FASTCALL qb_do_array_difference_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3, int32_t *res_ptr, uint32_t res_count) {
 	int32_t *op1_end = op1_ptr + op1_count;
 	int32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3753,7 +3748,6 @@ void ZEND_FASTCALL qb_do_array_difference_I32(int32_t *op1_ptr, uint32_t op1_cou
 void ZEND_FASTCALL qb_do_array_difference_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3, int64_t *res_ptr, uint32_t res_count) {
 	int64_t *op1_end = op1_ptr + op1_count;
 	int64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3790,7 +3784,6 @@ void ZEND_FASTCALL qb_do_array_difference_I64(int64_t *op1_ptr, uint32_t op1_cou
 void ZEND_FASTCALL qb_do_array_intersect_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, uint32_t op3, float32_t *res_ptr, uint32_t res_count) {
 	float32_t *op1_end = op1_ptr + op1_count;
 	float32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3827,7 +3820,6 @@ void ZEND_FASTCALL qb_do_array_intersect_F32(float32_t *op1_ptr, uint32_t op1_co
 void ZEND_FASTCALL qb_do_array_intersect_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, uint32_t op3, float64_t *res_ptr, uint32_t res_count) {
 	float64_t *op1_end = op1_ptr + op1_count;
 	float64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3864,7 +3856,6 @@ void ZEND_FASTCALL qb_do_array_intersect_F64(float64_t *op1_ptr, uint32_t op1_co
 void ZEND_FASTCALL qb_do_array_intersect_I08(int8_t *op1_ptr, uint32_t op1_count, int8_t *op2_ptr, uint32_t op2_count, uint32_t op3, int8_t *res_ptr, uint32_t res_count) {
 	int8_t *op1_end = op1_ptr + op1_count;
 	int8_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3901,7 +3892,6 @@ void ZEND_FASTCALL qb_do_array_intersect_I08(int8_t *op1_ptr, uint32_t op1_count
 void ZEND_FASTCALL qb_do_array_intersect_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, uint32_t op3, int16_t *res_ptr, uint32_t res_count) {
 	int16_t *op1_end = op1_ptr + op1_count;
 	int16_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3938,7 +3928,6 @@ void ZEND_FASTCALL qb_do_array_intersect_I16(int16_t *op1_ptr, uint32_t op1_coun
 void ZEND_FASTCALL qb_do_array_intersect_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, uint32_t op3, int32_t *res_ptr, uint32_t res_count) {
 	int32_t *op1_end = op1_ptr + op1_count;
 	int32_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
@@ -3975,7 +3964,6 @@ void ZEND_FASTCALL qb_do_array_intersect_I32(int32_t *op1_ptr, uint32_t op1_coun
 void ZEND_FASTCALL qb_do_array_intersect_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, uint32_t op3, int64_t *res_ptr, uint32_t res_count) {
 	int64_t *op1_end = op1_ptr + op1_count;
 	int64_t *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;
-	uint32_t count = 0;
 	if(op3 == 1) {
 		while(op1_ptr < op1_end) {
 			int32_t found = FALSE;
