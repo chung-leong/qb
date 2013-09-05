@@ -16,6 +16,10 @@ class QBTransformVectorHandler extends QBMatrixHandler {
 		}
 	}
 	
+	public function getResultSizePossibilities() {
+		return $this->operandSize;
+	}
+	
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$lines = array();

@@ -44652,11 +44652,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -44706,11 +44703,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -44760,11 +44754,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -44814,11 +44805,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -47442,11 +47430,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -47496,11 +47481,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -47550,11 +47532,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -47604,11 +47583,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -50078,11 +50054,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -50132,11 +50105,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -50186,11 +50156,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -50240,11 +50207,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -65300,11 +65264,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -65354,11 +65315,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -65408,11 +65366,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -65462,11 +65417,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(4 > res_count) {
+						res_count = 4;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -67946,11 +67898,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -68000,11 +67949,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -68054,11 +68000,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -68108,11 +68051,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(3 > res_count) {
+						res_count = 3;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -70582,11 +70522,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -70636,11 +70573,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -70690,11 +70624,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
@@ -70744,11 +70675,8 @@ void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {
 					size_index = ((qb_instruction_3_lineno *) instruction_pointer)->operand3 >> 20;
 					res_start_index = ((uint32_t *) segment0)[index_index];
 					res_count = res_count_before = ((uint32_t *) segment0)[size_index];
-					if(op1_count > res_count) {
-						res_count = op1_count;
-					}
-					if(op2_count > res_count) {
-						res_count = op2_count;
+					if(2 > res_count) {
+						res_count = 2;
 					}
 					if(UNEXPECTED(res_count > res_count_before || res_start_index + res_count > segment_element_counts[selector] || res_start_index + res_count < res_start_index)) {
 						if(segment_expandable[selector]) {
