@@ -188,6 +188,22 @@ static const char * ZEND_FASTCALL qb_get_op_name(qb_compiler_context *cxt, uint3
 	return cxt->pool->op_names[opcode];
 }
 
+// return an address whose value is only calculated when used
+static qb_address * ZEND_FASTCALL qb_obtain_on_demand_value(qb_compiler_context *cxt, uint32_t type, qb_address **operand_addresses, uint32_t operand_count, void *op_factory) {
+	qb_on_demand_address *address = (qb_on_demand_address *) qb_allocate_address(cxt->pool);
+	uint32_t i;
+	address->flags = QB_ADDRESS_ON_DEMAND_VALUE;
+	address->type = type;
+	address->segment_selector = QB_SELECTOR_INVALID;
+	address->segment_offset = QB_OFFSET_INVALID;
+	address->operand_count = operand_count;
+	for(i = 0; i < operand_count; i++) {
+		address->operand_addresses[i] = operand_addresses[i];
+	}
+	address->op_factory = op_factory;
+	return (qb_address *) address;
+}
+
 static uint32_t ZEND_FASTCALL qb_get_operand_count(qb_compiler_context *cxt, uint32_t opcode) {
 	uint32_t operand_count = 0;
 	uint32_t operand_flags = global_operand_flags[opcode];
@@ -296,6 +312,9 @@ static void ZEND_FASTCALL qb_validate_address(qb_compiler_context *cxt, qb_addre
 	if(address->type >= QB_TYPE_COUNT) {
 		qb_abort("invalid runtime type id: %x", address->type);
 	}
+	if(address->flags & QB_ADDRESS_ON_DEMAND_VALUE) {
+		return;
+	}
 	if(address->segment_selector > 255) {
 		qb_abort("invalid segment selector: %d", address->segment_selector);
 	}
@@ -363,7 +382,31 @@ static qb_op * ZEND_FASTCALL qb_append_op(qb_compiler_context *cxt, uint32_t opc
 	return op;
 }
 
+static qb_address * ZEND_FASTCALL qb_obtain_on_demand_quotient(qb_compiler_context *cxt, qb_address *numerator_address, qb_address *denominator_address);
+static qb_address * ZEND_FASTCALL qb_obtain_on_demand_product(qb_compiler_context *cxt, qb_address *multiplicand_address, qb_address *multiplier_address);
+static qb_address * ZEND_FASTCALL qb_obtain_on_demand_greater_than(qb_compiler_context *cxt, qb_address *address1, qb_address *address2);
+
 #include "qb_compiler_op_factories.c"
+
+static qb_address * ZEND_FASTCALL qb_obtain_on_demand_quotient(qb_compiler_context *cxt, qb_address *numerator_address, qb_address *denominator_address) {
+	qb_address *operand_addresses[2] = { numerator_address, denominator_address };
+	return qb_obtain_on_demand_value(cxt, numerator_address->type, operand_addresses, 2, &factory_divide);
+}
+
+static qb_address * ZEND_FASTCALL qb_obtain_on_demand_product(qb_compiler_context *cxt, qb_address *multiplicand_address, qb_address *multiplier_address) {
+	qb_address *operand_addresses[2] = { multiplicand_address, multiplier_address };
+	return qb_obtain_on_demand_value(cxt, multiplicand_address->type, operand_addresses, 2, &factory_multiply);
+}
+
+static qb_address * ZEND_FASTCALL qb_obtain_on_demand_greater_than(qb_compiler_context *cxt, qb_address *address1, qb_address *address2) {
+	qb_address *operand_addresses[2] = { address2, address1 };
+	return qb_obtain_on_demand_value(cxt, QB_TYPE_I32, operand_addresses, 2, &factory_less_than);
+}
+
+/*static qb_address * ZEND_FASTCALL qb_obtain_on_demand_predicate(qb_compiler_context *cxt, qb_address *condition_address, qb_address *address_if_true, qb_address *address_if_false) {
+	qb_address *operand_addresses[3] = { condition_address, address_if_true, address_if_false };
+	return qb_obtain_on_demand_value(cxt, address_if_true->type, operand_addresses, 3, &factory_predicate_copy);
+}*/
 
 static void ZEND_FASTCALL qb_initialize_array_address(qb_compiler_context *cxt, uint32_t segment_selector, uint32_t segment_offset, uint32_t type, int32_t owns_segment, qb_address *size_address, qb_address *address) {
 	address->mode = QB_ADDRESS_MODE_ARR;
@@ -929,20 +972,44 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_conte
 		if(dim->dimension_count > 1) {
 			uint32_t i, array_size = 1;
 			qb_address *multidim_address = qb_allocate_address(cxt->pool);
+			qb_address *previous_dimension_address = NULL;
+			qb_address *previous_array_size_address = NULL;
 			*multidim_address = *address;
 			multidim_address->dimension_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
 			multidim_address->array_size_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
 			multidim_address->dimension_count = dim->dimension_count;
 			for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
-				multidim_address->dimension_addresses[i] = dim->dimension_addresses[i];
-				array_size *= VALUE(U32, dim->dimension_addresses[i]);
+				qb_address *dimension_address = dim->dimension_addresses[i];
+				qb_address *array_size_address;
+
 				if(i == 0) {
-					multidim_address->array_size_addresses[i] = multidim_address->array_size_address;
-				} else if(i == dim->dimension_count - 1) {
-					multidim_address->array_size_addresses[i] = dim->dimension_addresses[i];
+					array_size_address = multidim_address->array_size_address;
+					if(!dimension_address) {
+						// the first dimension is not known if the result is variable-length
+						// calculate it on demand from the length
+						dimension_address = qb_obtain_on_demand_quotient(cxt, multidim_address->array_size_address, previous_array_size_address);
+					}
 				} else {
-					multidim_address->array_size_addresses[i] = qb_obtain_constant_U32(cxt, array_size);
+					if(!(dimension_address->flags & QB_ADDRESS_CONSTANT)) {
+						// dimension is a variable--array sizes at this level and above will also be variable
+						array_size = 0;
+					}
+					if(array_size) {
+						array_size *= VALUE(U32, dimension_address);
+						if(i == dim->dimension_count - 1) {
+							array_size_address = dimension_address;
+						} else {
+							array_size_address = qb_obtain_constant_U32(cxt, array_size);
+						}
+					} else {
+						// calculate the size on demand
+						array_size_address = qb_obtain_on_demand_product(cxt, dimension_address, previous_array_size_address);
+					}
 				}
+				multidim_address->dimension_addresses[i] = dimension_address;
+				multidim_address->array_size_addresses[i] = array_size_address;
+				previous_dimension_address = dimension_address;
+				previous_array_size_address = array_size_address;
 			} 
 			address = multidim_address;
 		}

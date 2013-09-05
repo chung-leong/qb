@@ -40,7 +40,6 @@ function test_function() {
 			array(7, 8),
 			array(10, 9),
 	);
-	// dimension info is lost currently
 	echo array_intersect($d, $e), "\n";
 }
 
@@ -53,4 +52,4 @@ test_function();
 [1, 2, 1, 3, 3]
 [1, 2, 1, 3, 3]
 [2, 3, 3]
-[3, 4, 7, 8]
+[[3, 4], [7, 8]]

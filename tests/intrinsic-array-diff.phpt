@@ -41,7 +41,6 @@ function test_function() {
 			array(7, 8),
 			array(10, 9),
 	);
-	// dimension info is lost currently
 	echo array_diff($d, $e), "\n";
 	echo array_diff($d, $e, array(array(9, 10))), "\n";
 }
@@ -56,5 +55,5 @@ test_function();
 [4, 9, 7]
 [9, 7]
 [7]
-[1, 2, 5, 6, 9, 10]
-[1, 2, 5, 6]
+[[1, 2], [5, 6], [9, 10]]
+[[1, 2], [5, 6]]

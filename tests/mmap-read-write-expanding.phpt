@@ -19,29 +19,30 @@ function test_function(&$a) {
 	$a[2] = 'N';
 	$a[3] = 'E';
 	$a[4] = 'S';
-	echo "$a\n";
+	//echo_file_contents();
+}
+
+function echo_file_contents() {
+	$path = __FILE__ . ".dat";
+	$contents = file_get_contents($path);
+	echo "Length: ", strlen($contents), "\n";
+	echo "Contents: ", $contents, "\n";
 }
 
 qb_compile();
 
 $path = __FILE__ . ".dat";
-
-$handle = fopen($path, "w+");
+$handle = fopen($path, "w");
 
 test_function($handle);
-
 fclose($handle);
+echo_file_contents();
 
-$contents = file_get_contents($path);
-
-echo "Length: ", strlen($contents), "\n";
-echo $contents;
-
-unlink($path);
+//unlink($path);
 
 
 ?>
 --EXPECT--
 [65, 71, 78, 69, 83]
 Length: 5
-AGNES
+Contents: AGNES

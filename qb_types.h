@@ -28,6 +28,7 @@ typedef struct qb_complex_F64			qb_complex_F64;
 typedef struct qb_complex_F32			qb_complex_F32;
 
 typedef struct qb_address				qb_address;
+typedef struct qb_on_demand_address		qb_on_demand_address;
 typedef struct qb_variable				qb_variable;
 typedef struct qb_function				qb_function;
 typedef struct qb_memory_segment		qb_memory_segment;
@@ -112,6 +113,8 @@ enum {
 	QB_ADDRESS_CAST					= 0x00400000,
 	QB_ADDRESS_NON_LOCAL			= 0x00800000,
 	QB_ADDRESS_FOREACH_INDEX		= 0x01000000,
+	QB_ADDRESS_ON_DEMAND_VALUE		= 0x02000000,
+
 	QB_ADDRESS_IN_USE				= 0x80000000,
 
 
@@ -147,15 +150,27 @@ struct qb_address {
 	qb_address_mode mode;
 	qb_primitive_type type;
 	uint32_t flags;
+	uint32_t dimension_count;
 	uint32_t segment_selector;
 	uint32_t segment_offset;
 	qb_address *array_index_address;
 	qb_address *array_size_address;
-	uint32_t dimension_count;
 	qb_address **dimension_addresses;
 	qb_address **array_size_addresses;
 	qb_address *source_address;
 	qb_index_alias_scheme **index_alias_schemes;
+};
+
+struct qb_on_demand_address {
+	qb_address_mode mode;
+	qb_primitive_type type;
+	uint32_t flags;
+	uint32_t dimension_count;
+	uint32_t segment_selector;
+	uint32_t segment_offset;
+	qb_address *operand_addresses[4];
+	uint32_t operand_count;
+	void *op_factory;
 };
 
 enum {

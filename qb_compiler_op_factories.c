@@ -211,18 +211,40 @@ static qb_variable_dimensions * ZEND_FASTCALL qb_get_result_dimensions(qb_compil
 }
 
 static void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
+static qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type);
 
 static qb_op * ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	uint32_t initial_op_count = cxt->op_count;
 	uint32_t i;
-	qb_op *qop = f->append(cxt, factory, operands, operand_count, result);
+	qb_op *qop;
 
 #if ZEND_DEBUG
 	if(cxt->stage != QB_STAGE_OPCODE_TRANSLATION && cxt->stage != QB_STAGE_VARIABLE_INITIALIZATION) {
 		qb_abort("Creating opcode at the wrong stage");
 	}
 #endif
+	// add the ops for calculating on-demand values first
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			if(operand->address->flags & QB_ADDRESS_ON_DEMAND_VALUE) {
+				qb_on_demand_address *od_address = (qb_on_demand_address *) operand->address;
+				qb_operand *od_result = operand;
+				qb_operand od_operands[4];
+				uint32_t i;
+
+				od_result->address = qb_obtain_temporary_scalar(cxt, od_address->type);
+				for(i = 0; i < od_address->operand_count; i++) {
+					od_operands[i].address = od_address->operand_addresses[i];
+					od_operands[i].type = QB_OPERAND_ADDRESS;
+				}
+				qb_create_op(cxt, od_address->op_factory, od_operands, od_address->operand_count, od_result);
+			}
+		}
+	}
+
+	qop = f->append(cxt, factory, operands, operand_count, result);
 
 	// unlock the operands after the op is created
 	for(i = 0; i < operand_count; i++) {
@@ -453,14 +475,24 @@ static qb_op * ZEND_FASTCALL qb_append_array_pad(qb_compiler_context *cxt, void 
 	return qop;
 }
 
-static void ZEND_FASTCALL qb_set_variable_length_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	dim->dimension_count = 1;
+static void ZEND_FASTCALL qb_set_array_pad_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_address *container_address = operands[0].address;
 	dim->array_size = 0;
+	if(container_address->dimension_count > 1) {
+		uint32_t i;
+		dim->dimension_count = container_address->dimension_count;
+		for(i = 1; i < container_address->dimension_count; i++) {
+			dim->dimension_addresses[i] = container_address->dimension_addresses[i];
+		}
+		dim->dimension_addresses[0] = NULL;
+	} else {
+		dim->dimension_count = 1;
+	}
 }
 
 static qb_basic_op_factory factory_array_pad = {
 	qb_append_array_pad,
-	qb_set_variable_length_result_dimensions,
+	qb_set_array_pad_result_dimensions,
 	0,
 	0,
 	{	QB_APAD_F64_F64_S32_F64,	QB_APAD_F32_F32_S32_F32,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I08_I08_S32_I08,	QB_APAD_I08_I08_S32_I08,	},
@@ -516,7 +548,7 @@ static qb_op * ZEND_FASTCALL qb_append_unary_op(qb_compiler_context *cxt, void *
 static void ZEND_FASTCALL qb_set_matching_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	// size of the result matches the largest of the operands
 	// the structure of the result also comes from the largest of the operands
-	// if two operands are the same size, then the one with MORE dimensions win
+	// if two operands are the same size, then the one with MORE dimensions wins
 	uint32_t i, array_size, current_array_size = 0;
 	qb_address *dimension_source = NULL;
 	for(i = 0; i < operand_count; i++) {
@@ -1807,8 +1839,6 @@ static qb_vector_op_factory factory_reflect = {
 	},
 };
 
-static qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type);
-
 static qb_op * ZEND_FASTCALL qb_append_refract(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_vector_op_factory *f = factory;
 	qb_address *address1 = operands[0].address;
@@ -2727,15 +2757,17 @@ static void ZEND_FASTCALL qb_set_array_fill_result_dimensions(qb_compiler_contex
 	} else {
 		dim->array_size = 0;
 	}
-	if(value_address->dimension_count > 0 && count_is_constant) {
-		// we can determine the first dimension if the first two parameters are constant
-		// TODO: need mechanism to make dimension available even when length isn't known
+	if(value_address->dimension_count > 0) {
 		uint32_t i;
 		dim->dimension_count = value_address->dimension_count + 1;
 		for(i = 0; i < value_address->dimension_count; i++) {
 			dim->dimension_addresses[i + 1] = value_address->dimension_addresses[i];
 		}
-		dim->dimension_addresses[0] = qb_obtain_constant_U32(cxt, count);
+		if(count_is_constant) {
+			dim->dimension_addresses[0] = qb_obtain_constant_U32(cxt, count);
+		} else {
+			dim->dimension_addresses[0] = NULL;
+		}
 	} else {
 		dim->dimension_count = 1;
 	}
@@ -2849,7 +2881,7 @@ static qb_op * ZEND_FASTCALL qb_append_array_diff(qb_compiler_context *cxt, void
 
 static qb_basic_op_factory factory_array_diff = {
 	qb_append_array_diff,
-	qb_set_variable_length_result_dimensions,
+	qb_set_array_pad_result_dimensions,
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_TYPE_OPERAND,
 	{	QB_ADIFF_F64_F64_U32_F64,	QB_ADIFF_F32_F32_U32_F32,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I08_I08_U32_I08,	QB_ADIFF_I08_I08_U32_I08	},
@@ -2857,7 +2889,7 @@ static qb_basic_op_factory factory_array_diff = {
 
 static qb_basic_op_factory factory_array_intersect = {
 	qb_append_array_diff,
-	qb_set_variable_length_result_dimensions,
+	qb_set_array_pad_result_dimensions,
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_TYPE_OPERAND,
 	{	QB_AISECT_F64_F64_U32_F64,	QB_AISECT_F32_F32_U32_F32,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I08_I08_U32_I08,	QB_AISECT_I08_I08_U32_I08	},
@@ -2914,7 +2946,7 @@ static qb_basic_op_factory factory_range = {
 
 static qb_basic_op_factory factory_array_unique = {
 	qb_append_binary_op,
-	qb_set_variable_length_result_dimensions,
+	qb_set_array_pad_result_dimensions,
 	QB_COERCE_TO_FIRST_OPERAND_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
 	{	QB_AUNIQ_F64_U32_F64,	QB_AUNIQ_F32_U32_F32,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I08_U32_I08,	QB_AUNIQ_I08_U32_I08	},

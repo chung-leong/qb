@@ -2822,6 +2822,11 @@ static qb_translator op_translators[] = {
 	{	NULL,								NULL						},	// ZEND_SEPARATE
 	{	qb_translate_assign_temp,			NULL						},	// ZEND_QM_ASSIGN_VAR
 	{	qb_translate_jump_set,				NULL						},	// ZEND_JMP_SET_VAR
+	{	NULL,								NULL,						},	// ZEND_DISCARD_EXCEPTION
+	{	NULL,								NULL,						},	// ZEND_YIELD
+	{	NULL,								NULL,						},	// ZEND_GENERATOR_RETURN
+	{	NULL,								NULL,						},	// ZEND_FAST_CALL
+	{	NULL,								NULL,						},	// ZEND_FAST_RET
 };
 
 static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *cxt) {
@@ -2832,6 +2837,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 		qb_translator *t;
 		uint32_t operand_count = 0;
 		int32_t need_return_value = RETURN_VALUE_USED(cxt->zend_op);
+		uint32_t zend_opcode = cxt->zend_op->opcode;
 
 		QB_G(current_line_number) = cxt->zend_op->lineno;
 
@@ -2849,8 +2855,12 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_compiler_context *
 		}
 
 		// look up the translator for this opcode
-		t = &op_translators[cxt->zend_op->opcode];
-		if(t->translate) {
+		if(EXPECTED(zend_opcode < sizeof(op_translators) / sizeof(op_translators[0]))) {
+			t = &op_translators[zend_opcode];
+		} else {
+			t = NULL;
+		}
+		if(t && t->translate) {
 			cxt->line_number = cxt->zend_op->lineno;
 			t->translate(cxt, t->extra, operands, operand_count, &result, result_prototype);
 

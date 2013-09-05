@@ -1618,7 +1618,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name);
 			if(!symbol_address || symbol_address == (void *) -1) {
-				qb_abort("Missing symbol: %s\n", symbol_name);
+				qb_abort("missing symbol: %s\n", symbol_name);
 			}
 		} else {
 			return FALSE;
@@ -1747,7 +1747,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name);
 			if(!symbol_address || symbol_address == (void *) -1) {
-				qb_abort("Missing symbol: %s\n", symbol_name);
+				qb_abort("missing symbol: %s\n", symbol_name);
 			}
 		} else {
 			return FALSE;
@@ -1879,7 +1879,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho64(qb_native_compiler_context *cxt) {
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
 				symbol_address = qb_find_symbol(cxt, symbol_name);
 				if(!symbol_address || symbol_address == (void *) -1) {
-					qb_abort("Missing symbol: %s\n", symbol_name);
+					qb_abort("missing symbol: %s\n", symbol_name);
 					return FALSE;
 				}
 			} else {
@@ -2001,7 +2001,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
 				symbol_address = qb_find_symbol(cxt, symbol_name);
 				if(!symbol_address || symbol_address == (void *) -1) {
-					qb_abort("Missing symbol: %s\n", symbol_name);
+					qb_abort("missing symbol: %s\n", symbol_name);
 					return FALSE;
 				}
 			} else {
@@ -2090,7 +2090,7 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 					symbol_address = qb_find_symbol(cxt, symbol_name);
 					if(!symbol_address || symbol_address == (void *) -1) {
-						qb_abort("Missing symbol: %s\n", symbol_name);
+						qb_abort("missing symbol: %s\n", symbol_name);
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)
@@ -2295,7 +2295,7 @@ int32_t ZEND_FASTCALL qb_decompress_code(qb_native_compiler_context *cxt) {
 		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &count, 0);
 #if ZEND_DEBUG
 		if(count > PROTOTYPE_COUNT) {
-			qb_abort("Not enough space for the number of possible prototypes");
+			qb_abort("not enough space for the number of possible prototypes");
 		}
 #endif
 	}

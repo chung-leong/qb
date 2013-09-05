@@ -1874,7 +1874,7 @@ uint32_t qb_get_unique_element_count_F32(float32_t *op1_ptr, uint32_t op1_count,
 				if(op1_ptr[j] == op1_ptr[i]) {
 					int32_t match = TRUE;
 					for(k = 1; k < op2; k++) {
-						if(op1_ptr[j + k] == op1_ptr[i + k]) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
 							match = FALSE;
 							break;
 						}
@@ -1916,7 +1916,7 @@ uint32_t qb_get_unique_element_count_F64(float64_t *op1_ptr, uint32_t op1_count,
 				if(op1_ptr[j] == op1_ptr[i]) {
 					int32_t match = TRUE;
 					for(k = 1; k < op2; k++) {
-						if(op1_ptr[j + k] == op1_ptr[i + k]) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
 							match = FALSE;
 							break;
 						}
@@ -1958,7 +1958,7 @@ uint32_t qb_get_unique_element_count_I08(int8_t *op1_ptr, uint32_t op1_count, ui
 				if(op1_ptr[j] == op1_ptr[i]) {
 					int32_t match = TRUE;
 					for(k = 1; k < op2; k++) {
-						if(op1_ptr[j + k] == op1_ptr[i + k]) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
 							match = FALSE;
 							break;
 						}
@@ -2000,7 +2000,7 @@ uint32_t qb_get_unique_element_count_I16(int16_t *op1_ptr, uint32_t op1_count, u
 				if(op1_ptr[j] == op1_ptr[i]) {
 					int32_t match = TRUE;
 					for(k = 1; k < op2; k++) {
-						if(op1_ptr[j + k] == op1_ptr[i + k]) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
 							match = FALSE;
 							break;
 						}
@@ -2042,7 +2042,7 @@ uint32_t qb_get_unique_element_count_I32(int32_t *op1_ptr, uint32_t op1_count, u
 				if(op1_ptr[j] == op1_ptr[i]) {
 					int32_t match = TRUE;
 					for(k = 1; k < op2; k++) {
-						if(op1_ptr[j + k] == op1_ptr[i + k]) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
 							match = FALSE;
 							break;
 						}
@@ -2084,7 +2084,7 @@ uint32_t qb_get_unique_element_count_I64(int64_t *op1_ptr, uint32_t op1_count, u
 				if(op1_ptr[j] == op1_ptr[i]) {
 					int32_t match = TRUE;
 					for(k = 1; k < op2; k++) {
-						if(op1_ptr[j + k] == op1_ptr[i + k]) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
 							match = FALSE;
 							break;
 						}
@@ -4963,103 +4963,265 @@ void ZEND_FASTCALL qb_do_array_sum_U64(uint64_t *op1_ptr, uint32_t op1_count, ui
 }
 
 void ZEND_FASTCALL qb_do_array_unique_F32(float32_t *op1_ptr, uint32_t op1_count, uint32_t op2, float32_t *res_ptr, uint32_t res_count) {
-	uint32_t i, j;
-	for(i = 0; i < op1_count; i++) {
-		int32_t repeat = FALSE;
-		for(j = 0; j < i; j++) {
-			if(op1_ptr[j] == op1_ptr[i]) {
-				repeat = TRUE;
-				break;
+	uint32_t i, j, k;
+	if(op2 == 1) {
+		for(i = 0; i < op1_count; i++) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j++) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					repeat = TRUE;
+					break;
+				}
+			}
+			if(!repeat) {
+				*res_ptr = op1_ptr[i];
+				res_ptr++;
 			}
 		}
-		if(!repeat) {
-			*res_ptr = op1_ptr[i];
-			res_ptr++;
+	} else {
+		for(i = 0; i < op1_count; i += op2) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j += op2) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					int32_t match = TRUE;
+					for(k = 1; k < op2; k++) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
+							match = FALSE;
+							break;
+						}
+					}
+					if(match) {
+						repeat = TRUE;
+						break;
+					}
+				}
+			}
+			if(!repeat) {
+				for(k = 0; k < op2; k++) {
+					*res_ptr = op1_ptr[i + k];
+					res_ptr++;
+				}
+			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_array_unique_F64(float64_t *op1_ptr, uint32_t op1_count, uint32_t op2, float64_t *res_ptr, uint32_t res_count) {
-	uint32_t i, j;
-	for(i = 0; i < op1_count; i++) {
-		int32_t repeat = FALSE;
-		for(j = 0; j < i; j++) {
-			if(op1_ptr[j] == op1_ptr[i]) {
-				repeat = TRUE;
-				break;
+	uint32_t i, j, k;
+	if(op2 == 1) {
+		for(i = 0; i < op1_count; i++) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j++) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					repeat = TRUE;
+					break;
+				}
+			}
+			if(!repeat) {
+				*res_ptr = op1_ptr[i];
+				res_ptr++;
 			}
 		}
-		if(!repeat) {
-			*res_ptr = op1_ptr[i];
-			res_ptr++;
+	} else {
+		for(i = 0; i < op1_count; i += op2) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j += op2) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					int32_t match = TRUE;
+					for(k = 1; k < op2; k++) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
+							match = FALSE;
+							break;
+						}
+					}
+					if(match) {
+						repeat = TRUE;
+						break;
+					}
+				}
+			}
+			if(!repeat) {
+				for(k = 0; k < op2; k++) {
+					*res_ptr = op1_ptr[i + k];
+					res_ptr++;
+				}
+			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_array_unique_I08(int8_t *op1_ptr, uint32_t op1_count, uint32_t op2, int8_t *res_ptr, uint32_t res_count) {
-	uint32_t i, j;
-	for(i = 0; i < op1_count; i++) {
-		int32_t repeat = FALSE;
-		for(j = 0; j < i; j++) {
-			if(op1_ptr[j] == op1_ptr[i]) {
-				repeat = TRUE;
-				break;
+	uint32_t i, j, k;
+	if(op2 == 1) {
+		for(i = 0; i < op1_count; i++) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j++) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					repeat = TRUE;
+					break;
+				}
+			}
+			if(!repeat) {
+				*res_ptr = op1_ptr[i];
+				res_ptr++;
 			}
 		}
-		if(!repeat) {
-			*res_ptr = op1_ptr[i];
-			res_ptr++;
+	} else {
+		for(i = 0; i < op1_count; i += op2) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j += op2) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					int32_t match = TRUE;
+					for(k = 1; k < op2; k++) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
+							match = FALSE;
+							break;
+						}
+					}
+					if(match) {
+						repeat = TRUE;
+						break;
+					}
+				}
+			}
+			if(!repeat) {
+				for(k = 0; k < op2; k++) {
+					*res_ptr = op1_ptr[i + k];
+					res_ptr++;
+				}
+			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_array_unique_I16(int16_t *op1_ptr, uint32_t op1_count, uint32_t op2, int16_t *res_ptr, uint32_t res_count) {
-	uint32_t i, j;
-	for(i = 0; i < op1_count; i++) {
-		int32_t repeat = FALSE;
-		for(j = 0; j < i; j++) {
-			if(op1_ptr[j] == op1_ptr[i]) {
-				repeat = TRUE;
-				break;
+	uint32_t i, j, k;
+	if(op2 == 1) {
+		for(i = 0; i < op1_count; i++) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j++) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					repeat = TRUE;
+					break;
+				}
+			}
+			if(!repeat) {
+				*res_ptr = op1_ptr[i];
+				res_ptr++;
 			}
 		}
-		if(!repeat) {
-			*res_ptr = op1_ptr[i];
-			res_ptr++;
+	} else {
+		for(i = 0; i < op1_count; i += op2) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j += op2) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					int32_t match = TRUE;
+					for(k = 1; k < op2; k++) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
+							match = FALSE;
+							break;
+						}
+					}
+					if(match) {
+						repeat = TRUE;
+						break;
+					}
+				}
+			}
+			if(!repeat) {
+				for(k = 0; k < op2; k++) {
+					*res_ptr = op1_ptr[i + k];
+					res_ptr++;
+				}
+			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_array_unique_I32(int32_t *op1_ptr, uint32_t op1_count, uint32_t op2, int32_t *res_ptr, uint32_t res_count) {
-	uint32_t i, j;
-	for(i = 0; i < op1_count; i++) {
-		int32_t repeat = FALSE;
-		for(j = 0; j < i; j++) {
-			if(op1_ptr[j] == op1_ptr[i]) {
-				repeat = TRUE;
-				break;
+	uint32_t i, j, k;
+	if(op2 == 1) {
+		for(i = 0; i < op1_count; i++) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j++) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					repeat = TRUE;
+					break;
+				}
+			}
+			if(!repeat) {
+				*res_ptr = op1_ptr[i];
+				res_ptr++;
 			}
 		}
-		if(!repeat) {
-			*res_ptr = op1_ptr[i];
-			res_ptr++;
+	} else {
+		for(i = 0; i < op1_count; i += op2) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j += op2) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					int32_t match = TRUE;
+					for(k = 1; k < op2; k++) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
+							match = FALSE;
+							break;
+						}
+					}
+					if(match) {
+						repeat = TRUE;
+						break;
+					}
+				}
+			}
+			if(!repeat) {
+				for(k = 0; k < op2; k++) {
+					*res_ptr = op1_ptr[i + k];
+					res_ptr++;
+				}
+			}
 		}
 	}
 }
 
 void ZEND_FASTCALL qb_do_array_unique_I64(int64_t *op1_ptr, uint32_t op1_count, uint32_t op2, int64_t *res_ptr, uint32_t res_count) {
-	uint32_t i, j;
-	for(i = 0; i < op1_count; i++) {
-		int32_t repeat = FALSE;
-		for(j = 0; j < i; j++) {
-			if(op1_ptr[j] == op1_ptr[i]) {
-				repeat = TRUE;
-				break;
+	uint32_t i, j, k;
+	if(op2 == 1) {
+		for(i = 0; i < op1_count; i++) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j++) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					repeat = TRUE;
+					break;
+				}
+			}
+			if(!repeat) {
+				*res_ptr = op1_ptr[i];
+				res_ptr++;
 			}
 		}
-		if(!repeat) {
-			*res_ptr = op1_ptr[i];
-			res_ptr++;
+	} else {
+		for(i = 0; i < op1_count; i += op2) {
+			int32_t repeat = FALSE;
+			for(j = 0; j < i; j += op2) {
+				if(op1_ptr[j] == op1_ptr[i]) {
+					int32_t match = TRUE;
+					for(k = 1; k < op2; k++) {
+						if(op1_ptr[j + k] != op1_ptr[i + k]) {
+							match = FALSE;
+							break;
+						}
+					}
+					if(match) {
+						repeat = TRUE;
+						break;
+					}
+				}
+			}
+			if(!repeat) {
+				for(k = 0; k < op2; k++) {
+					*res_ptr = op1_ptr[i + k];
+					res_ptr++;
+				}
+			}
 		}
 	}
 }

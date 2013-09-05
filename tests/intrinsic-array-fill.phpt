@@ -8,6 +8,7 @@ Array fill test
  * 
  * @engine	qb
  * @local	float64[8]		$r1
+ * @local	int32			$a
  * 
  * @return	void
  * 
@@ -20,6 +21,9 @@ function test_function() {
 	
 	echo array_fill(0, 5, array(1, 2)), "\n";
 	echo array_fill(5, 5, array(1, 2)), "\n";
+	
+	$a = 2;
+	echo array_fill(1, $a, array(1, 2, 3)), "\n";
 }
 
 qb_compile();
@@ -32,3 +36,4 @@ test_function();
 [0, 0, 18, 18, 18, 18, 18, 18]
 [[1, 2], [1, 2], [1, 2], [1, 2], [1, 2]]
 [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [1, 2], [1, 2], [1, 2], [1, 2], [1, 2]]
+[[0, 0, 0], [1, 2, 3], [1, 2, 3]]

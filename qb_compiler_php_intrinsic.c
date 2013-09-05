@@ -18,6 +18,10 @@
 
 /* $Id$ */
 
+static void qb_translate_intrinsic_unsupported(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_abort("%s() cannot be used in a QB function", f->name);
+}
+
 static void ZEND_FASTCALL qb_translate_intrinsic_unary_vector_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
 
@@ -552,7 +556,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_push(qb_compiler_context 
 		qb_address *size_address, *variable_address;
 		uint32_t i, container_element_size, value_size;
 		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
 			qb_abort("adding element to an array that cannot expand");
@@ -571,7 +575,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_push(qb_compiler_context 
 				value_size = 1;
 			}
 			if(value_size != container_element_size) {
-				qb_abort("elements in parameter %d are of different size", i + 1);
+				qb_abort("elements in parameter %d are of a different size", i + 1);
 			}
 		}
 		size_address = container->address->dimension_addresses[0];
@@ -600,7 +604,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_unshift(qb_compiler_conte
 		qb_address *size_address, *zero_address;
 		uint32_t i, container_element_size, value_size;
 		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
 			qb_abort("adding element to an array that cannot expand");
@@ -619,7 +623,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_unshift(qb_compiler_conte
 				value_size = 1;
 			}
 			if(value_size != container_element_size) {
-				qb_abort("elements in parameter %d are of different size", i + 1);
+				qb_abort("elements in parameter %d are of a different size", i + 1);
 			}
 		}
 		size_address = container->address->dimension_addresses[0];
@@ -655,7 +659,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pad(qb_compiler_context *
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		uint32_t i, container_element_size, value_size;
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as the first parameter", f->name);
+			qb_abort("%s() expects an array as the first parameter", f->name);
 		}
 		if(container->address->dimension_count > 1) {
 			container_element_size = VALUE(U32, container->address->array_size_addresses[container->address->dimension_count - 1]);
@@ -668,7 +672,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pad(qb_compiler_context *
 			value_size = 1;
 		}
 		if(value_size != container_element_size) {
-			qb_abort("elements in parameter %d are of different size", i + 1);
+			qb_abort("elements in parameter 3 are of a different size");
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
@@ -705,7 +709,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_merge(qb_compiler_context
 				element_size = 1;
 			}
 			if(element_size != first_element_size) {
-				qb_abort("elements in parameter %d are of different size", i + 1);
+				qb_abort("elements in parameter %d are of a different size", i + 1);
 			}
 		}
 		if(result->type != QB_OPERAND_NONE) {
@@ -760,10 +764,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_fill(qb_compiler_context 
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(!IS_SCALAR(index->address)) {
-			qb_abort("%s expects the first parameter to be a scalar", f->name);
+			qb_abort("%s() expects the first parameter to be a scalar", f->name);
 		}
 		if(!IS_SCALAR(number->address)) {
-			qb_abort("%s expects the second parameter to be a scalar", f->name);
+			qb_abort("%s() expects the second parameter to be a scalar", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
@@ -802,10 +806,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_column(qb_compiler_contex
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(container->address->dimension_count < 2) {
-			qb_abort("%s expects a multidimensional array as the first parameter", f->name);
+			qb_abort("%s() expects a multidimensional array as the first parameter", f->name);
 		}
 		if(!IS_SCALAR(column_index->address)) {
-			qb_abort("%s expects a scalar as the second parameter", f->name);
+			qb_abort("%s() expects a scalar as the second parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
@@ -830,7 +834,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_diff(qb_compiler_context 
 		qb_address *first_address = arguments[0].address;
 		// make sure the element size match up
 		if(first_address->dimension_count < 1) {
-			qb_abort("%s expects an array as the first parameter", f->name);
+			qb_abort("%s() expects an array as the first parameter", f->name);
 		}
 		if(first_address->dimension_count > 1) {
 			first_element_size = VALUE(U32, first_address->array_size_addresses[1]);
@@ -846,7 +850,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_diff(qb_compiler_context 
 				element_size = 1;
 			}
 			if(element_size != first_element_size) {
-				qb_abort("elements in parameter %d are of different size", i + 1);
+				qb_abort("elements in parameter %d are of a different size", i + 1);
 			}
 		}
 		if(result->type != QB_OPERAND_NONE) {
@@ -861,6 +865,40 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_diff(qb_compiler_context 
 			}
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = result_address;
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_translate_intrinsic_array_filter(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+	qb_operand *container = &arguments[0];
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->preliminary_type = expr_type;
+		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		uint32_t i;
+		qb_address *zero_address;
+		if(IS_SCALAR(container->address)) {
+			qb_abort("%s() expects an array as the first parameter", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			qb_variable_dimensions *result_dim = qb_get_result_dimensions(cxt, f->extra, arguments, argument_count);
+			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
+			if(container->address->dimension_count > 1) {
+				qb_variable_dimensions constant_dim;
+				constant_dim.array_size = VALUE(U32, container->address->array_size_addresses[1]);
+				constant_dim.dimension_count = 1;
+				zero_address = qb_allocate_constant(cxt, expr_type, &constant_dim);
+				memset(ARRAY(S08, zero_address), 0, BYTE_COUNT(constant_dim.array_size, expr_type));
+			} else {
+				zero_address = qb_obtain_constant(cxt, 0, expr_type);
+			}
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_write_target_address(cxt, expr_type, result_dim, result_prototype, result_flags);
+			qb_create_binary_op(cxt, f->extra, container->address, zero_address, result->address);
 		}
 	}
 }
@@ -883,7 +921,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *
 		qb_address *size_address, *index_address, *one_address, *variable_address;
 
 		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
 			qb_abort("removing element to from an array that cannot shrink");
@@ -921,7 +959,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context
 		qb_address *zero_address, *variable_address;
 
 		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		if(!IS_EXPANDABLE_ARRAY(container->address)) {
 			qb_abort("removing element from an array that cannot shrink");
@@ -955,7 +993,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_slice(qb_compiler_context
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		qb_do_type_coercion(cxt, offset, QB_TYPE_U32);
 		if(argument_count >= 3) {
@@ -985,7 +1023,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_contex
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *slice_address;
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		qb_do_type_coercion(cxt, offset, QB_TYPE_U32);
 		if(argument_count >= 3) {
@@ -1046,7 +1084,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_aggregate(qb_compiler_con
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		expr_type = container->address->type;
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
@@ -1075,23 +1113,23 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_search(qb_compiler_contex
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as the first parameter", f->name);
+			qb_abort("%s() expects an array as the first parameter", f->name);
 		}
 		if(container->address->dimension_count == 1) {
 			if(needle->address->dimension_count != 0) {
-				qb_abort("%s expects a scalar as the second parameter", f->name);
+				qb_abort("%s() expects a scalar as the second parameter", f->name);
 			}
 		} else {
 			if(IS_SCALAR(container->address)) {
-				qb_abort("%s expects an array as the second parameter when given a multidimensional array", f->name);
+				qb_abort("%s() expects an array as the second parameter when given a multidimensional array", f->name);
 			} else {
 				if(IS_VARIABLE_LENGTH_ARRAY(needle->address)) {
-					qb_abort("%s expects a fixed-length array as the second parameter", f->name);
+					qb_abort("%s() expects a fixed-length array as the second parameter", f->name);
 				} else {
 					uint32_t needle_length = ARRAY_SIZE(needle->address);
 					uint32_t subarray_length = VALUE(U32, container->address->array_size_addresses[1]);
 					if(needle_length != subarray_length) {
-						qb_abort("%s expects an array with %d elements as the second parameter", f->name, subarray_length);
+						qb_abort("%s() expects an array with %d elements as the second parameter", f->name, subarray_length);
 					}
 				}
 			}
@@ -1126,14 +1164,14 @@ static void ZEND_FASTCALL qb_translate_intrinsic_subarray_search(qb_compiler_con
 		expr_type = container->address->type;
 		qb_do_type_coercion(cxt, needle, expr_type);
 		if(container->address->dimension_count != 1) {
-			qb_abort("%s expects a one-dimensional array as the first parameter", f->name);
+			qb_abort("%s() expects a one-dimensional array as the first parameter", f->name);
 		}
 		if(needle->address->dimension_count > 1) {
-			qb_abort("%s expects a one-dimensional array as the second parameter", f->name);
+			qb_abort("%s() expects a one-dimensional array as the second parameter", f->name);
 		}
 		if(argument_count >= 3) {
 			if(!IS_SCALAR(offset->address)) {
-				qb_abort("%s expects a scalar as the third parameter", f->name);
+				qb_abort("%s() expects a scalar as the third parameter", f->name);
 			}
 			if(offset->address->segment_offset == QB_OFFSET_INVALID) {
 				// need to copy the index value to a temporary variable first
@@ -1167,7 +1205,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_shuffle(qb_compiler_context *cx
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *width_address;
 		if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as parameter", f->name);
+			qb_abort("%s() expects an array as parameter", f->name);
 		}
 		if(container->address->dimension_count > 1) {
 			width_address = container->address->array_size_addresses[1];
@@ -1200,7 +1238,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_reverse(qb_compiler_conte
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as the first parameter", f->name);
+			qb_abort("%s() expects an array as the first parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			qb_address *width_address;
@@ -1231,13 +1269,13 @@ static void ZEND_FASTCALL qb_translate_intrinsic_range(qb_compiler_context *cxt,
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(!IS_SCALAR(start->address)) {
-			qb_abort("%s expects a scalar as the first parameter", f->name);
+			qb_abort("%s() expects a scalar as the first parameter", f->name);
 		}
 		if(!IS_SCALAR(end->address)) {
-			qb_abort("%s expects a scalar as the second parameter", f->name);
+			qb_abort("%s() expects a scalar as the second parameter", f->name);
 		}
 		if(interval && !IS_SCALAR(interval->address)) {
-			qb_abort("%s expects a scalar as the third parameter", f->name);
+			qb_abort("%s() expects a scalar as the third parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			qb_address *interval_address;
@@ -1277,10 +1315,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_rand(qb_compiler_context 
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as the first parameter", f->name);
+			qb_abort("%s() expects an array as the first parameter", f->name);
 		}
 		if(count && !IS_SCALAR(count->address)) {
-			qb_abort("%s expects a scalar as the second parameter", f->name);
+			qb_abort("%s() expects a scalar as the second parameter", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			qb_address *size_address;
@@ -1311,7 +1349,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_resize(qb_compiler_contex
 		result->type = QB_OPERAND_NONE;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(IS_SCALAR(container->address)) {
-			qb_abort("%s expects an array as the first parameter", f->name);
+			qb_abort("%s() expects an array as the first parameter", f->name);
 		}
 		if((argument_count - 1) > container->address->dimension_count) {
 			qb_abort("the array only has %d dimension%s", container->address->dimension_count, (container->address->dimension_count > 1) ? "s" : "");
@@ -1433,10 +1471,10 @@ static void ZEND_FASTCALL qb_translate_intrinsic_pack(qb_compiler_context *cxt, 
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(!(arg_type >= QB_TYPE_S08 && arg_type <= QB_TYPE_F64)) {
-			qb_abort((argument_count >= 2) ? "%s expects the second parameter to be a constant indicating the type" : "%s() requires the second parameter when the input type cannot be determined", f->name);
+			qb_abort((argument_count >= 2) ? "%s() expects the second parameter to be a constant indicating the type" : "%s() requires the second parameter when the input type cannot be determined", f->name);
 		}
 		if(!IS_SCALAR(value->address)) {
-			qb_abort("%s expects a scalar as the first parameter", f->name);
+			qb_abort("%s() expects a scalar as the first parameter", f->name);
 		}
 
 		if(result->type != QB_OPERAND_NONE) {
@@ -1484,11 +1522,11 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt
 		qb_address *slice_address, *offset_address, *length_address;
 
 		if(IS_SCALAR(array->address) || array->address->dimension_count > 1) {
-			qb_abort("%s expects a one-dimenstional array as the first parameter", f->name);
+			qb_abort("%s() expects a one-dimenstional array as the first parameter", f->name);
 		}
 		if(argument_count >= 2) {
 			if(!IS_SCALAR(offset->address)) {
-				qb_abort("%s expects a scalar as the second parameter", f->name);
+				qb_abort("%s() expects a scalar as the second parameter", f->name);
 			}
 			offset_address = offset->address;
 		} else {
@@ -1497,7 +1535,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_unpack(qb_compiler_context *cxt
 		qb_finalize_result_prototype(cxt, result_prototype);
 		if(argument_count >= 3) {
 			if(!(result_type >= QB_TYPE_S08 && result_type <= QB_TYPE_F64)) {
-				qb_abort("%s expects the third parameter to be a constant indicating the type", f->name);
+				qb_abort("%s() expects the third parameter to be a constant indicating the type", f->name);
 			}
 		} else {
 			result_type = result_prototype->final_type;
@@ -1527,7 +1565,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			qb_primitive_type expr_type = container->address->type;
 			if(IS_SCALAR(container->address)) {
-				qb_abort("%s expects an array as parameter when only one parameter is given", f->name);
+				qb_abort("%s() expects an array as parameter when only one parameter is given", f->name);
 			}
 			if(result->type != QB_OPERAND_NONE) {
 				uint32_t result_flags = qb_get_result_flags(cxt, f->extra);
@@ -1863,6 +1901,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_unique",			qb_translate_intrinsic_array_reverse,		1,		1,		&factory_array_unique		},
 	{	0,	"array_column",			qb_translate_intrinsic_array_column,		2,		2,		&factory_array_column		},
 	{	0,	"array_diff",			qb_translate_intrinsic_array_diff,			2,		-1,		&factory_array_diff			},
+	{	0,	"array_filter",			qb_translate_intrinsic_array_filter,		1,		1,		&factory_array_diff			},
 	{	0,	"array_intersect",		qb_translate_intrinsic_array_diff,			2,		-1,		&factory_array_intersect	},
 	{	0,	"array_rand",			qb_translate_intrinsic_array_rand,			1,		2,		&factory_array_rand			},
 	{	0,	"array_resize",			qb_translate_intrinsic_array_resize,		2,		-1,		&factory_array_resize		},
@@ -1882,6 +1921,22 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"csinh",				qb_translate_intrinsic_complex,				1,		1,		&factory_complex_sinh		},
 	{	0,	"ccosh",				qb_translate_intrinsic_complex,				1,		1,		&factory_complex_cosh		},
 	{	0,	"ctanh",				qb_translate_intrinsic_complex,				1,		1,		&factory_complex_tanh		},
+	// unsupported functions
+	{	0,	"compact",				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"extract",				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"each",					qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"pos"	,				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"key"	,				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"current",				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"prev",					qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"next",					qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"reset",				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"end",					qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"array_map",			qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"array_reduce",			qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+	{	0,	"array_walk",			qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
+
+
 };
 
 static qb_intrinsic_function * ZEND_FASTCALL qb_find_intrinsic_function(qb_compiler_context *cxt, zval *callable) {
