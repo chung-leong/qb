@@ -318,7 +318,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_gd_image(qb_interpreter_context 
 				}
 			}	break;
 			case QB_PIXEL_F64_4: {
-				float64_t *p = ARRAY(F32, address);
+				float64_t *p = ARRAY(F64, address);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
 					for(j = 0; j < (uint32_t) image->sx; j++) {
 						tpixel = gdImageTrueColorPixel(image, j, i);
@@ -331,7 +331,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_gd_image(qb_interpreter_context 
 				}
 			}	break;
 			case QB_PIXEL_F64_3: {
-				float64_t *p = ARRAY(F32, address);
+				float64_t *p = ARRAY(F64, address);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
 					for(j = 0; j < (uint32_t) image->sx; j++) {
 						tpixel = gdImageTrueColorPixel(image, j, i);
@@ -343,7 +343,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_gd_image(qb_interpreter_context 
 				}
 			}	break;
 			case QB_PIXEL_F64_1: {
-				float64_t *p = ARRAY(F32, address);
+				float64_t *p = ARRAY(F64, address);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
 					for(j = 0; j < (uint32_t) image->sx; j++) {
 						tpixel = gdImageTrueColorPixel(image, j, i);
@@ -388,7 +388,7 @@ static void ZEND_FASTCALL qb_copy_elements_to_gd_image(qb_interpreter_context *c
 	if(pixel_format & QB_PIXEL_ARRANGEMENT_1D) {
 		qb_address *length_address = address->dimension_addresses[0];
 		uint32_t length = VALUE(U32, length_address);
-		if(length >= image->sx) {
+		if(length >= (uint32_t) image->sx) {
 			width = image->sx;
 			height = length / width;
 		} else {

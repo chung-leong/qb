@@ -18,7 +18,7 @@
 
 /* $Id$ */
 
-static void qb_translate_intrinsic_unsupported(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void ZEND_FASTCALL qb_translate_intrinsic_unsupported(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_abort("%s() cannot be used in a QB function", f->name);
 }
 
