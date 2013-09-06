@@ -458,15 +458,28 @@ static int32_t ZEND_FASTCALL qb_map_segment_to_file(qb_interpreter_context *cxt,
 	USE_TSRM
 	if(QB_G(allow_memory_map)) {
 		php_stream_mmap_range range;
-		range.offset = 0;
+		size_t file_size;
+		if(write_access) {
+			// make sure the file is large enough
+			off_t position;
+			position = php_stream_tell(stream);
+			php_stream_seek(stream, 0, SEEK_END);
+			file_size = php_stream_tell(stream);
+			php_stream_seek(stream, position, SEEK_SET);
+			if(byte_count > file_size) {
+				php_stream_truncate_set_size(stream, byte_count);
+			}
+		}
 		range.length = byte_count;
+		range.offset = 0;
 		range.mode = (write_access) ? PHP_STREAM_MAP_MODE_READWRITE : PHP_STREAM_MAP_MODE_READONLY;
 		range.mapped = NULL;
 
 		if(php_stream_set_option(stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_MAP_RANGE, &range) == PHP_STREAM_OPTION_RETURN_OK) {
-			segment->flags |= QB_SEGMENT_MAPPED;
+			// range.mapped is the end of the 
 			segment->memory = *segment->stack_ref_memory = (int8_t *) range.mapped;
 			segment->stream = stream;
+			segment->flags |= QB_SEGMENT_MAPPED;
 			return TRUE;
 		}
 	}
@@ -476,9 +489,9 @@ static int32_t ZEND_FASTCALL qb_map_segment_to_file(qb_interpreter_context *cxt,
 static void ZEND_FASTCALL qb_unmap_segment(qb_interpreter_context *cxt, qb_memory_segment *segment) {
 	USE_TSRM
 	php_stream_set_option(segment->stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_UNMAP, NULL);
-	segment->flags &= ~QB_SEGMENT_MAPPED;
 	segment->memory = NULL;
 	segment->stream = NULL;
+	segment->flags &= ~QB_SEGMENT_MAPPED;
 }
 
 static void ZEND_FASTCALL qb_free_segment(qb_interpreter_context *cxt, qb_memory_segment *segment) {
@@ -699,7 +712,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 		if(address->flags & QB_ADDRESS_SEGMENT) {
 			*segment->array_size_pointer = *segment->stack_ref_element_count = segment->element_count = element_count;
 			// if the segment doesn't have preallocated memory, see if it can borrow it from the zval
-			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && !(segment->flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY))) {
+			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && (transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 				php_stream *stream;
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
 					// use memory from the string if it's long enough
@@ -719,16 +732,23 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 					// use memory mapped file if possible
 					int32_t write_access = !(address->flags & QB_ADDRESS_READ_ONLY);
 					uint32_t allocation = element_count;
-					if(write_access && !allocation) {
-						allocation = 1024;
-						php_stream_truncate_set_size(stream, BYTE_COUNT(allocation, segment->type));
+					if(allocation == 0) {
+						// can't have a mapping that's zero
+						if(write_access) {
+							if(segment->increment_pointer) {
+								allocation = ALIGN_TO(*segment->increment_pointer, 1024);
+							} else {
+								allocation = 1024;
+							}
+						}
 					}
 					qb_free_segment(cxt, segment);
 					if(qb_map_segment_to_file(cxt, segment, stream, write_access, BYTE_COUNT(allocation, address->type))) {
 						segment->current_allocation = allocation;
 						if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
 							segment->flags |= QB_SEGMENT_BORROWED;
-						} else {
+						} else if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
+							// the stream was taken from the zval
 							Z_TYPE_P(zvalue) = IS_NULL;
 						}
 						return;
@@ -1164,6 +1184,11 @@ static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt,
 	if(IS_SCALAR(address)) {
 		qb_copy_element_to_zval(cxt, address, zvalue);
 	} else {
+		php_stream *stream;
+		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+		uint32_t element_count = VALUE(U32, address->array_size_address);
+		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+
 		if(Z_TYPE_P(zvalue) == IS_NULL) {
 			// create a string if the string flag is set, otherwise create an array
 			if(address->flags & QB_ADDRESS_STRING) {
@@ -1171,15 +1196,12 @@ static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt,
 			} else {
 				qb_initialize_zval_array(cxt, address, NULL, zvalue);
 			}
-		} 
-		if(Z_TYPE_P(zvalue) == IS_STRING) {
-			qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-			uint32_t element_count = VALUE(U32, address->array_size_address);
-			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+		}
 
-			if(segment->flags & QB_SEGMENT_BORROWED && address->flags & QB_ADDRESS_SEGMENT) {
-				// modifications would have been made directly to the string
-				// we only need to make sure that we haven't allocated a new memory block
+		if(segment->flags & QB_SEGMENT_BORROWED) {
+			// modifications would have been made directly to the string/file
+			if(Z_TYPE_P(zvalue) == IS_STRING) {
+				// make sure that we haven't allocated a new memory block
 				if(Z_STRVAL_P(zvalue) != (char *) segment->memory) {
 					uint32_t allocated_byte_count = BYTE_COUNT(segment->current_allocation, address->type);
 
@@ -1192,8 +1214,10 @@ static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt,
 					Z_STRVAL_P(zvalue) = (char *) segment->memory;
 					Z_STRLEN_P(zvalue) = byte_count;
 				}
-				return;
-			} 
+			}
+			return;
+		} 
+		if(Z_TYPE_P(zvalue) == IS_STRING) {
 			if(Z_STRLEN_P(zvalue) != byte_count) {
 				int8_t *memory = emalloc(byte_count + 1);
 				memory[byte_count] = '\0';
