@@ -5,11 +5,12 @@ Range function test
 
 /**
   * @engine	qb
-  * @local	int32[]	$a
+  * @local	int32[]		$a
   * @local	float64[]	$b
-  * @local	uint8[]	$c
+  * @local	uint8[]		$c
   * @local	int32[12]	$d
   * @local	uint32[]	$e
+  * @local	int32		$start
   */
 function test_function() {
 	$a = range(1, 10);
@@ -22,6 +23,9 @@ function test_function() {
 	echo "$c\n";
 	echo "$d\n";
 	echo "$e\n";
+	
+	$start = 0;
+	echo range($start, 9), "\n";
 }
 
 qb_compile();
@@ -34,3 +38,4 @@ test_function();
 [245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 0, 1, 2, 3, 4]
 [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
 [3, 5, 7, 9, 11, 13]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]

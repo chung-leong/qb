@@ -2910,20 +2910,20 @@ static void ZEND_FASTCALL qb_set_range_result_dimensions(qb_compiler_context *cx
 	// the result size is known only if the all operands are constant
 	qb_address *start_address = operands[0].address;
 	qb_address *end_address = operands[1].address;
-	qb_address *interval_address = operands[2].address;
+	qb_address *interval_address = (operand_count >= 3) ? operands[2].address : NULL;
 	uint32_t current_array_size = UINT32_MAX;
-	if((start_address->flags & QB_ADDRESS_CONSTANT) && (end_address->flags & QB_ADDRESS_CONSTANT) && (interval_address->flags & QB_ADDRESS_CONSTANT)) {
+	if((start_address->flags & QB_ADDRESS_CONSTANT) && (end_address->flags & QB_ADDRESS_CONSTANT) && (!interval_address || interval_address->flags & QB_ADDRESS_CONSTANT)) {
 		switch(start_address->type) {
-			case QB_TYPE_S08: current_array_size = qb_get_range_length_S08(VALUE(S08, start_address), VALUE(S08, end_address), VALUE(S08, interval_address)); break;
-			case QB_TYPE_U08: current_array_size = qb_get_range_length_U08(VALUE(U08, start_address), VALUE(U08, end_address), VALUE(U08, interval_address)); break;
-			case QB_TYPE_S16: current_array_size = qb_get_range_length_S16(VALUE(S16, start_address), VALUE(S16, end_address), VALUE(S16, interval_address)); break;
-			case QB_TYPE_U16: current_array_size = qb_get_range_length_U16(VALUE(U16, start_address), VALUE(U16, end_address), VALUE(U16, interval_address)); break;
-			case QB_TYPE_S32: current_array_size = qb_get_range_length_S32(VALUE(S32, start_address), VALUE(S32, end_address), VALUE(S32, interval_address)); break;
-			case QB_TYPE_U32: current_array_size = qb_get_range_length_U32(VALUE(U32, start_address), VALUE(U32, end_address), VALUE(U32, interval_address)); break;
-			case QB_TYPE_S64: current_array_size = qb_get_range_length_S64(VALUE(S64, start_address), VALUE(S64, end_address), VALUE(S64, interval_address)); break;
-			case QB_TYPE_U64: current_array_size = qb_get_range_length_U64(VALUE(U64, start_address), VALUE(U64, end_address), VALUE(U64, interval_address)); break;
-			case QB_TYPE_F32: current_array_size = qb_get_range_length_F32(VALUE(F32, start_address), VALUE(F32, end_address), VALUE(F32, interval_address)); break;
-			case QB_TYPE_F64: current_array_size = qb_get_range_length_F64(VALUE(F64, start_address), VALUE(F64, end_address), VALUE(F64, interval_address)); break;
+			case QB_TYPE_S08: current_array_size = qb_get_range_length_S08(VALUE(S08, start_address), VALUE(S08, end_address), (interval_address) ? VALUE(S08, interval_address) : 1); break;
+			case QB_TYPE_U08: current_array_size = qb_get_range_length_U08(VALUE(U08, start_address), VALUE(U08, end_address), (interval_address) ? VALUE(U08, interval_address) : 1); break;
+			case QB_TYPE_S16: current_array_size = qb_get_range_length_S16(VALUE(S16, start_address), VALUE(S16, end_address), (interval_address) ? VALUE(S16, interval_address) : 1); break;
+			case QB_TYPE_U16: current_array_size = qb_get_range_length_U16(VALUE(U16, start_address), VALUE(U16, end_address), (interval_address) ? VALUE(U16, interval_address) : 1); break;
+			case QB_TYPE_S32: current_array_size = qb_get_range_length_S32(VALUE(S32, start_address), VALUE(S32, end_address), (interval_address) ? VALUE(S32, interval_address) : 1); break;
+			case QB_TYPE_U32: current_array_size = qb_get_range_length_U32(VALUE(U32, start_address), VALUE(U32, end_address), (interval_address) ? VALUE(U32, interval_address) : 1); break;
+			case QB_TYPE_S64: current_array_size = qb_get_range_length_S64(VALUE(S64, start_address), VALUE(S64, end_address), (interval_address) ? VALUE(S64, interval_address) : 1); break;
+			case QB_TYPE_U64: current_array_size = qb_get_range_length_U64(VALUE(U64, start_address), VALUE(U64, end_address), (interval_address) ? VALUE(U64, interval_address) : 1); break;
+			case QB_TYPE_F32: current_array_size = qb_get_range_length_F32(VALUE(F32, start_address), VALUE(F32, end_address), (interval_address) ? VALUE(F32, interval_address) : 1); break;
+			case QB_TYPE_F64: current_array_size = qb_get_range_length_F64(VALUE(F64, start_address), VALUE(F64, end_address), (interval_address) ? VALUE(F64, interval_address) : 1); break;
 			default: break;
 		}
 	}

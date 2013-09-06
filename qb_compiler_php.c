@@ -1378,18 +1378,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_result_storage(qb_compiler_context *
 		result_type = expr_type;
 	}
 
-	// see if the result comes from a pure function (i.e. its value is dependent only on the arguments)
-	if(result_flags & QB_RESULT_FROM_PURE_FUNCTION) {
-		// see if all the operands are constant
-		uint32_t i;
-		for(i = 0; i < operand_count; i++) {
-			if(!(operands[i].address->flags & QB_ADDRESS_CONSTANT)) {
-				break;
-			}
-		}
-		is_constant = (i == operand_count);
-	}
-
 	if(is_constant) {
 		result_address = qb_allocate_constant(cxt, result_type, result_dim);
 	} else {

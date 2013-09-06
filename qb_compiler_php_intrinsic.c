@@ -1286,7 +1286,12 @@ static void ZEND_FASTCALL qb_translate_intrinsic_range(qb_compiler_context *cxt,
 				interval_address = qb_obtain_constant(cxt, 1, expr_type);
 			}
 			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_write_target_address(cxt, expr_type, result_dim, result_prototype, result_flags);
+			if(result_dim->array_size != 0) {
+				// if we know the size, then the result is constant
+				result->address = qb_allocate_constant(cxt, expr_type, result_dim);
+			} else {
+				result->address = qb_obtain_write_target_address(cxt, expr_type, result_dim, result_prototype, result_flags);
+			}
 			qb_create_ternary_op(cxt, f->extra, start->address, end->address, interval_address, result->address);
 		}
 	}
