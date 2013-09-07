@@ -1258,7 +1258,6 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	memset(need_pointer, 0, sizeof(need_pointer));
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
-		uint32_t operand_flags, operand_address_mode, operand_index = 0;
 		for(j = 0; j < qop->operand_count; j++) {
 			qb_operand *operand = &qop->operands[j];
 			if(operand->type == QB_OPERAND_ADDRESS_ARR) {

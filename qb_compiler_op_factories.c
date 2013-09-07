@@ -33,7 +33,7 @@ typedef struct qb_vector_op_factory				qb_vector_op_factory;
 typedef struct qb_matrix_op_factory				qb_matrix_op_factory;
 typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
 typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
-typedef struct qb_sampling_op_factory			qb_sampling_op_factory;
+typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 
 typedef qb_op * (ZEND_FASTCALL *qb_append_op_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 typedef void (ZEND_FASTCALL *qb_set_dimensions_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
@@ -169,7 +169,7 @@ struct qb_matrix_op_factory_selector {
 	qb_op_factory *rm_factory;
 };
 
-struct qb_sampling_op_factory {
+struct qb_pixel_op_factory {
 	qb_append_op_proc append;
 	qb_set_dimensions_proc set_dimensions;
 	uint32_t coercion_flags;
@@ -204,6 +204,7 @@ static qb_variable_dimensions * ZEND_FASTCALL qb_get_result_dimensions(qb_compil
 
 	dim->array_size = 0;
 	dim->dimension_count = 0;
+	dim->source_address = NULL;
 	if(f->set_dimensions) {
 		f->set_dimensions(cxt, f, operands, operand_count, dim);
 	}
@@ -585,8 +586,9 @@ static void ZEND_FASTCALL qb_set_matching_result_dimensions(qb_compiler_context 
 			for(i = 0; i < dimension_source->dimension_count; i++) {
 				dim->dimension_addresses[i] = dimension_source->dimension_addresses[i];
 			}
-		} 
+		}
 	}
+	dim->source_address = dimension_source;
 }
 
 static qb_basic_op_factory factory_bitwise_not = {
@@ -1632,7 +1634,7 @@ static qb_float_op_factory factory_lcg = {
 };
 
 static qb_op * ZEND_FASTCALL qb_append_sampling_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_sampling_op_factory *f = factory;
+	qb_pixel_op_factory *f = factory;
 	qb_address *image_address = operands[0].address;
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
@@ -1693,7 +1695,7 @@ static void ZEND_FASTCALL qb_set_sampling_result_dimensions(qb_compiler_context 
 	}
 }
 
-static qb_sampling_op_factory factory_sample_nearest	= { 
+static qb_pixel_op_factory factory_sample_nearest	= { 
 	qb_append_sampling_op,
 	qb_set_sampling_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT,
@@ -1704,7 +1706,7 @@ static qb_sampling_op_factory factory_sample_nearest	= {
 	}
 };
 
-static qb_sampling_op_factory factory_sample_bilinear = {
+static qb_pixel_op_factory factory_sample_bilinear = {
 	qb_append_sampling_op,
 	qb_set_sampling_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT,
@@ -2132,6 +2134,7 @@ static void ZEND_FASTCALL qb_set_matrix_vector_product_dimensions(qb_compiler_co
 				for(i = 0; i < v_address->dimension_count - 1; i++) {
 					dim->dimension_addresses[i] = v_address->dimension_addresses[i];
 				}
+				dim->source_address = v_address;
 			}
 			dim->dimension_addresses[dim->dimension_count - 1] = v_width_address;
 		}
@@ -2184,7 +2187,7 @@ static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt
 	qop->operands[2].address = result->address;
 	qop->matrix_dimensions = VM_DIMENSIONS(v_width, m_rows, m_cols);
 	return qop;
-}	
+}
 
 static void ZEND_FASTCALL qb_set_vector_matrix_product_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand reversed_operands[2];
@@ -2346,6 +2349,7 @@ static void ZEND_FASTCALL qb_set_matrix_transpose_dimensions(qb_compiler_context
 			dim->dimension_addresses[i] = matrix_address->dimension_addresses[i];
 		}
 	}
+	dim->source_address = matrix_address;
 }
 
 static qb_matrix_op_factory factory_transpose = { 
@@ -3150,18 +3154,89 @@ static qb_float_op_factory factory_complex_tanh = {
 	{	QB_CTANH_F64_F64,	QB_CTANH_F32_F32	},
 };
 
-static qb_float_op_factory factory_apply_premultiplication = {
-	qb_append_unary_op,
+static qb_op * ZEND_FASTCALL qb_append_pixel_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_pixel_op_factory *f = factory;
+	qb_address *address = operands[0].address;
+	uint32_t channel_count = VALUE(U32, address->dimension_addresses[address->dimension_count - 1]);
+	qb_opcode opcode = f->opcodes[channel_count - 3][QB_TYPE_F64 - address->type];
+	qb_op *qop;
+
+	if(address->dimension_count > 1) {
+		// handling multiple pixels
+		uint32_t op_flags = qb_get_op_flags(cxt, opcode);
+		if(!(op_flags & QB_OP_MULTI_ADDRESS)) {
+			// handler for the multiple data version sits right after the single data version
+			opcode = opcode + 1;
+		}
+	}
+	qop = qb_append_op(cxt, opcode, 2);
+	qop->operands[0] = operands[0];
+	qop->operands[1] = *result;
+	return qop;
+}
+
+static qb_pixel_op_factory factory_apply_premult = {
+	qb_append_pixel_op,
 	qb_set_matching_result_dimensions,
-	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_PREMULT_F64_F64,		QB_PREMULT_F32_F32	},
+	{
+		{	0,							0						},
+		{	QB_PREMULT_F64_F64,			QB_PREMULT_F32_F32		},
+	}
 };
 
-static qb_float_op_factory factory_remove_premultiplication = {
-	qb_append_unary_op,
+static qb_pixel_op_factory factory_remove_premult = {
+	qb_append_pixel_op,
 	qb_set_matching_result_dimensions,
-	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_UNPREMULT_F64_F64,	QB_UNPREMULT_F32_F32	},
+	{
+		{	0,							0						},
+		{	QB_UNPREMULT_F64_F64,		QB_UNPREMULT_F32_F32	},
+	}
+};
+
+static qb_pixel_op_factory factory_rgb2hsv = {
+	qb_append_pixel_op,
+	qb_set_matching_result_dimensions,
+	QB_COERCE_TO_FLOATING_POINT,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{
+		{	QB_RGB2HSV_3X_F64_F64,		QB_RGB2HSV_3X_F32_F32	},
+		{	QB_RGB2HSV_4X_F64_F64,		QB_RGB2HSV_4X_F32_F32	},
+	}
+};
+
+static qb_pixel_op_factory factory_hsv2rgb = {
+	qb_append_pixel_op,
+	qb_set_matching_result_dimensions,
+	QB_COERCE_TO_FLOATING_POINT,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{
+		{	QB_HSV2RGB_3X_F64_F64,		QB_HSV2RGB_3X_F32_F32	},
+		{	QB_HSV2RGB_4X_F64_F64,		QB_HSV2RGB_4X_F32_F32	},
+	}
+};
+
+static qb_pixel_op_factory factory_rgb2hsl = {
+	qb_append_pixel_op,
+	qb_set_matching_result_dimensions,
+	QB_COERCE_TO_FLOATING_POINT,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{
+		{	QB_RGB2HSL_3X_F64_F64,		QB_RGB2HSL_3X_F32_F32	},
+		{	QB_RGB2HSL_4X_F64_F64,		QB_RGB2HSL_4X_F32_F32	},
+	}
+};
+
+static qb_pixel_op_factory factory_hsl2rgb = {
+	qb_append_pixel_op,
+	qb_set_matching_result_dimensions,
+	QB_COERCE_TO_FLOATING_POINT,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
+	{
+		{	QB_HSL2RGB_3X_F64_F64,		QB_HSL2RGB_3X_F32_F32	},
+		{	QB_HSL2RGB_4X_F64_F64,		QB_HSL2RGB_4X_F32_F32	},
+	}
 };

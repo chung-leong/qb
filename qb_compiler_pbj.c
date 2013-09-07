@@ -2019,7 +2019,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	for(i = 0; i < cxt->pbj_texture_count; i++) {
 		qb_pbj_texture *texture = &cxt->pbj_textures[i];
 		if(VALUE(U32, texture->address->dimension_addresses[2]) == 4) {
-			qb_create_unary_op(cxt, &factory_apply_premultiplication, texture->address, texture->address);
+			qb_create_unary_op(cxt, &factory_apply_premult, texture->address, texture->address);
 		}
 	}
 
@@ -2108,7 +2108,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 	// remove premultiplication with output has alpha channel
 	if(VALUE(U32, image_address->dimension_addresses[2]) == 4) {
-		qb_create_unary_op(cxt, &factory_remove_premultiplication, image_address, image_address);
+		qb_create_unary_op(cxt, &factory_remove_premult, image_address, image_address);
 	}
 
 	// return

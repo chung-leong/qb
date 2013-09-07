@@ -1047,6 +1047,9 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 									substitute = TRUE;
 								} 
 							}
+						} else if(dim->source_address == destination->variable.address) {
+							// the destination is same as the source
+							substitute = TRUE;
 						}
 					}
 				} else {

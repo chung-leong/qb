@@ -1184,7 +1184,6 @@ static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt,
 	if(IS_SCALAR(address)) {
 		qb_copy_element_to_zval(cxt, address, zvalue);
 	} else {
-		php_stream *stream;
 		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 		uint32_t element_count = VALUE(U32, address->array_size_address);
 		uint32_t byte_count = BYTE_COUNT(element_count, address->type);

@@ -128,6 +128,7 @@ struct qb_variable_dimensions {
 	uint32_t dimension_count;
 	uint32_t array_size;
 	qb_address *dimension_addresses[64];
+	qb_address *source_address;
 };
 
 enum qb_result_destination_type {
