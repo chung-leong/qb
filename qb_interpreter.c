@@ -472,7 +472,7 @@ static int32_t ZEND_FASTCALL qb_map_segment_to_file(qb_interpreter_context *cxt,
 		}
 		range.length = byte_count;
 		range.offset = 0;
-		range.mode = (write_access) ? PHP_STREAM_MAP_MODE_READWRITE : PHP_STREAM_MAP_MODE_READONLY;
+		range.mode = (write_access) ? PHP_STREAM_MAP_MODE_SHARED_READWRITE : PHP_STREAM_MAP_MODE_SHARED_READONLY;
 		range.mapped = NULL;
 
 		if(php_stream_set_option(stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_MAP_RANGE, &range) == PHP_STREAM_OPTION_RETURN_OK) {
