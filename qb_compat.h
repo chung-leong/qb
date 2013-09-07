@@ -162,6 +162,7 @@ static inline unsigned short __builtin_bswap16(unsigned short v) {
 	#define hypot		_hypot
 	#define hypotf		_hypotf
 	#define llabs		_abs64
+	#define isnan		_isnan
 
 double asinh(double z);
 double acosh(double x);
