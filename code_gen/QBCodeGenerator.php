@@ -243,6 +243,10 @@ class QBCodeGenerator {
 			if($handler->isVariableLength()) {
 				$flags[] = "QB_OP_VARIABLE_LENGTH";
 			}
+			if($handler->performsWrapAround()) {
+				$flags[] = "QB_OP_PERFORM_WRAP_AROUND";
+			}
+			
 			$combined = ($flags) ? implode(" | ", $flags) : "0";
 			$name = $handler->getName();
 			$lines[] = "// $name";
@@ -1243,8 +1247,26 @@ class QBCodeGenerator {
 				$this->handlers[] = new QBSampleBilinearHandler("SAMPLE_BL", $elementType, $addressMode, 3);
 			}
 			$this->handlers[] = new QBAlphaBlendHandler("BLEND", $elementType);
-			$this->handlers[] = new QBApplyPremultiplicationHandler("PREMULT", $elementType);
-			$this->handlers[] = new QBRemovePremultiplicationHandler("UNPREMULT", $elementType);
+			$this->handlers[] = new QBApplyPremultiplicationHandler("PREMULT", $elementType, null);
+			$this->handlers[] = new QBApplyPremultiplicationHandler("PREMULT", $elementType, "ARR");
+			$this->handlers[] = new QBRemovePremultiplicationHandler("UNPREMULT", $elementType, null);
+			$this->handlers[] = new QBRemovePremultiplicationHandler("UNPREMULT", $elementType, "ARR");
+			$this->handlers[] = new QBRGB2HSVHandler("RGB2HSV", $elementType, null, 3);
+			$this->handlers[] = new QBRGB2HSVHandler("RGB2HSV", $elementType, "ARR", 3);
+			$this->handlers[] = new QBRGB2HSVHandler("RGB2HSV", $elementType, null, 4);
+			$this->handlers[] = new QBRGB2HSVHandler("RGB2HSV", $elementType, "ARR", 4);
+			$this->handlers[] = new QBHSV2RGBHandler("HSV2RGB", $elementType, null, 3);
+			$this->handlers[] = new QBHSV2RGBHandler("HSV2RGB", $elementType, "ARR", 3);
+			$this->handlers[] = new QBHSV2RGBHandler("HSV2RGB", $elementType, null, 4);
+			$this->handlers[] = new QBHSV2RGBHandler("HSV2RGB", $elementType, "ARR", 4);
+			$this->handlers[] = new QBRGB2HSLHandler("RGB2HSL", $elementType, null, 3);
+			$this->handlers[] = new QBRGB2HSLHandler("RGB2HSL", $elementType, "ARR", 3);
+			$this->handlers[] = new QBRGB2HSLHandler("RGB2HSL", $elementType, null, 4);
+			$this->handlers[] = new QBRGB2HSLHandler("RGB2HSL", $elementType, "ARR", 4);
+			$this->handlers[] = new QBHSL2RGBHandler("HSL2RGB", $elementType, null, 3);
+			$this->handlers[] = new QBHSL2RGBHandler("HSL2RGB", $elementType, "ARR", 3);
+			$this->handlers[] = new QBHSL2RGBHandler("HSL2RGB", $elementType, null, 4);
+			$this->handlers[] = new QBHSL2RGBHandler("HSL2RGB", $elementType, "ARR", 4);
 		}
 	}
 	

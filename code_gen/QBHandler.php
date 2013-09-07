@@ -269,6 +269,13 @@ class QBHandler {
 		return $this->isVectorized();
 	}
 	
+	public function performsWrapAround() {
+		if($this->addressMode == "ARR" && !$this->isOverridden('getActionOnMultipleData')) {
+			return true;
+		}
+		return false;
+	}
+	
 	public function getFunctionName() {
 		$className = get_class($this);
 		$opName = substr($className, 2, -7);

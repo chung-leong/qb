@@ -507,7 +507,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 
 static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &arguments[0], *precision = &arguments[1], *mode = &arguments[2];
-	qb_primitive_type expr_type = qb_get_operand_type(cxt, &arguments[0], QB_COERCE_TO_FLOATING_POINT);
+	uint32_t coercion_flags = qb_get_coercion_flags(cxt, f->extra);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, &arguments[0], coercion_flags);
 	qb_do_type_coercion(cxt, &arguments[0], expr_type);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
@@ -642,7 +643,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_unshift(qb_compiler_conte
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_pad(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *length = &arguments[1], *value = &arguments[2];
-	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, 0);
+	uint32_t coercion_flags = qb_get_coercion_flags(cxt, f->extra);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, coercion_flags);
 	qb_do_type_coercion(cxt, container, expr_type);
 	qb_do_type_coercion(cxt, length, QB_TYPE_S32);
 	qb_do_type_coercion(cxt, value, expr_type);
@@ -794,8 +796,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_fill(qb_compiler_context 
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_column(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *column_index = &arguments[1];
-	uint32_t operand_flags = qb_get_coercion_flags(cxt, f->extra);
-	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, operand_flags);
+	uint32_t coercion_flags = qb_get_coercion_flags(cxt, f->extra);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, coercion_flags);
 	qb_do_type_coercion(cxt, container, expr_type);
 	qb_do_type_coercion(cxt, column_index, QB_TYPE_U32);
 
@@ -1564,6 +1566,12 @@ static void ZEND_FASTCALL qb_translate_intrinsic_minmax(qb_compiler_context *cxt
 		qb_do_type_coercion(cxt, container, QB_TYPE_ANY);
 
 		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+			if(container->type == QB_OPERAND_ADDRESS) {
+				result_prototype->preliminary_type = result_prototype->final_type = container->address->type;
+			} else if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
+				result_prototype->preliminary_type = container->result_prototype->preliminary_type;
+				result_prototype->final_type = container->result_prototype->final_type;
+			}
 			result->type = QB_OPERAND_RESULT_PROTOTYPE;
 			result->result_prototype = result_prototype;
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
@@ -1771,6 +1779,50 @@ static void ZEND_FASTCALL qb_translate_intrinsic_square_matrix_op(qb_compiler_co
 	}
 }
 
+static void ZEND_FASTCALL qb_translate_pixel_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_primitive_type expr_type = qb_do_type_coercion_for_op(cxt, f->extra, arguments, argument_count, result_prototype);
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_RESULT_PROTOTYPE;
+			result->result_prototype = result_prototype;
+		}
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *address = arguments[0].address;
+		qb_address *width_address;
+		uint32_t width;
+
+		if(IS_SCALAR(address)) {
+			qb_abort("%s() expects an array as parameter", f->name);
+		}
+
+		width_address = address->dimension_addresses[address->dimension_count - 1];
+		width = VALUE(U32, width_address);
+		if(!(width == 3 || width == 4) || !(width_address->flags & QB_ADDRESS_CONSTANT)) {
+			qb_abort("%s() expects an array whose last dimensions is 3 or 4", f->name);
+		}
+		if(result->type != QB_OPERAND_NONE) {
+			result->type = QB_OPERAND_ADDRESS;
+			result->address = qb_obtain_result_storage(cxt, f->extra, arguments, argument_count, expr_type, result_prototype);
+			qb_create_op(cxt, f->extra, arguments, argument_count, result);
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_translate_pixel4_op(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_address *address = arguments[0].address;
+		if(!IS_SCALAR(address)) {
+			qb_address *width_address = address->dimension_addresses[address->dimension_count - 1];
+			uint32_t width = VALUE(U32, width_address);
+			if(width != 4 || !(width_address->flags & QB_ADDRESS_CONSTANT)) {
+				qb_abort("%s() expects an array whose last dimensions is 4", f->name);
+			}
+		}
+	}
+	qb_translate_pixel_op(cxt, f, arguments, argument_count, result, result_prototype);
+}
+
 #define MAX_INLINE_FUNCTION_NAME_LEN		32
 
 static qb_intrinsic_function intrinsic_functions[] = {
@@ -1925,6 +1977,12 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"csinh",				qb_translate_intrinsic_complex,				1,		1,		&factory_complex_sinh		},
 	{	0,	"ccosh",				qb_translate_intrinsic_complex,				1,		1,		&factory_complex_cosh		},
 	{	0,	"ctanh",				qb_translate_intrinsic_complex,				1,		1,		&factory_complex_tanh		},
+	{	0,	"rgb2hsv",				qb_translate_pixel_op,						1,		1,		&factory_rgb2hsv			},
+	{	0,	"hsv2rgb",				qb_translate_pixel_op,						1,		1,		&factory_hsv2rgb			},
+	{	0,	"rgb2hsl",				qb_translate_pixel_op,						1,		1,		&factory_rgb2hsl			},
+	{	0,	"hsl2rgb",				qb_translate_pixel_op,						1,		1,		&factory_hsl2rgb			},
+	{	0,	"rgb_premult",			qb_translate_pixel4_op,						1,		1,		&factory_apply_premult		},
+	{	0,	"rgb_demult",			qb_translate_pixel4_op,						1,		1,		&factory_remove_premult		},
 	// unsupported functions
 	{	0,	"compact",				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
 	{	0,	"extract",				qb_translate_intrinsic_unsupported,			0,		-1,		NULL						},
