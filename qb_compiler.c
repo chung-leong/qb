@@ -2643,7 +2643,7 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 						} else if((qop->opcode == QB_MUL_4X_F64_F64_F64) && (next_qop->opcode == QB_ADD_4X_F64_F64_F64)) {
 							new_opcode = QB_MAC_4X_F64_F64_F64_F64;
 						}
-						if(new_opcode && 0) {
+						if(new_opcode) {
 							qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);
 							if(next_qop->operands[0].address == qop->operands[2].address) {
 								new_operands[0] = next_qop->operands[1];
