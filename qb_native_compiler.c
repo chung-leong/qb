@@ -349,33 +349,17 @@ static void ZEND_FASTCALL qb_print_typedefs(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "typedef struct qb_function\tqb_function;\n");
 	qb_print(cxt, "typedef struct qb_interpreter_context\tqb_interpreter_context;\n");
 	qb_print(cxt, "typedef struct qb_external_symbol\tqb_external_symbol;\n");
-	qb_print(cxt, "typedef struct qb_complex_F64\tqb_complex_F64;\n");
-	qb_print(cxt, "typedef struct qb_complex_F32\tqb_complex_F32;\n");
-
-	qb_print(cxt, "\
-struct qb_complex_F32 {\
-	float32_t r;\
-	float32_t i;\
-};\
-\n");
-
-	qb_print(cxt, "\
-struct qb_complex_F64 {\
-	float64_t r;\
-	float64_t i;\
-};\
-\n");
 
 	qb_print(cxt, "\
 struct qb_address {\
 	uint32_t mode;\
 	uint32_t type;\
 	uint32_t flags;\
+	uint32_t dimension_count;\
 	uint32_t segment_selector;\
 	uint32_t segment_offset;\
 	qb_address *array_index_address;\
 	qb_address *array_size_address;\
-	uint32_t dimension_count;\
 	qb_address **dimension_addresses;\
 	qb_address **array_size_addresses;\
 	qb_address *source_address;\
@@ -775,25 +759,27 @@ static zend_always_inline const char * qb_get_op_result_size_variables(qb_native
 #define POST_FUNCTION_CALL		2
 
 static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context *cxt, qb_address *address, int32_t context) {
-	if(address->source_address) {
-		qb_print_resynchronization(cxt, address->source_address, context);
-	} else {
-		if(IS_SCALAR(address)) {
-			if(!(address->flags & QB_ADDRESS_CONSTANT)) {
-				if((address->flags & QB_ADDRESS_AUTO_INCREMENT) || (context == POST_FUNCTION_CALL)) {
-					// transfer the value from the segment
-					qb_printf(cxt, "%s = %s[0];\n", qb_get_scalar(cxt, address), qb_get_segment_pointer(cxt, address));
-				} else if((address->flags & QB_ADDRESS_NON_LOCAL) && (context == POST_OP_ACTION)) {
-					// transfer value back to segment
-					qb_printf(cxt, "%s[0] = %s;\n", qb_get_segment_pointer(cxt, address), qb_get_scalar(cxt, address));
-				}
-			}
+	if(!(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)) {
+		if(address->source_address) {
+			qb_print_resynchronization(cxt, address->source_address, context);
 		} else {
-			// make sure the size variable is up-to-date
-			qb_print_resynchronization(cxt, address->array_size_address, context);
-			if(address->dimension_count > 1) {
-				// the dimension also could have changed
-				qb_print_resynchronization(cxt, address->dimension_addresses[0], context);
+			if(IS_SCALAR(address)) {
+				if(!(address->flags & QB_ADDRESS_CONSTANT)) {
+					if((address->flags & QB_ADDRESS_AUTO_INCREMENT) || (context == POST_FUNCTION_CALL)) {
+						// transfer the value from the segment
+						qb_printf(cxt, "%s = %s[0];\n", qb_get_scalar(cxt, address), qb_get_segment_pointer(cxt, address));
+					} else if((address->flags & QB_ADDRESS_NON_LOCAL) && (context == POST_OP_ACTION)) {
+						// transfer value back to segment
+						qb_printf(cxt, "%s[0] = %s;\n", qb_get_segment_pointer(cxt, address), qb_get_scalar(cxt, address));
+					}
+				}
+			} else {
+				// make sure the size variable is up-to-date
+				qb_print_resynchronization(cxt, address->array_size_address, context);
+				if(address->dimension_count > 1) {
+					// the dimension also could have changed
+					qb_print_resynchronization(cxt, address->dimension_addresses[0], context);
+				}
 			}
 		}
 	}
@@ -1207,14 +1193,18 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
 		uint32_t operand_flags, operand_address_mode, operand_index = 0;
-		for(j = 0; (operand_flags = qb_get_operand_flags(cxt, qop->opcode, j)); j++) {
-			operand_address_mode = operand_flags & 0x07;
-			if(QB_OPERAND_ADDRESS_VAR <= operand_address_mode && operand_address_mode <= QB_OPERAND_ADDRESS_ARR) {
-				if(operand_address_mode == QB_OPERAND_ADDRESS_ARR) {
-					qb_address *address = qop->operands[j].address;
-					need_pointer[address->type][operand_index] = TRUE;
+		for(j = 0; j < qop->operand_count; j++) {
+			qb_operand *operand = &qop->operands[j];
+			if(QB_OPERAND_ADDRESS_VAR <= operand->type && operand->type <= QB_OPERAND_ADDRESS_ARR) {
+				operand_flags = qb_get_operand_flags(cxt, qop->opcode, j);
+				operand_address_mode = operand_flags & 0x07;
+				if(QB_OPERAND_ADDRESS_VAR <= operand_address_mode && operand_address_mode <= QB_OPERAND_ADDRESS_ARR) {
+					if(operand_address_mode == QB_OPERAND_ADDRESS_ARR) {
+						qb_address *address = operand->address;
+						need_pointer[address->type][operand_index] = TRUE;
+					}
+					operand_index++;
 				}
-				operand_index++;
 			}
 		}
 	}
