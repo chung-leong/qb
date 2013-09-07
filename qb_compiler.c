@@ -1867,15 +1867,15 @@ static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address 
 	}
 }
 
-static qb_primitive_type ZEND_FASTCALL qb_get_array_initializer_type(qb_compiler_context *cxt, qb_array_initializer *initializer) {
+static qb_primitive_type ZEND_FASTCALL qb_get_array_initializer_type(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t flags) {
 	uint32_t i;
 	qb_primitive_type highest_rank_type = 0;
 	for(i = 0; i < initializer->element_count; i++) {
 		qb_operand *element = &initializer->elements[i];
 		qb_primitive_type element_type;
 		if(element->type == QB_OPERAND_ARRAY_INITIALIZER) {
-			element_type = qb_get_array_initializer_type(cxt, element->array_initializer);
-		} else if(element->type == QB_OPERAND_ZVAL) {
+			element_type = qb_get_array_initializer_type(cxt, element->array_initializer, flags);
+		} else if(element->type == QB_OPERAND_ZVAL && !(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
 			element_type = qb_get_zval_type(cxt, element->constant, 0);
 		} else if(element->type == QB_OPERAND_ADDRESS) {
 			element_type = element->address->type;
@@ -1883,10 +1883,12 @@ static qb_primitive_type ZEND_FASTCALL qb_get_array_initializer_type(qb_compiler
 			continue;
 		}
 		if(highest_rank_type == QB_TYPE_UNKNOWN || element_type > highest_rank_type) {
-			highest_rank_type = element_type;
+			if(element_type != QB_TYPE_UNKNOWN) {
+				highest_rank_type = element_type;
+			}
 		}
 	}
-	if(highest_rank_type == QB_TYPE_UNKNOWN) {
+	if(highest_rank_type == QB_TYPE_UNKNOWN && !(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
 		// the array is empty--doesn't really matter what it is
 		highest_rank_type = QB_TYPE_I32;
 	}
@@ -1904,8 +1906,10 @@ static qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *
 		} else if(flags & QB_COERCE_TO_FLOATING_POINT && operand->address->type < QB_TYPE_F32) {
 			if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
 				return QB_TYPE_F64;
+			} else if(operand->address->type >= QB_TYPE_S64) {
+				return QB_TYPE_F64;
 			} else {
-				return (operand->address->type <= QB_TYPE_U16) ? QB_TYPE_F32 : QB_TYPE_F64;
+				return QB_TYPE_F32;
 			}
 		} else if(flags & QB_COERCE_TO_SIGNED) {
 			return operand->address->type & ~QB_TYPE_UNSIGNED;
@@ -1914,23 +1918,44 @@ static qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *
 		}
 		return operand->address->type;
 	} else if(operand->type == QB_OPERAND_ZVAL) {
-		return qb_get_zval_type(cxt, operand->constant, flags);
+		if(!(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
+			return qb_get_zval_type(cxt, operand->constant, flags);
+		}
 	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
-		return qb_get_array_initializer_type(cxt, operand->array_initializer);
+		return qb_get_array_initializer_type(cxt, operand->array_initializer, flags);
 	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		if(operand->result_prototype->final_type != QB_TYPE_UNKNOWN) {
 			return operand->result_prototype->final_type;
 		} 
 		if(operand->result_prototype->preliminary_type != QB_TYPE_ANY) {
-			return operand->result_prototype->preliminary_type;
+			if(!(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
+				return operand->result_prototype->preliminary_type;
+			}
 		}
 	}
 	return QB_TYPE_UNKNOWN;
 }
 
 static qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand *operands, uint32_t count, uint32_t flags) {
-	qb_primitive_type type1 = QB_TYPE_UNKNOWN, type2;
+	qb_primitive_type type1, type2;
+	qb_primitive_type definite_type;
 	uint32_t i;
+
+	// first, consider only operands whose type we're sure about 
+	type1 = QB_TYPE_UNKNOWN;
+	for(i = 0; i < count; i++) {
+		qb_operand *operand = &operands[i];
+		type2 = qb_get_operand_type(cxt, operand, flags | QB_RETRIEVE_DEFINITE_TYPE_ONLY);
+		if(type2 != QB_TYPE_UNKNOWN) {
+			if(type1 == QB_TYPE_UNKNOWN || type1 < type2) {
+				type1 = type2;
+			}
+		}
+	}
+	definite_type = type1;
+
+	// then, loosen it up a bit
+	type1 = QB_TYPE_UNKNOWN;
 	for(i = 0; i < count; i++) {
 		qb_operand *operand = &operands[i];
 		type2 = qb_get_operand_type(cxt, operand, flags);
@@ -1940,6 +1965,14 @@ static qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_cont
 			}
 		}
 	}
+
+	if(definite_type < type1) {
+		// don't perform F32-to-F64 promotion if it's trigger by a constant
+		if(definite_type == QB_TYPE_F32) {
+			type1 = definite_type;
+		}
+	}
+
 	if(type1 == QB_TYPE_UNKNOWN) {
 		if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
 			type1 = QB_TYPE_F64;
@@ -2059,7 +2092,7 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 			}
 		} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
 			if(desired_type == QB_TYPE_ANY) {
-				desired_type = qb_get_array_initializer_type(cxt, operand->array_initializer);
+				desired_type = qb_get_array_initializer_type(cxt, operand->array_initializer, 0);
 			}
 			operand->address = qb_obtain_array_from_initializer(cxt, operand->array_initializer, desired_type);
 			operand->type = QB_OPERAND_ADDRESS;

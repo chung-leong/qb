@@ -19,9 +19,9 @@ function test_function() {
 	$b = array(307.5, 1, 0.6, 0.5);
 	$c = array( array(300, 1, 0.5, 0.7), array(120, 1, 0.5, 0.4), array(240, 1, 0.5, 0.6) );
 	
-	/*echo hsl2rgb($a), "\n";
+	echo hsl2rgb($a), "\n";
 	echo hsl2rgb($b), "\n";
-	echo hsl2rgb($c), "\n";*/
+	echo hsl2rgb($c), "\n";
 	echo hsl2rgb(rgb2hsl(array(0.25, 0.38, 0.78))), "\n";
 }
 

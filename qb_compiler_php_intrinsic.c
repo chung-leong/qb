@@ -507,7 +507,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_rand(qb_compiler_context *cxt, 
 
 static void ZEND_FASTCALL qb_translate_intrinsic_round(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &arguments[0], *precision = &arguments[1], *mode = &arguments[2];
-	qb_primitive_type expr_type = qb_get_operand_type(cxt, &arguments[0], QB_COERCE_TO_FLOATING_POINT);
+	uint32_t coercion_flags = qb_get_coercion_flags(cxt, f->extra);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, &arguments[0], coercion_flags);
 	qb_do_type_coercion(cxt, &arguments[0], expr_type);
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
@@ -642,7 +643,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_unshift(qb_compiler_conte
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_pad(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *length = &arguments[1], *value = &arguments[2];
-	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, 0);
+	uint32_t coercion_flags = qb_get_coercion_flags(cxt, f->extra);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, coercion_flags);
 	qb_do_type_coercion(cxt, container, expr_type);
 	qb_do_type_coercion(cxt, length, QB_TYPE_S32);
 	qb_do_type_coercion(cxt, value, expr_type);
@@ -794,8 +796,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_fill(qb_compiler_context 
 
 static void ZEND_FASTCALL qb_translate_intrinsic_array_column(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &arguments[0], *column_index = &arguments[1];
-	uint32_t operand_flags = qb_get_coercion_flags(cxt, f->extra);
-	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, operand_flags);
+	uint32_t coercion_flags = qb_get_coercion_flags(cxt, f->extra);
+	qb_primitive_type expr_type = qb_get_operand_type(cxt, container, coercion_flags);
 	qb_do_type_coercion(cxt, container, expr_type);
 	qb_do_type_coercion(cxt, column_index, QB_TYPE_U32);
 
