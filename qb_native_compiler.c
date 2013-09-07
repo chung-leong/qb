@@ -981,16 +981,11 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					operand_type = operand_flags & 0x07;
 					operand_address_mode = operand_type - 1;
 					if(operand_address_mode == QB_ADDRESS_MODE_ARR) {
-						const char *pointer = qb_get_pointer(cxt, address);
 						const char *size = qb_get_array_size(cxt, address);
 						if(operand_flags & QB_OPERAND_WRITABLE) {
-							qb_printf(cxt, "#define res_start	%s\n", pointer);
-							qb_printf(cxt, "#define res_end	(res_start + res_count)\n");
 							qb_printf(cxt, "#define res_ptr	op%d_ptr_%s\n", operand_number, type_names[address->type]);
 							qb_printf(cxt, "#define res	res_ptr[0]\n");
 						} else {
-							qb_printf(cxt, "#define op%d_start	%s\n", operand_number, pointer);
-							qb_printf(cxt, "#define op%d_end	(op%d_start + %s)\n", operand_number, operand_number, size);
 							qb_printf(cxt, "#define op%d_ptr	op%d_ptr_%s\n", operand_number, operand_number, type_names[address->type]);
 							qb_printf(cxt, "#define op%d_count	%s\n", operand_number, size);
 							qb_printf(cxt, "#define op%d	op%d_ptr[0]\n", operand_number, operand_number);
@@ -1030,8 +1025,8 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					operand_type = operand_flags & 0x07;
 					operand_address_mode = operand_type - 1;
 					if(operand_flags & QB_OPERAND_WRITABLE) {
-
 						if(operand_address_mode == QB_ADDRESS_MODE_ARR) {
+							const char *pointer = qb_get_pointer(cxt, address);
 							if(!(qop->flags & QB_OP_UNSET)) {
 								const char *result_size_code, *result_size_variables, *result_size;
 
@@ -1090,7 +1085,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 										}
 									}
 								}
-								qb_printf(cxt, "res_ptr = res_start;\n");
+								qb_printf(cxt, "res_ptr = %s;\n", pointer);
 							} else {
 								// unset the array
 								qb_print_segment_shrinkage(cxt, address);
@@ -1132,7 +1127,8 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 							}
 						}
 						if(operand_address_mode == QB_ADDRESS_MODE_ARR) {
-							qb_printf(cxt, "op%d_ptr = op%d_start;\n", operand_number, operand_number);
+							const char *pointer = qb_get_pointer(cxt, address);
+							qb_printf(cxt, "op%d_ptr = %s;\n", operand_number, pointer);
 						}
 					}
 					operand_number++;
@@ -1194,13 +1190,9 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					operand_address_mode = operand_type - 1;
 					if(operand_address_mode == QB_ADDRESS_MODE_ARR) {
 						if(operand_flags & QB_OPERAND_WRITABLE) {
-							qb_printf(cxt, "#undef res_start\n");
-							qb_printf(cxt, "#undef res_end\n");
 							qb_printf(cxt, "#undef res_ptr\n");
 							qb_printf(cxt, "#undef res\n");
 						} else {
-							qb_printf(cxt, "#undef op%d_start\n", operand_number);
-							qb_printf(cxt, "#undef op%d_end\n", operand_number);
 							qb_printf(cxt, "#undef op%d_ptr\n", operand_number);
 							qb_printf(cxt, "#undef op%d_count\n", operand_number);
 							qb_printf(cxt, "#undef op%d\n", operand_number);
@@ -1488,7 +1480,7 @@ static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_co
 	}
 
 	// delete the temporary c file
-	//DeleteFile(cxt->c_file_path);
+	DeleteFile(cxt->c_file_path);
 	return TRUE;
 }
 #endif	// _MSC_VER
