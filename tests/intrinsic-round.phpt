@@ -23,11 +23,11 @@ function test_function() {
 	$b = M_PI;
 	$c = 12345678;
 	
-	//echo round($a), "\n";
-	//echo round($b), "\n";
+	echo round($a), "\n";
+	echo round($b), "\n";
 	echo round($c), "\n";
 	
-	/*echo round($a, 1), "\n";
+	echo round($a, 1), "\n";
 	echo round($b, 2), "\n";
 	echo round($c, -3), "\n";
 
@@ -36,7 +36,7 @@ function test_function() {
 	echo round($b, 1, PHP_ROUND_HALF_UP), "\n";
 	echo round($b, 1, PHP_ROUND_HALF_DOWN), "\n";
 	echo round($b, 1, PHP_ROUND_HALF_ODD), "\n";
-	echo round($b, 1, PHP_ROUND_HALF_EVEN), "\n";*/
+	echo round($b, 1, PHP_ROUND_HALF_EVEN), "\n";
 }
 
 qb_compile();
