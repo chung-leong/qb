@@ -292,6 +292,7 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define PRIu32	"STRING(PRIu32)"\n");
 	qb_print(cxt, "#define PRIu64	"STRING(PRIu64)"\n");
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
+	qb_print(cxt, "#define EXPECTED(c)	"STRING(EXPECTED(c))"\n");
 	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
 	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
@@ -757,6 +758,7 @@ static zend_always_inline const char * qb_get_op_result_size_variables(qb_native
 
 #define POST_OP_ACTION			1
 #define POST_FUNCTION_CALL		2
+#define POST_ARRAY_RESIZE		3
 
 static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context *cxt, qb_address *address, int32_t context) {
 	if(!(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)) {
@@ -768,7 +770,8 @@ static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context 
 					if((address->flags & QB_ADDRESS_AUTO_INCREMENT) || (context == POST_FUNCTION_CALL)) {
 						// transfer the value from the segment
 						qb_printf(cxt, "%s = %s[0];\n", qb_get_scalar(cxt, address), qb_get_segment_pointer(cxt, address));
-					} else if((address->flags & QB_ADDRESS_NON_LOCAL) && (context == POST_OP_ACTION)) {
+					} else if(((address->flags & QB_ADDRESS_NON_LOCAL) && (context == POST_OP_ACTION))
+							|| (context == POST_ARRAY_RESIZE)) {
 						// transfer value back to segment
 						qb_printf(cxt, "%s[0] = %s;\n", qb_get_segment_pointer(cxt, address), qb_get_scalar(cxt, address));
 					}
@@ -800,6 +803,8 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 		}
 
 		if(qop->flags & QB_OP_VARIABLE_LENGTH) {
+			qb_printf(cxt, "#define PHP_LINE_NUMBER	%d\n\n", qop->line_number);
+
 			if(qop->opcode == QB_FCALL_VAR || qop->opcode == QB_FCALL_MIX) {
 				uint32_t argument_count = qop->operands[1].argument_count;
 				uint32_t symbol_index = qop->operands[2].symbol_index;
@@ -807,7 +812,6 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 				zend_function *zfunc = cxt->external_symbols[symbol_index].pointer;
 				uint32_t i, k;
 
-				qb_printf(cxt, "#define PHP_LINE_NUMBER	%d\n\n", qop->line_number);
 				qb_printf(cxt, "function = cxt->function->external_symbols[%d]->pointer;\n", symbol_index);
 				qb_printf(cxt, "qb_initialize_function_call(cxt, function, %d, PHP_LINE_NUMBER);\n", argument_count);
 
@@ -880,10 +884,78 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					}
 				}
 
+			} else if(qop->opcode == QB_ARESIZE_I08 || qop->opcode == QB_ARESIZE_I16 || qop->opcode == QB_ARESIZE_I32 || qop->opcode == QB_ARESIZE_I64 || qop->opcode == QB_ARESIZE_F32 || qop->opcode == QB_ARESIZE_F64) {
+				static const char *type_initials[] = { "I08", "I08", "I16", "I16", "I32", "I32", "I64", "I64", "F32", "F64" };
+				uint32_t i;
+				uint32_t dimension_count = qop->operands[1].argument_count;
+				qb_operand *dimension_operands = &qop->operands[3];
+				qb_address *array_address = qop->operands[2].address;
+				const char *pointer = qb_get_pointer(cxt, array_address);
+				const char *array_size = qb_get_array_size(cxt, array_address);
+
+				qb_printf(cxt, "#define res_ptr	op%d_ptr_%s\n", 3, type_names[array_address->type]);
+				qb_printf(cxt, "res_ptr = %s;\n", pointer);
+				qb_print(cxt,  "changed = 0;\n");
+				qb_print(cxt,  "new_length = 1;\n");
+				qb_printf(cxt, "old_length = %s;\n", array_size);
+				qb_printf(cxt, "dimension_count = %d;\n", dimension_count);
+				for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+					qb_address *size_address = dimension_operands[i * 3 + 0].address;
+					qb_address *dimension_address = dimension_operands[i * 3 + 1].address;
+					qb_address *new_dimension_address = dimension_operands[i * 3 + 2].address;
+					const char *size = qb_get_scalar(cxt, size_address);
+					const char *dimension = qb_get_scalar(cxt, dimension_address);
+					const char *new_dimension = qb_get_scalar(cxt, new_dimension_address);
+					qb_printf(cxt, "old_dims[%d] = %s;\n", i, dimension);
+					qb_printf(cxt, "new_dims[%d] = %s;\n", i, new_dimension);
+					if(!(dimension_address->flags & QB_ADDRESS_CONSTANT)) {
+						qb_printf(cxt, "if(%s != %s) {\n", dimension, new_dimension);
+						qb_print(cxt,  "	changed = 1;\n");
+						qb_printf(cxt, "	%s = %s;\n", dimension, new_dimension);
+						qb_print(cxt,  "}\n");
+					}
+					qb_printf(cxt, "new_length *= %s;\n", new_dimension);
+					if(!(size_address->flags & QB_ADDRESS_CONSTANT)) {
+						qb_printf(cxt, "%s = new_length;\n", size);
+					}
+				}
+				qb_print(cxt,  "if(EXPECTED(changed)) {\n");
+				qb_print(cxt,  "	if(new_length > old_length) {\n");
+				qb_printf(cxt, "		qb_enlarge_segment(cxt, &cxt->storage->segments[%d], new_length);\n", array_address->segment_selector);
+				qb_print(cxt,  "		if(old_length > 0) {\n");
+				qb_printf(cxt, "			res_ptr = %s;\n", pointer);
+				qb_printf(cxt, "			qb_relocate_elements_%s(res_ptr, old_dims, new_dims, dimension_count);\n", type_initials[array_address->type]);
+				qb_print(cxt,  "		}\n");
+				qb_print(cxt,  "	} else if(old_length < new_length) {\n");
+				qb_print(cxt,  "		if(new_length > 0) {\n");
+				qb_printf(cxt, "			qb_relocate_elements_%s(res_ptr, old_dims, new_dims, dimension_count);\n", type_initials[array_address->type]);
+				qb_print(cxt,  "		}\n");
+				qb_printf(cxt, "		qb_shrink_segment(cxt, &cxt->storage->segments[%d], 0, new_length);\n", array_address->segment_selector);
+				qb_print(cxt,  "	} else {\n");
+				qb_print(cxt,  "		if(old_length > 0) {\n");
+				qb_printf(cxt, "			qb_relocate_elements_%s(res_ptr, old_dims, new_dims, dimension_count);\n", type_initials[array_address->type]);
+				qb_print(cxt,  "		}\n");
+				qb_print(cxt,  "	}\n");
+				qb_print(cxt,  "}\n");
+
+				// copy new dimensions back into local store
+				for(i = 0; i < dimension_count; i++) {
+					qb_address *size_address = dimension_operands[i * 3 + 0].address;
+					qb_address *dimension_address = dimension_operands[i * 3 + 1].address;
+					if(!(dimension_address->flags & QB_ADDRESS_CONSTANT)) {
+						qb_print_resynchronization(cxt, dimension_address, POST_ARRAY_RESIZE);
+					}
+					if(!(size_address->flags & QB_ADDRESS_CONSTANT)) {
+						qb_print_resynchronization(cxt, size_address, POST_ARRAY_RESIZE);
+					}
+				}
 #if ZEND_DEBUG
-				qb_printf(cxt, "#undef PHP_LINE_NUMBER\n");
+				qb_printf(cxt, "#undef res_ptr\n");
 #endif
 			}
+#if ZEND_DEBUG
+			qb_printf(cxt, "#undef PHP_LINE_NUMBER\n");
+#endif
 		} else {
 			const char *action, *jump_targets[2];
 			qb_address *result_address = NULL, *container;
@@ -980,7 +1052,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 										qb_print(cxt, result_size_code);
 									}
 
-									for(var = result_size_variables; var[0] != '\0'; var += var_len) {
+									for(var = result_size_variables; var[0] != '\0'; var += var_len + 1) {
 										uint32_t number;
 										var_len = strlen(var);
 
@@ -1184,6 +1256,8 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	qb_print(cxt, "uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;\n");
 	qb_print(cxt, "uint32_t string_length, symbol_index;\n");
 	qb_print(cxt, "uint32_t condition, res_count, res_count_before;\n");
+	qb_print(cxt, "uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION], dimension_count, new_length, old_length;\n");
+	qb_print(cxt, "int32_t changed;\n");
 	qb_print(cxt, "void * isset_pointer;\n");
 	qb_print(cxt, "zend_function *function;\n");
 	qb_print(cxt, "\n");
@@ -1195,16 +1269,9 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 		uint32_t operand_flags, operand_address_mode, operand_index = 0;
 		for(j = 0; j < qop->operand_count; j++) {
 			qb_operand *operand = &qop->operands[j];
-			if(QB_OPERAND_ADDRESS_VAR <= operand->type && operand->type <= QB_OPERAND_ADDRESS_ARR) {
-				operand_flags = qb_get_operand_flags(cxt, qop->opcode, j);
-				operand_address_mode = operand_flags & 0x07;
-				if(QB_OPERAND_ADDRESS_VAR <= operand_address_mode && operand_address_mode <= QB_OPERAND_ADDRESS_ARR) {
-					if(operand_address_mode == QB_OPERAND_ADDRESS_ARR) {
-						qb_address *address = operand->address;
-						need_pointer[address->type][operand_index] = TRUE;
-					}
-					operand_index++;
-				}
+			if(operand->type == QB_OPERAND_ADDRESS_ARR) {
+				qb_address *address = operand->address;
+				need_pointer[address->type][j] = TRUE;
 			}
 		}
 	}
@@ -1421,7 +1488,7 @@ static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_co
 	}
 
 	// delete the temporary c file
-	DeleteFile(cxt->c_file_path);
+	//DeleteFile(cxt->c_file_path);
 	return TRUE;
 }
 #endif	// _MSC_VER
