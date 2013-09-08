@@ -184,17 +184,7 @@ __forceinline float acoshf(float x) { return (float) acosh(x); }
 __forceinline float atanhf(float x) { return (float) atanh(x); }
 __forceinline float roundf(float x) { return (float) round(x); }
 #else
-#ifndef HAVE_EXP2F
-float exp2f(float x);
-#endif
 
-#ifndef HAVE_ROUNDF
-float roundf(float x);
-#endif
-
-#ifndef HAVE_LOG2F
-float log2f(float x);
-#endif
 #endif
 
 
