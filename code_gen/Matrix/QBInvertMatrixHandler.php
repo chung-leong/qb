@@ -25,9 +25,10 @@ class QBInvertMatrixHandler extends QBMatrixHandler {
 			$determinantHandler = new QBDeterminantHandler(NULL, $this->operandType, "VAR", "variable");
 			$determinantFunction = $determinantHandler->getFunctionName();
 			
-			$lines[] = "ALLOCA_FLAG(use_heap)";
+			$lines[] = "ALLOCA_FLAG(use_heap1)";
+			$lines[] = "ALLOCA_FLAG(use_heap2)";
 			$lines[] = "$cType *__restrict minor = do_alloca((MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1) * sizeof($cType), use_heap);";
-			$lines[] = "$cType *__restrict cofactors = do_alloca(MATRIX1_ROWS * MATRIX1_COLS * sizeof($cType), use_heap);";
+			$lines[] = "$cType *__restrict cofactors = do_alloca(MATRIX1_ROWS * MATRIX1_COLS * sizeof($cType), use_heap2);";
 			$lines[] = "uint32_t i, j, k, m, n, p, q;";
 			$lines[] = "$cType a, sign_init = 1, sign, det = 0, rdet;";
 			$lines[] = "for(m = 0, p = 0; m < MATRIX1_ROWS; m++) {";
@@ -63,8 +64,8 @@ class QBInvertMatrixHandler extends QBMatrixHandler {
 			$lines[] = 			"res_ptr[p] = ($cType) NAN;";
 			$lines[] = 		"}";
 			$lines[] = "}";
-			$lines[] = "free_alloca(minor, use_heap);";
-			$lines[] = "free_alloca(cofactors, use_heap);";
+			$lines[] = "free_alloca(minor, use_heap1);";
+			$lines[] = "free_alloca(cofactors, use_heap2);";
 		} else {
 			switch($this->operandSize) {
 				case 2: {

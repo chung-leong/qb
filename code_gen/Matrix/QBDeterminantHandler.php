@@ -69,6 +69,7 @@ class QBDeterminantHandler extends QBMatrixHandler {
 			$lines[] = 			"det += a * minor_det * sign;";
 			$lines[] = 			"sign = -sign;";
 			$lines[] = 		"}";
+			$lines[] =		"free_alloca(minor, use_heap);";
 			$lines[] = 		"res = det;";
 			$lines[] = "}";
 		} else {
