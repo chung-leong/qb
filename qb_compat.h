@@ -184,8 +184,6 @@ __forceinline float asinhf(float x) { return (float) asinh(x); }
 __forceinline float acoshf(float x) { return (float) acosh(x); }
 __forceinline float atanhf(float x) { return (float) atanh(x); }
 __forceinline float roundf(float x) { return (float) round(x); }
-#else
-
 #endif
 
 

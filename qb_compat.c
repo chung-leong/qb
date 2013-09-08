@@ -71,9 +71,6 @@ double round(double x) {
 	return floor(x + 0.5);
 }
 
-#else
-
-
 #endif
 
 #ifdef __GNUC__

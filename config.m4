@@ -63,8 +63,6 @@ if test "$PHP_QB" != "no"; then
     AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ ])
     AC_MSG_RESULT([yes])
   fi
-
-  AC_CHECK_FUNCS([roundf exp2f log2f])
     
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
