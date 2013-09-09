@@ -31,21 +31,10 @@ $b = 2;
 $c = 3;
 $d = tanh(M_PI);
 	
-echo atanh($a), "\n";
-echo atanh($b), "\n";
-echo atanh($c), "\n";
-echo atanh($d), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d);
 
 ?>
 --EXPECT--
-INF
-NAN
-NAN
-3.1415926535898
----
 INF
 NAN
 NAN

@@ -2212,6 +2212,22 @@ static void ZEND_FASTCALL qb_translate_bool(qb_compiler_context *cxt, void *op_f
 }
 
 static void ZEND_FASTCALL qb_translate_isset(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_operand *variable = &operands[0];
+		if(variable->type == QB_OPERAND_ZVAL && variable->constant->type == IS_STRING) {
+			qb_variable *qvar = qb_find_variable(cxt, NULL, variable->constant, 0);
+			if(qvar) {
+				if(!(qvar->flags & QB_VARIABLE_LOCAL)) {
+					qvar->flags |= QB_VARIABLE_LOCAL;
+					qb_set_variable_type(cxt, qvar);
+				}
+				variable->type = QB_OPERAND_ADDRESS;
+				variable->address = qvar->address;
+			}
+		}
+	}
+#endif
 	qb_translate_bool(cxt, op_factory, operands, operand_count, result, result_prototype);
 }
 

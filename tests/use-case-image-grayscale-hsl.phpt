@@ -60,7 +60,7 @@ if(file_exists($correct_path)) {
 		$correct_output = imagecreatefrompng($correct_path);
 		$diff = _image_diff($image, $correct_output);
 		// error can be large for this filter
-		if($diff < 1) {
+		if($diff < 2) {
 			// the output is different ever so slightly
 			$match = true;
 		} else {

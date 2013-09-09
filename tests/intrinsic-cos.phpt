@@ -32,23 +32,10 @@ $i = 1;
 	
 ini_set('precision', 10);
 
-echo cos($a), "\n";
-echo cos($b), "\n";
-echo cos($c), "\n";
-echo cos($d), "\n";
-echo cos($i), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d, $i);
 
 ?>
 --EXPECT--
-0.7071067812
-6.123233996E-17
--0.9899924966
--0.4161468365
-0.5403023059
----
 0.7071067812
 6.123233996E-17
 -0.98999

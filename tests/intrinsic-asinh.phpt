@@ -33,21 +33,10 @@ $d = sinh(M_PI);
 	
 ini_set('precision', 10);
 
-echo asinh($a), "\n";
-echo asinh($b), "\n";
-echo asinh($c), "\n";
-echo asinh($d), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d);
 
 ?>
 --EXPECT--
-0.881373587
-1.443635475
-1.818446459
-3.141592654
----
 0.881373587
 1.443635475
 1.8184

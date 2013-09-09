@@ -32,23 +32,10 @@ $i = 1;
 	
 ini_set('precision', 10);
 
-echo sin($a), "\n";
-echo sin($b), "\n";
-echo sin($c), "\n";
-echo sin($d), "\n";
-echo sin($i), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d, $i);
 
 ?>
 --EXPECT--
-0.7071067812
-1
-0.1411200081
-0.9092974268
-0.8414709848
----
 0.7071067812
 1
 0.14112

@@ -32,23 +32,10 @@ $i = 1;
 
 ini_set('precision', 10);
 	
-echo tan($a), "\n";
-echo tan($b), "\n";
-echo tan($c), "\n";
-echo tan($d), "\n";
-echo tan($i), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d, $i);
 
 ?>
 --EXPECT--
-1
-1.633123935E+16
--0.1425465431
--2.185039863
-1.557407725
----
 1
 1.633123935E+16
 -0.14255

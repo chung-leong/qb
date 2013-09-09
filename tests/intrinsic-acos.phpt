@@ -29,21 +29,10 @@ $d = cos(M_PI / 2);
 	
 ini_set('precision', 10);
 
-echo acos($a), "\n";
-echo acos($b), "\n";
-echo acos($c), "\n";
-echo acos($d), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d);
 
 ?>
 --EXPECT--
-1.570796327
-0
-1.047197551
-1.570796327
----
 1.570796327
 0
 1.0472

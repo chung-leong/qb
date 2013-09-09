@@ -31,21 +31,10 @@ $b = 2;
 $c = 3;
 $d = cosh(M_PI);
 	
-echo acosh($a), "\n";
-echo acosh($b), "\n";
-echo acosh($c), "\n";
-echo acosh($d), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d);
 
 ?>
 --EXPECT--
-0
-1.3169578969248
-1.7627471740391
-3.1415926535898
----
 0
 1.3169578969248
 1.762747

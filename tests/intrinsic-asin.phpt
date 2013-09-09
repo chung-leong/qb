@@ -27,21 +27,10 @@ $b = 1;
 $c = 0.5;
 $d = sin(M_PI / 2);
 	
-echo asin($a), "\n";
-echo asin($b), "\n";
-echo asin($c), "\n";
-echo asin($d), "\n";
-
-echo "---\n";
 test_function($a, $b, $c, $d);
 
 ?>
 --EXPECT--
-0
-1.5707963267949
-0.5235987755983
-1.5707963267949
----
 0
 1.5707963267949
 0.5235988
