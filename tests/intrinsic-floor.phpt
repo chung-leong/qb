@@ -25,7 +25,7 @@ function test_function() {
 	$b = 1.9;
 	$c = -7.7;
 	$d = 12345678;
-	$e = [32.7, 55.5, 100, -100];
+	$e = array(32.7, 55.5, 100, -100);
 	
 	echo floor($a), "\n";
 	echo floor($b), "\n";
