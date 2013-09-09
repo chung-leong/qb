@@ -37,12 +37,18 @@ if test "$PHP_QB" != "no"; then
     	qb_cflags="$qb_cflags -march=$PHP_CPU"
     fi
   fi
+
+  AC_SEARCH_LIBS(exp,m,[ ])
+
+  AC_USE_SYSTEM_EXTENSIONS
   
   dnl See if compile support -march=native 
   `echo "" | $CC -fsyntax-only -march=native -xc - 2> /dev/null`
   if [[ $? -eq 0 ]]; then
     AC_DEFINE(HAVE_GCC_MARCH_NATIVE,1,[ ])
-  fi  
+  fi
+  
+  AC_CHECK_FUNCS([exp2f log2f roundf])
 
   AC_MSG_CHECKING([for sincos])  
   `echo "void sincos(double x, double *ps, double *pc); int main(int argc, const char *argv[]) { sincos(0, 0, 0); return 0; }" | $CC -o sincos -xc - 2> /dev/null`
