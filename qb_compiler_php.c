@@ -809,6 +809,11 @@ static void ZEND_FASTCALL qb_lock_temporary_variables(qb_compiler_context *cxt) 
 			}
 			if(address->array_index_address) {
 				qb_lock_address(cxt, address->array_index_address);
+			}			
+		} else {
+			// lock temporary variables used to initialize an array as well
+			if(temp_variable->operand.type == QB_OPERAND_ARRAY_INITIALIZER) {
+				qb_lock_operand(cxt, &temp_variable->operand);
 			}
 		}
 	}

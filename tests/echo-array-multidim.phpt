@@ -9,6 +9,7 @@ Echo variable test (multidimensional array)
  * @engine	qb
  * @local	int32[*][2][4]	$a
  * @local	float64[4][4]	$b
+ * @local	float64			$(num1|num2)
  * 
  * @return	void
  * 
@@ -18,11 +19,13 @@ function test_function() {
 	$a[] = array( array(10, 20, 30, 40), array(50, 60, 70, 80));
 	$a[] = array( array(100, 200, 300, 400), array(500, 600, 700, 800));
 	
+	$num1 = 0.596;
+	$num2 = 0.000;
 	$b = array(
-		array(0.299,  0.596,  0.212, 0.000),
+		array(0.299,  $num1 + 0 + $num2,  0.212 + $num2, 0.000 + $num2),
 		array(0.587, -0.275, -0.523, 0.000),
 		array(0.114, -0.321,  0.311, 0.000),
-		array(0.000,  0.000,  0.000, 1.000),
+		array(0.000,  0.000,  0.000, 1 + $num2),
 	);
 	
 	echo $a, "\n";

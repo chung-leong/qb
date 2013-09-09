@@ -48,6 +48,8 @@ function test_function() {
 	echo det($d), "\n";
 }
 
+ini_set("qb.column_major_matrix", true);
+
 qb_compile();
 
 test_function();
