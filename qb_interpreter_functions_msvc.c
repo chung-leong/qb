@@ -11873,7 +11873,7 @@ void ZEND_FASTCALL qb_do_invert_matrix_4x_multiple_times_F64(float64_t *op1_ptr,
 void ZEND_FASTCALL qb_do_invert_matrix_F32(float32_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float32_t *res_ptr) {
 	ALLOCA_FLAG(use_heap1)
 	ALLOCA_FLAG(use_heap2)
-	float32_t *__restrict minor = do_alloca((MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1) * sizeof(float32_t), use_heap);
+	float32_t *__restrict minor = do_alloca((MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1) * sizeof(float32_t), use_heap1);
 	float32_t *__restrict cofactors = do_alloca(MATRIX1_ROWS * MATRIX1_COLS * sizeof(float32_t), use_heap2);
 	uint32_t i, j, k, m, n, p, q;
 	float32_t a, sign_init = 1, sign, det = 0, rdet;
@@ -11917,7 +11917,7 @@ void ZEND_FASTCALL qb_do_invert_matrix_F32(float32_t *op1_ptr, uint32_t MATRIX1_
 void ZEND_FASTCALL qb_do_invert_matrix_F64(float64_t *op1_ptr, uint32_t MATRIX1_ROWS, uint32_t MATRIX1_COLS, float64_t *res_ptr) {
 	ALLOCA_FLAG(use_heap1)
 	ALLOCA_FLAG(use_heap2)
-	float64_t *__restrict minor = do_alloca((MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1) * sizeof(float64_t), use_heap);
+	float64_t *__restrict minor = do_alloca((MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1) * sizeof(float64_t), use_heap1);
 	float64_t *__restrict cofactors = do_alloca(MATRIX1_ROWS * MATRIX1_COLS * sizeof(float64_t), use_heap2);
 	uint32_t i, j, k, m, n, p, q;
 	float64_t a, sign_init = 1, sign, det = 0, rdet;
