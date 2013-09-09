@@ -1297,7 +1297,7 @@ pcre *type_dim_regexp;
 pcre *type_dim_alias_regexp;
 pcre *identifier_regexp;
 
-static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool, const char *s, uint32_t len, qb_type_declaration *decl, uint32_t dimension_index) {
+static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool, const char *s, uint32_t len, qb_type_declaration *decl, uint32_t dimension_index, zend_class_entry *ce) {
 	int offsets[64], matches;
 	uint32_t dimension = 0;
 
@@ -1307,24 +1307,34 @@ static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool
 			const char *number = s + GROUP_OFFSET(TYPE_DIM_INT);
 			dimension = strtol(number, NULL, 0);
 		} else if(FOUND_GROUP(TYPE_DIM_CONSTANT)) {
-			zend_constant *zconst;
+			zval **p_value, *constant = NULL;
 			uint32_t name_len = GROUP_LENGTH(TYPE_DIM_CONSTANT);
 			ALLOCA_FLAG(use_heap)
 			char *name = do_alloca(name_len + 1, use_heap);
 			TSRMLS_FETCH();
 			memcpy(name, s + GROUP_OFFSET(TYPE_DIM_CONSTANT), name_len);
 			name[name_len] = '\0';
-			if(zend_hash_find(EG(zend_constants), name, name_len + 1, (void **) &zconst) != FAILURE) {
-				if(Z_TYPE(zconst->value) == IS_LONG) {
-					long const_value = Z_LVAL(zconst->value);
+
+			if(ce && (zend_hash_find(&ce->constants_table, name, name_len + 1, (void **) &p_value) == SUCCESS)) {
+				constant = *p_value;
+			} else {
+				zend_constant *zconst;
+				if(zend_hash_find(EG(zend_constants), name, name_len + 1, (void **) &zconst) != FAILURE) {
+					constant = &zconst->value;
+				}
+			}
+
+			if(constant) {
+				if(Z_TYPE_P(constant) == IS_LONG) {
+					long const_value = Z_LVAL_P(constant);
 					if(const_value <= 0) {
 						qb_abort("constant '%s' is not a positive integer", name);
 					}
 					dimension = const_value;
-				} else if(Z_TYPE(zconst->value) == IS_STRING) {
+				} else if(Z_TYPE_P(constant) == IS_STRING) {
 					char *expanded;
-					uint32_t expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN(zconst->value), Z_STRVAL(zconst->value));
-					int32_t processed = qb_parse_type_dimension(pool, expanded, expanded_len, decl, dimension_index);
+					uint32_t expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
+					int32_t processed = qb_parse_type_dimension(pool, expanded, expanded_len, decl, dimension_index, ce);
 					efree(expanded);
 					free_alloca(name, use_heap);
 					return (processed == -1) ? -1 : offsets[1];
@@ -1394,7 +1404,7 @@ static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool
 	return offsets[1];
 }
 
-static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler_data_pool *pool, const char *s, uint32_t len, uint32_t var_type) {
+static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler_data_pool *pool, const char *s, uint32_t len, uint32_t var_type, zend_class_entry *ce) {
 	qb_type_declaration *decl = NULL;
 	int offsets[64], matches;
 
@@ -1485,7 +1495,7 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 			decl->dimension_count = dimension_count;
 
 			for(i = 0; i < dimension_count; i++) {
-				int32_t processed = qb_parse_type_dimension(pool, dimension_string, dimension_len, decl, i);
+				int32_t processed = qb_parse_type_dimension(pool, dimension_string, dimension_len, decl, i, ce);
 				if(processed == -1) {
 					return NULL;
 				}
@@ -3943,7 +3953,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 		} else {
 			// scan for declaration only if there wasn't one already
 			if(fd_index == -1) {
-				function_decl = qb_parse_function_doc_comment(cxt->pool, specified_function);
+				function_decl = qb_parse_function_doc_comment(cxt->pool, specified_function, NULL);
 				if(!function_decl) {
 					qb_abort("%s() does not have a Doc Comments block containing a valid declaration", specified_function->common.function_name);
 				}
@@ -3977,7 +3987,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 					if(action == QB_SCAN_ALL || strcmp(zfunc->op_array.filename, current_filename) == 0) {
 						int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
 						if(fd_index == -1) {
-							qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc);
+							qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc, NULL);
 							if(function_decl) {
 								qb_add_function_declaration(cxt, function_decl);
 							}
@@ -4002,7 +4012,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 								zend_function *zfunc = p->pData;
 								int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
 								if(fd_index == -1) {
-									qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc);
+									qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc, ce);
 									if(function_decl) {
 										if(!class_decl) {
 											// parse the class doc comment if there's a method that's going to be translated

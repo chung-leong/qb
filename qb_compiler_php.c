@@ -374,7 +374,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_tab
 						case FUNC_DECL_IMPORT: {
 						}	break;
 						case FUNC_DECL_RETURN: {
-							decl = qb_parse_type_declaration(pool, data, data_len, QB_VARIABLE_RETURN_VALUE);
+							decl = qb_parse_type_declaration(pool, data, data_len, QB_VARIABLE_RETURN_VALUE, NULL);
 							if(decl) {
 								qb_add_variable_declaration(function_decl, decl);
 							} else {
@@ -403,7 +403,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_tab
 							if(Z_TYPE_P(inner_element) == IS_STRING) {
 								const char *data = Z_STRVAL_P(inner_element);
 								uint32_t data_len = Z_STRLEN_P(inner_element);
-								decl = qb_parse_type_declaration(pool, data, data_len, var_type);
+								decl = qb_parse_type_declaration(pool, data, data_len, var_type, NULL);
 								if(decl) {
 									qb_add_variable_declaration(function_decl, decl);
 								} else {
@@ -433,7 +433,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_tab
 	return function_decl;
 }
 
-static qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc) {
+static qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc, zend_class_entry *ce) {
 	qb_function_declaration *function_decl = NULL;
 	const char *s = zfunc->op_array.doc_comment;
 	size_t len = zfunc->op_array.doc_comment_len;
@@ -482,7 +482,7 @@ static qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_
 					} else {
 						qb_abort_doc_comment_unexpected_error(s, len, matches, offsets, zfunc->op_array.filename, zfunc->op_array.line_start);
 					}
-					decl = qb_parse_type_declaration(pool, data, data_len, var_type);
+					decl = qb_parse_type_declaration(pool, data, data_len, var_type, ce);
 					if(decl) {
 						qb_add_variable_declaration(function_decl, decl);
 					} else {
@@ -526,7 +526,7 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 				} else {
 					qb_abort_doc_comment_unexpected_error(s, len, matches, offsets, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_start));
 				} 
-				decl = qb_parse_type_declaration(pool, data, data_len, var_type);
+				decl = qb_parse_type_declaration(pool, data, data_len, var_type, ce);
 				if(decl) {
 					qb_add_class_variable_declaration(class_decl, decl);
 				} else {
@@ -554,7 +554,7 @@ static qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compil
 					qb_type_declaration *decl;
 
 					if(FOUND_GROUP(FUNC_DECL_VAR)) {
-						decl = qb_parse_type_declaration(pool, data, data_len, 0);
+						decl = qb_parse_type_declaration(pool, data, data_len, 0, ce);
 						if(decl) {
 							decl->name = p->arKey;
 							decl->name_length = p->nKeyLength - 1;
