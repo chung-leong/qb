@@ -2138,7 +2138,11 @@ static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 					symbol_address = qb_find_symbol(cxt, symbol_name);
 					if(!symbol_address || symbol_address == (void *) -1) {
-						qb_abort("missing symbol: %s\n", symbol_name);
+						if(strcmp(symbol_name, "_floor") == 0) {
+							symbol_address = floor;
+						} else {
+							qb_abort("missing symbol: %s\n", symbol_name);
+						}
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)

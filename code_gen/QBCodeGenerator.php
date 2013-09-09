@@ -548,6 +548,13 @@ class QBCodeGenerator {
 			}
 		}
 		ksort($symbols);
+		
+		if($this->compiler == "MSVC") {
+			// floor() is not constant in MSVC when intrinsic are used
+			// it therefore cannot be used as an initializer
+			// need it get the address at runtime instead
+			$symbols["floor"] = "(void*) -1";
+		}
 	
 		// print out prototypes of intrinsics
 		foreach($intrinsic as $line) {

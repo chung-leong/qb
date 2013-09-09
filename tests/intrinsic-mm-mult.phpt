@@ -33,7 +33,7 @@ function test_function() {
 	echo "$c\n";
 }
 
-ini_set("qb.row_major_matrix", true);
+ini_set("qb.column_major_matrix", false);
 
 qb_compile();
 

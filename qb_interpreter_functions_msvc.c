@@ -28859,7 +28859,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	0,	"expm1f",	(void*) -1	},
 	{	0,	"fabs",	fabs	},
 	{	0,	"fabsf",	(void*) -1	},
-	{	0,	"floor",	floor	},
+	{	0,	"floor",	(void*) -1	},
 	{	0,	"floorf",	(void*) -1	},
 	{	0,	"fmod",	fmod	},
 	{	0,	"fmodf",	(void*) -1	},
