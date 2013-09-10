@@ -2,8 +2,8 @@ require 'formula'
 
 class PhpQb < Formula
   homepage 'http://www.php-qb.net/'
-  url 'https://php-qb.googlecode.com/files/qb-1.3-source-code.tar.bz2'
-  sha1 'a9dda48aaae614835fe8d8a769dd8c612ad54232'
+  url 'https://php-qb.googlecode.com/files/qb-1.4-source-code.tar.bz2'
+  sha1 '0c629479fbd1ff6c2d489c3d173d0fd3592147c7'
 
   depends_on 'autoconf' => :build
   
