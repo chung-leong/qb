@@ -4141,7 +4141,10 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 		efree(cxt);
 		QB_G(build_context) = NULL;
 	} else {
-		qb_abort("no qb functions found");
+		if(action == QB_SCAN_FILE || action == QB_SCAN_ALL) {
+			qb_warn("no qb functions found");
+			return FAILURE;
+		}
 	}
 	return SUCCESS;
 }
