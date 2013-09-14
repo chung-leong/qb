@@ -183,6 +183,7 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);
+void qb_warn(const char *format, ...);
 
 void ZEND_FASTCALL qb_free_function(qb_function *qfunc);
 void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle);
