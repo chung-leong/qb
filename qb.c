@@ -303,8 +303,11 @@ PHP_FUNCTION(qb_compile)
 		return;
 	}
 
-	qb_compile(arg1, arg2 TSRMLS_CC);
-	RETURN_TRUE;
+	if(qb_compile(arg1, arg2 TSRMLS_CC)) {
+		RETURN_TRUE;
+	} else {
+		RETURN_FALSE;
+	}
 }
 /* }}} */
 
@@ -392,6 +395,28 @@ NO_RETURN void qb_abort(const char *format, ...) {
 #endif
 }
 
+ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
+void qb_warn(const char *format, ...) {
+	const char *filename;
+	uint32_t lineno;
+	va_list args;
+	TSRMLS_FETCH();
+
+	if(QB_G(current_filename)) {
+		filename = QB_G(current_filename);
+	} else {
+		filename = zend_get_executed_filename(TSRMLS_C);
+	}
+	if(QB_G(current_line_number)) {
+		lineno = QB_G(current_line_number);
+	} else {
+		lineno = zend_get_executed_lineno(TSRMLS_C);
+	}
+
+	va_start(args, format);
+	zend_error_cb(E_WARNING, filename, lineno, format, args);
+	va_end(args);
+}
 /*
  * Local variables:
  * tab-width: 4
