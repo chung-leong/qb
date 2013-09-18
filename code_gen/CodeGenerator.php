@@ -88,8 +88,8 @@ class CodeGenerator {
 		$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
 		$lines[] =		"";
 		$lines[] = 		"if(cxt) {";
-		$lines[] = 			"register void *__restrict op_handler;";
-		$lines[] = 			"register int8_t *__restrict instruction_pointer;";
+		$lines[] = 			"register void *__restrict handler;";
+		$lines[] = 			"register int8_t *__restrict ip;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
@@ -99,19 +99,19 @@ class CodeGenerator {
 		$lines[] = 			"";
 		$lines[] = 			"{";
 		$lines[] = 				"uint32_t i;";
-		$lines[] = 				"instruction_pointer = cxt->function->instructions;";
-		$lines[] = 				"op_handler = *((void **) instruction_pointer);";
+		$lines[] = 				"ip = cxt->function->instructions;";
+		$lines[] = 				"handler = *((void **) instruction_pointer);";
 		$lines[] = 				"instruction_pointer += sizeof(void *);";
 		$lines[] =			"";
 		if($compiler == "GCC") {
-			$lines[] = 			"goto *op_handler;";
+			$lines[] = 			"goto *handler;";
 		}
 		$lines[] = 			"}";
 		$lines[] = "";
 		if($compiler == "MSVC") {
 			// Visual C doesn't support computed goto so we have to use a giant switch() statement instead
 			$lines[] = 		"do {";
-			$lines[] = 			"switch((int) op_handler) {";
+			$lines[] = 			"switch((int) handler) {";
 		}
 		$this->writeCode($handle, $lines);
 		
@@ -128,10 +128,6 @@ class CodeGenerator {
 			$lines[] = 			"}";
 			$lines[] = 		"} while(1);";
 		}
-		$lines[] = 			"label_exit:";
-		$lines[] = 			"{";
-		$lines[] = 				"return;";
-		$lines[] = 			"}";
 		if($compiler == "GCC") {
 			$lines[] = 	"} else {";
 			foreach($this->handlers as $handler) {

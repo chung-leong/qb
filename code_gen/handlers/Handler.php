@@ -63,13 +63,13 @@ class Handler {
 			// assume the first branch is taken
 			$lines[] = "{";
 			$lines[] = 		"int32_t condition;";
-			$lines[] = 		$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler1");
+			$lines[] = 		$this->getSetHandlerCode("(($instr *) ip)->next_handler1");
 			$lines[] = 		$this->getAction();
 			$lines[] = 		"if(condition) {";
-			$lines[] = 			"instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer1;";
+			$lines[] = 			"ip = (($instr *) ip)->instruction_pointer1;";
 			$lines[] = 		"} else {";
-			$lines[] = 			$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler2");
-			$lines[] = 			"instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer2;";
+			$lines[] = 			$this->getSetHandlerCode("(($instr *) ip)->next_handler2");
+			$lines[] = 			"ip = (($instr *) ip)->instruction_pointer2;";
 			$lines[] = 		"}";
 			$lines[] = "}";
 			$lines[] = $this->getJumpCode();
@@ -77,14 +77,14 @@ class Handler {
 			// regular, non-jump instruction goes to the next instruction
 			// a unconditional jump instruction goes to the jump target
 			$lines[] = "{";
-			$lines[] = 		$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
+			$lines[] = 		$this->getSetHandlerCode("(($instr *) ip)->next_handler");
 			$lines[] = 		$this->getAction();
-			$lines[] = "}";
 			if($this->isVariableLength()) {
-				$lines[] = "instruction_pointer += (($instr *) instruction_pointer)->length;";
+				$lines[] = "ip += (($instr *) ip)->length;";
 			} else {
-				$lines[] = "instruction_pointer += sizeof($instr);";
+				$lines[] = "ip += sizeof($instr);";
 			}
+			$lines[] = "}";
 			$lines[] = $this->getJumpCode();
 		} else {
 			// end of execution
@@ -356,7 +356,7 @@ class Handler {
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);
 			$addressMode = $this->getOperandAddressMode($i);
-			$operand = "((($instr *) instruction_pointer)->operand$i)";
+			$operand = "((($instr *) ip)->operand$i)";
 			switch($addressMode) {
 				case 'SCA':
 					if($forDeclaration) {
@@ -386,7 +386,7 @@ class Handler {
 		if($dstCount) {
 			$cType = $this->getOperandCType($i);
 			$addressMode = $this->getOperandAddressMode($i);
-			$operand = "((($instr *) instruction_pointer)->operand$i)";
+			$operand = "((($instr *) ip)->operand$i)";
 			switch($addressMode) {
 				case 'SCA':
 					if($forDeclaration) {
@@ -490,7 +490,7 @@ class Handler {
 			$params[] = "$instr *__restrict instr";
 		} else {
 			$params[] = "cxt";
-			$params[] = "($instr *) instruction_pointer";
+			$params[] = "($instr *) ip";
 		}
 		return implode(", ", $params);
 	}
@@ -581,13 +581,13 @@ class Handler {
 	
 	// return code for setting the next op handler
 	protected function getSetHandlerCode($value) {
-		return "op_handler = $value;";
+		return "handler = $value;";
 	}
 
 	// return code for jumping to the next op handler
 	protected function getJumpCode() {
 		if(self::$compiler == "GCC") {
-			return "goto *op_handler;";
+			return "goto *handler;";
 		} else if(self::$compiler == "MSVC") {
 			return "break;";
 		}

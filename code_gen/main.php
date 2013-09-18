@@ -39,21 +39,21 @@ INCLUDE;
 $generator = new CodeGenerator;
 
 echo "Creating qb_interpreter_gcc.h\n";
-$handle = fopen("$targetFolder/qb_interpreter_gcc_new.h", "w");
+$handle = fopen("$targetFolder/qb_interpreter_gcc.h", "w");
 fwrite($handle, $copyright);
 fwrite($handle, "\n");
 $generator->writeTypeDeclarations($handle, 'GCC');
 $generator->writeFunctionPrototypes($handle, 'GCC');
 
 echo "Creating qb_interpreter_msvc.h\n";
-$handle = fopen("$targetFolder/qb_interpreter_msvc_new.h", "w");
+$handle = fopen("$targetFolder/qb_interpreter_msvc.h", "w");
 fwrite($handle, $copyright);
 fwrite($handle, "\n");
 $generator->writeTypeDeclarations($handle, 'MSVC');
 $generator->writeFunctionPrototypes($handle, 'MSVC');
 
 echo "Creating qb_interpreter_gcc.c\n";
-$handle = fopen("$targetFolder/qb_interpreter_gcc_new.c", "w");
+$handle = fopen("$targetFolder/qb_interpreter_gcc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
@@ -62,7 +62,7 @@ $generator->writeMainLoop($handle, 'GCC');
 $generator->writeNativeDebugStub($handle, 'GCC');
 
 echo "Creating qb_interpreter_msvc.c\n";
-$handle = fopen("$targetFolder/qb_interpreter_msvc_new.c", "w");
+$handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
@@ -71,7 +71,7 @@ $generator->writeMainLoop($handle, 'MSVC');
 $generator->writeNativeDebugStub($handle, 'MSVC');
 
 echo "Creating qb_interpreter_functions_gcc.c\n";
-$handle = fopen("$targetFolder/qb_interpreter_functions_gcc_new.c", "w");
+$handle = fopen("$targetFolder/qb_interpreter_functions_gcc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
@@ -80,7 +80,7 @@ $generator->writeFunctionDefinitions($handle, 'GCC');
 $generator->writeNativeSymbolTable($handle, 'GCC');
 
 echo "Creating qb_interpreter_functions_msvc.c\n";
-$handle = fopen("$targetFolder/qb_interpreter_functions_msvc_new.c", "w");
+$handle = fopen("$targetFolder/qb_interpreter_functions_msvc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
@@ -89,13 +89,13 @@ $generator->writeFunctionDefinitions($handle, 'MSVC', 'FUNCTION DEFINITIONS');
 $generator->writeNativeSymbolTable($handle, 'MSVC', 'NATIVE SYMBOLS');
 
 echo "Creating qb_opcodes.h\n";
-$handle = fopen("$targetFolder/qb_opcodes_new.h", "w");
+$handle = fopen("$targetFolder/qb_opcodes.h", "w");
 fwrite($handle, $copyright);
 fwrite($handle, "\n");
 $generator->writeOpCodes($handle);
 
 echo "Creating qb_data_tables_gcc.c\n";
-$handle = fopen("$targetFolder/qb_data_tables_gcc_new.c", "w");
+$handle = fopen("$targetFolder/qb_data_tables_gcc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "\n");
@@ -104,7 +104,7 @@ $generator->writeOpNames($handle);
 //$generator->writeNativeCodeTables($handle, 'GCC');
 
 echo "Creating qb_data_tables_msvc.c\n";
-$handle = fopen("$targetFolder/qb_data_tables_msvc_new.c", "w");
+$handle = fopen("$targetFolder/qb_data_tables_msvc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "\n");
