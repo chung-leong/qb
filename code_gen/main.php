@@ -101,7 +101,7 @@ fwrite($handle, $include);
 fwrite($handle, "\n");
 $generator->writeOpInfo($handle);
 $generator->writeOpNames($handle);
-$generator->writeNativeCodeTables($handle, 'GCC');
+//$generator->writeNativeCodeTables($handle, 'GCC');
 
 echo "Creating qb_data_tables_msvc.c\n";
 $handle = fopen("$targetFolder/qb_data_tables_msvc_new.c", "w");
@@ -110,6 +110,6 @@ fwrite($handle, $include);
 fwrite($handle, "\n");
 $generator->writeOpInfo($handle, 'MSVC');
 $generator->writeOpNames($handle, 'MSVC');
-$generator->writeNativeCodeTables($handle, 'MSVC');
+//$generator->writeNativeCodeTables($handle, 'MSVC');
 
 ?>

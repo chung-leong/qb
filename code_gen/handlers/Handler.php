@@ -235,6 +235,10 @@ class Handler {
 		return $this->multipleData;
 	}	
 	
+	public function isMultithreaded() {
+		return false;
+	}	
+	
 	public function isVariableLength() {
 		return false;
 	}
@@ -307,41 +311,41 @@ class Handler {
 
 	public function getHandlerFunctionDefinition() {
 		$functionType = $this->getHandlerFunctionType();
-		if($functionType) {
-			$function = $this->getHandlerFunctionName();
-			$parameterList = $this->getHandlerFunctionParameterList(true);
-			$expressions = $this->getActionExpressions();
-			switch($functionType) {
-				case 'inline': $typeDecl = "static zend_always_inline void"; break;
-				case 'extern': $typeDecl = "void ZEND_FASTCALL"; break;
-			}
-			
-			// replace op# with (*op#_ptr) for array operands and res with (*res_ptr)
-			$expressions = is_array($expressions) ? array_linearize($expressions) : array($expressions);
-			$srcCount = $this->getInputOperandCount();
-			$arrayOperands = array();
-			for($i = 1; $i <= $srcCount; $i++) {
-				if($this->getOperandAddressMode($i) == "ARR") {
-					$arrayOperands[] = $i;
-				}
-			}
-			if($arrayOperands) {
-				$inputOperandRegExp = '/\bop(' . implode('|', $arrayOperands) . ')\b/';
-			}
-			foreach($expressions as &$expression) {
-				if($arrayOperands) {
-					$expression = preg_replace($inputOperandRegExp, '(*op\1_ptr)', $expression);
-				}
-				$expression = preg_replace('/\bres\b/', '(*res_ptr)', $expression);
-			}
-			
-			$lines = array();			
-			$lines[] = "$typeDecl $function($parameterList) {";
-			$lines[] = $expressions;
-			$lines[] = "}";
-			return $lines;
+		if(!$functionType) {
+			return null;
 		}
-		return null;
+		$function = $this->getHandlerFunctionName();
+		$parameterList = $this->getHandlerFunctionParameterList(true);
+		$expressions = $this->getActionExpressions();
+		switch($functionType) {
+			case 'inline': $typeDecl = "static zend_always_inline void"; break;
+			case 'extern': $typeDecl = "void ZEND_FASTCALL"; break;
+		}
+		
+		// replace op# with (*op#_ptr) for array operands and res with (*res_ptr)
+		$expressions = is_array($expressions) ? array_linearize($expressions) : array($expressions);
+		$srcCount = $this->getInputOperandCount();
+		$arrayOperands = array();
+		for($i = 1; $i <= $srcCount; $i++) {
+			if($this->getOperandAddressMode($i) == "ARR") {
+				$arrayOperands[] = $i;
+			}
+		}
+		if($arrayOperands) {
+			$inputOperandRegExp = '/\bop(' . implode('|', $arrayOperands) . ')\b/';
+		}
+		foreach($expressions as &$expression) {
+			if($arrayOperands) {
+				$expression = preg_replace($inputOperandRegExp, '(*op\1_ptr)', $expression);
+			}
+			$expression = preg_replace('/\bres\b/', '(*res_ptr)', $expression);
+		}
+		
+		$lines = array();			
+		$lines[] = "$typeDecl $function($parameterList) {";
+		$lines[] = $expressions;
+		$lines[] = "}";
+		return $lines;
 	}
 	
 	public function getHandlerFunctionParameterList($forDeclaration) {
@@ -412,11 +416,73 @@ class Handler {
 		return implode(", ", $params);
 	}
 
-	public function getDispatcherFunctionName() {
+	// return the name of the dispatcher function, which sends a instruction to multiple threads 
+	protected function getDispatcherFunctionName() {
+		$instr = $this->getInstructionStructure();
+		$name = "qb_dispatch_" . substr($instr, 3);
+		return $name;
+	}
+	
+	// return the parameter list of the dispatcher function
+	protected function getDispatcherFunctionParameterList($forDeclaration) {
+		$instr = $this->getInstructionStructure();
+		$params = array();
+		if($forDeclaration) {
+			$params[] = "qb_interpreter_context *__restrict cxt";
+			$params[] = "void *control_func";
+			$params[] = "$instr *__restrict instr";
+		} else {
+			$params[] = "cxt";
+			$params[] = $this->getControllerFunctionName();
+			$params[] = "instr";
+		}
+		return implode(", ", $params);
+	}
+	
+	// return the body list of the dispatcher function
+	public function getDispatcherFunctionDefinition() {
+		if(!$this->isMultipleData() || !$this->isMultithreaded()) {
+			return null;
+		}
+		$instr = $this->getInstructionStructure();
+		$dispatcherTypeDecl = "void ZEND_FASTCALL";
+		$dispatcherFunction = $this->getDispatcherFunctionName();
+		$dispatcherParameterList = $this->getDispatcherFunctionParameterList(true);
+		$opCount = $this->getOperandCount();
+		$lines = array();
+		$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
+		$lines[] =		"uint32_t j;";
+		$lines[] =		"$instr new_instr_list[MAX_THREAD_COUNT];";
+		$lines[] =		"for(j = 0; j < cxt->thread_count_for_next_op; j++) {";
+		$lines[] =			"$instr *new_instr = &instruction_buffers[j];";
+		$lines[] =			"qb_pointer_adjustment *adj;";
+		// create temporary instruction structures
+		for($i = 1, $k = 0; $i < $opCount; $i++) {
+			$addressMode = $this->getOperandAddressMode($i);
+			$cType = $this->getOperandCType($i);
+			if($addressMode == "ARR") {
+				$lines[] = "adj = cxt->adjustments_for_next_op[j][$k];";
+				$lines[] = "new_instr->operand{$i}.data_pointer = instr->operand{$i}.data_pointer);";
+				$lines[] = "new_instr->operand{$i}.index_pointer = &adj->index;";
+				$lines[] = "new_instr->operand{$i}.size_pointer = &adj->count;";
+				$k++;
+			} else {
+				$lines[] = "new_instr->operand{$i} = (($cType *) instr->operand{$i};";
+			}
+		}
+		$lines[] =		"}";
+		$lines[] = "qb_dispatch_instruction_to_threads(cxt, control_func, new_instr_list);";
+		$lines[] = "}";
+		return $lines;
+	}
+	
+	// return the body of the controller function, which decides whether to use multithreading or not
+	protected function getControllerFunctionName() {
 		return $this->getFunctionName("dispatch");
 	}
 	
-	public function getDispatcherFunctionParameterList($forDeclaration) {
+	// return the parameter list of the controller function
+	protected function getControllerFunctionParameterList($forDeclaration) {
 		$instr = $this->getInstructionStructure();
 		$params = array();
 		if($forDeclaration) {
@@ -429,39 +495,23 @@ class Handler {
 		return implode(", ", $params);
 	}
 	
-	public function getDispatcherFunctionDefinition() {
-		$instr = $this->getInstructionStructure();
+	// return the body of the controller function
+	public function getControllerFunctionDefinition() {
+		if(!$this->isMultipleData() || !$this->isMultithreaded()) {
+			return null;
+		}
 		$opCount = $this->getOperandCount();
+		$controllerTypeDecl = "void";
+		$controllerFunction = $this->getControllerFunctionName();
+		$controllerParameterList = $this->getControllerFunctionParameterList(true);
 		$dispatcherFunction = $this->getDispatcherFunctionName();
-		$dispatcherParameterList = $this->getHandlerFunctionParameterList(true);
-		$dispatcherTypeDecl = "void";
+		$dispatcherParameterList = $this->getDispatcherFunctionParameterList(false);
 		$handlerFunction = $this->getHandlerFunctionName();
 		$handlerParameterList = $this->getHandlerFunctionParameterList(false);
 		$lines = array();
-		$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
+		$lines[] = "$controllerTypeDecl $controllerFunction($controllerParameterList) {";
 		$lines[] =		"if(cxt->thread_count_for_next_op) {";
-		$lines[] =			"uint32_t j;";
-		$lines[] =			"$instr new_instr_list[MAX_THREAD_COUNT];";
-		$lines[] =			"for(j = 0; j < cxt->thread_count_for_next_op; j++) {";
-		$lines[] =				"$instr *new_instr = &instruction_buffers[j];";
-		$lines[] =				"qb_pointer_adjustment *adj;";
-		// create temporary instruction structures
-		for($i = 1, $k = 0; $i < $opCount; $i++) {
-			$addressMode = $this->getOperandAddressMode($i);
-			$cType = $this->getOperandCType($i);
-			$operandSize = $this->getOperandSize($i);
-			if($addressMode == "ARR" && $operandSize > 0) {
-				$lines[] =		"adj = cxt->adjustments_for_next_op[j][$k];";
-				$lines[] =		"new_instr->operand{$i}.data_pointer = (($cType *) instr->operand{$i}.data_pointer) + instr->operand{$i}.index_pointer[0];";
-				$lines[] =		"new_instr->operand{$i}.index_pointer = &adj->index;";
-				$lines[] =		"new_instr->operand{$i}.size_pointer = &adj->count;";
-				$k++;
-			} else {
-				$lines[] =		"new_instr->operand{$i} = (($cType *) instr->operand{$i};";
-			}
-		}
-		$lines[] =			"}";
-		$lines[] =			"qb_dispatch_instruction_to_threads(cxt, $dispatcherFunction, new_instr_list);";
+		$lines[] =			"$dispatcherFunction($dispatcherParameterList);";
 		$lines[] = 		"} else {";
 		$lines[] = 			"$handlerFunction($handlerParameterList);";
 		$lines[] =		"}";
@@ -473,14 +523,16 @@ class Handler {
 	public function getAction() {
 		$functionType = $this->getHandlerFunctionType();
 		if($functionType) {	
-			if(!$this->isMultipleData()) {
+			if(!$this->isMultipleData() || !$this->isMultithreaded()) {
 				// call the handler directly
 				$function = $this->getHandlerFunctionName();
 				$parameterList = $this->getHandlerFunctionParameterList(false);
 			} else {
-				// use the dispatcher function
-				$function = $this->getDispatcherFunctionName();
-				$parameterList = $this->getDispatcherFunctionParameterList(false);
+				// send instruction to the controller function, which will either
+				// (1) call the dispatcher function, which then calls the controller function again from different threads
+				// (2) call the handler function
+				$function = $this->getControllerFunctionName();
+				$parameterList = $this->getControllerFunctionParameterList(false);
 			}
 			return "$function($parameterList);";
 		} else {

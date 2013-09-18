@@ -84,26 +84,12 @@ class CodeGenerator {
 		$this->currentIndentationLevel = 0;
 		
 		$lines = array();
-		for($i = 1; $i < 6; $i++) {
-			$lines[] = "#define op$i	(*op{$i}_ptr)";
-		}
-		$lines[] = "#define res		(*res_ptr)";
 		$lines[] = "";			
 		$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
 		$lines[] =		"";
 		$lines[] = 		"if(cxt) {";
 		$lines[] = 			"register void *__restrict op_handler;";
 		$lines[] = 			"register int8_t *__restrict instruction_pointer;";
-		$lines[] = 			"int8_t *__restrict segments[MAX_SEGMENT_COUNT];";
-		$lines[] = 			"int8_t *__restrict segment0;";
-		$lines[] =			"int32_t segment_expandable[MAX_SEGMENT_COUNT];";			 
-		$lines[] = 			"uint32_t segment_element_counts[MAX_SEGMENT_COUNT];";
-		$lines[] =			"uint32_t selector, index, index_index, size_index;";
-		$lines[] = 			"uint32_t string_length;";
-		$lines[] = 			"uint32_t vector_count, matrix1_count, matrix2_count, mmult_res_count;";
-		$lines[] = 			"uint32_t op1_start_index, op2_start_index, op3_start_index, op4_start_index, op5_start_index;";
-		$lines[] =			"uint32_t op1_count, op2_count, op3_count, op4_count, op5_count;";
-		$lines[] = 			"uint32_t res_start_index, res_count, res_count_before;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
@@ -116,20 +102,7 @@ class CodeGenerator {
 		$lines[] = 				"instruction_pointer = cxt->function->instructions;";
 		$lines[] = 				"op_handler = *((void **) instruction_pointer);";
 		$lines[] = 				"instruction_pointer += sizeof(void *);";
-		$lines[] =				"// copy values from cxt onto the stack so they can be accessed without two second deferences";
-		$lines[] = 				"for(i = 0; i < cxt->storage->segment_count; i++) {";
-		$lines[] = 					"qb_memory_segment *segment = &cxt->storage->segments[i];";
-		$lines[] = 					"segments[i] = segment->memory;";
-		$lines[] = 					"segment_element_counts[i] = *segment->array_size_pointer;";
-		$lines[] = 					"segment_expandable[i] = (segment->flags & QB_SEGMENT_EXPANDABLE);";
-		$lines[] =					"// set the pointers in the segment structure to local variables here so we can update";
-		$lines[] =					"// them as well when we expand the segment";
-		$lines[] =					"segment->stack_ref_memory = &segments[i];";
-		$lines[] =					"segment->stack_ref_element_count = &segment_element_counts[i];";
-		$lines[] = 				"}";
-		$lines[] =				"// store pointer to segment 0 in a separate variable to enable better optimization";
-		$lines[] =				"// since segment 0 and 1 will never be enlarged, we don't have to worry about it changing";
-		$lines[] =				"segment0 = segments[0];";			
+		$lines[] =			"";
 		if($compiler == "GCC") {
 			$lines[] = 			"goto *op_handler;";
 		}
@@ -157,13 +130,6 @@ class CodeGenerator {
 		}
 		$lines[] = 			"label_exit:";
 		$lines[] = 			"{";
-		$lines[] = 				"uint32_t i;";
-		$lines[] =				"// point the stack_ref pointer back to variables in the structure";
-		$lines[] = 				"for(i = 0; i < cxt->storage->segment_count; i++) {";
-		$lines[] = 					"qb_memory_segment *segment = &cxt->storage->segments[i];";
-		$lines[] =					"segment->stack_ref_memory = &segment->memory;";
-		$lines[] =					"segment->stack_ref_element_count = &segment->element_count;";
-		$lines[] = 				"}";
 		$lines[] = 				"return;";
 		$lines[] = 			"}";
 		if($compiler == "GCC") {
@@ -229,13 +195,6 @@ class CodeGenerator {
 				// op can be employed in different address modes
 				$flags[] = "QB_OP_MULTI_ADDRESS";
 			}
-			if($handler instanceof Check) {
-				// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
-				$flags[] = "QB_OP_ISSET";
-			}
-			if($handler instanceof Clear) {
-				$flags[] = "QB_OP_UNSET";
-			}
 			*/
 			if($handler->getJumpTargetCount() > 0) {
 				// op will redirect execution to another location 
@@ -287,9 +246,10 @@ class CodeGenerator {
 			$opnames[] = $handler->getName();
 		}
 		$folder = dirname(__FILE__);
-		$zend_opnames = file("$folder/zend_op_names.txt", FILE_IGNORE_NEW_LINES);
-		$pbj_opnames = file("$folder/pixel_bender_op_names.txt", FILE_IGNORE_NEW_LINES);
+		$zend_opnames = file("$folder/listings/zend_op_names.txt", FILE_IGNORE_NEW_LINES);
+		$pbj_opnames = file("$folder/listings/pixel_bender_op_names.txt", FILE_IGNORE_NEW_LINES);
 
+		/*
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, true, true);
 		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, true, true);
@@ -299,6 +259,7 @@ class CodeGenerator {
 		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, false, true);
 		$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, false, true);
 		fwrite($handle, "#endif\n");
+		*/
 	}
 
 	public function writeNativeCodeTables($handle, $compiler) {
@@ -463,7 +424,7 @@ class CodeGenerator {
 		
 		// add intrinsics
 		$folder = dirname(__FILE__);
-		$intrinsic = file(($compiler == "MSVC") ? "$folder/intrinsic_functions_msvc.txt" : "$folder/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+		$intrinsic = file(($compiler == "MSVC") ? "$folder/listings/intrinsic_functions_msvc.txt" : "$folder/listings/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
 		foreach($intrinsic as $decl) {
 			$functionDeclarations[] = $decl;
 		}
@@ -604,6 +565,18 @@ class CodeGenerator {
 		}
 		ksort($handlerFunctions);
 
+		// add controller functions
+		$controllerFunctions = array();
+		foreach($this->handlers as $handler) {
+			$function = $handler->getControllerFunctionDefinition();
+			if($function) {
+				$line1 = $function[0];
+				if(!isset($controllerFunctions[$line1])) {
+					$controllerFunctions[$line1] = $function;
+				}
+			}
+		}
+
 		// add dispatcher functions
 		$dispatcherFunctions = array();
 		foreach($this->handlers as $handler) {
@@ -615,9 +588,10 @@ class CodeGenerator {
 				}
 			}
 		}
+		
 		ksort($dispatcherFunctions);
 		
-		return array_merge(array_values($helperFunctions), array_values($handlerFunctions), array_values($dispatcherFunctions));
+		return array_merge(array_values($helperFunctions), array_values($handlerFunctions), array_values($controllerFunctions), array_values($dispatcherFunctions));
 	}
 	
 	protected function getFunctionDeclarations() {
@@ -628,8 +602,8 @@ class CodeGenerator {
 		
 		// then prepend the list with ones that aren't generated
 		$folder = dirname(__FILE__);
-		$common = file("$folder/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-		$compilerSpecific = file(($this->compiler == "MSVC") ? "$folder/function_prototypes_msvc.txt" : "$folder/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+		$common = file("$folder/listings/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
+		$compilerSpecific = file(($this->compiler == "MSVC") ? "$folder/listings/function_prototypes_msvc.txt" : "$folder/listings/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
 		foreach(array_merge($common, $compilerSpecific) as $line) {
 			array_unshift($functionDefinitions, array($line));
 		}						
