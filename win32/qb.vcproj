@@ -861,7 +861,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\qb_interpreter_msvc.c"
+				RelativePath="..\qb_interpreter_loop_msvc.c"
 				>
 			</File>
 			<File

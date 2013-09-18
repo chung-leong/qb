@@ -85,7 +85,7 @@ class CodeGenerator {
 		
 		$lines = array();
 		$lines[] = "";			
-		$lines[] = "void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt) {";
+		$lines[] = "void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt) {";
 		$lines[] =		"";
 		$lines[] = 		"if(cxt) {";
 		$lines[] = 			"register void *__restrict handler;";
@@ -98,10 +98,9 @@ class CodeGenerator {
 		$lines[] =			"USE_TSRM";
 		$lines[] = 			"";
 		$lines[] = 			"{";
-		$lines[] = 				"uint32_t i;";
 		$lines[] = 				"ip = cxt->function->instructions;";
-		$lines[] = 				"handler = *((void **) instruction_pointer);";
-		$lines[] = 				"instruction_pointer += sizeof(void *);";
+		$lines[] = 				"handler = *((void **) ip);";
+		$lines[] = 				"ip += sizeof(void *);";
 		$lines[] =			"";
 		if($compiler == "GCC") {
 			$lines[] = 			"goto *handler;";

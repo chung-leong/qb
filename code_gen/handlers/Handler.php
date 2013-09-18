@@ -59,17 +59,18 @@ class Handler {
 		$opCount = $this->getOperandCount();
 		$targetCount = $this->getJumpTargetCount();
 		$lines[] = $this->getLabelCode($name);
+		$lines[] = $this->getMacroDefinitions();
 		if($targetCount == 2) {
 			// assume the first branch is taken
 			$lines[] = "{";
 			$lines[] = 		"int32_t condition;";
-			$lines[] = 		$this->getSetHandlerCode("(($instr *) ip)->next_handler1");
+			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler1");
 			$lines[] = 		$this->getAction();
 			$lines[] = 		"if(condition) {";
-			$lines[] = 			"ip = (($instr *) ip)->instruction_pointer1;";
+			$lines[] = 			"ip = INSTR->instruction_pointer1;";
 			$lines[] = 		"} else {";
-			$lines[] = 			$this->getSetHandlerCode("(($instr *) ip)->next_handler2");
-			$lines[] = 			"ip = (($instr *) ip)->instruction_pointer2;";
+			$lines[] = 			$this->getSetHandlerCode("INSTR->next_handler2");
+			$lines[] = 			"ip = INSTR->instruction_pointer2;";
 			$lines[] = 		"}";
 			$lines[] = "}";
 			$lines[] = $this->getJumpCode();
@@ -77,10 +78,10 @@ class Handler {
 			// regular, non-jump instruction goes to the next instruction
 			// a unconditional jump instruction goes to the jump target
 			$lines[] = "{";
-			$lines[] = 		$this->getSetHandlerCode("(($instr *) ip)->next_handler");
+			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler");
 			$lines[] = 		$this->getAction();
 			if($this->isVariableLength()) {
-				$lines[] = "ip += (($instr *) ip)->length;";
+				$lines[] = "ip += INSTR->length;";
 			} else {
 				$lines[] = "ip += sizeof($instr);";
 			}
@@ -92,6 +93,7 @@ class Handler {
 			$lines[] = 		$this->getAction();
 			$lines[] = "}";
 		}
+		$lines[] = $this->getMacroUndefinitions();
 		return $lines;
 	}
 
@@ -113,6 +115,10 @@ class Handler {
 		
 		for($i = 1; $i <= $opCount; $i++) {
 			$addressMode = $this->getOperandAddressMode($i);
+			if(!$addressMode) {
+				$class = get_class($this);
+				die("Operand $i of $class has null address mode\n");
+			}
 			$instr .= "_{$addressMode}";
 		}
 		
@@ -243,6 +249,10 @@ class Handler {
 		return false;
 	}
 	
+	public function needsInterpreterContext() {
+		return false;
+	}
+	
 	public function needsUnrolling() {
 		return $this->unrolling;
 	}
@@ -257,7 +267,64 @@ class Handler {
 		}
 		return false;
 	}
-
+	
+	protected function getMacroDefinitions() {
+		$instr = $this->getInstructionStructure();
+		$srcCount = $this->getInputOperandCount();
+		$opCount = $this->getOperandCount();
+		$lines = array();
+		$lines[] = "#define INSTR		(($instr *) ip)";
+		if($this->needsLineNumber()) {
+			$lines[] = "#define line_number		INSTR->line_number";
+		}
+		for($i = 1; $i <= $opCount; $i++) {
+			$cType = $this->getOperandCType($i);
+			$addressMode = $this->getOperandAddressMode($i);
+			$operand = "INSTR->operand$i";
+			$name = ($i <= $srcCount) ? "op{$i}" : "res";
+			switch($addressMode) {
+				case 'SCA':
+					$lines[] = "#define $name	(($cType *) $operand.data_pointer)[0]";
+					break;
+				case 'ELE':
+					$lines[] = "#define $name	(($cType *) $operand.data_pointer)[$operand.index_pointer[0]]";
+					break;
+				case 'ARR':
+					$lines[] = "#define {$name}_ptr		((($cType *) $operand.data_pointer) + $operand.index_pointer[0])";
+					$lines[] = "#define {$name}_count	$operand.count_pointer[0]";
+					break;
+			}
+		}
+		return $lines;
+	}
+	
+	protected function getMacroUndefinitions() {
+		$srcCount = $this->getInputOperandCount();
+		$opCount = $this->getOperandCount();
+		$lines = array();
+		$lines[] = "#undef INSTR";
+		if($this->needsLineNumber()) {
+			$lines[] = "#undef line_number";
+		}
+		for($i = 1; $i <= $opCount; $i++) {
+			$addressMode = $this->getOperandAddressMode($i);
+			$name = ($i <= $srcCount) ? "op{$i}" : "res";
+			switch($addressMode) {
+				case 'SCA':
+					$lines[] = "#undef $name";
+					break;
+				case 'ELE':
+					$lines[] = "#undef $name";
+					break;
+				case 'ARR':
+					$lines[] = "#undef {$name}_ptr";
+					$lines[] = "#undef {$name}_count";
+					break;
+			}
+		}
+		return $lines;
+	}
+	
 	public function getFunctionName($prefix) {
 		$className = get_class($this);
 		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $className);
@@ -323,7 +390,7 @@ class Handler {
 		}
 		
 		// replace op# with (*op#_ptr) for array operands and res with (*res_ptr)
-		$expressions = is_array($expressions) ? array_linearize($expressions) : array($expressions);
+		$expressions = array_linearize($expressions);
 		$srcCount = $this->getInputOperandCount();
 		$arrayOperands = array();
 		for($i = 1; $i <= $srcCount; $i++) {
@@ -351,68 +418,47 @@ class Handler {
 	public function getHandlerFunctionParameterList($forDeclaration) {
 		$instr = $this->getInstructionStructure();
 		$srcCount = $this->getInputOperandCount();
-		$dstCount = $this->getOutputOperandCount();
+		$opCount = $this->getOperandCount();
 		$params = array();
-		for($i = 1; $i <= $srcCount; $i++) {
+		if($this->needsInterpreterContext()) {
+			if($forDeclaration) {
+				$params[] = "qb_interpreter_context *__restrict cxt";
+			} else {
+				$params[] = "cxt";
+			}
+		} 
+		for($i = 1; $i <= $opCount; $i++) {
 			$cType = $this->getOperandCType($i);
 			$addressMode = $this->getOperandAddressMode($i);
 			$operand = "((($instr *) ip)->operand$i)";
+			$name = ($i <= $srcCount) ? "op{$i}" : "res";
 			switch($addressMode) {
 				case 'SCA':
-					if($forDeclaration) {
-						$params[] = "$cType op{$i}";
-					} else {
-						$params[] = "(($cType *) $operand.data_pointer))[0]";
-					}
-					break;
 				case 'ELE':
 					if($forDeclaration) {
-						$params[] = "$cType op{$i}";
+						$params[] = ($i <= $srcCount) ? "$cType $name" : "$cType *{$name}_ptr";
 					} else {
-						$params[] = "(($cType *) $operand.data_pointer))[$operand.index_pointer[0]]";
+						$params[] = ($i <= $srcCount) ? "$name" : "&$name";
 					}
 					break;
 				case 'ARR':
 					if($forDeclaration) {
-						$params[] = "$cType *op{$i}_ptr";
-						$params[] = "uint32_t op{$i}_count";
+						$params[] = "$cType *{$name}_ptr";
+						$params[] = "uint32_t {$name}_count";
 					} else {
-						$params[] = "(($cType *) $operand.data_pointer) + $operand.index_pointer[0]";
-						$params[] = "$operand.count_pointer[0]";
+						$params[] = "{$name}_ptr";
+						$params[] = "{$name}_count";
 					}
 					break;
 			}
 		}
-		if($dstCount) {
-			$cType = $this->getOperandCType($i);
-			$addressMode = $this->getOperandAddressMode($i);
-			$operand = "((($instr *) ip)->operand$i)";
-			switch($addressMode) {
-				case 'SCA':
-					if($forDeclaration) {
-						$params[] = "$cType *res_ptr";
-					} else {
-						$params[] = "&(($cType *) $operand.data_pointer))[0]";
-					}
-					break;
-				case 'ELE':
-					if($forDeclaration) {
-						$params[] = "$cType *res_ptr";
-					} else {
-						$params[] = "&(($cType *) $operand.data_pointer))[$operand.index_pointer[0]]";
-					}
-					break;
-				case 'ARR':
-					if($forDeclaration) {
-						$params[] = "$cType *res_ptr";
-						$params[] = "uint32_t res_count";
-					} else {
-						$params[] = "(($cType *) $operand.data_pointer) + $operand.index_pointer[0]";
-						$params[] = "$operand.count_pointer[0]";
-					}
-					break;
+		if($this->needsLineNumber()) {
+			if($forDeclaration) {
+				$params[] = "uint32_t line_number";
+			} else {
+				$params[] = "line_number";
 			}
-		}	
+		} 
 		return implode(", ", $params);
 	}
 
@@ -513,7 +559,9 @@ class Handler {
 		$lines[] =		"if(cxt->thread_count_for_next_op) {";
 		$lines[] =			"$dispatcherFunction($dispatcherParameterList);";
 		$lines[] = 		"} else {";
+		$lines[] =			$this->getMacroDefinitions();
 		$lines[] = 			"$handlerFunction($handlerParameterList);";
+		$lines[] =			$this->getMacroUndefinitions();
 		$lines[] =		"}";
 		$lines[] = "}";
 		return $lines;
@@ -536,6 +584,7 @@ class Handler {
 			}
 			return "$function($parameterList);";
 		} else {
+			// just insert the code, expanding the operands
 			return $this->getActionExpressions();
 		}
 	}	
@@ -555,10 +604,17 @@ class Handler {
 			$action = $this->getActionOnMultipleData();
 			if(!$action) {
 				// change the address mode temporarily
-				$originalAddressMode = $this->addressMode;
-				$this->addressMode = ($this->operandSize > 1) ? null : "SCA";
+				$multipleAddressMode = in_array('MultipleAddressMode', class_uses($this));
+				if($multipleAddressMode) {
+					$originalAddressMode = $this->addressMode;
+					$this->addressMode = "SCA";
+				}
+				$this->multipleData = false;
 				$scalarExpression = $this->getAction();
-				$this->addressMode = $originalAddressMode;
+				if($multipleAddressMode) {
+					$this->addressMode = $originalAddressMode;
+				}
+				$this->multipleData = true;
 				$action = $this->getIterationCode($scalarExpression);
 			}
 		} else {
@@ -700,15 +756,19 @@ class Handler {
 
 function array_linearize($array) {
 	$result = array();
-	foreach($array as $element) {
-		if($element !== NULL) {
-			if(is_array($element)) {
-				$sub_array = array_linearize($element);					
-				array_splice($result, count($result), 0, $sub_array);
-			} else {
-				$result[] = $element;
+	if(is_array($array)) {
+		foreach($array as $element) {
+			if($element !== NULL) {
+				if(is_array($element)) {
+					$sub_array = array_linearize($element);					
+					array_splice($result, count($result), 0, $sub_array);
+				} else {
+					$result[] = $element;
+				}
 			}
 		}
+	} else {
+		$result[] = $array;
 	}
 	return $result;
 }

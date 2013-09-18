@@ -2,9 +2,7 @@
 
 class BranchIfStaticVariablesInitialized extends Handler {
 
-	public function getInputOperandCount() {
-		return 0;
-	}
+	use NoOperands, BranchInstruction;
 
 	public function getAction() {
 		$lines = array();

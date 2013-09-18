@@ -2,7 +2,7 @@
 
 class BranchOnGreaterThanOrEqual extends Handler {
 
-	use ScalarAddressMode, BinaryOperator, BranchInstruction {
+	use MultipleAddressMode, BinaryOperator, BranchInstruction {
         BranchInstruction::getOutputOperandCount insteadof BinaryOperator;
 	}
 

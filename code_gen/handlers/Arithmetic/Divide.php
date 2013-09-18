@@ -39,7 +39,7 @@ class Divide extends Handler {
 		$lines = array();
 		if($type[0] != 'F') {
 			$lines[] = "if(UNEXPECTED(op2 == 0)) {";
-			$lines[] = 		"qb_abort_divide_by_zero_error(cxt, PHP_LINE_NUMBER);";
+			$lines[] = 		"qb_abort_divide_by_zero_error(cxt, line_number);";
 			$lines[] = "}";
 		}
 		$lines[] = "res = op1 / op2;";

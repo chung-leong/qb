@@ -2,7 +2,7 @@
 
 class BranchOnFalse extends Handler {
 
-	use ScalarAddressMode, UnaryOperator, BranchInstruction {
+	use MultipleAddressMode, UnaryOperator, BranchInstruction {
         BranchInstruction::getOutputOperandCount insteadof UnaryOperator;
 	}
 	

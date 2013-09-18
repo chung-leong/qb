@@ -2,7 +2,7 @@
 
 class BranchOnEqual extends Handler {
 
-	use ScalarAddressMode, BinaryOperator, BranchInstruction, NoUnsigned {
+	use MultipleAddressMode, BinaryOperator, BranchInstruction, NoUnsigned {
         BranchInstruction::getOutputOperandCount insteadof BinaryOperator;
 	}
 

@@ -2,7 +2,7 @@
 
 class RandomMT extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, FloatingPointOnly, Slow;
+	use MultipleAddressMode, TernaryOperator, FloatingPointOnly, Slow;
 	
 	public function needsInterpreterContext() {
 		return true;

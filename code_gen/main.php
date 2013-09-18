@@ -52,8 +52,8 @@ fwrite($handle, "\n");
 $generator->writeTypeDeclarations($handle, 'MSVC');
 $generator->writeFunctionPrototypes($handle, 'MSVC');
 
-echo "Creating qb_interpreter_gcc.c\n";
-$handle = fopen("$targetFolder/qb_interpreter_gcc.c", "w");
+echo "Creating qb_interpreter_loop_gcc.c\n";
+$handle = fopen("$targetFolder/qb_interpreter_loop_gcc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
@@ -61,8 +61,8 @@ fwrite($handle, "\n");
 $generator->writeMainLoop($handle, 'GCC');
 $generator->writeNativeDebugStub($handle, 'GCC');
 
-echo "Creating qb_interpreter_msvc.c\n";
-$handle = fopen("$targetFolder/qb_interpreter_msvc.c", "w");
+echo "Creating qb_interpreter_loop_msvc.c\n";
+$handle = fopen("$targetFolder/qb_interpreter_loop_msvc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
 fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");

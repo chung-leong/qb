@@ -6,7 +6,7 @@ trait ArrayAddressMode {
 		$this->baseName = $baseName;
 		$this->operandType = $operandType;
 		$this->operandSize = $operandSize;
-		$this->addressMode = null;
+		$this->addressMode = "ARR";
 		$this->multipleData = $multipleData;
 	}
 	

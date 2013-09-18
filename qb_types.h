@@ -38,6 +38,10 @@ typedef struct qb_external_symbol		qb_external_symbol;
 typedef struct qb_native_code_bundle	qb_native_code_bundle;
 typedef struct qb_block_allocator 		qb_block_allocator;
 
+typedef struct qb_pointer_SCA			qb_pointer_SCA;
+typedef struct qb_pointer_ELE			qb_pointer_ELE;
+typedef struct qb_pointer_ARR			qb_pointer_ARR;
+
 typedef enum qb_primitive_type			qb_primitive_type;
 typedef enum qb_address_mode			qb_address_mode;
 
@@ -171,6 +175,21 @@ struct qb_on_demand_address {
 	qb_address *operand_addresses[4];
 	uint32_t operand_count;
 	void *op_factory;
+};
+
+struct qb_pointer_SCA {
+	void *data_pointer;
+};
+
+struct qb_pointer_ELE {
+	void *data_pointer;
+	uint32_t *index_pointer;
+};
+
+struct qb_pointer_ARR {
+	void *data_pointer;
+	uint32_t *index_pointer;
+	uint32_t *count_pointer;
 };
 
 enum {

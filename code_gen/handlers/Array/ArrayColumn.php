@@ -64,7 +64,7 @@ class ArrayColumn extends Handler {
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
 		$lines[] = "uint32_t column_offset = op4, column_count = op2, element_size = op3;";
 		$lines[] = "if(UNEXPECTED(column_offset >= column_count)) {";
-		$lines[] =		"qb_abort_missing_column(cxt, column_offset, PHP_LINE_NUMBER);";
+		$lines[] =		"qb_abort_missing_column(cxt, column_offset, line_number);";
 		$lines[] = "}";
 		$lines[] = "op1_ptr += column_offset * element_size;";
 		$lines[] = "if(element_size == 1) {";
