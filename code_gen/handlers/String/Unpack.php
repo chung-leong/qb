@@ -4,17 +4,11 @@ class Unpack extends Handler {
 
 	use MultipleAddressMode, UnaryOperator;
 
-	protected $byteOrder;
-
-	public function __construct($name, $operandType, $addressMode, $byteOrder) {
-		$this->byteOrder = $byteOrder;
-		parent::__construct($name, $operandType, $addressMode);
-	}
-	
 	public function getOperandType($i) {
+		list($type, $byteOrder) = explode('_', $this->operandType);
 		switch($i) {
 			case 1:	return "U08";
-			case 2: return $this->operandType;
+			case 2: return $type;
 		}
 	}
 
@@ -26,10 +20,10 @@ class Unpack extends Handler {
 	}
 	
 	public function getActionOnUnitData() {
-		$type = $this->getOperandType(2);
+		list($type, $byteOrder) = explode('_', $this->operandType);
 		$cType = $this->getOperandCType(2);
 		$width = intval(substr($type, 1));
-		$macro = "SWAP_{$this->byteOrder}_I{$width}";
+		$macro = "SWAP_{$byteOrder}_I{$width}";
 		return "*((uint{$width}_t *) &res) = $macro(*((uint{$width}_t *) op1_ptr));";
 	}
 }

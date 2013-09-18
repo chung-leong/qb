@@ -1,10 +1,8 @@
 <?php
 
-class EqualVector extends Handler {
+class SetEqual extends Handler {
 
-	use ArrayAddressMode;
-	use BinaryOperator;
-	use BooleanResult;
+	use ArrayAddressMode, BinaryOperator, BooleanResult;
 	
 	protected function getActionOnUnitData() {
 		return "res = (op1 == op2);";

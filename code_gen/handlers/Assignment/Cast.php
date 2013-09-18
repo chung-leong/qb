@@ -1,30 +1,17 @@
 <?php
 
 class Cast extends Handler {
-	public $sourceOperandType;
 
-	public function __construct($name, $operandType1, $operandType2, $addressMode, $vectorWidth = null) {
-		$this->baseName = $baseName;
-		$this->sourceOperandType = $operandType1;
-		$this->operandType = $operandType2;
-		$this->operandSize = $operandSize;
-		$this->addressMode = $addressMode;
-		$this->multipleData = ($addressMode == "ARR");
-	}
-
+	use MultipleAddressMode, BinaryOperator;
+	
 	public function getOperandType($i) {
+		list($srcType, $dstType) = explode('_', $this->operandType);
 		switch($i) {
-			case 1: return $this->sourceOperandType;
-			case 2: return $this->operandType;
+			case 1: return $srcType;
+			case 2: return $dstType;
 		}
 	}
 	
-	public function getFunctionName() {
-		$name = parent::getFunctionName();
-		$name .= "_{$this->operandType1}_{$this->operandType2}";
-		return $name;
-	}
-
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(2);
 		return "res = ($cType) op1;";

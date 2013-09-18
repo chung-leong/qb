@@ -2,8 +2,8 @@
 
 class BranchOnEqual extends Handler {
 
-	use BinaryOperator, TraitBranchInstruction {
-        TraitBranchInstruction::getInputOperandCount insteadof TraitBinaryOperator;
+	use ScalarAddressMode, BinaryOperator, BranchInstruction, NoUnsigned {
+        BranchInstruction::getOutputOperandCount insteadof BinaryOperator;
 	}
 
 	public function getAction() {

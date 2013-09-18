@@ -6,14 +6,10 @@ class Pack extends Handler {
 
 	protected $byteOrder;
 
-	public function __construct($name, $operandType, $addressMode, $byteOrder) {
-		$this->byteOrder = $byteOrder;
-		parent::__construct($name, $operandType, $addressMode);
-	}
-
 	public function getOperandType($i) {
+		list($type, $byteOrder) = explode('_', $this->operandType);
 		switch($i) {
-			case 1: return $this->operandType;
+			case 1: return $type;
 			case 2:	return "U08";
 		}
 	}
@@ -32,10 +28,10 @@ class Pack extends Handler {
 	}
 
 	protected function getActionOnUnitData() {
-		$type = $this->getOperandType(1);
+		list($type, $byteOrder) = explode('_', $this->operandType);
 		$cType = $this->getOperandCType(1);
 		$width = intval(substr($type, 1));
-		$macro = "SWAP_{$this->byteOrder}_I{$width}";
+		$macro = "SWAP_{$byteOrder}_I{$width}";
 		if($type[0] == 'F') {
 			// accommodate native compiler, for which op1 might be a macro defined as a literal
 			$lines = array();

@@ -5,7 +5,7 @@ trait ScalarResult {
 	public function getOperandAddressMode($i) {
 		$srcCount = $this->getInputOperandCount();
 		if($i > $srcCount) {
-			return "SCA" : 
+			return "SCA";
 		} else {
 			return parent::getOperandAddressMode($i);
 		}

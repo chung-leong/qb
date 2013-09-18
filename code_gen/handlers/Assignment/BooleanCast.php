@@ -2,12 +2,10 @@
 
 class BooleanCast extends Handler {
 
-	public function getOperandType($i) {
-		return ($i == 2) ? "I32" : $this->operandType;
-	}
+	use MultipleAddressMode, UnaryOperator, ScalarResult, BooleanResult;
 
 	protected function getActionOnUnitData() {
-		return "res = !(!(op1));";
+		return "res = (op1 != 0);";
 	}
 }
 

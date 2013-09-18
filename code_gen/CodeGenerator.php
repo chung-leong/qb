@@ -879,18 +879,18 @@ class CodeGenerator {
 			$this->handlers[] = new LessThanOrEqual("LE", $elementType, $addressMode);
 		}
 		if(!$unsigned) {
-			$this->handlers[] = new EqualVector("EQ_SET", $elementTypeNoSign);
-			$this->handlers[] = new NotEqualVector("NE_SET", $elementTypeNoSign);
+			$this->handlers[] = new SetEqual("EQ_SET", $elementTypeNoSign);
+			$this->handlers[] = new SetNotEqual("NE_SET", $elementTypeNoSign);
 		}
-		$this->handlers[] = new LessThanVector("LT_SET", $elementType);
-		$this->handlers[] = new LessThanOrEqualVector("LE_SET", $elementType);
+		$this->handlers[] = new SetLessThan("LT_SET", $elementType);
+		$this->handlers[] = new SetLessThanOrEqual("LE_SET", $elementType);
 		if($elementTypeNoSign == "I32") {
-			$this->handlers[] = new NotVector("NOT_SET", $elementTypeNoSign);
+			$this->handlers[] = new SetNot("NOT_SET", $elementTypeNoSign);
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Any("ANY", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new SetAny("ANY", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new All("ALL", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new SetAll("ALL", $elementTypeNoSign, $addressMode);
 			}
 		}
 	}
@@ -933,10 +933,6 @@ class CodeGenerator {
 				$this->handlers[] = new LogicalXor("XOR", $elementTypeNoSign);
 				$this->handlers[] = new LogicalNot("NOT", $elementTypeNoSign);
 			}
-			$this->handlers[] = new Check("ISSET", $elementTypeNoSign, "ELE");
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Clear("UNSET", $elementTypeNoSign, $addressMode);
-			}
 		}
 	}
 
@@ -952,17 +948,17 @@ class CodeGenerator {
 				if($float) {
 					// sign matters when floating points are involved
 					foreach($this->addressModes as $addressMode) {
-						$this->handlers[] = new Cast("MOV", $elementType, $destElementType, $addressMode);
+						$this->handlers[] = new Cast("MOV", "{$elementType}_{$destElementType}", $addressMode);
 					}
 				} else if($promotion && !$destUnsigned) {
 					// sign matters when promoting from lower-rank integer type to higher-rank type
 					foreach($this->addressModes as $addressMode) {
-						$this->handlers[] = new Cast("MOV", $elementType, $destTypeNoSign, $addressMode);
+						$this->handlers[] = new Cast("MOV", "{$elementType}_{$destTypeNoSign}", $addressMode);
 					}
 				} else if(!$elementUnsigned && !$destUnsigned) {
 					// sign doesn't matter
 					foreach($this->addressModes as $addressMode) {
-						$this->handlers[] = new Cast("MOV", $elementTypeNoSign, $destTypeNoSign, $addressMode);
+						$this->handlers[] = new Cast("MOV", "{$elementTypeNoSign}_{$destTypeNoSign}", $addressMode);
 					}
 				}
 			}
@@ -1122,10 +1118,10 @@ class CodeGenerator {
 		if(!in_array("Jump", array_map("get_class", $this->handlers))) {
 			$this->handlers[] = new NOP("NOP");
 			$this->handlers[] = new Jump("JMP");
-			$this->handlers[] = new Return("RET");
-			$this->handlers[] = new Exit("EXIT");
-			$this->handlers[] = new FunctionCall("FCALL", "SCA");
-			$this->handlers[] = new FunctionCall("FCALL", "MIX");
+			$this->handlers[] = new Leave("RET");
+			$this->handlers[] = new Terminate("EXIT", "I32");
+			//$this->handlers[] = new FunctionCall("FCALL", "SCA");
+			//$this->handlers[] = new FunctionCall("FCALL", "MIX");
 			$this->handlers[] = new BranchIfStaticVariablesInitialized("IF_INIT");
 		}
 		$branchHandlers = array();
@@ -1183,16 +1179,16 @@ class CodeGenerator {
 		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
 			foreach($this->scalarAddressModes as $addressMode) {		
-				$this->handlers[] = new Pack("PACK_LE", $elementTypeNoSign, $addressMode, "LE");
+				$this->handlers[] = new Pack("PACK_LE", "{$elementTypeNoSign}_LE", $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Pack("PACK_BE", $elementTypeNoSign, $addressMode, "BE");
+				$this->handlers[] = new Pack("PACK_BE", "{$elementTypeNoSign}_BE", $addressMode, "BE");
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Unpack("UNPACK_LE", $elementTypeNoSign, $addressMode, "LE");
+				$this->handlers[] = new Unpack("UNPACK_LE", "{$elementTypeNoSign}_LE", $addressMode, "LE");
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Unpack("UNPACK_BE", $elementTypeNoSign, $addressMode, "BE");
+				$this->handlers[] = new Unpack("UNPACK_BE", "{$elementTypeNoSign}_BE", $addressMode, "BE");
 			} 
 		}
 	}
@@ -1526,7 +1522,7 @@ class CodeGenerator {
 	}
 	
 	protected function addDebugHandlers() {
-		$this->handlers[] = new ExtensionOp("EXT");
+		$this->handlers[] = new ExtensionOp("EXT", "U32");
 	}
 }
 

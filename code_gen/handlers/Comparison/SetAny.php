@@ -2,9 +2,7 @@
 
 class SetAny extends Handler {
 
-	use ArrayAddressMode;
-	use UnaryOperator;
-	use BooleanResult;
+	use ArrayAddressMode, UnaryOperator, BooleanResult;
 	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);

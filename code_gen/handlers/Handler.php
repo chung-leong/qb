@@ -54,17 +54,43 @@ class Handler {
 		$lines = array();
 		$name = $this->getName();
 		$instr = $this->getInstructionStructure();
-		$action = $this->getAction();
+		$action = 
 		$opCount = $this->getOperandCount();
+		$targetCount = $this->getJumpTargetCount();
 		$lines[] = $this->getLabelCode($name);
-		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
-		$lines[] = "{";
-		$lines[] = $this->getOperandMacroDefinitions();
-		$lines[] = $action;
-		$lines[] = $this->getOperandMacroUndefinitions();
-		$lines[] = "}";
-		$lines[] = "instruction_pointer += sizeof($instr);";
-		$lines[] = $this->getJumpCode();
+		if($targetCount == 2) {
+			// assume the first branch is taken
+			$lines[] = "{";
+			$lines[] = 		"int32_t condition;";
+			$lines[] = 		$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler1");
+			$lines[] = 		$this->getAction();
+			$lines[] = 		"if(condition) {";
+			$lines[] = 			"instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer1;";
+			$lines[] = 		"} else {";
+			$lines[] = 			$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler2");
+			$lines[] = 			"instruction_pointer = (($instr *) instruction_pointer)->instruction_pointer2;";
+			$lines[] = 		"}";
+			$lines[] = "}";
+			$lines[] = $this->getJumpCode();
+		} else if($targetCount == 0 || $targetCount == 1) {
+			// regular, non-jump instruction goes to the next instruction
+			// a unconditional jump instruction goes to the jump target
+			$lines[] = "{";
+			$lines[] = 		$this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
+			$lines[] = 		$this->getAction();
+			$lines[] = "}";
+			if($this->isVariableLength()) {
+				$lines[] = "instruction_pointer += (($instr *) instruction_pointer)->length;";
+			} else {
+				$lines[] = "instruction_pointer += sizeof($instr);";
+			}
+			$lines[] = $this->getJumpCode();
+		} else {
+			// end of execution
+			$lines[] = "{";
+			$lines[] = 		$this->getAction();
+			$lines[] = "}";
+		}
 		return $lines;
 	}
 
@@ -323,14 +349,14 @@ class Handler {
 			switch($addressMode) {
 				case 'SCA':
 					if($forDeclaration) {
-						$params[] = "$cType op{$i}"
+						$params[] = "$cType op{$i}";
 					} else {
 						$params[] = "(($cType *) $operand.data_pointer))[0]";
 					}
 					break;
 				case 'ELE':
 					if($forDeclaration) {
-						$params[] = "$cType op{$i}"
+						$params[] = "$cType op{$i}";
 					} else {
 						$params[] = "(($cType *) $operand.data_pointer))[$operand.index_pointer[0]]";
 					}
@@ -430,7 +456,7 @@ class Handler {
 		$lines[] =			"qb_dispatch_instruction_to_threads(cxt, $dispatcherFunction, new_instr_list);";
 		$lines[] = 		"} else {";
 		$lines[] = 			"$handlerFunction($handlerParameterList);";
-		$lines[]		"}";
+		$lines[] =		"}";
 		$lines[] = "}";
 		return $lines;
 	}

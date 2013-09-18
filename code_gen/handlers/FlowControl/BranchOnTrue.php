@@ -2,7 +2,9 @@
 
 class BranchOnTrue extends Handler {
 
-	trait TraitBranchInstruction;
+	use ScalarAddressMode, UnaryOperator, BranchInstruction {
+        BranchInstruction::getOutputOperandCount insteadof UnaryOperator;
+	}
 
 	public function getAction() {
 		return "condition = op1;";

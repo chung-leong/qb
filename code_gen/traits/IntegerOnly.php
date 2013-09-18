@@ -1,6 +1,6 @@
 <?php
 
-trait FloatingPointOnly {
+trait IntegerOnly {
 
 }
 

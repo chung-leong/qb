@@ -2,8 +2,8 @@
 
 class BranchOnLessThanOrEqual extends Handler {
 
-	public function getInputOperandCount() {
-		return 2;
+	use ScalarAddressMode, BinaryOperator, BranchInstruction {
+        BranchInstruction::getOutputOperandCount insteadof BinaryOperator;
 	}
 
 	protected function getActionOnUnitData() {

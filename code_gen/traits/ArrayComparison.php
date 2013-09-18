@@ -1,6 +1,6 @@
 <?php
 
-trait ArrayComparisonOperator {
+trait ArrayComparison {
 
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
