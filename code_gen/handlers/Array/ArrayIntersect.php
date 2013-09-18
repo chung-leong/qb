@@ -2,10 +2,8 @@
 
 class ArrayIntersect extends Handler {
 
-	public function getInputOperandCount() {
-		return 3;
-	}
-
+	use ArrayAddressMode, TernaryOperator, ArrayResult;
+	
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return $this->operandType;
@@ -17,10 +15,10 @@ class ArrayIntersect extends Handler {
 	
 	public function getOperandAddressMode($i) {
 		switch($i) {
-			case 1: return "ARR";
-			case 2: return "ARR";
+			case 1: return $this->addressMode;
+			case 2: return $this->addressMode;
 			case 3: return "SCA";
-			case 4: return "ARR";
+			case 4: return $this->addressMode;
 		}
 	}
 		

@@ -2,6 +2,8 @@
 
 class IsFinite extends Handler {
 
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	
 	public function getOperandType($i) {
 		return ($i == 2) ? "I32" : $this->operandType;
 	}

@@ -224,21 +224,10 @@ class CodeGenerator {
 		$lines[] = "qb_op_info global_op_flags[] = {";
 		foreach($this->handlers as $handler) {		
 			$flags = array();
-			if($handler->isVectorized()) {
-				// op handles vectors
-				$flags[] = "QB_OP_VECTORIZED";
-			}
+			/*
 			if($handler->hasAlternativeAddressModes()) {
 				// op can be employed in different address modes
 				$flags[] = "QB_OP_MULTI_ADDRESS";
-			}
-			if($handler->getJumpTargetCount() != 0) {
-				// op will redirect execution to another location 
-				$flags[] = "QB_OP_JUMP";
-			}
-			if($handler->needsLineNumber()) {
-				// the line number needs to be packed into the instruction (for error reporting)
-				$flags[] = "QB_OP_NEED_LINE_NUMBER";
 			}
 			if($handler instanceof Check) {
 				// the behavior of isset and unset are somewhat unique, namely that they can to access an out-of-bound element 
@@ -246,6 +235,19 @@ class CodeGenerator {
 			}
 			if($handler instanceof Clear) {
 				$flags[] = "QB_OP_UNSET";
+			}
+			*/
+			if($handler->getJumpTargetCount() > 0) {
+				// op will redirect execution to another location 
+				if($handler->getJumpTargetCount() == 2) {
+					$flags[] = "QB_OP_BRANCH";
+				} else {
+					$flags[] = "QB_OP_JUMP";
+				}
+			}
+			if($handler->needsLineNumber()) {
+				// the line number needs to be packed into the instruction (for error reporting)
+				$flags[] = "QB_OP_NEED_LINE_NUMBER";
 			}
 			if($handler->isVariableLength()) {
 				$flags[] = "QB_OP_VARIABLE_LENGTH";
@@ -592,7 +594,7 @@ class CodeGenerator {
 		// add handler functions
 		$handlerFunctions = array();
 		foreach($this->handlers as $handler) {
-			$function = $handler->getFunctionDefinition();
+			$function = $handler->getHandlerFunctionDefinition();
 			if($function) {
 				$line1 = $function[0];
 				if(!isset($handlerFunctions[$line1])) {
@@ -601,8 +603,21 @@ class CodeGenerator {
 			}
 		}
 		ksort($handlerFunctions);
+
+		// add dispatcher functions
+		$dispatcherFunctions = array();
+		foreach($this->handlers as $handler) {
+			$function = $handler->getDispatcherFunctionDefinition();
+			if($function) {
+				$line1 = $function[0];
+				if(!isset($dispatcherFunctions[$line1])) {
+					$dispatcherFunctions[$line1] = $function;
+				}
+			}
+		}
+		ksort($dispatcherFunctions);
 		
-		return array_merge(array_values($helperFunctions), array_values($handlerFunctions));
+		return array_merge(array_values($helperFunctions), array_values($handlerFunctions), array_values($dispatcherFunctions));
 	}
 	
 	protected function getFunctionDeclarations() {
@@ -782,21 +797,21 @@ class CodeGenerator {
 	protected function addHandlers() {
 		foreach($this->elementTypes as $elementType) {
 			$this->addFlowControlHandlers($elementType);
+			$this->addIncrementDecrementHandlers($elementType);
 			$this->addArithmeticHandlers($elementType);
 			$this->addAssignmentHandlers($elementType);
-			$this->addIncrementDecrementHandlers($elementType);
 			$this->addComparisonHandlers($elementType);
 			$this->addBitwiseHandlers($elementType);
 			$this->addLogicalHandlers($elementType);
 			$this->addCastHandlers($elementType);
 			$this->addMathHandlers($elementType);
-			$this->addStringHandlers($elementType);
-			$this->addArrayHandlers($elementType);
-			$this->addSamplingHandlers($elementType);
-			$this->addMatrixHandlers($elementType);
-			$this->addComplexNumberHandlers($elementType);
+			//$this->addStringHandlers($elementType);
+			//$this->addArrayHandlers($elementType);
+			//$this->addSamplingHandlers($elementType);
+			//$this->addMatrixHandlers($elementType);
+			//$this->addComplexNumberHandlers($elementType);
 		}
-		$this->addDebugHandlers();
+		//$this->addDebugHandlers();
 	}
 
 	protected function addArithmeticHandlers($elementType) {
@@ -1223,7 +1238,7 @@ class CodeGenerator {
 		}
 		if($elementType == 'U32') {
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new ArrayRandom("ARAND", $addressMode);
+				$this->handlers[] = new ArrayRandom("ARAND", $elementType, $addressMode);
 			}
 		}
 	}

@@ -2,7 +2,7 @@
 
 class ArrayUnique extends Handler {
 
-	use MultipleAddressMode, BinaryOperator;
+	use ArrayAddressMode, BinaryOperator;
 
 	public function getOperandType($i) {
 		switch($i) {

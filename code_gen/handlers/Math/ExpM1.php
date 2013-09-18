@@ -2,6 +2,8 @@
 
 class ExpM1 extends Handler {
 
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);

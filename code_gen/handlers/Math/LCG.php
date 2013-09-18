@@ -2,17 +2,10 @@
 
 class LCG extends Handler {
 
-	public function getInputOperandCount() {
-		return 0;
-	}
+	use MultipleAddressMode, NullaryOperator, FloatingPointOnly, Slow;
 
 	public function needsInterpreterContext() {
 		return true;
-	}
-
-	public function getFunctionType() {
-		// the operation is slow--no use inlining it
-		return "extern";
 	}
 	
 	protected function getActionOnUnitData() {

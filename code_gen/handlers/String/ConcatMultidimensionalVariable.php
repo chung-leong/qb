@@ -2,12 +2,8 @@
 
 class ConcatMultidimensionalVariable extends Handler {
 
-	use ArrayAddressMode, BinaryOperator;
+	use ArrayAddressMode, BinaryOperator, UseSprintf;
 	
-	public function getInputOperandCount() {
-		return 2;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return $this->operandType;

@@ -2,6 +2,8 @@
 
 class PrintMultidimensionalVariable extends Handler {
 
+	use ArrayAddressMode, UnaryOperator, UseSprintf;
+	
 	public function getInputOperandCount() {
 		return 2;
 	}

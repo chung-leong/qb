@@ -2,10 +2,8 @@
 
 class Clamp extends Handler {
 
-	public function getInputOperandCount() {
-		return 3;
-	}
-
+	use MultipleAddressMode, TernaryOperator, FloatingPointOnly;
+	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);
 		$lines = array();

@@ -2,18 +2,8 @@
 
 class UTF8Encode extends Handler {
 
-	public function getOperandType($i) {
-		if($i == 1) {
-			return $this->operandType;
-		} else if($i == 2) {
-			return "U08";
-		}
-	}
-
-	public function getOperandAddressMode($i) {
-		return "ARR";
-	}
-
+	use ArrayAddressMode, UnaryOperator, StringResult;
+	
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
@@ -32,15 +22,6 @@ class UTF8Encode extends Handler {
 		return $functions;
 	}
 
-	public function getResultSizePossibilities() {
-		return "string_length";
-	}
-
-	public function getResultSizeCalculation() {
-		$type = $this->getOperandType(1);
-		return "string_length = qb_get_utf8_encoded_length_$type(op1_ptr, op1_count);";
-	}
-	
 	public function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "uint32_t length = 0, i;";

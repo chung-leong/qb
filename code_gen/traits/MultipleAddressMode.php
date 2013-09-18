@@ -7,7 +7,12 @@ trait MultipleAddressMode {
 		$this->operandType = $operandType;
 		$this->operandSize = $operandSize;
 		$this->addressMode = $addressMode;
-		$this->multipleData = ($addressMode == "ARR");
+		if($addressMode == "ARR") {
+			$this->multipleData = true;
+		}
+		if($operandSize > 1) {
+			$this->unrolling = true;
+		}
 	}
 	
 	public function isVectorized() {

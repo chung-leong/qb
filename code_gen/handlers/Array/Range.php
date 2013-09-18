@@ -2,19 +2,12 @@
 
 class Range extends Handler {
 
+	use MultipleAddressMode, UnaryOperator, ArrayResult;
+	
 	public function getInputOperandCount() {
 		return 3;
 	}
 
-	public function getOperandAddressMode($i) {
-		switch($i) {
-			case 1:
-			case 2:
-			case 3: return $this->addressMode;
-			case 4: return "ARR";
-		}
-	}
-	
 	public function getOperandType($i) {
 		switch($i) {
 			case 1:

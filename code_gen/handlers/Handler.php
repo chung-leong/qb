@@ -6,9 +6,10 @@ class Handler {
 
 	protected $baseName;
 	protected $operandType;
-	protected $operandSize;
+	protected $operandSize = 1;
 	protected $addressMode;
-	protected $multipleData;
+	protected $multipleData = false;
+	protected $unrolling = false;
 	
 	static public function getTypeDeclarations() {
 		ksort(self::$typeDecls);
@@ -239,7 +240,7 @@ class Handler {
 	}
 	
 	public function needsUnrolling() {
-		return $this->isVectorized();
+		return $this->unrolling;
 	}
 	
 	public function needsLineNumber() {
@@ -283,19 +284,21 @@ class Handler {
 				$count = count($action, true);
 				if($count > 16) {
 					return 'extern';
+				} else if($count == 1) {
+					return 'inline';
+				}
+				
+				$lines = array_linearize($action);
+				$hasLoop = false;
+				foreach($lines as $line) {
+					if(preg_match('/\b(for|while)\b/', $line)) {
+						$hasLoop = true;
+					}
+				}
+				if($hasLoop) {
+					return 'extern';
 				} else {
-					$lines = array_linearize($action);
-					$hasLoop = false;
-					foreach($lines as $line) {
-						if(preg_match('/\b(for|while)\b/', $line)) {
-							$hasLoop = true;
-						}
-					}
-					if($hasLoop) {
-						return 'extern';
-					} else {
-						return 'inline';
-					}
+					return 'inline';
 				}
 			}
 		}
@@ -306,7 +309,7 @@ class Handler {
 		$functionType = $this->getHandlerFunctionType();
 		if($functionType) {
 			$function = $this->getHandlerFunctionName();
-			$parameterList = $this->getHandlerFunctionParameterList();
+			$parameterList = $this->getHandlerFunctionParameterList(true);
 			$expressions = $this->getActionExpressions();
 			switch($functionType) {
 				case 'inline': $typeDecl = "static zend_always_inline void"; break;
@@ -342,9 +345,9 @@ class Handler {
 	}
 	
 	public function getHandlerFunctionParameterList($forDeclaration) {
-		$instr = $this->getInstrunctionStructure();
+		$instr = $this->getInstructionStructure();
 		$srcCount = $this->getInputOperandCount();
-		$opCount = $this->getOperandCount();
+		$dstCount = $this->getOutputOperandCount();
 		$params = array();
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);
@@ -414,7 +417,7 @@ class Handler {
 	}
 	
 	public function getDispatcherFunctionParameterList($forDeclaration) {
-		$instr = $this->getInstrunctionStructure();
+		$instr = $this->getInstructionStructure();
 		$params = array();
 		if($forDeclaration) {
 			$params[] = "qb_interpreter_context *__restrict cxt";
@@ -426,14 +429,15 @@ class Handler {
 		return implode(", ", $params);
 	}
 	
-	public function getDispatcherFunctionDefinitions() {
-		$instr = $this->getInstrunctionStructure();
+	public function getDispatcherFunctionDefinition() {
+		$instr = $this->getInstructionStructure();
+		$opCount = $this->getOperandCount();
 		$dispatcherFunction = $this->getDispatcherFunctionName();
 		$dispatcherParameterList = $this->getHandlerFunctionParameterList(true);
 		$dispatcherTypeDecl = "void";
 		$handlerFunction = $this->getHandlerFunctionName();
 		$handlerParameterList = $this->getHandlerFunctionParameterList(false);
-		$lines[] = array();
+		$lines = array();
 		$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
 		$lines[] =		"if(cxt->thread_count_for_next_op) {";
 		$lines[] =			"uint32_t j;";
@@ -467,7 +471,7 @@ class Handler {
 	
 	// return codes that perform what the op is supposed to do
 	public function getAction() {
-		$functionType = $this->getFunctionType();
+		$functionType = $this->getHandlerFunctionType();
 		if($functionType) {	
 			if(!$this->isMultipleData()) {
 				// call the handler directly

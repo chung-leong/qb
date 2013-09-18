@@ -2,24 +2,23 @@
 
 class SubarrayPosition extends Handler {
 
-	public function getInputOperandCount() {
-		return 3;
-	}
-
+	use MultipleAddressMode, TernaryOperator, IndexResult;
+	
 	public function getOperandAddressMode($i) {
 		switch($i) {
-			case 1: 
+			case 1: return "ARR";
 			case 2: return "ARR";
-			case 3:
+			case 3: return "SCA";
 			case 4: return "SCA";
 		}
 	}
 	
 	public function getOperandType($i) {
 		switch($i) {
-			case 3:
+			case 1: return $this->operandType;
+			case 2: return $this->operandType;
+			case 3: return "I32";
 			case 4: return "I32";
-			default: return $this->operandType;
 		}
 	}
 

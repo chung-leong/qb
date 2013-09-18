@@ -2,7 +2,7 @@
 
 class PrintVariable extends Handler {
 
-	use MultipleAddressMode, UnaryOperator;
+	use MultipleAddressMode, UnaryOperator, UseSprintf;
 	
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf("op1");

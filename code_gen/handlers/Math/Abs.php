@@ -2,6 +2,8 @@
 
 class Abs extends Handler {
 
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	
 	protected function getActionOnUnitData() {
 		$functions = array(
 			"S08" => "abs",

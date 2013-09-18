@@ -2,6 +2,8 @@
 
 class Sort extends Handler {
 
+	use ArrayAddressMode, UnaryOperator;
+	
 	protected $direction = "ascending";
 
 	public function getOperandType($i) {

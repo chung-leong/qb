@@ -2,6 +2,8 @@
 
 class Min extends Handler {
 
+	use MultipleAddressMode, BinaryOperator;
+	
 	public function getInputOperandCount() {
 		return 2;
 	}

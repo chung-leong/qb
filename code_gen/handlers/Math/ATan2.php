@@ -2,10 +2,8 @@
 
 class ATan2 extends Handler {
 
-	public function getInputOperandCount() {
-		return 2;
-	}
-
+	use MultipleAddressMode, BinaryOperator, FloatingPointOnly;
+	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);

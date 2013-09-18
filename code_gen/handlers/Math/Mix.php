@@ -2,9 +2,7 @@
 
 class Mix extends Handler {
 
-	public function getInputOperandCount() {
-		return 3;
-	}
+	use MultipleAddressMode, TernaryOperator, FloatingPointOnly;
 
 	protected function getActionOnUnitData() {
 		return "res = op1 * (1 - op3) + op2 * op3;";
