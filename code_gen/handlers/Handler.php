@@ -242,6 +242,10 @@ class Handler {
 		return $this->isVectorized();
 	}
 	
+	public function needsLineNumber() {
+		return false;
+	}
+	
 	public function performsWrapAround() {
 		if($this->addressMode == "ARR" && !$this->isOverridden('getActionOnMultipleData')) {
 			return true;

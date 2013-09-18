@@ -2,15 +2,8 @@
 
 class ConcatVariable extends Handler {
 
-	public function getOperandType($i) {
-		return ($i == 2) ? "U08" : $this->operandType;
-	}
+	use MultipleAddressMode, ArrayResult, StringResult, UseSprintf;
 
-	public function getOperandAddressMode($i) {
-		// the result is an array
-		return ($i == 2) ? "ARR" : $this->addressMode;
-	}
-	
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);

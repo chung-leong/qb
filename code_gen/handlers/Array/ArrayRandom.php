@@ -2,6 +2,8 @@
 
 class ArrayRandom extends Handler {
 
+	use MultipleAddressMode, BinaryOperator, ArrayResult;
+	
 	public function getInputOperandCount() {
 		return 2;
 	}
@@ -22,10 +24,6 @@ class ArrayRandom extends Handler {
 		}
 	}
 		
-	public function getResultSizePossibilities() {
-		return "op2";
-	}
-
 	public function needsInterpreterContext() {
 		return true;
 	}

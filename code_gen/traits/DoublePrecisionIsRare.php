@@ -1,6 +1,6 @@
 <?php
 
-trait TraitDoublePrecisionIsRare {
+trait DoublePrecisionIsRare {
 
 	// don't inline the handler if operand type is double precision
 	public function getFunctionType() {

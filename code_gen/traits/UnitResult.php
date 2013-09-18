@@ -10,6 +10,15 @@ trait UnitResult {
 			return parent::getOperandSize($i);
 		}
 	}
+	
+	public function getOperandAddressMode($i) {
+		$srcCount = $this->getInputOperandCount();
+		if($i > $srcCount) {
+			return $this->addressMode;
+		} else {
+			return "ARR";
+		}
+	}
 }
 
 ?>

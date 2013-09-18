@@ -2,9 +2,7 @@
 
 class ArrayReverse extends Handler {
 
-	public function getInputOperandCount() {
-		return 2;
-	}
+	use ArrayAddressMode, BinaryOperator, NoUnsigned;
 
 	public function getOperandAddressMode($i) {
 		switch($i) {

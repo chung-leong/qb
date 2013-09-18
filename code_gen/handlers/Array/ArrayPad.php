@@ -2,10 +2,8 @@
 
 class ArrayPad extends Handler {
 
-	public function getInputOperandCount() {
-		return 3;
-	}
-
+	use ArrayAddressMode, TernaryOperator;
+	
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: return "ARR";
@@ -22,10 +20,6 @@ class ArrayPad extends Handler {
 			case 3: return "S32";
 			case 4: return $this->operandType;
 		}
-	}
-	
-	public function getResultSizePossibilities() {
-		return array("op1_count", "abs(op3) * op2_count");
 	}
 	
 	public function getActionOnUnitData() {

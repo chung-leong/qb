@@ -2,9 +2,7 @@
 
 class ArrayResize extends Handler {
 
-	public function getInputOperandCount() {
-		return null;
-	}
+	use ArrayAddressMode, VariableLength;
 	
 	public function getOperandType($i) {
 		switch($i) {
@@ -140,15 +138,12 @@ class ArrayResize extends Handler {
 		return $functions;
 	}
 	
-	public function getCode() {
+	public function getAction() {
 		$lines = array();
 		$name = $this->getName();
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$instr = $this->getInstructionStructure();
-		$lines[] = $this->getLabelCode($name);
-		$lines[] = $this->getSetHandlerCode("(($instr *) instruction_pointer)->next_handler");
-		$lines[] = "{";
 		$lines[] =		"uint32_t dimension_count = (($instr *) instruction_pointer)->argument_count;";
 		$lines[] = 		"uint32_t *operands = (($instr *) instruction_pointer)->operands;";
 		$lines[] =		"uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];";
@@ -196,18 +191,7 @@ class ArrayResize extends Handler {
 		$lines[] =				"}";
 		$lines[] =			"}";
 		$lines[] =		"}";
-		$lines[] =		"instruction_pointer += sizeof((($instr *) instruction_pointer)->next_handler) + (($instr *) instruction_pointer)->operand_size;";
-		$lines[] = "}";
-		$lines[] = $this->getJumpCode();
 		return $lines;
-	}
-	
-	public function isVariableLength() {
-		return true;
-	}
-
-	public function needsLineNumber($where = null) {
-		return false;
 	}
 	
 	public function getInstructionStructure() {		

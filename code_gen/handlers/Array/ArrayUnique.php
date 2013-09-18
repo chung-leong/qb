@@ -2,9 +2,7 @@
 
 class ArrayUnique extends Handler {
 
-	public function getInputOperandCount() {
-		return 2;
-	}
+	use MultipleAddressMode, BinaryOperator;
 
 	public function getOperandType($i) {
 		switch($i) {
@@ -69,15 +67,6 @@ class ArrayUnique extends Handler {
 		$lines[] = "}";
 		return array($lines);
 	}
-	
-	public function getResultSizePossibilities() {
-		return "string_length";
-	}
-
-	public function getResultSizeCalculation() {
-		$type = $this->getOperandType(1);
-		return "string_length = qb_get_unique_element_count_$type(op1_ptr, op1_count, op2);";
-	}		
 
 	public function getActionOnUnitData() {
 		$lines = array();

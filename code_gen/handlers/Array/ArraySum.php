@@ -2,13 +2,7 @@
 
 class ArraySum extends Handler {
 
-	public function getOperandAddressMode($i) {
-		if($i == 1) {
-			return "ARR";
-		} else {
-			return $this->addressMode;
-		}
-	}
+	use MultipleAddressMode, UnaryOperator, UnitResult;
 	
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);

@@ -569,7 +569,7 @@ class CodeGenerator {
 	}
 
 	protected function setCompiler($compiler) {
-		QBHandler::setCompiler($compiler);
+		Handler::setCompiler($compiler);
 		$this->compiler = $compiler;
 	}
 	
@@ -1207,10 +1207,7 @@ class CodeGenerator {
 		}
 		if(!$unsigned) {
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new ArraySearch("AFIND_IDX", $elementTypeNoSign, $addressMode);
-			}
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new InArray("AFIND", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new ArraySearch("AFIND", $elementTypeNoSign, $addressMode);
 			}
 			$this->handlers[] = new SubarrayPosition("APOS", $elementTypeNoSign);
 			$this->handlers[] = new SubarrayPositionFromEnd("ARPOS", $elementTypeNoSign);

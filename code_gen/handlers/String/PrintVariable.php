@@ -2,12 +2,8 @@
 
 class PrintVariable extends Handler {
 
-	use MultipleAddressMode;
+	use MultipleAddressMode, UnaryOperator;
 	
-	public function getInputOperandCount() {
-		return 1;
-	}
-
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf("op1");
 		$lines = array();
