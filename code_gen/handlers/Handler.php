@@ -499,6 +499,7 @@ class Handler {
 		$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
 		$lines[] =		"uint32_t j;";
 		$lines[] =		"$instr new_instr_list[MAX_THREAD_COUNT];";
+		$lines[] =		"int8_t *new_ips[MAX_THREAD_COUNT];";
 		$lines[] =		"for(j = 0; j < cxt->thread_count_for_next_op; j++) {";
 		$lines[] =			"$instr *new_instr = &new_instr_list[j];";
 		$lines[] =			"qb_pointer_adjustment *adj;";
@@ -507,17 +508,18 @@ class Handler {
 			$addressMode = $this->getOperandAddressMode($i);
 			$cType = $this->getOperandCType($i);
 			if($addressMode == "ARR") {
-				$lines[] = "adj = &cxt->adjustments_for_next_op[j][$k];";
-				$lines[] = "new_instr->operand{$i}.data_pointer = instr->operand{$i}.data_pointer;";
-				$lines[] = "new_instr->operand{$i}.index_pointer = &adj->index;";
-				$lines[] = "new_instr->operand{$i}.count_pointer = &adj->count;";
+				$lines[] = 	"adj = &cxt->adjustments_for_next_op[j][$k];";
+				$lines[] = 	"new_instr->operand{$i}.data_pointer = instr->operand{$i}.data_pointer;";
+				$lines[] = 	"new_instr->operand{$i}.index_pointer = &adj->index;";
+				$lines[] = 	"new_instr->operand{$i}.count_pointer = &adj->count;";
 				$k++;
 			} else {
-				$lines[] = "new_instr->operand{$i} = (($cType *) instr->operand{$i};";
+				$lines[] = 	"new_instr->operand{$i} = (($cType *) instr->operand{$i};";
 			}
 		}
+		$lines[] =			"new_ips[j] = (int8_t *) new_instr;";
 		$lines[] =		"}";
-		$lines[] = "qb_dispatch_instruction_to_threads(cxt, control_func, new_instr_list);";
+		$lines[] = "qb_dispatch_instruction_to_threads(cxt, control_func, new_ips);";
 		$lines[] = "}";
 		return $lines;
 	}

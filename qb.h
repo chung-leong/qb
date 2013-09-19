@@ -165,6 +165,8 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 
 	qb_native_code_bundle *native_code_bundles;
 	uint32_t native_code_bundle_count;
+
+	qb_thread_pool thread_pool;
 ZEND_END_MODULE_GLOBALS(qb)
 
 #ifdef ZTS

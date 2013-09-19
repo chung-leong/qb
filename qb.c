@@ -171,7 +171,6 @@ PHP_MSHUTDOWN_FUNCTION(qb)
 }
 /* }}} */
 
-/* Remove if there's nothing to do at request start */
 /* {{{ PHP_RINIT_FUNCTION
  */
 PHP_RINIT_FUNCTION(qb)
@@ -198,11 +197,12 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(compiled_function_count) = 0;
 	QB_G(native_code_bundles) = NULL;
 	QB_G(native_code_bundle_count) = 0;
+
+	memset(&QB_G(thread_pool), 0, sizeof(qb_thread_pool));
 	return SUCCESS;
 }
 /* }}} */
 
-/* Remove if there's nothing to do at request end */
 /* {{{ PHP_RSHUTDOWN_FUNCTION
  */
 PHP_RSHUTDOWN_FUNCTION(qb)

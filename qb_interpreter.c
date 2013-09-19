@@ -1387,6 +1387,7 @@ static void ZEND_FASTCALL qb_initialize_interpreter_context(qb_interpreter_conte
 
 	cxt->floating_point_precision = EG(precision);
 	cxt->line_number_pointer = &QB_G(current_line_number);
+	cxt->thread_pool = &QB_G(thread_pool);
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
 #endif
@@ -2259,4 +2260,19 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 #endif
 	qb_run(NULL);
 	return SUCCESS;
+}
+
+void ZEND_FASTCALL qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
+	uint32_t i;
+	uint32_t count = cxt->thread_count_for_next_op;
+	cxt->thread_count_for_next_op = 0;
+
+	if(!cxt->thread_pool->thread_count) {
+		qb_initialize_thread_pool(cxt->thread_pool);
+	}
+	for(i = 0; i < count; i++)  {
+		int8_t *ip = instruction_pointers[i];
+		qb_schedule_task(cxt->thread_pool, control_func, cxt, ip);
+	}
+	qb_run_tasks(cxt->thread_pool);
 }

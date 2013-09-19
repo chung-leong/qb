@@ -76,6 +76,7 @@ struct qb_interpreter_context {
 	qb_address dimension_addresses[MAX_DIMENSION];
 	qb_address array_size_addresses[MAX_DIMENSION];
 
+	qb_thread_pool *thread_pool;
 	uint32_t thread_count_for_next_op;
 	qb_pointer_adjustment adjustments_for_next_op[MAX_THREAD_COUNT][8];
 
@@ -124,7 +125,7 @@ extern void *op_handlers[];
 	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, (char *) n, len, TRUE TSRMLS_CC)
 #endif
 
-void ZEND_FASTCALL qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, qb_thread_parameters *parameters);
+void ZEND_FASTCALL qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers);
 void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number);
 void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt);
 void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index);
