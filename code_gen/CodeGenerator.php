@@ -182,7 +182,7 @@ class CodeGenerator {
 		$this->currentIndentationLevel = 0;
 		
 		$lines = array();
-		$lines[] = "qb_op_info global_op_flags[] = {";
+		$lines[] = "qb_op_info global_op_info[] = {";
 		foreach($this->handlers as $handler) {		
 			$flags = array();
 			/*
@@ -778,7 +778,7 @@ class CodeGenerator {
 			//$this->addArrayHandlers($elementType);
 			//$this->addSamplingHandlers($elementType);
 			//$this->addMatrixHandlers($elementType);
-			//$this->addComplexNumberHandlers($elementType);
+			$this->addComplexNumberHandlers($elementType);
 		}
 		//$this->addDebugHandlers();
 	}
@@ -1470,35 +1470,35 @@ class CodeGenerator {
 	protected function addComplexNumberHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			$this->handlers[] = new ComplexAbs("CABS", $elementType);
-			$this->handlers[] = new ComplexAbs("CABS", $elementType, true);
-			$this->handlers[] = new ComplexArgument("CARG", $elementType);
-			$this->handlers[] = new ComplexArgument("CARG", $elementType, true);
-			$this->handlers[] = new ComplexMultiply("CMUL", $elementType);
-			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, true);
-			$this->handlers[] = new ComplexDivide("CDIV", $elementType);
-			$this->handlers[] = new ComplexDivide("CDIV", $elementType, true);
-			$this->handlers[] = new ComplexExp("CEXP", $elementType);
-			$this->handlers[] = new ComplexExp("CEXP", $elementType, true);
-			$this->handlers[] = new ComplexLog("CLOG", $elementType);
-			$this->handlers[] = new ComplexLog("CLOG", $elementType, true);
-			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType);
-			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, true);
-			$this->handlers[] = new ComplexPow("CPOW", $elementType);
-			$this->handlers[] = new ComplexPow("CPOW", $elementType, true);
+			$this->handlers[] = new ComplexAbs("CABS", $elementType, 2);
+			$this->handlers[] = new ComplexAbs("CABS", $elementType, 2, true);
+			$this->handlers[] = new ComplexArgument("CARG", $elementType, 2);
+			$this->handlers[] = new ComplexArgument("CARG", $elementType, 2, true);
+			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 2);
+			$this->handlers[] = new ComplexMultiply("CMUL", $elementType, 2, true);
+			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 2);
+			$this->handlers[] = new ComplexDivide("CDIV", $elementType, 2, true);
+			$this->handlers[] = new ComplexExp("CEXP", $elementType, 2);
+			$this->handlers[] = new ComplexExp("CEXP", $elementType, 2, true);
+			$this->handlers[] = new ComplexLog("CLOG", $elementType, 2);
+			$this->handlers[] = new ComplexLog("CLOG", $elementType, 2, true);
+			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 2);
+			$this->handlers[] = new ComplexSquareRoot("CSQRT", $elementType, 2, true);
+			$this->handlers[] = new ComplexPow("CPOW", $elementType, 2);
+			$this->handlers[] = new ComplexPow("CPOW", $elementType, 2, true);
 			
-			$this->handlers[] = new ComplexSin("CSIN", $elementType);
-			$this->handlers[] = new ComplexSin("CSIN", $elementType, true);
-			$this->handlers[] = new ComplexCos("CCOS", $elementType);
-			$this->handlers[] = new ComplexCos("CCOS", $elementType, true);
-			$this->handlers[] = new ComplexTan("CTAN", $elementType);
-			$this->handlers[] = new ComplexTan("CTAN", $elementType, true);
-			$this->handlers[] = new ComplexSinh("CSINH", $elementType);
-			$this->handlers[] = new ComplexSinh("CSINH", $elementType, true);
-			$this->handlers[] = new ComplexCosh("CCOSH", $elementType);
-			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, true);
-			$this->handlers[] = new ComplexTanh("CTANH", $elementType);
-			$this->handlers[] = new ComplexTanh("CTANH", $elementType, true);
+			$this->handlers[] = new ComplexSin("CSIN", $elementType, 2);
+			$this->handlers[] = new ComplexSin("CSIN", $elementType, 2, true);
+			$this->handlers[] = new ComplexCos("CCOS", $elementType, 2);
+			$this->handlers[] = new ComplexCos("CCOS", $elementType, 2, true);
+			$this->handlers[] = new ComplexTan("CTAN", $elementType, 2);
+			$this->handlers[] = new ComplexTan("CTAN", $elementType, 2, true);
+			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 2);
+			$this->handlers[] = new ComplexSinh("CSINH", $elementType, 2, true);
+			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 2);
+			$this->handlers[] = new ComplexCosh("CCOSH", $elementType, 2, true);
+			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 2);
+			$this->handlers[] = new ComplexTanh("CTANH", $elementType, 2, true);
 		}
 	}
 	

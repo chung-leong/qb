@@ -44,7 +44,9 @@ class Handler {
 		} else {
 			// append the address mode
 			if($this->addressMode) {
-				$name .= "_$this->addressMode";
+				if(in_array('MultipleAddressMode', class_uses($this))) {
+					$name .= "_$this->addressMode";
+				}
 			}
 		}
 		return $name;

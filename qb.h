@@ -81,6 +81,7 @@
 	#define NO_RETURN	__attribute__ ((noreturn))
 #endif
 
+/*
 #ifdef __GNUC__
 	#ifdef __linux__
 		#if defined(__i386__) || defined(__x86_64__)
@@ -93,6 +94,7 @@
 		#endif
 	#endif
 #endif
+*/
 
 #ifdef _MSC_VER
 	#define NATIVE_COMPILE_ENABLED	1

@@ -25,6 +25,7 @@ typedef struct qb_type_declaration			qb_type_declaration;
 typedef struct qb_function_declaration		qb_function_declaration;
 typedef struct qb_class_declaration			qb_class_declaration;
 typedef struct qb_op						qb_op;
+typedef struct qb_op_info					qb_op_info;
 typedef struct qb_operand					qb_operand;
 typedef struct qb_array_initializer			qb_array_initializer;
 typedef struct qb_compiler_data_pool		qb_compiler_data_pool;
@@ -200,6 +201,15 @@ struct qb_op {
 	uint32_t matrix_dimensions;
 	uint32_t line_number;
 };
+
+#pragma pack(push,1)
+
+struct qb_op_info {
+	uint16_t flags;
+	uint16_t format_index;
+};
+
+#pragma pack(pop)
 
 struct qb_class_declaration {
 	qb_type_declaration **declarations;
