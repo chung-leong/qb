@@ -96,9 +96,11 @@
 #endif
 */
 
+/*
 #ifdef _MSC_VER
 	#define NATIVE_COMPILE_ENABLED	1
 #endif
+*/
 
 #ifdef ZEND_FASTCALL
 	#undef ZEND_FASTCALL

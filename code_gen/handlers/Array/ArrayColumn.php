@@ -2,9 +2,7 @@
 
 class ArrayColumn extends Handler {
 
-	public function getInputOperandCount() {
-		return 4;
-	}
+	use ArrayAddressMode, QuaternaryOperator, MayEmitError;
 
 	public function getOperandType($i) {
 		switch($i) {
@@ -26,24 +24,6 @@ class ArrayColumn extends Handler {
 		}
 	}
 		
-	public function getResultSizePossibilities() {
-		return "vector_count";
-	}
-	
-	public function getResultSizeCalculation() {
-		$lines = array();
-		$lines[] = "vector_count = op1_count / op2;";
-		return $lines;
-	}
-	
-	public function needsInterpreterContext() {
-		return true;
-	}
-	
-	public function needsLineNumber($where = null) {
-		return true;
-	}
-	
 	public function getHelperFunctions() {
 		$functions = array(
 			array(

@@ -154,7 +154,8 @@ class CodeGenerator {
 		$lines[] = "enum qb_opcode {";
 		foreach($this->handlers as $handler) {
 			$name = $handler->getName();
-			// if an op has a name ending in _SCA, there will also be ones ending in _ELE, and possible _ARR
+			// if an op has a name ending in _SCA, there will also be one ending in _ELE, and possibly one in _MIO
+			// create a constant without the _SCA part for reference purpose
 			if(preg_match("/(\w+)_SCA$/", $name, $m)) {
 				$baseName = $m[1];
 				$lines[] = "QB_$baseName,";
@@ -181,16 +182,32 @@ class CodeGenerator {
 	public function writeOpInfo($handle) {
 		$this->currentIndentationLevel = 0;
 		
+		$prevHandler = null;
 		$lines = array();
 		$lines[] = "qb_op_info global_op_info[] = {";
-		foreach($this->handlers as $handler) {		
+		foreach($this->handlers as $index => $handler) {		
 			$flags = array();
-			/*
-			if($handler->hasAlternativeAddressModes()) {
-				// op can be employed in different address modes
-				$flags[] = "QB_OP_MULTI_ADDRESS";
+			$relationToPrevious = Handler::compare($handler, $prevHandler);
+
+			if($relationToPrevious === false) {
+				$variantIndex = $index + 1;
+				do {
+					// see if the next handler is a variant
+					$nextHandler = isset($this->handlers[$variantIndex]) ? $this->handlers[$variantIndex] : null;
+					$relationToNext = Handler::compare($handler, $nextHandler);
+					if($relationToNext == "variant") {
+						if($nextHandler->getAddressMode() == "ELE") {
+							// same op using element addressing is available
+							$flags[] = "QB_OP_VERSION_AVAILABLE_ELE";
+						} else if($nextHandler->isMultipleData() == "MIO") {
+							// multiple-input-output version of this op is available
+							$flags[] = "QB_OP_VERSION_AVAILABLE_MIO";
+						}
+					}
+					$variantIndex++;
+				} while($relationToNext);
 			}
-			*/
+
 			if($handler->getJumpTargetCount() > 0) {
 				// op will redirect execution to another location 
 				if($handler->getJumpTargetCount() == 2) {
@@ -209,14 +226,16 @@ class CodeGenerator {
 			if($handler->performsWrapAround()) {
 				$flags[] = "QB_OP_PERFORM_WRAP_AROUND";
 			}
-			$combined = ($flags) ? "(" . implode(" | ", $flags) . ")" : "0";
+			$combined = ($flags) ? implode(" | ", $flags) : "0";
 
 			$instr = $handler->getInstructionStructure();
 			$instrIndex = strtoupper($instr);
 			
 			$name = $handler->getName();
 			$lines[] = "// $name";
-			$lines[] = "{	$combined, $instrIndex	},";
+			$lines[] = "{	$instrIndex,	$combined	},";
+			
+			$prevHandler = $handler;
 		}
 		$lines[] = "};";
 		$lines[] = "";
@@ -775,9 +794,9 @@ class CodeGenerator {
 			$this->addCastHandlers($elementType);
 			$this->addMathHandlers($elementType);
 			//$this->addStringHandlers($elementType);
-			//$this->addArrayHandlers($elementType);
+			$this->addArrayHandlers($elementType);
 			//$this->addSamplingHandlers($elementType);
-			//$this->addMatrixHandlers($elementType);
+			$this->addMatrixHandlers($elementType);
 			$this->addComplexNumberHandlers($elementType);
 		}
 		//$this->addDebugHandlers();
@@ -1191,18 +1210,22 @@ class CodeGenerator {
 		}
 		if(!$unsigned) {
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new ArraySearch("AFIND", $elementTypeNoSign, $addressMode);
+				//$this->handlers[] = new ArraySearch("AFIND", $elementTypeNoSign, $addressMode);
 			}
-			$this->handlers[] = new SubarrayPosition("APOS", $elementTypeNoSign);
-			$this->handlers[] = new SubarrayPositionFromEnd("ARPOS", $elementTypeNoSign);
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new SubarrayPosition("APOS", $elementTypeNoSign, $addressMode);
+			}
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new SubarrayPositionFromEnd("ARPOS", $elementTypeNoSign, $addressMode);
+			}
 			$this->handlers[] = new ArrayReverse("AREV", $elementTypeNoSign);
-			$this->handlers[] = new ArrayInsert("AINS", $elementTypeNoSign);
+			//$this->handlers[] = new ArrayInsert("AINS", $elementTypeNoSign);
 			$this->handlers[] = new ArrayUnique("AUNIQ", $elementTypeNoSign);
 			$this->handlers[] = new ArrayColumn("ACOL", $elementTypeNoSign);
 			$this->handlers[] = new ArrayDifference("ADIFF", $elementTypeNoSign);
 			$this->handlers[] = new ArrayIntersect("AISECT", $elementTypeNoSign);
 			$this->handlers[] = new Shuffle("SHUFFLE", $elementTypeNoSign);
-			$this->handlers[] = new ArrayResize("ARESIZE", $elementTypeNoSign);
+			//$this->handlers[] = new ArrayResize("ARESIZE", $elementTypeNoSign);
 			$this->handlers[] = new ArrayPad("APAD", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {

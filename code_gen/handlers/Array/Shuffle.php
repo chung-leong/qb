@@ -2,6 +2,8 @@
 
 class Shuffle extends Handler {
 
+	use ArrayAddressMode, UnaryOperator;
+
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";

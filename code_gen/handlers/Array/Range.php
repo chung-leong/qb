@@ -2,23 +2,19 @@
 
 class Range extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, ArrayResult;
+	use MultipleAddressMode, TernaryOperator, ArrayResult;
 	
-	public function getInputOperandCount() {
-		return 3;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
-			case 1:
-			case 2:
-			case 4: return $this->operandType;
+			case 1: return $this->operandType;
+			case 2: return $this->operandType;
 			case 3:
 				if($this->operandType[0] == 'U') {
 					return "S" . substr($this->operandType, 1);
 				} else {
 					return $this->operandType;
 				}
+			case 4: return $this->operandType;
 		}
 	}
 	
@@ -53,24 +49,11 @@ class Range extends Handler {
 		return array($lines);
 	}
 	
-	public function getResultSizePossibilities() {
-		return "string_length";
-	}
-
-	public function getResultSizeCalculation() {
-		$type = $this->getOperandType(1);
-		return "string_length = qb_get_range_length_$type(op1, op2, op3);";
-	}		
-
-	public function needsStringLength() {
-		return true;
-	}
-	
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$lines = array();
-		$lines[] = "$cType *res_end = res_ptr + string_length;";
+		$lines[] = "$cType *res_end = res_ptr + res_count;";
 		$lines[] = "$cType num = op1;";
 		$lines[] = "while(res_ptr < res_end) {";
 		$lines[] = 		"*res_ptr = num;";

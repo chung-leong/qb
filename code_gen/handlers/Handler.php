@@ -20,6 +20,19 @@ class Handler {
 		self::$compiler = $compiler;
 	}
 	
+	static public function compare($op1, $op2) {
+		if($op1 && $op2) {
+			if($op1 == $op2) {
+				return true;
+			} else {
+				if($op1->baseName == $op2->baseName && $op1->operandType == $op2->operandType && $op1->operandSize == $op2->operandSize && $op1->operandSize == $op2->operandSize) {
+					return "variant";
+				}
+			}
+		}
+		return false;
+	}
+	
 	public function getBaseName() {
 		return $this->baseName;
 	}
@@ -50,6 +63,10 @@ class Handler {
 			}
 		}
 		return $name;
+	}
+	
+	public function getAddressMode() {
+		return $this->addressMode;
 	}
 
 	// return code for the op handler

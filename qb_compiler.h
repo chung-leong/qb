@@ -172,19 +172,17 @@ struct qb_temporary_variable {
 
 enum {
 	// intrinsic properties of an op
-	QB_OP_MULTI_ADDRESS				= 0x80000000,
-	QB_OP_VARIABLE_LENGTH			= 0x40000000,
-	QB_OP_NEED_LINE_NUMBER			= 0x20000000,
-	QB_OP_JUMP 						= 0x10000000,
-	QB_OP_ISSET 					= 0x01000000,
-	QB_OP_UNSET 					= 0x02000000,
-	QB_OP_PERFORM_WRAP_AROUND		= 0x04000000,
-	QB_OP_VECTORIZED				= 0x08000000,
-	QB_OP_NEED_MATRIX_DIMENSIONS	= 0x00100000,
+	QB_OP_VARIABLE_LENGTH			= 0x8000,
+	QB_OP_NEED_LINE_NUMBER			= 0x4000,
+	QB_OP_BRANCH					= 0x3000,
+	QB_OP_JUMP 						= 0x1000,
+	QB_OP_PERFORM_WRAP_AROUND		= 0x0800,
+	QB_OP_VERSION_AVAILABLE_ELE		= 0x0400,
+	QB_OP_VERSION_AVAILABLE_MIO		= 0x0200,
 
 	// compile time properties
-	QB_OP_JUMP_TARGET 				= 0x00001000,
-	QB_OP_CANNOT_REMOVE				= 0x00002000,
+	QB_OP_JUMP_TARGET 				= 0x80000000,
+	QB_OP_CANNOT_REMOVE				= 0x40000000,
 };
 
 #define MM_DIMENSIONS(m1_rows, m1_cols, m2_rows, m2_cols)		(((m1_rows & 0x000003FF) << 20) | ((m1_cols & 0x000003FF) << 10) | (m2_cols & 0x000003FF))
@@ -205,8 +203,8 @@ struct qb_op {
 #pragma pack(push,1)
 
 struct qb_op_info {
-	uint16_t flags;
 	uint16_t format_index;
+	uint16_t flags;
 };
 
 #pragma pack(pop)
