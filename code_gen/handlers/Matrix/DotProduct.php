@@ -2,56 +2,49 @@
 
 class DotProduct extends Handler {
 
+	use MultipleAddressMode, BinaryOperator, UnitResult, FloatingPointOnly;
+	
 	public function getInputOperandCount() {
-		return 2;
+		if($this->operandSize == "variable") {
+			return 3;
+		} else {
+			return parent::getInputOperandCount();
+		}
+	}
+	
+	public function getOperandAddressMode($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return "ARR";
+				case 3: return "SCA";
+				case 4: return $this->addressMode;
+			}
+		} else {
+			return parent::getOperandAddressMode($i);
+		}
 	}
 
-	public function getOperandAddressMode($i) {
-		switch($i) {
-			case 1: 
-			case 2: return "ARR";
-			case 3: return $this->addressMode;
-		}
-	}
-		
-	public function getResultSizePossibilities() {
-		if($this->addressMode == "ARR") {
-			return "vector_count";
-		}
-	}
-	
-	public function getResultSizeCalculation() {
-		if($this->addressMode == "ARR") {
-			$vectorSize = $this->getOperandSize(1);
-			return "vector_count = ((op1_count > op2_count) ? op1_count : op2_count) / $vectorSize;";
-		}
-	}
-	
 	public function getOperandSize($i) {
-		if($i == 3) {
-			return 1;	// the result
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "op3";
+				case 2: return "op3";
+				case 3: return 1;
+				case 4: return "op3";
+			}
 		} else {
 			return parent::getOperandSize($i);
 		}
 	}
-	
-	public function needsMatrixDimensions($which = null) {
-		if($this->operandSize == "variable") {
-			if(!$which || $which == 1) {
-				// only need the first, since the second must have the same size
-				return true;
-			}
-		}
-		return false;
-	}
 
 	public function getActionOnUnitData() {
-		$cType = $this->getOperandCType(3);
-		$type = $this->getOperandType(3);
+		$cType = $this->getOperandCType(1);
+		$lines = array();
 		if($this->operandSize == "variable") {
-			$lines[] = "uint32_t i;";
+			$lines[] = "uint32_t i, vector_width = op3;";
 			$lines[] = "$cType sum = 0;";
-			$lines[] = "for(i = 0; i < MATRIX1_COLS; i++) {";
+			$lines[] = "for(i = 0; i < vector_width; i++) {";
 			$lines[] = 		"sum += op1_ptr[i] * op2_ptr[i];";
 			$lines[] = "}";
 			$lines[] = "res = sum;";

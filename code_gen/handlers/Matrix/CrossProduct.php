@@ -2,6 +2,8 @@
 
 class CrossProduct extends Handler {
 
+	use ArrayAddressMode, FloatingPointOnly;
+
 	public function getInputOperandCount() {
 		if($this->operandSize == 4) {
 			return 3;
@@ -20,8 +22,7 @@ class CrossProduct extends Handler {
 	}
 
 	public function getActionOnUnitData() {
-		$cType = $this->getOperandCType(3);
-		$type = $this->getOperandType(3);
+		$cType = $this->getOperandCType(1);
 		$lines = array();
 		switch($this->operandSize) {
 			case 2: {

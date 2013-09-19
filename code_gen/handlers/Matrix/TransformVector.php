@@ -1,13 +1,9 @@
 <?php
 
-// note: using row-major order
-
 class TransformVector extends Handler {
 
-	public function getInputOperandCount() {
-		return 2;
-	}
-
+	use ArrayAddressMode, BinaryOperator, MatrixConventionDependent, FloatingPointOnly;
+	
 	public function getOperandSize($i) {
 		switch($i) {
 			case 1: return ($this->operandSize + 1) * $this->operandSize;
@@ -16,14 +12,11 @@ class TransformVector extends Handler {
 		}
 	}
 	
-	public function getResultSizePossibilities() {
-		return $this->operandSize;
-	}
-	
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
+		$order = $this->getMatrixConvention();
 		$lines = array();
-		if($this->order == "row-major") {
+		if($order == "row-major") {
 			switch($this->operandSize) {
 				case 2: {
 					$lines[] = "$cType dot_product0 = (op1_ptr[0 * 3 + 0] * op2_ptr[0]) + (op1_ptr[0 * 3 + 1] * op2_ptr[1]) + op1_ptr[0 * 3 + 2];";

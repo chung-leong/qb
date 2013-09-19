@@ -2,41 +2,47 @@
 
 class Length extends Handler {
 
-	public function getOperandAddressMode($i) {
-		switch($i) {
-			case 1: return "ARR";
-			case 2: return $this->addressMode;
-		}
-	}
-
-	public function getResultSizePossibilities() {
-		if($this->addressMode == "ARR") {
-			return "vector_count";
+	use MultipleAddressMode, UnaryOperator, UnitResult, FloatingPointOnly;
+	
+	public function getInputOperandCount() {
+		if($this->operandSize == "variable") {
+			return 2;
+		} else {
+			return parent::getInputOperandCount();
 		}
 	}
 	
-	public function getResultSizeCalculation() {
-		if($this->addressMode == "ARR") {
-			$vectorSize = $this->getOperandSize(1);
-			return "vector_count = op1_count / $vectorSize;";
+	public function getOperandAddressMode($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return "SCA";
+				case 3: return $this->addressMode;
+			}
+		} else {
+			return parent::getOperandAddressMode($i);
 		}
 	}
 	
 	public function getOperandSize($i) {
-		if($i == 2) {
-			return 1;
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "op3";
+				case 2: return 1;
+				case 3: return "op3";
+			}
 		} else {
 			return parent::getOperandSize($i);
 		}
 	}
-	
+
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
 		$f = ($type == 'F32') ? 'f' : '';
 		$lines = array();
 		if($this->operandSize == "variable") {
-			$lines[] = "uint32_t i;";
+			$lines[] = "uint32_t i, vector_width = op2;";
 			$lines[] = "$cType sum = 0;";
 			$lines[] = "for(i = 0; i < MATRIX1_COLS; i++) {";
 			$lines[] = 		"sum += op1_ptr[i] * op1_ptr[i];";

@@ -2,21 +2,51 @@
 
 class Reflect extends Handler {
 
+	use ArrayAddressMode, BinaryOperator, FloatingPointOnly;
+	
 	public function getInputOperandCount() {
-		return 2;
+		if($this->operandSize == "variable") {
+			return 3;
+		} else {
+			return parent::getInputOperandCount();
+		}
 	}
 	
+	public function getOperandAddressMode($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return "ARR";
+				case 3: return "SCA";
+				case 4: return $this->addressMode;
+			}
+		} else {
+			return parent::getOperandAddressMode($i);
+		}
+	}
+	
+	public function getOperandSize($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "op3";
+				case 2: return "op3";
+				case 3: return 1;
+				case 4: return "op3";
+			}
+		} else {
+			return parent::getOperandSize($i);
+		}
+	}
+
 	public function getActionOnUnitData() {
-		$cType = $this->getOperandCType(3);
-		$type = $this->getOperandType(3);
+		$cType = $this->getOperandCType(1);
 		if($this->operandSize == "variable") {
 			$dotProductHandler = new DotProduct(NULL, $this->operandType, "SCA", $this->operandSize);
-			$dotProductFunction = $dotProductHandler->getFunctionName();
-			
-			$lines[] = "uint32_t i;";
+			$dotProductFunction = $dotProductHandler->getHandlerFunctionName();
+			$lines[] = "uint32_t i, vector_width = op3;";
 			$lines[] = "$cType dot_product;";
-			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, MATRIX1_ROWS, MATRIX1_COLS, &dot_product);";
-			$lines[] = "for(i = 0; i < MATRIX1_COLS; i++) {";
+			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, vector_width, vector_width, &dot_product);";
+			$lines[] = "for(i = 0; i < vector_width; i++) {";
 			$lines[] = 		"res_ptr[i] = ($cType) (op1_ptr[i] - 2.0 * dot_product * op2_ptr[i]);";
 			$lines[] = "}";
 		} else {

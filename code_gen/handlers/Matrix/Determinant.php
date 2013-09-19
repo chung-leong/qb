@@ -1,71 +1,65 @@
 <?php
 
-// not affected by matrix order since determinant of M is the same as the determinant of the transpose of M
+// note: not affected by matrix order since determinant of M is the same as the determinant of the transpose of M
 
 class Determinant extends Handler {
 
-	public function getOperandAddressMode($i) {
-		switch($i) {
-			case 1: return "ARR";
-			case 2: return $this->addressMode;
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	
+	public function getInputOperandCount() {
+		if($this->operandSize == "variable") {
+			return 3;
+		} else {
+			return parent::getInputOperandCount();
 		}
 	}
 
-	public function getResultSizePossibilities() {
-		if($this->addressMode == "ARR") {
-			return "matrix1_count";
-		}
-	}
-	
-	public function getResultSizeCalculation() {
-		if($this->addressMode == "ARR") {
-			$matrixSize = $this->getOperandSize(1);
-			return "matrix1_count = op1_count / $matrixSize;";
-		}
-	}
-	
 	public function getOperandSize($i) {
-		if($i == 2) {
-			return 1;
-		} else {
-			if($this->operandSize == "variable") {
-				return "(MATRIX1_ROWS * MATRIX1_COLS)";
-			} else {
-				return $this->operandSize * $this->operandSize;
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "op2 * op2";
+				case 2: return 1;
+				case 3: return 1;
 			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandSize * $this->operandSize;
+				case 2: return 1;
+			}
+			
 		}
 	}
 	
 	public function getActionOnUnitData() {
-		$type = $this->getOperandType(2);
-		$cType = $this->getOperandCType(2);
+		$cType = $this->getOperandCType(1);
 		$lines = array();
 		if($this->operandSize == "variable") {
 			$determinantHandler4X = new Determinant(NULL, $this->operandType, "SCA", 4);
 			$determinantHandler = new Determinant(NULL, $this->operandType, "SCA", "variable");
-			$determinantFunction4X = $determinantHandler4X->getFunctionName();
-			$determinantFunction = $determinantHandler->getFunctionName();
+			$determinantFunction4X = $determinantHandler4X->getHandlerFunctionName();
+			$determinantFunction = $determinantHandler->getHandlerFunctionName();
 			
-			$lines[] = "if(MATRIX1_ROWS == 4) {";
+			$lines[] = "uint32_t matrix_rows = op2, matrix_cols = op2;";
+			$lines[] = "if(matrix_rows == 4) {";
 			$lines[] = 		"$determinantFunction4X(op1_ptr, res_ptr);";
 			$lines[] = "} else {";
 			$lines[] = 		"ALLOCA_FLAG(use_heap)";
-			$lines[] =		"uint32_t minor_size = (MATRIX1_ROWS - 1) * (MATRIX1_COLS - 1);";
+			$lines[] =		"uint32_t minor_size = (matrix_rows - 1) * (matrix_cols - 1);";
 			$lines[] = 		"$cType *__restrict minor = do_alloca(minor_size * sizeof($cType), use_heap);";
 			$lines[] = 		"uint32_t i, j, k, m, n;";
 			$lines[] = 		"$cType sign = 1, det = 0;";
-			$lines[] = 		"for(m = 0; m < MATRIX1_ROWS; m++) {";
+			$lines[] = 		"for(m = 0; m < matrix_rows; m++) {";
 			$lines[] = 			"$cType a = op1_ptr[m];";
 			$lines[] = 			"$cType minor_det;";
-			$lines[] = 			"for(i = 1, n = 0, k = MATRIX1_ROWS; i < MATRIX1_ROWS; i++) {";
-			$lines[] = 				"for(j = 0; j < MATRIX1_ROWS; j++, k++) {";
+			$lines[] = 			"for(i = 1, n = 0, k = matrix_rows; i < matrix_rows; i++) {";
+			$lines[] = 				"for(j = 0; j < matrix_rows; j++, k++) {";
 			$lines[] = 					"if(j != m) {";
 			$lines[] = 						"minor[n] = op1_ptr[k];";
 			$lines[] = 						"n++;";
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"$determinantFunction(minor, MATRIX1_ROWS - 1, MATRIX1_COLS - 1, &minor_det);";
+			$lines[] = 			"$determinantFunction(minor, matrix_rows - 1, matrix_cols - 1, &minor_det);";
 			$lines[] = 			"det += a * minor_det * sign;";
 			$lines[] = 			"sign = -sign;";
 			$lines[] = 		"}";

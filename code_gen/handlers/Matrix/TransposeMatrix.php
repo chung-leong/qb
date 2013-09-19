@@ -1,35 +1,64 @@
 <?php
 
-// not affected by matrix order
+// note: not affected by matrix order
 
 class TransposeMatrix extends Handler {
 
+	use ArrayAddressMode, UnaryOperator, FloatingPointOnly;
+	
+	public function getInputOperandCount() {
+		if($this->operandSize == "variable") {
+			return 3;
+		} else {
+			return parent::getInputOperandCount();
+		}
+	}
+	
 	public function getOperandAddressMode($i) {
-		return "ARR";
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return "SCA";
+				case 3: return "SCA";
+				case 4: return "ARR";
+			}
+		} else {
+			return parent::getOperandAddressMode($i);
+		}
 	}
 	
 	public function getOperandSize($i) {
 		if($this->operandSize == "variable") {
-			return "MATRIX1_ROWS * MATRIX1_COLS";
+			switch($i) {
+				case 1: return "op2 * op3";
+				case 2: return 1;
+				case 3: return 1;
+				case 4: return "op2 * op3";
+			}
 		} else {
-			return $this->operandSize * $this->operandSize;
+			switch($i) {
+				case 1: return $this->operandSize * $this->operandSize;
+				case 2: return $this->operandSize * $this->operandSize;
+			}
+			
 		}
 	}
 	
 	public function getActionOnUnitData() {
-		$type = $this->getOperandType(2);
-		$cType = $this->getOperandCType(2);
+		$type = $this->getOperandType(1);
+		$cType = $this->getOperandCType(1);
 		$lines = array();
 		if($this->operandSize == "variable") {
 			$lines[] = "ALLOCA_FLAG(use_heap)";
-			$lines[] = "$cType *__restrict buffer = do_alloca(MATRIX1_ROWS * MATRIX1_COLS * sizeof($cType), use_heap);";
 			$lines[] = "uint32_t i, j, k, p;";
-			$lines[] = "for(i = 0, p = 0; i < MATRIX1_ROWS; i++) {";
-			$lines[] = 		"for(j = 0, k = i; j < MATRIX1_COLS; j++, p++, k += MATRIX1_ROWS) {";
+			$lines[] = "uint32_t matrix_rows = op2, matrix_cols = op3;";
+			$lines[] = "$cType *__restrict buffer = do_alloca(matrix_rows * matrix_cols * sizeof($cType), use_heap);";
+			$lines[] = "for(i = 0, p = 0; i < matrix_rows; i++) {";
+			$lines[] = 		"for(j = 0, k = i; j < matrix_cols; j++, p++, k += matrix_rows) {";
 			$lines[] = 			"buffer[k] = op1_ptr[p];";
 			$lines[] = 		"}";
 			$lines[] = "}";
-			$lines[] = "memcpy(res_ptr, buffer, MATRIX1_ROWS * MATRIX1_COLS * sizeof($cType));";
+			$lines[] = "memcpy(res_ptr, buffer, matrix_rows * matrix_cols * sizeof($cType));";
 			$lines[] = "free_alloca(buffer, use_heap);";
 		} else {
 			switch($this->operandSize) {
