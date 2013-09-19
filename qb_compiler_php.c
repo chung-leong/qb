@@ -2683,7 +2683,7 @@ static qb_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_modulo				},	// ZEND_MOD
 	{	qb_translate_basic_op,				&factory_shift_left			},	// ZEND_SL
 	{	qb_translate_basic_op,				&factory_shift_right		},	// ZEND_SR
-	{	qb_translate_concat,				&factory_concat				},	// ZEND_CONCAT
+	{	qb_translate_concat,				/*&factory_concat*/NULL		},	// ZEND_CONCAT
 	{	qb_translate_basic_op,				&factory_bitwise_or			},	// ZEND_BW_OR
 	{	qb_translate_basic_op,				&factory_bitwise_and		},	// ZEND_BW_AND
 	{	qb_translate_basic_op,				&factory_bitwise_xor		},	// ZEND_BW_XOR
@@ -2705,7 +2705,7 @@ static qb_translator op_translators[] = {
 	{	qb_translate_assign_op,				&factory_modulo				},	// ZEND_ASSIGN_MOD
 	{	qb_translate_assign_op,				&factory_shift_left			},	// ZEND_ASSIGN_SL
 	{	qb_translate_assign_op,				&factory_shift_right		},	// ZEND_ASSIGN_SR
-	{	qb_translate_assign_concat,			&factory_concat				},	// ZEND_ASSIGN_CONCAT
+	{	qb_translate_assign_concat,			/*&factory_concat*/NULL		},	// ZEND_ASSIGN_CONCAT
 	{	qb_translate_assign_op,				&factory_bitwise_or			},	// ZEND_ASSIGN_BW_OR
 	{	qb_translate_assign_op,				&factory_bitwise_and		},	// ZEND_ASSIGN_BW_AND
 	{	qb_translate_assign_op,				&factory_bitwise_xor		},	// ZEND_ASSIGN_BW_XOR
@@ -2729,14 +2729,14 @@ static qb_translator op_translators[] = {
 	{	qb_translate_continue,				&factory_jump				},	// ZEND_CONT
 	{	qb_translate_bool,					&factory_boolean			},	// ZEND_BOOL
 	{	qb_translate_init_string,			NULL						},	// ZEND_INIT_STRING
-	{	qb_translate_add_string,			&factory_concat				},	// ZEND_ADD_CHAR
-	{	qb_translate_add_string,			&factory_concat				},	// ZEND_ADD_STRING
-	{	qb_translate_add_string,			&factory_concat				},	// ZEND_ADD_VAR
+	{	qb_translate_add_string,			/*&factory_concat*/NULL		},	// ZEND_ADD_CHAR
+	{	qb_translate_add_string,			/*&factory_concat*/NULL		},	// ZEND_ADD_STRING
+	{	qb_translate_add_string,			/*&factory_concat*/NULL		},	// ZEND_ADD_VAR
 	{	qb_translate_begin_silence,			NULL						},	// ZEND_BEGIN_SILENCE
 	{	qb_translate_end_silence,			NULL						},	// ZEND_END_SILENCE
 	{	qb_translate_function_call_init,	NULL						},	// ZEND_INIT_FCALL_BY_NAME
-	{	qb_translate_function_call,			&factory_fcall				},	// ZEND_DO_FCALL
-	{	qb_translate_function_call_by_name,	&factory_fcall				},	// ZEND_DO_FCALL_BY_NAME
+	{	qb_translate_function_call,			/*&factory_fcall*/NULL		},	// ZEND_DO_FCALL
+	{	qb_translate_function_call_by_name,	/*&factory_fcall*/NULL		},	// ZEND_DO_FCALL_BY_NAME
 	{	qb_translate_return,				&factory_return				},	// ZEND_RETURN
 	{	qb_translate_receive_argument,		NULL						},	// ZEND_RECV
 	{	qb_translate_receive_argument,		NULL						},	// ZEND_RECV_INIT
@@ -2749,9 +2749,9 @@ static qb_translator op_translators[] = {
 	{	qb_translate_init_array,			NULL						},	// ZEND_INIT_ARRAY
 	{	qb_translate_add_element,			NULL						},	// ZEND_ADD_ARRAY_ELEMENT
 	{	NULL,								NULL						},	// ZEND_INCLUDE_OR_EVAL
-	{	qb_translate_unset,					&factory_unset				},	// ZEND_UNSET_VAR
-	{	qb_translate_unset,					&factory_unset				},	// ZEND_UNSET_DIM
-	{	qb_translate_unset,					&factory_unset				},	// ZEND_UNSET_OBJ
+	{	qb_translate_unset,					/*&factory_unset*/NULL				},	// ZEND_UNSET_VAR
+	{	qb_translate_unset,					/*&factory_unset*/NULL				},	// ZEND_UNSET_DIM
+	{	qb_translate_unset,					/*&factory_unset*/NULL				},	// ZEND_UNSET_OBJ
 	{	qb_translate_foreach_reset,			NULL						},	// ZEND_FE_RESET
 	{	qb_translate_foreach_fetch,			NULL						},	// ZEND_FE_FETCH
 	{	qb_translate_exit,					&factory_exit				},	// ZEND_EXIT
@@ -2790,7 +2790,7 @@ static qb_translator op_translators[] = {
 	{	qb_translate_init_method_call,		NULL						},	// ZEND_INIT_METHOD_CALL
 	{	qb_translate_init_method_call,		NULL						},	// ZEND_INIT_STATIC_METHOD_CALL
 	{	qb_translate_isset,					NULL						},	// ZEND_ISSET_ISEMPTY_VAR
-	{	qb_translate_isset_element,			&factory_isset				},	// ZEND_ISSET_ISEMPTY_DIM_OBJ
+	{	qb_translate_isset_element,			/*&factory_isset*/NULL				},	// ZEND_ISSET_ISEMPTY_DIM_OBJ
 	{	NULL,								NULL						},	// 116
 	{	NULL,								NULL						},	// 117
 	{	NULL,								NULL						},	// 118

@@ -6,14 +6,18 @@ trait PixelSampler {
 		return 5;
 	}
 
+	public function getOutputOperandCount() {
+		return 1;
+	}
+	
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: return "ARR";	// image
 			case 2:	return "SCA";	// width
 			case 3:	return "SCA";	// height
-			case 6: return "ARR";	// result
 			case 4: return $this->addressMode;	// x
 			case 5: return $this->addressMode;	// y
+			case 6: return "ARR";	// result
 				
 		}
 	}
@@ -32,9 +36,9 @@ trait PixelSampler {
 	public function getOperandSize($i) {
 		switch($i) {
 			case 1: return 0;	// the image remains fixed during iteration
-			case 2:
-			case 3: 
-			case 4: 
+			case 2: return 1;
+			case 3: return 1;
+			case 4: return 1;
 			case 5: return 1;
 			case 6: return $this->operandSize;
 		}

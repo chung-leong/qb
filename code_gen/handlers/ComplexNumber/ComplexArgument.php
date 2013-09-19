@@ -2,7 +2,7 @@
 
 class ComplexArgument extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, UnitResult, FloatingPointOnly, Slow;
+	use ArrayAddressMode, UnaryOperator, UnitResult, FloatingPointOnly, FixedOperandSize, Slow;
 	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);

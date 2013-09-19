@@ -2475,7 +2475,7 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 	return FAILURE;
 }
 
-void ZEND_FASTCALL qb_free_native_code(void *bundle) {
+void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle) {
 }
 
 #endif	// NATIVE_COMPILE_ENABLED

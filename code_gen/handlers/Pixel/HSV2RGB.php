@@ -2,7 +2,7 @@
 
 class HSV2RGB extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, FloatingPointOnly;
+	use ArrayAddressMode, UnaryOperator, FloatingPointOnly;
 	
 	public function getHelperFunctions() {
 		$cType = $this->getOperandCType(1);

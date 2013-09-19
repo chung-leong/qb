@@ -23,9 +23,9 @@ trait MultipleAddressMode {
 	}
 	
 	public function disableMultipleData() {
-		// change the address mode to SCA, unless the handler is unrolling a scalar expression
+		// change the address mode to SCA, unless the handler is replicating a scalar expression
 		// in which case the address mode needs to stay ARR
-		if(!$this->needsUnrolling()) {
+		if(!$this->needsReplication()) {
 			$this->addressMode = "SCA";
 		}
 		$this->multipleData = false;

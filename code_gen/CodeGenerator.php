@@ -795,11 +795,11 @@ class CodeGenerator {
 			$this->addMathHandlers($elementType);
 			//$this->addStringHandlers($elementType);
 			$this->addArrayHandlers($elementType);
-			//$this->addSamplingHandlers($elementType);
+			$this->addSamplingHandlers($elementType);
 			$this->addMatrixHandlers($elementType);
 			$this->addComplexNumberHandlers($elementType);
 		}
-		//$this->addDebugHandlers();
+		$this->addDebugHandlers();
 	}
 
 	protected function addArithmeticHandlers($elementType) {
@@ -1239,22 +1239,22 @@ class CodeGenerator {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new SampleNearest("SAMPLE_NN", $elementType, $addressMode, 4);
+				$this->handlers[] = new SampleNearest("SAMPLE_NN", $elementType, $addressMode, 4, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new SampleNearest("SAMPLE_NN", $elementType, $addressMode, 3);
+				$this->handlers[] = new SampleNearest("SAMPLE_NN", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 4);
+				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 4, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 3);
+				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
 			$this->handlers[] = new AlphaBlend("BLEND", $elementType);
-			$this->handlers[] = new ApplyPremultiplication("PREMULT", $elementType);
-			$this->handlers[] = new ApplyPremultiplication("PREMULT", $elementType, true);
-			$this->handlers[] = new RemovePremultiplication("UNPREMULT", $elementType);
-			$this->handlers[] = new RemovePremultiplication("UNPREMULT", $elementType, true);
+			$this->handlers[] = new ApplyPremultiplication("PREMULT", $elementType, 4);
+			$this->handlers[] = new ApplyPremultiplication("PREMULT", $elementType, 4, true);
+			$this->handlers[] = new RemovePremultiplication("UNPREMULT", $elementType, 4);
+			$this->handlers[] = new RemovePremultiplication("UNPREMULT", $elementType, 4, true);
 			$this->handlers[] = new RGB2HSV("RGB2HSV", $elementType, 3);
 			$this->handlers[] = new RGB2HSV("RGB2HSV", $elementType, 3, true);
 			$this->handlers[] = new RGB2HSV("RGB2HSV", $elementType, 4);

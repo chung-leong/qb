@@ -2,7 +2,11 @@
 
 class Terminate extends Handler {
 	
-	use ScalarAddressMode, ExitFunction, UnaryOperator, IntegerOnly;
+	use ScalarAddressMode, ExitFunction, IntegerOnly;
+	
+	public function getInputOperandCount() {
+		return 1;
+	}
 	
 	public function getAction() {
 		$lines = array();

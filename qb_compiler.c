@@ -947,7 +947,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_c
 			if(IS_EXPANDABLE_ARRAY(address)) {
 				if(address->type == desired_type) {
 					address->flags &= ~(QB_ADDRESS_STRING | QB_ADDRESS_REUSED | QB_ADDRESS_BOOLEAN);
-					qb_create_nullary_op(cxt, &factory_unset, address);
+					/*qb_create_nullary_op(cxt, &factory_unset, address);*/
 					qb_lock_address(cxt, address);
 					return address;
 				}
@@ -956,7 +956,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_c
 	}
 	address = qb_create_variable_length_array(cxt, desired_type, QB_CREATE_EXPANDABLE);
 	address->flags |= QB_ADDRESS_TEMPORARY;
-	qb_create_nullary_op(cxt, &factory_unset, address);
+	/*qb_create_nullary_op(cxt, &factory_unset, address);*/
 	qb_lock_address(cxt, address);
 	return address;
 }
@@ -1828,12 +1828,14 @@ static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address 
 				// double check just to be sure
 				uint32_t operand_flags;
 				switch(prev_qop->opcode) {
+					/*
 					case QB_FCALL_VAR:
 					case QB_FCALL_MIX:
 						// function calls employ variable number of operands so qb_get_operand_flags() 
 						// won't tell us anything; we do know that the last operand is the return value
 						operand_flags = QB_OPERAND_WRITABLE;
 						break;
+					*/
 					default:
 						operand_flags = qb_get_operand_flags(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
 				}
@@ -2408,7 +2410,7 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 			qb_operand_type operand_type;
 			uint32_t operand_flags;
 			if(flags & QB_OP_MULTI_ADDRESS) {
-				if(qop->opcode == QB_FCALL) {
+				if(FALSE/*qop->opcode == QB_FCALL*/) {
 					// FCALL can work in one of two manners: either all addresses point to scalar variables
 					// or the addresses point to both scalars or arrays
 					for(j = 3; j < qop->operand_count; j++) {

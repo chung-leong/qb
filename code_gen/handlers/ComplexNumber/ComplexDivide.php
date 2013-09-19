@@ -2,7 +2,7 @@
 
 class ComplexDivide extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, FloatingPointOnly, Slow;
+	use ArrayAddressMode, BinaryOperator, FloatingPointOnly, FixedOperandSize, Slow;
 
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(3);

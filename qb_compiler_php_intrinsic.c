@@ -632,7 +632,9 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_unshift(qb_compiler_conte
 
 		for(i = argument_count - 1; i >= 1; i--) {
 			value = &arguments[i];
+			/*
 			qb_create_binary_op(cxt, &factory_array_insert, value->address, zero_address, container->address);
+			*/
 		}
 		if(result->type != QB_OPERAND_NONE) {
 			result->type = QB_OPERAND_ADDRESS;
@@ -938,7 +940,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_pop(qb_compiler_context *
 			result->address = qb_obtain_write_target_address(cxt, variable_address->type, result_dim, result_prototype, 0);
 			qb_create_unary_op(cxt, &factory_copy, variable_address, result->address);
 		}
-		qb_create_nullary_op(cxt, &factory_unset, variable_address);
+		/*qb_create_nullary_op(cxt, &factory_unset, variable_address);*/
 	}
 }
 
@@ -973,7 +975,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_shift(qb_compiler_context
 			result->address = qb_obtain_write_target_address(cxt, variable_address->type, result_dim, result_prototype, 0);
 			qb_do_assignment(cxt, variable_address, result->address);
 		}
-		qb_create_nullary_op(cxt, &factory_unset, variable_address);
+		/*qb_create_nullary_op(cxt, &factory_unset, variable_address);*/
 	}
 }
 
@@ -1048,7 +1050,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_contex
 				qb_address *insert_offset_address;
 				// clear the span (unless its length is zero)
 				if(!(slice_address->array_size_address->flags & QB_ADDRESS_CONSTANT && ARRAY_SIZE(slice_address) == 0)) {
-					qb_create_nullary_op(cxt, &factory_unset, slice_address);
+					/*qb_create_nullary_op(cxt, &factory_unset, slice_address);*/
 				}
 
 				// insert the replacement 
@@ -1058,10 +1060,12 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_contex
 					uint32_t insert_offset = ELEMENT_COUNT(slice_address->segment_offset, slice_address->type);
 					insert_offset_address = qb_obtain_constant_U32(cxt, insert_offset);
 				}
+				/*
 				qb_create_binary_op(cxt, &factory_array_insert, replacement->address, insert_offset_address, container->address);
+				*/
 			}
 		} else {
-			qb_create_nullary_op(cxt, &factory_unset, slice_address);
+			/*qb_create_nullary_op(cxt, &factory_unset, slice_address);*/
 		}
 	}
 }
@@ -1841,10 +1845,10 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"float64",				qb_translate_intrinsic_cast,				1,		1,		(void *) QB_TYPE_F64		},
 	{	0,	"defined",				qb_translate_intrinsic_defined,				1,		1,		NULL						},
 	{	0,	"define",				qb_translate_intrinsic_define,				2,		2,		NULL						},
-	{	0,	"pack_le",				qb_translate_intrinsic_pack,				1,		2,		&factory_pack_le			},
-	{	0,	"unpack_le",			qb_translate_intrinsic_unpack,				1,		3,		&factory_unpack_le			},
-	{	0,	"pack_be",				qb_translate_intrinsic_pack,				1,		2,		&factory_pack_be			},
-	{	0,	"unpack_be",			qb_translate_intrinsic_unpack,				1,		3,		&factory_unpack_be			},
+	{	0,	"pack_le",				qb_translate_intrinsic_pack,				1,		2,		/*&factory_pack_le*/NULL			},
+	{	0,	"unpack_le",			qb_translate_intrinsic_unpack,				1,		3,		/*&factory_unpack_le*/NULL			},
+	{	0,	"pack_be",				qb_translate_intrinsic_pack,				1,		2,		/*&factory_pack_be*/NULL			},
+	{	0,	"unpack_be",			qb_translate_intrinsic_unpack,				1,		3,		/*&factory_unpack_be*/NULL			},
 	{	0,	"equal",				NULL,										2,		2,		&factory_set_equal			},
 	{	0,	"not_equal",			NULL,										2,		2,		&factory_set_not_equal		},
 	{	0,	"less_than",			NULL,										2,		2,		&factory_set_less_than		},
@@ -1942,8 +1946,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"substr",				qb_translate_intrinsic_array_slice,			2,		3,		NULL						},
 	{	0,	"array_sum",			qb_translate_intrinsic_array_aggregate,		1,		1,		&factory_array_sum			},
 	{	0,	"array_product",		qb_translate_intrinsic_array_aggregate,		1,		1,		&factory_array_product		},
-	{	0,	"array_search",			qb_translate_intrinsic_array_search,		2,		2,		&factory_array_search		},
-	{	0,	"in_array",				qb_translate_intrinsic_array_search,		2,		2,		&factory_in_array			},
+	{	0,	"array_search",			qb_translate_intrinsic_array_search,		2,		2,		/*&factory_array_search*/NULL		},
+	{	0,	"in_array",				qb_translate_intrinsic_array_search,		2,		2,		/*&factory_in_array*/NULL			},
 	{	0,	"array_pos",			qb_translate_intrinsic_subarray_search,		2,		3,		&factory_subarray_pos		},
 	{	0,	"strpos",				qb_translate_intrinsic_subarray_search,		2,		3,		&factory_subarray_pos		},
 	{	0,	"array_rpos",			qb_translate_intrinsic_subarray_search,		2,		3,		&factory_subarray_rpos		},
@@ -1960,10 +1964,10 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_filter",			qb_translate_intrinsic_array_filter,		1,		1,		&factory_array_diff			},
 	{	0,	"array_intersect",		qb_translate_intrinsic_array_diff,			2,		-1,		&factory_array_intersect	},
 	{	0,	"array_rand",			qb_translate_intrinsic_array_rand,			1,		2,		&factory_array_rand			},
-	{	0,	"array_resize",			qb_translate_intrinsic_array_resize,		2,		-1,		&factory_array_resize		},
-	{	0,	"utf8_decode",			qb_translate_intrinsic_utf8_decode,			1,		1,		&factory_utf8_decode		},
-	{	0,	"utf8_encode",			qb_translate_intrinsic_utf8_encode,			1,		1,		&factory_utf8_encode		},
-	{	0,	"cabs",					qb_translate_intrinsic_complex,				1,		1,		&factory_complex_abs		},
+	{	0,	"array_resize",			qb_translate_intrinsic_array_resize,		2,		-1,		/*&factory_array_resize*/NULL		},
+	{	0,	"utf8_decode",			qb_translate_intrinsic_utf8_decode,			1,		1,		/*&factory_utf8_decode*/NULL		},
+	{	0,	"utf8_encode",			qb_translate_intrinsic_utf8_encode,			1,		1,		/*&factory_utf8_encode*/NULL		},
+	{	0,	"cabs",					qb_translate_intrinsic_complex,				1,		1,		/*&factory_complex_abs*/NULL		},
 	{	0,	"carg",					qb_translate_intrinsic_complex,				1,		1,		&factory_complex_arg		},
 	{	0,	"cmult",				qb_translate_intrinsic_complex,				2,		2,		&factory_complex_multiply	},
 	{	0,	"cdiv",					qb_translate_intrinsic_complex,				2,		2,		&factory_complex_divide		},

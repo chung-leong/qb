@@ -40,9 +40,11 @@ class Handler {
 	public function getName() {
 		$name = $this->baseName;
 		
-		// append the vector size
-		if($this->operandSize > 1) {
-			$name .= "_{$this->operandSize}X";
+		// append the operand size unless it's always the same (as in the case complex number)
+		if(!in_array('FixedOperandSize', class_uses($this))) {
+			if($this->operandSize > 1) {
+				$name .= "_{$this->operandSize}X";
+			}
 		}
 		
 		// append operand type to the name
@@ -55,9 +57,10 @@ class Handler {
 		if($this->multipleData) {
 			$name .= "_MIO";
 		} else {
-			// append the address mode
-			if($this->addressMode) {
-				if(in_array('MultipleAddressMode', class_uses($this))) {
+			if(in_array('MultipleAddressMode', class_uses($this))) {
+				// append the address mode to distinct the different ops
+				// unless we're creating a 
+				if(!($this->addressMode == "ARR" && $this->needsReplication())) {
 					$name .= "_$this->addressMode";
 				}
 			}
@@ -276,7 +279,7 @@ class Handler {
 		return false;
 	}
 	
-	public function needsUnrolling() {
+	public function needsReplication() {
 		return false;
 	}
 	
@@ -635,8 +638,8 @@ class Handler {
 			}
 		} else {
 			$action = $this->getActionOnUnitData();
-			if($this->needsUnrolling()) {
-				$action = $this->getUnrolledCode($action, $this->operandSize);
+			if($this->needsReplication()) {
+				$action = $this->replicateExpression($action, $this->operandSize);
 			}
 		}
 		return $action;
@@ -684,7 +687,7 @@ class Handler {
 	}	
 	
 	// multiple a scalar operation multiple times
-	protected function getUnrolledCode($expression, $count) {
+	protected function replicateExpression($expression, $count) {
 		$srcCount = $this->getInputOperandCount();
 		$arrayOperands = array();
 		for($i = 1; $i <= $srcCount; $i++) {

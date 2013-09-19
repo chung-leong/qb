@@ -1023,6 +1023,7 @@ static qb_op *ZEND_FASTCALL qb_append_concat_op(qb_compiler_context *cxt, void *
 	return qop;
 }
 
+/*
 static qb_string_op_factory factory_concat = {
 	qb_append_concat_op,
 	NULL,
@@ -1032,6 +1033,7 @@ static qb_string_op_factory factory_concat = {
 	{	QB_CAT_DIM_F64_U32_U08,	QB_CAT_DIM_F32_U32_U08,	QB_CAT_DIM_U64_U32_U08,	QB_CAT_DIM_S64_U32_U08,	QB_CAT_DIM_U32_U32_U08,	QB_CAT_DIM_S32_U32_U08,	QB_CAT_DIM_U16_U32_U08,	QB_CAT_DIM_S16_U32_U08,	QB_CAT_DIM_U08_U32_U08,	QB_CAT_DIM_S08_U32_U08,	},
 	QB_CAT_STR_U08_U08,
 };
+*/
 
 static qb_op *ZEND_FASTCALL qb_append_print_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *f = factory;
@@ -1060,6 +1062,7 @@ static qb_op *ZEND_FASTCALL qb_append_print_op(qb_compiler_context *cxt, void *f
 	return qop;
 }
 
+/*
 static qb_string_op_factory factory_print = {
 	qb_append_print_op,
 	NULL,
@@ -1069,6 +1072,7 @@ static qb_string_op_factory factory_print = {
 	{	QB_PRN_DIM_F64_U32,	QB_PRN_DIM_F32_U32,	QB_PRN_DIM_U64_U32,	QB_PRN_DIM_S64_U32,	QB_PRN_DIM_U32_U32,	QB_PRN_DIM_S32_U32,	QB_PRN_DIM_U16_U32,	QB_PRN_DIM_S16_U32,	QB_PRN_DIM_U08_U32,	QB_PRN_DIM_S08_U32,	},
 	QB_PRN_STR_U08,
 };
+*/
 
 static qb_op *ZEND_FASTCALL qb_append_simple_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_simple_op_factory *f = factory;
@@ -1222,6 +1226,7 @@ static qb_op * ZEND_FASTCALL qb_append_fcall(qb_compiler_context *cxt, void *fac
 	return qop;
 }
 
+/*
 static qb_fcall_op_factory factory_fcall = {
 	qb_append_fcall,
 	NULL,
@@ -1229,6 +1234,7 @@ static qb_fcall_op_factory factory_fcall = {
 	0,
 	QB_FCALL,
 };
+*/
 
 static qb_float_op_factory factory_sin = { 
 	qb_append_unary_op,
@@ -1753,7 +1759,7 @@ static qb_vector_op_factory factory_dot_product = {
 	qb_set_vector_op_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_DOT_F64_F64_F64,		QB_DOT_F32_F32_F32,	},
+	{	QB_DOT_F64_F64_U32_F64,		QB_DOT_F32_F32_U32_F32,	},
 	{
 		{	QB_DOT_2X_F64_F64_F64,	QB_DOT_2X_F32_F32_F32,	},
 		{	QB_DOT_3X_F64_F64_F64,	QB_DOT_3X_F32_F32_F32,	},
@@ -1766,7 +1772,7 @@ static qb_vector_op_factory factory_length = {
 	qb_set_vector_op_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_LEN_F64_F64,			QB_LEN_F32_F32,	},
+	{	QB_LEN_F64_U32_F64,			QB_LEN_F32_U32_F32,	},
 	{
 		{	QB_LEN_2X_F64_F64,		QB_LEN_2X_F32_F32,	},
 		{	QB_LEN_3X_F64_F64,		QB_LEN_3X_F32_F32,	},
@@ -1779,7 +1785,7 @@ static qb_vector_op_factory factory_distance = {
 	qb_set_vector_op_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_DIS_F64_F64_F64,		QB_DIS_F32_F32_F32,	},
+	{	QB_DIS_F64_F64_U32_F64,		QB_DIS_F32_F32_U32_F32,	},
 	{
 		{	QB_DIS_2X_F64_F64_F64,	QB_DIS_2X_F32_F32_F32,	},
 		{	QB_DIS_3X_F64_F64_F64,	QB_DIS_3X_F32_F32_F32,	},
@@ -1792,7 +1798,7 @@ static qb_vector_op_factory factory_normalize = {
 	qb_set_matching_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_NORM_F64_F64,		QB_NORM_F32_F32,	},
+	{	QB_NORM_F64_U32_F64,		QB_NORM_F32_U32_F32,	},
 	{
 		{	QB_NORM_2X_F64_F64,		QB_NORM_2X_F32_F32,	},
 		{	QB_NORM_3X_F64_F64,		QB_NORM_3X_F32_F32,	},
@@ -1805,7 +1811,7 @@ static qb_vector_op_factory factory_faceforward = {
 	qb_set_matching_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_FORE_F64_F64_F64,		QB_FORE_F32_F32_F32,	},
+	{	QB_FORE_F64_F64_U32_F64,		QB_FORE_F32_F32_U32_F32,	},
 	{
 		{	QB_FORE_2X_F64_F64_F64,		QB_FORE_2X_F32_F32_F32,	},
 		{	QB_FORE_3X_F64_F64_F64,		QB_FORE_3X_F32_F32_F32,	},
@@ -1818,7 +1824,7 @@ static qb_vector_op_factory factory_reflect = {
 	qb_set_matching_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_REFL_F64_F64_F64,		QB_REFL_F32_F32_F32,	},
+	{	QB_REFL_F64_F64_U32_F64,		QB_REFL_F32_F32_U32_F32,	},
 	{
 		{	QB_REFL_2X_F64_F64_F64,		QB_REFL_2X_F32_F32_F32,	},
 		{	QB_REFL_3X_F64_F64_F64,		QB_REFL_3X_F32_F32_F32,	},
@@ -1869,7 +1875,7 @@ static qb_vector_op_factory factory_refract = {
 	qb_set_matching_result_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_REFR_F64_F64_F64_F64,		QB_REFR_F32_F32_F32_F32,	},
+	{	QB_REFR_F64_F64_U32_U32_F64,		QB_REFR_F32_F32_U32_U32_F32,	},
 	{
 		{	QB_REFR_2X_F64_F64_F64_F64,		QB_REFR_2X_F32_F32_F32_F32,	},
 		{	QB_REFR_3X_F64_F64_F64_F64,		QB_REFR_3X_F32_F32_F32_F32,	},
@@ -2026,13 +2032,13 @@ static qb_matrix_op_factory factory_mm_multiply_cm = {
 	qb_set_matrix_matrix_product_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
-	{	QB_MUL_MM_F64_F64_F64,			QB_MUL_MM_F32_F32_F32,	},
+	{	QB_MUL_MM_CM_F64_F64_U32_U32_U32_F64,	QB_MUL_MM_CM_F32_F32_U32_U32_U32_F32,	},
 	{
-		{	QB_MUL_MM_2X_F64_F64_F64,		QB_MUL_MM_2X_F32_F32_F32,	},
-		{	QB_MUL_MM_3X_F64_F64_F64,		QB_MUL_MM_3X_F32_F32_F32,	},
-		{	QB_MUL_MM_4X_F64_F64_F64,		QB_MUL_MM_4X_F32_F32_F32,	},
+		{	QB_MUL_MM_CM_2X_F64_F64_F64,		QB_MUL_MM_CM_2X_F32_F32_F32,	},
+		{	QB_MUL_MM_CM_3X_F64_F64_F64,		QB_MUL_MM_CM_3X_F32_F32_F32,	},
+		{	QB_MUL_MM_CM_4X_F64_F64_F64,		QB_MUL_MM_CM_4X_F32_F32_F32,	},
 	},
-	QB_MUL_MM_3XP_F32_F32_F32,
+	QB_MUL_MM_CM_PAD_3X_F32_F32_F32,
 };
 
 static qb_op * ZEND_FASTCALL qb_append_matrix_vector_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -2134,13 +2140,13 @@ static qb_matrix_op_factory factory_mv_multiply_cm = {
 	qb_set_matrix_vector_product_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
-	{	QB_MUL_MV_F64_F64_F64,			QB_MUL_MV_F32_F32_F32,	},
+	{	QB_MUL_MV_CM_F64_F64_U32_U32_F64,		QB_MUL_MV_CM_F32_F32_U32_U32_F32,	},
 	{
-		{	QB_MUL_MV_2X_F64_F64_F64,		QB_MUL_MV_2X_F32_F32_F32,	},
-		{	QB_MUL_MV_3X_F64_F64_F64,		QB_MUL_MV_3X_F32_F32_F32,	},
-		{	QB_MUL_MV_4X_F64_F64_F64,		QB_MUL_MV_4X_F32_F32_F32,	},
+		{	QB_MUL_MV_CM_2X_F64_F64_F64,		QB_MUL_MV_CM_2X_F32_F32_F32,	},
+		{	QB_MUL_MV_CM_3X_F64_F64_F64,		QB_MUL_MV_CM_3X_F32_F32_F32,	},
+		{	QB_MUL_MV_CM_4X_F64_F64_F64,		QB_MUL_MV_CM_4X_F32_F32_F32,	},
 	},
-	QB_MUL_MV_3XP_F32_F32_F32,
+	QB_MUL_MV_CM_PAD_3X_F32_F32_F32,
 };
 
 static qb_op * ZEND_FASTCALL qb_append_vector_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -2186,13 +2192,13 @@ static qb_matrix_op_factory factory_vm_multiply_cm = {
 	qb_set_vector_matrix_product_dimensions,
 	QB_COERCE_TO_HIGHEST_RANK | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
-	{	QB_MUL_VM_F64_F64_F64,			QB_MUL_VM_F32_F32_F32,	},
+	{	QB_MUL_VM_CM_F64_F64_U32_U32_F64,		QB_MUL_VM_CM_F32_F32_U32_U32_F32,	},
 	{
-		{	QB_MUL_VM_2X_F64_F64_F64,		QB_MUL_VM_2X_F32_F32_F32,	},
-		{	QB_MUL_VM_3X_F64_F64_F64,		QB_MUL_VM_3X_F32_F32_F32,	},
-		{	QB_MUL_VM_4X_F64_F64_F64,		QB_MUL_VM_4X_F32_F32_F32,	},
+		{	QB_MUL_VM_CM_2X_F64_F64_F64,		QB_MUL_VM_CM_2X_F32_F32_F32,	},
+		{	QB_MUL_VM_CM_3X_F64_F64_F64,		QB_MUL_VM_CM_3X_F32_F32_F32,	},
+		{	QB_MUL_VM_CM_4X_F64_F64_F64,		QB_MUL_VM_CM_4X_F32_F32_F32,	},
 	},
-	QB_MUL_VM_3XP_F32_F32_F32,
+	QB_MUL_VM_CM_PAD_3X_F32_F32_F32,
 };
 
 static qb_op * ZEND_FASTCALL qb_append_equivalent_matrix_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -2342,7 +2348,7 @@ static qb_matrix_op_factory factory_transpose = {
 	qb_set_matrix_transpose_dimensions,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_MTRAN_F64_F64,				QB_MTRAN_F32_F32,	},
+	{	QB_MTRAN_F64_U32_U32_F64,		QB_MTRAN_F32_U32_U32_F32,	},
 	{
 		{	QB_MTRAN_2X_F64_F64,		QB_MTRAN_2X_F32_F32,	},
 		{	QB_MTRAN_3X_F64_F64,		QB_MTRAN_3X_F32_F32,	},
@@ -2356,7 +2362,7 @@ static qb_matrix_op_factory factory_inverse = {
 	qb_set_matching_result_dimensions,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_MINV_F64_F64,			QB_MINV_F32_F32,	},
+	{	QB_MINV_F64_U32_F64,		QB_MINV_F32_U32_F32,	},
 	{
 		{	QB_MINV_2X_F64_F64,		QB_MINV_2X_F32_F32,	},
 		{	QB_MINV_3X_F64_F64,		QB_MINV_3X_F32_F32,	},
@@ -2385,7 +2391,7 @@ static qb_matrix_op_factory factory_determinant = {
 	qb_set_matrix_op_result_dimensions,
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_OPERAND,
-	{	QB_MDET_F64_F64,			QB_MDET_F32_F32,	},
+	{	QB_MDET_F64_U32_F64,			QB_MDET_F32_U32_F32,	},
 	{
 		{	QB_MDET_2X_F64_F64,		QB_MDET_2X_F32_F32,	},
 		{	QB_MDET_3X_F64_F64,		QB_MDET_3X_F32_F32,	},
@@ -2431,9 +2437,9 @@ static qb_matrix_op_factory factory_transform_cm = {
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR | QB_TYPE_OPERAND,
 	{	0,			0,	},
 	{
-		{	QB_TRAN_2X_F64_F64_F64,		QB_TRAN_2X_F32_F32_F32,	},
-		{	QB_TRAN_3X_F64_F64_F64,		QB_TRAN_3X_F32_F32_F32,	},
-		{	QB_TRAN_4X_F64_F64_F64,		QB_TRAN_4X_F32_F32_F32,	},
+		{	QB_TRAN_CM_2X_F64_F64_F64,		QB_TRAN_CM_2X_F32_F32_F32,	},
+		{	QB_TRAN_CM_3X_F64_F64_F64,		QB_TRAN_CM_3X_F32_F32_F32,	},
+		{	QB_TRAN_CM_4X_F64_F64_F64,		QB_TRAN_CM_4X_F32_F32_F32,	},
 	},
 	0,
 };
@@ -2511,6 +2517,7 @@ static qb_op * ZEND_FASTCALL qb_append_utf8_decode(qb_compiler_context *cxt, voi
 	return qop;
 }
 
+/*
 static qb_basic_op_factory factory_utf8_decode = {
 	qb_append_utf8_decode,
 	NULL,
@@ -2518,6 +2525,7 @@ static qb_basic_op_factory factory_utf8_decode = {
 	0,
 	{	0, 0, 0, 0, QB_UTF8_DEC_U08_U32,	QB_UTF8_DEC_U08_U32,	QB_UTF8_DEC_U08_U16,	QB_UTF8_DEC_U08_U16,	},
 };
+*/
 
 static qb_op * ZEND_FASTCALL qb_append_utf8_encode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
@@ -2531,6 +2539,7 @@ static qb_op * ZEND_FASTCALL qb_append_utf8_encode(qb_compiler_context *cxt, voi
 	return qop;
 }
 
+/*
 static qb_basic_op_factory factory_utf8_encode = {
 	qb_append_utf8_encode,
 	NULL,
@@ -2538,6 +2547,7 @@ static qb_basic_op_factory factory_utf8_encode = {
 	0,
 	{	0, 0, 0, 0, QB_UTF8_ENC_U32_U08,	QB_UTF8_ENC_U32_U08,	QB_UTF8_ENC_U16_U08,	QB_UTF8_ENC_U16_U08,	},
 };
+*/
 
 static qb_op * ZEND_FASTCALL qb_append_pack(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
@@ -2551,6 +2561,7 @@ static qb_op * ZEND_FASTCALL qb_append_pack(qb_compiler_context *cxt, void *fact
 	return qop;
 }
 
+/*
 static qb_basic_op_factory factory_pack_le = { 
 	qb_append_pack,
 	NULL,
@@ -2566,6 +2577,7 @@ static qb_basic_op_factory factory_pack_be = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	{	QB_PACK_BE_F64_U08 ,	QB_PACK_BE_F32_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I16_U08,	QB_PACK_BE_I16_U08,	},
 };
+*/
 
 static qb_op * ZEND_FASTCALL qb_append_unpack(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
@@ -2578,6 +2590,7 @@ static qb_op * ZEND_FASTCALL qb_append_unpack(qb_compiler_context *cxt, void *fa
 	return qop;
 }
 
+/*
 static qb_basic_op_factory factory_unpack_le = {
 	qb_append_unpack,
 	NULL,
@@ -2593,6 +2606,7 @@ static qb_basic_op_factory factory_unpack_be = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	{	QB_UNPACK_BE_U08_F64,	QB_UNPACK_BE_U08_F32,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I16,	QB_UNPACK_BE_U08_I16	},
 };
+*/
 
 static qb_op * ZEND_FASTCALL qb_append_shuffle_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
@@ -2644,6 +2658,7 @@ static qb_basic_op_factory factory_array_product = {
 	{	QB_APROD_F64_F64,	QB_APROD_F32_F32,	QB_APROD_U64_U64,	QB_APROD_S64_S64,	QB_APROD_U32_U32,	QB_APROD_S32_S32,	QB_APROD_U16_U16,	QB_APROD_S16_S16,	QB_APROD_U08_U08,	QB_APROD_S08_S08	},
 };
 
+/*
 static qb_basic_op_factory factory_array_search = { 
 	qb_append_binary_op,
 	NULL,
@@ -2651,14 +2666,7 @@ static qb_basic_op_factory factory_array_search = {
 	QB_TYPE_I32,
 	{	QB_AFIND_IDX_F64_F64_I32,	QB_AFIND_IDX_F32_F32_I32,	QB_AFIND_IDX_I64_I64_I32,	QB_AFIND_IDX_I64_I64_I32,	QB_AFIND_IDX_I32_I32_I32,	QB_AFIND_IDX_I32_I32_I32,	QB_AFIND_IDX_I16_I16_I32,	QB_AFIND_IDX_I16_I16_I32,	QB_AFIND_IDX_I08_I08_I32,	QB_AFIND_IDX_I08_I08_I32	},
 };
-
-static qb_basic_op_factory factory_in_array = {
-	qb_append_binary_op,
-	NULL,
-	QB_COERCE_TO_SECOND_OPERAND_TYPE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_TYPE_I32,
-	{	QB_AFIND_F64_F64_I32,	QB_AFIND_F32_F32_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I08_I08_I32,	QB_AFIND_I08_I08_I32	},
-};
+*/
 
 static qb_address * ZEND_FASTCALL qb_obtain_constant_U32(qb_compiler_context *cxt, uint32_t value);
 
@@ -2995,6 +3003,7 @@ static qb_op * ZEND_FASTCALL qb_append_array_resize(qb_compiler_context *cxt, vo
 	return qop;
 }
 
+/*
 static qb_basic_op_factory factory_array_resize = {
 	qb_append_array_resize,
 	NULL,
@@ -3002,6 +3011,7 @@ static qb_basic_op_factory factory_array_resize = {
 	0,
 	{	QB_ARESIZE_F64,	QB_ARESIZE_F32,	QB_ARESIZE_I64,	QB_ARESIZE_I64,	QB_ARESIZE_I32,	QB_ARESIZE_I32,	QB_ARESIZE_I16,	QB_ARESIZE_I16,	QB_ARESIZE_I08,	QB_ARESIZE_I08	},
 };
+*/
 
 static qb_op * ZEND_FASTCALL qb_append_complex_number_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;

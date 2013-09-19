@@ -2,7 +2,7 @@
 
 class ApplyPremultiplication extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, FloatingPointOnly;
+	use ArrayAddressMode, UnaryOperator, FloatingPointOnly, FixedOperandSize;
 
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(2);

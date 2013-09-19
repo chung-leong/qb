@@ -2,7 +2,11 @@
 
 class ExtensionOp extends Handler {
 
-	use ScalarAddressMode, UnaryOperator, NeedLineNumber;
+	use ScalarAddressMode, NeedLineNumber;
+	
+	public function getInputOperandCount() {
+		return 1;
+	}
 	
 	public function getOperandType($i) {
 		return "U32";
