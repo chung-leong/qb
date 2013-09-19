@@ -41,6 +41,9 @@ typedef struct qb_block_allocator 		qb_block_allocator;
 typedef struct qb_pointer_SCA			qb_pointer_SCA;
 typedef struct qb_pointer_ELE			qb_pointer_ELE;
 typedef struct qb_pointer_ARR			qb_pointer_ARR;
+typedef struct qb_pointer_adjustment	qb_pointer_adjustment;
+
+typedef struct qb_thread_parameters		qb_thread_parameters;
 
 typedef enum qb_primitive_type			qb_primitive_type;
 typedef enum qb_address_mode			qb_address_mode;
@@ -50,6 +53,7 @@ typedef enum qb_address_mode			qb_address_mode;
 
 #define MAX_SEGMENT_COUNT			256
 #define MAX_DIMENSION				64
+#define MAX_THREAD_COUNT			16
 
 #define CTYPE_I08					int8_t
 #define CTYPE_I16					int16_t
@@ -190,6 +194,16 @@ struct qb_pointer_ARR {
 	void *data_pointer;
 	uint32_t *index_pointer;
 	uint32_t *count_pointer;
+};
+
+struct qb_pointer_adjustment {
+	uint32_t index;
+	uint32_t count;
+};
+
+struct qb_thread_parameters {
+	void *pointer1;
+	void *pointer2;
 };
 
 enum {

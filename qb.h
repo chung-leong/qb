@@ -117,6 +117,7 @@
 #include "qb_version.h"
 #include "qb_compat.h"
 #include "qb_types.h"
+#include "qb_thread.h"
 #include "qb_compiler.h"
 #include "qb_interpreter.h"
 #include "qb_native_compiler.h"

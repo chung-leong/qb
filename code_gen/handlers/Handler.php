@@ -480,7 +480,7 @@ class Handler {
 		} else {
 			$params[] = "cxt";
 			$params[] = $this->getControllerFunctionName();
-			$params[] = "instr";
+			$params[] = "($instr *) ip";
 		}
 		return implode(", ", $params);
 	}
@@ -500,17 +500,17 @@ class Handler {
 		$lines[] =		"uint32_t j;";
 		$lines[] =		"$instr new_instr_list[MAX_THREAD_COUNT];";
 		$lines[] =		"for(j = 0; j < cxt->thread_count_for_next_op; j++) {";
-		$lines[] =			"$instr *new_instr = &instruction_buffers[j];";
+		$lines[] =			"$instr *new_instr = &new_instr_list[j];";
 		$lines[] =			"qb_pointer_adjustment *adj;";
 		// create temporary instruction structures
 		for($i = 1, $k = 0; $i < $opCount; $i++) {
 			$addressMode = $this->getOperandAddressMode($i);
 			$cType = $this->getOperandCType($i);
 			if($addressMode == "ARR") {
-				$lines[] = "adj = cxt->adjustments_for_next_op[j][$k];";
-				$lines[] = "new_instr->operand{$i}.data_pointer = instr->operand{$i}.data_pointer);";
+				$lines[] = "adj = &cxt->adjustments_for_next_op[j][$k];";
+				$lines[] = "new_instr->operand{$i}.data_pointer = instr->operand{$i}.data_pointer;";
 				$lines[] = "new_instr->operand{$i}.index_pointer = &adj->index;";
-				$lines[] = "new_instr->operand{$i}.size_pointer = &adj->count;";
+				$lines[] = "new_instr->operand{$i}.count_pointer = &adj->count;";
 				$k++;
 			} else {
 				$lines[] = "new_instr->operand{$i} = (($cType *) instr->operand{$i};";
@@ -529,14 +529,13 @@ class Handler {
 	
 	// return the parameter list of the controller function
 	protected function getControllerFunctionParameterList($forDeclaration) {
-		$instr = $this->getInstructionStructure();
 		$params = array();
 		if($forDeclaration) {
 			$params[] = "qb_interpreter_context *__restrict cxt";
-			$params[] = "$instr *__restrict instr";
+			$params[] = "int8_t *__restrict ip";
 		} else {
 			$params[] = "cxt";
-			$params[] = "($instr *) ip";
+			$params[] = "ip";
 		}
 		return implode(", ", $params);
 	}

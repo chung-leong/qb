@@ -913,6 +913,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\qb_thread.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_types.c"
 				>
 			</File>
@@ -963,6 +967,10 @@
 			</File>
 			<File
 				RelativePath="..\qb_opcodes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_thread.h"
 				>
 			</File>
 			<File
