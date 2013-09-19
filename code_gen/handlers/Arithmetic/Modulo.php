@@ -2,7 +2,7 @@
 
 class Modulo extends Handler {
 
-	use MultipleAddressMode, BinaryOperator;
+	use MultipleAddressMode, BinaryOperator, ExpressionReplication;
 
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(1);

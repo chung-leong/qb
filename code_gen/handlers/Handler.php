@@ -238,10 +238,6 @@ class Handler {
 			"F32" => "float32_t",	"F64" => "float64_t",
 		);
 		$operandType = $this->getOperandType($i);
-		if(!$operandType) {
-			$className = get_class($this);
-			throw new Exception("$i is not a valid index for $className");
-		}
 		return $cTypes[$operandType];
 	}
 	
@@ -260,6 +256,14 @@ class Handler {
 		return $this->multipleData;
 	}	
 	
+	public function disableMultipleData() {
+		$this->multipleData = false;
+	}
+
+	public function restoreMultipleData() {
+		$this->multipleData = true;
+	}
+	
 	public function isMultithreaded() {
 		return false;
 	}	
@@ -273,7 +277,7 @@ class Handler {
 	}
 	
 	public function needsUnrolling() {
-		return $this->unrolling;
+		return false;
 	}
 	
 	public function needsLineNumber() {
@@ -623,18 +627,10 @@ class Handler {
 		if($this->isMultipleData()) {
 			$action = $this->getActionOnMultipleData();
 			if(!$action) {
-				// change the address mode temporarily
-				$multipleAddressMode = in_array('MultipleAddressMode', class_uses($this));
-				if($multipleAddressMode) {
-					$originalAddressMode = $this->addressMode;
-					$this->addressMode = "SCA";
-				}
-				$this->multipleData = false;
+				// temporarily changed the handle to the non-multiple-data
+				$this->disableMultipleData();
 				$scalarExpression = $this->getAction();
-				if($multipleAddressMode) {
-					$this->addressMode = $originalAddressMode;
-				}
-				$this->multipleData = true;
+				$this->restoreMultipleData();
 				$action = $this->getIterationCode($scalarExpression);
 			}
 		} else {

@@ -450,6 +450,7 @@ static qb_op * ZEND_FASTCALL qb_append_array_insert(qb_compiler_context *cxt, vo
 	return qop;
 }
 
+/*
 static qb_basic_op_factory factory_array_insert = {
 	qb_append_array_insert,
 	NULL,
@@ -457,6 +458,7 @@ static qb_basic_op_factory factory_array_insert = {
 	0,
 	{	QB_AINS_F64_U32_F64,	QB_AINS_F32_U32_F32,	QB_AINS_I64_U32_I64,	QB_AINS_I64_U32_I64,	QB_AINS_I32_U32_I32,	QB_AINS_I32_U32_I32,	QB_AINS_I16_U32_I16,	QB_AINS_I16_U32_I16,	QB_AINS_I08_U32_I08,	QB_AINS_I08_U32_I08,	},
 };
+*/
 
 static qb_op * ZEND_FASTCALL qb_append_array_pad(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
@@ -607,15 +609,6 @@ static qb_basic_op_factory factory_logical_not = {
 	{	0,	0,	0,	0,	QB_NOT_I32_I32,	QB_NOT_I32_I32,	0,	0,	0,	0,	}
 };
 
-static qb_basic_op_factory factory_isset = { 
-	qb_append_unary_op,
-	NULL,
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_BOOLEAN | QB_TYPE_I32,
-	{	QB_ISSET_F64_I32_ELV ,	QB_ISSET_F32_I32_ELV,	QB_ISSET_I64_I32_ELV,	QB_ISSET_I64_I32_ELV,	QB_ISSET_I32_I32_ELV,	QB_ISSET_I32_I32_ELV,	QB_ISSET_I16_I32_ELV,	QB_ISSET_I16_I32_ELV,	QB_ISSET_I08_I32_ELV,	QB_ISSET_I08_I32_ELV,	},
-};
-
-
 static qb_op * ZEND_FASTCALL qb_append_nullary_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = result->address;
@@ -624,14 +617,6 @@ static qb_op * ZEND_FASTCALL qb_append_nullary_op(qb_compiler_context *cxt, void
 	qop->operands[0] = *result;
 	return qop;
 }
-
-static qb_basic_op_factory factory_unset = { 
-	qb_append_nullary_op,
-	NULL,
-	0,
-	0,
-	{	QB_UNSET_F64 ,	QB_UNSET_F32,	QB_UNSET_I64,	QB_UNSET_I64,	QB_UNSET_I32,	QB_UNSET_I32,	QB_UNSET_I16,	QB_UNSET_I16,	QB_UNSET_I08,	QB_UNSET_I08,	},
-};
 
 static qb_op * ZEND_FASTCALL qb_append_binary_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;

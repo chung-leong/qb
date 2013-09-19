@@ -8,7 +8,7 @@ class MultiplyMatrixByMatrix extends Handler {
 		if($this->operandSize == "variable") {
 			return 5;
 		} else {
-			return parent::getInputOperandCount();
+			return 2;
 		}
 	}
 	
@@ -39,7 +39,31 @@ class MultiplyMatrixByMatrix extends Handler {
 			}
 		} else {
 			$padding = $this->getPadding();
-			return ($this->operandSize + $padding) * $this->operandSize;
+			$matrixSize = ($this->operandSize + $padding) * $this->operandSize;
+			switch($i) {
+				case 1: return $matrixSize;
+				case 2: return $matrixSize;
+				case 3: return $matrixSize;
+			}
+		}
+	}
+	
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return "U32";
+				case 4: return "U32";
+				case 5: return "U32";
+				case 6: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return $this->operandType;
+			}
 		}
 	}
 	

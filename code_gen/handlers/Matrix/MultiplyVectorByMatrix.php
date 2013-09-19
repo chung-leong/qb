@@ -8,7 +8,7 @@ class MultiplyVectorByMatrix extends Handler {
 		if($this->operandSize == "variable") {
 			return 4;
 		} else {
-			return parent::getInputOperandCount();
+			return 2;
 		}
 	}
 	
@@ -36,10 +36,34 @@ class MultiplyVectorByMatrix extends Handler {
 				case 5: return "op3";
 			}
 		} else {
-			return $this->operandSize;
+			$padding = $this->getPadding();
+			$matrixSize = ($this->operandSize + $padding) * $this->operandSize;
+			switch($i) {
+				case 1: return $this->operandSize;
+				case 2: return $matrixSize;
+				case 3: return $this->operandSize;
+			}
 		}
 	}
 		
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return "U32";
+				case 4: return "U32";
+				case 5: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return $this->operandType;
+			}
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$order = $this->getMatrixConvention();
@@ -47,30 +71,32 @@ class MultiplyVectorByMatrix extends Handler {
 		if($this->operandSize == "variable") {
 			if($order == "row-major") {
 				$lines[] = "ALLOCA_FLAG(use_heap)";
-				$lines[] = "$cType *buffer = do_alloca(MATRIX2_ROWS * sizeof($cType), use_heap);";
 				$lines[] = "uint32_t i, j, k;";
-				$lines[] = "for(i = 0, k = 0; i < MATRIX2_COLS; ++i) {";
+				$lines[] = "uint32_t matrix_rows = op3, matrix_cols = op4;";
+				$lines[] = "$cType *buffer = do_alloca(matrix_rows * sizeof($cType), use_heap);";
+				$lines[] = "for(i = 0, k = 0; i < matrix_cols; ++i) {";
 				$lines[] = 		"$cType dot_product = 0;";
-				$lines[] = 		"for(j = 0; j < MATRIX2_ROWS; ++j, ++k) {";
+				$lines[] = 		"for(j = 0; j < matrix_rows; ++j, ++k) {";
 				$lines[] =			"dot_product += op1_ptr[j] * op2_ptr[k + i];";
-				$lines[] =			"k += MATRIX2_COLS;";
+				$lines[] =			"k += matrix_cols;";
 				$lines[] = 		"}";
 				$lines[] = 		"buffer[i] = dot_product;";
 				$lines[] = "}";
-				$lines[] = "memcpy(res_ptr, buffer, MATRIX2_COLS * sizeof($cType));";
+				$lines[] = "memcpy(res_ptr, buffer, matrix_cols * sizeof($cType));";
 				$lines[] = "free_alloca(buffer, use_heap);";
 			} else {
 				$lines[] = "ALLOCA_FLAG(use_heap)";
-				$lines[] = "$cType *buffer = do_alloca(MATRIX2_ROWS * sizeof($cType), use_heap);";
 				$lines[] = "uint32_t i, j, k;";
-				$lines[] = "for(i = 0, k = 0; i < MATRIX2_COLS; ++i) {";
+				$lines[] = "uint32_t matrix_rows = op3, matrix_cols = op4;";
+				$lines[] = "$cType *buffer = do_alloca(matrix_rows * sizeof($cType), use_heap);";
+				$lines[] = "for(i = 0, k = 0; i < matrix_cols; ++i) {";
 				$lines[] = 		"$cType dot_product = 0;";
-				$lines[] = 		"for(j = 0; j < MATRIX2_ROWS; ++j, ++k) {";
+				$lines[] = 		"for(j = 0; j < matrix_rows; ++j, ++k) {";
 				$lines[] = 			"dot_product += op1_ptr[j] * op2_ptr[k];";
 				$lines[] = 		"}";
 				$lines[] = 		"buffer[i] = dot_product;";
 				$lines[] = "}";
-				$lines[] = "memcpy(res_ptr, buffer, MATRIX2_COLS * sizeof($cType));";
+				$lines[] = "memcpy(res_ptr, buffer, matrix_cols * sizeof($cType));";
 				$lines[] = "free_alloca(buffer, use_heap);";
 			}
 		} else {

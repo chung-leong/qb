@@ -2,7 +2,7 @@
 
 class CrossProduct extends Handler {
 
-	use ArrayAddressMode, FloatingPointOnly;
+	use ArrayAddressMode, BinaryOperator, FloatingPointOnly;
 
 	public function getInputOperandCount() {
 		if($this->operandSize == 4) {

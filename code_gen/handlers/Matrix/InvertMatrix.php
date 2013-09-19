@@ -10,7 +10,7 @@ class InvertMatrix extends Handler {
 		if($this->operandSize == "variable") {
 			return 2;
 		} else {
-			return parent::getInputOperandCount();
+			return 1;
 		}
 	}
 	
@@ -39,6 +39,21 @@ class InvertMatrix extends Handler {
 				case 2: return $this->operandSize * $this->operandSize;
 			}
 			
+		}
+	}
+	
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return "U32";
+				case 3: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+			}
 		}
 	}
 	
@@ -71,7 +86,7 @@ class InvertMatrix extends Handler {
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"$determinantFunction(minor, matrix_rows - 1, matrix_cols - 1, &minor_det);";
+			$lines[] = 			"$determinantFunction(minor, 0, matrix_rows - 1, &minor_det, 1);";
 			$lines[] = 			"cofactors[p] = minor_det * sign;";
 			$lines[] = 			"p++;";
 			$lines[] = 			"if(n == 0) {";

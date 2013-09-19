@@ -2,7 +2,7 @@
 
 class Divide extends Handler {
 
-	use MultipleAddressMode, BinaryOperator;
+	use MultipleAddressMode, BinaryOperator, ExpressionReplication;
 	
 	public function needsInterpreterContext() {
 		$type = $this->getOperandType(1);

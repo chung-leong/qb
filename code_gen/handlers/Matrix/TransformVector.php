@@ -12,6 +12,14 @@ class TransformVector extends Handler {
 		}
 	}
 	
+	public function getOperandType($i) {
+		switch($i) {
+			case 1: return $this->operandType;
+			case 2: return $this->operandType;
+			case 3: return $this->operandType;
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$order = $this->getMatrixConvention();

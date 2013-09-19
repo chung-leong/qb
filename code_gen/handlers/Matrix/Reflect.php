@@ -8,7 +8,7 @@ class Reflect extends Handler {
 		if($this->operandSize == "variable") {
 			return 3;
 		} else {
-			return parent::getInputOperandCount();
+			return 2;
 		}
 	}
 	
@@ -38,6 +38,23 @@ class Reflect extends Handler {
 		}
 	}
 
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return "U32";
+				case 4: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return $this->operandType;
+			}
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		if($this->operandSize == "variable") {
@@ -45,7 +62,7 @@ class Reflect extends Handler {
 			$dotProductFunction = $dotProductHandler->getHandlerFunctionName();
 			$lines[] = "uint32_t i, vector_width = op3;";
 			$lines[] = "$cType dot_product;";
-			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, vector_width, vector_width, &dot_product);";
+			$lines[] = "$dotProductFunction(op1_ptr, op1_count, op2_ptr, op2_count, vector_width, &dot_product);";
 			$lines[] = "for(i = 0; i < vector_width; i++) {";
 			$lines[] = 		"res_ptr[i] = ($cType) (op1_ptr[i] - 2.0 * dot_product * op2_ptr[i]);";
 			$lines[] = "}";

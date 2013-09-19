@@ -10,7 +10,7 @@ class TransposeMatrix extends Handler {
 		if($this->operandSize == "variable") {
 			return 3;
 		} else {
-			return parent::getInputOperandCount();
+			return 1;
 		}
 	}
 	
@@ -41,6 +41,22 @@ class TransposeMatrix extends Handler {
 				case 2: return $this->operandSize * $this->operandSize;
 			}
 			
+		}
+	}
+	
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return "U32";
+				case 3: return "U32";
+				case 4: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+			}
 		}
 	}
 	

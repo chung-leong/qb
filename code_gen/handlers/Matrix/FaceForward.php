@@ -8,7 +8,7 @@ class FaceForward extends Handler {
 		if($this->operandSize == "variable") {
 			return 3;
 		} else {
-			return parent::getInputOperandCount();
+			return 2;
 		}
 	}
 	
@@ -21,7 +21,11 @@ class FaceForward extends Handler {
 				case 4: return $this->addressMode;
 			}
 		} else {
-			return parent::getOperandAddressMode($i);
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return "ARR";
+				case 3: return $this->addressMode;
+			}
 		}
 	}
 	
@@ -34,7 +38,28 @@ class FaceForward extends Handler {
 				case 4: return "op3";
 			}
 		} else {
-			return parent::getOperandSize($i);
+			switch($i) {
+				case 1: return $this->operandSize;
+				case 2: return $this->operandSize;
+				case 3: return $this->operandSize;
+			}
+		}
+	}
+	
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return "U32";
+				case 4: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return $this->operandType;
+			}
 		}
 	}
 	
@@ -47,13 +72,13 @@ class FaceForward extends Handler {
 			
 			$lines[] = "uint32_t i, vector_width = op3;";
 			$lines[] = "$cType dot_product;";
-			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, vector_width, vector_width, &dot_product);";
+			$lines[] = "$dotProductFunction(op1_ptr, op1_count, op2_ptr, op2_count, vector_width, &dot_product);";
 			$lines[] = "if(dot_product > 0) {";
-			$lines[] = 		"for(i = 0; i < MATRIX1_COLS; i++) {";
+			$lines[] = 		"for(i = 0; i < vector_width; i++) {";
 			$lines[] = 			"res_ptr[i] = op1_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "} else {";
-			$lines[] = 		"for(i = 0; i < MATRIX1_COLS; i++) {";
+			$lines[] = 		"for(i = 0; i < vector_width; i++) {";
 			$lines[] = 			"res_ptr[i] = -op1_ptr[i];";
 			$lines[] = 		"}";
 			$lines[] = "}";

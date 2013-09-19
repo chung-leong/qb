@@ -2,7 +2,7 @@
 
 class Subtract extends Handler {
 
-	use MultipleAddressMode, BinaryOperator;
+	use MultipleAddressMode, BinaryOperator, ExpressionReplication, NoUnsigned;
 	
 	protected function getActionOnUnitData() {
 		return "res = op1 - op2;";

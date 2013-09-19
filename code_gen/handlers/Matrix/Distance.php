@@ -8,7 +8,7 @@ class Distance extends Handler {
 		if($this->operandSize == "variable") {
 			return 3;
 		} else {
-			return parent::getInputOperandCount();
+			return 2;
 		}
 	}
 	
@@ -21,7 +21,11 @@ class Distance extends Handler {
 				case 4: return $this->addressMode;
 			}
 		} else {
-			return parent::getOperandAddressMode($i);
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return "ARR";
+				case 3: return $this->addressMode;
+			}
 		}
 	}
 	
@@ -34,10 +38,31 @@ class Distance extends Handler {
 				case 4: return "op3";
 			}
 		} else {
-			return parent::getOperandSize($i);
+			switch($i) {
+				case 1: return $this->operandSize;
+				case 2: return $this->operandSize;
+				case 3: return $this->operandSize;
+			}
 		}
 	}
 
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return "U32";
+				case 4: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return $this->operandType;
+			}
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);

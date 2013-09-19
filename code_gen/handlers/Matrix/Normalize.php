@@ -8,7 +8,7 @@ class Normalize extends Handler {
 		if($this->operandSize == "variable") {
 			return 2;
 		} else {
-			return parent::getInputOperandCount();
+			return 1;
 		}
 	}
 	
@@ -27,12 +27,27 @@ class Normalize extends Handler {
 	public function getOperandSize($i) {
 		if($this->operandSize == "variable") {
 			switch($i) {
-				case 1: return "op3";
+				case 1: return "op2";
 				case 2: return 1;
-				case 3: return "op3";
+				case 3: return "op2";
 			}
 		} else {
 			return parent::getOperandSize($i);
+		}
+	}
+	
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return "U32";
+				case 3: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+			}
 		}
 	}
 	
@@ -42,7 +57,7 @@ class Normalize extends Handler {
 		$f = ($type == 'F32') ? 'f' : '';
 		$lines = array();
 		if($this->operandSize == "variable") {
-			$lines[] = "uint32_t i, vector_width = op3;";
+			$lines[] = "uint32_t i, vector_width = op2;";
 			$lines[] = "$cType sum = 0, r;";
 			$lines[] = "for(i = 0; i < vector_width; i++) {";
 			$lines[] = 		"sum += op1_ptr[i] * op1_ptr[i];";

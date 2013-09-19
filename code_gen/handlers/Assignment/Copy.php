@@ -2,7 +2,7 @@
 
 class Copy extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, NoUnsigned;
+	use MultipleAddressMode, UnaryOperator, ExpressionReplication, NoUnsigned;
 
 	protected function getActionOnUnitData() {
 		return "res = op1;";

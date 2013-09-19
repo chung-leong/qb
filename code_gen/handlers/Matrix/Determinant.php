@@ -4,13 +4,28 @@
 
 class Determinant extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, UnaryOperator, UnitResult, FloatingPointOnly;
 	
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {
-			return 3;
+			return 2;
 		} else {
-			return parent::getInputOperandCount();
+			return 1;
+		}
+	}
+	
+	public function getOperandAddressMode($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return "SCA";
+				case 3: return "ARR";
+			}
+		} else {
+			switch($i) {
+				case 1: return "ARR";
+				case 2: return $this->addressMode;
+			}
 		}
 	}
 
@@ -30,6 +45,21 @@ class Determinant extends Handler {
 		}
 	}
 	
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return "U32";
+				case 3: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+			}
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$lines = array();
@@ -41,7 +71,7 @@ class Determinant extends Handler {
 			
 			$lines[] = "uint32_t matrix_rows = op2, matrix_cols = op2;";
 			$lines[] = "if(matrix_rows == 4) {";
-			$lines[] = 		"$determinantFunction4X(op1_ptr, res_ptr);";
+			$lines[] = 		"$determinantFunction4X(op1_ptr, op1_count, res_ptr);";
 			$lines[] = "} else {";
 			$lines[] = 		"ALLOCA_FLAG(use_heap)";
 			$lines[] =		"uint32_t minor_size = (matrix_rows - 1) * (matrix_cols - 1);";
@@ -59,7 +89,7 @@ class Determinant extends Handler {
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"$determinantFunction(minor, matrix_rows - 1, matrix_cols - 1, &minor_det);";
+			$lines[] = 			"$determinantFunction(minor, 0, matrix_rows - 1, &minor_det, 1);";
 			$lines[] = 			"det += a * minor_det * sign;";
 			$lines[] = 			"sign = -sign;";
 			$lines[] = 		"}";

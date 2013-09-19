@@ -8,7 +8,7 @@ class Refract extends Handler {
 		if($this->operandSize == "variable") {
 			return 4;
 		} else {
-			return parent::getInputOperandCount();
+			return 3;
 		}
 	}
 	
@@ -50,9 +50,28 @@ class Refract extends Handler {
 		}
 	}
 
+	public function getOperandType($i) {
+		if($this->operandSize == "variable") {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return "U32";
+				case 4: return "U32";
+				case 5: return $this->operandType;
+			}
+		} else {
+			switch($i) {
+				case 1: return $this->operandType;
+				case 2: return $this->operandType;
+				case 3: return $this->operandType;
+				case 4: return $this->operandType;
+			}
+		}
+	}
+	
 	public function getActionOnUnitData() {
-		$cType = $this->getOperandCType(4);
-		$type = $this->getOperandType(4);
+		$cType = $this->getOperandCType(1);
+		$type = $this->getOperandType(1);
 		$f = ($type == 'F32') ? 'f' : '';
 		if($this->operandSize == "variable") {
 			$dotProductHandler = new DotProduct(NULL, $this->operandType, "SCA", $this->operandSize);
@@ -60,7 +79,7 @@ class Refract extends Handler {
 		
 			$lines[] = "uint32_t i, vector_width = op4;";
 			$lines[] = "$cType dot_product, k;";
-			$lines[] = "$dotProductFunction(op1_ptr, op2_ptr, vector_width, vector_width, &dot_product);";
+			$lines[] = "$dotProductFunction(op1_ptr, op1_count, op2_ptr, op2_count, vector_width, &dot_product);";
 			$lines[] = "k = ($cType) (1.0 - (op3 * op3) * (1.0 - dot_product * dot_product));";
 			$lines[] = "if(k < 0.0) {";
 			$lines[] = 		"for(i = 0; i < vector_width; i++) {";

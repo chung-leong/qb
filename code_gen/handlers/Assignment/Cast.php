@@ -2,7 +2,7 @@
 
 class Cast extends Handler {
 
-	use MultipleAddressMode, UnaryOperator;
+	use MultipleAddressMode, UnaryOperator, ExpressionReplication;
 	
 	public function getOperandType($i) {
 		list($srcType, $dstType) = explode('_', $this->operandType);

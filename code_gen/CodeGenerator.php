@@ -1277,27 +1277,27 @@ class CodeGenerator {
 	protected function addMatrixHandlers($elementType) {
 		$float = preg_match('/^F/', $elementType);
 		if($float) {
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, 4, "column-major");
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, 4, "column-major", true);
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, 4, "column-major");
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, 4, "column-major", true);
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, 4, "column-major");
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, 4, "column-major", true);
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, 4);
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, 4, true);
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, 4);
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, 4, true);
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, 4);
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, 4, true);
 			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, 4);
 			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, 4, true);
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, 4);
-			}
 			$this->handlers[] = new InvertMatrix("MINV", $elementType, 4);
 			$this->handlers[] = new InvertMatrix("MINV", $elementType, 4, true);
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, 4);
+				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, 4, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Length("LEN", $elementType, $addressMode, 4);
+				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, 4, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, 4);
+				$this->handlers[] = new Length("LEN", $elementType, $addressMode, 4, ($addressMode == "ARR"));
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, 4, ($addressMode == "ARR"));
 			}
 			$this->handlers[] = new Normalize("NORM", $elementType, 4);
 			$this->handlers[] = new Normalize("NORM", $elementType, 4, true);
@@ -1309,59 +1309,59 @@ class CodeGenerator {
 			$this->handlers[] = new Reflect("REFL", $elementType, 4, true);
 			$this->handlers[] = new Refract("REFR", $elementType, 4);
 			$this->handlers[] = new Refract("REFR", $elementType, 4, true);
-			$this->handlers[] = new TransformVector("TRAN", $elementType, 4, "column-major");
-			$this->handlers[] = new TransformVector("TRAN", $elementType, 4, "column-major", true);
-			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 4, "row-major");
-			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 4, "row-major", true);
+			$this->handlers[] = new TransformVector("TRAN_CM", $elementType, 4);
+			$this->handlers[] = new TransformVector("TRAN_CM", $elementType, 4, true);
+			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 4);
+			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 4, true);
 			
-			$this->handlers[] = new Copy("MOV", $elementType, 4);
-			$this->handlers[] = new Copy("MOV", $elementType, 4, true);
-			$this->handlers[] = new Add("ADD", $elementType, 4);
-			$this->handlers[] = new Add("ADD", $elementType, 4, true);
-			$this->handlers[] = new Subtract("SUB", $elementType, 4);
-			$this->handlers[] = new Subtract("SUB", $elementType, 4, true);
-			$this->handlers[] = new Multiply("MUL", $elementType, 4);
-			$this->handlers[] = new Multiply("MUL", $elementType, 4, true);
-			$this->handlers[] = new Divide("DIV", $elementType, 4);
-			$this->handlers[] = new Divide("DIV", $elementType, 4, true);
-			$this->handlers[] = new Modulo("MOD", $elementType, 4);
-			$this->handlers[] = new Modulo("MOD", $elementType, 4, true);
-			$this->handlers[] = new Negate("NEG", $elementType, 4);
-			$this->handlers[] = new Negate("NEG", $elementType, 4, true);
-			$this->handlers[] = new Increment("INC", $elementType, 4);
-			$this->handlers[] = new Increment("INC", $elementType, 4, true);
-			$this->handlers[] = new Decrement("DEC", $elementType, 4);
-			$this->handlers[] = new Decrement("DEC", $elementType, 4, true);
-			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, 4);
-			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, 4, true);
+			$this->handlers[] = new Copy("MOV", $elementType, "ARR", 4);
+			$this->handlers[] = new Copy("MOV", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Add("ADD", $elementType, "ARR", 4);
+			$this->handlers[] = new Add("ADD", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Subtract("SUB", $elementType, "ARR", 4);
+			$this->handlers[] = new Subtract("SUB", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Multiply("MUL", $elementType, "ARR", 4);
+			$this->handlers[] = new Multiply("MUL", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Divide("DIV", $elementType, "ARR", 4);
+			$this->handlers[] = new Divide("DIV", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Modulo("MOD", $elementType, "ARR", 4);
+			$this->handlers[] = new Modulo("MOD", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Negate("NEG", $elementType, "ARR", 4);
+			$this->handlers[] = new Negate("NEG", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Increment("INC", $elementType, "ARR", 4);
+			$this->handlers[] = new Increment("INC", $elementType, "ARR", 4, true);
+			$this->handlers[] = new Decrement("DEC", $elementType, "ARR", 4);
+			$this->handlers[] = new Decrement("DEC", $elementType, "ARR", 4, true);
+			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, "ARR", 4);
+			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, "ARR", 4, true);
 
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, 3, "column-major");
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, 3, "column-major", true);
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, 3, "column-major");
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, 3, "column-major", true);
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, 3, "column-major");
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, 3, "column-major", true);
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, 3);
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, 3, true);
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, 3);
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, 3, true);
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, 3);
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, 3, true);
 			if($elementType == "F32") {
 				// these are used by Pixel Bender only
-				$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, null, "3+P", "column-major");
-				$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, null, "3+P", "column-major");
-				$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, null, "3+P", "column-major");
+				$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM_PAD", $elementType, 3);
+				$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM_PAD", $elementType, 3);
+				$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM_PAD", $elementType, 3);
 			}
 			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, 3);
 			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, 3, true);
 			$this->handlers[] = new InvertMatrix("MINV", $elementType, 3);
 			$this->handlers[] = new InvertMatrix("MINV", $elementType, 3, true);
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, 3);
+				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, 3);
+				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Length("LEN", $elementType, $addressMode, 3);
+				$this->handlers[] = new Length("LEN", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, 3);
+				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
 			$this->handlers[] = new Normalize("NORM", $elementType, 3);
 			$this->handlers[] = new Normalize("NORM", $elementType, 3, true);
@@ -1373,53 +1373,53 @@ class CodeGenerator {
 			$this->handlers[] = new Reflect("REFL", $elementType, 3, true);
 			$this->handlers[] = new Refract("REFR", $elementType, 3);
 			$this->handlers[] = new Refract("REFR", $elementType, 3, true);
-			$this->handlers[] = new TransformVector("TRAN", $elementType, 3, "column-major");
-			$this->handlers[] = new TransformVector("TRAN", $elementType, 3, "column-major", true);
-			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 3, "row-major");
-			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 3, "row-major", true);
+			$this->handlers[] = new TransformVector("TRAN_CM", $elementType, 3);
+			$this->handlers[] = new TransformVector("TRAN_CM", $elementType, 3, true);
+			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 3);
+			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 3, true);
 			
-			$this->handlers[] = new Copy("MOV", $elementType, 3);
-			$this->handlers[] = new Copy("MOV", $elementType, 3, true);
-			$this->handlers[] = new Add("ADD", $elementType, 3);
-			$this->handlers[] = new Add("ADD", $elementType, 3, true);
-			$this->handlers[] = new Subtract("SUB", $elementType, 3);
-			$this->handlers[] = new Subtract("SUB", $elementType, 3, true);
-			$this->handlers[] = new Multiply("MUL", $elementType, 3);
-			$this->handlers[] = new Multiply("MUL", $elementType, 3, true);
-			$this->handlers[] = new Divide("DIV", $elementType, 3);
-			$this->handlers[] = new Divide("DIV", $elementType, 3, true);
-			$this->handlers[] = new Modulo("MOD", $elementType, 3);
-			$this->handlers[] = new Modulo("MOD", $elementType, 3, true);
-			$this->handlers[] = new Negate("NEG", $elementType, 3);
-			$this->handlers[] = new Negate("NEG", $elementType, 3, true);
-			$this->handlers[] = new Increment("INC", $elementType, 3);
-			$this->handlers[] = new Increment("INC", $elementType, 3, true);
-			$this->handlers[] = new Decrement("DEC", $elementType, 3);
-			$this->handlers[] = new Decrement("DEC", $elementType, 3, true);
-			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, 3);
-			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, 3, true);
+			$this->handlers[] = new Copy("MOV", $elementType, "ARR", 3);
+			$this->handlers[] = new Copy("MOV", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Add("ADD", $elementType, "ARR", 3);
+			$this->handlers[] = new Add("ADD", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Subtract("SUB", $elementType, "ARR", 3);
+			$this->handlers[] = new Subtract("SUB", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Multiply("MUL", $elementType, "ARR", 3);
+			$this->handlers[] = new Multiply("MUL", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Divide("DIV", $elementType, "ARR", 3);
+			$this->handlers[] = new Divide("DIV", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Modulo("MOD", $elementType, "ARR", 3);
+			$this->handlers[] = new Modulo("MOD", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Negate("NEG", $elementType, "ARR", 3);
+			$this->handlers[] = new Negate("NEG", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Increment("INC", $elementType, "ARR", 3);
+			$this->handlers[] = new Increment("INC", $elementType, "ARR", 3, true);
+			$this->handlers[] = new Decrement("DEC", $elementType, "ARR", 3);
+			$this->handlers[] = new Decrement("DEC", $elementType, "ARR", 3, true);
+			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, "ARR", 3);
+			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, "ARR", 3, true);
 			
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, 2, "column-major");
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, 2, "column-major", true);
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, 2, "column-major");
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, 2, "column-major", true);
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, 2, "column-major");
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, 2, "column-major", true);
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, 2);
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, 2, true);
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, 2);
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, 2, true);
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, 2);
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, 2, true);
 			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, 2);
 			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, 2, true);
 			$this->handlers[] = new InvertMatrix("MINV", $elementType, 2);
 			$this->handlers[] = new InvertMatrix("MINV", $elementType, 2, true);
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, 2);
+				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, 2, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, 2);
+				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, 2, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {			
-				$this->handlers[] = new Length("LEN", $elementType, $addressMode, 2);
+				$this->handlers[] = new Length("LEN", $elementType, $addressMode, 2, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, 2);
+				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, 2, ($addressMode == "ARR"));
 			}
 			$this->handlers[] = new Normalize("NORM", $elementType, 2);
 			$this->handlers[] = new Normalize("NORM", $elementType, 2, true);
@@ -1431,53 +1431,53 @@ class CodeGenerator {
 			$this->handlers[] = new Reflect("REFL", $elementType, 2, true);
 			$this->handlers[] = new Refract("REFR", $elementType, 2);
 			$this->handlers[] = new Refract("REFR", $elementType, 2, true);
-			$this->handlers[] = new TransformVector("TRAN", $elementType, 2, "column-major");
-			$this->handlers[] = new TransformVector("TRAN", $elementType, 2, "column-major", true);
-			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 2, "row-major");
-			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 2, "row-major", true);
+			$this->handlers[] = new TransformVector("TRAN_CM", $elementType, 2);
+			$this->handlers[] = new TransformVector("TRAN_CM", $elementType, 2, true);
+			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 2);
+			$this->handlers[] = new TransformVector("TRAN_RM", $elementType, 2, true);
 			
-			$this->handlers[] = new Copy("MOV", $elementType, 2);
-			$this->handlers[] = new Copy("MOV", $elementType, 2, true);
-			$this->handlers[] = new Add("ADD", $elementType, 2);
-			$this->handlers[] = new Add("ADD", $elementType, 2, true);
-			$this->handlers[] = new Subtract("SUB", $elementType, 2);
-			$this->handlers[] = new Subtract("SUB", $elementType, 2, true);
-			$this->handlers[] = new Multiply("MUL", $elementType, 2);
-			$this->handlers[] = new Multiply("MUL", $elementType, 2, true);
-			$this->handlers[] = new Divide("DIV", $elementType, 2);
-			$this->handlers[] = new Divide("DIV", $elementType, 2, true);
-			$this->handlers[] = new Modulo("MOD", $elementType, 2);
-			$this->handlers[] = new Modulo("MOD", $elementType, 2, true);
-			$this->handlers[] = new Negate("NEG", $elementType, 2);
-			$this->handlers[] = new Negate("NEG", $elementType, 2, true);
-			$this->handlers[] = new Increment("INC", $elementType, 2);
-			$this->handlers[] = new Increment("INC", $elementType, 2, true);
-			$this->handlers[] = new Decrement("DEC", $elementType, 2);
-			$this->handlers[] = new Decrement("DEC", $elementType, 2, true);
-			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, 2);
-			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, 2, true);
+			$this->handlers[] = new Copy("MOV", $elementType, "ARR", 2);
+			$this->handlers[] = new Copy("MOV", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Add("ADD", $elementType, "ARR", 2);
+			$this->handlers[] = new Add("ADD", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Subtract("SUB", $elementType, "ARR", 2);
+			$this->handlers[] = new Subtract("SUB", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Multiply("MUL", $elementType, "ARR", 2);
+			$this->handlers[] = new Multiply("MUL", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Divide("DIV", $elementType, "ARR", 2);
+			$this->handlers[] = new Divide("DIV", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Modulo("MOD", $elementType, "ARR", 2);
+			$this->handlers[] = new Modulo("MOD", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Negate("NEG", $elementType, "ARR", 2);
+			$this->handlers[] = new Negate("NEG", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Increment("INC", $elementType, "ARR", 2);
+			$this->handlers[] = new Increment("INC", $elementType, "ARR", 2, true);
+			$this->handlers[] = new Decrement("DEC", $elementType, "ARR", 2);
+			$this->handlers[] = new Decrement("DEC", $elementType, "ARR", 2, true);
+			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, "ARR", 2);
+			$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, "ARR", 2, true);
 			
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, "variable", "column-major");
-			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM", $elementType, "variable", "column-major", true);
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, "variable", "column-major");
-			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV", $elementType, "variable", "column-major", true);
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, "variable", "column-major");
-			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM", $elementType, "variable", "column-major", true);
-			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, "variable", "column-major");
-			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, "variable", "column-major", true);
-			$this->handlers[] = new InvertMatrix("MINV", $elementType, "variable", "column-major");
-			$this->handlers[] = new InvertMatrix("MINV", $elementType, "variable", "column-major", true);
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, "variable");
+			$this->handlers[] = new MultiplyMatrixByMatrix("MUL_MM_CM", $elementType, "variable", true);
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, "variable");
+			$this->handlers[] = new MultiplyMatrixByVector("MUL_MV_CM", $elementType, "variable", true);
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, "variable");
+			$this->handlers[] = new MultiplyVectorByMatrix("MUL_VM_CM", $elementType, "variable", true);
+			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, "variable");
+			$this->handlers[] = new TransposeMatrix("MTRAN", $elementType, "variable", true);
+			$this->handlers[] = new InvertMatrix("MINV", $elementType, "variable");
+			$this->handlers[] = new InvertMatrix("MINV", $elementType, "variable", true);
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, "variable");
+				$this->handlers[] = new Determinant("MDET", $elementType, $addressMode, "variable", ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, "variable");
+				$this->handlers[] = new DotProduct("DOT", $elementType, $addressMode, "variable", ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Length("LEN", $elementType, $addressMode, "variable");
+				$this->handlers[] = new Length("LEN", $elementType, $addressMode, "variable", ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, "variable");
+				$this->handlers[] = new Distance("DIS", $elementType, $addressMode, "variable", ($addressMode == "ARR"));
 			}
 			$this->handlers[] = new Normalize("NORM", $elementType, "variable");
 			$this->handlers[] = new Normalize("NORM", $elementType, "variable", true);

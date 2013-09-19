@@ -2,7 +2,7 @@
 
 class FlooredDivisionModulo extends Handler {
 
-	use MultipleAddressMode, BinaryOperator;
+	use MultipleAddressMode, BinaryOperator, ExpressionReplication;
 
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
