@@ -2697,7 +2697,7 @@ static void ZEND_FASTCALL qb_simplify_jump(qb_compiler_context *cxt, uint32_t in
 }
 
 static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
-	uint32_t i, j;
+	uint32_t i;
 	if(pass == 1) {
 		// opcodes are not address mode specific at this point
 		// the last op is always RET: there's no need to scan it
@@ -3805,7 +3805,7 @@ static zend_function * ZEND_FASTCALL qb_get_function(qb_build_context *cxt, zval
 }
 
 #include "qb_compiler_php.c"
-#include "qb_compiler_pbj.c"
+//#include "qb_compiler_pbj.c"
 
 int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 	qb_build_context *cxt = QB_G(build_context);

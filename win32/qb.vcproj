@@ -589,6 +589,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_compiler_dim_calculation.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\qb_compiler_op_factories.c"
 				>
 				<FileConfiguration
@@ -625,6 +637,18 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_compiler_opcode_selection.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool

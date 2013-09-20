@@ -1734,8 +1734,7 @@ static void ZEND_FASTCALL qb_translate_jump(qb_compiler_context *cxt, void *op_f
 static void ZEND_FASTCALL qb_translate_jump_set(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
 	zend_op *target_op = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
-	uint32_t target_index1 = ZEND_OP_INDEX(target_op);
-	uint32_t target_index2 = cxt->zend_op_index + 1;
+	uint32_t target_indices[2];
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		result_prototype->preliminary_type = qb_get_operand_type(cxt, value, 0);
@@ -1745,13 +1744,18 @@ static void ZEND_FASTCALL qb_translate_jump_set(qb_compiler_context *cxt, void *
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		qb_address *zero_address;
 		qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, value->address);
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS }, { QB_OPERAND_ADDRESS } };
 
 		qb_finalize_result_prototype(cxt, result_prototype);
 		qb_do_type_coercion(cxt, value, result_prototype->final_type);
 		zero_address = qb_obtain_constant(cxt, 0, value->address->type);
 
 		// if value is not zero, then jump over the false clause 
-		qb_create_comparison_branch_op(cxt, &factory_branch_on_not_equal, 1 | QB_INSTRUCTION_OFFSET, target_index2, value->address, zero_address);
+		target_indices[0] = 1 | QB_INSTRUCTION_OFFSET;
+		target_indices[1] = cxt->zend_op_index + 1;
+		operands[0].address = value->address;
+		operands[1].address = zero_address;
+		qb_create_branching_op(cxt, &factory_branch_on_not_equal, operands, 2, target_indices, 2);
 
 		// copy value to qm temporary
 		result->type = QB_OPERAND_ADDRESS;
@@ -1761,15 +1765,17 @@ static void ZEND_FASTCALL qb_translate_jump_set(qb_compiler_context *cxt, void *
 	}
 
 	// jump over the false clause first
-	cxt->jump_target_index1 = target_index1;
-	cxt->jump_target_index2 = target_index2;
+	cxt->jump_target_index1 = ZEND_OP_INDEX(target_op);
+	cxt->jump_target_index2 = cxt->zend_op_index + 1;
 }
 
 static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *condition = &operands[0];
 	zend_op *target_op1 = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
-	uint32_t target_index1 = ZEND_OP_INDEX(target_op1);
-	uint32_t target_index2 = cxt->zend_op_index + 1;
+	uint32_t target_indices[2];
+
+	target_indices[0] = ZEND_OP_INDEX(target_op1);
+	target_indices[1] = cxt->zend_op_index + 1;
 
 	if(condition->type == QB_OPERAND_ADDRESS) {
 		if(!SCALAR(condition->address)) {
@@ -1789,11 +1795,11 @@ static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op
 			int32_t is_true = VALUE(I32, condition->address);
 			if((is_true && op_factory == &factory_branch_on_true) || (!is_true && op_factory == &factory_branch_on_false)) {
 				// the branch always occurs--jump to it
-				qb_create_jump_op(cxt, &factory_jump, target_index1);
-				cxt->jump_target_index1 = target_index1;
+				qb_create_branching_op(cxt, op_factory, condition, 1, target_indices, 1);
+				cxt->jump_target_index1 = target_indices[0];
 			} else {
 				// the branch is not reachable, just go to the next op
-				cxt->jump_target_index1 = target_index2;
+				cxt->jump_target_index1 = target_indices[1];
 			}
 			return;
 		} else {
@@ -1809,26 +1815,27 @@ static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op
 				result->type = QB_OPERAND_ADDRESS;
 				result->address = condition->address;
 			}
-
-			qb_create_branch_op(cxt, op_factory, target_index1, target_index2, condition->address);
+			qb_create_branching_op(cxt, op_factory, condition, 1, target_indices, 2);
 		}
 	}
 	// start down the next instruction first before going down the branch
-	cxt->jump_target_index1 = target_index2;
-	cxt->jump_target_index2 = target_index1;
+	cxt->jump_target_index1 = target_indices[1];
+	cxt->jump_target_index2 = target_indices[0];
 }
 
 static void ZEND_FASTCALL qb_translate_for_loop(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *condition = &operands[0];
-	uint32_t target_index1 = cxt->zend_op->extended_value;
-	uint32_t target_index2 = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);
+	uint32_t target_indices[2];
+	
+	target_indices[0] = cxt->zend_op->extended_value;
+	target_indices[1] = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);
 
 	qb_do_type_coercion(cxt, condition, QB_TYPE_I32);
 	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_create_branch_op(cxt, op_factory, target_index1, target_index2, condition->address);
+		qb_create_branching_op(cxt, op_factory, condition, 1, target_indices, 2);
 	}
-	cxt->jump_target_index1 = target_index1;
-	cxt->jump_target_index2 = target_index2;
+	cxt->jump_target_index1 = target_indices[0];
+	cxt->jump_target_index2 = target_indices[1];
 }
 
 static zend_brk_cont_element * ZEND_FASTCALL qb_find_break_continue_element(qb_compiler_context *cxt, int32_t nest_levels, int32_t array_offset) {
