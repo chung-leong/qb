@@ -58,7 +58,7 @@ static void ZEND_FASTCALL qb_set_image_dimensions(qb_interpreter_context *cxt, g
 	uint32_t width_expected = VALUE(U32, width_address);
 	uint32_t height_expected = VALUE(U32, height_address);
 	if(width_expected != image->sx) {
-		if(width_address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(width_address)) {
 			qb_abort("Declared array size (%d) does not match the width of image (%d): %s", width_expected, image->sy, qb_get_address_name(cxt, address));
 		} else if(width_expected != 0) {
 			qb_abort("Current array size (%d) does not match the width of image (%d): %s", width_expected, image->sx, qb_get_address_name(cxt, address));
@@ -67,7 +67,7 @@ static void ZEND_FASTCALL qb_set_image_dimensions(qb_interpreter_context *cxt, g
 	}
 
 	if(height_expected != image->sy) {
-		if(height_address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(height_address)) {
 			qb_abort("Declared array size (%d) does not match the height of image (%d): %s", height_expected, image->sy, qb_get_address_name(cxt, address));
 		} else if(height_expected != 0) {
 			qb_abort("Current array size (%d) does not match the height of image (%d): %s", height_expected, image->sy, qb_get_address_name(cxt, address));
@@ -81,7 +81,7 @@ static void ZEND_FASTCALL qb_set_image_linear_size(qb_interpreter_context *cxt, 
 	uint32_t pixel_count = image->sx * image->sy;
 	uint32_t length_expected = VALUE(U32, length_address);
 	if(length_expected != pixel_count) {
-		if(length_address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(length_address)) {
 			qb_abort("Declared array size (%d) does not match the size of image (%d): %s", length_expected, pixel_count, qb_get_address_name(cxt, address));
 		} else if(length_expected != 0) {
 			qb_abort("Current array size (%d) does not match the size of image (%d): %s", length_expected, pixel_count, qb_get_address_name(cxt, address));

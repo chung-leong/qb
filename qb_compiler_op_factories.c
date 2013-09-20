@@ -234,7 +234,7 @@ static void ZEND_FASTCALL qb_create_any_op(qb_compiler_context *cxt, void *facto
 		}
 	}
 	if(result && result->type == QB_OPERAND_ADDRESS) {
-		if(result->address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(result->address)) {
 			// evalulate the expression at compile-time
 			qb_execute_op(cxt, qop);
 
@@ -2215,18 +2215,6 @@ static qb_basic_op_factory factory_utf8_decode = {
 };
 */
 
-static qb_op * ZEND_FASTCALL qb_append_utf8_encode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_basic_op_factory *f = factory;
-	qb_address *address = operands[0].address;
-	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
-	qb_op *qop = qb_append_op(cxt, opcode, 2);
-	qop->operands[0] = operands[0];
-	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
-	qop->operands[1] = *result;
-	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
-	return qop;
-}
-
 /*
 static qb_basic_op_factory factory_utf8_encode = {
 	qb_append_utf8_encode,
@@ -2236,18 +2224,6 @@ static qb_basic_op_factory factory_utf8_encode = {
 	{	0, 0, 0, 0, QB_UTF8_ENC_U32_U08,	QB_UTF8_ENC_U32_U08,	QB_UTF8_ENC_U16_U08,	QB_UTF8_ENC_U16_U08,	},
 };
 */
-
-static qb_op * ZEND_FASTCALL qb_append_pack(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_basic_op_factory *f = factory;
-	qb_address *address = operands[0].address;
-	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
-	qb_op *qop = qb_append_op(cxt, opcode, 2);
-	qop->operands[0] = operands[0];
-	qop->operands[1] = *result;
-	// operand is always an array and should not be involved in the address mode resolution process
-	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
-	return qop;
-}
 
 /*
 static qb_basic_op_factory factory_pack_le = { 
@@ -2412,7 +2388,7 @@ static void ZEND_FASTCALL qb_set_array_fill_result_dimensions(qb_compiler_contex
 	int32_t count_is_constant;
 	uint32_t count;
 
-	if((index_address->flags & QB_ADDRESS_CONSTANT) && (number_address->flags & QB_ADDRESS_CONSTANT)) {
+	if(CONSTANT(index_address) && CONSTANT(number_address)) {
 		uint32_t start_index = VALUE(U32, index_address);
 		uint32_t number = VALUE(U32, number_address);
 		count = start_index + number;
@@ -2587,7 +2563,7 @@ static void ZEND_FASTCALL qb_set_range_result_dimensions(qb_compiler_context *cx
 	qb_address *end_address = operands[1].address;
 	qb_address *interval_address = (operand_count >= 3) ? operands[2].address : NULL;
 	uint32_t current_array_size = UINT32_MAX;
-	if((start_address->flags & QB_ADDRESS_CONSTANT) && (end_address->flags & QB_ADDRESS_CONSTANT) && (!interval_address || interval_address->flags & QB_ADDRESS_CONSTANT)) {
+	if(CONSTANT(start_address) && CONSTANT(end_address) && (!interval_address || CONSTANT(interval_address))) {
 		switch(start_address->type) {
 			case QB_TYPE_S08: current_array_size = qb_get_range_length_S08(VALUE(S08, start_address), VALUE(S08, end_address), (interval_address) ? VALUE(S08, interval_address) : 1); break;
 			case QB_TYPE_U08: current_array_size = qb_get_range_length_U08(VALUE(U08, start_address), VALUE(U08, end_address), (interval_address) ? VALUE(U08, interval_address) : 1); break;
@@ -2629,7 +2605,7 @@ static qb_basic_op_factory factory_array_unique = {
 
 static void ZEND_FASTCALL qb_set_array_rand_result_dimensions(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *count_address = operands[1].address;
-	if(count_address->flags & QB_ADDRESS_CONSTANT) {
+	if(CONSTANT(count_address)) {
 		uint32_t count = VALUE(U32, count_address);
 		dim->array_size = count;
 		dim->dimension_count = (count == 1) ? 0 : 1;

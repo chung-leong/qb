@@ -523,7 +523,7 @@ static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_cont
 
 static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
 	char *buffer = qb_get_buffer(cxt);
-	if(address->flags & QB_ADDRESS_CONSTANT) {
+	if(CONSTANT(address)) {
 		switch(address->type) {
 			case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
 			case QB_TYPE_U08: snprintf(buffer, 128, "%" PRIu8"U", VALUE(U08, address)); break;
@@ -566,7 +566,7 @@ static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_cont
 }
 
 static const char * ZEND_FASTCALL qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address) {
-	if(SCALAR(address) && !(address->flags & QB_ADDRESS_CONSTANT)) {
+	if(SCALAR(address) && !CONSTANT(address)) {
 		char *buffer = qb_get_buffer(cxt);
 		if(IS_CAST(address)) {
 			const char *ctype = type_cnames[address->type];
@@ -657,7 +657,7 @@ static int32_t ZEND_FASTCALL qb_is_always_in_bound(qb_native_compiler_context *c
 		if(SCALAR(address)) {
 			element_count = 1;
 		} else {
-			if(address->array_size_address->flags & QB_ADDRESS_CONSTANT) {
+			if(CONSTANT(address->array_size_address)) {
 				// sub-array size is not constant
 				if(address->flags & QB_ADDRESS_ALWAYS_IN_BOUND) {
 					// an index set by foreach(), so it's always going to be in bound
@@ -766,7 +766,7 @@ static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context 
 			qb_print_resynchronization(cxt, address->source_address, context);
 		} else {
 			if(SCALAR(address)) {
-				if(!(address->flags & QB_ADDRESS_CONSTANT)) {
+				if(!CONSTANT(address)) {
 					if((address->flags & QB_ADDRESS_AUTO_INCREMENT) || (context == POST_FUNCTION_CALL)) {
 						// transfer the value from the segment
 						qb_printf(cxt, "%s = %s[0];\n", qb_get_scalar(cxt, address), qb_get_segment_pointer(cxt, address));
@@ -908,14 +908,14 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 					const char *new_dimension = qb_get_scalar(cxt, new_dimension_address);
 					qb_printf(cxt, "old_dims[%d] = %s;\n", i, dimension);
 					qb_printf(cxt, "new_dims[%d] = %s;\n", i, new_dimension);
-					if(!(dimension_address->flags & QB_ADDRESS_CONSTANT)) {
+					if(!CONSTANT(dimension_address)) {
 						qb_printf(cxt, "if(%s != %s) {\n", dimension, new_dimension);
 						qb_print(cxt,  "	changed = 1;\n");
 						qb_printf(cxt, "	%s = %s;\n", dimension, new_dimension);
 						qb_print(cxt,  "}\n");
 					}
 					qb_printf(cxt, "new_length *= %s;\n", new_dimension);
-					if(!(size_address->flags & QB_ADDRESS_CONSTANT)) {
+					if(!CONSTANT(size_address)) {
 						qb_printf(cxt, "%s = new_length;\n", size);
 					}
 				}
@@ -942,10 +942,10 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 				for(i = 0; i < dimension_count; i++) {
 					qb_address *size_address = dimension_operands[i * 3 + 0].address;
 					qb_address *dimension_address = dimension_operands[i * 3 + 1].address;
-					if(!(dimension_address->flags & QB_ADDRESS_CONSTANT)) {
+					if(!CONSTANT(dimension_address)) {
 						qb_print_resynchronization(cxt, dimension_address, POST_ARRAY_RESIZE);
 					}
-					if(!(size_address->flags & QB_ADDRESS_CONSTANT)) {
+					if(!CONSTANT(size_address)) {
 						qb_print_resynchronization(cxt, size_address, POST_ARRAY_RESIZE);
 					}
 				}
@@ -1239,7 +1239,7 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	// write variables that can be local
 	for(i = 0; i < cxt->scalar_count; i++) {
 		qb_address *scalar = cxt->scalars[i];
-		if(!(scalar->flags & QB_ADDRESS_CONSTANT)) {
+		if(!CONSTANT(scalar)) {
 			qb_printf(cxt, "%s %s = %s[0];\n", type_cnames[scalar->type], qb_get_scalar(cxt, scalar), qb_get_segment_pointer(cxt, scalar));
 		}
 	}

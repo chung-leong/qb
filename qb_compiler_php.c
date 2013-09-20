@@ -1019,7 +1019,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 				if(lvalue_size_address) {
 					// see if we're assigned to an empty variable length array
 					int32_t lvalue_is_empty_variable_length_array = FALSE;
-					if(lvalue_size_address && !(lvalue_size_address->flags & QB_ADDRESS_READ_ONLY)) {
+					if(lvalue_size_address && !READ_ONLY(lvalue_size_address)) {
 						// see if an unset occurs just before
 						if(cxt->op_count > cxt->initialization_op_count) {
 							uint32_t i = cxt->op_count;
@@ -1045,7 +1045,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 					} else {
 						if(dim && dim->array_size > 0) {
 							// result size is known
-							if(lvalue_size_address->flags & QB_ADDRESS_CONSTANT) {
+							if(CONSTANT(lvalue_size_address)) {
 								// size of lvalue is fixed	
 								uint32_t lvalue_size = VALUE(U32, lvalue_size_address);
 								if(lvalue_size == dim->array_size) {
@@ -1258,7 +1258,7 @@ static void ZEND_FASTCALL qb_do_boolean_coercion(qb_compiler_context *cxt, qb_op
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(operand->type == QB_OPERAND_ADDRESS) {
 			if(!(operand->address->flags & QB_ADDRESS_BOOLEAN)) {
-				if(operand->address->flags & QB_ADDRESS_CONSTANT) {
+				if(CONSTANT(operand->address)) {
 					int32_t is_true;
 					if(SCALAR(operand->address)) {
 						switch(operand->address->type) {
@@ -1784,7 +1784,7 @@ static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op
 			*result = *condition;
 		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(condition->address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(condition->address)) {
 			// the condition is constant--eliminate the branch
 			int32_t is_true = VALUE(I32, condition->address);
 			if((is_true && op_factory == &factory_branch_on_true) || (!is_true && op_factory == &factory_branch_on_false)) {
@@ -2029,7 +2029,7 @@ static void ZEND_FASTCALL qb_translate_free(qb_compiler_context *cxt, void *op_f
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		/*
 		// if it's a temporary variable being freed, perhaps the op that created it isn't needed in the first place
-		if(value->type == QB_OPERAND_ADDRESS && value->address->flags & QB_ADDRESS_TEMPORARY) {
+		if(value->type == QB_OPERAND_ADDRESS && TEMPORARY(value->address)) {
 			qb_op *redundant_qop = NULL;
 			uint32_t i, j;
 			for(i = cxt->op_count - 1; (int32_t) i >= 0; i--) {
@@ -2147,7 +2147,7 @@ static void ZEND_FASTCALL qb_translate_concat(qb_compiler_context *cxt, void *op
 		qb_do_type_coercion(cxt, string2, QB_TYPE_ANY);
 
 		result->type = QB_OPERAND_ADDRESS;
-		if(string1->address->flags & QB_ADDRESS_TEMPORARY && EXPANDABLE_ARRAY(string1->address) && string1->address->type == QB_TYPE_U08) {
+		if(TEMPORARY(string1->address) && EXPANDABLE_ARRAY(string1->address) && string1->address->type == QB_TYPE_U08) {
 			// reuse string1
 			result->address = string1->address;
 		} else {
@@ -2201,7 +2201,7 @@ static void ZEND_FASTCALL qb_translate_bool(qb_compiler_context *cxt, void *op_f
 			qb_do_boolean_coercion(cxt, value);
 			// if there's an address already, then copy the value into it
 			// it's probably a short-circuited conditional statement
-			if(result->type == QB_OPERAND_ADDRESS && !(result->address->flags & QB_ADDRESS_CONSTANT)) {
+			if(result->type == QB_OPERAND_ADDRESS && !CONSTANT(result->address)) {
 				qb_do_assignment(cxt, value->address, result->address);
 			} else {
 				result->type = QB_OPERAND_ADDRESS;
@@ -2498,7 +2498,7 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 							if(!STORAGE_TYPE_MATCH(qvar->address->type, argument->address->type)) {
 								qb_abort("%s expects argument %d to be of the type %s, %s was passed", qfunc->name, i + 1, type_names[qvar->address->type], type_names[argument->address->type]);
 							}
-							if(argument->address->flags & QB_ADDRESS_TEMPORARY) {
+							if(TEMPORARY(argument->address)) {
 								qb_abort("Only variable should be passed by reference");
 							}
 

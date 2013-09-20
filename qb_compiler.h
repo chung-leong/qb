@@ -424,11 +424,12 @@ enum {
 #define CONSTANT(address)			(address->flags & QB_ADDRESS_CONSTANT)
 #define TEMPORARY(address)			(address->flags & QB_ADDRESS_TEMPORARY)
 #define IN_USE(address)				(address->flags & QB_ADDRESS_IN_USE)
+#define READ_ONLY(address)			(address->flags & QB_ADDRESS_READ_ONLY)
 
 #define MULTIDIMENSIONAL_ARRAY(address)		(address->dimension_count > 1)
-#define FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && address->array_size_address->flags & QB_ADDRESS_CONSTANT)
-#define VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_CONSTANT))
-#define EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_READ_ONLY))
+#define FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && CONSTANT(address->array_size_address))
+#define VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
+#define EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !READ_ONLY(address->array_size_address))
 
 #define ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
 #define CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)

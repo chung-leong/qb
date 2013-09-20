@@ -440,7 +440,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_count(qb_compiler_context *cxt,
 		qb_do_type_coercion(cxt, &arguments[0], QB_TYPE_ANY);
 		if(argument_count == 2) {
 			qb_do_type_coercion(cxt, &arguments[1], QB_TYPE_I32);
-			if(arguments[1].address->flags & QB_ADDRESS_CONSTANT) {
+			if(CONSTANT(arguments[1].address)) {
 				recursive = VALUE(I32, arguments[1].address);
 			} else {
 				qb_abort("%s() expects parameter 2 to be a constant expression", f->name);
@@ -782,7 +782,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_fill(qb_compiler_context 
 			if(!EXPANDABLE_ARRAY(result->address)) {
 				// expandable arrays are set to zero when an unset occur and we'd only get an expandable array here
 				// if that has occurred
-				if(!(index->address->flags & QB_ADDRESS_CONSTANT) || VALUE(U32, index->address) != 0) {
+				if(!CONSTANT(index->address) || VALUE(U32, index->address) != 0) {
 					// the start index is or might not be zero
 					// zero out the elements before it
 					qb_address *zero_address = qb_obtain_constant_U32(cxt, 0);
@@ -1049,7 +1049,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_splice(qb_compiler_contex
 			} else {
 				qb_address *insert_offset_address;
 				// clear the span (unless its length is zero)
-				if(!(slice_address->array_size_address->flags & QB_ADDRESS_CONSTANT && ARRAY_SIZE(slice_address) == 0)) {
+				if(!(CONSTANT(slice_address->array_size_address) && ARRAY_SIZE(slice_address) == 0)) {
 					/*qb_create_nullary_op(cxt, &factory_unset, slice_address);*/
 				}
 
@@ -1375,8 +1375,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_resize(qb_compiler_contex
 				qb_create_unary_op(cxt, &factory_copy, new_dimension_address, new_dimension_address);
 				new_dimension_address = arguments[i].address = new_address;
 			}
-			if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
-				if(!(new_dimension_address->flags & QB_ADDRESS_CONSTANT) || VALUE(U32, dimension_address) != VALUE(U32, new_dimension_address)) {
+			if(CONSTANT(dimension_address)) {
+				if(!CONSTANT(new_dimension_address) || VALUE(U32, dimension_address) != VALUE(U32, new_dimension_address)) {
 					qb_abort("cannot change array dimension that was declared to be fixed-size");
 				}
 			} else {
@@ -1448,7 +1448,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_utf8_encode(qb_compiler_context
 			qb_variable_dimensions *result_dim = qb_get_variable_length_dimensions(cxt);
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_I08, result_dim, result_prototype, result_flags);
-			if(result->address->flags & QB_ADDRESS_TEMPORARY) {
+			if(TEMPORARY(result->address)) {
 				// it's a temporary address--make it as a string
 				result->address->flags |= QB_ADDRESS_STRING;
 			}
@@ -1492,7 +1492,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_pack(qb_compiler_context *cxt, 
 			qb_variable_dimensions *result_dim = qb_get_variable_length_dimensions(cxt);
 			result->type = QB_OPERAND_ADDRESS;
 			result->address = qb_obtain_write_target_address(cxt, QB_TYPE_U08, result_dim, result_prototype, result_flags);
-			if(result->address->flags & QB_ADDRESS_TEMPORARY) {
+			if(TEMPORARY(result->address)) {
 				// it's a temporary address--mark it as a string
 				result->address->flags |= QB_ADDRESS_STRING;
 			}
@@ -1683,7 +1683,7 @@ static void ZEND_FASTCALL qb_translate_intrinsic_define(qb_compiler_context *cxt
 			if(expr->type == QB_OPERAND_ZVAL) {
 				c.value = *expr->constant;
 				zval_copy_ctor(&c.value);
-			} else if(expr->type == QB_OPERAND_ADDRESS && (expr->address->flags & QB_ADDRESS_CONSTANT) && SCALAR(expr->address)) {
+			} else if(expr->type == QB_OPERAND_ADDRESS && CONSTANT(expr->address) && SCALAR(expr->address)) {
 				if(expr->address->type >= QB_TYPE_F32) {
 					double value;
 					switch(expr->address->type) {
@@ -1802,7 +1802,7 @@ static void ZEND_FASTCALL qb_translate_pixel_op(qb_compiler_context *cxt, qb_int
 
 		width_address = address->dimension_addresses[address->dimension_count - 1];
 		width = VALUE(U32, width_address);
-		if(!(width == 3 || width == 4) || !(width_address->flags & QB_ADDRESS_CONSTANT)) {
+		if(!(width == 3 || width == 4) || !CONSTANT(width_address)) {
 			qb_abort("%s() expects an array whose last dimensions is 3 or 4", f->name);
 		}
 		if(result->type != QB_OPERAND_NONE) {
@@ -1819,7 +1819,7 @@ static void ZEND_FASTCALL qb_translate_pixel4_op(qb_compiler_context *cxt, qb_in
 		if(!SCALAR(address)) {
 			qb_address *width_address = address->dimension_addresses[address->dimension_count - 1];
 			uint32_t width = VALUE(U32, width_address);
-			if(width != 4 || !(width_address->flags & QB_ADDRESS_CONSTANT)) {
+			if(width != 4 || !CONSTANT(width_address)) {
 				qb_abort("%s() expects an array whose last dimensions is 4", f->name);
 			}
 		}

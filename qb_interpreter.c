@@ -70,7 +70,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_bytes(qb_interpreter_
 
 	if(address->dimension_count > 1) {
 		item_size_address = address->array_size_addresses[1];
-		if(item_size_address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(item_size_address)) {
 			item_element_count = VALUE(U32, item_size_address);
 			item_byte_count = BYTE_COUNT(item_element_count, address->type);
 		} else {
@@ -91,7 +91,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_bytes(qb_interpreter_
 	dimension_address = address->dimension_addresses[0];
 	dimension_expected = VALUE(U32, dimension_address);
 	if(dimension > dimension_expected) {
-		if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(dimension_address)) {
 			// dimension is defined
 			qb_abort("Number of entries (%d) exceeds the declared size of the array (%d): %s", dimension, dimension_expected, qb_get_address_name(cxt, address));
 		}
@@ -133,7 +133,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_caller_address(qb_int
 			array_size *= dimension;
 
 			if(dimension > dimension_expected) {
-				if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
+				if(CONSTANT(dimension_address)) {
 					qb_abort("Number of elements (%d) exceeds declared size of array (%d): %s", dimension, dimension_expected, qb_get_address_name(cxt, address));
 				} else {
 					VALUE(U32, dimension_address) = dimension;
@@ -177,7 +177,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 		uint32_t dimension = qb_get_zend_array_size(cxt, zvalue);
 		uint32_t dimension_expected = VALUE(U32, dimension_address);
 
-		if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
+		if(CONSTANT(dimension_address)) {
 			if(dimension > dimension_expected) {
 				if(address->dimension_count > 1 && FIXED_LENGTH_ARRAY(address)) {
 					// maybe we're trying to initialize a multidimensional array with a linear array
@@ -211,7 +211,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 			}
 
 			// set the dimension to zero first
-			if(!(item_dimension_address->flags & QB_ADDRESS_CONSTANT)) {
+			if(!CONSTANT(item_dimension_address)) {
 				VALUE(U32, item_dimension_address) = 0;
 			}
 
@@ -730,7 +730,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 				}
 				if((stream = qb_get_file_stream(cxt, zvalue))) {
 					// use memory mapped file if possible
-					int32_t write_access = !(address->flags & QB_ADDRESS_READ_ONLY);
+					int32_t write_access = !READ_ONLY(address);
 					uint32_t allocation = element_count;
 					if(allocation == 0) {
 						// can't have a mapping that's zero
@@ -940,7 +940,7 @@ static void ZEND_FASTCALL qb_transfer_arguments_from_php(qb_interpreter_context 
 		zval **p_zarg = p_args[i];
 		uint32_t transfer_flags = 0;
 
-		if((qvar->flags & QB_VARIABLE_PASSED_BY_REF) || (qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
+		if((qvar->flags & QB_VARIABLE_PASSED_BY_REF) || READ_ONLY(qvar->address)) {
 			// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
 			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 		}
@@ -1283,7 +1283,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_cont
 	qb_variable *qvar = import->variable;
 
 	// do the transfer only if it the variable could have been changed
-	if(!(qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
+	if(!READ_ONLY(qvar->address)) {
 		if(import->previous_copy_index != -1) {
 			// copy value to caller storage
 			qb_variable_import *previous_copy = &cxt->variable_imports[import->previous_copy_index];
@@ -2007,7 +2007,7 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 			qb_variable *qvar = cxt->function->variables[i];
 			if(qvar->default_value_address) {
 				uint32_t transfer_flags;
-				if((qvar->flags & QB_VARIABLE_PASSED_BY_REF) || !(qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
+				if((qvar->flags & QB_VARIABLE_PASSED_BY_REF) || !READ_ONLY(qvar->address)) {
 					transfer_flags = 0;
 				} else {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
@@ -2168,7 +2168,7 @@ void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argume
 			uint32_t transfer_flags = 0;
 			if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_ENLARGE_SEGMENT;
-			} else if(qvar->address->flags & QB_ADDRESS_READ_ONLY) {
+			} else if(READ_ONLY(qvar->address)) {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			} else {
 				transfer_flags = 0;
