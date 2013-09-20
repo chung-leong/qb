@@ -1128,8 +1128,8 @@ static void ZEND_FASTCALL qb_pbj_translate_select(qb_compiler_context *cxt, qb_p
 	end_index = cxt->op_count;
 
 	// set the jump target indices now that we know what they are
-	if_qop->operands[1].jump_target_index = (target_f_index - if_index) | QB_INSTRUCTION_OFFSET;
-	jmp_qop->operands[0].jump_target_index = (end_index - jmp_index) | QB_INSTRUCTION_OFFSET;
+	if_qop->jump_target_indices[1] = (target_f_index - if_index) | QB_INSTRUCTION_OFFSET;
+	jmp_qop->jump_target_indices[0] = (end_index - jmp_index) | QB_INSTRUCTION_OFFSET;
 
 	// flags the ops as jump targets
 	cxt->ops[target_t_index]->flags |= QB_OP_JUMP_TARGET;

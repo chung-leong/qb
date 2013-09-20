@@ -1368,13 +1368,8 @@ static void ZEND_FASTCALL qb_translate_intrinsic_array_resize(qb_compiler_contex
 			qb_address *dimension_address = container->address->dimension_addresses[i - 1];
 			qb_address *new_dimension_address = arguments[i].address;
 
-			if(!SCALAR_VARIABLE(new_dimension_address)) {
-				// need to copy the dimension value to a temporary variable first
-				// since the ARESIZE instruction expects VAR addresses only
-				qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-				qb_create_unary_op(cxt, &factory_copy, new_dimension_address, new_dimension_address);
-				new_dimension_address = arguments[i].address = new_address;
-			}
+			new_dimension_address = qb_obtain_scalar_value(cxt, new_dimension_address);
+
 			if(CONSTANT(dimension_address)) {
 				if(!CONSTANT(new_dimension_address) || VALUE(U32, dimension_address) != VALUE(U32, new_dimension_address)) {
 					qb_abort("cannot change array dimension that was declared to be fixed-size");

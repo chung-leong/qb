@@ -1920,7 +1920,7 @@ static void ZEND_FASTCALL qb_translate_foreach_reset(qb_compiler_context *cxt, v
 				if(index_prototype->destination->type == QB_RESULT_DESTINATION_VARIABLE) {
 					qb_address *address = index_prototype->destination->variable.address;
 					if(STORAGE_TYPE_MATCH(address->type, QB_TYPE_U32)) {
-						if(SCALAR(address) && !IS_ARRAY_MEMBER(address)) {
+						if(SCALAR(address) && !ARRAY_MEMBER(address)) {
 							index_address = address;
 						}
 					}
@@ -2941,11 +2941,7 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_compiler_context *cx
 
 			if(cxt->op_translations[cxt->zend_op_index] != QB_OP_INDEX_NONE && cxt->op_translations[cxt->zend_op_index] != QB_OP_INDEX_JUMP_TARGET) {
 				// instruction has already been translated--do a jump there and exit
-				qb_operand jump_operands[1];
-				jump_operands[0].type = QB_OPERAND_JUMP_TARGET;
-				jump_operands[0].jump_target_index = cxt->zend_op_index;
-				qb_create_op(cxt, &factory_jump, jump_operands, 1, NULL);
-
+				qb_create_op_with_jump_targets(cxt, NULL, 0, &cxt->zend_op_index, 1);
 				break;
 			}
 
