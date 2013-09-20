@@ -355,7 +355,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 			}
 			item_element_count = ARRAY_SIZE(item_address);
 		} else {
-			item_address->mode = QB_ADDRESS_MODE_ELC;
+			item_address->mode = QB_ADDRESS_MODE_ELE;
 			item_element_count = 1;
 		}
 		item_byte_count = BYTE_COUNT(item_element_count, item_address->type);
@@ -368,7 +368,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 				if(item_address->dimension_count > 0 && qb_is_linear_zval_array(cxt, zvalue)) {
 					// initializing a multidimensional array with a linear array
 					item_address->dimension_count = 0;
-					item_address->mode = QB_ADDRESS_MODE_ELC;
+					item_address->mode = QB_ADDRESS_MODE_ELE;
 					item_address->dimension_addresses =
 					item_address->array_size_addresses = NULL;
 					item_address->array_size_address = NULL;
@@ -1104,7 +1104,7 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 			}
 			item_element_count = VALUE(U32, item_address->array_size_address);
 		} else {
-			item_address->mode = QB_ADDRESS_MODE_ELC;
+			item_address->mode = QB_ADDRESS_MODE_ELE;
 			item_address->dimension_addresses = NULL;
 			item_address->array_size_addresses = NULL;
 			item_address->array_size_address = NULL;
@@ -1546,7 +1546,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_debug_zval(qb_interpreter_context
 					}
 					item_element_count = VALUE(U32, item_address->array_size_address);
 				} else {
-					item_address->mode = QB_ADDRESS_MODE_ELC;
+					item_address->mode = QB_ADDRESS_MODE_ELE;
 					item_address->dimension_addresses = NULL;
 					item_address->array_size_addresses = NULL;
 					item_address->array_size_address = NULL;

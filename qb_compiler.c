@@ -488,7 +488,7 @@ static void ZEND_FASTCALL qb_initialize_element_address(qb_compiler_context *cxt
 }
 
 static void ZEND_FASTCALL qb_initialize_variable_address(qb_compiler_context *cxt, uint32_t segment_offset, uint32_t type, qb_address *address) {
-	address->mode = QB_ADDRESS_MODE_VAR;
+	address->mode = QB_ADDRESS_MODE_SCA;
 	address->type = type;
 	address->flags = QB_ADDRESS_READ_ONLY;
 	address->segment_selector = QB_SELECTOR_VARIABLE;
@@ -1589,11 +1589,9 @@ static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler
 
 static void ZEND_FASTCALL qb_do_static_init(qb_compiler_context *cxt, qb_address *address1, qb_address *result_address) {
 	if(!cxt->op_count) {
-		qb_op *qop = qb_append_op(cxt, QB_IF_INIT, 2);
-		qop->operands[0].jump_target_index = 0;
-		qop->operands[0].type = QB_OPERAND_JUMP_TARGET;
-		qop->operands[1].jump_target_index = QB_INSTRUCTION_NEXT;
-		qop->operands[1].type = QB_OPERAND_JUMP_TARGET;
+		qb_op *qop = qb_append_op(cxt, QB_IF_INIT);
+		qop->jump_target_indices[0] = 0;
+		qop->jump_target_indices[1] = QB_INSTRUCTION_NEXT;
 	}
 	qb_do_assignment(cxt, address1, result_address);
 }
@@ -2256,12 +2254,6 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 		qb_abort("cannot use an array as an index");
 	}
 
-	if(index_address->mode != QB_ADDRESS_MODE_SCA) {
-		// need to copy the index value to a temporary variable first
-		qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-		qb_do_assignment(cxt, index_address, new_address);
-		index_address = new_address;
-	}
 	if(container_address->dimension_count == 1) {
 		qb_initialize_element_address(cxt, container_address, result_address);
 	} else {
@@ -2323,9 +2315,9 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 		}
 	} else {
 		result_address->segment_offset = QB_OFFSET_INVALID;
-		result_address->array_index_address = index_address;
+		result_address->array_index_address = qb_obtain_scalar_value(cxt, index_address);
 		if(result_address->dimension_count == 0) {
-			result_address->mode = QB_ADDRESS_MODE_ELV;
+			result_address->mode = QB_ADDRESS_MODE_ELE;
 		}
 	}
 	result_address->source_address = container_address;
@@ -2396,7 +2388,7 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 				for(j = 0; j < qop->operand_count; j++) {
 					qb_operand *operand = &qop->operands[j];
 					if(operand->type == QB_OPERAND_ADDRESS) {
-						qb_adddress_mode operand_address_mode = qb_get_operand_address_mode(cxt, qop->opcode, j);
+						qb_address_mode operand_address_mode = qb_get_operand_address_mode(cxt, qop->opcode, j);
 						if(operand->address->mode > operand_address_mode) {
 							// need use to a higher address mode
 							required_address_mode = mode;
@@ -2473,201 +2465,250 @@ static int32_t ZEND_FASTCALL qb_find_array_address(qb_op *qop) {
 	return 0;
 }
 
+static qb_op * ZEND_FASTCALL qb_get_previous_op(qb_compiler_context *cxt, uint32_t index) {
+	qb_op *prev_qop = NULL;
+	uint32_t j;
+	for(j = index; j > 0; j--) {
+		prev_qop = cxt->ops[j - 1];
+		if(prev_qop->opcode != QB_NOP) {
+			break;
+		}
+	}
+	return prev_qop;
+}
+
+static qb_op * ZEND_FASTCALL qb_get_next_op(qb_compiler_context *cxt, uint32_t index) {
+	qb_op *next_qop = NULL;
+	uint32_t j;
+	for(j = index; j < cxt->op_count - 1; j++) {
+		next_qop = cxt->ops[j + 1];
+		if(next_qop->opcode != QB_NOP) {
+			break;
+		}
+	}
+	return next_qop;
+}
+
+static int32_t ZEND_FASTCALL qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t index) {
+	qb_op *qop = cxt->ops[index];
+
+	if(qop->opcode == QB_IF_T_I32 || qop->opcode == QB_IF_F_I32) {
+		qb_address *condition_address = qop->operands[2].address;
+
+		// don't fuse the instructions if the condition is going to be reused (in a short-circuited expression)
+		if(TEMPORARY(condition_address) && !(condition_address->flags & QB_ADDRESS_REUSED)) {
+			qb_op *prev_qop = qb_get_previous_op(cxt, index);
+
+			if(prev_qop && prev_qop->operand_count == 3 && prev_qop->operands[2].address == condition_address) {
+				qb_opcode new_opcode = 0;
+
+				// combine the comparison op with the branch op
+				// (only if no arrays are involved since the combined instructions aren't implemented for them)
+				if(!qb_find_array_address(prev_qop)) {
+					// TODO: get rid of this switch loop
+					switch(prev_qop->opcode) {
+						case QB_EQ_I08_I08_I32:	new_opcode = QB_IF_EQ_I08_I08; break;
+						case QB_EQ_I16_I16_I32:	new_opcode = QB_IF_EQ_I16_I16; break;
+						case QB_EQ_I32_I32_I32:	new_opcode = QB_IF_EQ_I32_I32; break;
+						case QB_EQ_I64_I64_I32:	new_opcode = QB_IF_EQ_I64_I64; break;
+						case QB_EQ_F32_F32_I32: new_opcode = QB_IF_EQ_F32_F32; break;
+						case QB_EQ_F64_F64_I32: new_opcode = QB_IF_EQ_F64_F64; break;
+
+						case QB_NE_I08_I08_I32:	new_opcode = QB_IF_NE_I08_I08; break;
+						case QB_NE_I16_I16_I32:	new_opcode = QB_IF_NE_I16_I16; break;
+						case QB_NE_I32_I32_I32:	new_opcode = QB_IF_NE_I32_I32; break;
+						case QB_NE_I64_I64_I32:	new_opcode = QB_IF_NE_I64_I64; break;
+						case QB_NE_F32_F32_I32: new_opcode = QB_IF_NE_F32_F32; break;
+						case QB_NE_F64_F64_I32: new_opcode = QB_IF_NE_F64_F64; break;
+
+						case QB_LT_S08_S08_I32:	new_opcode = QB_IF_LT_S08_S08; break;
+						case QB_LT_S16_S16_I32:	new_opcode = QB_IF_LT_S16_S16; break;
+						case QB_LT_S32_S32_I32:	new_opcode = QB_IF_LT_S32_S32; break;
+						case QB_LT_S64_S64_I32:	new_opcode = QB_IF_LT_S64_S64; break;
+						case QB_LT_U08_U08_I32:	new_opcode = QB_IF_LT_U08_U08; break;
+						case QB_LT_U16_U16_I32:	new_opcode = QB_IF_LT_U16_U16; break;
+						case QB_LT_U32_U32_I32:	new_opcode = QB_IF_LT_U32_U32; break;
+						case QB_LT_U64_U64_I32:	new_opcode = QB_IF_LT_U64_U64; break;
+						case QB_LT_F32_F32_I32: new_opcode = QB_IF_LT_F32_F32; break;
+						case QB_LT_F64_F64_I32: new_opcode = QB_IF_LT_F64_F64; break;
+
+						case QB_LE_S08_S08_I32:	new_opcode = QB_IF_LE_S08_S08; break;
+						case QB_LE_S16_S16_I32:	new_opcode = QB_IF_LE_S16_S16; break;
+						case QB_LE_S32_S32_I32:	new_opcode = QB_IF_LE_S32_S32; break;
+						case QB_LE_S64_S64_I32:	new_opcode = QB_IF_LE_S64_S64; break;
+						case QB_LE_U08_U08_I32:	new_opcode = QB_IF_LE_U08_U08; break;
+						case QB_LE_U16_U16_I32:	new_opcode = QB_IF_LE_U16_U16; break;
+						case QB_LE_U32_U32_I32:	new_opcode = QB_IF_LE_U32_U32; break;
+						case QB_LE_U64_U64_I32:	new_opcode = QB_IF_LE_U64_U64; break;
+						case QB_LE_F32_F32_I32: new_opcode = QB_IF_LE_F32_F32; break;
+						case QB_LE_F64_F64_I32: new_opcode = QB_IF_LE_F64_F64; break;
+						default: break;
+					}
+					if(new_opcode) {
+						// swap the jump targets if it was branching on false
+						if(qop->opcode == QB_IF_F_I32) {
+							uint32_t temp = qop->jump_target_indices[0];
+							qop->jump_target_indices[0] = qop->jump_target_indices[1];
+							qop->jump_target_indices[1] = temp;
+						}
+
+						// transfer the jump targets to the previous op and make the current one NOP
+						prev_qop->opcode = new_opcode;
+						prev_qop->flags |= QB_OP_JUMP;
+						prev_qop->jump_target_indices = qop->jump_target_indices;
+						prev_qop->jump_target_count = qop->jump_target_count;
+						qop->opcode = QB_NOP;
+
+						return TRUE;
+					}
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+static void ZEND_FASTCALL qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t index) {
+	qb_op *qop = cxt->ops[index];
+
+	if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && (TEMPORARY(qop->operands[2].address))) {
+		qb_op *next_qop = qb_get_next_op(cxt, index);
+
+		if(next_qop && next_qop->operand_count == 3 && !(next_qop->flags & QB_OP_JUMP)) {
+			if(next_qop->operands[0].address == qop->operands[2].address || next_qop->operands[1].address == qop->operands[2].address) {
+				qb_opcode new_opcode = 0;
+				if((qop->opcode == QB_MUL_S32_S32_S32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
+					new_opcode = QB_MAC_S32_S32_S32_S32;
+				} else if((qop->opcode == QB_MUL_S64_S64_S64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
+					new_opcode = QB_MAC_S64_S64_S64_S64;
+				} else if((qop->opcode == QB_MUL_U32_U32_U32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
+					// the temporary variable could be reused in a foreach-list construct
+					// should come up with a cleaner way to deal with this
+					int32_t reused = FALSE;
+					uint32_t k, qop_checked;
+					for(k = index + 2, qop_checked = 0; k < cxt->op_count - 1 && qop_checked <= 3; k++) {
+						qb_op *qop_ahead = cxt->ops[k];
+						if(qop_ahead->opcode != QB_NOP) {
+							if(!(qop_ahead->flags & QB_OP_JUMP)) {
+								if(qop_ahead->operand_count == 3 && qop_ahead->operands[1].address == qop->operands[2].address) {
+									// an add
+									reused = TRUE;
+									break;
+								} else if(qop_ahead->operand_count == 2 && qop_ahead->operands[0].address->array_index_address == qop->operands[2].address) {
+									// an array element to variable assignment
+									reused = TRUE;
+									break;
+								} else if(qop_ahead->operands[qop_ahead->operand_count - 1].address == qop->operands[2].address) {
+									break;
+								}
+							}
+							qop_checked++;
+						}
+					}
+					if(!reused) {
+						new_opcode = QB_MAC_U32_U32_U32_U32;
+					}
+				} else if((qop->opcode == QB_MUL_U64_U64_U64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
+					new_opcode = QB_MAC_U64_U64_U64_U64;
+				} else if((qop->opcode == QB_MUL_F32_F32_F32) && (next_qop->opcode == QB_ADD_F32_F32_F32)) {
+					new_opcode = QB_MAC_F32_F32_F32_F32;
+				} else if((qop->opcode == QB_MUL_F64_F64_F64) && (next_qop->opcode == QB_ADD_F64_F64_F64)) {
+					new_opcode = QB_MAC_F64_F64_F64_F64;
+				} else if((qop->opcode == QB_MUL_2X_F32_F32_F32) && (next_qop->opcode == QB_ADD_2X_F32_F32_F32)) {
+					new_opcode = QB_MAC_2X_F32_F32_F32_F32;
+				} else if((qop->opcode == QB_MUL_2X_F64_F64_F64) && (next_qop->opcode == QB_ADD_2X_F64_F64_F64)) {
+					new_opcode = QB_MAC_2X_F64_F64_F64_F64;
+				} else if((qop->opcode == QB_MUL_3X_F32_F32_F32) && (next_qop->opcode == QB_ADD_3X_F32_F32_F32)) {
+					new_opcode = QB_MAC_3X_F32_F32_F32_F32;
+				} else if((qop->opcode == QB_MUL_3X_F64_F64_F64) && (next_qop->opcode == QB_ADD_3X_F64_F64_F64)) {
+					new_opcode = QB_MAC_3X_F64_F64_F64_F64;
+				} else if((qop->opcode == QB_MUL_4X_F32_F32_F32) && (next_qop->opcode == QB_ADD_4X_F32_F32_F32)) {
+					new_opcode = QB_MAC_4X_F32_F32_F32_F32;
+				} else if((qop->opcode == QB_MUL_4X_F64_F64_F64) && (next_qop->opcode == QB_ADD_4X_F64_F64_F64)) {
+					new_opcode = QB_MAC_4X_F64_F64_F64_F64;
+				}
+				if(new_opcode) {
+					qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);
+					if(next_qop->operands[0].address == qop->operands[2].address) {
+						new_operands[0] = next_qop->operands[1];
+					} else {
+						new_operands[0] = next_qop->operands[0];
+					}
+					new_operands[1] = qop->operands[0];
+					new_operands[2] = qop->operands[1];
+					new_operands[3] = next_qop->operands[2];
+					qop->operands = new_operands;
+					qop->operand_count = 4;
+					qop->opcode = new_opcode;
+					next_qop->opcode = QB_NOP;
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+static void ZEND_FASTCALL qb_simplify_jump(qb_compiler_context *cxt, uint32_t index) {
+	qb_op *qop = cxt->ops[index];
+
+	if(qop->opcode == QB_JMP) {
+		qb_op *target_qop = qop;
+		uint32_t target_index;
+		uint32_t target_qop_index = index;
+
+		do {
+			// get the index of the target
+			target_index = target_qop->jump_target_indices[0];
+			target_qop_index = qb_get_jump_target_absolute_index(cxt, target_qop_index, target_index);
+
+			// skip over nop's
+			while(cxt->ops[target_qop_index]->opcode == QB_NOP) {
+				target_qop_index++;
+				target_index++;
+			}
+			qop->jump_target_indices[0] = target_index;
+			target_qop = cxt->ops[target_qop_index];
+
+			if(index == target_qop_index) {
+				// shouldn't happen but just in case
+				break;
+			}
+			// if the jump lands on another jump, change the target to that jump's target
+		} while(target_qop->opcode == QB_JMP);
+
+		// if the only thing sitting between the jump and the target
+		// are nop's then eliminate the jump altogether
+		if(target_qop_index > index) {
+			int32_t needed = 0;
+			uint32_t j;
+
+			for(j = index + 1; j < target_qop_index; j++) {
+				if(cxt->ops[j]->opcode != QB_NOP) {
+					needed = TRUE;
+					break;
+				}
+			}
+			if(!needed) {
+				qop->opcode = QB_NOP;
+			}
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 	uint32_t i, j;
 	if(pass == 1) {
 		// opcodes are not address mode specific at this point
 		// the last op is always RET: there's no need to scan it
 		for(i = 0; i < cxt->op_count - 1; i++) {
-			qb_op *qop = cxt->ops[i];
-
-			if(qop->opcode == QB_IF_T_I32 || qop->opcode == QB_IF_F_I32) {
-				qb_address *condition_address = qop->operands[2].address;
-
-				// don't fuse the instructions if the condition is going to be reused (in a short-circuited expression)
-				if(TEMPORARY(condition_address) && !(condition_address->flags & QB_ADDRESS_REUSED)) {
-					qb_op *prev_qop = NULL;
-					for(j = i; j > 0; j--) {
-						prev_qop = cxt->ops[j - 1];
-						if(prev_qop->opcode != QB_NOP) {
-							break;
-						}
-					}
-
-					if(prev_qop && prev_qop->operand_count == 3 && prev_qop->operands[2].address == condition_address) {
-						qb_opcode new_opcode = 0;
-						int32_t on_true = (qop->opcode == QB_IF_T_I32);
-
-						// combine the comparison op with the branch op
-						// (only if no arrays are involved since the combined instructions aren't implemented for them)
-						if(!qb_find_array_address(prev_qop)) {
-							// TODO: get rid of this switch loop
-							switch(prev_qop->opcode) {
-								case QB_EQ_I08_I08_I32:	new_opcode = (on_true) ? QB_IF_EQ_I08_I08 : QB_IF_NE_I08_I08; break;
-								case QB_EQ_I16_I16_I32:	new_opcode = (on_true) ? QB_IF_EQ_I16_I16 : QB_IF_NE_I16_I16; break;
-								case QB_EQ_I32_I32_I32:	new_opcode = (on_true) ? QB_IF_EQ_I32_I32 : QB_IF_NE_I32_I32; break;
-								case QB_EQ_I64_I64_I32:	new_opcode = (on_true) ? QB_IF_EQ_I64_I64 : QB_IF_NE_I64_I64; break;
-								case QB_EQ_F32_F32_I32: new_opcode = (on_true) ? QB_IF_EQ_F32_F32 : QB_IF_NE_F32_F32; break;
-								case QB_EQ_F64_F64_I32: new_opcode = (on_true) ? QB_IF_EQ_F64_F64 : QB_IF_NE_F64_F64; break;
-
-								case QB_NE_I08_I08_I32:	new_opcode = (on_true) ? QB_IF_NE_I08_I08 : QB_IF_EQ_I08_I08; break;
-								case QB_NE_I16_I16_I32:	new_opcode = (on_true) ? QB_IF_NE_I16_I16 : QB_IF_EQ_I16_I16; break;
-								case QB_NE_I32_I32_I32:	new_opcode = (on_true) ? QB_IF_NE_I32_I32 : QB_IF_EQ_I32_I32; break;
-								case QB_NE_I64_I64_I32:	new_opcode = (on_true) ? QB_IF_NE_I64_I64 : QB_IF_EQ_I64_I64; break;
-								case QB_NE_F32_F32_I32: new_opcode = (on_true) ? QB_IF_NE_F32_F32 : QB_IF_EQ_F32_F32; break;
-								case QB_NE_F64_F64_I32: new_opcode = (on_true) ? QB_IF_NE_F64_F64 : QB_IF_EQ_F64_F64; break;
-
-								case QB_LT_S08_S08_I32:	new_opcode = (on_true) ? QB_IF_LT_S08_S08 : QB_IF_GE_S08_S08; break;
-								case QB_LT_S16_S16_I32:	new_opcode = (on_true) ? QB_IF_LT_S16_S16 : QB_IF_GE_S16_S16; break;
-								case QB_LT_S32_S32_I32:	new_opcode = (on_true) ? QB_IF_LT_S32_S32 : QB_IF_GE_S32_S32; break;
-								case QB_LT_S64_S64_I32:	new_opcode = (on_true) ? QB_IF_LT_S64_S64 : QB_IF_GE_S64_S64; break;
-								case QB_LT_U08_U08_I32:	new_opcode = (on_true) ? QB_IF_LT_U08_U08 : QB_IF_GE_U08_U08; break;
-								case QB_LT_U16_U16_I32:	new_opcode = (on_true) ? QB_IF_LT_U16_U16 : QB_IF_GE_U16_U16; break;
-								case QB_LT_U32_U32_I32:	new_opcode = (on_true) ? QB_IF_LT_U32_U32 : QB_IF_GE_U32_U32; break;
-								case QB_LT_U64_U64_I32:	new_opcode = (on_true) ? QB_IF_LT_U64_U64 : QB_IF_GE_U64_U64; break;
-								case QB_LT_F32_F32_I32: new_opcode = (on_true) ? QB_IF_LT_F32_F32 : QB_IF_GE_F32_F32; break;
-								case QB_LT_F64_F64_I32: new_opcode = (on_true) ? QB_IF_LT_F64_F64 : QB_IF_GE_F64_F64; break;
-
-								case QB_LE_S08_S08_I32:	new_opcode = (on_true) ? QB_IF_LE_S08_S08 : QB_IF_GT_S08_S08; break;
-								case QB_LE_S16_S16_I32:	new_opcode = (on_true) ? QB_IF_LE_S16_S16 : QB_IF_GT_S16_S16; break;
-								case QB_LE_S32_S32_I32:	new_opcode = (on_true) ? QB_IF_LE_S32_S32 : QB_IF_GT_S32_S32; break;
-								case QB_LE_S64_S64_I32:	new_opcode = (on_true) ? QB_IF_LE_S64_S64 : QB_IF_GT_S64_S64; break;
-								case QB_LE_U08_U08_I32:	new_opcode = (on_true) ? QB_IF_LE_U08_U08 : QB_IF_GT_U08_U08; break;
-								case QB_LE_U16_U16_I32:	new_opcode = (on_true) ? QB_IF_LE_U16_U16 : QB_IF_GT_U16_U16; break;
-								case QB_LE_U32_U32_I32:	new_opcode = (on_true) ? QB_IF_LE_U32_U32 : QB_IF_GT_U32_U32; break;
-								case QB_LE_U64_U64_I32:	new_opcode = (on_true) ? QB_IF_LE_U64_U64 : QB_IF_GT_U64_U64; break;
-								case QB_LE_F32_F32_I32: new_opcode = (on_true) ? QB_IF_LE_F32_F32 : QB_IF_GT_F32_F32; break;
-								case QB_LE_F64_F64_I32: new_opcode = (on_true) ? QB_IF_LE_F64_F64 : QB_IF_GT_F64_F64; break;
-								default: break;
-							}
-							if(new_opcode) {
-								qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);
-								new_operands[0].jump_target_index = qop->operands[0].jump_target_index;
-								new_operands[0].type = QB_OPERAND_JUMP_TARGET;
-								new_operands[1].jump_target_index = qop->operands[1].jump_target_index;
-								new_operands[1].type = QB_OPERAND_JUMP_TARGET;
-								new_operands[2].address = prev_qop->operands[0].address;
-								new_operands[2].type = QB_OPERAND_ADDRESS;
-								new_operands[3].address = prev_qop->operands[1].address;
-								new_operands[3].type = QB_OPERAND_ADDRESS;
-								prev_qop->operands = new_operands;
-								prev_qop->operand_count = 4;
-								prev_qop->opcode = new_opcode;
-								prev_qop->flags |= QB_OP_JUMP;
-
-								qop->opcode = QB_NOP;
-							}
-						}
-					}
-				}
-			} else {
-				if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && (TEMPORARY(qop->operands[2].address))) {
-					qb_op *next_qop = cxt->ops[i + 1];					
-					if(next_qop->operand_count == 3 && !(next_qop->flags & QB_OP_JUMP) && (next_qop->operands[0].address == qop->operands[2].address || next_qop->operands[1].address == qop->operands[2].address)) {
-						qb_opcode new_opcode = 0;
-						if((qop->opcode == QB_MUL_S32_S32_S32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
-							new_opcode = QB_MAC_S32_S32_S32_S32;
-						} else if((qop->opcode == QB_MUL_S64_S64_S64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
-							new_opcode = QB_MAC_S64_S64_S64_S64;
-						} else if((qop->opcode == QB_MUL_U32_U32_U32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
-							// the temporary variable could be reused in a foreach-list construct
-							// should come up with a cleaner way to deal with this
-							int32_t reused = FALSE;
-							uint32_t k, qop_checked;
-							for(k = i + 2, qop_checked = 0; k < cxt->op_count - 1 && qop_checked <= 3; k++) {
-								qb_op *qop_ahead = cxt->ops[k];
-								if(qop_ahead->opcode != QB_NOP) {
-									if(!(qop_ahead->flags & QB_OP_JUMP)) {
-										if(qop_ahead->operand_count == 3 && qop_ahead->operands[1].address == qop->operands[2].address) {
-											// an add
-											reused = TRUE;
-											break;
-										} else if(qop_ahead->operand_count == 2 && qop_ahead->operands[0].address->array_index_address == qop->operands[2].address) {
-											// an array element to variable assignment
-											reused = TRUE;
-											break;
-										} else if(qop_ahead->operands[qop_ahead->operand_count - 1].address == qop->operands[2].address) {
-											break;
-										}
-									}
-									qop_checked++;
-								}
-							}
-							if(!reused) {
-								new_opcode = QB_MAC_U32_U32_U32_U32;
-							}
-						} else if((qop->opcode == QB_MUL_U64_U64_U64) && (next_qop->opcode == QB_ADD_I64_I64_I64)) {
-							new_opcode = QB_MAC_U64_U64_U64_U64;
-						} else if((qop->opcode == QB_MUL_F32_F32_F32) && (next_qop->opcode == QB_ADD_F32_F32_F32)) {
-							new_opcode = QB_MAC_F32_F32_F32_F32;
-						} else if((qop->opcode == QB_MUL_F64_F64_F64) && (next_qop->opcode == QB_ADD_F64_F64_F64)) {
-							new_opcode = QB_MAC_F64_F64_F64_F64;
-						} else if((qop->opcode == QB_MUL_2X_F32_F32_F32) && (next_qop->opcode == QB_ADD_2X_F32_F32_F32)) {
-							new_opcode = QB_MAC_2X_F32_F32_F32_F32;
-						} else if((qop->opcode == QB_MUL_2X_F64_F64_F64) && (next_qop->opcode == QB_ADD_2X_F64_F64_F64)) {
-							new_opcode = QB_MAC_2X_F64_F64_F64_F64;
-						} else if((qop->opcode == QB_MUL_3X_F32_F32_F32) && (next_qop->opcode == QB_ADD_3X_F32_F32_F32)) {
-							new_opcode = QB_MAC_3X_F32_F32_F32_F32;
-						} else if((qop->opcode == QB_MUL_3X_F64_F64_F64) && (next_qop->opcode == QB_ADD_3X_F64_F64_F64)) {
-							new_opcode = QB_MAC_3X_F64_F64_F64_F64;
-						} else if((qop->opcode == QB_MUL_4X_F32_F32_F32) && (next_qop->opcode == QB_ADD_4X_F32_F32_F32)) {
-							new_opcode = QB_MAC_4X_F32_F32_F32_F32;
-						} else if((qop->opcode == QB_MUL_4X_F64_F64_F64) && (next_qop->opcode == QB_ADD_4X_F64_F64_F64)) {
-							new_opcode = QB_MAC_4X_F64_F64_F64_F64;
-						}
-						if(new_opcode) {
-							qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);
-							if(next_qop->operands[0].address == qop->operands[2].address) {
-								new_operands[0] = next_qop->operands[1];
-							} else {
-								new_operands[0] = next_qop->operands[0];
-							}
-							new_operands[1] = qop->operands[0];
-							new_operands[2] = qop->operands[1];
-							new_operands[3] = next_qop->operands[2];
-							qop->operands = new_operands;
-							qop->operand_count = 4;
-							qop->opcode = new_opcode;
-							next_qop->opcode = QB_NOP;
-						}
-					}
-				}
+			if(qb_fuse_conditional_branch(cxt, i)) {
+				continue;
+			} 
+			if(qb_fuse_multiply_accumulate(cxt, i)) {
+				continue;
 			}
-		}
-		for(i = 0; i < cxt->op_count; i++) {
-			qb_op *qop = cxt->ops[i];
-
-			if(qop->opcode == QB_JMP) {
-				uint32_t target_qop_index = qb_get_jump_target_absolute_index(cxt, i, qop->operands[0].jump_target_index);
-
-				// skip over nop's
-				while(cxt->ops[target_qop_index]->opcode == QB_NOP) {
-					target_qop_index++;
-				}
-				// if the jump lands on another jump, change the target to that jump's target
-				while(cxt->ops[target_qop_index]->opcode == QB_JMP) {
-					uint32_t target_index = cxt->ops[target_qop_index]->operands[0].jump_target_index;
-					qop->operands[0].jump_target_index = target_index;
-					target_qop_index = qb_get_jump_target_absolute_index(cxt, target_qop_index, target_index);
-				}
-
-				// if the only thing sitting between the jump and the target
-				// are nop's then eliminate the jump altogether
-				if(target_qop_index > i) {
-					int32_t needed = 0;
-					uint32_t j;
-
-					for(j = i + 1; j < target_qop_index; j++) {
-						if(cxt->ops[j]->opcode != QB_NOP) {
-							needed = TRUE;
-							break;
-						}
-					}
-					if(!needed) {
-						qop->opcode = QB_NOP;
-					}
-				}
-			}
+			qb_simplify_jump(cxt, i);
 		}
 	} else if(pass == 2) {
 		// opcodes are address mode specific here
@@ -2700,23 +2741,16 @@ static uint32_t ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cx
 	return instruction_offset;
 }
 
-static void ZEND_FASTCALL qb_encode_address(qb_compiler_context *cxt, qb_address *address, uint32_t address_mode, int8_t **p_ip) {
-	switch(address_mode) {
-		case QB_ADDRESS_MODE_VAR: {
+static void ZEND_FASTCALL qb_encode_address(qb_compiler_context *cxt, qb_address *address, int8_t **p_ip) {
+	switch(address->mode) {
+		case QB_ADDRESS_MODE_SCA: {
 			uint32_t index, operand;
 
 			index = address->segment_offset >> type_size_shifts[address->type];
 			operand = index;
 			*((uint32_t *) *p_ip) = operand; *p_ip += sizeof(uint32_t);
 		}	break;
-		case QB_ADDRESS_MODE_ELC: {
-			uint32_t index, operand;
-
-			index = address->segment_offset >> type_size_shifts[address->type];
-			operand = (index << 8) | address->segment_selector;
-			*((uint32_t *) *p_ip) = operand; *p_ip += sizeof(uint32_t);
-		}	break;
-		case QB_ADDRESS_MODE_ELV: {
+		case QB_ADDRESS_MODE_ELE: {
 			uint32_t index_index, operand;
 			qb_address *index_address;
 
@@ -2834,57 +2868,11 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 				qb_operand *operand = &qop->operands[j];
 
 				switch(operand->type) {
-					case QB_OPERAND_ADDRESS_VAR: {
-						qb_encode_address(cxt, operand->address, QB_ADDRESS_MODE_VAR, &ip);
-					}	break;
-					case QB_OPERAND_ADDRESS_ELC: {
-						qb_encode_address(cxt, operand->address, QB_ADDRESS_MODE_ELC, &ip);
-					}	break;
-					case QB_OPERAND_ADDRESS_ELV: {
-						qb_encode_address(cxt, operand->address, QB_ADDRESS_MODE_ELV, &ip);
-					}	break;
-					case QB_OPERAND_ADDRESS_ARR: {
-						qb_encode_address(cxt, operand->address, QB_ADDRESS_MODE_ARR, &ip);
-					}	break;
-					case QB_OPERAND_ADDRESS_EXT_VAR: {
-						// the extended operand types are used for function calls, when we need 
-						// specify the type and other attributes 
-						qb_encode_address_attributes(cxt, operand->address, &ip);
-						qb_encode_address(cxt, operand->address, QB_ADDRESS_MODE_VAR, &ip);
-					}	break;
-					case QB_OPERAND_ADDRESS_EXT_ELV: {
-						qb_encode_address_attributes(cxt, operand->address, &ip);
-						qb_encode_address(cxt, operand->address, QB_ADDRESS_MODE_ELV, &ip);
-					}	break;
-					case QB_OPERAND_ADDRESS_EXT_ARR: {
-						qb_encode_address_attributes(cxt, operand->address, &ip);
-						qb_encode_address(cxt, operand->address, QB_ADDRESS_MODE_ARR, &ip);
-						// encode the flags and addresses of each dimension
-						for(k = 0; k < operand->address->dimension_count; k++) {
-							qb_address *dimension_address = operand->address->dimension_addresses[k];
-							qb_address *size_address = operand->address->array_size_addresses[k];
-							qb_encode_address_attributes(cxt, dimension_address, &ip);
-							qb_encode_address(cxt, dimension_address, QB_ADDRESS_MODE_VAR, &ip);
-							qb_encode_address(cxt, size_address, QB_ADDRESS_MODE_VAR, &ip);
-						}
-					}	break;
-					case QB_OPERAND_TOTAL_LENGTH: {
-						*((uint16_t *) ip) = operand->operand_size; ip += sizeof(uint16_t);
-					}	break;
-					case QB_OPERAND_ARGUMENT_COUNT: {
-						*((uint16_t *) ip) = operand->argument_count; ip += sizeof(uint16_t);
-						if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
-							*((uint32_t *) ip) = qop->line_number; ip += sizeof(uint32_t);
-						}
-					}	break;
 					case QB_OPERAND_EXTERNAL_SYMBOL: {
 						*((uint32_t *) ip) = operand->symbol_index; ip += sizeof(uint32_t);
 					}	break;
-					case QB_OPERAND_JUMP_TARGET: {
-						qb_encode_jump_target(cxt, operand->jump_target_index, i, &ip);
-					}	break;
 					case QB_OPERAND_ADDRESS: {
-						qb_abort("unresolved address");
+						qb_encode_address(cxt, operand->address, &ip);
 					}	break;
 					default: {
 						qb_abort("unknown operand type: %d", operand->type);
@@ -2944,11 +2932,12 @@ static void ZEND_FASTCALL qb_relocate_instruction_range(qb_compiler_context *cxt
 			uintptr_t *p_instruction_pointer = (uintptr_t *) ip;
 			uintptr_t offset = *p_instruction_pointer;
 			uintptr_t target_address = base_address + offset;
+			uint32_t jump_target_count = (op_flags & QB_OP_BRANCH) ? 2 : 1;
 			*p_instruction_pointer = target_address;
 			ip += sizeof(uintptr_t);
 
 			// if other jump targets follow, perform relocation and branch to each of them
-			for(i = 1; (operand_flags = qb_get_operand_flags(cxt, current_opcode, i)); i++) {
+			for(i = 0; i < jump_target_count; i++) {
 				if((operand_flags & 0x07) == QB_OPERAND_JUMP_TARGET) {
 					uintptr_t *p_next_handler_alt = (uintptr_t *) ip;
 					uintptr_t *p_instruction_pointer_alt = (uintptr_t *) (ip + sizeof(uintptr_t));
@@ -2967,10 +2956,6 @@ static void ZEND_FASTCALL qb_relocate_instruction_range(qb_compiler_context *cxt
 					if(next_opcode_alt != QB_RET) {
 						qb_relocate_instruction_range(cxt, ip_base, (int8_t *) target_address_alt, ip_end, next_opcode_alt);
 					}
-				} else {
-					// jump targets are always encoded ahead of other operands
-					// no need to continue
-					break;
 				}
 			}
 
@@ -2978,18 +2963,14 @@ static void ZEND_FASTCALL qb_relocate_instruction_range(qb_compiler_context *cxt
 			ip = (int8_t *) target_address;
 		} else {
 			// nothing to relocation; just hop over the operands
+			uint32_t instriction_length;
 			if(op_flags & QB_OP_VARIABLE_LENGTH) {
-				uint16_t *p_total_operand_length = (uint16_t *) ip;
-				uint16_t total_operand_length = *p_total_operand_length;
-				ip += total_operand_length;
+				uint16_t *p_instriction_length = (uint16_t *) ip;
+				instriction_length = *p_instriction_length;
 			} else {
-				for(i = 0; (operand_flags = qb_get_operand_flags(cxt, current_opcode, i)); i++) {
-					ip += sizeof(uint32_t);
-				}
-				if(op_flags & QB_OP_NEED_LINE_NUMBER) {
-					ip += sizeof(uint32_t);
-				}
+				instriction_length = qb_get_instruction_length(cxt, current_opcode);
 			}
+			ip += instriction_length;
 		}
 		if(next_opcode != QB_RET) {
 			current_opcode = next_opcode;
@@ -3110,7 +3091,7 @@ static uint8_t * ZEND_FASTCALL qb_copy_address(qb_address *address, uint8_t *mem
 	dst->dimension_count = src->dimension_count;
 
 	if(SCALAR(src)) {
-		dst->mode = QB_ADDRESS_MODE_VAR;
+		dst->mode = QB_ADDRESS_MODE_SCA;
 	} else {
 		uint32_t i, j;
 		if(src->dimension_count > 1) {
@@ -3737,21 +3718,7 @@ static void ZEND_FASTCALL qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint
 		qb_operand *operand = &qop->operands[i];
 		switch(operand->type) {
 			case QB_OPERAND_ADDRESS:
-			case QB_OPERAND_ADDRESS_VAR:
-			case QB_OPERAND_ADDRESS_ELC:
-			case QB_OPERAND_ADDRESS_ELV:
-			case QB_OPERAND_ADDRESS_ARR: {
 				qb_print_address(cxt, operand->address, FALSE);
-			}	break;
-			case QB_OPERAND_JUMP_TARGET: {
-				uint32_t target_qop_index = qb_get_jump_target_absolute_index(cxt, index, operand->jump_target_index);
-				php_printf("[%04d]", target_qop_index);
-			}	break;
-			case QB_OPERAND_ARGUMENT_COUNT: {
-				php_printf("{args: %d}", operand->argument_count);
-			}	break;
-			case QB_OPERAND_TOTAL_LENGTH: {
-				php_printf("{len: %d}", operand->operand_size);
 			}	break;
 			case QB_OPERAND_EXTERNAL_SYMBOL: {
 				qb_external_symbol *symbol = &cxt->external_symbols[operand->symbol_index];

@@ -1162,13 +1162,7 @@ class CodeGenerator {
 			$this->handlers[] = new BranchOnLessThan("IF_LT", $elementType, $addressMode);
 		}
 		foreach($this->scalarAddressModes as $addressMode) {
-			$this->handlers[] = new BranchOnGreaterThan("IF_GT", $elementType, $addressMode);
-		}
-		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new BranchOnLessThanOrEqual("IF_LE", $elementType, $addressMode);
-		}
-		foreach($this->scalarAddressModes as $addressMode) {
-			$this->handlers[] = new BranchOnGreaterThanOrEqual("IF_GE", $elementType, $addressMode);
 		}
 	}
 

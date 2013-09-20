@@ -101,6 +101,7 @@ struct qb_operand {
 		zend_class_entry *zend_class;
 		qb_array_initializer *array_initializer;
 		qb_result_prototype *result_prototype;
+		void *generic_pointer;
 	};
 };
 

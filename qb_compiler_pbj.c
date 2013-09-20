@@ -466,7 +466,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_channel_address(qb_compiler_cont
 			channel_address->array_size_addresses =
 			channel_address->dimension_addresses = &channel_address->array_size_address;
 		} else {
-			channel_address->mode = QB_ADDRESS_MODE_VAR;
+			channel_address->mode = QB_ADDRESS_MODE_SCA;
 		}
 		// indicate that the register is accessed in this manner
 		reg->channel_usage |= (1 << access_type);

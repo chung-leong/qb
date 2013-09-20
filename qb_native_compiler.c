@@ -997,7 +997,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 							qb_printf(cxt, "#define res_ptr	&res\n");
 						} else {
 							qb_printf(cxt, "#define op%d	%s\n", operand_number, scalar);
-							if(qop->flags & QB_OP_ISSET && operand_address_mode == QB_ADDRESS_MODE_ELV) {
+							if(qop->flags & QB_OP_ISSET && operand_address_mode == QB_ADDRESS_MODE_ELE) {
 								qb_printf(cxt, "#define op%d_ptr	((%s *) isset_pointer)\n", operand_number, type_cnames[address->type]);
 							} else {
 								qb_printf(cxt, "#define op%d_ptr	&op%d\n", operand_number, operand_number);
@@ -1090,7 +1090,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 								// unset the array
 								qb_print_segment_shrinkage(cxt, address);
 							}
-						} else if(operand_address_mode == QB_ADDRESS_MODE_ELC || operand_address_mode == QB_ADDRESS_MODE_ELV) {
+						} else if(operand_address_mode == QB_ADDRESS_MODE_ELE) {
 							if(!(qop->flags & QB_OP_UNSET)) {
 								if(!qb_is_always_in_bound(cxt, container, address, 0)) {
 									if(EXPANDABLE_ARRAY(container)) {
@@ -1110,7 +1110,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 							if(!qb_is_always_in_bound(cxt, container, address, 0)) {
 								qb_print_segment_bound_check(cxt, address, NULL);
 							}
-						} else if(address->mode == QB_ADDRESS_MODE_ELC || address->mode == QB_ADDRESS_MODE_ELV) {
+						} else if(address->mode == QB_ADDRESS_MODE_ELE) {
 							if(!(qop->flags & QB_OP_ISSET)) {
 								if(!qb_is_always_in_bound(cxt, container, address, 0)) {
 									qb_print_segment_bound_check(cxt, address, NULL);
