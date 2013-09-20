@@ -179,7 +179,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 
 		if(dimension_address->flags & QB_ADDRESS_CONSTANT) {
 			if(dimension > dimension_expected) {
-				if(address->dimension_count > 1 && IS_FIXED_LENGTH_ARRAY(address)) {
+				if(address->dimension_count > 1 && FIXED_LENGTH_ARRAY(address)) {
 					// maybe we're trying to initialize a multidimensional array with a linear array
 					if(qb_is_linear_zval_array(cxt, zvalue)) {
 						uint32_t array_size = Z_ARRVAL_P(zvalue)->nNextFreeElement;
@@ -271,7 +271,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 
 static void ZEND_FASTCALL qb_initialize_value(qb_interpreter_context *cxt, qb_address *address) {
 	uint32_t byte_count;
-	if(IS_SCALAR(address)) {
+	if(SCALAR(address)) {
 		byte_count = BYTE_COUNT(1, address->type);
 	} else {
 		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
@@ -290,8 +290,8 @@ static void ZEND_FASTCALL qb_initialize_value(qb_interpreter_context *cxt, qb_ad
 }
 
 static void ZEND_FASTCALL qb_copy_elements_from_caller_address(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address) {
-	uint32_t src_element_count = IS_SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
-	uint32_t dst_element_count = IS_SCALAR(address) ? 1 : ARRAY_SIZE(address);
+	uint32_t src_element_count = SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
+	uint32_t dst_element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
 	qb_copy_elements(caller_address->type, ARRAY_IN(caller_storage, I08, caller_address), src_element_count, address->type, ARRAY(I08, address), dst_element_count);
 }
 
@@ -653,7 +653,7 @@ NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_mem
 						problem_variable = qvar;
 						break;
 					} else {
-						uint32_t length = IS_SCALAR(qvar->address) ? 1 : ARRAY_SIZE_IN(storage, qvar->address);
+						uint32_t length = SCALAR(qvar->address) ? 1 : ARRAY_SIZE_IN(storage, qvar->address);
 						base_index = ELEMENT_COUNT(qvar->address->segment_offset, qvar->address->type);
 						if(base_index <= index && index < base_index + length) {
 							problem_variable = qvar;
@@ -669,7 +669,7 @@ NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_mem
 	if(problem_variable) {
 		uint32_t max_index = index + count - base_index - 1;
 		const char *var_name = (problem_variable->name) ? problem_variable->name : "(return value)";
-		if(IS_SCALAR(problem_variable->address)) {
+		if(SCALAR(problem_variable->address)) {
 			qb_abort("Array index %d is beyond the range of a scalar: %s", max_index, var_name);
 		} else {
 			qb_abort("Array index %d is out of range: %s", max_index, var_name);
@@ -690,7 +690,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 	uint32_t element_start_index = ELEMENT_COUNT(address->segment_offset, address->type);
 
-	if(IS_SCALAR(address)) {
+	if(SCALAR(address)) {
 		// make sure the address is valid
 		if(address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {			
 			if(element_start_index + 1 > segment->current_allocation) {
@@ -772,7 +772,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 	if(caller_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
 		qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
 		uint32_t caller_element_start_index = BYTE_COUNT(caller_address->segment_offset, caller_address->type);
-		uint32_t caller_element_count = IS_SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
+		uint32_t caller_element_count = SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
 
 		if(caller_element_start_index + caller_element_count > caller_segment->element_count) {
 			if((caller_segment->flags & QB_SEGMENT_EXPANDABLE) && (transfer_flags & QB_TRANSFER_CAN_ENLARGE_SEGMENT)) {
@@ -795,7 +795,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 				// use memory from the caller if it's larger enough
 				if(ARRAY_SIZE_IN(caller_storage, caller_address) >= ARRAY_SIZE(address)) {
 					if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-						if(IS_EXPANDABLE_ARRAY(caller_address)) {
+						if(EXPANDABLE_ARRAY(caller_address)) {
 							qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
 							segment->memory = *segment->stack_ref_memory = caller_segment->memory;
 							segment->stream = caller_segment->stream;
@@ -1181,7 +1181,7 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 }
 
 static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
-	if(IS_SCALAR(address)) {
+	if(SCALAR(address)) {
 		qb_copy_element_to_zval(cxt, address, zvalue);
 	} else {
 		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
@@ -1230,8 +1230,8 @@ static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt,
 }
 
 static void ZEND_FASTCALL qb_copy_elements_to_caller_address(qb_interpreter_context *cxt, qb_address *address, qb_storage *caller_storage, qb_address *caller_address) {
-	uint32_t src_element_count = IS_SCALAR(address) ? 1 : ARRAY_SIZE(address);
-	uint32_t dst_element_count = IS_SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
+	uint32_t src_element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
+	uint32_t dst_element_count = SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
 	qb_copy_elements(address->type, ARRAY(I08, address), src_element_count, caller_address->type, ARRAY_IN(caller_storage, I08, caller_address), dst_element_count);
 }
 
@@ -1263,7 +1263,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 			return;
 		} else {
 			uint32_t element_start_index = ELEMENT_COUNT(caller_address->segment_offset, caller_address->type);
-			uint32_t element_count = IS_SCALAR(address) ? 1 : ARRAY_SIZE(address);
+			uint32_t element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
 
 			if(element_start_index + element_count > caller_segment->element_count) {
 				if(caller_segment->flags & QB_SEGMENT_EXPANDABLE) {
@@ -1295,7 +1295,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_cont
 			}
 			if(!zvalue) {
 				ALLOC_INIT_ZVAL(zvalue);
-				if(!IS_SCALAR(qvar->address)) {
+				if(!SCALAR(qvar->address)) {
 					if(qvar->address->flags & QB_ADDRESS_STRING) {
 						ZVAL_EMPTY_STRING(zvalue);
 					} else {
@@ -1339,7 +1339,7 @@ static void ZEND_FASTCALL qb_transfer_arguments_to_php(qb_interpreter_context *c
 
 	// copy value into return variable
 	if(func->return_variable->address) {
-		if(!IS_SCALAR(func->return_variable->address)) {
+		if(!SCALAR(func->return_variable->address)) {
 			qb_initialize_zval_array(cxt, func->return_variable->address, NULL, retval);
 		}
 		qb_transfer_value_to_zval(cxt, func->return_variable->address, retval);
@@ -1414,7 +1414,7 @@ static zend_class_entry *qb_get_value_type_debug_class(qb_interpreter_context *c
 
 static void ZEND_FASTCALL qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
 	USE_TSRM
-	if(IS_SCALAR(address)) {
+	if(SCALAR(address)) {
 		if(address->flags & QB_ADDRESS_STRING) {
 			zval_dtor(zvalue);
 			ZVAL_STRINGL(zvalue, (char *) ARRAY(I08, address), 1, TRUE);
@@ -2114,7 +2114,7 @@ void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt) {
 			for(i = 0; i < cxt->function->variable_count; i++) {
 				qb_variable *qvar = cxt->function->variables[i];
 				if(qvar->flags & QB_VARIABLE_STATIC) {
-					if(IS_SCALAR(qvar->address)) {
+					if(SCALAR(qvar->address)) {
 						qb_storage *caller_storage = qb_find_previous_storage(cxt, cxt->function);
 						qb_copy_elements_to_caller_address(cxt, qvar->address, caller_storage, qvar->address);
 					}

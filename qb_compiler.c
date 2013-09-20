@@ -164,15 +164,59 @@ static zend_always_inline void qb_add_variable(qb_compiler_context *cxt, qb_vari
 	*p = variable;
 }
 
-extern uint32_t global_op_flags[];
-extern uint32_t global_operand_flags[];
+extern const qb_op_info global_op_info[];
+extern const char *global_operand_codes[];
+extern const uint32_t global_instruction_lengths[];
 
-static zend_always_inline uint32_t qb_get_op_flags(qb_compiler_context *cxt, uint32_t opcode) {
-	return global_op_flags[opcode];
+static uint32_t ZEND_FASTCALL qb_get_op_flags(qb_compiler_context *cxt, uint32_t opcode) {
+	const qb_op_info *op = &global_op_info[opcode];
+	return op->flags;
 }
 
-static zend_always_inline uint32_t qb_get_operand_flags(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_index) {
-	return (global_operand_flags[opcode] >> (operand_index * 4)) & 0x0F;
+static uint32_t ZEND_FASTCALL qb_get_operand_count(qb_compiler_context *cxt, uint32_t opcode) {
+	const qb_op_info *op = &global_op_info[opcode];
+	const char *codes = global_operand_codes[op->format_index];
+	return strlen(codes);
+}
+
+static qb_address_mode ZEND_FASTCALL qb_get_operand_address_mode(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_index) {
+	const qb_op_info *op = &global_op_info[opcode];
+	const char *codes = global_operand_codes[op->format_index];
+	char code = codes[operand_index];
+	switch(code) {
+		case 'S':
+		case 's':
+			return QB_ADDRESS_MODE_SCA;
+			break;
+		case 'E':
+		case 'e':
+			return QB_ADDRESS_MODE_ELE;
+			break;
+		case 'A':
+		case 'a':
+			return QB_ADDRESS_MODE_ARR;
+			break;
+	}
+	return QB_OPERAND_NONE;
+}
+
+static uint32 ZEND_FASTCALL qb_get_instruction_length(qb_compiler_context *cxt, uint32_t opcode) {
+	const qb_op_info *op = &global_op_info[opcode];
+	uint32_t length = global_instruction_lengths[op->format_index];
+	return length;
+}
+
+static int32_t ZEND_FASTCALL qb_is_operand_write_target(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_index) {
+	const qb_op_info *op = &global_op_info[opcode];
+	const char *codes = global_operand_codes[op->format_index];
+	char code = codes[operand_index];
+	switch(code) {
+		case 'S':
+		case 'E':
+		case 'A':
+			return TRUE;
+	}
+	return FALSE;
 }
 
 extern const char compressed_table_op_names[];
@@ -202,16 +246,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_on_demand_value(qb_compiler_context 
 	}
 	address->op_factory = op_factory;
 	return (qb_address *) address;
-}
-
-static uint32_t ZEND_FASTCALL qb_get_operand_count(qb_compiler_context *cxt, uint32_t opcode) {
-	uint32_t operand_count = 0;
-	uint32_t operand_flags = global_operand_flags[opcode];
-	while(operand_flags) {
-		operand_count++;
-		operand_flags >>= 4;
-	}
-	return operand_count;
 }
 
 static void ZEND_FASTCALL qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address) {
@@ -275,7 +309,7 @@ static void ZEND_FASTCALL qb_mark_as_non_local(qb_compiler_context *cxt, qb_addr
 		if(address->source_address) {
 			qb_mark_as_non_local(cxt, address->source_address);
 		}
-		if(IS_EXPANDABLE_ARRAY(address)) {
+		if(EXPANDABLE_ARRAY(address)) {
 			qb_mark_as_non_local(cxt, address->array_size_addresses[0]);
 			qb_mark_as_non_local(cxt, address->dimension_addresses[0]);
 		}
@@ -371,9 +405,17 @@ static void ZEND_FASTCALL qb_validate_address(qb_compiler_context *cxt, qb_addre
 	}
 }
 
-static qb_op * ZEND_FASTCALL qb_append_op(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_count) {
+static qb_op * ZEND_FASTCALL qb_append_op(qb_compiler_context *cxt, uint32_t opcode) {
 	qb_op *op = qb_allocate_op(cxt->pool);
+	uint32_t operand_count = qb_get_operand_count(cxt, opcode);
 	op->flags = qb_get_op_flags(cxt, opcode);
+	if(op->flags & QB_OP_BRANCH) {
+		op->jump_target_count = 2;
+		op->jump_target_indices = qb_allocate_indices(cxt->pool, 2);
+	} else if(op->flags & QB_OP_JUMP) {
+		op->jump_target_count = 1;
+		op->jump_target_indices = qb_allocate_indices(cxt->pool, 1);
+	}
 	op->opcode = opcode;
 	op->operands = qb_allocate_operands(cxt->pool, operand_count);
 	op->operand_count = operand_count;
@@ -437,7 +479,7 @@ static void ZEND_FASTCALL qb_initialize_subarray_address(qb_compiler_context *cx
 }
 
 static void ZEND_FASTCALL qb_initialize_element_address(qb_compiler_context *cxt, qb_address *container_address, qb_address *address) {
-	address->mode = QB_ADDRESS_MODE_ELC;
+	address->mode = QB_ADDRESS_MODE_ELE;
 	address->type = container_address->type;
 	address->flags = container_address->flags & ~QB_ADDRESS_SEGMENT;
 	address->segment_selector = container_address->segment_selector;
@@ -825,7 +867,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_comp
 	for(i = 0; i < cxt->array_count; i++) {
 		qb_address *address = cxt->arrays[i];
 		if((address->flags & QB_ADDRESS_TEMPORARY) && !(address->flags & QB_ADDRESS_IN_USE)) {
-			if(IS_FIXED_LENGTH_ARRAY(address)) {
+			if(FIXED_LENGTH_ARRAY(address)) {
 				if(address->type == element_type) {
 					if(VALUE(U32, address->array_size_address) == element_count) {
 						address->flags &= ~(QB_ADDRESS_STRING | QB_ADDRESS_REUSED | QB_ADDRESS_BOOLEAN);
@@ -944,7 +986,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_c
 	for(i = 0; i < cxt->array_count; i++) {
 		address = cxt->arrays[i];
 		if((address->flags & QB_ADDRESS_TEMPORARY) && !(address->flags & QB_ADDRESS_IN_USE)) {
-			if(IS_EXPANDABLE_ARRAY(address)) {
+			if(EXPANDABLE_ARRAY(address)) {
 				if(address->type == desired_type) {
 					address->flags &= ~(QB_ADDRESS_STRING | QB_ADDRESS_REUSED | QB_ADDRESS_BOOLEAN);
 					/*qb_create_nullary_op(cxt, &factory_unset, address);*/
@@ -1084,7 +1126,7 @@ static uint32_t ZEND_FASTCALL qb_get_array_initializer_dimension_count(qb_compil
 			sub_array_dimension_count = qb_get_array_initializer_dimension_count(cxt, element->array_initializer, element_type);
 		} else if(element->type == QB_OPERAND_ZVAL) {
 			sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, element->constant, element_type);
-		} else if(element->type == QB_OPERAND_ADDRESS && !IS_SCALAR(element->address)) {
+		} else if(element->type == QB_OPERAND_ADDRESS && !SCALAR(element->address)) {
 			sub_array_dimension_count = element->address->dimension_count;
 		} else {
 			continue;
@@ -1116,7 +1158,7 @@ static void ZEND_FASTCALL qb_get_array_initializer_dimensions(qb_compiler_contex
 				qb_get_array_initializer_dimensions(cxt, element->array_initializer, element_type, dimensions + 1, dimension_count - 1);
 			} else if(element->type == QB_OPERAND_ZVAL) {
 				qb_get_zend_array_dimensions(cxt, element->constant, element_type, dimensions + 1, dimension_count - 1);
-			} else if(element->type == QB_OPERAND_ADDRESS && !IS_SCALAR(element->address)) {
+			} else if(element->type == QB_OPERAND_ADDRESS && !SCALAR(element->address)) {
 				for(j = 0; j < element->address->dimension_count; j++) {
 					qb_address *dimension_address = element->address->dimension_addresses[j];
 					uint32_t sub_array_dimension = VALUE(U32, dimension_address);
@@ -1154,7 +1196,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_array_initializer(qb_compiler_co
 		}
 		item_element_count = ARRAY_SIZE(item_address);
 	} else {
-		item_address->mode = QB_ADDRESS_MODE_ELC;
+		item_address->mode = QB_ADDRESS_MODE_ELE;
 		item_element_count = 1;
 	}
 	item_byte_count = BYTE_COUNT(item_element_count, item_address->type);
@@ -1634,7 +1676,7 @@ static void ZEND_FASTCALL qb_initialize_dimensions(qb_compiler_context *cxt, qb_
 				array_size *= VALUE(U32, dimension_address);
 			}
 		}
-		if(IS_EXPANDABLE_ARRAY(address)) {
+		if(EXPANDABLE_ARRAY(address)) {
 			// update the segment flag
 			qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 			segment->flags |= QB_SEGMENT_EXPANDABLE;
@@ -1750,7 +1792,7 @@ static void ZEND_FASTCALL qb_add_variables(qb_compiler_context *cxt) {
 					static_initializer = qb_obtain_zval_constant(cxt, *p_static_value, qvar->address->type);
 				}
 
-				if(IS_VARIABLE_LENGTH_ARRAY(qvar->address)) {
+				if(VARIABLE_LENGTH_ARRAY(qvar->address)) {
 					qb_initialize_dimensions(cxt, static_initializer, qvar->address);
 				}
 				qb_do_static_init(cxt, static_initializer, qvar->address);
@@ -1826,20 +1868,8 @@ static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address 
 			if(prev_qop->operand_count > 0 && prev_qop->operands[prev_qop->operand_count - 1].address == value_address) {
 				// the previous op probably created the value and placed it into the temp var
 				// double check just to be sure
-				uint32_t operand_flags;
-				switch(prev_qop->opcode) {
-					/*
-					case QB_FCALL_VAR:
-					case QB_FCALL_MIX:
-						// function calls employ variable number of operands so qb_get_operand_flags() 
-						// won't tell us anything; we do know that the last operand is the return value
-						operand_flags = QB_OPERAND_WRITABLE;
-						break;
-					*/
-					default:
-						operand_flags = qb_get_operand_flags(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
-				}
-				if(operand_flags & QB_OPERAND_WRITABLE) {
+				int32_t is_write_target = qb_is_operand_write_target(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
+				if(is_write_target) {
 					// we can probably let the previous op write into the variable instead of putting 
 					// the value into the temp var first
 					int32_t substitute = FALSE;
@@ -1852,14 +1882,14 @@ static void ZEND_FASTCALL qb_do_assignment(qb_compiler_context *cxt, qb_address 
 							substitute = TRUE;
 						} else {
 							// in absence of wrap-around handling, the sizes of the two must match
-							if(IS_SCALAR(value_address)) {
-								if(IS_SCALAR(variable_address)) {
+							if(SCALAR(value_address)) {
+								if(SCALAR(variable_address)) {
 									// both are scalars
 									substitute = TRUE;
 								} 
-							} else if(!IS_SCALAR(variable_address)) {
+							} else if(!SCALAR(variable_address)) {
 								// both are arrays--check their sizes
-								if(IS_FIXED_LENGTH_ARRAY(value_address) && IS_FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
+								if(FIXED_LENGTH_ARRAY(value_address) && FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
 									substitute = TRUE;
 								}
 							}
@@ -2013,7 +2043,7 @@ static qb_variable_dimensions *qb_get_variable_length_dimensions(qb_compiler_con
 static qb_variable_dimensions *qb_get_address_dimensions(qb_compiler_context *cxt, qb_address *address) {
 	qb_variable_dimensions *dim = &cxt->result_dimensions;
 
-	if(IS_SCALAR(address)) {
+	if(SCALAR(address)) {
 		dim->array_size = 0;
 		dim->dimension_count = 0;
 	} else {
@@ -2065,7 +2095,7 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 						// the bit pattern is different--need to do a copy
 						qb_variable_dimensions *dim = qb_get_address_dimensions(cxt, operand->address);
 						if(operand->address->flags & QB_ADDRESS_CONSTANT) {
-							uint32_t element_count = IS_SCALAR(operand->address) ? 1 : ARRAY_SIZE(operand->address);
+							uint32_t element_count = SCALAR(operand->address) ? 1 : ARRAY_SIZE(operand->address);
 							new_address = qb_allocate_constant(cxt, desired_type, dim);
 							qb_copy_elements(operand->address->type, ARRAY(I08, operand->address), element_count, new_address->type, ARRAY(I08, new_address), element_count);
 						} else {
@@ -2112,32 +2142,31 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 	}
 }
 
+static qb_address * ZEND_FASTCALL qb_obtain_scalar_value(qb_compiler_context *cxt, qb_address *address) {
+	if(address->mode != QB_ADDRESS_MODE_SCA) {
+		// need to copy the value to a temporary variable first
+		qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
+		qb_create_unary_op(cxt, &factory_copy, offset_address, new_address);
+		return new_address;
+	}
+	return address;
+}
+
 static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address) {
 	qb_address *slice_address, *element_size_address;
 	uint32_t element_size;
 
-	if(IS_SCALAR(container_address)) {
+	if(SCALAR(container_address)) {
 		qb_abort("illegal operation: not an array");
 	}
-	if(!IS_SCALAR(offset_address)) {
+	if(!SCALAR(offset_address)) {
 		qb_abort("cannot use an array as an index");
 	}
-	if(length_address && !IS_SCALAR(length_address)) {
+	if(length_address && !SCALAR(length_address)) {
 		qb_abort("cannot use an array as length");
 	}
-	if(!IS_SCALAR_VARIABLE(offset_address)) {
-		// need to copy the offset value to a temporary variable first
-		qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-		qb_create_unary_op(cxt, &factory_copy, offset_address, new_address);
-		offset_address = new_address;
-	}
-	if(length_address) {
-		if(!IS_SCALAR_VARIABLE(length_address)) {
-			qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-			qb_create_unary_op(cxt, &factory_copy, length_address, new_address);
-			length_address = new_address;
-		}
-	} else {
+
+	if(!length_address) {
 		qb_address *size_address = container_address->dimension_addresses[0];
 		if((offset_address->flags & QB_ADDRESS_CONSTANT) && (size_address->flags & QB_ADDRESS_CONSTANT)) {
 			uint32_t length_value = VALUE(U32, size_address) - VALUE(U32, offset_address);
@@ -2185,7 +2214,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 			qb_create_binary_op(cxt, &factory_add, array_offset_address, offset_address, new_offset_address);
 			offset_address = new_offset_address;
 		}
-		slice_address->array_index_address = offset_address;
+		slice_address->array_index_address = qb_obtain_scalar_value(cxt, offset_address);
 		slice_address->segment_offset = QB_OFFSET_INVALID;
 	}
 	slice_address->dimension_count = container_address->dimension_count;
@@ -2205,11 +2234,11 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 			slice_address->dimension_addresses[i] = container_address->dimension_addresses[i];
 			slice_address->array_size_addresses[i] = container_address->array_size_addresses[i];
 		}
-		slice_address->dimension_addresses[0] = length_address;
+		slice_address->dimension_addresses[0] = qb_obtain_scalar_value(length_address);
 		slice_address->array_size_addresses[0] = slice_address->array_size_address = array_size_address;
 	} else {
 		slice_address->dimension_addresses = slice_address->array_size_addresses = &slice_address->array_size_address;
-		slice_address->array_size_address = length_address;
+		slice_address->array_size_address = qb_obtain_scalar_value(length_address);
 	}
 	slice_address->source_address = container_address;
 	return slice_address;
@@ -2220,14 +2249,14 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 	qb_address *offset_address = NULL;
 	qb_primitive_type element_type = container_address->type;
 
-	if(IS_SCALAR(container_address)) {
+	if(SCALAR(container_address)) {
 		qb_abort("illegal operation: not an array");
 	}
-	if(!IS_SCALAR(index_address)) {
+	if(!SCALAR(index_address)) {
 		qb_abort("cannot use an array as an index");
 	}
 
-	if(!IS_SCALAR_VARIABLE(index_address)) {
+	if(index_address->mode != QB_ADDRESS_MODE_SCA) {
 		// need to copy the index value to a temporary variable first
 		qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
 		qb_do_assignment(cxt, index_address, new_address);
@@ -2283,14 +2312,14 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 	}
 	if(index_address->flags & QB_ADDRESS_CONSTANT) {
 		uint32_t index = VALUE(U32, index_address);
-		if(IS_FIXED_LENGTH_ARRAY(container_address)) {
+		if(FIXED_LENGTH_ARRAY(container_address)) {
 			if(index < ARRAY_SIZE(container_address)) {
 				result_address->flags |= QB_ADDRESS_ALWAYS_IN_BOUND;
 			}
 		}
 		result_address->segment_offset = index << type_size_shifts[element_type];
 		if(result_address->dimension_count == 0) {
-			result_address->mode = QB_ADDRESS_MODE_ELC;
+			result_address->mode = QB_ADDRESS_MODE_SCA;
 		}
 	} else {
 		result_address->segment_offset = QB_OFFSET_INVALID;
@@ -2331,7 +2360,7 @@ static qb_address * ZEND_FASTCALL qb_get_named_element(qb_compiler_context *cxt,
 	uint32_t alias_len = Z_STRLEN_P(name);
 	int32_t index;
 
-	if(IS_SCALAR(container_address)) {
+	if(SCALAR(container_address)) {
 		qb_abort("illegal operation: not an array");
 	}
 	if(!container_address->index_alias_schemes || !container_address->index_alias_schemes[0]) {
@@ -2351,51 +2380,6 @@ static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, u
 	if(qop->opcode > QB_OPCODE_COUNT) {
 		qb_abort("invalid opcode: %d", qop->opcode);
 	} else {
-		uint32_t flags = qb_get_op_flags(cxt, qop->opcode);
-		if(flags & QB_OP_VARIABLE_LENGTH) {
-			if(qop->operands[0].type != QB_OPERAND_TOTAL_LENGTH) {
-				qb_abort("the first operand must be the length of the instruction");
-			}
-		} else {
-			qb_operand *operand;
-			uint32_t i, operand_flags;
-			qb_operand_type operand_type;
-			if(qb_get_operand_count(cxt, qop->opcode) != qop->operand_count) {
-				qb_abort("wrong number of operands: %s", qb_get_op_name(cxt, qop->opcode));
-			}
-			for(i = 0; i < qop->operand_count; i++) {
-				operand = &qop->operands[i];
-				operand_flags = qb_get_operand_flags(cxt, qop->opcode, i);
-				operand_type = operand_flags & 0x07;
-				if(operand->type != operand_type) {
-					qb_abort("operand %d is incorrect: %s", i + 1, qb_get_op_name(cxt, qop->opcode));
-				}
-				if(operand_type == QB_OPERAND_JUMP_TARGET) {
-					uint32_t target_qop_index = qb_get_jump_target_absolute_index(cxt, qop_index, operand->jump_target_index);
-					qb_op *targeted_op;
-					if(target_qop_index >= cxt->op_count) {
-						qb_abort("jump target index is not valid: %s", qb_get_op_name(cxt, qop->opcode));
-					}
-					targeted_op = cxt->ops[target_qop_index];
-					if(target_qop_index != qop_index + 1) {
-						if(!(targeted_op->flags & QB_OP_JUMP_TARGET)) {
-							qb_abort("missing flag on jump target: %s", qb_get_op_name(cxt, qop->opcode));
-						}
-					}
-				} else if(operand_type >= QB_OPERAND_ADDRESS_VAR && operand_type <= QB_OPERAND_ADDRESS_ARR) {
-					qb_validate_address(cxt, operand->address);
-				}
-				if(operand_flags & QB_OPERAND_WRITABLE) {
-					if(operand->address->flags & QB_ADDRESS_READ_ONLY) {
-						// the value of a constant may be set using the interpreter
-						// during constant expression evaluation
-						if(!(operand->address->flags & QB_ADDRESS_CONSTANT)) {
-							qb_abort("write-target is marked read-only: %s", qb_get_op_name(cxt, qop->opcode));
-						}
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -2405,94 +2389,70 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 		qb_op *qop = cxt->ops[i];
 
 		if(qop->opcode != QB_NOP) {
-			uint32_t flags = qb_get_op_flags(cxt, qop->opcode);
-			qb_address_mode operand_address_mode; 
-			qb_operand_type operand_type;
-			uint32_t operand_flags;
-			if(flags & QB_OP_MULTI_ADDRESS) {
-				if(FALSE/*qop->opcode == QB_FCALL*/) {
-					// FCALL can work in one of two manners: either all addresses point to scalar variables
-					// or the addresses point to both scalars or arrays
-					for(j = 3; j < qop->operand_count; j++) {
-						qb_operand *operand = &qop->operands[j];
-						if(operand->address->mode != QB_ADDRESS_MODE_VAR) {
-							qop->opcode = QB_FCALL_MIX;
-							break;
-						}
-					}
-				} else {
-					qb_address_mode required_address_mode = QB_ADDRESS_MODE_VAR;
-					for(j = 0; j < qop->operand_count; j++) {
-						qb_operand *operand = &qop->operands[j];
-						if(operand->type == QB_OPERAND_ADDRESS) {
-							operand_flags = qb_get_operand_flags(cxt, qop->opcode, j);
-							operand_type = operand_flags & 0x07;
-							operand_address_mode = operand_type - 1;
-							if(operand->address->mode > operand_address_mode) {
-								qb_address_mode mode = (operand->address->mode == QB_ADDRESS_MODE_ELC) ? QB_ADDRESS_MODE_ELV : operand->address->mode;
-								if(mode > required_address_mode) {
-									// need use to a higher address mode
-									required_address_mode = mode;
-								}
-							}
-						}
-					}
-					// promote the opcode if necessary and set the type of each operand to what it ought to be;
-					// if the promotion ends up pushing the opcode into the range of a different op altogether,
-					// (for instance, because an array is given whereas the handler expects only scalars), the mistake
-					// will likely trip the address-mode check down below
-					//
-					// note that QB_ADDRESS_MODE_VAR = 0
-					if(required_address_mode) {
-						qop->opcode += required_address_mode;
-					}
-				}
-
-				// get new set of flags
-				flags = qb_get_op_flags(cxt, qop->opcode);
-				qop->flags &= ~0xFF000000;
-				qop->flags |= flags;
-			}
-
-			if(qop->opcode == QB_FCALL_VAR) {
-				for(j = 3; j < qop->operand_count; j++) {
-					qop->operands[j].type = QB_OPERAND_ADDRESS_EXT_VAR;
-				}
-			}
-			if(qop->opcode == QB_FCALL_MIX) {
-				for(j = 3; j < qop->operand_count; j++) {
-					// scalars employ the extended ELV format while arrays use ARR
-					if(IS_SCALAR(qop->operands[j].address)) {
-						qop->operands[j].type = QB_OPERAND_ADDRESS_EXT_ELV;
-					} else {
-						qop->operands[j].type = QB_OPERAND_ADDRESS_EXT_ARR;
-					}
-				}
-			} else {
+			int32_t operands_are_valid = TRUE;
+			uint32_t op_flags = qb_get_op_flags(cxt, qop->opcode);
+			if(op_flags & (QB_OP_VERSION_AVAILABLE_ELE | QB_OP_VERSION_AVAILABLE_MIO)) {
+				qb_address_mode required_address_mode = QB_ADDRESS_MODE_SCA;
 				for(j = 0; j < qop->operand_count; j++) {
 					qb_operand *operand = &qop->operands[j];
 					if(operand->type == QB_OPERAND_ADDRESS) {
-						qb_address_mode mode = (operand->address->mode == QB_ADDRESS_MODE_ELC) ? QB_ADDRESS_MODE_ELV : operand->address->mode;
-						operand_flags = qb_get_operand_flags(cxt, qop->opcode, j);
-						operand_type = operand_flags & 0x07;
-						if(operand_type != QB_OPERAND_NONE) {
-							operand_address_mode = operand_type - 1;
-							// we can only go from VAR > ELC > ELV > ARR (an array cannot be passed as a scalar, for instance)
-							// doing a signed comparison here so that if operand_address_mode is -1 
-							// (i.e. there isn't supposed be an operand), we'd fall into the else
-							if((int32_t) mode <= (int32_t) operand_address_mode) {
-								operand->type = operand_address_mode + 1;
+						qb_adddress_mode operand_address_mode = qb_get_operand_address_mode(cxt, qop->opcode, j);
+						if(operand->address->mode > operand_address_mode) {
+							// need use to a higher address mode
+							required_address_mode = mode;
+						}
+					}
+				}
+
+				if(required_address_mode != QB_ADDRESS_MODE_SCA) {
+					if(required_address_mode == QB_ADDRESS_MODE_ELE) {
+						if(op_flags & QB_OP_VERSION_AVAILABLE_ELE) {
+							// opcode is one away
+							qop->opcode += 1;
+						}
+					} else if(required_address_mode == QB_ADDRESS_MODE_ARR) {
+						if(flags & QB_OP_VERSION_AVAILABLE_MIO) {
+							if(flags & QB_OP_VERSION_AVAILABLE_ELE) {
+								// opcode is two away
+								qop->opcode += 2;
 							} else {
-								// shouldn't really happen at runtime but we'll leave the error check in here just in case
-								const char *op_name = qb_get_op_name(cxt, qop->opcode);
-								cxt->line_number = qop->line_number;
-								qb_abort("invalid operand for %s", op_name);
+								// opcode is just one away
+								qop->opcode += 1;
 							}
 						}
+					}
+					// get new set of flags
+					op_flags = qb_get_op_flags(cxt, qop->opcode);
+					qop->flags = flags | (qop->flags & QB_OP_COMPILE_TIME_FLAGS);
+				}
+			}
+
+			// set the addresses to the correct mode
+			for(j = 0; j < qop->operand_count; j++) {
+				qb_operand *operand = &qop->operands[j];
+				if(operand->type == QB_OPERAND_ADDRESS) {
+					qb_address_mode operand_address_mode = qb_get_operand_address_mode(cxt, qop->opcode, j);
+					if(operand_address_mode != QB_ADDRESS_MODE_UNKNOWN) {
+						if(operand->address->mode != operand_address_mode) {
+							// we can only go from SCA > ELE > ARR (an array cannot be passed as a scalar, for instance)
+							if(operand->address->mode < operand_address_mode) {
+								operand->address->mode = operand_address_mode;
+							} else {
+								operands_are_valid = FALSE;
+							}
+						}
+					} else {
+						operands_are_valid = FALSE;
 					}
 				}
 			}
 
+			if(!operands_are_valid) {
+				// shouldn't happen at runtime but we'll leave the error check in here just in case
+				const char *op_name = qb_get_op_name(cxt, qop->opcode);
+				cxt->line_number = qop->line_number;
+				qb_abort("invalid operands for %s", op_name);
+			}
 #if ZEND_DEBUG
 			qb_validate_op(cxt, qop, i);
 #endif
@@ -2715,43 +2675,14 @@ static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t
 }
 
 static uint32_t ZEND_FASTCALL qb_get_op_encoded_length(qb_compiler_context *cxt, qb_op *qop) {
-	uint32_t length;
-	uint32_t flags = qb_get_op_flags(cxt, qop->opcode);
-	if(flags & QB_OP_JUMP) {
-		// jumping to somewhere, possibly out of the function
-		length = 0;
-	} else {
-		// pointer to the handler of the next instruction
-		length = sizeof(void *);
-	}
-	if(flags & QB_OP_VARIABLE_LENGTH) {
-		length += qop->operands[0].operand_size;
-	} else {
-		// mask out the four high bits used for the op itself
-		uint32_t i, operand_flags;
-		qb_operand_type operand_type;
-		for(i = 0; (operand_flags = qb_get_operand_flags(cxt, qop->opcode, i)); i++) {
-			// 3 bits is used to store the type
-			operand_type = operand_flags & 0x07;
-			if(operand_type == QB_OPERAND_JUMP_TARGET) {
-				// a jump target consists of a pointer to the next handler and a pointer to the next instruction
-				length += sizeof(void *) + sizeof(int8_t *);
-			} else {
-				// it's an memory location otherwise
-				length += sizeof(uint32_t);
-			}
-		}
-		if(flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
-			length += sizeof(uint32_t);
-		}
-		if(flags & QB_OP_NEED_LINE_NUMBER) {
-			length += sizeof(uint32_t);
-		}
+	uint32_t length = qb_get_instruction_length(qop->opcode);
+	if(!length) {
+		// variable-length instruction
 	}
 	return length;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_instruction_length(qb_compiler_context *cxt) {
+static uint32_t ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cxt) {
 	uint32_t instruction_offset, i;
 
 	// determine the offsets of each instruction in the stream
@@ -2764,6 +2695,8 @@ static uint32_t ZEND_FASTCALL qb_get_instruction_length(qb_compiler_context *cxt
 			instruction_offset += instruction_length;
 		}
 	}
+
+	// the final offset also happens to be the total length
 	return instruction_offset;
 }
 
@@ -3053,9 +2986,6 @@ static void ZEND_FASTCALL qb_relocate_instruction_range(qb_compiler_context *cxt
 				for(i = 0; (operand_flags = qb_get_operand_flags(cxt, current_opcode, i)); i++) {
 					ip += sizeof(uint32_t);
 				}
-				if(op_flags & QB_OP_NEED_MATRIX_DIMENSIONS) {
-					ip += sizeof(uint32_t);
-				}
 				if(op_flags & QB_OP_NEED_LINE_NUMBER) {
 					ip += sizeof(uint32_t);
 				}
@@ -3137,7 +3067,7 @@ extern PHP_FUNCTION(qb_execute);
 static uint32_t ZEND_FASTCALL qb_get_address_length(qb_address *address) {
 	uint32_t i, j;
 	uint32_t length = sizeof(qb_address);	// the address itself
-	if(!IS_SCALAR(address)) {
+	if(!SCALAR(address)) {
 		if(address->dimension_count > 1) {
 			length += sizeof(qb_address *) * address->dimension_count * 2;
 			length += sizeof(qb_address) * (address->dimension_count * 2 - 1);
@@ -3179,7 +3109,7 @@ static uint8_t * ZEND_FASTCALL qb_copy_address(qb_address *address, uint8_t *mem
 	dst->segment_offset = src->segment_offset;
 	dst->dimension_count = src->dimension_count;
 
-	if(IS_SCALAR(src)) {
+	if(SCALAR(src)) {
 		dst->mode = QB_ADDRESS_MODE_VAR;
 	} else {
 		uint32_t i, j;
@@ -3441,7 +3371,7 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 			// and then gets set by qb_initialize_dimensions()
 			segment->element_count = *segment->array_size_pointer;
 
-			if(IS_EXPANDABLE_ARRAY(address)) {
+			if(EXPANDABLE_ARRAY(address)) {
 				if(address->dimension_count > 1) {
 					// a multidimensional array always enlarges by the size of the subarray one dimension down
 					segment->increment_pointer = ARRAY_IN(storage, U32, address->array_size_addresses[1]);
@@ -3708,7 +3638,7 @@ static qb_variable * ZEND_FASTCALL qb_find_variable_with_size_address(qb_compile
 static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address *address, int32_t ignore_index) {
 	uint32_t i;
 	if(address->flags & QB_ADDRESS_CONSTANT) {
-		if(!IS_SCALAR(address)) {
+		if(!SCALAR(address)) {
 			if(address->flags & QB_ADDRESS_STRING) {
 				uint32_t len = VALUE(U32, address->array_size_address);
 				char *string = (char *) ARRAY(U08, address);
@@ -3741,10 +3671,10 @@ static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address 
 	} else if(address->flags & QB_ADDRESS_TEMPORARY) {
 		const char *type_name = type_names[address->type], letter = type_name[0];
 		uint32_t id = address->segment_selector * 1000 + address->segment_offset / 4;
-		if(IS_SCALAR(address)) {
+		if(SCALAR(address)) {
 			php_printf("(%c%u)", letter, id);
 		} else {
-			if(IS_VARIABLE_LENGTH_ARRAY(address)) {
+			if(VARIABLE_LENGTH_ARRAY(address)) {
 				php_printf("(%c%u...)", letter, id);
 			} else {
 				php_printf("(%c%u..%c%u)", letter, id, letter, id + (ARRAY_SIZE(address) - 1));

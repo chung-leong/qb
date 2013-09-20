@@ -566,7 +566,7 @@ static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_cont
 }
 
 static const char * ZEND_FASTCALL qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address) {
-	if(IS_SCALAR(address) && !(address->flags & QB_ADDRESS_CONSTANT)) {
+	if(SCALAR(address) && !(address->flags & QB_ADDRESS_CONSTANT)) {
 		char *buffer = qb_get_buffer(cxt);
 		if(IS_CAST(address)) {
 			const char *ctype = type_cnames[address->type];
@@ -654,7 +654,7 @@ static const char * ZEND_FASTCALL qb_get_jump(qb_native_compiler_context *cxt, u
 static int32_t ZEND_FASTCALL qb_is_always_in_bound(qb_native_compiler_context *cxt, qb_address *container, qb_address *address, uint32_t new_element_count) {
 	if(container != address || new_element_count != 0) {
 		uint32_t index, element_count, container_size;
-		if(IS_SCALAR(address)) {
+		if(SCALAR(address)) {
 			element_count = 1;
 		} else {
 			if(address->array_size_address->flags & QB_ADDRESS_CONSTANT) {
@@ -673,10 +673,10 @@ static int32_t ZEND_FASTCALL qb_is_always_in_bound(qb_native_compiler_context *c
 			element_count = new_element_count;
 		}
 		index = ELEMENT_COUNT(address->segment_offset, address->type);
-		if(IS_SCALAR(container)) {
+		if(SCALAR(container)) {
 			container_size = 1;
 		} else {
-			if(IS_VARIABLE_LENGTH_ARRAY(container)) {
+			if(VARIABLE_LENGTH_ARRAY(container)) {
 				container_size = 0;
 			} else {
 				container_size = ARRAY_SIZE(container);
@@ -765,7 +765,7 @@ static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context 
 		if(address->source_address) {
 			qb_print_resynchronization(cxt, address->source_address, context);
 		} else {
-			if(IS_SCALAR(address)) {
+			if(SCALAR(address)) {
 				if(!(address->flags & QB_ADDRESS_CONSTANT)) {
 					if((address->flags & QB_ADDRESS_AUTO_INCREMENT) || (context == POST_FUNCTION_CALL)) {
 						// transfer the value from the segment
@@ -1054,9 +1054,9 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 										if(var_len == 9 && sscanf(var, "op%d_count", &number) == 1) {
 											// the result should be at least the size of this input operand
 											qb_operand *source_operand = &qop->operands[i - (operand_number - number)];
-											if(IS_FIXED_LENGTH_ARRAY(source_operand->address)) {
+											if(FIXED_LENGTH_ARRAY(source_operand->address)) {
 												new_element_count = ARRAY_SIZE(source_operand->address);
-											} else if(IS_EXPANDABLE_ARRAY(source_operand->address)) {
+											} else if(EXPANDABLE_ARRAY(source_operand->address)) {
 												new_element_count = UINT32_MAX;
 											} else {
 												new_element_count = 1;
@@ -1078,7 +1078,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 									}
 
 									if(need_expansion_check) {
-										if(IS_EXPANDABLE_ARRAY(container)) {
+										if(EXPANDABLE_ARRAY(container)) {
 											qb_print_segment_enlargement(cxt, address, "res_count");
 										} else {
 											qb_print_segment_bound_check(cxt, address, "res_count");
@@ -1093,7 +1093,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 						} else if(operand_address_mode == QB_ADDRESS_MODE_ELC || operand_address_mode == QB_ADDRESS_MODE_ELV) {
 							if(!(qop->flags & QB_OP_UNSET)) {
 								if(!qb_is_always_in_bound(cxt, container, address, 0)) {
-									if(IS_EXPANDABLE_ARRAY(container)) {
+									if(EXPANDABLE_ARRAY(container)) {
 										qb_print_segment_enlargement(cxt, address, NULL);
 									} else {
 										qb_print_segment_bound_check(cxt, address, NULL);

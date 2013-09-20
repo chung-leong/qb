@@ -101,10 +101,11 @@ enum qb_primitive_type {
 };
 
 enum qb_address_mode {
-	QB_ADDRESS_MODE_VAR				= 0,
-	QB_ADDRESS_MODE_ELV,
+	QB_ADDRESS_MODE_SCA				= 0,
+	QB_ADDRESS_MODE_ELE,
 	QB_ADDRESS_MODE_ARR,
-	QB_ADDRESS_MODE_ELC,
+
+	QB_ADDRESS_MODE_UNKNOWN			= 100,
 };
 
 enum {

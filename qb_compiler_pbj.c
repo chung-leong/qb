@@ -617,7 +617,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_map_registers_to_memory(qb_compiler_con
 								}
 							}
 							if(!channel_address->source_address) {
-								if(IS_SCALAR(channel_address)) {
+								if(SCALAR(channel_address)) {
 									qb_add_scalar(cxt, channel_address);
 								} else {
 									qb_add_array(cxt, channel_address);
@@ -728,7 +728,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_address(qb_compiler_context *cxt
 
 static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_compiler_context *cxt, qb_pbj_address_bundle *bundle) {
 	qb_address *address;
-	if(bundle->address_count == 1 && (!IS_SCALAR(bundle->addresses[0]) || bundle->channel_counts[0] == 1)) {
+	if(bundle->address_count == 1 && (!SCALAR(bundle->addresses[0]) || bundle->channel_counts[0] == 1)) {
 		// there's one address and it's a vector (or is supposed to be a scalar)
 		address = bundle->addresses[0];
 		bundle->temporary_address = NULL;
@@ -1907,7 +1907,7 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 						} else {
 							parameter_size = parameter->destination.channel_count;
 						}
-						if(IS_SCALAR(qvar->address)) {
+						if(SCALAR(qvar->address)) {
 							element_count = 1;
 						} else {
 							element_count = ARRAY_SIZE(qvar->address);

@@ -67,26 +67,14 @@ struct qb_result_prototype {
 
 enum qb_operand_type {
 	QB_OPERAND_NONE					= 0,
-	QB_OPERAND_ADDRESS_VAR			= 1,
-	QB_OPERAND_ADDRESS_ELV			= 2,
-	QB_OPERAND_ADDRESS_ARR			= 3,
-	QB_OPERAND_ADDRESS_ELC			= 4,
-	QB_OPERAND_JUMP_TARGET			= 5,	
-	QB_OPERAND_EXTERNAL_SYMBOL		= 6,
-	QB_OPERAND_ARGUMENT_COUNT,
-	QB_OPERAND_TOTAL_LENGTH,
 	QB_OPERAND_ADDRESS,
+	QB_OPERAND_EXTERNAL_SYMBOL,
 	QB_OPERAND_ARRAY_INITIALIZER,
 	QB_OPERAND_ZEND_CLASS,
 	QB_OPERAND_ZVAL,
-	QB_OPERAND_ADDRESS_EXT_VAR,
-	QB_OPERAND_ADDRESS_EXT_ELV,
-	QB_OPERAND_ADDRESS_EXT_ARR,
 	QB_OPERAND_GLOBAL_STATIC,
 	QB_OPERAND_EMPTY,
 	QB_OPERAND_RESULT_PROTOTYPE,
-
-	QB_OPERAND_WRITABLE				= 0x08
 };
 
 enum {
@@ -106,16 +94,13 @@ struct qb_operand {
 	qb_operand_type type;
 	union {
 		qb_address *address;
-		zval *constant;
 		qb_function *function;
 		uint32_t symbol_index;
-		uint32_t jump_target_index;
-		uint32_t operand_size;
-		uint32_t argument_count;
+
+		zval *constant;
 		zend_class_entry *zend_class;
 		qb_array_initializer *array_initializer;
 		qb_result_prototype *result_prototype;
-		void *generic_pointer;
 	};
 };
 
@@ -183,6 +168,7 @@ enum {
 	// compile time properties
 	QB_OP_JUMP_TARGET 				= 0x80000000,
 	QB_OP_CANNOT_REMOVE				= 0x40000000,
+	QB_OP_COMPILE_TIME_FLAGS		= 0xFFFF0000,
 };
 
 #define MM_DIMENSIONS(m1_rows, m1_cols, m2_rows, m2_cols)		(((m1_rows & 0x000003FF) << 20) | ((m1_cols & 0x000003FF) << 10) | (m2_cols & 0x000003FF))
@@ -195,8 +181,9 @@ struct qb_op {
 	qb_opcode opcode;
 	uint32_t operand_count;
 	qb_operand *operands;
+	uint32_t jump_target_count;
+	uint32_t *jump_target_indices;
 	uint32_t instruction_offset;
-	uint32_t matrix_dimensions;
 	uint32_t line_number;
 };
 
@@ -433,14 +420,18 @@ enum {
 	QB_CREATE_IN_VARIABLE_SEGMENT	= 0x00000004,
 };
 
-#define IS_SCALAR(address)						(address->dimension_count == 0)
-#define IS_SCALAR_VARIABLE(address)				(address->dimension_count == 0 && address->segment_selector == QB_SELECTOR_VARIABLE && address->segment_offset != QB_OFFSET_INVALID)
-#define IS_FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && address->array_size_address->flags & QB_ADDRESS_CONSTANT)
-#define IS_VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_CONSTANT))
-#define IS_EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_READ_ONLY))
+#define SCALAR(address)				(address->dimension_count == 0)
+#define CONSTANT(address)			(address->flags & QB_ADDRESS_CONSTANT)
+#define TEMPORARY(address)			(address->flags & QB_ADDRESS_TEMPORARY)
+#define IN_USE(address)				(address->flags & QB_ADDRESS_IN_USE)
 
-#define IS_ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
-#define IS_CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
+#define MULTIDIMENSIONAL_ARRAY(address)		(address->dimension_count > 1)
+#define FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && address->array_size_address->flags & QB_ADDRESS_CONSTANT)
+#define VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_CONSTANT))
+#define EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !(address->array_size_address->flags & QB_ADDRESS_READ_ONLY))
+
+#define ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
+#define CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
 
 #define ARRAY_IN(storage, type, address)		((CTYPE(type) *) (storage->segments[address->segment_selector].memory + address->segment_offset))
 #define VALUE_IN(storage, type, address)		*ARRAY_IN(storage, type, address)
@@ -451,6 +442,8 @@ enum {
 #define ARRAY(type, address)					ARRAY_IN(cxt->storage, type, address)
 #define VALUE(type, address)					VALUE_IN(cxt->storage, type, address)
 #define ARRAY_SIZE(address)						VALUE(U32, address->array_size_address)
+
+#define DIMENSION(address, i)					VALUE(U32, address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
 
 #define BYTE_COUNT(element_count, type)			((element_count) << type_size_shifts[type])
 #define ELEMENT_COUNT(byte_count, type)			((byte_count) >> type_size_shifts[type])

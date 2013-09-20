@@ -184,7 +184,7 @@ class CodeGenerator {
 		
 		$prevHandler = null;
 		$lines = array();
-		$lines[] = "qb_op_info global_op_info[] = {";
+		$lines[] = "const qb_op_info global_op_info[] = {";
 		foreach($this->handlers as $index => $handler) {		
 			$flags = array();
 			$relationToPrevious = Handler::compare($handler, $prevHandler);
@@ -250,6 +250,20 @@ class CodeGenerator {
 		$lines[] = "};";
 		$lines[] = "";
 		$this->writeCode($handle, $lines);
+		
+		$lines = array();
+		$lines[] = "const uint32_t global_instruction_lengths[] = {";
+		foreach($formats as $struct => $format) {
+			if($format != "v") {
+				$lines[] = "sizeof($struct),";
+			} else {
+				$lines[] = "0,";
+			}
+		}
+		$lines[] = "};";
+		$lines[] = "";
+		$this->writeCode($handle, $lines);
+		
 	}
 	
 	public function writeOpNames($handle) {
@@ -793,7 +807,7 @@ class CodeGenerator {
 			$this->addLogicalHandlers($elementType);
 			$this->addCastHandlers($elementType);
 			$this->addMathHandlers($elementType);
-			//$this->addStringHandlers($elementType);
+			$this->addStringHandlers($elementType);
 			$this->addArrayHandlers($elementType);
 			$this->addSamplingHandlers($elementType);
 			$this->addMatrixHandlers($elementType);
@@ -1164,23 +1178,24 @@ class CodeGenerator {
 		$float = preg_match('/^F/', $elementType);
 		if($elementType == "U08") {
 			$this->handlers[] = new PrintString("PRN_STR", $elementType);
-			$this->handlers[] = new ConcatString("CAT_STR", $elementType);
+			//$this->handlers[] = new ConcatString("CAT_STR", $elementType);
 			
 		}
 		if($elementType == "U16" || $elementType == "U32") {
-			$this->handlers[] = new UTF8Decode("UTF8_DEC", $elementType);
-			$this->handlers[] = new UTF8Encode("UTF8_ENC", $elementType);
+			//$this->handlers[] = new UTF8Decode("UTF8_DEC", $elementType);
+			//$this->handlers[] = new UTF8Encode("UTF8_ENC", $elementType);
 		}
 		foreach($this->addressModes as $addressMode) {
 			$this->handlers[] = new PrintVariable("PRN", $elementType, $addressMode);
 		}
 		$this->handlers[] = new PrintMultidimensionalVariable("PRN_DIM", $elementType);
 		foreach($this->addressModes as $addressMode) {
-			$this->handlers[] = new ConcatVariable("CAT", $elementType, $addressMode);
+			//$this->handlers[] = new ConcatVariable("CAT", $elementType, $addressMode);
 		}
-		$this->handlers[] = new ConcatMultidimensionalVariable("CAT_DIM", $elementType);
+		//$this->handlers[] = new ConcatMultidimensionalVariable("CAT_DIM", $elementType);
 		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
+			/*
 			foreach($this->scalarAddressModes as $addressMode) {		
 				$this->handlers[] = new Pack("PACK_LE", "{$elementTypeNoSign}_LE", $addressMode);
 			}
@@ -1192,7 +1207,8 @@ class CodeGenerator {
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
 				$this->handlers[] = new Unpack("UNPACK_BE", "{$elementTypeNoSign}_BE", $addressMode, "BE");
-			} 
+			}
+			*/
 		}
 	}
 	

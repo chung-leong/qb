@@ -2,14 +2,10 @@
 
 class PrintMultidimensionalVariable extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, UseSprintf;
+	use ArrayAddressMode, UseSprintf;
 	
 	public function getInputOperandCount() {
 		return 2;
-	}
-
-	public function getOutputOperandCount() {
-		return 0;
 	}
 
 	public function getOperandType($i) {
@@ -20,7 +16,10 @@ class PrintMultidimensionalVariable extends Handler {
 	}
 
 	public function getOperandAddressMode($i) {
-		return "ARR";
+		switch($i) {
+			case 1: return "ARR";
+			case 2: return "ARR";
+		}
 	}
 
 	public function getActionOnUnitData() {

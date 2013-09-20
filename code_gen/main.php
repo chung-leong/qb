@@ -107,6 +107,7 @@ echo "Creating qb_data_tables_msvc.c\n";
 $handle = fopen("$targetFolder/qb_data_tables_msvc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
+fwrite($handle, "#include \"qb_interpreter_msvc.h\"\n");
 fwrite($handle, "\n");
 $generator->writeOpInfo($handle, 'MSVC');
 $generator->writeOpNames($handle, 'MSVC');

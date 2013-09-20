@@ -861,7 +861,7 @@ static void ZEND_FASTCALL qb_do_array_element_retrieval(qb_compiler_context *cxt
 	qb_operand *index = value;
 	if(index->type == QB_OPERAND_NONE) {
 		// an append operation
-		if(!IS_EXPANDABLE_ARRAY(container->address)) {
+		if(!EXPANDABLE_ARRAY(container->address)) {
 			qb_abort("Adding element to an array that cannot expand");
 		}
 		index->address = container->address->dimension_addresses[0];
@@ -1075,7 +1075,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_address(qb_compiler_con
 						qb_operand *container = &destination->element.container, *index = &destination->element.index;
 						if(index->type == QB_OPERAND_NONE) {
 							// an append operation
-							if(!IS_EXPANDABLE_ARRAY(container->address)) {
+							if(!EXPANDABLE_ARRAY(container->address)) {
 								qb_abort("Adding element to an array that cannot expand");
 							}
 							index->address = container->address->dimension_addresses[0];
@@ -1260,7 +1260,7 @@ static void ZEND_FASTCALL qb_do_boolean_coercion(qb_compiler_context *cxt, qb_op
 			if(!(operand->address->flags & QB_ADDRESS_BOOLEAN)) {
 				if(operand->address->flags & QB_ADDRESS_CONSTANT) {
 					int32_t is_true;
-					if(IS_SCALAR(operand->address)) {
+					if(SCALAR(operand->address)) {
 						switch(operand->address->type) {
 							case QB_TYPE_S08:
 							case QB_TYPE_U08: is_true = VALUE(I08, operand->address) != 0; break;
@@ -1705,7 +1705,7 @@ static void ZEND_FASTCALL qb_translate_exit(qb_compiler_context *cxt, void *op_f
 			// it's a string already
 		} else {
 			qb_do_type_coercion(cxt, status, QB_TYPE_S32);
-			if(!IS_SCALAR(status->address)) {
+			if(!SCALAR(status->address)) {
 				qb_abort("Exit status code must be a scalar");
 			}
 		}
@@ -1772,7 +1772,7 @@ static void ZEND_FASTCALL qb_translate_branch(qb_compiler_context *cxt, void *op
 	uint32_t target_index2 = cxt->zend_op_index + 1;
 
 	if(condition->type == QB_OPERAND_ADDRESS) {
-		if(!IS_SCALAR(condition->address)) {
+		if(!SCALAR(condition->address)) {
 			// use the size as the condition
 			condition->address = condition->address->array_size_address;
 		}
@@ -1920,7 +1920,7 @@ static void ZEND_FASTCALL qb_translate_foreach_reset(qb_compiler_context *cxt, v
 				if(index_prototype->destination->type == QB_RESULT_DESTINATION_VARIABLE) {
 					qb_address *address = index_prototype->destination->variable.address;
 					if(STORAGE_TYPE_MATCH(address->type, QB_TYPE_U32)) {
-						if(IS_SCALAR(address) && !IS_ARRAY_MEMBER(address)) {
+						if(SCALAR(address) && !IS_ARRAY_MEMBER(address)) {
 							index_address = address;
 						}
 					}
@@ -2118,7 +2118,7 @@ static void ZEND_FASTCALL qb_translate_add_string(qb_compiler_context *cxt, void
 		}
 		if(addition->type == QB_OPERAND_ZVAL) {
 			qb_do_type_coercion(cxt, addition, QB_TYPE_U08);
-			if(IS_SCALAR(addition->address)) {
+			if(SCALAR(addition->address)) {
 				// it's an ADD_CHAR op
 				if(!(addition->address->flags & QB_ADDRESS_STRING)) {
 					// create a new address and flag it as a string
@@ -2147,7 +2147,7 @@ static void ZEND_FASTCALL qb_translate_concat(qb_compiler_context *cxt, void *op
 		qb_do_type_coercion(cxt, string2, QB_TYPE_ANY);
 
 		result->type = QB_OPERAND_ADDRESS;
-		if(string1->address->flags & QB_ADDRESS_TEMPORARY && IS_EXPANDABLE_ARRAY(string1->address) && string1->address->type == QB_TYPE_U08) {
+		if(string1->address->flags & QB_ADDRESS_TEMPORARY && EXPANDABLE_ARRAY(string1->address) && string1->address->type == QB_TYPE_U08) {
 			// reuse string1
 			result->address = string1->address;
 		} else {
@@ -2195,7 +2195,7 @@ static void ZEND_FASTCALL qb_translate_bool(qb_compiler_context *cxt, void *op_f
 			result->address->flags |= QB_ADDRESS_BOOLEAN;
 		} else if(value->type == QB_OPERAND_ADDRESS) {
 			// if it's a array, use the size (i.e. non-empty means true)
-			if(!IS_SCALAR(value->address)) {
+			if(!SCALAR(value->address)) {
 				value->address = value->address->array_size_address;
 			}
 			qb_do_boolean_coercion(cxt, value);
@@ -2507,7 +2507,7 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 						} else {
 							qb_do_type_coercion(cxt, argument, qvar->address->type);
 						}
-						if(IS_EXPANDABLE_ARRAY(qvar->address) && !IS_EXPANDABLE_ARRAY(argument->address)) {
+						if(EXPANDABLE_ARRAY(qvar->address) && !EXPANDABLE_ARRAY(argument->address)) {
 							qb_abort("%s expects argument %d to be of a variable length array", qfunc->name, i + 1);
 						}
 
@@ -2549,12 +2549,12 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_compiler_context *cxt, v
 			if(qfunc) {
 				if(qfunc->return_variable->address) {
 					qb_address *retval_address = qfunc->return_variable->address;
-					if(IS_SCALAR(retval_address)) {
+					if(SCALAR(retval_address)) {
 						result_size = 1;
 						result_size_known = TRUE;
 						result_is_array = FALSE;
 					} else {
-						if(IS_FIXED_LENGTH_ARRAY(retval_address)) {
+						if(FIXED_LENGTH_ARRAY(retval_address)) {
 							// the length is fixed
 							result_size = VALUE_IN(qfunc->local_storage, U32, retval_address->array_size_address);
 							result_size_known = TRUE;
