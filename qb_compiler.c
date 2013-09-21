@@ -428,7 +428,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_on_demand_quotient(qb_compiler_conte
 static qb_address * ZEND_FASTCALL qb_obtain_on_demand_product(qb_compiler_context *cxt, qb_address *multiplicand_address, qb_address *multiplier_address);
 static qb_address * ZEND_FASTCALL qb_obtain_on_demand_greater_than(qb_compiler_context *cxt, qb_address *address1, qb_address *address2);
 
-#include "qb_compiler_op_factories.c"
+#include "qb_op_factories.c"
 
 static qb_address * ZEND_FASTCALL qb_obtain_on_demand_quotient(qb_compiler_context *cxt, qb_address *numerator_address, qb_address *denominator_address) {
 	qb_address *operand_addresses[2] = { numerator_address, denominator_address };
@@ -2058,16 +2058,20 @@ static qb_variable_dimensions *qb_get_address_dimensions(qb_compiler_context *cx
 static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			// no type information to record if we don't have any
 			if(desired_type != QB_TYPE_ANY) {
-				if(desired_type >= QB_TYPE_F32 && operand->result_prototype->operand_flags & QB_COERCE_TO_INTEGER) {
-					// operand cannot be floating point (e.g. result of bitwise operator) 
-					// use the largest integer type instead
-					desired_type = QB_TYPE_I64;
-				} 
-				if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
-					operand->result_prototype->preliminary_type = desired_type;
-					if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
-						operand->result_prototype->final_type = desired_type;
+				// change the type only if there's flexibility 
+				if(operand->result_prototype->final_type == QB_TYPE_ANY) {
+					if(desired_type >= QB_TYPE_F32 && operand->result_prototype->operand_flags & QB_COERCE_TO_INTEGER) {
+						// operand cannot be floating point (e.g. result of bitwise operator) 
+						// use the largest integer type instead
+						desired_type = QB_TYPE_I64;
+					} 
+					if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
+						operand->result_prototype->preliminary_type = desired_type;
+						if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
+							operand->result_prototype->final_type = desired_type;
+						}
 					}
 				}
 			}
