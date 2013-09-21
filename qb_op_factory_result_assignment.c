@@ -18,8 +18,45 @@
 
 /* $Id$ */
 
-static void ZEND_FASTCALL qb_set_preliminary_result_temporary_value(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *result, qb_result_prototype *result_prototype) {
+static void ZEND_FASTCALL qb_set_result_temporary_value(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_op_factory *f = factory;
+	qb_variable_dimensions dim;
+	qb_primitive_type expr_type = result_prototype->final_type;
+
+	// figure out the result size 
+	f->set_dimensions(cxt, f, operands, operand_count, &dim);
+
+	// do this even if the result is not used
+	result->type = QB_OPERAND_ADDRESS;
+	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype, f->result_flags);
 }
 
-static void ZEND_FASTCALL qb_set_final_result_temporary_value(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *result, qb_result_prototype *result_prototype) {
+static void ZEND_FASTCALL qb_set_result_assignment(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *variable = &operands[0];
+	qb_operand *value = &operands[1];
+	*result = *variable;
+}
+
+static void ZEND_FASTCALL qb_set_result_array_element_assignment(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0];
+	qb_operand *index = &operands[1];
+	qb_operand *value = &operands[2];
+
+	result->type = QB_OPERAND_ADDRESS;
+	result->address = qb_retrieve_array_element(cxt, container->address, index->address);
+}
+
+static void ZEND_FASTCALL qb_set_result_object_property_assignment(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0];
+	qb_operand *name = &operands[1];
+	qb_operand *value = &operands[2];
+
+	if(container->type == QB_OPERAND_NONE) {
+		qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
+		variable->address = qvar->address;
+		variable->type = QB_OPERAND_ADDRESS;
+	} else if(container->type == QB_OPERAND_ADDRESS) {
+		variable->address = qb_retrieve_named_element(cxt, container->address, name->constant);
+		variable->type = QB_OPERAND_ADDRESS;
+	}
 }

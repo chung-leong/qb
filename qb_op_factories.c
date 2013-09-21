@@ -36,23 +36,32 @@ typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
 typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 
 typedef qb_primitive_type (ZEND_FASTCALL *qb_resolve_expression_type_proc)(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count);
-typedef void (ZEND_FASTCALL *qb_set_result_type_proc)(qb_compiler_context *cxt, void *op_factory, qb_primitive_type expr_type, qb_result_prototype *result_prototype);
-typedef void (ZEND_FASTCALL *qb_set_dimensions_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
-typedef void (ZEND_FASTCALL *qb_coerce_operands_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count);
+
+typedef void (ZEND_FASTCALL *qb_link_results_proc)(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
+
 typedef void (ZEND_FASTCALL *qb_validate_operands_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count);
+
+typedef void (ZEND_FASTCALL *qb_coerce_operands_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count);
+
+typedef void (ZEND_FASTCALL *qb_set_result_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+
+typedef void (ZEND_FASTCALL *qb_set_dimensions_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
+
 typedef qb_opcode (ZEND_FASTCALL *qb_select_opcode_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+
 typedef void (ZEND_FASTCALL *qb_transfer_operands_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_op *qop);
 
 #define OP_FACTORY_COMMON_ELEMENTS		\
 	qb_resolve_expression_type_proc resolve_type;	\
-	qb_set_result_proc set_preliminary_result;	\
+	qb_link_results_proc link_results;	\
 	qb_coerce_operands_proc coerce_operands;	\
 	qb_validate_operands_proc validate_operands;	\
-	qb_set_result_proc set_final_result;	\
+	qb_set_result_proc set_result;	\
 	qb_set_dimensions_proc set_dimensions;	\
 	qb_select_opcode_proc select_opcode;	\
 	qb_transfer_operands_proc transfer_operands;	\
 	uint32_t coercion_flags;	\
+	uint32_t address_flags;	\
 	uint32_t result_flags;	\
 
 struct qb_op_factory {
@@ -170,7 +179,7 @@ static qb_variable_dimensions * ZEND_FASTCALL qb_get_result_dimensions(qb_compil
 static void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
 static qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type);
 
-static void ZEND_FASTCALL qb_process(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+static void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_basic_op_factory *f = factory;
 	qb_primitive_type expr_type = QB_TYPE_VOID;
 	int32_t result_used = (result->type != QB_OPERAND_NONE);
@@ -189,7 +198,10 @@ static void ZEND_FASTCALL qb_process(qb_compiler_context *cxt, void *factory, qb
 			result_prototype->final_type = expr_type;
 		}
 		result_prototype->operand_flags = f->coercion_flags;
-		result_prototype->address_flags = f->result_address_flags;
+		result_prototype->address_flags = f->address_flags;
+
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		// use the result from the previous stage, finalizing it first
 		qb_finalize_result_prototype(cxt, result_prototype);
@@ -198,43 +210,9 @@ static void ZEND_FASTCALL qb_process(qb_compiler_context *cxt, void *factory, qb
 
 	// then, assign result to result object
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		if(f->set_result) {
-			// there's a specific handler for the op--use it
-			f->set_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
-
-			if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
-				if(result->result_prototype != result_prototype) {
-					// copy the result and link it to the previous one
-					*result_prototype = *result->result_prototype;
-					result->result_prototype->parent = result_prototype;
-					result->result_prototype = result_prototype;
-				}
-			} 
-		} else {
-			// the result will be a temporary variable--assign the result prototype to it
-			result_prototype->preliminary_type = expr_type;
-			if(!(f->coercion_flags & QB_COERCE_TO_LVALUE_TYPE)) {
-				// if the result doesn't depend on the context, then we're certain about the result type generated by the op
-				result_prototype->final_type = expr_type;
-			}
-			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
-		}
+		f->link_results(cxt, f, expr_type, operands, operand_count, result_prototype);
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(f->set_result) {
-			// there's a specific handler for the op--use it
-			f->set_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
-		} else {
-			// figure out the result size and get a write target
-			qb_variable_dimensions dim;
-			if(!f->set_dimensions) {
-				qb_abort("return value is void");
-			}
-			f->set_dimensions(cxt, f, operands, operand_count, &dim);
-
-			// do this even if the result is not used
-			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_write_target_address(cxt, expr_type, &dim, result_prototype, f->result_flags);
-		}
+		f->set_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 	}
 
 	// perform type coercion on operand
@@ -344,82 +322,6 @@ static void ZEND_FASTCALL qb_process(qb_compiler_context *cxt, void *factory, qb
 	}
 }
 
-static void ZEND_FASTCALL qb_create_any_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count) {
-	qb_basic_op_factory *f = factory;
-	uint32_t initial_op_count = cxt->op_count;
-	uint32_t i;
-	uint32_t qop_index;
-	qb_opcode opcode;
-	qb_op *qop;
-
-#if ZEND_DEBUG
-	if(cxt->stage != QB_STAGE_OPCODE_TRANSLATION && cxt->stage != QB_STAGE_VARIABLE_INITIALIZATION) {
-		qb_abort("Creating opcode at the wrong stage");
-	}
-#endif
-	// add the ops for calculating on-demand values first
-	for(i = 0; i < operand_count; i++) {
-		qb_operand *operand = &operands[i];
-		if(operand->type == QB_OPERAND_ADDRESS) {
-			if(operand->address->flags & QB_ADDRESS_ON_DEMAND_VALUE) {
-				qb_on_demand_address *od_address = (qb_on_demand_address *) operand->address;
-				qb_operand *od_result = operand;
-				qb_operand od_operands[4];
-				uint32_t i;
-
-				od_result->address = qb_obtain_temporary_scalar(cxt, od_address->type);
-				for(i = 0; i < od_address->operand_count; i++) {
-					od_operands[i].address = od_address->operand_addresses[i];
-					od_operands[i].type = QB_OPERAND_ADDRESS;
-				}
-				qb_create_any_op(cxt, od_address->op_factory, od_operands, od_address->operand_count, od_result, NULL, 0);
-			}
-		}
-	}
-
-	opcode = f->select_opcode(cxt, f, operands, operand_count, result);
-
-	qop_index = cxt->op_count;
-	qop = qb_append_op(cxt, opcode);
-
-	// sanity check
-	if(jump_target_count != qop->jump_target_count || operand_count != qop->operand_count) {
-		qb_abort("invalid operation");
-	}
-
-	// copy jump target indices
-	if(jump_target_count > 0) {
-		for(i = 0; i < jump_target_count; i++) {
-			uint32_t jump_target_index = jump_target_indices[i];
-			qop->jump_target_indices[i] = jump_target_index;
-			qb_mark_jump_target(cxt, qop_index, jump_target_index);
-		}
-	}
-
-	// unlock the operands after the op is created
-	for(i = 0; i < operand_count; i++) {
-		qb_operand *operand = &operands[i];
-		if(operand->type == QB_OPERAND_ADDRESS) {
-			qb_unlock_address(cxt, operand->address);
-		}
-	}
-	if(result && result->type == QB_OPERAND_ADDRESS) {
-		if(CONSTANT(result->address)) {
-			// evalulate the expression at compile-time
-			qb_execute_op(cxt, qop);
-
-			// roll back the op counter
-			cxt->op_count = initial_op_count;
-
-			// make it a NOP
-			qop->opcode = QB_NOP;
-		} else {
-			// mark result address as writable
-			qb_mark_as_writable(cxt, result->address);
-		}
-	}
-}
-
 static void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_create_any_op(cxt, factory, operands, operand_count, result, NULL, 0);
 }
@@ -432,10 +334,12 @@ static void ZEND_FASTCALL qb_create_nop(qb_compiler_context *cxt) {
 	qb_append_op(cxt, QB_NOP);
 }
 
-#include "qb_op_factory_expression_type_resolution.c"
-#include "qb_op_factory_result_assignment.c"
+#include "qb_op_factory_operand_validation.c"
+#include "qb_op_factory_type_resolution.c"
+#include "qb_op_factory_result_linkage.c"
 #include "qb_op_factory_operand_coercion.c"
 #include "qb_op_factory_dimension_calculation.c"
+#include "qb_op_factory_result_assignment.c"
 #include "qb_op_factory_opcode_selection.c"
 
 static qb_copy_op_factory factory_copy = {

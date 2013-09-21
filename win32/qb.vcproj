@@ -893,10 +893,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\qb_op_factory_expression_type_resolution.c"
-				>
-			</File>
-			<File
 				RelativePath="..\qb_op_factory_opcode_selection.c"
 				>
 				<FileConfiguration
@@ -921,7 +917,43 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\qb_op_factory_result_type_resolution.c"
+				RelativePath="..\qb_op_factory_operand_validation.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_op_factory_result_assignment.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_op_factory_result_linkage.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_op_factory_type_resolution.c"
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"

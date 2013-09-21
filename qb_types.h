@@ -70,6 +70,8 @@ typedef enum qb_address_mode			qb_address_mode;
 #define CTYPE_U32					uint32_t
 #define CTYPE_U64					uint64_t
 
+#define CTYPE_INDEX					uint32_t
+
 #define CTYPE(type)					CTYPE_##type
 
 enum qb_primitive_type {
@@ -92,6 +94,9 @@ enum qb_primitive_type {
 	QB_TYPE_F64						= 9,
 
 	QB_TYPE_COUNT					= 10,
+
+	// the type used as array indices
+	QB_TYPE_INDEX					= QB_TYPE_U32
 
 	// pseudo-types
 	QB_TYPE_VOID					= 100,

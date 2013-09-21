@@ -2062,14 +2062,14 @@ static void ZEND_FASTCALL qb_do_type_coercion(qb_compiler_context *cxt, qb_opera
 			if(desired_type != QB_TYPE_ANY) {
 				// change the type only if there's flexibility 
 				if(operand->result_prototype->final_type == QB_TYPE_ANY) {
-					if(desired_type >= QB_TYPE_F32 && operand->result_prototype->operand_flags & QB_COERCE_TO_INTEGER) {
+					if(desired_type >= QB_TYPE_F32 && operand->result_prototype->coercion_flags & QB_COERCE_TO_INTEGER) {
 						// operand cannot be floating point (e.g. result of bitwise operator) 
 						// use the largest integer type instead
 						desired_type = QB_TYPE_I64;
 					} 
 					if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
 						operand->result_prototype->preliminary_type = desired_type;
-						if(!(operand->result_prototype->operand_flags & QB_COERCE_TO_LVALUE_TYPE)) {
+						if(!(operand->result_prototype->coercion_flags & QB_COERCE_TO_LVALUE_TYPE)) {
 							operand->result_prototype->final_type = desired_type;
 						}
 					}
@@ -2246,7 +2246,7 @@ static qb_address * ZEND_FASTCALL qb_get_array_slice(qb_compiler_context *cxt, q
 	return slice_address;
 }
 
-static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address) {
+static qb_address * ZEND_FASTCALL qb_retrieve_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address) {
 	qb_address *result_address = qb_allocate_address(cxt->pool);
 	qb_address *offset_address = NULL;
 	qb_primitive_type element_type = container_address->type;
@@ -2328,48 +2328,41 @@ static qb_address * ZEND_FASTCALL qb_get_array_element(qb_compiler_context *cxt,
 	return result_address;
 }
 
-static qb_address *ZEND_FASTCALL qb_get_array_dimensions(qb_compiler_context *cxt, qb_address *address) {
+static qb_address *ZEND_FASTCALL qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address) {
 	qb_address *dimensions_address = qb_obtain_temporary_fixed_length_array(cxt, QB_TYPE_U32, address->dimension_count);
 	uint32_t i;
 	for(i = 0; i < address->dimension_count; i++) {
 		qb_address *index_address = qb_obtain_constant_U32(cxt, i);
 		qb_address *src_dimension_address = address->dimension_addresses[i];
-		qb_address *dst_dimension_address = qb_get_array_element(cxt, dimensions_address, index_address);
+		qb_address *dst_dimension_address = qb_retrieve_array_element(cxt, dimensions_address, index_address);
 		qb_create_unary_op(cxt, &factory_copy, src_dimension_address, dst_dimension_address);
 	}
 	return dimensions_address;
 }
 
-static int32_t ZEND_FASTCALL qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, const char *name, uint32_t name_length) {
+static int32_t ZEND_FASTCALL qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name) {
+	const char *alias = Z_STRVAL_P(name);
 	uint32_t i;
 	for(i = 0; i < scheme->dimension; i++) {
-		if(strcmp(scheme->aliases[i], name) == 0) {
+		if(strcmp(scheme->aliases[i], alias) == 0) {
 			return i;
 		}
 	}
 	return -1;
 }
 
-static qb_address * ZEND_FASTCALL qb_get_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name) {
-	qb_address *index_address, *value_address;
-	const char *alias = Z_STRVAL_P(name);
-	uint32_t alias_len = Z_STRLEN_P(name);
-	int32_t index;
-
-	if(SCALAR(container_address)) {
-		qb_abort("illegal operation: not an array");
+static qb_address * ZEND_FASTCALL qb_retrieve_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name) {
+	 if(!SCALAR(container_address)) {
+		if(container_address->index_alias_schemes && container_address->index_alias_schemes[0]) {
+			int32_t index = qb_find_index_alias(cxt, container_address->index_alias_schemes[0], name);
+			if(index != -1) {
+				qb_address *index_address = qb_obtain_constant_U32(cxt, index);
+				qb_address *value_address = qb_retrieve_array_element(cxt, container_address, index_address);
+				return value_address;
+			}
+		}
 	}
-	if(!container_address->index_alias_schemes || !container_address->index_alias_schemes[0]) {
-		qb_abort("array elements are not named");
-	}
-	
-	index = qb_find_index_alias(cxt, container_address->index_alias_schemes[0], alias, alias_len);
-	if(index == -1) {
-		qb_abort("no element by the name of '%s'", alias);
-	}
-	index_address = qb_obtain_constant_U32(cxt, index);
-	value_address = qb_get_array_element(cxt, container_address, index_address);
-	return value_address;
+	return NULL;
 }
 
 static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {

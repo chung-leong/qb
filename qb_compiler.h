@@ -59,7 +59,7 @@ struct qb_type_declaration {
 struct qb_result_prototype {
 	qb_primitive_type preliminary_type;
 	qb_primitive_type final_type;
-	uint32_t operand_flags;
+	uint32_t coercion_flags;
 	uint32_t address_flags;
 	qb_result_prototype *parent;
 	qb_result_destination *destination;
