@@ -176,7 +176,7 @@ void ZEND_FASTCALL qb_lock_operand(qb_compiler_context *cxt, qb_operand *operand
 	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
 		uint32_t i;
 		for(i = 0; i < operand->array_initializer->element_count; i++) {
-			qb_lock_operand(cxt->compiler_context, &operand->array_initializer->elements[i]);
+			qb_lock_operand(cxt, &operand->array_initializer->elements[i]);
 		}
 	}
 }
@@ -187,7 +187,7 @@ void ZEND_FASTCALL qb_unlock_operand(qb_compiler_context *cxt, qb_operand *opera
 	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
 		uint32_t i;
 		for(i = 0; i < operand->array_initializer->element_count; i++) {
-			qb_unlock_operand(cxt->compiler_context, &operand->array_initializer->elements[i]);
+			qb_unlock_operand(cxt, &operand->array_initializer->elements[i]);
 		}
 	}
 }
@@ -207,7 +207,7 @@ void ZEND_FASTCALL qb_lock_temporary_variables(qb_compiler_context *cxt) {
 		} else {
 			// lock temporary variables used to initialize an array as well
 			if(temp_variable->operand.type == QB_OPERAND_ARRAY_INITIALIZER) {
-				qb_lock_operand(cxt->compiler_context, &temp_variable->operand);
+				qb_lock_operand(cxt, &temp_variable->operand);
 			}
 		}
 	}
@@ -621,82 +621,6 @@ qb_address * ZEND_FASTCALL qb_obtain_constant_boolean(qb_compiler_context *cxt, 
 	return new_address;
 }
 
-qb_address * ZEND_FASTCALL qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type) {
-	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY) || Z_TYPE_P(zvalue) == IS_STRING) {
-		qb_address *address;
-
-		// figure out the dimensions of the array first
-		uint32_t dimensions[MAX_DIMENSION];
-		uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, zvalue, desired_type);
-		dimensions[0] = 0;
-		qb_get_zend_array_dimensions(cxt, zvalue, desired_type, dimensions, dimension_count);
-
-		// create a local array for it
-		address = qb_create_fixed_size_multidimensional_array(cxt, desired_type, dimensions, dimension_count, FALSE);
-		address->flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_INITIALIZED;
-
-		// copy the elements
-		qb_copy_elements_from_zend_array(cxt, zvalue, address);
-
-		if(Z_TYPE_P(zvalue) == IS_STRING) {
-			if((desired_type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) {
-				// mark it as something that should print out as text
-				address->flags |= QB_ADDRESS_STRING;
-			}
-		}
-		return address;
-	} else {
-		switch(desired_type) {
-			case QB_TYPE_S08: return qb_obtain_constant_S08(cxt, (CTYPE(S08)) qb_zval_to_long(zvalue));
-			case QB_TYPE_U08: return qb_obtain_constant_U08(cxt, (CTYPE(U08)) qb_zval_to_long(zvalue));
-			case QB_TYPE_S16: return qb_obtain_constant_S16(cxt, (CTYPE(S16)) qb_zval_to_long(zvalue));
-			case QB_TYPE_U16: return qb_obtain_constant_U16(cxt, (CTYPE(U16)) qb_zval_to_long(zvalue));
-			case QB_TYPE_S32: return qb_obtain_constant_S32(cxt, (CTYPE(S32)) qb_zval_to_long(zvalue));
-			case QB_TYPE_U32: return qb_obtain_constant_U32(cxt, (CTYPE(U32)) qb_zval_to_long(zvalue));
-			case QB_TYPE_S64: return qb_obtain_constant_S64(cxt, (CTYPE(S64)) qb_zval_to_long(zvalue));
-			case QB_TYPE_U64: return qb_obtain_constant_U64(cxt, (CTYPE(U64)) qb_zval_to_long(zvalue));
-			case QB_TYPE_F32: return qb_obtain_constant_F32(cxt, (CTYPE(F32)) qb_zval_to_double(zvalue));
-			case QB_TYPE_F64: return qb_obtain_constant_F64(cxt, (CTYPE(F64)) qb_zval_to_double(zvalue));
-			default: break;
-		}
-	}
-	qb_abort("unable to convert constant");
-	return NULL;
-}
-
-qb_address * ZEND_FASTCALL qb_obtain_constant(qb_compiler_context *cxt, int64_t value, qb_primitive_type desired_type) {
-#if ZEND_DEBUG
-	if(desired_type >= QB_TYPE_COUNT) {
-		qb_abort("invalid type id");
-	}
-#endif
-	if(desired_type >= QB_TYPE_F32) {
-		return qb_obtain_constant_float(cxt, (float64_t) value, desired_type);
-	} else {
-		return qb_obtain_constant_integer(cxt, value, desired_type);
-	}
-}
-
-qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type) {
-	qb_address *address;
-	uint32_t i;
-	for(i = 0; i < cxt->scalar_count; i++) {
-		qb_address *address = cxt->scalars[i];
-		if(TEMPORARY(address) && !(address->flags & (QB_ADDRESS_NON_LOCAL | QB_ADDRESS_IN_USE))) {
-			if(address->type == desired_type) {
-				address->flags &= ~(QB_ADDRESS_STRING | QB_ADDRESS_REUSED | QB_ADDRESS_BOOLEAN);
-				qb_lock_address(cxt, address);
-				return address;
-			}
-		}
-	}
-	address = qb_create_scalar(cxt, desired_type);
-	address->flags &= ~QB_ADDRESS_READ_ONLY;
-	address->flags |= QB_ADDRESS_TEMPORARY;
-	qb_lock_address(cxt, address);
-	return address;
-}
-
 static qb_address * ZEND_FASTCALL qb_create_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count, uint32_t flags) {
 	qb_address *address, *size_address;
 	qb_memory_segment *segment;
@@ -798,6 +722,373 @@ static qb_address * ZEND_FASTCALL qb_create_fixed_size_multidimensional_array(qb
 			address->array_size_addresses[i] = array_size_address;
 		}
 	}
+	return address;
+}
+
+static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type element_type) {
+	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
+		HashTable *ht = Z_ARRVAL_P(zvalue);
+		Bucket *p;
+		uint32_t overall_sub_array_dimension_count = 0;
+		for(p = ht->pListHead; p; p = p->pNext) {
+			zval **p_element = p->pData;
+			uint32_t sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, *p_element, element_type);
+			if(overall_sub_array_dimension_count) {
+				if(overall_sub_array_dimension_count != sub_array_dimension_count) {
+					qb_abort("Array has irregular structure");
+				}
+			} else {
+				overall_sub_array_dimension_count = sub_array_dimension_count;
+			}
+		}
+		if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
+			qb_abort("Array initializer has too many dimensions");
+		}
+		return overall_sub_array_dimension_count + 1;
+	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+static void ZEND_FASTCALL qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type element_type, uint32_t *dimensions, uint32_t dimension_count) {
+	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
+		HashTable *ht = Z_ARRVAL_P(zvalue);
+		Bucket *p;
+		int32_t highest_index = -1;
+		uint32_t dimension;
+		for(p = ht->pListHead; p; p = p->pListNext) {
+			if(p->nKeyLength > 0) {
+				qb_abort("String key encountered (%s)", p->arKey);
+			}
+			if((long) p->h < 0) {
+				qb_abort("Negative index encountered (%lu)", p->h);
+			}
+			if((long) p->h > highest_index) {
+				highest_index = p->h;
+			}
+		}
+		dimension = highest_index + 1;
+		if(dimension > dimensions[0]) {
+			dimensions[0] = dimension;
+		}
+		if(dimension_count > 1) {
+			dimensions[1] = 0;
+			for(p = ht->pListHead; p; p = p->pListNext) {
+				zval **p_element = p->pData;
+				qb_get_zend_array_dimensions(cxt, *p_element, element_type, dimensions + 1, dimension_count - 1);
+			}
+		}
+	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
+		uint32_t byte_count = Z_STRLEN_P(zvalue);
+		uint32_t dimension = byte_count >> type_size_shifts[element_type];
+		if(byte_count != dimension * type_sizes[element_type]) {
+			qb_abort("Number of bytes in string (%d) is not divisible by %d", byte_count, type_sizes[element_type]);
+		}
+		if(dimension > dimensions[0]) {
+			dimensions[0] = dimension;
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *zvalue, qb_address *address);
+
+static void ZEND_FASTCALL qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb_address *address) {
+	if(Z_TYPE_P(zvalue) == IS_LONG) {
+		switch(address->type) {
+			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_LVAL_P(zvalue); break;
+			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_LVAL_P(zvalue); break;
+			default: break;
+		}
+	} else if(Z_TYPE_P(zvalue) == IS_DOUBLE) {
+		switch(address->type) {
+			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_DVAL_P(zvalue); break;
+			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_DVAL_P(zvalue); break;
+			default: break;
+		}
+	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
+		uint32_t type_size = type_sizes[address->type];
+		uint32_t string_len = Z_STRLEN_P(zvalue);
+		const char *string = Z_STRVAL_P(zvalue);
+		if(type_size != string_len) {
+			qb_abort("cannot convert string to %s due to size mismatch", type_names[address->type]);
+		}
+		switch(address->type) {
+			case QB_TYPE_S08: VALUE(S08, address) = *((CTYPE(S08) *) string); break;
+			case QB_TYPE_U08: VALUE(U08, address) = *((CTYPE(U08) *) string); break;
+			case QB_TYPE_S16: VALUE(S16, address) = *((CTYPE(S16) *) string); break;
+			case QB_TYPE_U16: VALUE(U16, address) = *((CTYPE(U16) *) string); break;
+			case QB_TYPE_S32: VALUE(S32, address) = *((CTYPE(S32) *) string); break;
+			case QB_TYPE_U32: VALUE(U32, address) = *((CTYPE(U32) *) string); break;
+			case QB_TYPE_S64: VALUE(S64, address) = *((CTYPE(S64) *) string); break;
+			case QB_TYPE_U64: VALUE(U64, address) = *((CTYPE(U64) *) string); break;
+			case QB_TYPE_F32: VALUE(F32, address) = *((CTYPE(F32) *) string); break;
+			case QB_TYPE_F64: VALUE(F64, address) = *((CTYPE(F64) *) string); break;
+			default: break;
+		}
+	} else if(Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY) {
+		switch(address->type) {
+			case QB_TYPE_S64:
+			case QB_TYPE_U64: {
+				VALUE(I64, address) = qb_zval_array_to_int64(zvalue);
+			}	break;
+			default:
+				qb_abort("Cannot convert an array to %s", type_names[address->type]);
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *zvalue, qb_address *address) {
+	qb_address *dimension_address = address->dimension_addresses[0];
+	uint32_t dimension = VALUE(U32, dimension_address);
+	qb_primitive_type element_type = address->type;
+	uint32_t element_size = type_sizes[element_type], i;
+
+	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
+		HashTable *ht = Z_ARRVAL_P(zvalue);
+		if(address->dimension_count > 1) {
+			qb_address _sub_array_address, *sub_array_address = &_sub_array_address;
+			uint32_t sub_array_array_size, sub_array_size;
+			qb_initialize_subarray_address(cxt, address, sub_array_address);
+			sub_array_array_size = VALUE(U32, sub_array_address->array_size_address);
+			sub_array_size = element_size * sub_array_array_size;
+
+			for(i = 0; i < dimension; i++) {
+				zval **p_element;
+				if(zend_hash_index_find(ht, i, (void **) &p_element) == SUCCESS) {
+					qb_copy_elements_from_zend_array(cxt, *p_element, sub_array_address);
+				} else {
+					memset(ARRAY(I08, sub_array_address), 0, sub_array_size);
+				}
+				sub_array_address->segment_offset += sub_array_size;
+			}
+		} else {
+			qb_address _element_address, *element_address = &_element_address;
+			qb_initialize_element_address(cxt, address, element_address);
+
+			for(i = 0; i < dimension; i++) {
+				zval **p_element;
+				if(zend_hash_index_find(ht, i, (void **) &p_element) == SUCCESS) {
+					qb_copy_element_from_zval(cxt, *p_element, element_address);
+				} else {
+					memset(ARRAY(I08, element_address), 0, element_size);
+				}
+				element_address->segment_offset += element_size;
+			}
+		}
+	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
+		uint32_t byte_count = Z_STRLEN_P(zvalue);
+		uint32_t space_available = dimension * element_size;
+		int8_t *memory = ARRAY(I08, address);
+		memcpy(memory, Z_STRVAL_P(zvalue), byte_count);
+		memset(memory + byte_count, 0, space_available - byte_count);
+	}
+}
+
+static uint32_t ZEND_FASTCALL qb_get_zval_array_type(qb_compiler_context *cxt, zval *array, uint32_t flags);
+
+static uint32_t ZEND_FASTCALL qb_get_zval_type(qb_compiler_context *cxt, zval *zvalue, uint32_t flags) {
+	uint32_t type;
+	switch(Z_TYPE_P(zvalue)) {
+		case IS_BOOL: {
+			type = QB_TYPE_I32;
+		}	break;
+		case IS_LONG: {
+			int value = Z_LVAL_P(zvalue);
+			if(flags & QB_COERCE_TO_FLOATING_POINT) {
+				if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
+					type = QB_TYPE_F64;
+				} else {
+					// a single precision fp has 23 bits of precision
+					type = (-0x007FFFFF <= value && value <= 0x007FFFFF) ?  QB_TYPE_F32 : QB_TYPE_F64;
+				}
+			} else {
+				if(flags & QB_COERCE_TO_UNSIGNED) {
+					if(value <= UINT8_MAX) {
+						type = QB_TYPE_U08;
+					} else if((unsigned int) value <= UINT16_MAX) {
+						type = QB_TYPE_U16;
+#if SIZEOF_LONG == 8
+					} else if((unsigned int) value <= UINT32_MAX) {
+						type = QB_TYPE_U32;
+					} else {
+						type = QB_TYPE_U64;
+					}
+#else
+					} else {
+						type = QB_TYPE_U32;
+					}
+#endif
+				} else {
+					if(INT8_MIN <= value && value <= INT8_MAX) {
+						type = QB_TYPE_I08;
+					} else if(INT16_MIN <= value && value <= INT16_MAX) {
+						type = QB_TYPE_I16;
+#if SIZEOF_LONG == 8
+					} else if(INT32_MIN <= value && value <= INT32_MAX) {
+						type = QB_TYPE_I32;
+					} else {
+						type = QB_TYPE_I64;
+					}
+#else
+					} else {
+						type = QB_TYPE_I32;
+					}
+#endif
+				}
+			}	break;
+		}	break;
+		case IS_DOUBLE: {
+			double value = Z_DVAL_P(zvalue);
+			if(flags & QB_COERCE_TO_INTEGER) {
+				int64_t int_value = (int64_t) value;
+				if(flags & QB_COERCE_TO_UNSIGNED) {
+					if((uint64_t) int_value <= UINT8_MAX) {
+						type = QB_TYPE_U08;
+					} else if((uint64_t) int_value <= UINT16_MAX) {
+						type = QB_TYPE_I16;
+					} else if((uint64_t) int_value <= UINT32_MAX) {
+						type = QB_TYPE_I32;
+					} else {
+						type = QB_TYPE_I64;
+					}
+				} else {
+					if(INT8_MIN <= int_value && int_value <= INT8_MAX) {
+						type = QB_TYPE_I08;
+					} else if(INT16_MIN <= int_value && int_value <= INT16_MAX) {
+						type = QB_TYPE_I16;
+					} else if(INT32_MIN <= int_value && int_value <= INT32_MAX) {
+						type = QB_TYPE_I32;
+					} else {
+						type = QB_TYPE_I64;
+					}
+				}
+			} else {
+				float32_t value32 = (float32_t) value;
+				if((double) value32 == value) {
+					// value can be stored as F32
+					type = QB_TYPE_F32;
+				} else {
+					// value must be stored as F64
+					type = QB_TYPE_F64;
+				}
+			}
+		}	break;
+		case IS_STRING: {
+			type = QB_TYPE_U08;
+		}	break;
+		case IS_ARRAY: {
+			type = qb_get_zval_array_type(cxt, zvalue, flags);
+		}	break;
+	}
+	return type;
+}
+
+static uint32_t ZEND_FASTCALL qb_get_zval_array_type(qb_compiler_context *cxt, zval *array, uint32_t flags) {
+	HashTable *ht = Z_ARRVAL_P(array);
+	Bucket *p;
+	uint32_t highest_rank_type = 0;
+
+	for(p = ht->pListHead; p; p = p->pNext) {
+		zval **p_element = p->pData;
+		uint32_t type = qb_get_zval_type(cxt, *p_element, flags);
+		if(type > highest_rank_type) {
+			highest_rank_type = type;
+		}
+	}
+	return highest_rank_type;
+}
+
+qb_address * ZEND_FASTCALL qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type) {
+	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY) || Z_TYPE_P(zvalue) == IS_STRING) {
+		qb_address *address;
+
+		// figure out the dimensions of the array first
+		uint32_t dimensions[MAX_DIMENSION];
+		uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, zvalue, desired_type);
+		dimensions[0] = 0;
+		qb_get_zend_array_dimensions(cxt, zvalue, desired_type, dimensions, dimension_count);
+
+		// create a local array for it
+		address = qb_create_fixed_size_multidimensional_array(cxt, desired_type, dimensions, dimension_count, FALSE);
+		address->flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_INITIALIZED;
+
+		// copy the elements
+		qb_copy_elements_from_zend_array(cxt, zvalue, address);
+
+		if(Z_TYPE_P(zvalue) == IS_STRING) {
+			if((desired_type & ~QB_TYPE_UNSIGNED) == QB_TYPE_I08) {
+				// mark it as something that should print out as text
+				address->flags |= QB_ADDRESS_STRING;
+			}
+		}
+		return address;
+	} else {
+		switch(desired_type) {
+			case QB_TYPE_S08: return qb_obtain_constant_S08(cxt, (CTYPE(S08)) qb_zval_to_long(zvalue));
+			case QB_TYPE_U08: return qb_obtain_constant_U08(cxt, (CTYPE(U08)) qb_zval_to_long(zvalue));
+			case QB_TYPE_S16: return qb_obtain_constant_S16(cxt, (CTYPE(S16)) qb_zval_to_long(zvalue));
+			case QB_TYPE_U16: return qb_obtain_constant_U16(cxt, (CTYPE(U16)) qb_zval_to_long(zvalue));
+			case QB_TYPE_S32: return qb_obtain_constant_S32(cxt, (CTYPE(S32)) qb_zval_to_long(zvalue));
+			case QB_TYPE_U32: return qb_obtain_constant_U32(cxt, (CTYPE(U32)) qb_zval_to_long(zvalue));
+			case QB_TYPE_S64: return qb_obtain_constant_S64(cxt, (CTYPE(S64)) qb_zval_to_long(zvalue));
+			case QB_TYPE_U64: return qb_obtain_constant_U64(cxt, (CTYPE(U64)) qb_zval_to_long(zvalue));
+			case QB_TYPE_F32: return qb_obtain_constant_F32(cxt, (CTYPE(F32)) qb_zval_to_double(zvalue));
+			case QB_TYPE_F64: return qb_obtain_constant_F64(cxt, (CTYPE(F64)) qb_zval_to_double(zvalue));
+			default: break;
+		}
+	}
+	qb_abort("unable to convert constant");
+	return NULL;
+}
+
+qb_address * ZEND_FASTCALL qb_obtain_constant(qb_compiler_context *cxt, int64_t value, qb_primitive_type desired_type) {
+#if ZEND_DEBUG
+	if(desired_type >= QB_TYPE_COUNT) {
+		qb_abort("invalid type id");
+	}
+#endif
+	if(desired_type >= QB_TYPE_F32) {
+		return qb_obtain_constant_float(cxt, (float64_t) value, desired_type);
+	} else {
+		return qb_obtain_constant_integer(cxt, value, desired_type);
+	}
+}
+
+qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type) {
+	qb_address *address;
+	uint32_t i;
+	for(i = 0; i < cxt->scalar_count; i++) {
+		qb_address *address = cxt->scalars[i];
+		if(TEMPORARY(address) && !(address->flags & (QB_ADDRESS_NON_LOCAL | QB_ADDRESS_IN_USE))) {
+			if(address->type == desired_type) {
+				address->flags &= ~(QB_ADDRESS_STRING | QB_ADDRESS_REUSED | QB_ADDRESS_BOOLEAN);
+				qb_lock_address(cxt, address);
+				return address;
+			}
+		}
+	}
+	address = qb_create_scalar(cxt, desired_type);
+	address->flags &= ~QB_ADDRESS_READ_ONLY;
+	address->flags |= QB_ADDRESS_TEMPORARY;
+	qb_lock_address(cxt, address);
 	return address;
 }
 
@@ -1160,13 +1451,6 @@ static qb_operand * ZEND_FASTCALL qb_expand_array_initializer(qb_compiler_contex
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb_address *address);
-static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_compiler_context *cxt, zval *zvalue, qb_address *address);
-static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type);
-static void ZEND_FASTCALL qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type, uint32_t *dimensions, uint32_t dimension_count);
-static qb_primitive_type ZEND_FASTCALL qb_get_zval_type(qb_compiler_context *cxt, zval *zvalue, uint32_t flags);
-static qb_address * ZEND_FASTCALL qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type);
-
 static uint32_t ZEND_FASTCALL qb_get_array_initializer_dimension_count(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_primitive_type element_type) {
 	uint32_t overall_sub_array_dimension_count = 0, i;
 
@@ -1413,7 +1697,7 @@ static void ZEND_FASTCALL qb_initialize_dimensions(qb_compiler_context *cxt, qb_
 	}
 }
 
-static void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_variable *qvar) {
+void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_variable *qvar) {
 	qb_type_declaration *decl = qb_find_variable_declaration(cxt, qvar);
 
 	if(decl) {

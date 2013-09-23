@@ -27,7 +27,7 @@
 
 extern const char compressed_table_zend_op_names[];
 
-static zend_always_inline const char * qb_get_zend_op_name(qb_php_translater_context *cxt, uint32_t opcode) {
+const char * ZEND_FASTCALL qb_get_zend_op_name(qb_php_translater_context *cxt, uint32_t opcode) {
 	if(!cxt->pool->zend_op_names) {
 		qb_uncompress_table(compressed_table_zend_op_names, (void ***) &cxt->pool->zend_op_names, NULL, 0);
 		if(!cxt->pool->zend_op_names) {
@@ -43,181 +43,6 @@ void ZEND_FASTCALL qb_print_zend_ops(qb_php_translater_context *cxt) {
 		zend_op *zop = &cxt->zend_op_array->opcodes[i];
 		const char *opname = qb_get_zend_op_name(cxt, zop->opcode);
 		php_printf("[%04d] %s (line number: %d)\n", i, opname, zop->lineno);
-	}
-}
-
-static uint32_t ZEND_FASTCALL qb_get_zend_array_dimension_count(qb_php_translater_context *cxt, zval *zvalue, qb_primitive_type element_type) {
-	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
-		HashTable *ht = Z_ARRVAL_P(zvalue);
-		Bucket *p;
-		uint32_t overall_sub_array_dimension_count = 0;
-		for(p = ht->pListHead; p; p = p->pNext) {
-			zval **p_element = p->pData;
-			uint32_t sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, *p_element, element_type);
-			if(overall_sub_array_dimension_count) {
-				if(overall_sub_array_dimension_count != sub_array_dimension_count) {
-					qb_abort("Array has irregular structure");
-				}
-			} else {
-				overall_sub_array_dimension_count = sub_array_dimension_count;
-			}
-		}
-		if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
-			qb_abort("Array initializer has too many dimensions");
-		}
-		return overall_sub_array_dimension_count + 1;
-	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-static void ZEND_FASTCALL qb_get_zend_array_dimensions(qb_php_translater_context *cxt, zval *zvalue, qb_primitive_type element_type, uint32_t *dimensions, uint32_t dimension_count) {
-	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
-		HashTable *ht = Z_ARRVAL_P(zvalue);
-		Bucket *p;
-		int32_t highest_index = -1;
-		uint32_t dimension;
-		for(p = ht->pListHead; p; p = p->pListNext) {
-			if(p->nKeyLength > 0) {
-				qb_abort("String key encountered (%s)", p->arKey);
-			}
-			if((long) p->h < 0) {
-				qb_abort("Negative index encountered (%lu)", p->h);
-			}
-			if((long) p->h > highest_index) {
-				highest_index = p->h;
-			}
-		}
-		dimension = highest_index + 1;
-		if(dimension > dimensions[0]) {
-			dimensions[0] = dimension;
-		}
-		if(dimension_count > 1) {
-			dimensions[1] = 0;
-			for(p = ht->pListHead; p; p = p->pListNext) {
-				zval **p_element = p->pData;
-				qb_get_zend_array_dimensions(cxt, *p_element, element_type, dimensions + 1, dimension_count - 1);
-			}
-		}
-	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
-		uint32_t byte_count = Z_STRLEN_P(zvalue);
-		uint32_t dimension = byte_count >> type_size_shifts[element_type];
-		if(byte_count != dimension * type_sizes[element_type]) {
-			qb_abort("Number of bytes in string (%d) is not divisible by %d", byte_count, type_sizes[element_type]);
-		}
-		if(dimension > dimensions[0]) {
-			dimensions[0] = dimension;
-		}
-	}
-}
-
-static void ZEND_FASTCALL qb_copy_element_from_zval(qb_php_translater_context *cxt, zval *zvalue, qb_address *address) {
-	if(Z_TYPE_P(zvalue) == IS_LONG) {
-		switch(address->type) {
-			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_LVAL_P(zvalue); break;
-			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_LVAL_P(zvalue); break;
-			default: break;
-		}
-	} else if(Z_TYPE_P(zvalue) == IS_DOUBLE) {
-		switch(address->type) {
-			case QB_TYPE_S08: VALUE(S08, address) = (CTYPE(S08)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U08: VALUE(U08, address) = (CTYPE(U08)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_S16: VALUE(S16, address) = (CTYPE(S16)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U16: VALUE(U16, address) = (CTYPE(U16)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_S32: VALUE(S32, address) = (CTYPE(S32)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U32: VALUE(U32, address) = (CTYPE(U32)) (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_S64: VALUE(S64, address) = (CTYPE(S64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_DVAL_P(zvalue); break;
-			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_DVAL_P(zvalue); break;
-			default: break;
-		}
-	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
-		uint32_t type_size = type_sizes[address->type];
-		uint32_t string_len = Z_STRLEN_P(zvalue);
-		const char *string = Z_STRVAL_P(zvalue);
-		if(type_size != string_len) {
-			qb_abort("Cannot convert string to %s due to size mismatch", type_names[address->type]);
-		}
-		switch(address->type) {
-			case QB_TYPE_S08: VALUE(S08, address) = *((CTYPE(S08) *) string); break;
-			case QB_TYPE_U08: VALUE(U08, address) = *((CTYPE(U08) *) string); break;
-			case QB_TYPE_S16: VALUE(S16, address) = *((CTYPE(S16) *) string); break;
-			case QB_TYPE_U16: VALUE(U16, address) = *((CTYPE(U16) *) string); break;
-			case QB_TYPE_S32: VALUE(S32, address) = *((CTYPE(S32) *) string); break;
-			case QB_TYPE_U32: VALUE(U32, address) = *((CTYPE(U32) *) string); break;
-			case QB_TYPE_S64: VALUE(S64, address) = *((CTYPE(S64) *) string); break;
-			case QB_TYPE_U64: VALUE(U64, address) = *((CTYPE(U64) *) string); break;
-			case QB_TYPE_F32: VALUE(F32, address) = *((CTYPE(F32) *) string); break;
-			case QB_TYPE_F64: VALUE(F64, address) = *((CTYPE(F64) *) string); break;
-			default: break;
-		}
-	} else if(Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY) {
-		switch(address->type) {
-			case QB_TYPE_S64:
-			case QB_TYPE_U64: {
-				VALUE(I64, address) = qb_zval_array_to_int64(zvalue);
-			}	break;
-			default:
-				qb_abort("Cannot convert an array to %s", type_names[address->type]);
-		}
-	}
-}
-
-static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_php_translater_context *cxt, zval *zvalue, qb_address *address) {
-	qb_address *dimension_address = address->dimension_addresses[0];
-	uint32_t dimension = VALUE(U32, dimension_address);
-	qb_primitive_type element_type = address->type;
-	uint32_t element_size = type_sizes[element_type], i;
-
-	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
-		HashTable *ht = Z_ARRVAL_P(zvalue);
-		if(address->dimension_count > 1) {
-			qb_address _sub_array_address, *sub_array_address = &_sub_array_address;
-			uint32_t sub_array_array_size, sub_array_size;
-			qb_initialize_subarray_address(cxt->compiler_context, address, sub_array_address);
-			sub_array_array_size = VALUE(U32, sub_array_address->array_size_address);
-			sub_array_size = element_size * sub_array_array_size;
-
-			for(i = 0; i < dimension; i++) {
-				zval **p_element;
-				if(zend_hash_index_find(ht, i, (void **) &p_element) == SUCCESS) {
-					qb_copy_elements_from_zend_array(cxt, *p_element, sub_array_address);
-				} else {
-					memset(ARRAY(I08, sub_array_address), 0, sub_array_size);
-				}
-				sub_array_address->segment_offset += sub_array_size;
-			}
-		} else {
-			qb_address _element_address, *element_address = &_element_address;
-			qb_initialize_element_address(cxt->compiler_context, address, element_address);
-
-			for(i = 0; i < dimension; i++) {
-				zval **p_element;
-				if(zend_hash_index_find(ht, i, (void **) &p_element) == SUCCESS) {
-					qb_copy_element_from_zval(cxt, *p_element, element_address);
-				} else {
-					memset(ARRAY(I08, element_address), 0, element_size);
-				}
-				element_address->segment_offset += element_size;
-			}
-		}
-	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
-		uint32_t byte_count = Z_STRLEN_P(zvalue);
-		uint32_t space_available = dimension * element_size;
-		int8_t *memory = ARRAY(I08, address);
-		memcpy(memory, Z_STRVAL_P(zvalue), byte_count);
-		memset(memory + byte_count, 0, space_available - byte_count);
 	}
 }
 
@@ -866,120 +691,6 @@ qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compiler_data
 	return class_decl;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_zval_type(qb_php_translater_context *cxt, zval *zvalue, uint32_t flags);
-
-static uint32_t ZEND_FASTCALL qb_get_zval_array_type(qb_php_translater_context *cxt, zval *array, uint32_t flags) {
-	HashTable *ht = Z_ARRVAL_P(array);
-	Bucket *p;
-	uint32_t highest_rank_type = 0;
-
-	for(p = ht->pListHead; p; p = p->pNext) {
-		zval **p_element = p->pData;
-		uint32_t type = qb_get_zval_type(cxt, *p_element, flags);
-		if(type > highest_rank_type) {
-			highest_rank_type = type;
-		}
-	}
-	return highest_rank_type;
-}
-
-static uint32_t ZEND_FASTCALL qb_get_zval_type(qb_php_translater_context *cxt, zval *zvalue, uint32_t flags) {
-	uint32_t type;
-	switch(Z_TYPE_P(zvalue)) {
-		case IS_BOOL: {
-			type = QB_TYPE_I32;
-		}	break;
-		case IS_LONG: {
-			int value = Z_LVAL_P(zvalue);
-			if(flags & QB_COERCE_TO_FLOATING_POINT) {
-				if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
-					type = QB_TYPE_F64;
-				} else {
-					// a single precision fp has 23 bits of precision
-					type = (-0x007FFFFF <= value && value <= 0x007FFFFF) ?  QB_TYPE_F32 : QB_TYPE_F64;
-				}
-			} else {
-				if(flags & QB_COERCE_TO_UNSIGNED) {
-					if(value <= UINT8_MAX) {
-						type = QB_TYPE_U08;
-					} else if((unsigned int) value <= UINT16_MAX) {
-						type = QB_TYPE_U16;
-#if SIZEOF_LONG == 8
-					} else if((unsigned int) value <= UINT32_MAX) {
-						type = QB_TYPE_U32;
-					} else {
-						type = QB_TYPE_U64;
-					}
-#else
-					} else {
-						type = QB_TYPE_U32;
-					}
-#endif
-				} else {
-					if(INT8_MIN <= value && value <= INT8_MAX) {
-						type = QB_TYPE_I08;
-					} else if(INT16_MIN <= value && value <= INT16_MAX) {
-						type = QB_TYPE_I16;
-#if SIZEOF_LONG == 8
-					} else if(INT32_MIN <= value && value <= INT32_MAX) {
-						type = QB_TYPE_I32;
-					} else {
-						type = QB_TYPE_I64;
-					}
-#else
-					} else {
-						type = QB_TYPE_I32;
-					}
-#endif
-				}
-			}	break;
-		}	break;
-		case IS_DOUBLE: {
-			double value = Z_DVAL_P(zvalue);
-			if(flags & QB_COERCE_TO_INTEGER) {
-				int64_t int_value = (int64_t) value;
-				if(flags & QB_COERCE_TO_UNSIGNED) {
-					if((uint64_t) int_value <= UINT8_MAX) {
-						type = QB_TYPE_U08;
-					} else if((uint64_t) int_value <= UINT16_MAX) {
-						type = QB_TYPE_I16;
-					} else if((uint64_t) int_value <= UINT32_MAX) {
-						type = QB_TYPE_I32;
-					} else {
-						type = QB_TYPE_I64;
-					}
-				} else {
-					if(INT8_MIN <= int_value && int_value <= INT8_MAX) {
-						type = QB_TYPE_I08;
-					} else if(INT16_MIN <= int_value && int_value <= INT16_MAX) {
-						type = QB_TYPE_I16;
-					} else if(INT32_MIN <= int_value && int_value <= INT32_MAX) {
-						type = QB_TYPE_I32;
-					} else {
-						type = QB_TYPE_I64;
-					}
-				}
-			} else {
-				float32_t value32 = (float32_t) value;
-				if((double) value32 == value) {
-					// value can be stored as F32
-					type = QB_TYPE_F32;
-				} else {
-					// value must be stored as F64
-					type = QB_TYPE_F64;
-				}
-			}
-		}	break;
-		case IS_STRING: {
-			type = QB_TYPE_U08;
-		}	break;
-		case IS_ARRAY: {
-			type = qb_get_zval_array_type(cxt, zvalue, flags);
-		}	break;
-	}
-	return type;
-}
-
 static void ZEND_FASTCALL qb_retrieve_operand(qb_php_translater_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	switch(zoperand_type) {
 		case Z_OPERAND_CV: {
@@ -1183,7 +894,7 @@ static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, voi
 				if(qvar) {
 					if(!(qvar->flags & QB_VARIABLE_LOCAL)) {
 						qvar->flags |= QB_VARIABLE_LOCAL;
-						qb_set_variable_type(cxt, qvar);
+						qb_set_variable_type(cxt->compiler_context, qvar);
 					}
 					result->type = QB_OPERAND_ADDRESS;
 					result->address = qvar->address;
@@ -1196,7 +907,7 @@ static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, voi
 				if(qvar) {
 					if(!(qvar->flags & QB_VARIABLE_GLOBAL)) {
 						qvar->flags |= QB_VARIABLE_GLOBAL;
-						qb_set_variable_type(cxt, qvar);
+						qb_set_variable_type(cxt->compiler_context, qvar);
 					}
 				}
 				// set result to GLOBAL_STATIC so the ZEND_ASSIGN_REF handler knows that

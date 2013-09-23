@@ -528,6 +528,8 @@ qb_variable * ZEND_FASTCALL qb_find_variable(qb_compiler_context *cxt, zend_clas
 qb_variable * ZEND_FASTCALL qb_find_class_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name);
 qb_variable * ZEND_FASTCALL qb_find_instance_variable(qb_compiler_context *cxt, zval *name);
 
+void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_variable *qvar);
+
 qb_address * ZEND_FASTCALL qb_retrieve_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address);
 qb_address * ZEND_FASTCALL qb_retrieve_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name);
 qb_address * ZEND_FASTCALL qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address);
