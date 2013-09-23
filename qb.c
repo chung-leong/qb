@@ -319,7 +319,7 @@ PHP_FUNCTION(qb_extract)
 		return;
 	}
 
-	qb_extract(input, output_type, return_value TSRMLS_CC);
+	//qb_extract(input, output_type, return_value TSRMLS_CC);
 }
 /* }}} */
 

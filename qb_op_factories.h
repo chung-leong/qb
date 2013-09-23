@@ -259,7 +259,4 @@ extern qb_basic_op_factory factory_rand;
 extern qb_basic_op_factory factory_mt_rand;
 extern qb_float_op_factory factory_lcg;
 
-void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
-void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
-
 #endif

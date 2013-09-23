@@ -277,7 +277,6 @@ class CodeGenerator {
 		$zend_opnames = file("$folder/listings/zend_op_names.txt", FILE_IGNORE_NEW_LINES);
 		$pbj_opnames = file("$folder/listings/pixel_bender_op_names.txt", FILE_IGNORE_NEW_LINES);
 
-		/*
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, true, true);
 		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, true, true);
@@ -287,7 +286,6 @@ class CodeGenerator {
 		$this->writeCompressTable($handle, "compressed_table_zend_op_names", $zend_opnames, false, true);
 		$this->writeCompressTable($handle, "compressed_table_pbj_op_names", $pbj_opnames, false, true);
 		fwrite($handle, "#endif\n");
-		*/
 	}
 
 	public function writeNativeCodeTables($handle, $compiler) {
