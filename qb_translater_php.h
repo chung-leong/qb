@@ -45,11 +45,6 @@ struct qb_php_translater_context {
 	qb_compiler_context *compiler_context;
 	qb_compiler_data_pool *pool;
 
-	qb_function function_prototype;
-	qb_function_declaration *function_declaration;
-	uint32_t function_flags;
-
-	zend_function *zend_function_being_called;
 	zval *zend_this_object;
 	zval *zend_class_name;
 	zend_class_entry *zend_class;
@@ -104,5 +99,14 @@ enum {
 
 #define ZEND_OP_INDEX(zop)						(((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op)
 #define ZEND_OP(index)							&cxt->zend_op_array->opcodes[index]
+
+qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc, zend_class_entry *ce);
+qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_table(qb_compiler_data_pool *pool, zend_function *zfunc, HashTable *ht);
+qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compiler_data_pool *pool, zend_class_entry *ce);
+
+void ZEND_FASTCALL qb_print_zend_ops(qb_php_translater_context *cxt);
+
+void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt);
 
 #endif

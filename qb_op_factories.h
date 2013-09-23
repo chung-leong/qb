@@ -156,6 +156,8 @@ struct qb_pixel_op_factory {
 	qb_opcode opcodes[2][2];
 }; 
 
+extern qb_simple_op_factory factory_nop;
+
 extern qb_copy_op_factory factory_assignment;
 extern qb_derived_op_factory factory_array_element_assignment;
 extern qb_derived_op_factory factory_object_property_assignment;
@@ -204,13 +206,15 @@ extern qb_basic_op_factory factory_branch_on_not_equal;
 extern qb_basic_op_factory factory_branch_on_less_than;
 extern qb_basic_op_factory factory_branch_on_less_equal;
 
-extern qb_string_op_factory factory_print;
-extern qb_derived_op_factory factory_echo;
-
 extern qb_simple_op_factory factory_return;
 extern qb_simple_op_factory factory_exit;
+extern qb_simple_op_factory factory_jump;
 extern qb_simple_op_factory factory_branch_on_true;
 extern qb_simple_op_factory factory_branch_on_false;
+extern qb_simple_op_factory factory_ext;
+
+extern qb_string_op_factory factory_print;
+extern qb_derived_op_factory factory_echo;
 
 extern qb_float_op_factory factory_sin;
 extern qb_float_op_factory factory_asin;

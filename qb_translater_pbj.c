@@ -741,7 +741,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_compiler_con
 				qb_address *offset_address = cxt->pbj_int_numerals[channel];
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *source_address = bundle->addresses[i];
-				qb_address *channel_address = qb_get_array_slice(cxt, address, offset_address, length_address);
+				qb_address *channel_address = qb_retrieve_array_slice(cxt, address, offset_address, length_address);
 				qb_create_unary_op(cxt, &factory_copy, source_address, channel_address);
 			}
 		}
@@ -759,7 +759,7 @@ static void ZEND_FASTCALL qb_pbj_release_temporary_vector(qb_compiler_context *c
 				qb_address *offset_address = cxt->pbj_int_numerals[channel];
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *destination_address = bundle->addresses[i];
-				qb_address *channel_address = qb_get_array_slice(cxt, bundle->temporary_address, offset_address, length_address);
+				qb_address *channel_address = qb_retrieve_array_slice(cxt, bundle->temporary_address, offset_address, length_address);
 				qb_create_unary_op(cxt, &factory_copy, channel_address, destination_address);
 			}
 		}
