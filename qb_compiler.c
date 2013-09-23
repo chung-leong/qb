@@ -2439,7 +2439,7 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 		}
 
 		for(i = 0; i < operand_count; i++) {
-			qb_address *address = operands[operand_count].address;
+			qb_address *address = operands[i].address;
 			if(address->mode == QB_ADDRESS_MODE_ELE) {
 				// see if the opcode has an ELE version
 				// most do, but a few do not
@@ -4188,9 +4188,9 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			qb_fuse_instructions(compiler_cxt, 2);
 
 			// encode the instruction stream
-			qb_encode_instructions(compiler_cxt);
+			//qb_encode_instructions(compiler_cxt);
 
-			compiler_cxt->instruction_crc64 = qb_calculate_crc64((uint8_t *) compiler_cxt->instructions, compiler_cxt->instruction_length, 0);
+			//compiler_cxt->instruction_crc64 = qb_calculate_crc64((uint8_t *) compiler_cxt->instructions, compiler_cxt->instruction_length, 0);
 			if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
 				native_compile = TRUE;
 			}

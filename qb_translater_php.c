@@ -1765,6 +1765,7 @@ void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt) {
 void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_php_translater_context));
 	cxt->pool = compiler_cxt->pool;
+	cxt->compiler_context = compiler_cxt;
 	if(compiler_cxt->function_declaration) {
 		cxt->zend_op_array = &compiler_cxt->zend_function->op_array;
 		cxt->zend_class = compiler_cxt->zend_function->op_array.scope;

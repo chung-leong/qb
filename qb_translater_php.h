@@ -26,6 +26,8 @@ typedef struct qb_php_op_translator			qb_php_op_translator;
 typedef struct qb_php_function_translator	qb_php_function_translator;
 typedef struct qb_temporary_variable		qb_temporary_variable;
 
+int ZEND_FASTCALL qb_initialize_php_translater(TSRMLS_D);
+
 typedef void (ZEND_FASTCALL *qb_php_op_translator_proc)(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 typedef void (ZEND_FASTCALL *qb_php_intrinsic_translator_proc)(qb_php_translater_context *cxt, qb_php_function_translator *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
 

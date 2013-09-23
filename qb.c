@@ -149,6 +149,7 @@ PHP_MINIT_FUNCTION(qb)
 #endif
 
 	qb_initialize_compiler(TSRMLS_C);
+	qb_initialize_php_translater(TSRMLS_C);
 	qb_initialize_interpreter(TSRMLS_C);
 
 #if ZEND_ENGINE_2_1

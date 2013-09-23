@@ -40,7 +40,7 @@ static void ZEND_FASTCALL qb_link_results_variable(qb_compiler_context *cxt, qb_
 		destination->type = QB_RESULT_DESTINATION_VARIABLE;
 		destination->variable = *variable;
 		value->result_prototype->destination = destination;
-		value->result_prototype->parent = result_prototype;
+		destination->prototype = value->result_prototype->parent = result_prototype;
 	}
 }
 
@@ -55,7 +55,7 @@ static void ZEND_FASTCALL qb_link_results_array_element(qb_compiler_context *cxt
 		destination->type = QB_RESULT_DESTINATION_ELEMENT;
 		destination->element.container = *container;
 		destination->element.index = *index;
-		value->result_prototype->parent = result_prototype;
+		destination->prototype = value->result_prototype->parent = result_prototype;
 	}
 }
 
@@ -70,7 +70,7 @@ static void ZEND_FASTCALL qb_link_results_object_property(qb_compiler_context *c
 		destination->type = QB_RESULT_DESTINATION_PROPERTY;
 		destination->property.container = *container;
 		destination->property.name = *name;
-		value->result_prototype->parent = result_prototype;
+		destination->prototype = value->result_prototype->parent = result_prototype;
 	}
 }
 
@@ -81,6 +81,7 @@ static void ZEND_FASTCALL qb_link_results_print(qb_compiler_context *cxt, qb_op_
 	if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		qb_result_destination *destination = qb_allocate_result_destination(cxt->pool);
 		destination->type = QB_RESULT_DESTINATION_PRINT;
+		destination->prototype = result_prototype;
 	}
 }
 
