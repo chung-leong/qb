@@ -1793,7 +1793,7 @@ qb_minmax_op_factory factory_min = {
 	{	QB_AMIN_F64_F64,	QB_AMIN_F32_F32,	QB_AMIN_U64_U64,	QB_AMIN_S64_S64,	QB_AMIN_U32_U32,	QB_AMIN_S32_S32,	QB_AMIN_U16_U16,	QB_AMIN_S16_S16,	QB_AMIN_U08_U08,		QB_AMIN_S08_S08,	},
 };
 
-static qb_minmax_op_factory factory_max = { 
+qb_minmax_op_factory factory_max = { 
 	qb_resolve_expression_type_highest_rank,
 	NULL,
 	qb_coerce_operands_all,
@@ -1811,7 +1811,7 @@ static qb_minmax_op_factory factory_max = {
 	{	QB_AMAX_F64_F64,	QB_AMAX_F32_F32,	QB_AMAX_U64_U64,	QB_AMAX_S64_S64,	QB_AMAX_U32_U32,	QB_AMAX_S32_S32,	QB_AMAX_U16_U16,	QB_AMAX_S16_S16,	QB_AMAX_U08_U08,		QB_AMAX_S08_S08,	},
 };
 
-static qb_basic_op_factory factory_rand = {
+qb_basic_op_factory factory_rand = {
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,

@@ -1135,7 +1135,7 @@ static void ZEND_FASTCALL qb_pbj_translate_select(qb_compiler_context *cxt, qb_p
 	cxt->ops[target_t_index]->flags |= QB_OP_JUMP_TARGET;
 	cxt->ops[target_f_index]->flags |= QB_OP_JUMP_TARGET;
 	cxt->jump_target_index1 = cxt->pbj_op_index + 2;
-	cxt->op_translations[cxt->pbj_op_offset + cxt->jump_target_index1] = QB_OP_INDEX_JUMP_TARGET;
+	cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->jump_target_index1] = QB_OP_INDEX_JUMP_TARGET;
 }
 
 static void ZEND_FASTCALL qb_pbj_translate_if(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
@@ -1983,8 +1983,8 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 	// shift the translation table by two so there's a place to put the inner and outer loop jump targets
 	cxt->pbj_op_offset = 2;
-	cxt->op_translations = qb_allocate_indices(cxt->pool, cxt->pbj_op_offset + cxt->pbj_op_count + 1); 
-	memset(cxt->op_translations, 0xFF, (cxt->pbj_op_offset + cxt->pbj_op_count + 1) * sizeof(uint32_t));
+	cxt->compiler_context->op_translations = qb_allocate_indices(cxt->pool, cxt->pbj_op_offset + cxt->pbj_op_count + 1); 
+	memset(cxt->compiler_context->op_translations, 0xFF, (cxt->pbj_op_offset + cxt->pbj_op_count + 1) * sizeof(uint32_t));
 
 	// copy parameters and input sizes
 	for(i = 0; i < cxt->pbj_parameter_count; i++) {
@@ -2032,14 +2032,14 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 	// set x to zero, but _OutCoord.x to 0.5
 	// the outer loop starts here
-	cxt->op_translations[OUTER_LOOK_JUMP_TARGET_INDEX] = cxt->op_count;
+	cxt->compiler_context->op_translations[OUTER_LOOK_JUMP_TARGET_INDEX] = cxt->op_count;
 	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_int_numerals[0], x_address);
 	qop = cxt->ops[cxt->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
 	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_float_numerals[1], out_coord_x_address);
 
 	// initialize the output pixel to zero--the inner loop starts here
-	cxt->op_translations[INNER_LOOP_JUMP_TARGET_INDEX] = cxt->op_count;
+	cxt->compiler_context->op_translations[INNER_LOOP_JUMP_TARGET_INDEX] = cxt->op_count;
 	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_float_numerals[0], output_address);
 	qop = cxt->ops[cxt->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
@@ -2062,11 +2062,11 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 		}
 
 		// flag new op as a jump target if there's a placeholder in the position
-		if(cxt->op_translations[cxt->pbj_op_offset + cxt->pbj_op_index] == QB_OP_INDEX_JUMP_TARGET) {
+		if(cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_index] == QB_OP_INDEX_JUMP_TARGET) {
 			qb_op *first_op = cxt->ops[current_op_count];
 			first_op->flags |= QB_OP_JUMP_TARGET;
 		}
-		cxt->op_translations[cxt->pbj_op_offset + cxt->pbj_op_index] = current_op_count;
+		cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_index] = current_op_count;
 
 		if(cxt->jump_target_index1) {
 			cxt->pbj_op_index = cxt->jump_target_index1;
@@ -2090,10 +2090,10 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	qb_create_nullary_op(cxt, &factory_increment, out_coord_x_address);
 
 	// if there's an jump to the end of the PB program, mark the instruction as a jump target
-	if(cxt->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] == QB_OP_INDEX_JUMP_TARGET) {
+	if(cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] == QB_OP_INDEX_JUMP_TARGET) {
 		qop = cxt->ops[end_index];
 		qop->flags |= QB_OP_JUMP_TARGET;
-		cxt->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] = end_index;
+		cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] = end_index;
 	}
 
 	// jump to beginning of inner loop if x is less than width

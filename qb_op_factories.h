@@ -255,7 +255,10 @@ extern qb_float_op_factory factory_is_finite;
 extern qb_float_op_factory factory_is_infinite;
 extern qb_float_op_factory factory_is_nan;
 extern qb_basic_op_factory factory_abs;
-extern qb_float_op_factory factory_lcg;
 extern qb_minmax_op_factory factory_min;
+extern qb_minmax_op_factory factory_max;
+extern qb_basic_op_factory factory_rand;
+extern qb_basic_op_factory factory_mt_rand;
+extern qb_float_op_factory factory_lcg;
 
 #endif
