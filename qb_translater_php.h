@@ -24,6 +24,7 @@
 typedef struct qb_php_translater_context	qb_php_translater_context;
 typedef struct qb_php_op_translator			qb_php_op_translator;
 typedef struct qb_php_function_translator	qb_php_function_translator;
+typedef struct qb_temporary_variable		qb_temporary_variable;
 
 typedef void (ZEND_FASTCALL *qb_php_op_translator_proc)(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 typedef void (ZEND_FASTCALL *qb_php_intrinsic_translator_proc)(qb_php_translater_context *cxt, qb_php_function_translator *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
@@ -41,6 +42,11 @@ struct qb_php_function_translator {
 	void *extra;
 };
 
+struct qb_temporary_variable {
+	qb_operand operand;
+	uint32_t last_access_op_index;
+};
+
 struct qb_php_translater_context {
 	qb_compiler_context *compiler_context;
 	qb_compiler_data_pool *pool;
@@ -54,9 +60,13 @@ struct qb_php_translater_context {
 	uint32_t jump_target_index1;
 	uint32_t jump_target_index2;
 
-	int32_t silence;
+	qb_address *foreach_index_address;
+	qb_result_prototype *result_prototypes;
+	uint32_t result_prototype_count;
 
-	qb_storage *storage;
+	qb_temporary_variable *temp_variables;
+	uint32_t temp_variable_count;
+	int32_t silence;
 
 	zend_function *previous_function;
 	zend_class_entry *previous_class;
@@ -107,6 +117,7 @@ qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compiler_data
 void ZEND_FASTCALL qb_print_zend_ops(qb_php_translater_context *cxt);
 
 void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+void ZEND_FASTCALL qb_free_php_translater_context(qb_php_translater_context *cxt);
 void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt);
 
 #endif

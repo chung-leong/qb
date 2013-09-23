@@ -400,6 +400,19 @@ void * ZEND_FASTCALL qb_allocate_items(qb_block_allocator **p_allocator, uint32_
 	return pointer;
 }
 
+void ZEND_FASTCALL qb_reset_block_allocator(qb_block_allocator **p_allocator) {
+	qb_block_allocator *al = *p_allocator, *bl;
+	while(al->previous_block) {
+		bl = al;
+		al = al->previous_block;
+		efree(bl);
+	}
+	al->count = 0;
+	memset(al->data, 0, al->capacity * al->item_size);
+	al->top = al->data;
+	*p_allocator = al;
+}
+
 void ZEND_FASTCALL qb_destroy_block_allocator(qb_block_allocator **p_allocator) {
 	qb_block_allocator *al = *p_allocator, *bl;
 	while(al) {

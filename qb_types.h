@@ -24,9 +24,7 @@
 typedef float  float32_t;
 typedef double float64_t;
 
-typedef struct qb_complex_F64			qb_complex_F64;
-typedef struct qb_complex_F32			qb_complex_F32;
-
+typedef struct qb_op					qb_op;
 typedef struct qb_address				qb_address;
 typedef struct qb_on_demand_address		qb_on_demand_address;
 typedef struct qb_variable				qb_variable;
@@ -37,6 +35,9 @@ typedef struct qb_index_alias_scheme	qb_index_alias_scheme;
 typedef struct qb_external_symbol		qb_external_symbol;
 typedef struct qb_native_code_bundle	qb_native_code_bundle;
 typedef struct qb_block_allocator 		qb_block_allocator;
+typedef struct qb_array_initializer		qb_array_initializer;
+typedef struct qb_result_prototype		qb_result_prototype;
+typedef struct qb_result_destination	qb_result_destination;
 
 typedef struct qb_pointer_SCA			qb_pointer_SCA;
 typedef struct qb_pointer_ELE			qb_pointer_ELE;
@@ -45,8 +46,13 @@ typedef struct qb_pointer_adjustment	qb_pointer_adjustment;
 
 typedef struct qb_thread_parameters		qb_thread_parameters;
 
+typedef struct qb_operand					qb_operand;
+
 typedef enum qb_primitive_type			qb_primitive_type;
 typedef enum qb_address_mode			qb_address_mode;
+typedef enum qb_operand_type				qb_operand_type;
+typedef enum qb_opcode						qb_opcode;
+typedef enum qb_result_destination_type		qb_result_destination_type;
 
 #define MAKE_STRING(x)						#x
 #define STRING(x)							MAKE_STRING(x)
@@ -215,6 +221,115 @@ struct qb_on_demand_address {
 	void *op_factory;
 };
 
+enum qb_operand_type {
+	QB_OPERAND_NONE					= 0,
+	QB_OPERAND_ADDRESS,
+	QB_OPERAND_EXTERNAL_SYMBOL,
+	QB_OPERAND_ARRAY_INITIALIZER,
+	QB_OPERAND_ZEND_CLASS,
+	QB_OPERAND_ZVAL,
+	QB_OPERAND_GLOBAL_STATIC,
+	QB_OPERAND_EMPTY,
+	QB_OPERAND_RESULT_PROTOTYPE,
+};
+
+enum {
+	QB_INSTRUCTION_OFFSET			= 0x40000000,
+	QB_INSTRUCTION_NEXT 			= 1 | QB_INSTRUCTION_OFFSET,
+	QB_INSTRUCTION_END				= 0xFFFFFFFF,
+};
+
+enum {
+	QB_OP_INDEX_NONE				= 0xFFFFFFFF,
+	QB_OP_INDEX_JUMP_TARGET			= 0xFFFFFFFE,
+};
+
+struct qb_operand {
+	qb_operand_type type;
+	union {
+		qb_address *address;
+		qb_function *function;
+		uint32_t symbol_index;
+
+		zval *constant;
+		zend_class_entry *zend_class;
+		qb_array_initializer *array_initializer;
+		qb_result_prototype *result_prototype;
+		void *generic_pointer;
+	};
+};
+
+struct qb_array_initializer {
+	qb_operand *elements;
+	uint32_t element_count;
+	qb_primitive_type desired_type;
+};
+
+struct qb_variable_dimensions {
+	uint32_t dimension_count;
+	uint32_t array_size;
+	qb_address *dimension_addresses[64];
+	qb_address *source_address;
+};
+
+enum qb_result_destination_type {
+	QB_RESULT_DESTINATION_TEMPORARY	= 0,
+	QB_RESULT_DESTINATION_VARIABLE,
+	QB_RESULT_DESTINATION_ELEMENT,
+	QB_RESULT_DESTINATION_PROPERTY,
+	QB_RESULT_DESTINATION_ARGUMENT,
+	QB_RESULT_DESTINATION_PRINT,
+	QB_RESULT_DESTINATION_FREE,
+};
+
+struct qb_result_destination {
+	qb_result_destination_type type;
+	union {
+		struct {
+			qb_function *function;
+			uint32_t index;
+		} argument;
+		struct {
+			qb_operand container;
+			qb_operand index;
+		} element;
+		struct {
+			qb_operand container;
+			qb_operand name;
+		} property;
+		qb_operand variable;
+	};
+	qb_result_prototype *prototype;
+};
+
+enum {
+	// intrinsic properties of an op
+	QB_OP_VARIABLE_LENGTH			= 0x8000,
+	QB_OP_NEED_LINE_NUMBER			= 0x4000,
+	QB_OP_BRANCH					= 0x3000,
+	QB_OP_JUMP 						= 0x1000,
+	QB_OP_SIDE_EFFECT				= 0x0800,
+	QB_OP_PERFORM_WRAP_AROUND		= 0x0400,
+	QB_OP_VERSION_AVAILABLE_ELE		= 0x0200,
+	QB_OP_VERSION_AVAILABLE_MIO		= 0x0100,
+
+	// compile time properties
+	QB_OP_JUMP_TARGET 				= 0x80000000,
+	QB_OP_CANNOT_REMOVE				= 0x40000000,
+	QB_OP_COMPILE_TIME_FLAGS		= 0xFFFF0000,
+};
+
+struct qb_op {
+	uint32_t flags;
+	qb_opcode opcode;
+	uint32_t operand_count;
+	qb_operand *operands;
+	uint32_t jump_target_count;
+	uint32_t *jump_target_indices;
+	uint32_t instruction_offset;
+	uint32_t line_number;
+};
+
 struct qb_pointer_SCA {
 	void *data_pointer;
 };
@@ -254,6 +369,7 @@ enum {
 	QB_VARIABLE_CLASS				= 0x00000010,
 	QB_VARIABLE_CLASS_INSTANCE		= 0x00000020,
 	QB_VARIABLE_RETURN_VALUE		= 0x00000040,
+	QB_VARIABLE_SHARED				= 0x00000080,
 	QB_VARIABLE_TYPES				= 0x0000FFFF,
 
 	QB_VARIABLE_PASSED_BY_REF		= 0x00010000,
@@ -279,6 +395,7 @@ enum {
 	QB_SEGMENT_EXPANDABLE			= 0x00000002,
 	QB_SEGMENT_PREALLOCATED			= 0x00000004,
 	QB_SEGMENT_TEMPORARY			= 0x00000008,
+	QB_SEGMENT_SHARED				= 0x00000010,
 	QB_SEGMENT_BORROWED				= 0x00000100,
 	QB_SEGMENT_MAPPED				= 0x00000200,
 };
@@ -325,6 +442,7 @@ enum {
 
 struct qb_function {
 	int8_t *instructions;
+	int8_t *instructions_start;
 	uint32_t instruction_length;
 	uint64_t instruction_crc64;
 	uint32_t flags;
@@ -336,6 +454,8 @@ struct qb_function {
 	qb_external_symbol **external_symbols;
 	uint32_t external_symbol_count;
 	qb_storage *local_storage;
+	qb_op *ops;
+	uint32_t op_count;
 	const char *name;
 	const char *filename;
 	void *native_proc;

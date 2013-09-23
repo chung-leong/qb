@@ -27,6 +27,7 @@ typedef struct qb_basic_op_factory				qb_basic_op_factory;
 typedef struct qb_float_op_factory				qb_float_op_factory; 
 typedef struct qb_simple_op_factory				qb_simple_op_factory;
 typedef struct qb_copy_op_factory				qb_copy_op_factory;
+typedef struct qb_cast_op_factory				qb_cast_op_factory;
 typedef struct qb_comparison_op_factory			qb_comparison_op_factory;
 typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
 typedef struct qb_arithmetic_op_factory			qb_arithmetic_op_factory;
@@ -47,7 +48,7 @@ typedef void (ZEND_FASTCALL *qb_validate_operands_proc)(qb_compiler_context *cxt
 
 typedef void (ZEND_FASTCALL *qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
 
-typedef void (ZEND_FASTCALL *qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (ZEND_FASTCALL *qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 typedef void (ZEND_FASTCALL *qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
 
@@ -100,6 +101,12 @@ struct qb_copy_op_factory {
 	qb_opcode opcodes[10][10];
 	qb_opcode vector_opcodes[3][2];
 };
+
+struct qb_cast_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	void *parent;
+	qb_primitive_type type;
+}; 
 
 struct qb_arithmetic_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
@@ -159,6 +166,17 @@ extern qb_simple_op_factory factory_nop;
 extern qb_copy_op_factory factory_assignment;
 extern qb_derived_op_factory factory_array_element_assignment;
 extern qb_derived_op_factory factory_object_property_assignment;
+
+extern qb_cast_op_factory factory_cast_S08;
+extern qb_cast_op_factory factory_cast_U08;
+extern qb_cast_op_factory factory_cast_S16;
+extern qb_cast_op_factory factory_cast_U16;
+extern qb_cast_op_factory factory_cast_S32;
+extern qb_cast_op_factory factory_cast_U32;
+extern qb_cast_op_factory factory_cast_S64;
+extern qb_cast_op_factory factory_cast_U64;
+extern qb_cast_op_factory factory_cast_F32;
+extern qb_cast_op_factory factory_cast_F64;
 
 extern qb_arithmetic_op_factory factory_increment;
 extern qb_arithmetic_op_factory factory_decrement;

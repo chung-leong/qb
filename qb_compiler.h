@@ -24,22 +24,14 @@
 typedef struct qb_type_declaration			qb_type_declaration;
 typedef struct qb_function_declaration		qb_function_declaration;
 typedef struct qb_class_declaration			qb_class_declaration;
-typedef struct qb_op						qb_op;
 typedef struct qb_op_info					qb_op_info;
-typedef struct qb_operand					qb_operand;
-typedef struct qb_array_initializer			qb_array_initializer;
 typedef struct qb_compiler_data_pool		qb_compiler_data_pool;
 typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_build_context				qb_build_context;
 typedef struct qb_diagnostics				qb_diagnostics;
-typedef struct qb_result_prototype			qb_result_prototype;
-typedef struct qb_result_destination		qb_result_destination;
-typedef struct qb_temporary_variable		qb_temporary_variable;
 typedef struct qb_variable_dimensions		qb_variable_dimensions;
 
-typedef enum qb_operand_type				qb_operand_type;
 typedef enum qb_stage						qb_stage;
-typedef enum qb_opcode						qb_opcode;
 typedef enum qb_diagnostic_type				qb_diagnostic_type;
 typedef enum qb_result_destination_type		qb_result_destination_type;
 typedef enum qb_matrix_order				qb_matrix_order;
@@ -65,126 +57,7 @@ struct qb_result_prototype {
 	qb_result_destination *destination;
 };
 
-enum qb_operand_type {
-	QB_OPERAND_NONE					= 0,
-	QB_OPERAND_ADDRESS,
-	QB_OPERAND_EXTERNAL_SYMBOL,
-	QB_OPERAND_ARRAY_INITIALIZER,
-	QB_OPERAND_ZEND_CLASS,
-	QB_OPERAND_ZVAL,
-	QB_OPERAND_GLOBAL_STATIC,
-	QB_OPERAND_EMPTY,
-	QB_OPERAND_RESULT_PROTOTYPE,
-};
-
-enum {
-	QB_INSTRUCTION_OFFSET			= 0x40000000,
-	QB_INSTRUCTION_NEXT 			= 1 | QB_INSTRUCTION_OFFSET,
-	QB_INSTRUCTION_END				= 0xFFFFFFFF,
-};
-
-enum {
-	QB_OP_INDEX_NONE				= 0xFFFFFFFF,
-	QB_OP_INDEX_JUMP_TARGET			= 0xFFFFFFFE,
-};
-
 #include "qb_opcodes.h"
-
-struct qb_operand {
-	qb_operand_type type;
-	union {
-		qb_address *address;
-		qb_function *function;
-		uint32_t symbol_index;
-
-		zval *constant;
-		zend_class_entry *zend_class;
-		qb_array_initializer *array_initializer;
-		qb_result_prototype *result_prototype;
-		void *generic_pointer;
-	};
-};
-
-struct qb_array_initializer {
-	qb_operand *elements;
-	uint32_t element_count;
-	qb_primitive_type desired_type;
-};
-
-struct qb_variable_dimensions {
-	uint32_t dimension_count;
-	uint32_t array_size;
-	qb_address *dimension_addresses[64];
-	qb_address *source_address;
-};
-
-enum qb_result_destination_type {
-	QB_RESULT_DESTINATION_TEMPORARY	= 0,
-	QB_RESULT_DESTINATION_VARIABLE,
-	QB_RESULT_DESTINATION_ELEMENT,
-	QB_RESULT_DESTINATION_PROPERTY,
-	QB_RESULT_DESTINATION_ARGUMENT,
-	QB_RESULT_DESTINATION_PRINT,
-	QB_RESULT_DESTINATION_FREE,
-};
-
-struct qb_result_destination {
-	qb_result_destination_type type;
-	union {
-		struct {
-			qb_function *function;
-			uint32_t index;
-		} argument;
-		struct {
-			qb_operand container;
-			qb_operand index;
-		} element;
-		struct {
-			qb_operand container;
-			qb_operand name;
-		} property;
-		qb_operand variable;
-	};
-	qb_result_prototype *prototype;
-};
-
-struct qb_temporary_variable {
-	qb_operand operand;
-	uint32_t last_access_op_index;
-};
-
-enum {
-	// intrinsic properties of an op
-	QB_OP_VARIABLE_LENGTH			= 0x8000,
-	QB_OP_NEED_LINE_NUMBER			= 0x4000,
-	QB_OP_BRANCH					= 0x3000,
-	QB_OP_JUMP 						= 0x1000,
-	QB_OP_SIDE_EFFECT				= 0x0800,
-	QB_OP_PERFORM_WRAP_AROUND		= 0x0400,
-	QB_OP_VERSION_AVAILABLE_ELE		= 0x0200,
-	QB_OP_VERSION_AVAILABLE_MIO		= 0x0100,
-
-	// compile time properties
-	QB_OP_JUMP_TARGET 				= 0x80000000,
-	QB_OP_CANNOT_REMOVE				= 0x40000000,
-	QB_OP_COMPILE_TIME_FLAGS		= 0xFFFF0000,
-};
-
-#define MM_DIMENSIONS(m1_rows, m1_cols, m2_rows, m2_cols)		(((m1_rows & 0x000003FF) << 20) | ((m1_cols & 0x000003FF) << 10) | (m2_cols & 0x000003FF))
-#define MV_DIMENSIONS(m_rows, m_cols, v_width)					MM_DIMENSIONS(m_rows, m_cols, v_width, 1)
-#define VM_DIMENSIONS(v_width, m_rows, m_cols)					MM_DIMENSIONS(1, v_width, m_rows, m_cols)
-#define V_DIMENSIONS(v_width)									MM_DIMENSIONS(1, v_width, v_width, 1)
-
-struct qb_op {
-	uint32_t flags;
-	qb_opcode opcode;
-	uint32_t operand_count;
-	qb_operand *operands;
-	uint32_t jump_target_count;
-	uint32_t *jump_target_indices;
-	uint32_t instruction_offset;
-	uint32_t line_number;
-};
 
 #pragma pack(push,1)
 
@@ -219,7 +92,6 @@ struct qb_compiler_data_pool {
 	qb_block_allocator *address_allocator;
 	qb_block_allocator *pointer_allocator;
 	qb_block_allocator *operand_allocator;
-	qb_block_allocator *array_initializer_allocator;
 	qb_block_allocator *index_alias_scheme_allocator;
 	qb_block_allocator *string_allocator;
 	qb_block_allocator *uint32_allocator;
@@ -227,6 +99,7 @@ struct qb_compiler_data_pool {
 	qb_block_allocator *variable_allocator;
 	qb_block_allocator *function_declaration_allocator;
 	qb_block_allocator *class_declaration_allocator;
+	qb_block_allocator *array_initializer_allocator;
 	qb_block_allocator *result_destination_allocator;
 
 	char * const *op_names;
@@ -257,6 +130,7 @@ struct qb_compiler_context {
 	uint32_t line_number;
 	uint32_t initialization_op_count;
 
+	qb_stage stage;
 	qb_compiler_data_pool *pool;
 
 	zend_function *zend_function;
@@ -269,25 +143,23 @@ struct qb_compiler_context {
 	uint32_t stack_item_buffer_size;
 	uint32_t stack_item_count;
 	uint32_t stack_item_offset;
-	qb_temporary_variable *temp_variables;
-	uint32_t temp_variable_count;
-	qb_address *foreach_index_address;
-	qb_result_prototype *result_prototypes;
-	uint32_t result_prototype_count;
+
+	qb_storage *storage;
 
 	qb_variable *return_variable;
 	qb_variable **variables;
 	uint32_t variable_count;
 	uint32_t argument_count;
 	uint32_t required_argument_count;
-	qb_storage *storage;
+	
 	qb_address **scalars;
 	uint32_t scalar_count;
+
 	qb_address **arrays;
 	uint32_t array_count;
+
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
-	qb_variable_dimensions result_dimensions;
 
 	const char *intrinsic_function_name;
 
@@ -301,8 +173,6 @@ struct qb_compiler_context {
 	uint64_t instruction_crc64;
 	int8_t *instructions;
 	void *native_proc;
-
-	qb_stage stage;
 
 	void ***tsrm_ls;
 };
@@ -497,7 +367,6 @@ void ZEND_FASTCALL qb_lock_address(qb_compiler_context *cxt, qb_address *address
 void ZEND_FASTCALL qb_unlock_address(qb_compiler_context *cxt, qb_address *address);
 void ZEND_FASTCALL qb_lock_operand(qb_compiler_context *cxt, qb_operand *operand);
 void ZEND_FASTCALL qb_unlock_operand(qb_compiler_context *cxt, qb_operand *operand);
-void ZEND_FASTCALL qb_lock_temporary_variables(qb_compiler_context *cxt);
 
 qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand *operands, uint32_t count, uint32_t flags);
 qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *cxt, qb_operand *operand, uint32_t flags);
@@ -535,9 +404,12 @@ qb_address * ZEND_FASTCALL qb_retrieve_named_element(qb_compiler_context *cxt, q
 qb_address * ZEND_FASTCALL qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address);
 qb_address * ZEND_FASTCALL qb_retrieve_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address);
 
+qb_address * ZEND_FASTCALL qb_retrieve_temporary_copy(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type);
+qb_address * ZEND_FASTCALL qb_retrieve_unary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address);
+qb_address * ZEND_FASTCALL qb_retrieve_binary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address1, qb_address *address2);
+
 void ZEND_FASTCALL qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type);
 void ZEND_FASTCALL qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
-void ZEND_FASTCALL qb_perform_assignment(qb_compiler_context *cxt, qb_address *value_address, qb_address *variable_address);
 
 void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);

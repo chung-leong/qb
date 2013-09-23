@@ -50,13 +50,14 @@ void ZEND_FASTCALL qb_print_zend_ops(qb_php_translater_context *cxt) {
 #define GROUP_OFFSET(group)		(offsets[group * 2])
 #define GROUP_LENGTH(group)		(offsets[group * 2 + 1] - offsets[group * 2])
 
-#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(static|staticvar)|(global)|(var)|(property)|(return))\\s+(.*?)\\s*(?:\\*+\\/)?$"
+#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(shared)|(static|staticvar)|(global)|(var)|(property)|(return))\\s+(.*?)\\s*(?:\\*+\\/)?$"
 
 enum {
 	FUNC_DECL_ENGINE = 1,
 	FUNC_DECL_IMPORT,
 	FUNC_DECL_PARAM,
 	FUNC_DECL_LOCAL,
+	FUNC_DECL_SHARED,
 	FUNC_DECL_STATIC,
 	FUNC_DECL_GLOBAL,
 	FUNC_DECL_VAR,
@@ -711,8 +712,8 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_php_translater_context *cxt, ui
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
 			uint32_t temp_var_index = Z_OPERAND_TMP_INDEX(zoperand);
-			if(temp_var_index < cxt->compiler_context->temp_variable_count) {
-				qb_temporary_variable *temp_variable = &cxt->compiler_context->temp_variables[temp_var_index];
+			if(temp_var_index < cxt->temp_variable_count) {
+				qb_temporary_variable *temp_variable = &cxt->temp_variables[temp_var_index];
 				*operand = temp_variable->operand;
 				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 					temp_variable->last_access_op_index = cxt->zend_op_index;
@@ -732,8 +733,8 @@ static void ZEND_FASTCALL qb_retire_operand(qb_php_translater_context *cxt, uint
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
 			uint32_t temp_var_index = Z_OPERAND_TMP_INDEX(zoperand);
-			if(temp_var_index < cxt->compiler_context->temp_variable_count) {
-				qb_temporary_variable *temp_variable = &cxt->compiler_context->temp_variables[temp_var_index];
+			if(temp_var_index < cxt->temp_variable_count) {
+				qb_temporary_variable *temp_variable = &cxt->temp_variables[temp_var_index];
 				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 					temp_variable->operand = *operand;
 				} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
@@ -753,6 +754,27 @@ static void ZEND_FASTCALL qb_retire_operand(qb_php_translater_context *cxt, uint
 				}
 			}
 		}	break;
+	}
+}
+
+static void ZEND_FASTCALL qb_lock_temporary_variables(qb_php_translater_context *cxt) {
+	uint32_t i = 0;
+	for(i = 0; i < cxt->temp_variable_count; i++) {
+		qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
+		if(temp_variable->operand.type == QB_OPERAND_ADDRESS) {
+			qb_address *address = temp_variable->operand.address;
+			if(address->source_address) {
+				qb_lock_address(cxt->compiler_context, address->source_address);
+			}
+			if(address->array_index_address) {
+				qb_lock_address(cxt->compiler_context, address->array_index_address);
+			}			
+		} else {
+			// lock temporary variables used to initialize an array as well
+			if(temp_variable->operand.type == QB_OPERAND_ARRAY_INITIALIZER) {
+				qb_lock_operand(cxt->compiler_context, &temp_variable->operand);
+			}
+		}
 	}
 }
 
@@ -1325,7 +1347,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_php_translater_con
 	if(cxt->zend_op->opcode != ZEND_OP_DATA) {
 		USE_TSRM
 		qb_operand operands[3], result;
-		qb_result_prototype *result_prototype = &cxt->compiler_context->result_prototypes[cxt->zend_op_index];
+		qb_result_prototype *result_prototype = &cxt->result_prototypes[cxt->zend_op_index];
 		qb_php_op_translator *t;
 		uint32_t operand_count = 0;
 		int32_t need_return_value = RETURN_VALUE_USED(cxt->zend_op);
@@ -1405,7 +1427,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_php_translater_con
 			}
 
 			// lock operands kept as temporary variables
-			qb_lock_temporary_variables(cxt->compiler_context);
+			qb_lock_temporary_variables(cxt);
 		} else {
 			qb_abort("Unsupported language feature");
 		}
@@ -1629,7 +1651,7 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_php_translater_conte
 	cxt->zend_op = ZEND_OP(start_index);
 	for(;;) {
 		if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-			if(cxt->compiler_context->result_prototypes[cxt->zend_op_index].preliminary_type != QB_TYPE_UNKNOWN) {
+			if(cxt->result_prototypes[cxt->zend_op_index].preliminary_type != QB_TYPE_UNKNOWN) {
 				// the result prototype has been built already
 				break;
 			}
@@ -1699,20 +1721,20 @@ void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt) {
 	memset(cxt->compiler_context->op_translations, 0xFF, cxt->zend_op_array->last * sizeof(uint32_t));
 
 	if(cxt->zend_op_array->T > 0) {
-		qb_attach_new_array(cxt->pool, (void **) &cxt->compiler_context->temp_variables, &cxt->compiler_context->temp_variable_count, sizeof(qb_temporary_variable), cxt->zend_op_array->T);
-		qb_enlarge_array((void **) &cxt->compiler_context->temp_variables, cxt->zend_op_array->T);
+		qb_attach_new_array(cxt->pool, (void **) &cxt->temp_variables, &cxt->temp_variable_count, sizeof(qb_temporary_variable), cxt->zend_op_array->T);
+		qb_enlarge_array((void **) &cxt->temp_variables, cxt->zend_op_array->T);
 
 		// set the operand type to EMPTY (which is somewhat different from NONE)
-		for(i = 0; i < cxt->compiler_context->temp_variable_count; i++) {
-			qb_temporary_variable *temp_variable = &cxt->compiler_context->temp_variables[i];
+		for(i = 0; i < cxt->temp_variable_count; i++) {
+			qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
 			temp_variable->operand.type = QB_OPERAND_EMPTY;
 		}
 	}
 
-	qb_attach_new_array(cxt->pool, (void **) &cxt->compiler_context->result_prototypes, &cxt->compiler_context->result_prototype_count, sizeof(qb_result_prototype), cxt->zend_op_array->last);
-	qb_enlarge_array((void **) &cxt->compiler_context->result_prototypes, cxt->zend_op_array->last);
-	for(i = 0; i < cxt->compiler_context->result_prototype_count; i++) {
-		qb_result_prototype *prototype = &cxt->compiler_context->result_prototypes[i];
+	qb_attach_new_array(cxt->pool, (void **) &cxt->result_prototypes, &cxt->result_prototype_count, sizeof(qb_result_prototype), cxt->zend_op_array->last);
+	qb_enlarge_array((void **) &cxt->result_prototypes, cxt->zend_op_array->last);
+	for(i = 0; i < cxt->result_prototype_count; i++) {
+		qb_result_prototype *prototype = &cxt->result_prototypes[i];
 		prototype->preliminary_type = QB_TYPE_UNKNOWN;
 		prototype->final_type = QB_TYPE_UNKNOWN;
 	}
@@ -1721,8 +1743,8 @@ void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt) {
 	qb_translate_instruction_range(cxt, 0, cxt->zend_op_array->last);
 
 	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
-	for(i = 0; i < cxt->compiler_context->temp_variable_count; i++) {
-		qb_temporary_variable *temp_variable = &cxt->compiler_context->temp_variables[i];
+	for(i = 0; i < cxt->temp_variable_count; i++) {
+		qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
 		temp_variable->operand.type = QB_OPERAND_EMPTY;
 		temp_variable->operand.generic_pointer = NULL;
 	}
@@ -1748,6 +1770,9 @@ void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_contex
 		cxt->zend_class = compiler_cxt->zend_function->op_array.scope;
 	}
 	SAVE_TSRMLS();
+}
+
+void ZEND_FASTCALL qb_free_php_translater_context(qb_php_translater_context *cxt) {
 }
 
 int ZEND_FASTCALL qb_initialize_php_translater(TSRMLS_D) {
