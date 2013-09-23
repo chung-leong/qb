@@ -2080,7 +2080,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	end_index = cxt->op_count;
 
 	// copy the output pixel into the image
-	qb_do_assignment(cxt, output_address, pixel_address);
+	qb_perform_assignment(cxt, output_address, pixel_address);
 
 	// move the pixel index forward
 	qb_create_binary_op(cxt, &factory_add, pixel_index_address, channel_count_address, pixel_index_address);

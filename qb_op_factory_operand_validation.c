@@ -43,7 +43,7 @@ static void ZEND_FASTCALL qb_validate_operands_property_assignment(qb_compiler_c
 		qb_abort("no support for variable variable-names");
 	}
 	if(container->type == QB_OPERAND_NONE) {
-		if(!qb_obtain_instance_variable(cxt, name->constant)) {
+		if(!qb_find_instance_variable(cxt, name->constant)) {
 			qb_abort("no property by the name of '%s'", Z_STRVAL_P(name->constant));
 		}
 	} else if(container->type == QB_OPERAND_ADDRESS) {

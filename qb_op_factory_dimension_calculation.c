@@ -18,8 +18,6 @@
 
 /* $Id$ */
 
-static qb_address * ZEND_FASTCALL qb_obtain_constant_U32(qb_compiler_context *cxt, uint32_t value);
-
 static void ZEND_FASTCALL qb_set_result_dimensions_matching(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	// size of the result matches the largest of the operands
 	// the structure of the result also comes from the largest of the operands

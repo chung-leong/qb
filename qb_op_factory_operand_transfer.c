@@ -29,7 +29,6 @@ void ZEND_FASTCALL qb_transfer_operands_all(qb_compiler_context *cxt, qb_op_fact
 }
 
 void ZEND_FASTCALL qb_transfer_operands_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
-	uint32_t i;
 	dest[0] = operands[operand_count - 1];
 	dest[1] = *result;
 }
@@ -39,7 +38,6 @@ void ZEND_FASTCALL qb_transfer_operands_result_only(qb_compiler_context *cxt, qb
 }
 
 void ZEND_FASTCALL qb_transfer_operands_reverse_binary(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
-	uint32_t i;
 	dest[0] = operands[1];
 	dest[1] = operands[0];
 	dest[2] = *result;
@@ -57,7 +55,7 @@ void ZEND_FASTCALL qb_transfer_operands_print(qb_compiler_context *cxt, qb_op_fa
 void ZEND_FASTCALL qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
 	if(operand_count > 0) {
 		qb_operand *value = &operands[0];
-		qb_do_assignment(cxt, value->address, cxt->return_variable->address);
+		qb_perform_assignment(cxt, value->address, cxt->return_variable->address);
 	}
 }
 

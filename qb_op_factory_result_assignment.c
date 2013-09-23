@@ -48,8 +48,7 @@ static void ZEND_FASTCALL qb_set_result_object_property_assignment(qb_compiler_c
 	qb_operand *name = &operands[1];
 
 	if(container->type == QB_OPERAND_NONE) {
-		qb_variable *qvar = qb_obtain_instance_variable(cxt, name->constant);
-		result->address = qvar->address;
+		result->address = qb_obtain_instance_variable(cxt, name->constant);
 		result->type = QB_OPERAND_ADDRESS;
 	} else if(container->type == QB_OPERAND_ADDRESS) {
 		result->address = qb_retrieve_named_element(cxt, container->address, name->constant);
