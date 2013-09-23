@@ -1909,66 +1909,6 @@ static uint32_t ZEND_FASTCALL qb_import_external_symbol(qb_compiler_context *cxt
 	return i;
 }
 
-void ZEND_FASTCALL qb_perform_assignment(qb_compiler_context *cxt, qb_address *value_address, qb_address *variable_address) {
-	// do not do anything if the value is the variable itself
-	// this will happen mainly when a op handler choose to write 
-	// directly into the variable instead of creating a temporary 
-	if(value_address != variable_address) {
-		if(!(variable_address->flags & QB_ADDRESS_INITIALIZED)) {
-			// initialize the dimensions of an array
-			if(variable_address->dimension_count > 0) {
-				qb_initialize_dimensions(cxt, value_address, variable_address);
-			}
-			variable_address->flags |= QB_ADDRESS_INITIALIZED;
-		}
-
-		// FIXME: do away with this code
-		if(TEMPORARY(value_address) && !(value_address->flags & QB_ADDRESS_REUSED)) {
-			qb_op *prev_qop = cxt->ops[cxt->op_count - 1];
-			if(prev_qop->operand_count > 0 && prev_qop->operands[prev_qop->operand_count - 1].address == value_address) {
-				// the previous op probably created the value and placed it into the temp var
-				// double check just to be sure
-				int32_t is_write_target = qb_is_operand_write_target(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
-				if(is_write_target) {
-					// we can probably let the previous op write into the variable instead of putting 
-					// the value into the temp var first
-					int32_t substitute = FALSE;
-					if(STORAGE_TYPE_MATCH(value_address->type, variable_address->type)) {
-						// okay, the storage types do match (i.e. they are the same or differ only by signedness)
-						// if the op can is capable of performing the same wrap-around behavior that the MOV
-						// instruction performs, then a substituion can always occur
-						uint32_t op_flags = qb_get_op_flags(cxt, prev_qop->opcode);
-						if(op_flags & QB_OP_PERFORM_WRAP_AROUND) {
-							substitute = TRUE;
-						} else {
-							// in absence of wrap-around handling, the sizes of the two must match
-							if(SCALAR(value_address)) {
-								if(SCALAR(variable_address)) {
-									// both are scalars
-									substitute = TRUE;
-								} 
-							} else if(!SCALAR(variable_address)) {
-								// both are arrays--check their sizes
-								if(FIXED_LENGTH_ARRAY(value_address) && FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
-									substitute = TRUE;
-								}
-							}
-						}
-					} 
-					if(substitute) {
-						prev_qop->operands[prev_qop->operand_count - 1].address = variable_address;
-						qb_mark_as_writable(cxt, variable_address);
-						return;
-					}
-				}
-			}
-		}
-
-		// add copy op
-		qb_create_unary_op(cxt, &factory_copy, value_address, variable_address);
-	}
-}
-
 static qb_primitive_type ZEND_FASTCALL qb_get_array_initializer_type(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t flags) {
 	uint32_t i;
 	qb_primitive_type highest_rank_type = 0;
@@ -2117,6 +2057,88 @@ static qb_variable_dimensions *qb_get_address_dimensions(qb_compiler_context *cx
 	return dim;
 }
 
+void ZEND_FASTCALL qb_perform_unary_operation(qb_compiler_context *cxt, void *op_factory, qb_address *operand_address, qb_address *result_address) {
+	qb_operand operands[1], result;
+	operands[0].type = QB_OPERAND_ADDRESS;
+	operands[0].address = operand_address;
+	result.type = QB_OPERAND_ADDRESS;
+	result.address = result_address;
+	
+	qb_create_op(cxt, op_factory, operands, 1, &result, NULL, 0, TRUE);
+}
+
+void ZEND_FASTCALL qb_perform_binary_operation(qb_compiler_context *cxt, void *op_factory, qb_address *operand1_address, qb_address *operand2_address, qb_address *result_address) {
+	qb_operand operands[2], result;
+	operands[0].type = QB_OPERAND_ADDRESS;
+	operands[0].address = operand1_address;
+	operands[1].type = QB_OPERAND_ADDRESS;
+	operands[1].address = operand2_address;
+	result.type = QB_OPERAND_ADDRESS;
+	result.address = result_address;
+	
+	qb_create_op(cxt, op_factory, operands, 2, &result, NULL, 0, TRUE);
+}
+
+void ZEND_FASTCALL qb_perform_assignment(qb_compiler_context *cxt, qb_address *value_address, qb_address *variable_address) {
+	// do not do anything if the value is the variable itself
+	// this will happen mainly when a op handler choose to write 
+	// directly into the variable instead of creating a temporary 
+	if(value_address != variable_address) {
+		if(!(variable_address->flags & QB_ADDRESS_INITIALIZED)) {
+			// initialize the dimensions of an array
+			if(variable_address->dimension_count > 0) {
+				qb_initialize_dimensions(cxt, value_address, variable_address);
+			}
+			variable_address->flags |= QB_ADDRESS_INITIALIZED;
+		}
+
+		// FIXME: do away with this code
+		if(TEMPORARY(value_address) && !(value_address->flags & QB_ADDRESS_REUSED)) {
+			qb_op *prev_qop = cxt->ops[cxt->op_count - 1];
+			if(prev_qop->operand_count > 0 && prev_qop->operands[prev_qop->operand_count - 1].address == value_address) {
+				// the previous op probably created the value and placed it into the temp var
+				// double check just to be sure
+				int32_t is_write_target = qb_is_operand_write_target(cxt, prev_qop->opcode, prev_qop->operand_count - 1);
+				if(is_write_target) {
+					// we can probably let the previous op write into the variable instead of putting 
+					// the value into the temp var first
+					int32_t substitute = FALSE;
+					if(STORAGE_TYPE_MATCH(value_address->type, variable_address->type)) {
+						// okay, the storage types do match (i.e. they are the same or differ only by signedness)
+						// if the op can is capable of performing the same wrap-around behavior that the MOV
+						// instruction performs, then a substituion can always occur
+						uint32_t op_flags = qb_get_op_flags(cxt, prev_qop->opcode);
+						if(op_flags & QB_OP_PERFORM_WRAP_AROUND) {
+							substitute = TRUE;
+						} else {
+							// in absence of wrap-around handling, the sizes of the two must match
+							if(SCALAR(value_address)) {
+								if(SCALAR(variable_address)) {
+									// both are scalars
+									substitute = TRUE;
+								} 
+							} else if(!SCALAR(variable_address)) {
+								// both are arrays--check their sizes
+								if(FIXED_LENGTH_ARRAY(value_address) && FIXED_LENGTH_ARRAY(variable_address) && ARRAY_SIZE(value_address) == ARRAY_SIZE(variable_address)) {
+									substitute = TRUE;
+								}
+							}
+						}
+					} 
+					if(substitute) {
+						prev_qop->operands[prev_qop->operand_count - 1].address = variable_address;
+						qb_mark_as_writable(cxt, variable_address);
+						return;
+					}
+				}
+			}
+		}
+
+		// add copy op
+		qb_perform_binary_operation(cxt, &factory_assignment, variable_address, value_address, variable_address);
+	}
+}
+
 void ZEND_FASTCALL qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type) {
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
@@ -2238,7 +2260,7 @@ void ZEND_FASTCALL qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_oper
 				} else {
 					qb_variable_dimensions *result_dim = qb_get_address_dimensions(cxt, operand->address);
 					qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, result_dim);
-					qb_create_unary_op(cxt, &factory_boolean, operand->address, new_address);
+					qb_perform_unary_operation(cxt, &factory_boolean, operand->address, new_address);
 					operand->address = new_address;
 				}
 			}
@@ -2254,7 +2276,7 @@ qb_address * ZEND_FASTCALL qb_obtain_scalar_value(qb_compiler_context *cxt, qb_a
 	if(address->mode != QB_ADDRESS_MODE_SCA) {
 		// need to copy the value to a temporary variable first
 		qb_address *new_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-		qb_create_unary_op(cxt, &factory_copy, address, new_address);
+		qb_perform_binary_operation(cxt, &factory_assignment, new_address, address, new_address);
 		return new_address;
 	}
 	return address;
@@ -2281,7 +2303,7 @@ qb_address * ZEND_FASTCALL qb_retrieve_array_slice(qb_compiler_context *cxt, qb_
 			length_address = qb_obtain_constant_U32(cxt, length_value);
 		} else {
 			length_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-			qb_create_binary_op(cxt, &factory_subtract, size_address, offset_address, length_address);
+			qb_perform_binary_operation(cxt, &factory_subtract, size_address, offset_address, length_address);
 		}
 	}
 	if(container_address->dimension_count > 1) {
@@ -2306,7 +2328,7 @@ qb_address * ZEND_FASTCALL qb_retrieve_array_slice(qb_compiler_context *cxt, qb_
 				offset_address = qb_obtain_constant_U32(cxt, VALUE(U32, offset_address) * element_size);
 			} else {
 				qb_address *new_offset_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-				qb_create_binary_op(cxt, &factory_multiply, element_size_address, offset_address, new_offset_address);
+				qb_perform_binary_operation(cxt, &factory_multiply, element_size_address, offset_address, new_offset_address);
 				offset_address = new_offset_address;
 			}
 		}
@@ -2319,7 +2341,7 @@ qb_address * ZEND_FASTCALL qb_retrieve_array_slice(qb_compiler_context *cxt, qb_
 			} else {
 				array_offset_address = qb_obtain_constant_U32(cxt, ELEMENT_COUNT(container_address->segment_offset, container_address->type));
 			}
-			qb_create_binary_op(cxt, &factory_add, array_offset_address, offset_address, new_offset_address);
+			qb_perform_binary_operation(cxt, &factory_add, array_offset_address, offset_address, new_offset_address);
 			offset_address = new_offset_address;
 		}
 		slice_address->array_index_address = qb_obtain_scalar_value(cxt, offset_address);
@@ -2334,7 +2356,7 @@ qb_address * ZEND_FASTCALL qb_retrieve_array_slice(qb_compiler_context *cxt, qb_
 			array_size_address = qb_obtain_constant_U32(cxt, array_size_value);
 		} else {
 			array_size_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, NULL);
-			qb_create_binary_op(cxt, &factory_multiply, length_address, sub_array_size_address, array_size_address);
+			qb_perform_binary_operation(cxt, &factory_multiply, length_address, sub_array_size_address, array_size_address);
 		}
 		slice_address->dimension_addresses = qb_allocate_address_pointers(cxt->pool, slice_address->dimension_count);
 		slice_address->array_size_addresses = qb_allocate_address_pointers(cxt->pool, slice_address->dimension_count);
@@ -2384,7 +2406,7 @@ qb_address * ZEND_FASTCALL qb_retrieve_array_element(qb_compiler_context *cxt, q
 				} else {
 					// add multiplication op
 					product_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, NULL);
-					qb_create_binary_op(cxt, &factory_multiply, index_address, size_address, product_address);
+					qb_perform_binary_operation(cxt, &factory_multiply, index_address, size_address, product_address);
 				}
 			}
 			index_address = product_address;
@@ -2405,7 +2427,7 @@ qb_address * ZEND_FASTCALL qb_retrieve_array_element(qb_compiler_context *cxt, q
 				sum_address = qb_obtain_constant_U32(cxt, sum);
 			} else {
 				sum_address = qb_obtain_temporary_variable(cxt, QB_TYPE_I32, NULL);
-				qb_create_binary_op(cxt, &factory_add, index_address, offset_address, sum_address);
+				qb_perform_binary_operation(cxt, &factory_add, index_address, offset_address, sum_address);
 			}
 			index_address = sum_address;
 		} else {
@@ -2441,7 +2463,7 @@ qb_address * ZEND_FASTCALL qb_retrieve_array_dimensions(qb_compiler_context *cxt
 		qb_address *index_address = qb_obtain_constant_U32(cxt, i);
 		qb_address *src_dimension_address = address->dimension_addresses[i];
 		qb_address *dst_dimension_address = qb_retrieve_array_element(cxt, dimensions_address, index_address);
-		qb_create_unary_op(cxt, &factory_copy, src_dimension_address, dst_dimension_address);
+		qb_perform_binary_operation(cxt, &factory_assignment, src_dimension_address, dst_dimension_address, src_dimension_address);
 	}
 	return dimensions_address;
 }
@@ -2922,7 +2944,7 @@ static void ZEND_FASTCALL qb_encode_jump_target(qb_compiler_context *cxt, uint32
 }
 
 static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
-	uint32_t i, j, k;
+	uint32_t i, j;
 	int8_t *ip;
 
 	if(!cxt->instructions) {
@@ -3014,7 +3036,7 @@ static void ZEND_FASTCALL qb_relocate_instruction_range(qb_compiler_context *cxt
 	while(ip < ip_end) {
 		uintptr_t *p_next_handler = (uintptr_t *) ip;
 		uint32_t next_opcode = (uint32_t) ~*p_next_handler;
-		uint32_t op_flags = qb_get_op_flags(cxt, current_opcode), operand_flags;
+		uint32_t op_flags = qb_get_op_flags(cxt, current_opcode);
 		if(next_opcode >= QB_OPCODE_COUNT) {
 			// it's already relocated
 			break;
@@ -3416,8 +3438,6 @@ static qb_function * ZEND_FASTCALL qb_replace_function(qb_compiler_context *cxt)
 		dst->type = src->type;
 		dst->element_count = src->element_count;
 		dst->array_size_pointer = &dst->element_count;
-		dst->stack_ref_memory = &dst->memory;
-		dst->stack_ref_element_count = &dst->element_count;
 
 		// memory is preallocated
 		if(src->flags & QB_SEGMENT_PREALLOCATED) {
@@ -3619,8 +3639,7 @@ void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_c
 	memset(cxt->storage->segments, 0, sizeof(qb_memory_segment) * MAX_SEGMENT_COUNT);
 	for(i = 0; i < MAX_SEGMENT_COUNT; i++) {
 		qb_memory_segment *segment = &cxt->storage->segments[i];
-		segment->stack_ref_element_count = segment->array_size_pointer = &segment->element_count;
-		segment->stack_ref_memory = &segment->memory;
+		segment->array_size_pointer = &segment->element_count;
 		if(i == QB_SELECTOR_VARIABLE || i == QB_SELECTOR_CONSTANT_ARRAY) {
 			segment->flags |= QB_SEGMENT_PREALLOCATED;
 		}
@@ -4205,24 +4224,24 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 			case QB_DIAGNOSTIC_INT_ADD:
 			case QB_DIAGNOSTIC_FLOAT_ADD:
 			case QB_DIAGNOSTIC_VECTOR_ADD: {
-				qb_create_binary_op(cxt, &factory_add, value1_address, value2_address, result_address);
+				qb_perform_binary_operation(cxt, &factory_add, value1_address, value2_address, result_address);
 			}	break;
 			case QB_DIAGNOSTIC_INT_MUL:
 			case QB_DIAGNOSTIC_FLOAT_MUL:
 			case QB_DIAGNOSTIC_VECTOR_MUL: {
-				qb_create_binary_op(cxt, &factory_multiply, value1_address, value2_address, result_address);
+				qb_perform_binary_operation(cxt, &factory_multiply, value1_address, value2_address, result_address);
 			}	break;
 			case QB_DIAGNOSTIC_INT_DIV:
 			case QB_DIAGNOSTIC_FLOAT_DIV:
 			case QB_DIAGNOSTIC_VECTOR_DIV: { 
-				qb_create_binary_op(cxt, &factory_divide, value1_address, value2_address, result_address);
+				qb_perform_binary_operation(cxt, &factory_divide, value1_address, value2_address, result_address);
 			}	break;
 			case QB_DIAGNOSTIC_INT_MAC:
 			case QB_DIAGNOSTIC_FLOAT_MAC:
 			case QB_DIAGNOSTIC_VECTOR_MAC: {
 				intermediate_address = qb_obtain_temporary_variable(cxt, value1_address->type, result_dim);
-				qb_create_binary_op(cxt, &factory_multiply, value1_address, value2_address, intermediate_address);
-				qb_create_binary_op(cxt, &factory_add, result_address, intermediate_address, result_address);
+				qb_perform_binary_operation(cxt, &factory_multiply, value1_address, value2_address, intermediate_address);
+				qb_perform_binary_operation(cxt, &factory_add, result_address, intermediate_address, result_address);
 			}	break;
 			default: break;
 		}

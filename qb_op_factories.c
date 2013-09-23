@@ -103,14 +103,19 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 			f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands);
 		}
 
+		// add the op
+		qb_add_op(cxt, qop);
+
 		if(result && result->type == QB_OPERAND_ADDRESS) {
 			if(CONSTANT(result->address)) {
 				// evalulate the expression at compile-time if it's constant
 				qb_execute_op(cxt, qop);
-			} else {
-				// add the op
-				qb_add_op(cxt, qop);
 
+				// make it a nop
+				qop->opcode = QB_NOP;
+				qop->operand_count = 0;
+				qop->operands = NULL;
+			} else {
 				// mark result address as writable
 				qb_mark_as_writable(cxt, result->address);
 			}
@@ -964,7 +969,7 @@ static qb_string_op_factory factory_concat = {
 };
 */
 
-static qb_string_op_factory factory_print = {
+qb_string_op_factory factory_print = {
 	qb_resolve_expression_type_boolean,
 	qb_link_results_print,
 	NULL,
@@ -1034,7 +1039,7 @@ qb_simple_op_factory factory_exit = {
 	QB_EXIT_I32,
 };
 
-static qb_simple_op_factory factory_ext = {
+qb_simple_op_factory factory_ext = {
 	NULL,
 	NULL,
 	NULL,

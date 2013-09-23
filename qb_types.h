@@ -295,9 +295,6 @@ struct qb_memory_segment {
 	uint32_t *increment_pointer;				// pointer to the size of each sub-array, populated only if array is multidimensional
 
 	php_stream *stream;							// memory-mapped file
-
-	int8_t *__restrict *stack_ref_memory;			// pointers to local variables in qb_run()
-	uint32_t *stack_ref_element_count;
 };
 
 struct qb_storage {

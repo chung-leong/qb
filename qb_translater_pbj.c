@@ -930,7 +930,7 @@ static void ZEND_FASTCALL qb_pbj_translate_bool(qb_compiler_context *cxt, qb_pbj
 
 	qb_pbj_create_address_bundles(cxt, inputs, 1, output, &input_bundle, &output_bundle);
 	for(i = 0; i < output_bundle.address_count; i++) {
-		qb_create_binary_op(cxt, t->extra, input_bundle.addresses[i], zero_address, output_bundle.addresses[i]);
+		qb_perform_binary_operation(cxt, t->extra, input_bundle.addresses[i], zero_address, output_bundle.addresses[i]);
 	}
 }
 
@@ -941,7 +941,7 @@ static void ZEND_FASTCALL qb_pbj_translate_reciprocal(qb_compiler_context *cxt, 
 	qb_pbj_create_address_bundles(cxt, inputs, 1, output, &input_bundle, &output_bundle);
 	for(i = 0; i < output_bundle.address_count; i++) {
 		// pbj_float_numerals[2] is 1, cxt->pbj_float_numerals[1] is 0.5
-		qb_create_binary_op(cxt, t->extra, cxt->pbj_float_numerals[2], input_bundle.addresses[i], output_bundle.addresses[i]);
+		qb_perform_binary_operation(cxt, t->extra, cxt->pbj_float_numerals[2], input_bundle.addresses[i], output_bundle.addresses[i]);
 	}
 }
 
@@ -2083,7 +2083,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	qb_perform_assignment(cxt, output_address, pixel_address);
 
 	// move the pixel index forward
-	qb_create_binary_op(cxt, &factory_add, pixel_index_address, channel_count_address, pixel_index_address);
+	qb_perform_binary_operation(cxt, &factory_add, pixel_index_address, channel_count_address, pixel_index_address);
 
 	// increment x and _OutCoord.x
 	qb_create_nullary_op(cxt, &factory_increment, x_address);

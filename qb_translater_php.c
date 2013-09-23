@@ -1054,47 +1054,6 @@ static void ZEND_FASTCALL qb_translate_continue(qb_php_translater_context *cxt, 
 	cxt->jump_target_index1 = jmp_to->cont;
 }
 
-static void ZEND_FASTCALL qb_translate_add_element(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION)  {
-		// don't need to do anything
-		// qb_translate_current_instruction() will create the linkage between
-		// the container and the element being added
-	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_operand *value = &operands[0], *index = &operands[1];
-		qb_operand *element;
-		qb_array_initializer *initializer = result->array_initializer;
-		uint32_t element_index;
-		if(index->type == QB_OPERAND_NONE) {
-			element_index = initializer->element_count;
-		} else {
-			if(Z_TYPE_P(index->constant) == IS_LONG) {
-				element_index = Z_LVAL_P(index->constant);
-			} else {
-				qb_abort("String key encountered: %s", Z_STRVAL_P(index->constant));
-			}
-		}
-		element = qb_expand_array_initializer(cxt->compiler_context, initializer, element_index);
-		*element = *value;
-	}
-}
-
-static void ZEND_FASTCALL qb_translate_init_array(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION)  {
-		// the array's type is determined by the lvalue
-		result_prototype->preliminary_type = QB_TYPE_ANY;
-		result_prototype->coercion_flags = QB_COERCE_TO_LVALUE_TYPE;
-		result->type = QB_OPERAND_RESULT_PROTOTYPE;
-		result->result_prototype = result_prototype;
-	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_operand *value = &operands[0];
-		result->type = QB_OPERAND_ARRAY_INITIALIZER;
-		result->array_initializer = qb_allocate_array_initializer(cxt->pool);
-		if(value->type != QB_OPERAND_NONE) {
-			qb_translate_add_element(cxt, op_factory, operands, operand_count, result, result_prototype);
-		}
-	}
-}
-
 static void ZEND_FASTCALL qb_translate_foreach_fetch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	uint32_t target_index = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);
@@ -1680,7 +1639,7 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_php_translater_conte
 
 			if(cxt->compiler_context->op_translations[cxt->zend_op_index] != QB_OP_INDEX_NONE && cxt->compiler_context->op_translations[cxt->zend_op_index] != QB_OP_INDEX_JUMP_TARGET) {
 				// instruction has already been translated--do a jump there and exit
-				qb_create_op_with_jump_targets(cxt, NULL, 0, &cxt->zend_op_index, 1);
+				qb_create_op(cxt->compiler_context, &factory_jump, NULL, 0, NULL, &cxt->zend_op_index, 1, FALSE);
 				break;
 			}
 
@@ -1691,7 +1650,7 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_php_translater_conte
 
 			// add a nop if new one wasn't generated
 			if(current_op_count == cxt->compiler_context->op_count) {
-				qb_create_nop(cxt);
+				qb_create_op(cxt->compiler_context, &factory_nop, NULL, 0, NULL, 0, 0, TRUE);
 			}
 
 			// flag new op as a jump target if there's a placeholder in the position
@@ -1777,7 +1736,7 @@ void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt) {
 
 	// make sure there's always a RET at the end
 	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
-		qb_create_op(cxt, &factory_return, NULL, 0, NULL);
+		//qb_create_op(cxt, &factory_return, NULL, 0, NULL);
 	}
 }
 

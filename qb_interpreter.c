@@ -477,7 +477,7 @@ static int32_t ZEND_FASTCALL qb_map_segment_to_file(qb_interpreter_context *cxt,
 
 		if(php_stream_set_option(stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_MAP_RANGE, &range) == PHP_STREAM_OPTION_RETURN_OK) {
 			// range.mapped is the end of the 
-			segment->memory = *segment->stack_ref_memory = (int8_t *) range.mapped;
+			segment->memory = (int8_t *) range.mapped;
 			segment->stream = stream;
 			segment->flags |= QB_SEGMENT_MAPPED;
 			return TRUE;
@@ -532,7 +532,7 @@ static void ZEND_FASTCALL qb_resize_segment(qb_interpreter_context *cxt, qb_memo
 	} else if(segment->flags & QB_SEGMENT_PREALLOCATED) {
 		qb_abort("Cannot resize preallocated memory");
 	} else {
-		segment->memory = *segment->stack_ref_memory = erealloc(segment->memory, byte_count);
+		segment->memory = erealloc(segment->memory, byte_count);
 	}
 }
 
@@ -565,8 +565,8 @@ void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_seg
 		memset(current_data_end, 0, BYTE_COUNT(desired_size - segment->element_count, segment->type));
 	}
 
-	// update the size both in user-code-accessible memory and on the stack (if array_size_reference is pointing to it)
-	*segment->array_size_pointer = *segment->stack_ref_element_count = segment->element_count = desired_size;
+	// update the size in user-code-accessible memory
+	*segment->array_size_pointer = segment->element_count = desired_size;
 }
 
 void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
@@ -608,7 +608,7 @@ void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_me
 	memset(data_end, 0, bytes_to_remove);
 
 	if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-		*segment->array_size_pointer = *segment->stack_ref_element_count = segment->element_count = desired_size;
+		*segment->array_size_pointer = segment->element_count = desired_size;
 	}
 }
 
@@ -710,7 +710,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 		uint32_t element_count = qb_set_array_dimensions_from_zval(cxt, zvalue, address);
 
 		if(address->flags & QB_ADDRESS_SEGMENT) {
-			*segment->array_size_pointer = *segment->stack_ref_element_count = segment->element_count = element_count;
+			*segment->array_size_pointer = segment->element_count = element_count;
 			// if the segment doesn't have preallocated memory, see if it can borrow it from the zval
 			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && (transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 				php_stream *stream;
@@ -718,7 +718,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 					// use memory from the string if it's long enough
 					if((uint32_t) Z_STRLEN_P(zvalue) >= BYTE_COUNT(element_count, address->type)) {
 						qb_free_segment(cxt, segment);
-						segment->memory = *segment->stack_ref_memory = (int8_t *) Z_STRVAL_P(zvalue);
+						segment->memory = (int8_t *) Z_STRVAL_P(zvalue);
 						segment->current_allocation = element_count;
 						if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
 							segment->flags |= QB_SEGMENT_BORROWED;
@@ -797,7 +797,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 					if(segment->flags & QB_SEGMENT_EXPANDABLE) {
 						if(EXPANDABLE_ARRAY(caller_address)) {
 							qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
-							segment->memory = *segment->stack_ref_memory = caller_segment->memory;
+							segment->memory = caller_segment->memory;
 							segment->stream = caller_segment->stream;
 							segment->current_allocation = caller_segment->current_allocation;
 							segment->element_count = element_count;
@@ -805,7 +805,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 							return;
 						}
 					} else {
-						segment->memory = *segment->stack_ref_memory = ARRAY_IN(caller_storage, I08, caller_address);
+						segment->memory = ARRAY_IN(caller_storage, I08, caller_address);
 						segment->current_allocation = element_count;
 						segment->element_count = element_count;
 						segment->flags |= QB_SEGMENT_BORROWED;
@@ -1246,7 +1246,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 				// see if the size needs to be updated
 				if(caller_segment->element_count != segment->element_count) {
 					// the length of the segment appears in three places
-					caller_segment->element_count = *caller_segment->array_size_pointer = *caller_segment->stack_ref_element_count = segment->element_count;
+					caller_segment->element_count = *caller_segment->array_size_pointer = segment->element_count;
 					if(caller_address->dimension_count > 1) {
 						// update the dimension as well
 						*caller_segment->dimension_pointer = segment->element_count / *caller_segment->increment_pointer;
@@ -1254,7 +1254,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 				}
 				if(caller_segment->memory != segment->memory) {
 					// update the memory pointer as well in case it has changed
-					caller_segment->memory = *caller_segment->stack_ref_memory = segment->memory;
+					caller_segment->memory = segment->memory;
 				}
 			}
 			segment->flags &= ~QB_SEGMENT_BORROWED;
@@ -1365,7 +1365,7 @@ static void ZEND_FASTCALL qb_free_interpreter_context(qb_interpreter_context *cx
 	qb_destroy_array((void **) &cxt->call_stack);
 }
 
-void ZEND_FASTCALL qb_run(qb_interpreter_context *__restrict cxt);
+void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt);
 
 static void ZEND_FASTCALL qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
 	uint32_t i;
@@ -1767,16 +1767,16 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 		if(proc(cxt) == FAILURE) {
 			USE_TSRM
 			if(QB_G(allow_bytecode_interpretation)) {
-				qb_run(cxt);
+				qb_main(cxt);
 			} else {
 				qb_abort("Unable to run compiled procedure");
 			}
 		}
 	} else {
-		qb_run(cxt);
+		qb_main(cxt);
 	}
 #else
-	qb_run(cxt);
+	qb_main(cxt);
 #endif
 }
 
@@ -2258,7 +2258,7 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 		symbol->hash_value = zend_inline_hash_func(symbol->name, strlen(symbol->name) + 1);
 	}
 #endif
-	qb_run(NULL);
+	qb_main(NULL);
 	return SUCCESS;
 }
 
