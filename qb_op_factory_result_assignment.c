@@ -33,27 +33,36 @@ static void ZEND_FASTCALL qb_set_result_temporary_value(qb_compiler_context *cxt
 
 static void ZEND_FASTCALL qb_set_result_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0];
-	*result = *variable;
+
+	// if the expression type was set to void, then an earlier op has used the r-value as write target
+	// so there's no need to perform the assignment
+	if(expr_type != QB_TYPE_VOID) {
+		*result = *variable;
+	}
 }
 
 static void ZEND_FASTCALL qb_set_result_array_element_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
 
-	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_retrieve_array_element(cxt, container->address, index->address);
+	if(expr_type != QB_TYPE_VOID) {
+		result->type = QB_OPERAND_ADDRESS;
+		result->address = qb_retrieve_array_element(cxt, container->address, index->address);
+	}
 }
 
 static void ZEND_FASTCALL qb_set_result_object_property_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
 
-	if(container->type == QB_OPERAND_NONE) {
-		result->address = qb_obtain_instance_variable(cxt, name->constant);
-		result->type = QB_OPERAND_ADDRESS;
-	} else if(container->type == QB_OPERAND_ADDRESS) {
-		result->address = qb_retrieve_named_element(cxt, container->address, name->constant);
-		result->type = QB_OPERAND_ADDRESS;
+	if(expr_type != QB_TYPE_VOID) {
+		if(container->type == QB_OPERAND_NONE) {
+			result->address = qb_obtain_instance_variable(cxt, name->constant);
+			result->type = QB_OPERAND_ADDRESS;
+		} else if(container->type == QB_OPERAND_ADDRESS) {
+			result->address = qb_retrieve_named_element(cxt, container->address, name->constant);
+			result->type = QB_OPERAND_ADDRESS;
+		}
 	}
 }
 

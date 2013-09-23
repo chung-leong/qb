@@ -52,11 +52,11 @@ qb_copy_op_factory factory_assignment = {
 	NULL,
 	qb_set_result_assignment,
 	NULL,
-	qb_select_opcode_copy,
+	qb_select_opcode_assignment,
 	NULL,
 	qb_transfer_operands_assignment,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	{
 		{	QB_MOV_F64_F64,	QB_MOV_F64_F32,	QB_MOV_F64_U64,	QB_MOV_F64_S64,	QB_MOV_F64_U32,	QB_MOV_F64_S32,	QB_MOV_F64_U16,	QB_MOV_F64_S16,	QB_MOV_F64_U08,	QB_MOV_F64_S08,	},
@@ -88,7 +88,7 @@ qb_derived_op_factory factory_array_element_assignment = {
 	NULL,
 	qb_transfer_operands_assignment,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	&factory_assignment,
 };
@@ -104,7 +104,7 @@ qb_derived_op_factory factory_object_property_assignment = {
 	NULL,
 	qb_transfer_operands_assignment,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	&factory_assignment,
 };
@@ -121,7 +121,7 @@ qb_cast_op_factory factory_cast_S08 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_S08,
 };
@@ -138,7 +138,7 @@ qb_cast_op_factory factory_cast_U08 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_U08,
 };
@@ -155,7 +155,7 @@ qb_cast_op_factory factory_cast_S16 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_S16,
 };
@@ -172,7 +172,7 @@ qb_cast_op_factory factory_cast_U16 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_U16,
 };
@@ -189,7 +189,7 @@ qb_cast_op_factory factory_cast_S32 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_S32,
 };
@@ -206,7 +206,7 @@ qb_cast_op_factory factory_cast_U32 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_U32,
 };
@@ -223,7 +223,7 @@ qb_cast_op_factory factory_cast_S64 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_S64,
 };
@@ -240,7 +240,7 @@ qb_cast_op_factory factory_cast_U64 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_U64,
 };
@@ -257,7 +257,7 @@ qb_cast_op_factory factory_cast_F32 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_F32,
 };
@@ -274,7 +274,7 @@ qb_cast_op_factory factory_cast_F64 = {
 	qb_transfer_operands_all,
 	0,
 	0,
-	0,
+	QB_ADDRESS_TEMPORARY,
 	&factory_assignment,
 	QB_TYPE_F64,
 };
@@ -951,7 +951,7 @@ qb_string_op_factory factory_print = {
 	qb_transfer_operands_print,
 
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
 	{	QB_PRN_F64,	QB_PRN_F32,	QB_PRN_U64,	QB_PRN_S64,	QB_PRN_U32,	QB_PRN_S32,	QB_PRN_U16,	QB_PRN_S16,	QB_PRN_U08,	QB_PRN_S08,	},
 	{	QB_PRN_DIM_F64_U32,	QB_PRN_DIM_F32_U32,	QB_PRN_DIM_U64_U32,	QB_PRN_DIM_S64_U32,	QB_PRN_DIM_U32_U32,	QB_PRN_DIM_S32_U32,	QB_PRN_DIM_U16_U32,	QB_PRN_DIM_S16_U32,	QB_PRN_DIM_U08_U32,	QB_PRN_DIM_S08_U32,	},
@@ -970,7 +970,7 @@ qb_derived_op_factory factory_echo = {
 	qb_transfer_operands_print,
 
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	&factory_print,
 };
@@ -978,7 +978,7 @@ qb_derived_op_factory factory_echo = {
 qb_simple_op_factory factory_return = {
 	NULL,
 	NULL,
-	qb_coerce_operands_assignment,
+	qb_coerce_operands_return,
 	qb_validate_operands_return,
 	NULL,
 	NULL,

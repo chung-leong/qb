@@ -53,8 +53,8 @@ void ZEND_FASTCALL qb_transfer_operands_print(qb_compiler_context *cxt, qb_op_fa
 }
 
 void ZEND_FASTCALL qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
-	if(operand_count > 0) {
-		qb_operand *value = &operands[0];
+	qb_operand *value = &operands[0];
+	if(cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS) {
 		qb_operand assigment_operands[2];
 		qb_operand assignment_result;
 		assigment_operands[0].type = QB_OPERAND_ADDRESS;

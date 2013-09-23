@@ -2417,7 +2417,7 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 	op_flags = qb_get_op_flags(cxt, opcode);
 
 	// create the op only if the result is used or if it has side effect
-	if(result_used || (op_flags & (QB_OP_SIDE_EFFECT | QB_OP_JUMP))) {
+	if(result_used || (op_flags & QB_OP_JUMP) || (f->result_flags & QB_RESULT_HAS_SIDE_EFFECT)) {
 		// add the ops for calculating on-demand values first
 		for(i = 0; i < operand_count; i++) {
 			qb_operand *operand = &operands[i];
@@ -2438,6 +2438,7 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 			}
 		}
 
+		/*
 		for(i = 0; i < operand_count; i++) {
 			qb_address *address = operands[i].address;
 			if(address->mode == QB_ADDRESS_MODE_ELE) {
@@ -2450,6 +2451,7 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 				}
 			}
 		}
+		*/
 
 		// create the op
 		qop = qb_allocate_op(cxt->pool);

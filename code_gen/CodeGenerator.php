@@ -208,7 +208,7 @@ class CodeGenerator {
 				} while($relationToNext);
 			}
 
-			if($handler->getJumpTargetCount() > 0) {
+			if($handler->getJumpTargetCount() != 0) {
 				// op will redirect execution to another location 
 				if($handler->getJumpTargetCount() == 2) {
 					$flags[] = "QB_OP_BRANCH";

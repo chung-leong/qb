@@ -69,8 +69,8 @@ typedef void (ZEND_FASTCALL *qb_transfer_operands_proc)(qb_compiler_context *cxt
 	qb_get_operand_count_proc get_operand_count;	\
 	qb_transfer_operands_proc transfer_operands;	\
 	uint32_t coercion_flags;	\
-	uint32_t address_flags;	\
 	uint32_t result_flags;	\
+	uint32_t address_flags;	\
 
 struct qb_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
