@@ -19,37 +19,31 @@
 /* $Id$ */
 
 // the expression is always a boolean
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_boolean(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_boolean(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return QB_TYPE_I32;
 }
 
 // the expresion is always an index (uint32_t currently)
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_index(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_index(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return QB_TYPE_U32;
 }
 
 // the expresion has the same type as the highest-rank operand
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_highest_rank(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
-	return qb_get_highest_rank_type(cxt, operands, operand_count, 0);
-}
-
-// the expresion has the same type as the highest-rank operand, always an integer
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_highest_rank_integer(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
-	qb_op_factory *f = op_factory;
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_highest_rank(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);
 }
 
 // the expression will have the same type as the l-value
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_lvalue(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_lvalue(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return QB_TYPE_ANY;
 }
 
 // the expression has the same type as the first operand
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_first_operand(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
 }
 
 // the expression has the same type as the second operand
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_second_operand(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_second_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_operand_type(cxt, &operands[1], f->coercion_flags);
 }

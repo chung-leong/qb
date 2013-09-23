@@ -18,20 +18,21 @@
 
 /* $Id$ */
 
-#ifndef QB_COMPILER_PBJ_H_
-#define QB_COMPILER_PBJ_H_
+#ifndef QB_TRANSLATER_PBJ_H_
+#define QB_TRANSLATER_PBJ_H_
 
-typedef struct qb_pbj_address			qb_pbj_address;
-typedef struct qb_pbj_address_bundle	qb_pbj_address_bundle;
-typedef struct qb_pbj_constant			qb_pbj_constant;
-typedef struct qb_pbj_register			qb_pbj_register;
-typedef struct qb_pbj_value				qb_pbj_value;
-typedef struct qb_pbj_parameter			qb_pbj_parameter;
-typedef struct qb_pbj_texture			qb_pbj_texture;
-typedef struct qb_pbj_op				qb_pbj_op;
-typedef struct qb_pbj_translator		qb_pbj_translator;
+typedef struct qb_pbj_translater_context	qb_pbj_translater_context;
+typedef struct qb_pbj_address				qb_pbj_address;
+typedef struct qb_pbj_address_bundle		qb_pbj_address_bundle;
+typedef struct qb_pbj_constant				qb_pbj_constant;
+typedef struct qb_pbj_register				qb_pbj_register;
+typedef struct qb_pbj_value					qb_pbj_value;
+typedef struct qb_pbj_parameter				qb_pbj_parameter;
+typedef struct qb_pbj_texture				qb_pbj_texture;
+typedef struct qb_pbj_op					qb_pbj_op;
+typedef struct qb_pbj_translator			qb_pbj_translator;
 
-typedef void (ZEND_FASTCALL *qb_pbj_translator_proc)(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t intput_count, qb_pbj_address *output);
+typedef void (ZEND_FASTCALL *qb_pbj_translator_proc)(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t intput_count, qb_pbj_address *output);
 
 struct qb_pbj_address {
 	uint32_t dimension;
@@ -51,6 +52,39 @@ struct qb_pbj_constant {
 		float32_t float_value;
 		int32_t int_value;
 	};
+};
+
+struct qb_pbj_translater_context {
+	qb_compiler_context *compiler_context;
+
+	qb_pbj_op *pbj_ops;
+	uint32_t pbj_op_count;
+	qb_pbj_op *pbj_op;
+	uint32_t pbj_op_index;
+	uint32_t pbj_op_offset;
+	qb_pbj_op **pbj_conditionals;
+	uint32_t pbj_conditional_count; 
+	qb_pbj_parameter *pbj_parameters;
+	uint32_t pbj_parameter_count;
+	qb_pbj_parameter *pbj_out_coord;
+	qb_pbj_parameter *pbj_out_pixel;
+	qb_pbj_texture *pbj_textures;
+	uint32_t pbj_texture_count;
+	qb_pbj_register *pbj_float_registers;
+	uint32_t pbj_float_register_count;
+	qb_pbj_register *pbj_int_registers;
+	uint32_t pbj_int_register_count;
+	qb_address **pbj_int_numerals;
+	qb_address **pbj_float_numerals;
+	qb_pbj_address pbj_comparison_register;
+	const char *pbj_name;
+	uint32_t pbj_name_length;
+	const char *pbj_vendor;
+	const char *pbj_display_name;
+	const char *pbj_description;
+	uint32_t pbj_version;
+	uint8_t *pbj_data;
+	uint8_t *pbj_data_end;
 };
 
 #define PBJ_CHANNEL_ACCESS_TYPE(index, count)		(((count - 1) << 2) | index)

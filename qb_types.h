@@ -48,31 +48,60 @@ typedef struct qb_thread_parameters		qb_thread_parameters;
 typedef enum qb_primitive_type			qb_primitive_type;
 typedef enum qb_address_mode			qb_address_mode;
 
-#define MAKE_STRING(x)					#x
-#define STRING(x)						MAKE_STRING(x)
+#define MAKE_STRING(x)						#x
+#define STRING(x)							MAKE_STRING(x)
 
-#define MAX_SEGMENT_COUNT			256
-#define MAX_DIMENSION				64
-#define MAX_THREAD_COUNT			16
+#define MAX_SEGMENT_COUNT					256
+#define MAX_DIMENSION						64
+#define MAX_THREAD_COUNT					32
 
-#define CTYPE_I08					int8_t
-#define CTYPE_I16					int16_t
-#define CTYPE_I32					int32_t
-#define CTYPE_I64					int64_t
-#define CTYPE_F32					float32_t
-#define CTYPE_F64					float64_t
-#define CTYPE_S08					int8_t
-#define CTYPE_S16					int16_t
-#define CTYPE_S32					int32_t
-#define CTYPE_S64					int64_t
-#define CTYPE_U08					uint8_t
-#define CTYPE_U16					uint16_t
-#define CTYPE_U32					uint32_t
-#define CTYPE_U64					uint64_t
+#define CTYPE_I08							int8_t
+#define CTYPE_I16							int16_t
+#define CTYPE_I32							int32_t
+#define CTYPE_I64							int64_t
+#define CTYPE_F32							float32_t
+#define CTYPE_F64							float64_t
+#define CTYPE_S08							int8_t
+#define CTYPE_S16							int16_t
+#define CTYPE_S32							int32_t
+#define CTYPE_S64							int64_t
+#define CTYPE_U08							uint8_t
+#define CTYPE_U16							uint16_t
+#define CTYPE_U32							uint32_t
+#define CTYPE_U64							uint64_t
 
-#define CTYPE_INDEX					uint32_t
+#define CTYPE_INDEX							uint32_t
 
-#define CTYPE(type)					CTYPE_##type
+#define CTYPE(type)							CTYPE_##type
+
+#define SCALAR(address)						(address->dimension_count == 0)
+#define CONSTANT(address)					(address->flags & QB_ADDRESS_CONSTANT)
+#define TEMPORARY(address)					(address->flags & QB_ADDRESS_TEMPORARY)
+#define IN_USE(address)						(address->flags & QB_ADDRESS_IN_USE)
+#define READ_ONLY(address)					(address->flags & QB_ADDRESS_READ_ONLY)
+
+#define MULTIDIMENSIONAL_ARRAY(address)		(address->dimension_count > 1)
+#define FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && CONSTANT(address->array_size_address))
+#define VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
+#define EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !READ_ONLY(address->array_size_address))
+
+#define ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
+#define CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
+
+#define ARRAY_IN(storage, type, address)	((CTYPE(type) *) (storage->segments[address->segment_selector].memory + address->segment_offset))
+#define VALUE_IN(storage, type, address)	*ARRAY_IN(storage, type, address)
+#define ARRAY_SIZE_IN(storage, address)		VALUE_IN(storage, U32, address->array_size_address)
+
+#define STORAGE_TYPE_MATCH(type1, type2)	((type1 == type2) || ((type1 & ~QB_TYPE_UNSIGNED) == (type2 & ~QB_TYPE_UNSIGNED) && (type1 < QB_TYPE_F32)))
+
+#define ARRAY(type, address)				ARRAY_IN(cxt->storage, type, address)
+#define VALUE(type, address)				VALUE_IN(cxt->storage, type, address)
+#define ARRAY_SIZE(address)					VALUE(U32, address->array_size_address)
+
+#define DIMENSION(address, i)				VALUE(U32, address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
+
+#define BYTE_COUNT(element_count, type)		((element_count) << type_size_shifts[type])
+#define ELEMENT_COUNT(byte_count, type)		((byte_count) >> type_size_shifts[type])
 
 enum qb_primitive_type {
 	QB_TYPE_I08						= 0,
@@ -96,13 +125,12 @@ enum qb_primitive_type {
 	QB_TYPE_COUNT					= 10,
 
 	// the type used as array indices
-	QB_TYPE_INDEX					= QB_TYPE_U32
+	QB_TYPE_INDEX					= QB_TYPE_U32,
 
 	// pseudo-types
 	QB_TYPE_VOID					= 100,
 	QB_TYPE_UNKNOWN,
 	QB_TYPE_ANY,
-	QB_TYPE_OPERAND,
 };
 
 enum qb_address_mode {

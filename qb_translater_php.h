@@ -18,27 +18,57 @@
 
 /* $Id$ */
 
-#ifndef QB_COMPILER_PHP_H_
-#define QB_COMPILER_PHP_H_
+#ifndef QB_TRANSLATER_PHP_H_
+#define QB_TRANSLATER_PHP_H_
 
-typedef struct qb_translator			qb_translator;
-typedef struct qb_intrinsic_function	qb_intrinsic_function;
+typedef struct qb_php_translater_context	qb_php_translater_context;
+typedef struct qb_php_op_translator			qb_php_op_translator;
+typedef struct qb_php_function_translator	qb_php_function_translator;
 
-typedef void (ZEND_FASTCALL *qb_translator_proc)(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
-typedef void (ZEND_FASTCALL *qb_intrinsic_translator_proc)(qb_compiler_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (ZEND_FASTCALL *qb_php_op_translator_proc)(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (ZEND_FASTCALL *qb_php_intrinsic_translator_proc)(qb_php_translater_context *cxt, qb_php_function_translator *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
 
-struct qb_translator {
-	qb_translator_proc translate;
+struct qb_php_op_translator {
+	qb_php_op_translator_proc translate;
 	void *extra;
 };
 
-struct qb_intrinsic_function {
+struct qb_php_function_translator {
 	ulong hash_value;
 	const char *name;
-	qb_intrinsic_translator_proc translate;
 	uint32_t argument_count_min;
 	uint32_t argument_count_max;
 	void *extra;
+};
+
+struct qb_php_translater_context {
+	qb_compiler_context *compiler_context;
+	qb_compiler_data_pool *pool;
+
+	qb_function function_prototype;
+	qb_function_declaration *function_declaration;
+	uint32_t function_flags;
+
+	zend_function *zend_function_being_called;
+	zval *zend_this_object;
+	zval *zend_class_name;
+	zend_class_entry *zend_class;
+	zend_op_array *zend_op_array;
+	zend_op *zend_op;
+	uint32_t zend_op_index;
+	uint32_t jump_target_index1;
+	uint32_t jump_target_index2;
+
+	int32_t silence;
+
+	qb_storage *storage;
+
+	zend_function *previous_function;
+	zend_class_entry *previous_class;
+	zval *previous_object;
+	zval *previous_function_name;
+
+	void ***tsrm_ls;
 };
 
 enum {
