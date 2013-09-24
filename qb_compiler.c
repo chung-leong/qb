@@ -3667,6 +3667,7 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 }
 
 void ZEND_FASTCALL qb_run_diagnostic_loop(qb_compiler_context *cxt) {
+	/*
 	USE_TSRM
 	qb_function _qfunc, *qfunc = &_qfunc;
 
@@ -3684,6 +3685,7 @@ void ZEND_FASTCALL qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 	qfunc->instructions = cxt->instructions = emalloc(cxt->instruction_length + sizeof(uint16_t) * cxt->instruction_op_count);
 	qb_encode_instructions(cxt);	
 	qb_execute_internal(qfunc TSRMLS_CC);
+	*/
 }
 
 int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {

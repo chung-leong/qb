@@ -87,9 +87,11 @@ class CodeGenerator {
 		
 		$lines = array();
 		$lines[] = "";			
-		$lines[] = "void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt) {";
-		$lines[] =		"";
-		$lines[] = 		"if(cxt) {";
+		$lines[] = "void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function) {";
+		// cxt is null when we initialize the handler array
+		if($compiler == "GCC") {
+			$lines[] = 	"if(cxt) {";
+		}
 		$lines[] = 			"register void *__restrict handler;";
 		$lines[] = 			"register int8_t *__restrict ip;";
 		
@@ -100,7 +102,7 @@ class CodeGenerator {
 		$lines[] =			"USE_TSRM";
 		$lines[] = 			"";
 		$lines[] = 			"{";
-		$lines[] = 				"ip = cxt->function->instructions;";
+		$lines[] = 				"ip = function->instruction_start;";
 		$lines[] = 				"handler = *((void **) ip);";
 		$lines[] = 				"ip += sizeof(void *);";
 		$lines[] =			"";
@@ -135,8 +137,8 @@ class CodeGenerator {
 				$name = $handler->getName();
 				$lines[] = 		"op_handlers[QB_$name] = &&label_$name;";
 			}
+			$lines[] = 	"}";
 		}
-		$lines[] = 		"}";
 		$this->writeCode($handle, $lines);
 
 		$lines = array();
@@ -1156,7 +1158,7 @@ class CodeGenerator {
 			$this->handlers[] = new Terminate("EXIT", "I32");
 			//$this->handlers[] = new FunctionCall("FCALL", "SCA");
 			//$this->handlers[] = new FunctionCall("FCALL", "MIX");
-			$this->handlers[] = new BranchIfStaticVariablesInitialized("IF_INIT");
+			$this->handlers[] = new StaticInitializationEnd("END_STATIC");
 		}
 		$branchHandlers = array();
 		if(!$unsigned) {

@@ -1365,7 +1365,7 @@ static void ZEND_FASTCALL qb_free_interpreter_context(qb_interpreter_context *cx
 	qb_destroy_array((void **) &cxt->call_stack);
 }
 
-void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt);
+void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function);
 
 static void ZEND_FASTCALL qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
 	uint32_t i;
@@ -1777,7 +1777,7 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 		qb_main(cxt);
 	}
 #else
-	qb_main(cxt);
+	qb_main(cxt, cxt->function);
 #endif
 }
 
@@ -2259,7 +2259,7 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 		symbol->hash_value = zend_inline_hash_func(symbol->name, strlen(symbol->name) + 1);
 	}
 #endif
-	qb_main(NULL);
+	qb_main(NULL, NULL);
 	return SUCCESS;
 }
 
