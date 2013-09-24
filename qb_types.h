@@ -417,7 +417,6 @@ struct qb_memory_segment {
 struct qb_storage {
 	qb_memory_segment *segments;
 	uint32_t segment_count;
-	uint32_t size;
 	uint32_t flags;
 };
 
@@ -443,10 +442,11 @@ enum {
 struct qb_function {
 	int8_t *instructions;
 	int8_t *instruction_start;
-	uint32_t instruction_length;
+	int8_t *instruction_non_static_start;
 	uint64_t instruction_crc64;
 	uint16_t *instruction_opcodes;
 	uint32_t instruction_opcode_count;
+	uint32_t size;
 	uint32_t flags;
 	qb_variable *return_variable;
 	qb_variable **variables;
@@ -461,6 +461,8 @@ struct qb_function {
 	void *native_proc;
 
 	zend_function *zend_function;
+	zend_arg_info *zend_arg_info;
+	qb_function *next_copy;
 };
 
 #ifdef _MSC_VER

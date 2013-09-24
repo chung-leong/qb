@@ -125,6 +125,7 @@
 #include "qb_compiler.h"
 #include "qb_op_factories.h"
 #include "qb_translater_php.h"
+#include "qb_encoder.h"
 #include "qb_interpreter.h"
 #include "qb_native_compiler.h"
 #include "qb_extractor.h"

@@ -169,13 +169,6 @@ struct qb_compiler_context {
 	char *external_code;
 	uint32_t external_code_length;
 
-	uint32_t instruction_length;
-	uint32_t instruction_op_count;
-	uint64_t instruction_crc64;
-	int8_t *instructions;
-	uint16_t *instruction_opcodes;
-	void *native_proc;
-
 	void ***tsrm_ls;
 };
 

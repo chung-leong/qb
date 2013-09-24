@@ -637,6 +637,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_encoder.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_extractor.c"
 				>
 				<FileConfiguration
@@ -747,13 +751,6 @@
 			<File
 				RelativePath="..\qb_op_factories.c"
 				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_op_factory_dimension_calculation.c"
@@ -902,6 +899,10 @@
 			</File>
 			<File
 				RelativePath="..\qb_compiler_php.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_encoder.h"
 				>
 			</File>
 			<File

@@ -1702,7 +1702,7 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 	cxt->function_call_line_number = line_number;
 	if(qb_is_compiled_function(zfunc)) {
 		qb_function *qfunc = zfunc->op_array.reserved[0];
-
+		/* TODO
 		// duplicate the storage if the function is active
 		if(qfunc->local_storage->flags & QB_STORAGE_IN_USE) {
 			qb_storage *prev_storage = qb_find_previous_storage(cxt, qfunc);
@@ -1743,6 +1743,7 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 			cxt->storage = qfunc->local_storage;
 			qfunc->local_storage->flags |= QB_STORAGE_IN_USE;
 		}
+		*/
 		cxt->function = qfunc;
 	} else {
 		// allocate space for arguments
