@@ -124,15 +124,22 @@ class Handler {
 	}
 	
 	// return the instruction structure for the op
-	public function getInstructionStructure() {		
+	public function getInstructionStructure() {
 		$opCount = $this->getOperandCount();
 		$targetCount = $this->getJumpTargetCount();
 		$instr = "qb_instruction";
-		
+
+		if($targetCount == -1 && $opCount == 0) {
+			// negative one means the function exits at this point
+			// the structure is empty, as there's no operands and no next handler
+			return NULL;
+		}
 		if($targetCount == 2) {
 			$instr .= "_branch";
 		} else if($targetCount == 1) {
 			$instr .= "_jump";
+		} else if($targetCount == -1) {
+			$instr .= "_exit";
 		}
 		
 		for($i = 1; $i <= $opCount; $i++) {
@@ -153,20 +160,25 @@ class Handler {
 	// return the instruction structure definition
 	public function getInstructionStructureDefinition() {
 		$instr = $this->getInstructionStructure();
+		if(!$instr) {
+			return NULL;
+		}
 		$targetCount = $this->getJumpTargetCount();
 		$opCount = $this->getOperandCount();
 		$lines = array();
 		$lines[] = "typedef struct $instr {";
-		if($targetCount == 2) {
-			$lines[] = "void *next_handler1;";
-			$lines[] = "int8_t *instruction_pointer1;";
-			$lines[] = "void *next_handler2;";
-			$lines[] = "int8_t *instruction_pointer2;";
-		} else if($targetCount == 1) {
-			$lines[] = "void *next_handler;";
-			$lines[] = "int8_t *instruction_pointer;";
-		} else {
-			$lines[] = "void *next_handler;";
+		if($targetCount >= 0) {
+			if($targetCount == 2) {
+				$lines[] = "void *next_handler1;";
+				$lines[] = "int8_t *instruction_pointer1;";
+				$lines[] = "void *next_handler2;";
+				$lines[] = "int8_t *instruction_pointer2;";
+			} else if($targetCount == 1) {
+				$lines[] = "void *next_handler;";
+				$lines[] = "int8_t *instruction_pointer;";
+			} else {
+				$lines[] = "void *next_handler;";
+			}
 		}
 		
 		for($i = 1; $i <= $opCount; $i++) {

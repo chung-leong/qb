@@ -2454,6 +2454,7 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 		*/
 
 		// create the op
+		op_index = cxt->op_count;
 		qop = qb_allocate_op(cxt->pool);
 		qop->flags = op_flags;
 		qop->opcode = opcode;
@@ -2466,15 +2467,8 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 			qop->operand_count = f->get_operand_count(cxt, f, operands, operand_count);
 		}
 
-		// copy jump target indices
-		op_index = cxt->op_count;
-		if(op_flags & QB_OP_BRANCH) {
-			qop->jump_target_count = 2;
-		} else if(op_flags & QB_OP_JUMP) {
-			qop->jump_target_count = 1;
-		}
-
 		// copy the jump target indices and mark instructions they refer to
+		qop->jump_target_count = jump_target_count;
 		if(jump_target_count > 0) {
 			qop->jump_target_indices = qb_allocate_indices(cxt->pool, jump_target_count);
 			for(i = 0; i < jump_target_count; i++) {
@@ -2493,8 +2487,8 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 		qb_add_op(cxt, qop);
 
 		if(result && result->type == QB_OPERAND_ADDRESS) {
-			if(CONSTANT(result->address)) {
-				// evalulate the expression at compile-time if it's constant
+			if(CONSTANT(result->address) && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT)) {
+				// evalulate the expression at compile-time if it's constant and side-effect-free
 				qb_execute_op(cxt, qop);
 
 				// make it a nop
@@ -2929,7 +2923,7 @@ static uint32_t ZEND_FASTCALL qb_get_op_encoded_length(qb_compiler_context *cxt,
 	return length;
 }
 
-static void ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cxt, uint32_t *p_stream_length, uint32_t *p_op_count) {
+static void ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cxt) {
 	uint32_t instruction_offset, i;
 	uint32_t count = 0;
 
@@ -2946,8 +2940,8 @@ static void ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cxt, u
 	}
 
 	// the final offset also happens to be the total length
-	*p_stream_length = instruction_offset;
-	*p_op_count = count;
+	cxt->instruction_length = instruction_offset;
+	cxt->instruction_op_count = count;
 }
 
 static zend_always_inline void *qb_get_pointer(qb_compiler_context *cxt, qb_address *address) {
@@ -3037,10 +3031,14 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 	int16_t *cp;
 
 	if(!cxt->instructions) {
-		qb_set_instruction_offsets(cxt, &cxt->instruction_length, &cxt->instruction_op_count);
-		cxt->instructions = emalloc(cxt->instruction_length);
+		qb_set_instruction_offsets(cxt);
+		cxt->instructions = emalloc(cxt->instruction_length + sizeof(uint16_t) * cxt->instruction_op_count);
+
+		// store the opcodes behind the instructions
+		cxt->instruction_opcodes = (uint16_t *) (cxt->instructions + cxt->instruction_length);
 	}
 	ip = cxt->instructions;
+	cp = cxt->instruction_opcodes;
 
 	//  encode the instruction stream in the following manner:
 	//  [op1 handler][op2 handler][op1 operands][op3 handler][op2 operands][op3 operands]...
@@ -3179,15 +3177,6 @@ static void ZEND_FASTCALL qb_relocate_instruction_range(qb_compiler_context *cxt
 	}
 }
 
-static void ZEND_FASTCALL qb_relocate_instructions(qb_compiler_context *cxt) {
-	int8_t *ip_start = cxt->instructions;
-	int8_t *ip_end = ip_start + cxt->instruction_length;
-
-	// The "zeroth" instruction is essentially a NOP.
-	// It contains a pointer to the first instruction and nothing else.
-	qb_relocate_instruction_range(cxt, ip_start, ip_start, ip_end, QB_NOP);
-}
-
 void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	USE_TSRM
 	qb_function _qfunc, *qfunc = &_qfunc;
@@ -3196,6 +3185,7 @@ void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	qb_op **current_ops, *ops[2], _ret_op, *ret_op = &_ret_op;
 	uint32_t current_op_count, current_segment_count;
 	int8_t instructions[256];
+	uint16_t opcodes[32];
 
 	// change properties temporarily
 	current_ops = cxt->ops;
@@ -3219,10 +3209,11 @@ void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	qfunc->return_variable = retval;
 	qfunc->variables = &retval;
 	qfunc->instructions = cxt->instructions = instructions;
-	qb_set_instruction_offsets(cxt, &cxt->instruction_length, &cxt->instruction_op_count);
+	qfunc->instruction_opcodes = cxt->instruction_opcodes = opcodes;
+	qb_set_instruction_offsets(cxt);
 	qfunc->instruction_length = cxt->instruction_length;
+	qfunc->instruction_opcode_count = cxt->instruction_op_count;
 	qb_encode_instructions(cxt);
-	qb_relocate_instructions(cxt);
 	cxt->instructions = NULL;
 	cxt->instruction_length = 0;
 	cxt->instruction_op_count = 0;
@@ -4190,7 +4181,7 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			qb_fuse_instructions(compiler_cxt, 2);
 
 			// encode the instruction stream
-			//qb_encode_instructions(compiler_cxt);
+			qb_encode_instructions(compiler_cxt);
 
 			//compiler_cxt->instruction_crc64 = qb_calculate_crc64((uint8_t *) compiler_cxt->instructions, compiler_cxt->instruction_length, 0);
 			if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
@@ -4224,9 +4215,6 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 
 		for(i = 0; i < cxt->compiler_context_count; i++) {
 			compiler_cxt = &cxt->compiler_contexts[i];
-
-			// relocate the instruction stream
-			qb_relocate_instructions(compiler_cxt);
 
 			// create function object
 			qb_replace_function(compiler_cxt);
@@ -4339,11 +4327,11 @@ void ZEND_FASTCALL qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 	qfunc->local_storage = cxt->storage;
 	qfunc->variables = cxt->variables;
 	qfunc->variable_count = cxt->variable_count;
-	qb_set_instruction_offsets(cxt, &cxt->instruction_length, &cxt->instruction_op_count);
+	qb_set_instruction_offsets(cxt);
 	qfunc->instruction_length = cxt->instruction_length;
-	qfunc->instructions = cxt->instructions = emalloc(cxt->instruction_length);
-	qb_encode_instructions(cxt);
-	qb_relocate_instructions(cxt);
+	qfunc->instruction_opcode_count = cxt->initialization_op_count;
+	qfunc->instructions = cxt->instructions = emalloc(cxt->instruction_length + sizeof(uint16_t) * cxt->instruction_op_count);
+	qb_encode_instructions(cxt);	
 	qb_execute_internal(qfunc TSRMLS_CC);
 }
 

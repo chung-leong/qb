@@ -173,6 +173,7 @@ struct qb_compiler_context {
 	uint32_t instruction_op_count;
 	uint64_t instruction_crc64;
 	int8_t *instructions;
+	uint16_t *instruction_opcodes;
 	void *native_proc;
 
 	void ***tsrm_ls;

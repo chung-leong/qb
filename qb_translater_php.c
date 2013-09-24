@@ -1216,8 +1216,8 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_increment			},	// ZEND_POST_INC
 	{	qb_translate_basic_op,				&factory_decrement			},	// ZEND_POST_DEC
 	{	qb_translate_basic_op,				&factory_assignment			},	// ZEND_ASSIGN
-	{	qb_translate_basic_op,				NULL					},	// ZEND_ASSIGN_REF
-	{	qb_translate_basic_op,				&factory_print				},	// ZEND_ECHO
+	{	qb_translate_basic_op,				NULL						},	// ZEND_ASSIGN_REF
+	{	qb_translate_basic_op,				&factory_echo				},	// ZEND_ECHO
 	{	qb_translate_basic_op,				&factory_print				},	// ZEND_PRINT
 	{	qb_translate_jump,					&factory_jump				},	// ZEND_JMP
 	{	qb_translate_branch,				&factory_branch_on_false	},	// ZEND_JMPZ

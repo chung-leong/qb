@@ -24,8 +24,10 @@ class CodeGenerator {
 		fwrite($handle, "#pragma pack(push,1)\n\n");
 		$structs = $this->getInstructionStructureDefinitions();
 		foreach($structs as $struct) {
-			$this->writeCode($handle, $struct);
-			fwrite($handle, "\n");
+			if($struct) {
+				$this->writeCode($handle, $struct);
+				fwrite($handle, "\n");
+			}
 		}
 		fwrite($handle, "#pragma pack(pop)\n\n");
 
@@ -172,7 +174,11 @@ class CodeGenerator {
 		$lines = array();
 		$lines[] = "enum qb_instruction_format {";
 		foreach($formats as $instr => $format) {
-			$instrIndex = strtoupper($instr);
+			if($instr) {
+				$instrIndex = strtoupper($instr);
+			} else {
+				$instrIndex = "QB_INSTRUCTION_NULL";
+			}
 			$lines[] = "$instrIndex,";
 		}
 		$lines[] = "};";		
@@ -229,7 +235,11 @@ class CodeGenerator {
 			$combined = ($flags) ? implode(" | ", $flags) : "0";
 
 			$instr = $handler->getInstructionStructure();
-			$instrIndex = strtoupper($instr);
+			if($instr) {
+				$instrIndex = strtoupper($instr);
+			} else {
+				$instrIndex = "QB_INSTRUCTION_NULL";
+			}
 			
 			$name = $handler->getName();
 			$lines[] = "// $name";
@@ -254,7 +264,7 @@ class CodeGenerator {
 		$lines = array();
 		$lines[] = "const uint32_t global_instruction_lengths[] = {";
 		foreach($formats as $struct => $format) {
-			if($format != "v") {
+			if($struct && $format != "v") {
 				$lines[] = "sizeof($struct),";
 			} else {
 				$lines[] = "0,";
@@ -787,8 +797,17 @@ class CodeGenerator {
 		$tableData = pack("V*", $compressedLength, $uncompressedLength, $totalDataLength, $itemCount) . $data;
 		
 		$len = strlen($tableData) + 1;
-		fwrite($handle, "const char {$name}[{$len}] = \"");
-		for($i = 0, $len = strlen($tableData); $i < $len; $i++) {
+		fwrite($handle, "const char {$name}[{$len}] = ");
+		for($i = 0, $j = 0, $len = strlen($tableData); $i < $len; $i++, $j--) {
+			if($j == 0) {
+				if($i > 0) {
+					// close out the previous line
+					fwrite($handle, "\"");
+				}
+				// start on a new line
+				fwrite($handle, "\n\"");
+				$j = 80;
+			}
 			fwrite($handle, sprintf("\x%02X", ord($tableData[$i])));
 		}
 		fwrite($handle, "\";\n");

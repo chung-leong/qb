@@ -946,7 +946,7 @@ qb_string_op_factory factory_print = {
 	NULL,
 	qb_set_result_true,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_print,
 	NULL,
 	qb_transfer_operands_print,
 
@@ -965,7 +965,7 @@ qb_derived_op_factory factory_echo = {
 	NULL,
 	NULL,
 	NULL,
-	qb_select_opcode_print,
+	qb_select_opcode_derived,
 	NULL,
 	qb_transfer_operands_print,
 
