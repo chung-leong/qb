@@ -442,9 +442,11 @@ enum {
 
 struct qb_function {
 	int8_t *instructions;
-	int8_t *instructions_start;
+	int8_t *instruction_start;
 	uint32_t instruction_length;
 	uint64_t instruction_crc64;
+	uint16_t *instruction_opcodes;
+	uint32_t instruction_opcode_count;
 	uint32_t flags;
 	qb_variable *return_variable;
 	qb_variable **variables;
@@ -454,8 +456,6 @@ struct qb_function {
 	qb_external_symbol **external_symbols;
 	uint32_t external_symbol_count;
 	qb_storage *local_storage;
-	qb_op *ops;
-	uint32_t op_count;
 	const char *name;
 	const char *filename;
 	void *native_proc;

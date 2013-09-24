@@ -2929,8 +2929,9 @@ static uint32_t ZEND_FASTCALL qb_get_op_encoded_length(qb_compiler_context *cxt,
 	return length;
 }
 
-static uint32_t ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cxt) {
+static void ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cxt, uint32_t *p_stream_length, uint32_t *p_op_count) {
 	uint32_t instruction_offset, i;
+	uint32_t count = 0;
 
 	// determine the offsets of each instruction in the stream
 	instruction_offset = sizeof(void *);
@@ -2940,64 +2941,58 @@ static uint32_t ZEND_FASTCALL qb_set_instruction_offsets(qb_compiler_context *cx
 		if(qop->opcode != QB_NOP) {
 			uint32_t instruction_length = qb_get_op_encoded_length(cxt, qop);
 			instruction_offset += instruction_length;
+			count++;
 		}
 	}
 
 	// the final offset also happens to be the total length
-	return instruction_offset;
+	*p_stream_length = instruction_offset;
+	*p_op_count = count;
+}
+
+static zend_always_inline void *qb_get_pointer(qb_compiler_context *cxt, qb_address *address) {
+	// only segment zero exists at compile-time
+	uintptr_t base_address;
+	if(address->segment_selector == 0) {
+		base_address = (uintptr_t) cxt->storage->segments[0].memory;
+	} else {
+		base_address = 0;
+	}
+	return (void *) (base_address + address->segment_offset);
 }
 
 static void ZEND_FASTCALL qb_encode_address(qb_compiler_context *cxt, qb_address *address, int8_t **p_ip) {
 	switch(address->mode) {
 		case QB_ADDRESS_MODE_SCA: {
-			uint32_t index, operand;
-
-			index = address->segment_offset >> type_size_shifts[address->type];
-			operand = index;
-			*((uint32_t *) *p_ip) = operand; *p_ip += sizeof(uint32_t);
+			qb_pointer_SCA *p = ((qb_pointer_SCA *) *p_ip);
+			p->data_pointer = qb_get_pointer(cxt, address);
+			*p_ip += sizeof(qb_pointer_SCA);
 		}	break;
 		case QB_ADDRESS_MODE_ELE: {
-			uint32_t index_index, operand;
-			qb_address *index_address;
-
-			if(address->array_index_address) {
-				index_address = address->array_index_address;
-			} else {
-				uint32_t value = ELEMENT_COUNT(address->segment_offset, address->type);
-				index_address = qb_obtain_constant_U32(cxt, value);
-			}
-			index_index = ELEMENT_COUNT(index_address->segment_offset, index_address->type);
-			operand = (index_index << 8) | address->segment_selector;
-			*((uint32_t *) *p_ip) = operand; *p_ip += sizeof(uint32_t);
+			qb_pointer_ELE *p = ((qb_pointer_ELE *) *p_ip);
+			p->data_pointer = qb_get_pointer(cxt, address);
+			p->index_pointer = qb_get_pointer(cxt, address->array_index_address);
+			*p_ip += sizeof(qb_pointer_ELE);
 		}	break;
 		case QB_ADDRESS_MODE_ARR: {
-			uint32_t index_index, size_index, operand;
-			qb_address *index_address, *size_address;
-
-			if(address->array_size_address) {
-				size_address = address->array_size_address;
-			} else {
-				size_address = qb_obtain_constant_U32(cxt, 1);
-			}
-			if(address->array_index_address) {
-				index_address = address->array_index_address;
-			} else {
-				uint32_t value = ELEMENT_COUNT(address->segment_offset, address->type);
-				index_address = qb_obtain_constant_U32(cxt, value);
-			}
-			size_index = ELEMENT_COUNT(size_address->segment_offset, size_address->type);
-			index_index = ELEMENT_COUNT(index_address->segment_offset, index_address->type);
-			operand = (size_index << 20) | (index_index << 8) | address->segment_selector;
-			*((uint32_t *) *p_ip) = operand; *p_ip += sizeof(uint32_t);
+			qb_pointer_ARR *p = ((qb_pointer_ARR *) *p_ip);
+			p->data_pointer = qb_get_pointer(cxt, address);
+			p->index_pointer = qb_get_pointer(cxt, address->array_index_address);
+			p->count_pointer = qb_get_pointer(cxt, address->array_size_address);
 		}	break;
 		default:
 			qb_abort("invalid address type");
 	}
 }
 
-static zend_always_inline void qb_encode_address_attributes(qb_compiler_context *cxt, qb_address *address, int8_t **p_ip) {
-	uint32_t flags = address->type | (address->dimension_count << 8) | ((address->flags & QB_ADDRESS_RUNTIME_FLAGS) << 16);
-	*((uint32_t *) *p_ip) = flags; *p_ip += sizeof(uint32_t);
+static zend_always_inline void *qb_get_handler(qb_compiler_context *cxt, qb_op *qop) {
+	void *handler_address;
+#ifdef __GNUC__
+		handler_address = op_handlers[qop->opcode];
+#else
+		handler_address = (void *) ((uintptr_t) qop->opcode);
+#endif
+	return handler_address;
 }
 
 static void ZEND_FASTCALL qb_encode_handler(qb_compiler_context *cxt, uint32_t target_qop_index, int8_t **p_ip) {
@@ -3007,8 +3002,13 @@ static void ZEND_FASTCALL qb_encode_handler(qb_compiler_context *cxt, uint32_t t
 		target_qop_index++;
 	}
 
-	// put in the inverse of the opcode--it will be replaced with the actual pointer during relocation
-	*((void **) *p_ip) = (void *) ~((uintptr_t) target_qop->opcode); *p_ip += sizeof(void *);
+	*((void **) *p_ip) = qb_get_handler(cxt, target_qop); 
+	*p_ip += sizeof(void *);
+}
+
+static zend_always_inline int8_t *qb_get_instruction_pointer(qb_compiler_context *cxt, qb_op *qop) {
+	int8_t *p = cxt->instructions + qop->instruction_offset;
+	return p;
 }
 
 static void ZEND_FASTCALL qb_encode_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index, uint32_t current_op_index, int8_t **p_ip) {
@@ -3019,17 +3019,25 @@ static void ZEND_FASTCALL qb_encode_jump_target(qb_compiler_context *cxt, uint32
 		target_qop_index++;
 	}
 
-	// the opcode and offset will be replaced with actual pointers during relocation
-	*((void **) *p_ip) = (void *) ~((uintptr_t) target_qop->opcode); *p_ip += sizeof(void *);
-	*((int8_t **) *p_ip) = (int8_t *) (uintptr_t) target_qop->instruction_offset; *p_ip += sizeof(int8_t *);
+	*((void **) *p_ip) = qb_get_handler(cxt, target_qop);
+	*p_ip += sizeof(void *);
+
+	*((int8_t **) *p_ip) = qb_get_instruction_pointer(cxt, target_qop); 
+	*p_ip += sizeof(int8_t *);
+}
+
+static void ZEND_FASTCALL qb_encode_line_number(qb_compiler_context *cxt, uint32_t line_number, int8_t **p_ip) {
+	*((uint32_t *) *p_ip) = line_number; 
+	*p_ip += sizeof(uint32_t);
 }
 
 static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 	uint32_t i, j;
 	int8_t *ip;
+	int16_t *cp;
 
 	if(!cxt->instructions) {
-		cxt->instruction_length = qb_set_instruction_offsets(cxt);
+		qb_set_instruction_offsets(cxt, &cxt->instruction_length, &cxt->instruction_op_count);
 		cxt->instructions = emalloc(cxt->instruction_length);
 	}
 	ip = cxt->instructions;
@@ -3041,32 +3049,20 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 		qb_op *qop = cxt->ops[i];
 
 		if(qop->opcode != QB_NOP) {
-
 			if(ip == cxt->instructions) {
-				// setting the handler for the "zeroth" instruction
-				// before we relocate it, it's just the inverse of the opcode
-				*((void **) ip) = (void *) ~((uintptr_t) qop->opcode); ip += sizeof(void *);
+				// set the next handler for the "zeroth" instruction
+				qb_encode_handler(cxt, 0, &ip);
 			}
 
-#if ZEND_DEBUG
-			if(ip != cxt->instructions + qop->instruction_offset) {
-				qb_op *prev_qop;
-				const char *op_name;
-				uint32_t op_length;
-				j = i;
-				do {
-					prev_qop = cxt->ops[--j];
-				} while(prev_qop->opcode == QB_NOP);
-				op_name = qb_get_op_name(cxt, prev_qop->opcode);
-				op_length = qb_get_op_encoded_length(cxt, prev_qop);
-				qb_abort("incorrect instruction offset (previous op: %s, length = %d)", op_name, op_length);
-			}
-#endif
-
-			// need the handler to the next instruction if it's not a jump operation
-			if(!(qop->flags & QB_OP_JUMP)) {
-				// functions must always end with a return
-				// that's why there's no check here if there is an op at i + 1
+			if(qop->flags & QB_OP_JUMP) {
+				// put in the jump targets
+				for(j = 0; j < qop->jump_target_count; j++) {
+					qb_encode_jump_target(cxt, qop->jump_target_indices[j], i, &ip);
+				}
+			} else {
+				// need the handler to the next instruction if it's not a jump operation
+				// as functions must always end with a return
+				// there's no check here if there is an op at i + 1
 				qb_encode_handler(cxt, i + 1, &ip);
 			}
 
@@ -3074,9 +3070,6 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 				qb_operand *operand = &qop->operands[j];
 
 				switch(operand->type) {
-					case QB_OPERAND_EXTERNAL_SYMBOL: {
-						*((uint32_t *) ip) = operand->symbol_index; ip += sizeof(uint32_t);
-					}	break;
 					case QB_OPERAND_ADDRESS: {
 						qb_encode_address(cxt, operand->address, &ip);
 					}	break;
@@ -3085,10 +3078,15 @@ static void ZEND_FASTCALL qb_encode_instructions(qb_compiler_context *cxt) {
 					}	break;
 				}
 			}
+
 			// put the line number at the end if it's needed
 			if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
-				*((uint32_t *) ip) = qop->line_number; ip += sizeof(uint32_t);
+				qb_encode_line_number(cxt, qop->line_number, &ip);
 			}
+
+			// save the opcode for use during relocation
+			*cp = qop->opcode;
+			cp++;
 		}
 	}
 }
@@ -3221,11 +3219,13 @@ void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	qfunc->return_variable = retval;
 	qfunc->variables = &retval;
 	qfunc->instructions = cxt->instructions = instructions;
-	qfunc->instruction_length = cxt->instruction_length = qb_set_instruction_offsets(cxt);
+	qb_set_instruction_offsets(cxt, &cxt->instruction_length, &cxt->instruction_op_count);
+	qfunc->instruction_length = cxt->instruction_length;
 	qb_encode_instructions(cxt);
 	qb_relocate_instructions(cxt);
 	cxt->instructions = NULL;
 	cxt->instruction_length = 0;
+	cxt->instruction_op_count = 0;
 
 	zfunc->type = ZEND_INTERNAL_FUNCTION;
 	zfunc->op_array.reserved[0] = qfunc;
@@ -4339,7 +4339,8 @@ void ZEND_FASTCALL qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 	qfunc->local_storage = cxt->storage;
 	qfunc->variables = cxt->variables;
 	qfunc->variable_count = cxt->variable_count;
-	qfunc->instruction_length = cxt->instruction_length = qb_set_instruction_offsets(cxt);
+	qb_set_instruction_offsets(cxt, &cxt->instruction_length, &cxt->instruction_op_count);
+	qfunc->instruction_length = cxt->instruction_length;
 	qfunc->instructions = cxt->instructions = emalloc(cxt->instruction_length);
 	qb_encode_instructions(cxt);
 	qb_relocate_instructions(cxt);
