@@ -333,6 +333,10 @@ static uint8_t * ZEND_FASTCALL qb_copy_variable(qb_encoder_context *cxt, qb_vari
 		// since we're going to free the op array later, update the pointer so
 		// cxt->variables continue to point to a valid string (to avoid seeing garbage in the debugger)
 		src->name = dst->name;
+	} else {
+		dst->hash_value = 0;
+		dst->name_length = 0;
+		dst->name = NULL;
 	}
 	if(src->address) {
 		dst->address = (qb_address *) p;
@@ -340,7 +344,12 @@ static uint8_t * ZEND_FASTCALL qb_copy_variable(qb_encoder_context *cxt, qb_vari
 		if(src->default_value_address) {
 			dst->default_value_address = (qb_address *) p;
 			p = qb_copy_address(cxt, src->default_value_address, p);
+		} else {
+			dst->default_value_address = NULL;
 		}
+	} else {
+		dst->address = NULL;
+		dst->default_value_address = NULL;
 	}
 
 #if ZEND_DEBUG
@@ -432,7 +441,7 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 	qfunc->name = func_name;
 	qfunc->filename = filename;
 	qfunc->native_proc = NULL;
-	qfunc->zend_function = cxt->compiler_context->zend_function;
+	qfunc->zend_function = NULL;
 	qfunc->next_copy = NULL;
 	qfunc->flags = cxt->compiler_context->function_flags;
 
@@ -447,7 +456,7 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 
 static uint32_t ZEND_FASTCALL qb_get_storage_structure_size(qb_encoder_context *cxt) {
 	uint32_t size = sizeof(qb_storage);
-	size += sizeof(qb_memory_segment) * cxt->storage->segment_count;
+	size += sizeof(qb_memory_segment) * cxt->compiler_context->storage->segment_count;
 	size = ALIGN_TO(size, 16);
 	return size;
 }
@@ -465,7 +474,7 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 	storage->segment_count = cxt->compiler_context->storage->segment_count;
 	storage->segments = (qb_memory_segment *) p; p += sizeof(qb_memory_segment) * cxt->compiler_context->storage->segment_count;
 
-	for(i = 0; i < cxt->storage->segment_count; i++) {
+	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
 		qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
 		qb_memory_segment *dst = &storage->segments[i];
 		dst->flags = src->flags;
@@ -506,7 +515,7 @@ static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, i
 #endif
 
 	// set up memory segments 
-	for(i = 0; i < cxt->storage->segment_count; i++) {
+	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
 		qb_memory_segment *dst = &storage->segments[i];
 
 		// memory is preallocated
@@ -515,13 +524,14 @@ static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, i
 			qb_memory_segment *dst = &storage->segments[i];
 			uint32_t segment_length = BYTE_COUNT(dst->element_count, dst->type); 
 
+			dst->memory = p; 
 			if(src->memory) {
 				memcpy(dst->memory, src->memory, segment_length);
 			} else {
 				memset(dst->memory, 0, segment_length);
 			}
 			segment_length = ALIGN_TO(segment_length, 16);
-			dst->memory = p; p += segment_length;
+			p += segment_length;
 		}
 	}
 
@@ -534,7 +544,8 @@ static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, i
 }
 
 qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt) {
-	qb_function *qfunc;
+	USE_TSRM
+	qb_function *qfunc, **p_qfunc;
 	int8_t *memory, *p;
 	uint32_t function_struct_size, storage_struct_size, preallocated_segment_size, instruction_length, opcode_length;
 	uint32_t total_size;
@@ -581,14 +592,56 @@ qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt) {
 	// calculate the CRC64 signature
 	qfunc->instruction_crc64 = qb_calculate_crc64((uint8_t *) qfunc->instructions, cxt->instruction_stream_length, 0);
 	qfunc->size = total_size;
+
+	// add the function to the global table so we can free it afterward
+	if(!QB_G(compiled_functions)) {
+		qb_create_array((void **) &QB_G(compiled_functions), &QB_G(compiled_function_count), sizeof(qb_function *), 16);
+	}
+	p_qfunc = qb_enlarge_array((void **) &QB_G(compiled_functions), 1);
+	*p_qfunc = qfunc;
+
 	return qfunc;
 }
 
-void ZEND_FASTCALL qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt) {
+void ZEND_FASTCALL qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_encoder_context));
 
 	cxt->compiler_context = compiler_cxt;
 	cxt->ops = compiler_cxt->ops;
 	cxt->op_count = compiler_cxt->op_count;
 	cxt->initialization_op_count = compiler_cxt->initialization_op_count;
+
+	SAVE_TSRMLS
+}
+
+void ZEND_FASTCALL qb_free_function(qb_function *qfunc) {
+	uint32_t i;
+
+	// set the type to a invalid value so clean_non_persistent_function() doesn't return ZEND_HASH_APPLY_STOP
+	// when user functions are removed at the end of the request
+	if(qfunc->zend_function) {
+		qfunc->zend_function->type = 255;
+
+		// free the arg_info array
+		efree(qfunc->zend_function->common.arg_info);
+		qfunc->zend_function->common.arg_info = NULL;
+		qfunc->zend_function->common.num_args = 0;
+		qfunc->zend_function->common.required_num_args = 0;
+	}
+
+	// free memory segments
+	// normally, only static arrays would be be present at this point
+	// if we had bailed out during execution though, local arrays would remain 
+	for(i = QB_SELECTOR_DYNAMIC_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
+		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
+		if(segment->memory) {
+			if(segment->flags & QB_SEGMENT_MAPPED) {
+				// PHP should have clean it already
+			} else if(!(segment->flags & (QB_SEGMENT_BORROWED | QB_SEGMENT_PREALLOCATED))) {
+				efree(segment->memory);
+			}
+		}
+	}
+
+	efree(qfunc);
 }

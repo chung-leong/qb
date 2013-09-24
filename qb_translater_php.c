@@ -1770,7 +1770,7 @@ void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_contex
 		cxt->zend_op_array = &compiler_cxt->zend_function->op_array;
 		cxt->zend_class = compiler_cxt->zend_function->op_array.scope;
 	}
-	SAVE_TSRMLS();
+	SAVE_TSRMLS
 }
 
 void ZEND_FASTCALL qb_free_php_translater_context(qb_php_translater_context *cxt) {

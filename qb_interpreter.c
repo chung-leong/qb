@@ -1337,21 +1337,20 @@ static void ZEND_FASTCALL qb_transfer_arguments_to_php(qb_interpreter_context *c
 	qb_function *func = cxt->function;
 	uint32_t i;
 
-	// copy value into return variable
-	if(func->return_variable->address) {
-		if(!SCALAR(func->return_variable->address)) {
-			qb_initialize_zval_array(cxt, func->return_variable->address, NULL, retval);
-		}
-		qb_transfer_value_to_zval(cxt, func->return_variable->address, retval);
-	}
-
-	// copy values into arguments passed by reference
-	for(i = 0; i < func->argument_count; i++) {
+	// copy values into arguments passed by reference and return variable
+	for(i = 0; i < func->argument_count + 1; i++) {
 		qb_variable *qvar = func->variables[i];
 
 		if(qvar->flags & QB_VARIABLE_ARGUMENT && qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
 			zval *zarg = *p_args[i];
 			qb_transfer_value_to_zval(cxt, qvar->address, zarg);
+		} else if(qvar->flags & QB_VARIABLE_RETURN_VALUE) {
+			if(qvar->address) {
+				if(!SCALAR(qvar->address)) {
+					qb_initialize_zval_array(cxt, func->return_variable->address, NULL, retval);
+				}
+				qb_transfer_value_to_zval(cxt, func->return_variable->address, retval);
+			}
 		}
 	}
 }
@@ -1391,7 +1390,7 @@ static void ZEND_FASTCALL qb_initialize_interpreter_context(qb_interpreter_conte
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
 #endif
-	SAVE_TSRMLS();
+	SAVE_TSRMLS
 }
 
 zend_class_entry *value_type_debug_base_class = NULL;
@@ -1744,6 +1743,7 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 			qfunc->local_storage->flags |= QB_STORAGE_IN_USE;
 		}
 		*/
+		cxt->storage = qfunc->local_storage;
 		cxt->function = qfunc;
 	} else {
 		// allocate space for arguments
@@ -2185,7 +2185,7 @@ void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argume
 
 void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
 	if(cxt->function) {
-		qb_variable *qvar = (argument_index < cxt->function->argument_count) ? cxt->function->variables[argument_index] : cxt->function->return_variable;
+		qb_variable *qvar = cxt->function->variables[argument_index];
 		qb_call_stack_item *caller = &cxt->call_stack[cxt->call_stack_height - 1];
 		if((qvar->flags & (QB_VARIABLE_PASSED_BY_REF | QB_VARIABLE_RETURN_VALUE)) && qvar->address) {
 			qb_transfer_value_to_caller_storage(cxt, qvar->address, caller->storage, cxt->argument_address);
@@ -2242,7 +2242,7 @@ int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval ***arguments
 void ZEND_FASTCALL qb_execute_internal(qb_function *qfunc TSRMLS_DC) {
 	qb_interpreter_context _cxt, *cxt = &_cxt;
 	unsigned char windows_time_out = 0;
-	SAVE_TSRMLS();
+	SAVE_TSRMLS
 	cxt->windows_timed_out_pointer = &windows_time_out;
 	cxt->function = qfunc;
 	cxt->storage = qfunc->local_storage;
@@ -2259,7 +2259,9 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 		symbol->hash_value = zend_inline_hash_func(symbol->name, strlen(symbol->name) + 1);
 	}
 #endif
+#ifndef _MSC_VER
 	qb_main(NULL, NULL);
+#endif
 	return SUCCESS;
 }
 

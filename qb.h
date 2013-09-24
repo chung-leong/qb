@@ -66,11 +66,11 @@
 #ifdef ZTS
 	#define USE_TSRM		void ***tsrm_ls = cxt->tsrm_ls;\
 
-	#define SAVE_TSRMLS()	cxt->tsrm_ls = tsrm_ls\
+	#define SAVE_TSRMLS		cxt->tsrm_ls = tsrm_ls;\
 
 #else
 	#define USE_TSRM
-	#define SAVE_TSRMLS()
+	#define SAVE_TSRMLS
 #endif
 
 #ifdef _MSC_VER
@@ -183,7 +183,6 @@ ZEND_END_MODULE_GLOBALS(qb)
 #endif
 
 int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC);
-int ZEND_FASTCALL qb_native_compile(TSRMLS_D);
 int ZEND_FASTCALL qb_execute(zend_function *function, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
 int ZEND_FASTCALL qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC);
 int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
@@ -195,7 +194,6 @@ ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN
 void qb_abort(const char *format, ...);
 
 void ZEND_FASTCALL qb_free_function(qb_function *qfunc);
-void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle);
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

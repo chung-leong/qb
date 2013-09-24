@@ -354,7 +354,7 @@ void ZEND_FASTCALL qb_initialize_extractor_context(qb_extractor_context *cxt, zv
 	cxt->compiler_cxt = &cxt->_compiler_cxt;
 	qb_initialize_compiler_data_pool(cxt->pool);
 	qb_initialize_compiler_context(cxt->compiler_cxt, cxt->pool, NULL TSRMLS_CC);
-	SAVE_TSRMLS();
+	SAVE_TSRMLS
 }
 
 void ZEND_FASTCALL qb_free_extractor_context(qb_extractor_context *cxt) {

@@ -3052,7 +3052,7 @@ void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_c
 		cxt->function_declaration = function_decl;
 		cxt->zend_function = function_decl->zend_function;
 	}
-	SAVE_TSRMLS();
+	SAVE_TSRMLS
 
 	qb_attach_new_array(pool, (void **) &cxt->variables, &cxt->variable_count, sizeof(qb_variable *), 16);
 	qb_attach_new_array(pool, (void **) &cxt->ops, &cxt->op_count, sizeof(qb_op *), 256);
@@ -3102,7 +3102,7 @@ static void ZEND_FASTCALL qb_initialize_build_context(qb_build_context *cxt TSRM
 	qb_attach_new_array(cxt->pool, (void **) &cxt->function_declarations, &cxt->function_declaration_count, sizeof(qb_function_declaration *), 16);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->class_declarations, &cxt->class_declaration_count, sizeof(qb_class_declaration *), 16);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->compiler_contexts, &cxt->compiler_context_count, sizeof(qb_compiler_context), 16);
-	SAVE_TSRMLS();
+	SAVE_TSRMLS
 }
 
 void ZEND_FASTCALL qb_free_build_context(qb_build_context *cxt) {
@@ -3349,6 +3349,46 @@ static zend_function * ZEND_FASTCALL qb_get_function(qb_build_context *cxt, zval
 	return zfunc;
 }
 
+static qb_function * ZEND_FASTCALL qb_replace_zend_function(zend_function *zfunc, qb_function *qfunc TSRMLS_DC) {
+	// save values that will get wiped by destroy_op_array()
+	zend_uint fn_flags = zfunc->common.fn_flags;
+	zend_class_entry *scope = zfunc->common.scope;
+
+	// copy argument info
+	zend_arg_info *arg_info = emalloc(sizeof(zend_arg_info) * zfunc->common.num_args);
+	uint32_t i;
+	for(i = 0; i < zfunc->common.num_args ; i++) {
+		arg_info[i].pass_by_reference = zfunc->common.arg_info[i].pass_by_reference;
+		arg_info[i].allow_null = zfunc->common.arg_info[i].allow_null;
+		arg_info[i].name = qfunc->variables[i]->name;
+		arg_info[i].name_len = qfunc->variables[i]->name_length;
+	}
+
+	// free the op array
+	destroy_op_array(&zfunc->op_array TSRMLS_CC);
+	memset(&zfunc->op_array, 0, sizeof(zend_op_array));
+
+	// make the function internal function
+	zfunc->type = ZEND_INTERNAL_FUNCTION;
+	zfunc->common.fn_flags = fn_flags;
+	zfunc->common.scope = scope;
+#ifdef ZEND_ACC_DONE_PASS_TWO
+	zfunc->common.fn_flags &= ~ZEND_ACC_DONE_PASS_TWO;
+#endif
+	zfunc->common.function_name = qfunc->name;
+	zfunc->common.arg_info = arg_info;
+	zfunc->internal_function.handler = PHP_FN(qb_execute);
+#if !ZEND_ENGINE_2_1
+	zfunc->internal_function.module = &qb_module_entry;
+#endif
+
+	qfunc->zend_function = zfunc;
+
+	// store the pointer to the qb function in space vacated by the op array
+	zfunc->op_array.reserved[0] = qfunc;
+	return qfunc;
+}
+
 int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 	qb_build_context *cxt = QB_G(build_context);
 	qb_compiler_context *compiler_cxt;
@@ -3541,10 +3581,28 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			QB_G(current_line_number) = 0;
 		}
 
+		for(i = 0; i < cxt->compiler_context_count; i++) {
+			qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
+			qb_function *qfunc;
+
+			compiler_cxt = &cxt->compiler_contexts[i];
+			qb_initialize_encoder_context(encoder_cxt, compiler_cxt TSRMLS_CC);
+
+			// encode the instruction stream
+			qfunc = qb_encode_function(encoder_cxt);
+
+			// replace the zend function with the qb version
+			qb_replace_zend_function(compiler_cxt->zend_function, qfunc TSRMLS_CC);
+
+			if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
+				native_compile = TRUE;
+			}
+		}
+
 #ifdef NATIVE_COMPILE_ENABLED
 		if(native_compile) {
 			if(QB_G(allow_native_compilation)) {
-				qb_native_compile(TSRMLS_C);
+				qb_native_compile(cxt TSRMLS_C);
 			}
 		}
 		if(!QB_G(allow_bytecode_interpretation)) {
@@ -3556,20 +3614,6 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 			}
 		}
 #endif
-
-		for(i = 0; i < cxt->compiler_context_count; i++) {
-			compiler_cxt = &cxt->compiler_contexts[i];
-
-			// encode the instruction stream
-			//qb_encode_instructions(compiler_cxt);
-
-			if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
-				native_compile = TRUE;
-			}
-
-			// create function object
-			//qb_replace_function(compiler_cxt);
-		}
 		qb_free_build_context(cxt);
 		efree(cxt);
 		QB_G(build_context) = NULL;

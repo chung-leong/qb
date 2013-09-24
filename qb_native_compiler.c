@@ -2222,8 +2222,7 @@ extern const char compressed_table_native_result_size_calculations[];
 extern const char compressed_table_native_prototypes[];
 extern const char compressed_table_native_references[];
 
-static void ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt TSRMLS_DC) {
-	qb_build_context *build_cxt = QB_G(build_context);
+static void ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_native_compiler_context));
 
 	cxt->pool = build_cxt->pool;
@@ -2231,7 +2230,7 @@ static void ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt 
 	cxt->print_source = QB_G(show_native_source);
 	cxt->compiler_contexts = build_cxt->compiler_contexts;
 	cxt->compiler_context_count = build_cxt->compiler_context_count;
-	SAVE_TSRMLS();
+	SAVE_TSRMLS
 
 	cxt->cache_folder_path = QB_G(native_code_cache_path);
 }
@@ -2362,12 +2361,12 @@ int32_t ZEND_FASTCALL qb_decompress_code(qb_native_compiler_context *cxt) {
 	return (cxt->op_actions && cxt->op_result_size_variables && cxt->op_result_size_codes && cxt->op_function_usages && cxt->function_prototypes);
 }
 
-int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
+int ZEND_FASTCALL qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 	int result = FAILURE;
 	uint32_t i, attempt;
 	qb_native_compiler_context _cxt, *cxt = &_cxt;
 
-	qb_initialize_context(cxt TSRMLS_CC);
+	qb_initialize_context(cxt, build_cxt TSRMLS_CC);
 
 #if ZEND_DEBUG
 	if(native_proc_table) {
@@ -2471,7 +2470,7 @@ int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
 
 #else
 
-int ZEND_FASTCALL qb_native_compile(TSRMLS_D) {
+int ZEND_FASTCALL qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 	return FAILURE;
 }
 

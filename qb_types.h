@@ -461,7 +461,6 @@ struct qb_function {
 	void *native_proc;
 
 	zend_function *zend_function;
-	zend_arg_info *zend_arg_info;
 	qb_function *next_copy;
 };
 

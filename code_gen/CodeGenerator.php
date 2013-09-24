@@ -105,7 +105,6 @@ class CodeGenerator {
 		$lines[] = 				"ip = function->instruction_start;";
 		$lines[] = 				"handler = *((void **) ip);";
 		$lines[] = 				"ip += sizeof(void *);";
-		$lines[] =			"";
 		if($compiler == "GCC") {
 			$lines[] = 			"goto *handler;";
 		}
