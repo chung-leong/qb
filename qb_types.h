@@ -403,14 +403,8 @@ enum {
 struct qb_memory_segment {
 	int8_t *memory;
 	uint32_t flags;
-	uint32_t type;								// type of elements contained in this segment
-	uint32_t element_count;						// number of elements in this segment
-	uint32_t current_allocation;				// number of elements allocated
-
-	uint32_t *array_size_pointer;				// pointer to array size variable accessible to user code (i.e. it points to a place in the first member of this struct)
-	uint32_t *dimension_pointer;				// pointer to the first array dimension, which would be different from array size if the array is multidimensional
-	uint32_t *increment_pointer;				// pointer to the size of each sub-array, populated only if array is multidimensional
-
+	uint32_t byte_count;						// number of bytes in this segment
+	uint32_t current_allocation;				// number of bytes allocated
 	php_stream *stream;							// memory-mapped file
 };
 

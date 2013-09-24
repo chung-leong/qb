@@ -152,11 +152,17 @@ struct qb_compiler_context {
 	uint32_t argument_count;
 	uint32_t required_argument_count;
 	
-	qb_address **scalars;
-	uint32_t scalar_count;
+	qb_address **constant_scalars;
+	uint32_t constant_scalar_count;
 
-	qb_address **arrays;
-	uint32_t array_count;
+	qb_address **writable_scalars;
+	uint32_t writable_scalar_count;
+
+	qb_address **constant_arrays;
+	uint32_t constant_array_count;
+
+	qb_address **writable_arrays;
+	uint32_t writable_array_count;
 
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
@@ -229,12 +235,6 @@ enum {
 	QB_RESULT_HAS_SIDE_EFFECT		= 0x00000002,
 	QB_RESULT_IS_ROW_MAJOR			= 0x00000004,
 	QB_RESULT_IS_COLUMN_MAJOR		= 0x00000008,
-};
-
-enum {
-	QB_CREATE_EXPANDABLE			= 0x00000001,
-	QB_CREATE_IN_NEW_SEGMENT		= 0x00000002,
-	QB_CREATE_IN_VARIABLE_SEGMENT	= 0x00000004,
 };
 
 static zend_always_inline void qb_attach_new_array(qb_compiler_data_pool *pool, void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initial_capacity) {
@@ -326,13 +326,23 @@ static zend_always_inline qb_address **qb_allocate_address_pointers(qb_compiler_
 	return (qb_address **) qb_allocate_pointers(pool, count);
 }
 
-static zend_always_inline void qb_add_scalar(qb_compiler_context *cxt, qb_address *address) {
-	qb_address **p = qb_enlarge_array((void **) &cxt->scalars, 1);
+static zend_always_inline void qb_add_constant_scalar(qb_compiler_context *cxt, qb_address *address) {
+	qb_address **p = qb_enlarge_array((void **) &cxt->constant_scalars, 1);
 	*p = address;
 }
 
-static zend_always_inline void qb_add_array(qb_compiler_context *cxt, qb_address *address) {
-	qb_address **p = qb_enlarge_array((void **) &cxt->arrays, 1);
+static zend_always_inline void qb_add_writable_scalar(qb_compiler_context *cxt, qb_address *address) {
+	qb_address **p = qb_enlarge_array((void **) &cxt->writable_scalars, 1);
+	*p = address;
+}
+
+static zend_always_inline void qb_add_constant_array(qb_compiler_context *cxt, qb_address *address) {
+	qb_address **p = qb_enlarge_array((void **) &cxt->constant_arrays, 1);
+	*p = address;
+}
+
+static zend_always_inline void qb_add_writable_array(qb_compiler_context *cxt, qb_address *address) {
+	qb_address **p = qb_enlarge_array((void **) &cxt->writable_arrays, 1);
 	*p = address;
 }
 
@@ -406,5 +416,7 @@ void ZEND_FASTCALL qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_oper
 void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
 void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
+
+#define qb_obtain_constant_INDEX			qb_obtain_constant_U32
 
 #endif
