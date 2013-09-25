@@ -476,6 +476,7 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 		qb_memory_segment *dst = &storage->segments[i];
 		dst->flags = src->flags;
 		dst->byte_count = src->byte_count;
+		dst->current_allocation = 0;
 		dst->stream = NULL;
 		dst->memory = NULL;
 	}
@@ -488,10 +489,9 @@ static uint32_t ZEND_FASTCALL qb_get_preallocated_segment_size(qb_encoder_contex
 	uint32_t size = 0;
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
-		qb_memory_segment *segment = &cxt->compiler_context->storage->segments[i];
-		if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-			uint32_t segment_length = segment->byte_count; 
-			segment_length = ALIGN_TO(segment_length, 16);
+		qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
+		if(src->flags & QB_SEGMENT_PREALLOCATED) {
+			uint32_t segment_length = ALIGN_TO(src->byte_count, 16); 
 			size += segment_length;
 		}
 	}
@@ -513,15 +513,25 @@ static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, i
 		if(dst->flags & QB_SEGMENT_PREALLOCATED) {
 			qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
 			qb_memory_segment *dst = &storage->segments[i];
-			uint32_t segment_length = dst->byte_count; 
+			uint32_t segment_length = ALIGN_TO(src->byte_count, 16); 
 
-			dst->memory = p; 
+			dst->memory = p;
+			dst->current_allocation = segment_length;
+
 			if(src->memory) {
-				memcpy(dst->memory, src->memory, segment_length);
+				memcpy(dst->memory, src->memory, src->current_allocation);
 			} else {
-				memset(dst->memory, 0, segment_length);
+#if ZEND_DEBUG
+				memset(dst->memory, 'K', segment_length);
+#endif
 			}
-			segment_length = ALIGN_TO(segment_length, 16);
+			if(dst->byte_count > 0 && !(dst->flags & QB_SEGMENT_CLEAR_ON_CALL)) {
+				// the segment won't be cleared when the function is called
+				// we need to zero out the bytes now
+				if(src->current_allocation != dst->byte_count) {
+					memset(dst->memory + src->current_allocation, 0, dst->byte_count - src->current_allocation);
+				}
+			}
 			p += segment_length;
 		}
 	}
@@ -621,14 +631,12 @@ void ZEND_FASTCALL qb_free_function(qb_function *qfunc) {
 	}
 
 	// free memory segments
-	// normally, only static arrays would be be present at this point
-	// if we had bailed out during execution though, local arrays would remain 
-	for(i = QB_SELECTOR_DYNAMIC_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
+	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
 		if(segment->memory) {
 			if(segment->flags & QB_SEGMENT_MAPPED) {
 				// PHP should have clean it already
-			} else if(!(segment->flags & (QB_SEGMENT_BORROWED | QB_SEGMENT_PREALLOCATED))) {
+			} else if(!(segment->flags & QB_SEGMENT_BORROWED)) {
 				efree(segment->memory);
 			}
 		}

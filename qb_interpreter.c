@@ -269,26 +269,6 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 	}
 }
 
-static void ZEND_FASTCALL qb_initialize_value(qb_interpreter_context *cxt, qb_address *address) {
-	uint32_t byte_count;
-	if(SCALAR(address)) {
-		byte_count = BYTE_COUNT(1, address->type);
-	} else {
-		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-		if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-			return;
-		} else {
-			uint32_t element_count = VALUE(U32, address->array_size_address);
-			byte_count = BYTE_COUNT(element_count, address->type);
-			if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
-				segment->current_allocation = segment->byte_count = byte_count;
-				segment->memory = emalloc(byte_count);
-			}
-		}
-	}
-	memset(ARRAY(I08, address), 0, byte_count);
-}
-
 static void ZEND_FASTCALL qb_copy_elements_from_caller_address(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address) {
 	uint32_t src_element_count = SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
 	uint32_t dst_element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
@@ -551,6 +531,7 @@ void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_seg
 }
 
 void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
+	/*
 	uint32_t current_size = segment->byte_count;
 	uint32_t desired_size = current_size - count;
 	uint32_t bytes_to_move, bytes_to_remove;
@@ -568,13 +549,11 @@ void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_me
 
 	// clear the bytes behind the actual data, now vacated
 	memset(data_end, 0, bytes_to_remove);
-
-	if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-		segment->byte_count = desired_size;
-	}
+	*/
 }
 
 NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t count, uint32_t line_number) {
+	/* TODO:
 	USE_TSRM
 	qb_function *function = NULL;
 	qb_storage *storage = NULL;
@@ -639,6 +618,8 @@ NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_mem
 	} else {
 		qb_abort("Illegal memory access on segment %d at index %d", segment_selector, index + count - 1);
 	}
+	*/
+	qb_abort("Range error");
 }
 
 enum {
@@ -654,6 +635,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 
 	if(SCALAR(address)) {
 		// make sure the address is valid
+		/* TODO:
 		if(address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {			
 			if(element_start_index + 1 > segment->current_allocation) {
 				if(segment->flags & QB_SEGMENT_EXPANDABLE) {
@@ -664,11 +646,13 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 				}
 			} 
 		}
+		*/
 
 		// assign scalar value
 		qb_copy_element_from_zval(cxt, zvalue, address);
 	} else {
 		// determine the array's dimensions and check for out-of-bound condition
+		/* TODO
 		uint32_t element_count = qb_set_array_dimensions_from_zval(cxt, zvalue, address);
 		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 
@@ -723,10 +707,12 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 
 		// copy values over
 		qb_copy_elements_from_zval(cxt, zvalue, address);
+		*/
 	}
 }
 
 static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address, uint32_t transfer_flags) {
+	/* TODO
 	// make sure the address is in bound in the caller segment
 	if(caller_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
 		qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
@@ -785,6 +771,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 		segment->byte_count = segment->current_allocation = byte_count; 
 	}
 	qb_copy_elements_from_caller_address(cxt, caller_storage, caller_address, address);
+	*/
 }
 
 static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
@@ -1193,6 +1180,7 @@ static void ZEND_FASTCALL qb_copy_elements_to_caller_address(qb_interpreter_cont
 }
 
 static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_context *cxt, qb_address *address, qb_storage *caller_storage, qb_address *caller_address) {
+	/* TODO
 	if(caller_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
 		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 		qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
@@ -1232,6 +1220,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 		}
 	}
 	qb_copy_elements_to_caller_address(cxt, address, caller_storage, caller_address);
+	*/
 }
 
 static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
@@ -1657,6 +1646,8 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 	cxt->function_call_line_number = line_number;
 	if(qb_is_compiled_function(zfunc)) {
 		qb_function *qfunc = zfunc->op_array.reserved[0];
+		int8_t *memory;
+		uint32_t combined_byte_count, i;
 		/* TODO
 		// duplicate the storage if the function is active
 		if(qfunc->local_storage->flags & QB_STORAGE_IN_USE) {
@@ -1701,6 +1692,28 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 		*/
 		cxt->storage = qfunc->local_storage;
 		cxt->function = qfunc;
+
+		// the following optimization depends very much on how the segments are laid out
+		memory = cxt->storage->segments[QB_SELECTOR_SHARED_SCALAR].memory;
+		combined_byte_count = cxt->storage->segments[QB_SELECTOR_SHARED_SCALAR].byte_count + cxt->storage->segments[QB_SELECTOR_LOCAL_SCALAR].byte_count;
+		memset(memory, 0, combined_byte_count);
+		memory = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].memory;
+		combined_byte_count = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].byte_count + cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].byte_count;
+		memset(memory, 0, combined_byte_count);
+
+		// process the other segments
+		for(i = QB_SELECTOR_ARRAY_START; i < cxt->storage->segment_count; i++) {
+			qb_memory_segment *segment = &cxt->storage->segments[i];
+			if(segment->byte_count) {
+				if(segment->byte_count < segment->current_allocation) {
+					qb_resize_segment(cxt, segment, segment->byte_count);
+					segment->current_allocation = segment->byte_count;
+				}
+				if(segment->flags & QB_SEGMENT_CLEAR_ON_CALL) {
+					memset(segment->memory, 0, segment->byte_count);
+				}
+			}
+		}
 	} else {
 		// allocate space for arguments
 		if(argument_count + 1 > cxt->zend_argument_buffer_size) {
@@ -1960,6 +1973,7 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 				qb_abort("%s() expects at least %d parameter%s, only %d passed", cxt->function->name, cxt->function->required_argument_count, (cxt->function->required_argument_count > 1) ? "s" : "", cxt->argument_count);
 			}
 		}
+		
 		for(i = cxt->argument_count; i < cxt->function->argument_count; i++) {
 			qb_variable *qvar = cxt->function->variables[i];
 			if(qvar->default_value_address) {
@@ -1978,13 +1992,6 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 			if(qvar->flags & (QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS)) {
 				// import external variables
 				qb_import_variable(cxt, qvar);
-			} else {
-				// initialize local variable
-				if(!(qvar->flags & QB_VARIABLE_STATIC) || !(cxt->storage->flags & QB_STORAGE_STATIC_INITIALIZED)) {
-					if(qvar->address) {
-						qb_initialize_value(cxt, qvar->address);
-					}
-				}
 			}
 		}
 
@@ -2065,40 +2072,15 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 
 void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt) {
 	if(cxt->function) {
-		if(cxt->storage != cxt->function->local_storage) {
-			// make sure change to scalar static variables are copied back into the caller's memory 
-			uint32_t i;
-			for(i = 0; i < cxt->function->variable_count; i++) {
-				qb_variable *qvar = cxt->function->variables[i];
-				if(qvar->flags & QB_VARIABLE_STATIC) {
-					if(SCALAR(qvar->address)) {
-						qb_storage *caller_storage = qb_find_previous_storage(cxt, cxt->function);
-						qb_copy_elements_to_caller_address(cxt, qvar->address, caller_storage, qvar->address);
-					}
+		uint32_t i;
+		for(i = QB_SELECTOR_ARRAY_START; i < cxt->storage->segment_count; i++) {
+			qb_memory_segment *segment = &cxt->storage->segments[i];
+			if(segment->flags & QB_SEGMENT_FREE_ON_RETURN) {
+				qb_free_segment(cxt, segment);
+				if(segment->flags & QB_SEGMENT_EMPTY_ON_RETURN) {
+					segment->byte_count = 0;
 				}
 			}
-			// free memory segments
-			for(i = 0; i < cxt->storage->segment_count; i++) {
-				qb_memory_segment *segment = &cxt->storage->segments[i];
-				if(!(segment->flags & (QB_SEGMENT_PREALLOCATED | QB_SEGMENT_STATIC | QB_SEGMENT_BORROWED))) {
-					if(segment->memory) {
-						efree(segment->memory);
-					}
-				}
-			}
-			efree(cxt->storage);
-		} else {
-			uint32_t i;
-			for(i = 0; i < cxt->storage->segment_count; i++) {
-				qb_memory_segment *segment = &cxt->storage->segments[i];
-				if(!(segment->flags & (QB_SEGMENT_STATIC | QB_SEGMENT_PREALLOCATED))) {
-					qb_free_segment(cxt, segment);
-					if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-						segment->byte_count = 0;
-					}
-				}
-			}
-			cxt->storage->flags &= ~QB_STORAGE_IN_USE;
 		}
 	} else {
 		uint32_t i;

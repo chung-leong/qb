@@ -81,6 +81,8 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 #define SCALAR(address)						(address->dimension_count == 0)
 #define CONSTANT(address)					(address->flags & QB_ADDRESS_CONSTANT)
 #define TEMPORARY(address)					(address->flags & QB_ADDRESS_TEMPORARY)
+#define STATIC(address)						(address->flags & QB_ADDRESS_STATIC)
+#define SHARED(address)						(address->flags & QB_ADDRESS_SHARED)
 #define IN_USE(address)						(address->flags & QB_ADDRESS_IN_USE)
 #define READ_ONLY(address)					(address->flags & QB_ADDRESS_READ_ONLY)
 
@@ -150,7 +152,8 @@ enum {
 	QB_ADDRESS_CONSTANT				= 0x00000002,
 	QB_ADDRESS_STRING				= 0x00000004,
 	QB_ADDRESS_BOOLEAN				= 0x00000008,
-	QB_ADDRESS_SEGMENT				= 0x00000010,
+	QB_ADDRESS_STATIC				= 0x00000010,
+	QB_ADDRESS_SHARED				= 0x00000020,
 	QB_ADDRESS_TEMPORARY			= 0x00010000,
 	QB_ADDRESS_REUSED				= 0x00040000,
 	QB_ADDRESS_INITIALIZED			= 0x00080000,
@@ -169,14 +172,43 @@ enum {
 };
 
 enum {
-	// scalar constant and scalar variables are stored in segment 0
-	QB_SELECTOR_VARIABLE 			= 0,
-	// constant arrays are stored in segment 1 (to not impact negatively locality of variables)
-	QB_SELECTOR_CONSTANT_ARRAY 		= 1,
-	// larger array variables are stored in individual segments (so an offset doesn't need to be added to element indices)
-	QB_SELECTOR_DYNAMIC_ARRAY_START	= 2,
+	// constant scalar (no separation on fork, no clearing on call)
+	QB_SELECTOR_CONSTANT_SCALAR		= 0,
+	// static scalars (no separation on fork, no clearing on call)
+	QB_SELECTOR_STATIC_SCALAR		= 1,
+	// shared scalars (no separation on fork, clearing on call) 
+	QB_SELECTOR_SHARED_SCALAR		= 2,
+	// local scalars (separation on fork, clearing on call)
+	QB_SELECTOR_LOCAL_SCALAR		= 3,
+	// temporary scalars (seperation on fork, no clearing on call)
+	QB_SELECTOR_TEMPORARY_SCALAR	= 4,
 
-	QB_SELECTOR_INVALID 			= 0xFFFF,
+	// constant arrays (no separation on fork, no clearing on call)
+	QB_SELECTOR_CONSTANT_ARRAY		= 9,
+	// static arrays (no separation on fork, no clearing on call)
+	QB_SELECTOR_STATIC_ARRAY		= 8,
+	// shared fixed-length arrays (no separation on fork, clearing on call) 
+	QB_SELECTOR_SHARED_ARRAY		= 7,
+	// local fixed-length arrays (separation on fork, clearing on call)
+	QB_SELECTOR_LOCAL_ARRAY			= 6,
+	// temporary fixed-length arrays (seperation on fork, no clearing on call)
+	QB_SELECTOR_TEMPORARY_ARRAY		= 5,
+
+	// note how the order is reverse for the array segments
+	// this is done so that the segments requiring separation are back-to-back,
+	// maing it easier to see if a given pointer requires relocation or not
+	//
+	// the arrangement also brings variables likely to be active closer together
+	//
+	// segments that need to be cleared when the function is called are also placed 
+	// back-to-back, so we only need two memset() to wipe all variables clean
+	//
+	// parameters are found in the shared segments
+
+	// variable length arrays are stored in segment 10 and above
+	QB_SELECTOR_ARRAY_START			= 10,
+
+	QB_SELECTOR_INVALID 			= 0xFFFFFFFF,
 };
 
 enum {
@@ -257,10 +289,15 @@ struct qb_operand {
 	};
 };
 
+enum {
+	QB_ARRAY_INITIALIZER_NON_CONSTANT	= 0x00000001,
+};
+
 struct qb_array_initializer {
 	qb_operand *elements;
 	uint32_t element_count;
 	qb_primitive_type desired_type;
+	int32_t flags;
 };
 
 struct qb_variable_dimensions {
@@ -389,11 +426,12 @@ enum {
 };
 
 enum {
-	QB_SEGMENT_STATIC				= 0x00000001,
-	QB_SEGMENT_EXPANDABLE			= 0x00000002,
-	QB_SEGMENT_PREALLOCATED			= 0x00000004,
-	QB_SEGMENT_TEMPORARY			= 0x00000008,
-	QB_SEGMENT_SHARED				= 0x00000010,
+	QB_SEGMENT_PREALLOCATED			= 0x00000001,
+	QB_SEGMENT_SEPARATE_ON_FORK		= 0x00000002,
+	QB_SEGMENT_CLEAR_ON_CALL		= 0x00000004,
+	QB_SEGMENT_FREE_ON_RETURN		= 0x00000008,
+	QB_SEGMENT_EMPTY_ON_RETURN		= 0x00000010,
+
 	QB_SEGMENT_BORROWED				= 0x00000100,
 	QB_SEGMENT_MAPPED				= 0x00000200,
 };
