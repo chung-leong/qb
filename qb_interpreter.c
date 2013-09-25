@@ -281,7 +281,7 @@ static void ZEND_FASTCALL qb_initialize_value(qb_interpreter_context *cxt, qb_ad
 			uint32_t element_count = VALUE(U32, address->array_size_address);
 			byte_count = BYTE_COUNT(element_count, address->type);
 			if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
-				segment->current_allocation = segment->element_count = element_count;
+				segment->current_allocation = segment->byte_count = byte_count;
 				segment->memory = emalloc(byte_count);
 			}
 		}
@@ -501,8 +501,8 @@ static void ZEND_FASTCALL qb_free_segment(qb_interpreter_context *cxt, qb_memory
 		qb_unmap_segment(cxt, segment);
 
 		// set the file to the actual size if more bytes were allocated than needed
-		if(segment->current_allocation != segment->element_count) {
-			php_stream_truncate_set_size(stream, BYTE_COUNT(segment->element_count, segment->type));
+		if(segment->current_allocation != segment->byte_count) {
+			php_stream_truncate_set_size(stream, segment->byte_count);
 		}
 		if(!(segment->flags & QB_SEGMENT_BORROWED)) {
 			php_stream_close(stream);
@@ -539,65 +539,27 @@ static void ZEND_FASTCALL qb_resize_segment(qb_interpreter_context *cxt, qb_memo
 void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size) {
 	int8_t *current_data_end;
 
-	if(segment->increment_pointer) {
-		// array is multidimensional--need to update the dimension as well (since it's not the same as the size)
-		uint32_t dimension = *segment->dimension_pointer;
-		uint32_t increment = *segment->increment_pointer;
-		uint32_t element_count = dimension * increment;
-
-		do {
-			// most likely we're incrementing the dimension by one
-			// using a loop is probably faster than doing a division
-			dimension++;
-			element_count += increment;
-		} while(desired_size > element_count);
-		*segment->dimension_pointer = dimension;
-		desired_size = element_count;
-	}
-
 	if(desired_size > segment->current_allocation) {
 		// allocate more bytes
 		segment->current_allocation = ALIGN_TO(desired_size, 1024);
-		qb_resize_segment(cxt, segment, BYTE_COUNT(segment->current_allocation, segment->type));
+		qb_resize_segment(cxt, segment, segment->current_allocation);
 
 		// clear the newly allcoated bytes
-		current_data_end = segment->memory + BYTE_COUNT(segment->element_count, segment->type);
-		memset(current_data_end, 0, BYTE_COUNT(desired_size - segment->element_count, segment->type));
+		current_data_end = segment->memory + segment->byte_count;
+		memset(current_data_end, 0, desired_size - segment->byte_count);
 	}
-
-	// update the size in user-code-accessible memory
-	*segment->array_size_pointer = segment->element_count = desired_size;
 }
 
 void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
-	uint32_t current_size = *segment->array_size_pointer;
+	uint32_t current_size = segment->byte_count;
 	uint32_t desired_size = current_size - count;
 	uint32_t bytes_to_move, bytes_to_remove;
 	int8_t *gap_start, *gap_end, *data_end;
 
-	if(segment->increment_pointer && (segment->flags & QB_SEGMENT_EXPANDABLE)) {
-		// array is multidimensional
-		if(desired_size == 0) {
-			*segment->dimension_pointer = 0;
-		} else {
-			// reduce the dimension until it can't get any smaller
-			uint32_t dimension = *segment->dimension_pointer;
-			uint32_t increment = *segment->increment_pointer;
-			uint32_t element_count = dimension * increment;
-
-			while((element_count - increment) >= desired_size) {
-				dimension--;
-				element_count -= increment;
-			}
-			desired_size = element_count;
-			*segment->dimension_pointer = dimension;
-		}
-	}
-
 	// figure out the gap's beginning and end
-	bytes_to_move = BYTE_COUNT(desired_size - start_index, segment->type);
-	bytes_to_remove = BYTE_COUNT(count, segment->type);
-	gap_start = segment->memory + BYTE_COUNT(start_index, segment->type);
+	bytes_to_move = desired_size - start_index;
+	bytes_to_remove = count;
+	gap_start = segment->memory + start_index;
 	gap_end = gap_start + bytes_to_remove;
 	data_end = gap_start + bytes_to_move;
 
@@ -608,7 +570,7 @@ void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_me
 	memset(data_end, 0, bytes_to_remove);
 
 	if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-		*segment->array_size_pointer = segment->element_count = desired_size;
+		segment->byte_count = desired_size;
 	}
 }
 
@@ -688,7 +650,7 @@ enum {
 static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address, int32_t transfer_flags) {
 	USE_TSRM
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-	uint32_t element_start_index = ELEMENT_COUNT(address->segment_offset, address->type);
+	uint32_t element_start_index = address->segment_offset;
 
 	if(SCALAR(address)) {
 		// make sure the address is valid
@@ -708,18 +670,19 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 	} else {
 		// determine the array's dimensions and check for out-of-bound condition
 		uint32_t element_count = qb_set_array_dimensions_from_zval(cxt, zvalue, address);
+		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 
 		if(address->flags & QB_ADDRESS_SEGMENT) {
-			*segment->array_size_pointer = segment->element_count = element_count;
+			segment->byte_count = byte_count;
 			// if the segment doesn't have preallocated memory, see if it can borrow it from the zval
 			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && (transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 				php_stream *stream;
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
 					// use memory from the string if it's long enough
-					if((uint32_t) Z_STRLEN_P(zvalue) >= BYTE_COUNT(element_count, address->type)) {
+					if((uint32_t) Z_STRLEN_P(zvalue) >= byte_count) {
 						qb_free_segment(cxt, segment);
 						segment->memory = (int8_t *) Z_STRVAL_P(zvalue);
-						segment->current_allocation = element_count;
+						segment->current_allocation = byte_count;
 						if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
 							segment->flags |= QB_SEGMENT_BORROWED;
 						} else {
@@ -731,19 +694,15 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 				if((stream = qb_get_file_stream(cxt, zvalue))) {
 					// use memory mapped file if possible
 					int32_t write_access = !READ_ONLY(address);
-					uint32_t allocation = element_count;
+					uint32_t allocation = byte_count;
 					if(allocation == 0) {
 						// can't have a mapping that's zero
 						if(write_access) {
-							if(segment->increment_pointer) {
-								allocation = ALIGN_TO(*segment->increment_pointer, 1024);
-							} else {
-								allocation = 1024;
-							}
+							allocation = 1024;
 						}
 					}
 					qb_free_segment(cxt, segment);
-					if(qb_map_segment_to_file(cxt, segment, stream, write_access, BYTE_COUNT(allocation, address->type))) {
+					if(qb_map_segment_to_file(cxt, segment, stream, write_access, allocation)) {
 						segment->current_allocation = allocation;
 						if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
 							segment->flags |= QB_SEGMENT_BORROWED;
@@ -757,9 +716,9 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 			}
 		}
 		
-		if(element_start_index + element_count > segment->current_allocation) {
-			qb_resize_segment(cxt, segment, BYTE_COUNT(element_start_index + element_count, address->type));
-			segment->current_allocation = element_start_index + element_count;
+		if(element_start_index + byte_count > segment->current_allocation) {
+			qb_resize_segment(cxt, segment, element_start_index + byte_count);
+			segment->current_allocation = element_start_index + byte_count;
 		}
 
 		// copy values over
@@ -771,12 +730,13 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 	// make sure the address is in bound in the caller segment
 	if(caller_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
 		qb_memory_segment *caller_segment = &caller_storage->segments[caller_address->segment_selector];
-		uint32_t caller_element_start_index = BYTE_COUNT(caller_address->segment_offset, caller_address->type);
+		uint32_t caller_element_start_index = caller_address->segment_offset;
 		uint32_t caller_element_count = SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
+		uint32_t caller_byte_count = BYTE_COUNT(caller_element_count, caller_address->type);
 
-		if(caller_element_start_index + caller_element_count > caller_segment->element_count) {
+		if(caller_element_start_index + caller_byte_count > caller_segment->byte_count) {
 			if((caller_segment->flags & QB_SEGMENT_EXPANDABLE) && (transfer_flags & QB_TRANSFER_CAN_ENLARGE_SEGMENT)) {
-				qb_enlarge_segment(cxt, caller_segment, caller_element_start_index + caller_element_count);
+				qb_enlarge_segment(cxt, caller_segment, caller_element_start_index + caller_byte_count);
 			} else {
 				qb_abort_range_error(cxt, caller_segment, caller_element_start_index, caller_element_count, cxt->function_call_line_number);
 			}
@@ -788,6 +748,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 		// set the dimensions of the destination address (or error out)
 		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 		uint32_t element_count = qb_set_array_dimensions_from_caller_address(cxt, caller_storage, caller_address, address); 
+		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 
 		// see if we can just point to the memory in the caller storage
 		if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
@@ -800,14 +761,14 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 							segment->memory = caller_segment->memory;
 							segment->stream = caller_segment->stream;
 							segment->current_allocation = caller_segment->current_allocation;
-							segment->element_count = element_count;
+							segment->byte_count = byte_count;
 							segment->flags |= (caller_segment->flags & QB_SEGMENT_MAPPED) | QB_SEGMENT_BORROWED;
 							return;
 						}
 					} else {
 						segment->memory = ARRAY_IN(caller_storage, I08, caller_address);
-						segment->current_allocation = element_count;
-						segment->element_count = element_count;
+						segment->current_allocation = byte_count;
+						segment->byte_count = byte_count;
 						segment->flags |= QB_SEGMENT_BORROWED;
 						return;
 					}
@@ -816,16 +777,12 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 		}
 
 		// allocate memory for the segment
-		if(segment->element_count != element_count) {
-			qb_resize_segment(cxt, segment, BYTE_COUNT(element_count, address->type));
+		if(segment->byte_count != byte_count) {
+			qb_resize_segment(cxt, segment, byte_count);
 		}
 
 		// update the segment length and allocation count
-		// don't need to update the value referenced by segment->array_size_pointer, since
-		// qb_set_array_dimensions_from_caller_address() has set it already, or the value
-		// referenced by segment->stack_ref_element_count since this function isn't called 
-		// within qb_run()
-		segment->element_count = segment->current_allocation = element_count; 
+		segment->byte_count = segment->current_allocation = byte_count; 
 	}
 	qb_copy_elements_from_caller_address(cxt, caller_storage, caller_address, address);
 }
@@ -1244,12 +1201,10 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 			// as memory was borrowed from the caller, content changes are there already
 			if(segment->flags & QB_SEGMENT_EXPANDABLE) {
 				// see if the size needs to be updated
-				if(caller_segment->element_count != segment->element_count) {
-					// the length of the segment appears in three places
-					caller_segment->element_count = *caller_segment->array_size_pointer = segment->element_count;
+				if(caller_segment->byte_count != segment->byte_count) {
+					caller_segment->byte_count = segment->byte_count;
 					if(caller_address->dimension_count > 1) {
-						// update the dimension as well
-						*caller_segment->dimension_pointer = segment->element_count / *caller_segment->increment_pointer;
+						// TODO: update the dimension as well
 					}
 				}
 				if(caller_segment->memory != segment->memory) {
@@ -1262,10 +1217,11 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 			segment->stream = NULL;
 			return;
 		} else {
-			uint32_t element_start_index = ELEMENT_COUNT(caller_address->segment_offset, caller_address->type);
+			uint32_t element_start_index = caller_address->segment_offset;
 			uint32_t element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
+			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 
-			if(element_start_index + element_count > caller_segment->element_count) {
+			if(element_start_index + byte_count > caller_segment->byte_count) {
 				if(caller_segment->flags & QB_SEGMENT_EXPANDABLE) {
 					// expand the caller segment to accommodate
 					qb_enlarge_segment(cxt, caller_segment, element_start_index + element_count);
@@ -2138,7 +2094,7 @@ void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt) {
 				if(!(segment->flags & (QB_SEGMENT_STATIC | QB_SEGMENT_PREALLOCATED))) {
 					qb_free_segment(cxt, segment);
 					if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-						*segment->array_size_pointer = segment->element_count = 0;
+						segment->byte_count = 0;
 					}
 				}
 			}

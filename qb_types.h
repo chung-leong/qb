@@ -76,8 +76,6 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 #define CTYPE_U32							uint32_t
 #define CTYPE_U64							uint64_t
 
-#define CTYPE_INDEX							uint32_t
-
 #define CTYPE(type)							CTYPE_##type
 
 #define SCALAR(address)						(address->dimension_count == 0)

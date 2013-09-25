@@ -139,6 +139,11 @@ void ZEND_FASTCALL qb_mark_as_writable(qb_compiler_context *cxt, qb_address *add
 	}
 }
 
+static void ZEND_FASTCALL qb_mark_as_expandable(qb_compiler_context *cxt, qb_address *address) {
+	qb_address *dimension_address = address->dimension_addresses[0];
+	dimension_address->flags &= ~QB_ADDRESS_READ_ONLY;
+}
+
 void ZEND_FASTCALL qb_lock_address(qb_compiler_context *cxt, qb_address *address) {
 	if(!IN_USE(address) && TEMPORARY(address)) {
 		address->flags |= QB_ADDRESS_IN_USE;
@@ -492,7 +497,7 @@ static qb_address * ZEND_FASTCALL qb_create_constant_fixed_length_array(qb_compi
 	// store constant arrays in segment 1
 	qb_memory_segment *segment = &cxt->storage->segments[1];
 	qb_address *address = qb_allocate_address(cxt->pool);
-	qb_address *size_address = qb_obtain_constant_INDEX(cxt, element_count);
+	qb_address *size_address = qb_obtain_constant_U32(cxt, element_count);
 	uint32_t element_size = BYTE_COUNT(1, element_type);
 	uint32_t start = ALIGN_TO(segment->byte_count, 16);
 	uint32_t end = start + element_size * element_count;
@@ -836,9 +841,72 @@ static uint32_t ZEND_FASTCALL qb_get_zval_array_type(qb_compiler_context *cxt, z
 	return highest_rank_type;
 }
 
+static qb_address * ZEND_FASTCALL qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
+
+static void ZEND_FASTCALL qb_set_variable_dimensions(qb_compiler_context *cxt, uint32_t *dimensions, uint32_t dimension_count, qb_variable_dimensions *dim) {
+	uint32_t array_size = 1;
+	uint32_t i;
+	for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
+		uint32_t dimension = dimensions[i];
+		qb_address *dimension_address;
+		array_size *= dimension;
+		if(dimension == 0) {
+			// if it's zero, it's unknown at compile time
+			dimension_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+		} else {
+			dimension_address = qb_obtain_constant_U32(cxt, dimension);
+		}
+		dim->dimension_addresses[i] = dimension_address;
+	}
+	dim->array_size = array_size;
+	dim->dimension_count = 0;
+	dim->source_address = NULL;
+}
+
+static void ZEND_FASTCALL qb_copy_dimensions(qb_compiler_context *cxt, qb_variable_dimensions *dim, qb_address *address) {
+	uint32_t i, array_size = 1;
+	qb_address *previous_array_size_address = NULL;
+	address->dimension_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
+	address->array_size_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
+	address->dimension_count = dim->dimension_count;
+	for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
+		qb_address *dimension_address = dim->dimension_addresses[i];
+		qb_address *array_size_address;
+
+		if(i == 0) {
+			array_size_address = address->array_size_address;
+			if(!dimension_address) {
+				// the first dimension is not known if the result is variable-length
+				// calculate it on demand from the length
+				dimension_address = qb_obtain_on_demand_quotient(cxt, address->array_size_address, previous_array_size_address);
+			}
+		} else {
+			if(!CONSTANT(dimension_address)) {
+				// dimension is a variable--array sizes at this level and above will also be variable
+				array_size = 0;
+			}
+			if(array_size) {
+				array_size *= VALUE(U32, dimension_address);
+				if(i == dim->dimension_count - 1) {
+					array_size_address = dimension_address;
+				} else {
+					array_size_address = qb_obtain_constant_U32(cxt, array_size);
+				}
+			} else {
+				// calculate the size on demand
+				array_size_address = qb_obtain_on_demand_product(cxt, dimension_address, previous_array_size_address);
+			}
+		}
+		address->dimension_addresses[i] = dimension_address;
+		address->array_size_addresses[i] = array_size_address;
+		previous_array_size_address = array_size_address;
+	} 
+}
+
 qb_address * ZEND_FASTCALL qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type) {
 	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY) || Z_TYPE_P(zvalue) == IS_STRING) {
 		qb_address *address;
+		qb_variable_dimensions dim;
 
 		// figure out the dimensions of the array first
 		uint32_t dimensions[MAX_DIMENSION];
@@ -847,7 +915,11 @@ qb_address * ZEND_FASTCALL qb_obtain_constant_zval(qb_compiler_context *cxt, zva
 		qb_get_zend_array_dimensions(cxt, zvalue, desired_type, dimensions, dimension_count);
 
 		// create a local array for it
-		address = qb_create_constant_fixed_length_multidimensional_array(cxt, desired_type, dimensions, dimension_count);
+		qb_set_variable_dimensions(cxt, dimensions, dimension_count, &dim);
+		address = qb_create_constant_fixed_length_array(cxt, desired_type, dim.array_size);
+		if(dim.dimension_count > 1) {
+			qb_copy_dimensions(cxt, &dim, address);
+		}
 
 		// copy the elements
 		qb_copy_elements_from_zend_array(cxt, zvalue, address);
@@ -897,6 +969,10 @@ qb_address * ZEND_FASTCALL qb_create_writable_scalar(qb_compiler_context *cxt, q
 	address->segment_offset = QB_OFFSET_INVALID;
 	address->mode = QB_ADDRESS_MODE_SCA;
 	address->type = element_type;
+
+	// here "read-only" doesn't mean we're not supposed to write to this address
+	// it just means no operation has done so yet
+	address->flags = QB_ADDRESS_READ_ONLY;
 	qb_add_writable_scalar(cxt, address);
 	return address;
 }
@@ -921,9 +997,10 @@ qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, 
 
 qb_address * ZEND_FASTCALL qb_create_writable_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count) {
 	qb_address *address = qb_allocate_address(cxt->pool);
-	qb_address *size_address = qb_obtain_constant_INDEX(cxt, QB_TYPE_INDEX);
+	qb_address *size_address = qb_obtain_constant_U32(cxt, QB_TYPE_U32);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
+	address->flags = QB_ADDRESS_READ_ONLY;
 	address->segment_selector = QB_SELECTOR_INVALID;
 	address->segment_offset = 0;
 	address->dimension_count = 1;
@@ -962,6 +1039,7 @@ static qb_address * ZEND_FASTCALL qb_create_writable_variable_length_array(qb_co
 	qb_address *size_address = qb_create_writable_scalar(cxt, QB_TYPE_INDEX);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
+	address->flags = QB_ADDRESS_READ_ONLY;
 	address->segment_selector = QB_SELECTOR_INVALID;
 	address->segment_offset = 0;
 	address->dimension_count = 1;
@@ -990,46 +1068,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_c
 	address->flags |= QB_ADDRESS_TEMPORARY;
 	qb_lock_address(cxt, address);
 	return address;
-}
-
-static void ZEND_FASTCALL qb_copy_dimensions(qb_compiler_context *cxt, qb_variable_dimensions *dim, qb_address *address) {
-	uint32_t i, array_size = 1;
-	qb_address *previous_array_size_address = NULL;
-	address->dimension_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
-	address->array_size_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
-	address->dimension_count = dim->dimension_count;
-	for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
-		qb_address *dimension_address = dim->dimension_addresses[i];
-		qb_address *array_size_address;
-
-		if(i == 0) {
-			array_size_address = address->array_size_address;
-			if(!dimension_address) {
-				// the first dimension is not known if the result is variable-length
-				// calculate it on demand from the length
-				dimension_address = qb_obtain_on_demand_quotient(cxt, address->array_size_address, previous_array_size_address);
-			}
-		} else {
-			if(!CONSTANT(dimension_address)) {
-				// dimension is a variable--array sizes at this level and above will also be variable
-				array_size = 0;
-			}
-			if(array_size) {
-				array_size *= VALUE(U32, dimension_address);
-				if(i == dim->dimension_count - 1) {
-					array_size_address = dimension_address;
-				} else {
-					array_size_address = qb_obtain_constant_U32(cxt, array_size);
-				}
-			} else {
-				// calculate the size on demand
-				array_size_address = qb_obtain_on_demand_product(cxt, dimension_address, previous_array_size_address);
-			}
-		}
-		address->dimension_addresses[i] = dimension_address;
-		address->array_size_addresses[i] = array_size_address;
-		previous_array_size_address = array_size_address;
-	} 
 }
 
 static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim) {
@@ -1344,11 +1382,16 @@ static qb_address * ZEND_FASTCALL qb_obtain_array_from_initializer(qb_compiler_c
 	// figure out the dimensions of the array first
 	uint32_t dimensions[MAX_DIMENSION];
 	uint32_t dimension_count = qb_get_array_initializer_dimension_count(cxt, initializer, element_type);
+	qb_variable_dimensions dim;
 	dimensions[0] = 0;
 	qb_get_array_initializer_dimensions(cxt, initializer, element_type, dimensions, dimension_count);
 
 	// create a local array for it
-	address = qb_create_constant_fixed_length_multidimensional_array(cxt, element_type, dimensions, dimension_count, FALSE);
+	qb_set_variable_dimensions(cxt, dimensions, dimension_count, &dim);
+	address = qb_create_constant_fixed_length_array(cxt, element_type, dim.array_size);
+	if(dim.dimension_count > 1) {
+		qb_copy_dimensions(cxt, &dim, address);
+	}
 
 	// copy the elements
 	qb_copy_elements_from_array_initializer(cxt, initializer, address);
@@ -1460,7 +1503,14 @@ void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_variable *q
 				} else {
 					address = qb_create_writable_variable_length_array(cxt, decl->type);
 				}
-				// TODO: need to add dimensional info
+				if(decl->dimension_count > 1) {
+					qb_variable_dimensions dim;
+					qb_set_variable_dimensions(cxt, decl->dimensions, decl->dimension_count, &dim);
+					qb_copy_dimensions(cxt, &dim, address);
+				}
+				if(decl->flags & QB_TYPE_DECL_EXPANDABLE) {
+					qb_mark_as_expandable(cxt, address);
+				}
 			}
 			if(decl->flags & QB_TYPE_DECL_STRING) {
 				address->flags |= QB_ADDRESS_STRING;

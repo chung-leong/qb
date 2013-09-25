@@ -316,10 +316,10 @@ static uint32_t ZEND_FASTCALL qb_get_variable_length(qb_encoder_context *cxt, qb
 }
 
 static uint8_t * ZEND_FASTCALL qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, int8_t *memory) {
-	int8_t *p = memory;
 #if ZEND_DEBUG
 	uint32_t length = qb_get_variable_length(cxt, qvar);
 #endif
+	int8_t *p = memory;
 	qb_variable *src = qvar;
 	qb_variable *dst = (qb_variable *) p; p += sizeof(qb_variable);
 	dst->flags = src->flags;
@@ -367,6 +367,9 @@ static uint32_t qb_get_external_symbol_length(qb_encoder_context *cxt, qb_extern
 }
 
 static uint8_t * ZEND_FASTCALL qb_copy_external_symbol(qb_encoder_context *cxt, qb_external_symbol *symbol, uint8_t *memory) {
+#if ZEND_DEBUG
+	uint32_t length = qb_get_external_symbol_length(cxt, symbol);
+#endif
 	uint8_t *p = memory;
 	qb_external_symbol *src = symbol;
 	qb_external_symbol *dst = (qb_external_symbol *) p; p += sizeof(qb_external_symbol);
@@ -378,6 +381,11 @@ static uint8_t * ZEND_FASTCALL qb_copy_external_symbol(qb_encoder_context *cxt, 
 
 	// in case the function name disappears when the op_array is freed
 	src->name = dst->name;
+#if ZEND_DEBUG
+	if(memory + length != p) {
+		qb_abort("length mismatch");
+	}
+#endif
 	return p;
 }
 
@@ -406,9 +414,6 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 	uint32_t func_name_len = strlen(cxt->compiler_context->zend_function->common.function_name);
 	uint32_t filename_len = strlen(cxt->compiler_context->zend_function->op_array.filename);
 	char *func_name, *filename;
-#if ZEND_DEBUG
-	uint32_t length = qb_get_function_structure_size(cxt);
-#endif
 
 	qfunc = (qb_function *) p; p += sizeof(qb_function);
 
@@ -446,11 +451,6 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 	qfunc->flags = cxt->compiler_context->function_flags;
 
 	p = (int8_t *) ALIGN_TO((uintptr_t) p, 16);
-#if ZEND_DEBUG
-	if(memory + length != p) {
-		qb_abort("length mismatch");
-	}
-#endif
 	return p;
 }
 
@@ -465,9 +465,6 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 	int8_t *p = memory;
 	qb_storage *storage;
 	uint32_t i;
-#if ZEND_DEBUG
-	uint32_t length = qb_get_storage_structure_size(cxt);
-#endif
 
 	storage = (qb_storage *) p;	p += sizeof(qb_storage);
 	storage->flags = 0;
@@ -478,18 +475,12 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 		qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
 		qb_memory_segment *dst = &storage->segments[i];
 		dst->flags = src->flags;
-		dst->type = src->type;
-		dst->element_count = src->element_count;
+		dst->byte_count = src->byte_count;
 		dst->stream = NULL;
 		dst->memory = NULL;
 	}
 
 	p = (int8_t *) ALIGN_TO((uintptr_t) p, 16);
-#if ZEND_DEBUG
-	if(memory + length != p) {
-		qb_abort("length mismatch");
-	}
-#endif
 	return p;
 }
 
@@ -499,7 +490,7 @@ static uint32_t ZEND_FASTCALL qb_get_preallocated_segment_size(qb_encoder_contex
 	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
 		qb_memory_segment *segment = &cxt->compiler_context->storage->segments[i];
 		if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-			uint32_t segment_length = BYTE_COUNT(segment->element_count, segment->type); 
+			uint32_t segment_length = segment->byte_count; 
 			segment_length = ALIGN_TO(segment_length, 16);
 			size += segment_length;
 		}
@@ -508,11 +499,11 @@ static uint32_t ZEND_FASTCALL qb_get_preallocated_segment_size(qb_encoder_contex
 }
 
 static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, int8_t *memory, qb_storage *storage) {
-	int8_t *p = memory;
-	uint32_t i;
 #if ZEND_DEBUG
 	uint32_t length = qb_get_preallocated_segment_size(cxt);
 #endif
+	int8_t *p = memory;
+	uint32_t i;
 
 	// set up memory segments 
 	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
@@ -522,7 +513,7 @@ static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, i
 		if(dst->flags & QB_SEGMENT_PREALLOCATED) {
 			qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
 			qb_memory_segment *dst = &storage->segments[i];
-			uint32_t segment_length = BYTE_COUNT(dst->element_count, dst->type); 
+			uint32_t segment_length = dst->byte_count; 
 
 			dst->memory = p; 
 			if(src->memory) {

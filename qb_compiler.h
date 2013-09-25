@@ -417,6 +417,4 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
 void ZEND_FASTCALL qb_execute_op(qb_compiler_context *cxt, qb_op *op);
 
-#define qb_obtain_constant_INDEX			qb_obtain_constant_U32
-
 #endif
