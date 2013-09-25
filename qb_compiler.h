@@ -401,10 +401,10 @@ qb_variable * ZEND_FASTCALL qb_find_instance_variable(qb_compiler_context *cxt, 
 
 void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_variable *qvar);
 
-qb_address * ZEND_FASTCALL qb_retrieve_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address);
-qb_address * ZEND_FASTCALL qb_retrieve_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name);
+qb_address * ZEND_FASTCALL qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address);
+qb_address * ZEND_FASTCALL qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name);
 qb_address * ZEND_FASTCALL qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address);
-qb_address * ZEND_FASTCALL qb_retrieve_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address);
+qb_address * ZEND_FASTCALL qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address);
 
 qb_address * ZEND_FASTCALL qb_retrieve_temporary_copy(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type);
 qb_address * ZEND_FASTCALL qb_retrieve_unary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address);

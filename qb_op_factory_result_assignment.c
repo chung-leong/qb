@@ -47,7 +47,7 @@ static void ZEND_FASTCALL qb_set_result_array_element_assignment(qb_compiler_con
 
 	if(expr_type != QB_TYPE_VOID) {
 		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_retrieve_array_element(cxt, container->address, index->address);
+		result->address = qb_obtain_array_element(cxt, container->address, index->address);
 	}
 }
 
@@ -60,7 +60,7 @@ static void ZEND_FASTCALL qb_set_result_object_property_assignment(qb_compiler_c
 			result->address = qb_obtain_instance_variable(cxt, name->constant);
 			result->type = QB_OPERAND_ADDRESS;
 		} else if(container->type == QB_OPERAND_ADDRESS) {
-			result->address = qb_retrieve_named_element(cxt, container->address, name->constant);
+			result->address = qb_obtain_named_element(cxt, container->address, name->constant);
 			result->type = QB_OPERAND_ADDRESS;
 		}
 	}
