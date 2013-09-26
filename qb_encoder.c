@@ -85,6 +85,7 @@ static void ZEND_FASTCALL qb_encode_address(qb_encoder_context *cxt, qb_address 
 			p->data_pointer = qb_get_pointer(cxt, address);
 			p->index_pointer = qb_get_pointer(cxt, address->array_index_address);
 			p->count_pointer = qb_get_pointer(cxt, address->array_size_address);
+			*p_ip += sizeof(qb_pointer_ARR);
 		}	break;
 		default:
 			qb_abort("invalid address type");

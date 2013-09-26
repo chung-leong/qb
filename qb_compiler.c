@@ -1178,12 +1178,12 @@ qb_address * ZEND_FASTCALL qb_obtain_temporary_scalar(qb_compiler_context *cxt, 
 
 qb_address * ZEND_FASTCALL qb_create_writable_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count) {
 	qb_address *address = qb_allocate_address(cxt->pool);
-	qb_address *size_address = qb_obtain_constant_U32(cxt, QB_TYPE_U32);
+	qb_address *size_address = qb_obtain_constant_U32(cxt, element_count);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
 	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
 	address->segment_selector = QB_SELECTOR_INVALID;
-	address->segment_offset = 0;
+	address->segment_offset = QB_OFFSET_INVALID;
 	address->dimension_count = 1;
 	address->dimension_addresses = &address->array_size_address;
 	address->array_size_addresses = &address->array_size_address;
@@ -1234,7 +1234,7 @@ static qb_address * ZEND_FASTCALL qb_create_writable_variable_length_array(qb_co
 	address->type = element_type;
 	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
 	address->segment_selector = QB_SELECTOR_INVALID;
-	address->segment_offset = 0;
+	address->segment_offset = QB_OFFSET_INVALID;
 	address->dimension_count = 1;
 	address->dimension_addresses = &address->array_size_address;
 	address->array_size_addresses = &address->array_size_address;
@@ -2206,7 +2206,6 @@ qb_address * ZEND_FASTCALL qb_obtain_array_slice(qb_compiler_context *cxt, qb_ad
 		offset_address = qb_obtain_on_demand_sum(cxt, container_address->array_index_address, offset_address);
 	}
 	slice_address->array_index_address = offset_address;
-	slice_address->segment_offset = QB_OFFSET_INVALID;
 	slice_address->dimension_count = container_address->dimension_count;
 	slice_address->source_address = container_address;
 	if(slice_address->dimension_count > 1) {
@@ -2274,7 +2273,6 @@ qb_address * ZEND_FASTCALL qb_obtain_array_element(qb_compiler_context *cxt, qb_
 		}
 	}
 	result_address->array_index_address = index_address;
-	result_address->segment_offset = QB_OFFSET_INVALID;
 	result_address->source_address = container_address;
 	if(CONSTANT(index_address)) {
 		uint32_t index = VALUE(U32, index_address);
