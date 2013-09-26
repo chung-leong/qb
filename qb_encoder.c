@@ -142,7 +142,7 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, voi
 		if(qop->opcode != QB_NOP) {
 			if(ip == cxt->instructions) {
 				// set the next handler for the "zeroth" instruction
-				qb_encode_handler(cxt, 0, &ip);
+				qb_encode_handler(cxt, i, &ip);
 			}
 
 			if(qop->flags & QB_OP_JUMP) {

@@ -82,3 +82,31 @@ static void ZEND_FASTCALL qb_set_result_increment(qb_compiler_context *cxt, qb_o
 		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 	}
 }
+
+static void ZEND_FASTCALL qb_set_result_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0], *index = &operands[1];
+	qb_operand *element;
+	qb_array_initializer *initializer = result->array_initializer;
+	uint32_t element_index;
+	if(index->type == QB_OPERAND_NONE) {
+		element_index = initializer->element_count;
+	} else {
+		switch(Z_TYPE_P(index->constant)) {
+			case IS_BOOL:
+			case IS_LONG: element_index = Z_LVAL_P(index->constant); break;
+			case IS_DOUBLE: element_index = (long) Z_DVAL_P(index->constant); break;
+			default: element_index = 0; break;
+		}
+	}
+	element = qb_expand_array_initializer(cxt, initializer, element_index);
+	*element = *value;
+}
+
+static void ZEND_FASTCALL qb_set_result_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	result->type = QB_OPERAND_ARRAY_INITIALIZER;
+	result->array_initializer = qb_allocate_array_initializer(cxt->pool);
+	if(operand_count > 0) {
+		qb_set_result_array_append(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+	}
+}
+

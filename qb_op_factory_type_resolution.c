@@ -28,6 +28,11 @@ static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_index(qb_compi
 	return QB_TYPE_U32;
 }
 
+// the expresion could be any type
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_any(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	return QB_TYPE_ANY;
+}
+
 // the expresion has the same type as the highest-rank operand
 static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_highest_rank(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);

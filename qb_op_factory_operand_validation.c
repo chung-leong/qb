@@ -94,4 +94,23 @@ static void ZEND_FASTCALL qb_validate_operands_minmax(qb_compiler_context *cxt, 
 	}
 }
 
+static void ZEND_FASTCALL qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *value = &operands[0], *index = &operands[1];
 
+	if(index->type == QB_OPERAND_ZVAL) {
+		switch(Z_TYPE_P(index->constant)) {
+			case IS_BOOL:
+			case IS_LONG:
+			case IS_DOUBLE: {
+			}	break;
+			case IS_STRING: {
+			}	break;
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	if(operand_count > 0) {
+		qb_validate_array_append(cxt, f, operands, operand_count);
+	}
+}

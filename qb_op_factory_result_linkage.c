@@ -109,3 +109,17 @@ static void ZEND_FASTCALL qb_link_results_free(qb_compiler_context *cxt, qb_op_f
 		value->result_prototype->destination = destination;
 	}
 }
+
+static void ZEND_FASTCALL qb_link_results_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		value->result_prototype->parent = result_prototype;
+	}
+}
+
+static void ZEND_FASTCALL qb_link_results_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		value->result_prototype->parent = result_prototype;
+	}
+}

@@ -102,7 +102,7 @@ qb_derived_op_factory factory_object_property_assignment = {
 	NULL,
 	qb_select_opcode_derived,
 	NULL,
-	qb_transfer_operands_assignment,
+	NULL,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -118,7 +118,7 @@ qb_simple_op_factory factory_fetch_array_element = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-	qb_transfer_operands_assignment,
+	NULL,
 	0,
 	0,
 	0,
@@ -134,9 +134,41 @@ qb_simple_op_factory factory_fetch_object_property = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-	qb_transfer_operands_assignment,
+	NULL,
 	0,
 	0,
+	0,
+	QB_NOP
+};
+
+qb_simple_op_factory factory_array_init = {
+	qb_resolve_expression_type_any,
+	qb_link_results_array_init,
+	NULL,
+	qb_validate_array_init,
+	qb_set_result_array_init,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	QB_COERCE_TO_LVALUE_TYPE,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_NOP
+};
+
+qb_simple_op_factory factory_array_append = {
+	NULL,
+	qb_link_results_array_append,
+	NULL,
+	qb_validate_array_append,
+	qb_set_result_array_append,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	QB_COERCE_TO_LVALUE_TYPE,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_NOP
 };

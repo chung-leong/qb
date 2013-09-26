@@ -1455,7 +1455,7 @@ static qb_operand ** ZEND_FASTCALL qb_get_stack_items(qb_compiler_context *cxt, 
 	return &cxt->stack_items[cxt->stack_item_offset + index];
 }
 
-static qb_operand * ZEND_FASTCALL qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index) {
+qb_operand * ZEND_FASTCALL qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index) {
 	int32_t addition = (required_index + 1) - initializer->element_count;
 	if(addition > 0) {
 		qb_operand *new_elements = qb_enlarge_array((void **) &initializer->elements, addition);
