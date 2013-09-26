@@ -1329,6 +1329,12 @@ qb_address * ZEND_FASTCALL qb_obtain_write_target(qb_compiler_context *cxt, qb_p
 					lvalue_size_address = (address->dimension_count > 1) ? address->array_size_addresses[1] : NULL;
 				}
 			}	break;
+			case QB_RESULT_DESTINATION_RETURN: {
+				if(cxt->return_variable->address) {
+					lvalue_type = cxt->return_variable->address->type;
+					lvalue_size_address = cxt->return_variable->address->array_size_address;
+				}
+			}	break;
 			default: break;
 		}
 
@@ -1397,6 +1403,9 @@ qb_address * ZEND_FASTCALL qb_obtain_write_target(qb_compiler_context *cxt, qb_p
 						if(name->type == QB_OPERAND_ZVAL) {
 							lvalue_address = qb_obtain_named_element(cxt, container->address, name->constant);
 						}
+					}	break;
+					case QB_RESULT_DESTINATION_RETURN: {
+						lvalue_address = cxt->return_variable->address;
 					}	break;
 					default: break;
 				}
@@ -1973,6 +1982,44 @@ qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *cxt, qb
 			if(!(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
 				return operand->result_prototype->preliminary_type;
 			}
+		}
+	}
+	return QB_TYPE_UNKNOWN;
+}
+
+qb_primitive_type ZEND_FASTCALL qb_get_property_type(qb_compiler_context *cxt, qb_operand *container, qb_operand *name) {
+	if(container->type == QB_OPERAND_NONE) {
+		qb_variable *qvar = qb_find_instance_variable(cxt, name->constant);
+		if(qvar) {
+			return qvar->address->type;
+		}
+	} else if(container->type == QB_OPERAND_ADDRESS) {
+		return container->address->type;
+	}
+	return QB_TYPE_UNKNOWN;
+}
+
+qb_primitive_type ZEND_FASTCALL qb_get_result_destination_type(qb_compiler_context *cxt, qb_result_destination *destination) {
+	if(destination) {
+		switch(destination->type) {
+			case QB_RESULT_DESTINATION_VARIABLE: {
+				return destination->variable.address->type;
+			}
+			case QB_RESULT_DESTINATION_ELEMENT: {
+				return destination->element.container.address->type;
+			}
+			case QB_RESULT_DESTINATION_PROPERTY: {
+				return qb_get_property_type(cxt, &destination->property.container, &destination->property.name);
+			}
+			case QB_RESULT_DESTINATION_RETURN: {
+				if(cxt->return_variable->address) {
+					return cxt->return_variable->address->type;
+				}
+			}
+			case QB_RESULT_DESTINATION_ARGUMENT: {
+				// TODO:
+			}
+			
 		}
 	}
 	return QB_TYPE_UNKNOWN;
@@ -3722,7 +3769,7 @@ void ZEND_FASTCALL qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 	loop_counter->name_length = 1;
 	loop_counter->address = qb_create_scalar(cxt, QB_TYPE_U32);
 	qb_add_variable(cxt, loop_counter);
-	qb_create_nullary_op(cxt, &factory_increment, loop_counter->address);
+	qb_create_nullary_op(cxt, &factory_increment_pre, loop_counter->address);
 	qb_create_comparison_branch_op(cxt, &factory_branch_on_less_than, 0, QB_INSTRUCTION_NEXT, loop_counter->address, iteration_address);
 	qb_create_op(cxt, &factory_return, NULL, 0, NULL);
 	*/

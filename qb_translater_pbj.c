@@ -2086,8 +2086,8 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	qb_perform_binary_operation(cxt, &factory_add, pixel_index_address, channel_count_address, pixel_index_address);
 
 	// increment x and _OutCoord.x
-	qb_create_nullary_op(cxt, &factory_increment, x_address);
-	qb_create_nullary_op(cxt, &factory_increment, out_coord_x_address);
+	qb_create_nullary_op(cxt, &factory_increment_pre, x_address);
+	qb_create_nullary_op(cxt, &factory_increment_pre, out_coord_x_address);
 
 	// if there's an jump to the end of the PB program, mark the instruction as a jump target
 	if(cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] == QB_OP_INDEX_JUMP_TARGET) {
@@ -2100,8 +2100,8 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	qb_create_comparison_branch_op(cxt, &factory_branch_on_less_than, INNER_LOOP_JUMP_TARGET_INDEX, QB_INSTRUCTION_NEXT, x_address, width_address);
 
 	// increment y and _OutCoord.y
-	qb_create_nullary_op(cxt, &factory_increment, y_address);
-	qb_create_nullary_op(cxt, &factory_increment, out_coord_y_address);
+	qb_create_nullary_op(cxt, &factory_increment_pre, y_address);
+	qb_create_nullary_op(cxt, &factory_increment_pre, out_coord_y_address);
 
 	// jump to beginning of outer loop if y is less than height
 	qb_create_comparison_branch_op(cxt, &factory_branch_on_less_than, OUTER_LOOK_JUMP_TARGET_INDEX, QB_INSTRUCTION_NEXT, y_address, height_address);

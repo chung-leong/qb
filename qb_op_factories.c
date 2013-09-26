@@ -141,6 +141,22 @@ qb_simple_op_factory factory_fetch_object_property = {
 	QB_NOP
 };
 
+qb_simple_op_factory factory_free = {
+	NULL,
+	qb_link_results_free,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_NOP
+};
+
 qb_cast_op_factory factory_cast_S08 = {
 	qb_resolve_expression_type_cast,
 	NULL,
@@ -311,7 +327,7 @@ qb_cast_op_factory factory_cast_F64 = {
 	QB_TYPE_F64,
 };
 
-qb_arithmetic_op_factory factory_increment = { 
+qb_arithmetic_op_factory factory_increment_pre = { 
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -323,7 +339,7 @@ qb_arithmetic_op_factory factory_increment = {
 	qb_transfer_operands_result_only,
 
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	{	QB_INC_F64,	QB_INC_F32,	QB_INC_I64,	QB_INC_I64,	QB_INC_I32,	QB_INC_I32,	QB_INC_I16,	QB_INC_I16,	QB_INC_I08,	QB_INC_I08,	},
 	{
@@ -333,7 +349,7 @@ qb_arithmetic_op_factory factory_increment = {
 	},
 };
 
-qb_arithmetic_op_factory factory_decrement = { 
+qb_arithmetic_op_factory factory_decrement_pre = { 
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -345,7 +361,7 @@ qb_arithmetic_op_factory factory_decrement = {
 	qb_transfer_operands_result_only,
 
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	{	QB_DEC_F64,	QB_DEC_F32,	QB_DEC_I64,	QB_DEC_I64,	QB_DEC_I32,	QB_DEC_I32,	QB_DEC_I16,	QB_DEC_I16,	QB_DEC_I08,	QB_DEC_I08,	},
 	{
@@ -353,6 +369,40 @@ qb_arithmetic_op_factory factory_decrement = {
 		{	QB_DEC_3X_F64,	QB_DEC_3X_F32,	},
 		{	QB_DEC_4X_F64,	QB_DEC_4X_F32,	},
 	},
+};
+
+qb_derived_op_factory factory_increment_post = { 
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_increment,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_increment,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_increment_pre,
+};
+
+qb_derived_op_factory factory_decrement_post = { 
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_increment,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_increment,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_decrement_pre,
 };
 
 qb_basic_op_factory factory_shift_left = { 
@@ -1009,7 +1059,7 @@ qb_derived_op_factory factory_echo = {
 
 qb_simple_op_factory factory_return = {
 	NULL,
-	NULL,
+	qb_link_results_return,
 	qb_coerce_operands_return,
 	qb_validate_operands_return,
 	NULL,

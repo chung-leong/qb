@@ -57,15 +57,11 @@ static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_cast(qb_compil
 static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
-	if(container->type == QB_OPERAND_NONE) {
-		qb_variable *qvar = qb_find_instance_variable(cxt, name->constant);
-		if(qvar) {
-			return qvar->address->type;
-		}
-	} else if(container->type == QB_OPERAND_ADDRESS) {
-		return container->address->type;
-	}
+	qb_primitive_type expr_type = qb_get_property_type(cxt, container, name);
 
 	// just return something--it'll fail during validation
-	return QB_TYPE_I32;
+	if(expr_type == QB_TYPE_UNKNOWN) {
+		expr_type = QB_TYPE_I32;
+	}
+	return expr_type;
 }

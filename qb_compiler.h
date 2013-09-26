@@ -377,6 +377,8 @@ void ZEND_FASTCALL qb_unlock_operand(qb_compiler_context *cxt, qb_operand *opera
 
 qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand *operands, uint32_t count, uint32_t flags);
 qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *cxt, qb_operand *operand, uint32_t flags);
+qb_primitive_type ZEND_FASTCALL qb_get_property_type(qb_compiler_context *cxt, qb_operand *container, qb_operand *name);
+qb_primitive_type ZEND_FASTCALL qb_get_result_destination_type(qb_compiler_context *cxt, qb_result_destination *destination);
 
 qb_address * ZEND_FASTCALL qb_obtain_constant_S08(qb_compiler_context *cxt, int8_t value);
 qb_address * ZEND_FASTCALL qb_obtain_constant_U08(qb_compiler_context *cxt, uint8_t value);

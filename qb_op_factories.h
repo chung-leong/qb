@@ -170,6 +170,8 @@ extern qb_derived_op_factory factory_object_property_assignment;
 extern qb_simple_op_factory factory_fetch_array_element;
 extern qb_simple_op_factory factory_fetch_object_property;
 
+extern qb_simple_op_factory factory_free;
+
 extern qb_cast_op_factory factory_cast_S08;
 extern qb_cast_op_factory factory_cast_U08;
 extern qb_cast_op_factory factory_cast_S16;
@@ -181,8 +183,10 @@ extern qb_cast_op_factory factory_cast_U64;
 extern qb_cast_op_factory factory_cast_F32;
 extern qb_cast_op_factory factory_cast_F64;
 
-extern qb_arithmetic_op_factory factory_increment;
-extern qb_arithmetic_op_factory factory_decrement;
+extern qb_arithmetic_op_factory factory_increment_pre;
+extern qb_arithmetic_op_factory factory_decrement_pre;
+extern qb_derived_op_factory factory_increment_post;
+extern qb_derived_op_factory factory_decrement_post;
 
 extern qb_basic_op_factory factory_shift_left;
 extern qb_basic_op_factory factory_shift_right;

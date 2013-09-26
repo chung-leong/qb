@@ -313,6 +313,7 @@ enum qb_result_destination_type {
 	QB_RESULT_DESTINATION_ARGUMENT,
 	QB_RESULT_DESTINATION_PRINT,
 	QB_RESULT_DESTINATION_FREE,
+	QB_RESULT_DESTINATION_RETURN,
 };
 
 struct qb_result_destination {

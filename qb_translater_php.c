@@ -1211,10 +1211,10 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_bitwise_or			},	// ZEND_ASSIGN_BW_OR
 	{	qb_translate_basic_op,				&factory_bitwise_and		},	// ZEND_ASSIGN_BW_AND
 	{	qb_translate_basic_op,				&factory_bitwise_xor		},	// ZEND_ASSIGN_BW_XOR
-	{	qb_translate_basic_op,				&factory_increment			},	// ZEND_PRE_INC
-	{	qb_translate_basic_op,				&factory_decrement			},	// ZEND_PRE_DEC
-	{	qb_translate_basic_op,				&factory_increment			},	// ZEND_POST_INC
-	{	qb_translate_basic_op,				&factory_decrement			},	// ZEND_POST_DEC
+	{	qb_translate_basic_op,				&factory_increment_pre			},	// ZEND_PRE_INC
+	{	qb_translate_basic_op,				&factory_decrement_pre			},	// ZEND_PRE_DEC
+	{	qb_translate_basic_op,				&factory_increment_post			},	// ZEND_POST_INC
+	{	qb_translate_basic_op,				&factory_decrement_post			},	// ZEND_POST_DEC
 	{	qb_translate_basic_op,				&factory_assignment					},	// ZEND_ASSIGN
 	{	qb_translate_basic_op,				NULL						},	// ZEND_ASSIGN_REF
 	{	qb_translate_basic_op,				&factory_echo						},	// ZEND_ECHO
@@ -1247,7 +1247,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				NULL						},	// ZEND_SEND_REF
 	{	NULL,								NULL						},	// ZEND_NEW
 	{	NULL,								NULL						},	// ZEND_INIT_NS_FCALL_BY_NAME
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FREE
+	{	qb_translate_basic_op,				&factory_free				},	// ZEND_FREE
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_ARRAY
 	{	qb_translate_basic_op,				NULL						},	// ZEND_ADD_ARRAY_ELEMENT
 	{	NULL,								NULL						},	// ZEND_INCLUDE_OR_EVAL
@@ -1309,10 +1309,10 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL						},	// 129
 	{	NULL,								NULL						},	// 130
 	{	NULL,								NULL						},	// 131
-	{	qb_translate_basic_op,				&factory_increment			},	// ZEND_PRE_INC_OBJ
-	{	qb_translate_basic_op,				&factory_decrement			},	// ZEND_PRE_DEC_OBJ
-	{	qb_translate_basic_op,				&factory_increment			},	// ZEND_POST_INC_OBJ
-	{	qb_translate_basic_op,				&factory_decrement			},	// ZEND_POST_DEC_OBJ
+	{	qb_translate_basic_op,				NULL			},	// ZEND_PRE_INC_OBJ
+	{	qb_translate_basic_op,				NULL			},	// ZEND_PRE_DEC_OBJ
+	{	qb_translate_basic_op,				NULL			},	// ZEND_POST_INC_OBJ
+	{	qb_translate_basic_op,				NULL							},	// ZEND_POST_DEC_OBJ
 	{	qb_translate_basic_op,				&factory_object_property_assignment	},	// ZEND_ASSIGN_OBJ
 	{	NULL,								NULL						},	// ZEND_OP_DATA
 	{	NULL,								NULL						},	// ZEND_INSTANCEOF

@@ -39,8 +39,8 @@ static void ZEND_FASTCALL qb_link_results_variable(qb_compiler_context *cxt, qb_
 		qb_result_destination *destination = qb_allocate_result_destination(cxt->pool);
 		destination->type = QB_RESULT_DESTINATION_VARIABLE;
 		destination->variable = *variable;
-		value->result_prototype->destination = destination;
 		destination->prototype = value->result_prototype->parent = result_prototype;
+		value->result_prototype->destination = destination;
 	}
 }
 
@@ -56,6 +56,7 @@ static void ZEND_FASTCALL qb_link_results_array_element(qb_compiler_context *cxt
 		destination->element.container = *container;
 		destination->element.index = *index;
 		destination->prototype = value->result_prototype->parent = result_prototype;
+		value->result_prototype->destination = destination;
 	}
 }
 
@@ -71,6 +72,18 @@ static void ZEND_FASTCALL qb_link_results_object_property(qb_compiler_context *c
 		destination->property.container = *container;
 		destination->property.name = *name;
 		destination->prototype = value->result_prototype->parent = result_prototype;
+		value->result_prototype->destination = destination;
+	}
+}
+
+// link the value to the object property
+static void ZEND_FASTCALL qb_link_results_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		qb_result_destination *destination = qb_allocate_result_destination(cxt->pool);
+		destination->type = QB_RESULT_DESTINATION_RETURN;
+		destination->prototype = result_prototype;
+		value->result_prototype->destination = destination;
 	}
 }
 
@@ -82,6 +95,17 @@ static void ZEND_FASTCALL qb_link_results_print(qb_compiler_context *cxt, qb_op_
 		qb_result_destination *destination = qb_allocate_result_destination(cxt->pool);
 		destination->type = QB_RESULT_DESTINATION_PRINT;
 		destination->prototype = result_prototype;
+		value->result_prototype->destination = destination;
 	}
 }
 
+// link the value to the object property
+static void ZEND_FASTCALL qb_link_results_free(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		qb_result_destination *destination = qb_allocate_result_destination(cxt->pool);
+		destination->type = QB_RESULT_DESTINATION_FREE;
+		destination->prototype = result_prototype;
+		value->result_prototype->destination = destination;
+	}
+}

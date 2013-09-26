@@ -110,7 +110,7 @@ static qb_opcode ZEND_FASTCALL qb_select_vectorized_opcode(qb_compiler_context *
 
 static qb_opcode ZEND_FASTCALL qb_select_opcode_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_copy_op_factory *cf = (qb_copy_op_factory *) f;
-	qb_address *src_address = operands[0].address;
+	qb_address *src_address = operands[1].address;
 	qb_address *dst_address = result->address;	
 	qb_opcode opcode = QB_NOP;
 	if(result->type != QB_OPERAND_NONE) {
@@ -119,7 +119,7 @@ static qb_opcode ZEND_FASTCALL qb_select_opcode_assignment(qb_compiler_context *
 			opcode = qb_select_vectorized_opcode(cxt, cf->vector_opcodes, operands, operand_count, result);
 		}
 		if(opcode == QB_NOP) {
-			opcode = cf->opcodes[src_address->type][dst_address->type];
+			opcode = cf->opcodes[QB_TYPE_F64 - src_address->type][QB_TYPE_F64 - dst_address->type];
 		}
 	}
 	return opcode;

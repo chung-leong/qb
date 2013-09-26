@@ -70,3 +70,15 @@ static void ZEND_FASTCALL qb_set_result_true(qb_compiler_context *cxt, qb_op_fac
 	result->address = qb_obtain_constant_boolean(cxt, TRUE);
 	result->type = QB_OPERAND_ADDRESS;
 }
+
+static void ZEND_FASTCALL qb_set_result_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	// set result to a temporary variable unless it'll end up just getting freed
+	if(!result_prototype->destination || result_prototype->destination->type != QB_RESULT_DESTINATION_FREE) {
+		// use the destination's type
+		qb_primitive_type destination_type = qb_get_result_destination_type(cxt, result_prototype->destination);
+		if(destination_type != QB_TYPE_UNKNOWN && destination_type != QB_TYPE_ANY) {
+			expr_type = destination_type;
+		}
+		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+	}
+}
