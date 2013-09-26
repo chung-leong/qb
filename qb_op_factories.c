@@ -1658,7 +1658,7 @@ qb_simple_op_factory factory_jump = {
 qb_simple_op_factory factory_branch_on_true = {
 	NULL,
 	NULL,
-	qb_coerce_operands_all,
+	qb_coerce_operands_boolean,
 	NULL,
 	NULL,
 	NULL,
@@ -1675,7 +1675,7 @@ qb_simple_op_factory factory_branch_on_true = {
 qb_simple_op_factory factory_branch_on_false = {
 	NULL,
 	NULL,
-	qb_coerce_operands_all,
+	qb_coerce_operands_boolean,
 	NULL,
 	NULL,
 	NULL,
@@ -1684,6 +1684,7 @@ qb_simple_op_factory factory_branch_on_false = {
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
+	0,
 	0,
 	QB_IF_F_I32,
 };

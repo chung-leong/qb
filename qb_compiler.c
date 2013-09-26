@@ -1302,7 +1302,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_conte
 	return address;
 }
 
-qb_address * ZEND_FASTCALL qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim, qb_result_prototype *result_prototype, uint32_t result_flags) {
+qb_address * ZEND_FASTCALL qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim, qb_result_prototype *result_prototype) {
 	if(result_prototype && result_prototype->destination) {
 		qb_result_destination *destination = result_prototype->destination;
 		qb_primitive_type lvalue_type = QB_TYPE_UNKNOWN;
@@ -2587,6 +2587,16 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(f->set_result) {
 			f->set_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+
+			if(result->type == QB_OPERAND_ADDRESS) {
+				if(f->address_flags & QB_ADDRESS_BOOLEAN && !(result->address->flags & QB_ADDRESS_BOOLEAN)) {
+					qb_address *new_address = qb_allocate_address(cxt->pool);
+					*new_address = *result->address;
+					new_address->flags |= QB_ADDRESS_BOOLEAN;
+					new_address->source_address = result->address;
+					result->address = new_address;
+				}
+			}
 		}
 	}
 
@@ -2608,6 +2618,24 @@ static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, u
 	if(qop->opcode > QB_OPCODE_COUNT) {
 		qb_abort("invalid opcode: %d", qop->opcode);
 	} else {
+	}
+}
+
+static void ZEND_FASTCALL qb_resolve_jump_targets(qb_compiler_context *cxt) {
+	uint32_t i, j;
+
+	for(i = 0; i < cxt->op_count; i++) {
+		qb_op *qop = cxt->ops[i];
+
+		for(j = 0; j < qop->jump_target_count; j++) {
+			uint32_t absolute_index = qb_get_jump_target_absolute_index(cxt, i, qop->jump_target_indices[j]);
+
+			// if skip to the next op if it's pointing to a NOP
+			while(cxt->ops[absolute_index]->opcode == QB_NOP) {
+				absolute_index++;
+			}
+			qop->jump_target_indices[j] = absolute_index;
+		}
 	}
 }
 
@@ -2789,7 +2817,7 @@ static int32_t ZEND_FASTCALL qb_fuse_conditional_branch(qb_compiler_context *cxt
 	qb_op *qop = cxt->ops[index];
 
 	if(qop->opcode == QB_IF_T_I32 || qop->opcode == QB_IF_F_I32) {
-		qb_address *condition_address = qop->operands[2].address;
+		qb_address *condition_address = qop->operands[0].address;
 
 		// don't fuse the instructions if the condition is going to be reused (in a short-circuited expression)
 		if(TEMPORARY(condition_address) && !(condition_address->flags & QB_ADDRESS_REUSED)) {
@@ -2853,6 +2881,7 @@ static int32_t ZEND_FASTCALL qb_fuse_conditional_branch(qb_compiler_context *cxt
 						prev_qop->flags |= QB_OP_JUMP;
 						prev_qop->jump_target_indices = qop->jump_target_indices;
 						prev_qop->jump_target_count = qop->jump_target_count;
+						prev_qop->operand_count = 2;
 						qop->opcode = QB_NOP;
 
 						return TRUE;
@@ -2949,37 +2978,23 @@ static void ZEND_FASTCALL qb_simplify_jump(qb_compiler_context *cxt, uint32_t in
 	qb_op *qop = cxt->ops[index];
 
 	if(qop->opcode == QB_JMP) {
-		qb_op *target_qop = qop;
-		uint32_t target_index;
-		uint32_t target_qop_index = index;
+		uint32_t target_index = qop->jump_target_indices[0];
+		qb_op *target_qop = cxt->ops[target_index];
 
-		do {
-			// get the index of the target
+		// if the jump lands on another jump, change the target to that jump's target
+		while(target_qop->opcode == QB_JMP && target_index != index) {
 			target_index = target_qop->jump_target_indices[0];
-			target_qop_index = qb_get_jump_target_absolute_index(cxt, target_qop_index, target_index);
-
-			// skip over nop's
-			while(cxt->ops[target_qop_index]->opcode == QB_NOP) {
-				target_qop_index++;
-				target_index++;
-			}
+			target_qop = cxt->ops[target_index];
 			qop->jump_target_indices[0] = target_index;
-			target_qop = cxt->ops[target_qop_index];
-
-			if(index == target_qop_index) {
-				// shouldn't happen but just in case
-				break;
-			}
-			// if the jump lands on another jump, change the target to that jump's target
-		} while(target_qop->opcode == QB_JMP);
+		}
 
 		// if the only thing sitting between the jump and the target
 		// are nop's then eliminate the jump altogether
-		if(target_qop_index > index) {
+		if(target_index > index) {
 			int32_t needed = 0;
 			uint32_t j;
 
-			for(j = index + 1; j < target_qop_index; j++) {
+			for(j = index + 1; j < target_index; j++) {
 				if(cxt->ops[j]->opcode != QB_NOP) {
 					needed = TRUE;
 					break;
@@ -2987,6 +3002,7 @@ static void ZEND_FASTCALL qb_simplify_jump(qb_compiler_context *cxt, uint32_t in
 			}
 			if(!needed) {
 				qop->opcode = QB_NOP;
+				qop->jump_target_count = 0;
 			}
 		}
 	}
@@ -2994,6 +3010,7 @@ static void ZEND_FASTCALL qb_simplify_jump(qb_compiler_context *cxt, uint32_t in
 
 static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 	uint32_t i;
+	return;
 	if(pass == 1) {
 		// opcodes are not address mode specific at this point
 		// the last op is always RET: there's no need to scan it
@@ -3390,6 +3407,10 @@ static void ZEND_FASTCALL qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint
 		}
 		php_printf(" ");
 	}
+	for(i = 0; i < qop->jump_target_count; i++) {
+		uint32_t jump_target_index = qop->jump_target_indices[i];
+		php_printf("<%04d> ", jump_target_index);
+	}
 	php_printf("\n");
 }
 
@@ -3565,6 +3586,9 @@ void ZEND_FASTCALL qb_compile_functions(qb_build_context *cxt) {
 			// free the binary
 			qb_free_external_code(compiler_cxt);
 		}
+
+		// make all jump target indices absolute
+		qb_resolve_jump_targets(compiler_cxt);
 
 		// fuse basic instructions into compound ones
 		qb_fuse_instructions(compiler_cxt, 1);

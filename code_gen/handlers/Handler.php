@@ -96,9 +96,16 @@ class Handler {
 			$lines[] = 		"}";
 			$lines[] = "}";
 			$lines[] = $this->getJumpCode();
-		} else if($targetCount == 0 || $targetCount == 1) {
-			// regular, non-jump instruction goes to the next instruction
+		} else if($targetCount == 1) {
 			// a unconditional jump instruction goes to the jump target
+			$lines[] = "{";
+			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler");
+			$lines[] = 		$this->getAction();
+			$lines[] = 		"ip = INSTR->instruction_pointer;";
+			$lines[] = "}";
+			$lines[] = $this->getJumpCode();
+		} else if($targetCount == 0) {
+			// regular, non-jump instruction goes to the next instruction
 			$lines[] = "{";
 			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler");
 			$lines[] = 		$this->getAction();

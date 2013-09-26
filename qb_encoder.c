@@ -102,12 +102,8 @@ static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *q
 	return handler_address;
 }
 
-static void ZEND_FASTCALL qb_encode_handler(qb_encoder_context *cxt, uint32_t target_qop_index, int8_t **p_ip) {
-	qb_op *target_qop;
-
-	while(target_qop = cxt->ops[target_qop_index], target_qop->opcode == QB_NOP) {
-		target_qop_index++;
-	}
+static void ZEND_FASTCALL qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
+	qb_op *target_qop = cxt->ops[target_index];
 
 	*((void **) *p_ip) = qb_get_handler(cxt, target_qop); 
 	*p_ip += sizeof(void *);
@@ -118,12 +114,8 @@ static zend_always_inline int8_t *qb_get_instruction_pointer(qb_encoder_context 
 	return p;
 }
 
-static void ZEND_FASTCALL qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_qop_index, uint32_t current_op_index, int8_t **p_ip) {
-	qb_op *target_qop;
-
-	while(target_qop = cxt->ops[target_qop_index], target_qop->opcode == QB_NOP) {
-		target_qop_index++;
-	}
+static void ZEND_FASTCALL qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
+	qb_op *target_qop = cxt->ops[target_index];
 
 	*((void **) *p_ip) = qb_get_handler(cxt, target_qop);
 	*p_ip += sizeof(void *);
@@ -156,13 +148,17 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, voi
 			if(qop->flags & QB_OP_JUMP) {
 				// put in the jump targets
 				for(j = 0; j < qop->jump_target_count; j++) {
-					qb_encode_jump_target(cxt, qop->jump_target_indices[j], i, &ip);
+					qb_encode_jump_target(cxt, qop->jump_target_indices[j], &ip);
 				}
 			} else {
 				// need the handler to the next instruction if it's not a jump operation
 				// as functions must always end with a return
 				// there's no check here if there is an op at i + 1
-				qb_encode_handler(cxt, i + 1, &ip);
+				uint32_t next_index = i + 1;
+				while(cxt->ops[next_index]->opcode == QB_NOP) {
+					next_index++;
+				}
+				qb_encode_handler(cxt, next_index, &ip);
 			}
 
 			for(j = 0; j < qop->operand_count; j++) {

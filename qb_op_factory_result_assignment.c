@@ -28,7 +28,7 @@ static void ZEND_FASTCALL qb_set_result_temporary_value(qb_compiler_context *cxt
 
 	// do this even if the result is not used
 	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype, f->result_flags);
+	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype);
 }
 
 static void ZEND_FASTCALL qb_set_result_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
