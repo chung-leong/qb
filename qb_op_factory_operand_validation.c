@@ -18,15 +18,23 @@
 
 /* $Id$ */
 
-static void ZEND_FASTCALL qb_validate_operands_array_element_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void ZEND_FASTCALL qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
-	qb_operand *value = &operands[2];
 
 	if(container->type != QB_OPERAND_ADDRESS) {
-		qb_abort("cannot retrieve element");
+		qb_abort("cannot retrieve element from non-array");
 	}
-	if(index->type == QB_OPERAND_NONE) {
+
+	if((index->type == QB_OPERAND_ADDRESS && !SCALAR(index->address)) || (index->type == QB_OPERAND_ARRAY_INITIALIZER)) {
+		qb_abort("an array cannot be used as an array index");
+	} else if(index->type == QB_OPERAND_ZVAL) {
+		if(index->constant->type == IS_STRING) {
+			qb_abort("no support for associative array");
+		} else if(index->constant->type != IS_BOOL && index->constant->type != IS_LONG && index->constant->type != IS_DOUBLE) {
+			qb_abort("invalid index type");
+		}
+	} else if(index->type == QB_OPERAND_NONE) {
 		// an append operation
 		if(!EXPANDABLE_ARRAY(container->address)) {
 			qb_abort("cannot append element to a non-expanding array");
@@ -34,10 +42,9 @@ static void ZEND_FASTCALL qb_validate_operands_array_element_assignment(qb_compi
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_object_property_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void ZEND_FASTCALL qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
-	qb_operand *value = &operands[2];
 
 	if(name->type != QB_OPERAND_ZVAL) {
 		qb_abort("no support for variable variable-names");
@@ -87,15 +94,4 @@ static void ZEND_FASTCALL qb_validate_operands_minmax(qb_compiler_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_fetch_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *index = &operands[1];
-	if((index->type == QB_OPERAND_ADDRESS && !SCALAR(index->address)) || (index->type == QB_OPERAND_ARRAY_INITIALIZER)) {
-		qb_abort("an array cannot be used as an array index");
-	} else if(index->type == QB_OPERAND_ZVAL) {
-		if(index->constant->type == IS_STRING) {
-			qb_abort("no support for associative array");
-		} else if(index->constant->type != IS_BOOL && index->constant->type != IS_LONG && index->constant->type != IS_DOUBLE) {
-			qb_abort("invalid index type");
-		}
-	}
-}
+
