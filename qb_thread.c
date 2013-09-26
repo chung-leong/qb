@@ -24,6 +24,8 @@
 
 #include "qb.h"
 
+#ifdef HAVE_PTHREAD
+
 uint32_t qb_get_cpu_count() {
 	static uint32_t count = 0;
 	if(!count) {
@@ -71,9 +73,9 @@ DWORD WINAPI qb_run_task(LPVOID lpThreadParameter) {
 void *qb_run_task(void *arg) {
 	qb_task_assignment *assignment = arg;
 	for(;;) {
-		qb_thread_task *task = assignment->task;
+		qb_thread_task *task = (qb_thread_task *) assignment->task;
 		if(task) {
-			task->proc(task->data);
+			task->proc(task->param1, task->param2);
 			assignment->task = NULL;
 
 			pthread_mutex_lock(assignment->pthread_completion_mutex);
@@ -207,3 +209,5 @@ int ZEND_FASTCALL qb_run_tasks(qb_thread_pool *pool) {
 	}
 	return TRUE;
 }
+
+#endif

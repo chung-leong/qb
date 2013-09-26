@@ -17,6 +17,7 @@
 */
 
 /* $Id$ */
+#ifdef __DISABLED__
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -376,3 +377,5 @@ int ZEND_FASTCALL qb_extract(zval *input, int output_type, zval *return_value TS
 	qb_free_extractor_context(cxt);
 	return SUCCESS;
 }
+
+#endif

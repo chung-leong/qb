@@ -363,7 +363,7 @@ static void ZEND_FASTCALL qb_initialize_subarray_address(qb_compiler_context *cx
 }
 
 static void ZEND_FASTCALL qb_initialize_element_address(qb_compiler_context *cxt, qb_address *container_address, qb_address *address) {
-	address->mode = QB_ADDRESS_MODE_ELE;
+	address->mode = QB_ADDRESS_MODE_SCA;
 	address->type = container_address->type;
 	address->flags = container_address->flags;
 	address->segment_selector = container_address->segment_selector;
@@ -2335,9 +2335,9 @@ qb_address * ZEND_FASTCALL qb_obtain_array_element(qb_compiler_context *cxt, qb_
 				result_address->flags |= QB_ADDRESS_ALWAYS_IN_BOUND;
 			}
 		}
+	} else {
 		if(result_address->dimension_count == 0) {
-			// we can address the element through SCA (bound-checking might be needed)
-			result_address->mode = QB_ADDRESS_MODE_SCA;
+			result_address->mode = QB_ADDRESS_MODE_ELE;
 		}
 	}
 	return result_address;

@@ -17,6 +17,7 @@
 */
 
 /* $Id$ */
+#ifdef __DISABLED__
 
 static uint8_t ZEND_FASTCALL qb_pbj_read_I08(qb_compiler_context *cxt) {
 	uint8_t value = 0;
@@ -2124,3 +2125,5 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 }
 
 uint32_t pbj_matrix_sizes[] = { 0, 1, 4, 12, 16 };
+
+#endif

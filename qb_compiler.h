@@ -57,8 +57,6 @@ struct qb_result_prototype {
 	qb_result_destination *destination;
 };
 
-#include "qb_opcodes.h"
-
 #pragma pack(push,1)
 
 struct qb_op_info {

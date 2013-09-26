@@ -120,6 +120,7 @@
 
 #include "qb_version.h"
 #include "qb_compat.h"
+#include "qb_opcodes.h"
 #include "qb_types.h"
 #include "qb_thread.h"
 #include "qb_compiler.h"

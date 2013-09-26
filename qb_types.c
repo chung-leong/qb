@@ -24,8 +24,6 @@
 
 #include "qb.h"
 
-#include "qb_crc64.c"
-
 void ZEND_FASTCALL qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
 	if(filled_byte_count) {
 		while(filled_byte_count < required_byte_count) {

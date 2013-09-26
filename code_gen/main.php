@@ -98,6 +98,7 @@ echo "Creating qb_data_tables_gcc.c\n";
 $handle = fopen("$targetFolder/qb_data_tables_gcc.c", "w");
 fwrite($handle, $copyright);
 fwrite($handle, $include);
+fwrite($handle, "#include \"qb_interpreter_gcc.h\"\n");
 fwrite($handle, "\n");
 $generator->writeOpInfo($handle);
 $generator->writeOpNames($handle);
