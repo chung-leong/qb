@@ -439,6 +439,112 @@ qb_basic_op_factory factory_shift_right = {
 	{	0,	0,	QB_SHR_U64_U64_U64,	QB_SHR_S64_S64_S64,	QB_SHR_U32_U32_U32,	QB_SHR_S32_S32_S32,	QB_SHR_U16_U16_U16,	QB_SHR_S16_S16_S16,	QB_SHR_U08_U08_U08,	QB_SHR_S08_S08_S08,	},
 };
 
+qb_derived_op_factory factory_shift_left_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_shift_left,
+};
+
+qb_derived_op_factory factory_shift_left_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_shift_left,
+};
+
+qb_derived_op_factory factory_shift_left_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_shift_left,
+};
+
+void *factories_shift_left_assign[3] = { &factory_shift_left_assign, &factory_shift_left_assign_element, &factory_shift_left_assign_object_property };
+
+qb_derived_op_factory factory_shift_right_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_shift_right,
+};
+
+qb_derived_op_factory factory_shift_right_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_shift_right,
+};
+
+qb_derived_op_factory factory_shift_right_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_shift_right,
+};
+
+void *factories_shift_right_assign[3] = { &factory_shift_right_assign, &factory_shift_right_assign_element, &factory_shift_right_assign_object_property };
+
 qb_basic_op_factory factory_bitwise_not = {
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -506,6 +612,165 @@ qb_basic_op_factory factory_bitwise_xor = {
 	QB_ADDRESS_TEMPORARY,
 	{	0,	0,	QB_BW_XOR_I64_I64_I64,	QB_BW_XOR_I64_I64_I64,	QB_BW_XOR_I32_I32_I32,	QB_BW_XOR_I32_I32_I32,	QB_BW_XOR_I16_I16_I16,	QB_BW_XOR_I16_I16_I16,	QB_BW_XOR_I08_I08_I08,	QB_BW_XOR_I08_I08_I08,	},
 };
+
+qb_derived_op_factory factory_bitwise_and_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_and,
+};
+
+qb_derived_op_factory factory_bitwise_and_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_and,
+};
+
+qb_derived_op_factory factory_bitwise_and_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_and,
+};
+
+void *factories_bitwise_and_assign[3] = { &factory_bitwise_and_assign, &factory_bitwise_and_assign_element, &factory_bitwise_and_assign_object_property };
+
+qb_derived_op_factory factory_bitwise_or_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_or,
+};
+
+qb_derived_op_factory factory_bitwise_or_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_or,
+};
+
+qb_derived_op_factory factory_bitwise_or_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_or,
+};
+
+void *factories_bitwise_or_assign[3] = { &factory_bitwise_or_assign, &factory_bitwise_or_assign_element, &factory_bitwise_or_assign_object_property };
+
+qb_derived_op_factory factory_bitwise_xor_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_xor,
+};
+
+qb_derived_op_factory factory_bitwise_xor_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_xor,
+};
+
+qb_derived_op_factory factory_bitwise_xor_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_bitwise_xor,
+};
+
+void *factories_bitwise_xor_assign[3] = { &factory_bitwise_xor_assign, &factory_bitwise_xor_assign_element, &factory_bitwise_xor_assign_object_property };
 
 qb_basic_op_factory factory_boolean = {
 	qb_resolve_expression_type_boolean,
@@ -771,6 +1036,218 @@ qb_derived_op_factory factory_add_assign_object_property = {
 };
 
 void *factories_add_assign[3] = { &factory_add_assign, &factory_add_assign_element, &factory_add_assign_object_property };
+
+qb_derived_op_factory factory_subtract_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_subtract,
+};
+
+qb_derived_op_factory factory_subtract_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_subtract,
+};
+
+qb_derived_op_factory factory_subtract_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_subtract,
+};
+
+void *factories_subtract_assign[3] = { &factory_subtract_assign, &factory_subtract_assign_element, &factory_subtract_assign_object_property };
+
+qb_derived_op_factory factory_multiply_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_multiply,
+};
+
+qb_derived_op_factory factory_multiply_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_multiply,
+};
+
+qb_derived_op_factory factory_multiply_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_multiply,
+};
+
+void *factories_multiply_assign[3] = { &factory_multiply_assign, &factory_multiply_assign_element, &factory_multiply_assign_object_property };
+
+qb_derived_op_factory factory_divide_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_divide,
+};
+
+qb_derived_op_factory factory_divide_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_divide,
+};
+
+qb_derived_op_factory factory_divide_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_divide,
+};
+
+void *factories_divide_assign[3] = { &factory_divide_assign, &factory_divide_assign_element, &factory_divide_assign_object_property };
+
+qb_derived_op_factory factory_modulo_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_modulo,
+};
+
+qb_derived_op_factory factory_modulo_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_modulo,
+};
+
+qb_derived_op_factory factory_modulo_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_modulo,
+};
+
+void *factories_modulo_assign[3] = { &factory_modulo_assign, &factory_modulo_assign_element, &factory_modulo_assign_object_property };
 
 qb_basic_op_factory factory_equal = {
 	qb_resolve_expression_type_boolean,

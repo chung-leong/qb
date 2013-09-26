@@ -1213,16 +1213,16 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				NULL						},	// ZEND_CAST
 	{	qb_translate_basic_op,				NULL						},	// ZEND_QM_ASSIGN
 	{	qb_translate_combo_op,				factories_add_assign					},	// ZEND_ASSIGN_ADD
-	{	qb_translate_basic_op,				&factory_subtract			},	// ZEND_ASSIGN_SUB
-	{	qb_translate_basic_op,				&factory_multiply			},	// ZEND_ASSIGN_MUL
-	{	qb_translate_basic_op,				&factory_divide				},	// ZEND_ASSIGN_DIV
-	{	qb_translate_basic_op,				&factory_modulo				},	// ZEND_ASSIGN_MOD
-	{	qb_translate_basic_op,				&factory_shift_left			},	// ZEND_ASSIGN_SL
-	{	qb_translate_basic_op,				&factory_shift_right		},	// ZEND_ASSIGN_SR
+	{	qb_translate_combo_op,				factories_subtract_assign					},	// ZEND_ASSIGN_SUB
+	{	qb_translate_combo_op,				factories_multiply_assign				},	// ZEND_ASSIGN_MUL
+	{	qb_translate_combo_op,				factories_divide_assign					},	// ZEND_ASSIGN_DIV
+	{	qb_translate_combo_op,				factories_modulo_assign					},	// ZEND_ASSIGN_MOD
+	{	qb_translate_combo_op,				factories_shift_left_assign				},	// ZEND_ASSIGN_SL
+	{	qb_translate_combo_op,				factories_shift_right_assign				},	// ZEND_ASSIGN_SR
 	{	qb_translate_basic_op,				NULL						},	// ZEND_ASSIGN_CONCAT
-	{	qb_translate_basic_op,				&factory_bitwise_or			},	// ZEND_ASSIGN_BW_OR
-	{	qb_translate_basic_op,				&factory_bitwise_and		},	// ZEND_ASSIGN_BW_AND
-	{	qb_translate_basic_op,				&factory_bitwise_xor		},	// ZEND_ASSIGN_BW_XOR
+	{	qb_translate_combo_op,				factories_bitwise_or_assign				},	// ZEND_ASSIGN_BW_OR
+	{	qb_translate_combo_op,				factories_bitwise_and_assign				},	// ZEND_ASSIGN_BW_AND
+	{	qb_translate_combo_op,				factories_bitwise_xor_assign				},	// ZEND_ASSIGN_BW_XOR
 	{	qb_translate_basic_op,				&factory_increment_pre			},	// ZEND_PRE_INC
 	{	qb_translate_basic_op,				&factory_decrement_pre			},	// ZEND_PRE_DEC
 	{	qb_translate_basic_op,				&factory_increment_post			},	// ZEND_POST_INC

@@ -191,10 +191,17 @@ extern qb_derived_op_factory factory_decrement_post;
 extern qb_basic_op_factory factory_shift_left;
 extern qb_basic_op_factory factory_shift_right;
 
+extern void *factories_shift_left_assign[3];
+extern void *factories_shift_right_assign[3];
+
 extern qb_basic_op_factory factory_bitwise_not;
 extern qb_basic_op_factory factory_bitwise_and;
 extern qb_basic_op_factory factory_bitwise_or;
 extern qb_basic_op_factory factory_bitwise_xor;
+
+extern void *factories_bitwise_and_assign[3];
+extern void *factories_bitwise_or_assign[3];
+extern void *factories_bitwise_xor_assign[3];
 
 extern qb_basic_op_factory factory_boolean;
 extern qb_basic_op_factory factory_logical_not;
@@ -210,6 +217,10 @@ extern qb_arithmetic_op_factory factory_modulo;
 extern qb_float_op_factory factory_floor_modulo;
 
 extern void *factories_add_assign[3];
+extern void *factories_subtract_assign[3];
+extern void *factories_multiply_assign[3];
+extern void *factories_divide_assign[3];
+extern void *factories_modulo_assign[3];
 
 extern qb_basic_op_factory factory_set_equal;
 extern qb_basic_op_factory factory_set_not_equal;
