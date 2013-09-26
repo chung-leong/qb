@@ -823,6 +823,10 @@ static void ZEND_FASTCALL qb_translate_cast(qb_php_translater_context *cxt, void
 }
 
 static void ZEND_FASTCALL qb_translate_basic_op(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(!op_factory) {
+		const char *zend_op_name = qb_get_zend_op_name(cxt, cxt->zend_op->opcode);
+		qb_abort("no op factory for %s", zend_op_name);
+	}
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 

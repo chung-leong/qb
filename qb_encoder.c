@@ -240,11 +240,17 @@ static uint8_t * ZEND_FASTCALL qb_copy_address(qb_encoder_context *cxt, qb_addre
 	dst->segment_selector = src->segment_selector;
 	dst->segment_offset = src->segment_offset;
 	dst->dimension_count = src->dimension_count;
+	dst->array_index_address = NULL;
 
 	if(SCALAR(src)) {
 		dst->mode = QB_ADDRESS_MODE_SCA;
+		dst->array_size_address = NULL;
+		dst->array_size_addresses = NULL;
+		dst->dimension_addresses = NULL;
+		dst->index_alias_schemes = NULL;
 	} else {
 		uint32_t i, j;
+		dst->mode = QB_ADDRESS_MODE_ARR;
 		if(src->dimension_count > 1) {
 			dst->dimension_addresses = (qb_address **) p; p += sizeof(qb_address *) * src->dimension_count;
 			dst->array_size_addresses = (qb_address **) p; p += sizeof(qb_address *) * src->dimension_count;
@@ -288,8 +294,9 @@ static uint8_t * ZEND_FASTCALL qb_copy_address(qb_encoder_context *cxt, qb_addre
 					dst->index_alias_schemes[i] = dst_scheme;
 				}
 			}
+		} else {
+			dst->index_alias_schemes = NULL;
 		}
-		dst->mode = QB_ADDRESS_MODE_ARR;
 	}
 #if ZEND_DEBUG
 	if(memory + length != p) {
@@ -421,6 +428,10 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 	for(i = 0; i < cxt->compiler_context->variable_count; i++) {
 		qfunc->variables[i] = (qb_variable *) p;
 		p = qb_copy_variable(cxt, cxt->compiler_context->variables[i], p);
+
+		if(qfunc->variables[i]->flags & QB_VARIABLE_RETURN_VALUE) {
+			qfunc->return_variable = qfunc->variables[i];
+		}
 	}
 
 	// copy external symbols

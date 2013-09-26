@@ -346,31 +346,6 @@ static qb_address * ZEND_FASTCALL qb_obtain_on_demand_greater_than(qb_compiler_c
 	return qb_obtain_on_demand_value(cxt, address_if_true->type, operand_addresses, 3, &factory_predicate_copy);
 }*/
 
-static void ZEND_FASTCALL qb_initialize_subarray_address(qb_compiler_context *cxt, qb_address *container_address, qb_address *address) {
-	address->mode = QB_ADDRESS_MODE_ARR;
-	address->type = container_address->type;
-	address->flags = container_address->flags;
-	address->segment_selector = container_address->segment_selector;
-	address->segment_offset = container_address->segment_offset;
-	address->dimension_count = container_address->dimension_count - 1;
-	address->dimension_addresses = container_address->dimension_addresses + 1;
-	address->array_size_addresses = container_address->array_size_addresses + 1;
-	address->array_size_address = address->array_size_addresses[0];
-	address->source_address = container_address;
-	if(container_address->index_alias_schemes) {
-		address->index_alias_schemes = container_address->index_alias_schemes + 1;
-	}
-}
-
-static void ZEND_FASTCALL qb_initialize_element_address(qb_compiler_context *cxt, qb_address *container_address, qb_address *address) {
-	address->mode = QB_ADDRESS_MODE_SCA;
-	address->type = container_address->type;
-	address->flags = container_address->flags;
-	address->segment_selector = container_address->segment_selector;
-	address->segment_offset = container_address->segment_offset;
-	address->source_address = container_address;
-}
-
 // allocate segment memory for address
 static void ZEND_FASTCALL qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory) {
 	uint32_t selector, element_count, byte_count, new_segment_flags, alignment;
@@ -952,7 +927,18 @@ static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_compiler_context *
 		if(address->dimension_count > 1) {
 			qb_address _sub_array_address, *sub_array_address = &_sub_array_address;
 			uint32_t sub_array_array_size, sub_array_size;
-			qb_initialize_subarray_address(cxt, address, sub_array_address);
+
+			memset(sub_array_address, 0, sizeof(qb_address));
+			sub_array_address->mode = QB_ADDRESS_MODE_ARR;
+			sub_array_address->type = address->type;
+			sub_array_address->flags = address->flags;
+			sub_array_address->segment_selector = address->segment_selector;
+			sub_array_address->segment_offset = address->segment_offset;
+			sub_array_address->dimension_count = address->dimension_count - 1;
+			sub_array_address->dimension_addresses = address->dimension_addresses + 1;
+			sub_array_address->array_size_addresses = address->array_size_addresses + 1;
+			sub_array_address->array_size_address = sub_array_address->array_size_addresses[0];
+			sub_array_address->source_address = address;
 			sub_array_array_size = VALUE(U32, sub_array_address->array_size_address);
 			sub_array_size = element_size * sub_array_array_size;
 
@@ -967,7 +953,14 @@ static void ZEND_FASTCALL qb_copy_elements_from_zend_array(qb_compiler_context *
 			}
 		} else {
 			qb_address _element_address, *element_address = &_element_address;
-			qb_initialize_element_address(cxt, address, element_address);
+
+			memset(element_address, 0, sizeof(qb_address));
+			element_address->mode = QB_ADDRESS_MODE_SCA;
+			element_address->type = address->type;
+			element_address->flags = address->flags;
+			element_address->segment_selector = address->segment_selector;
+			element_address->segment_offset = address->segment_offset;
+			element_address->source_address = address;
 
 			for(i = 0; i < dimension; i++) {
 				zval **p_element;
@@ -1215,7 +1208,7 @@ qb_address * ZEND_FASTCALL qb_create_writable_fixed_length_multidimensional_arra
 	qb_address *address;
 	qb_variable_dimensions dim;
 	qb_set_variable_dimensions(cxt, dimensions, dimension_count, &dim);
-	address = qb_create_constant_fixed_length_array(cxt, element_type, dim.array_size);
+	address = qb_create_writable_fixed_length_array(cxt, element_type, dim.array_size);
 	if(dim.dimension_count > 1) {
 		qb_copy_dimensions(cxt, &dim, address);
 	}
@@ -1544,7 +1537,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_array_initializer(qb_compiler_co
 		}
 		item_element_count = ARRAY_SIZE(item_address);
 	} else {
-		item_address->mode = QB_ADDRESS_MODE_ELE;
+		item_address->mode = QB_ADDRESS_MODE_SCA;
 		item_element_count = 1;
 	}
 	item_address->source_address = address;
@@ -1582,7 +1575,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_array_initializer(qb_compiler_co
 				// since we're attaching it to an op
 				qb_address *item_address_copy = qb_allocate_address(cxt->pool);
 				*item_address_copy = *item_address;
-				qb_retrieve_binary_op_result(cxt, &factory_assignment, element->address, item_address_copy);
+				qb_retrieve_binary_op_result(cxt, &factory_assignment, item_address_copy, element->address);
 			}
 		} else {
 			memset(ARRAY(I08, item_address), 0, item_byte_count);
@@ -1601,9 +1594,14 @@ static qb_address * ZEND_FASTCALL qb_retrieve_array_from_initializer(qb_compiler
 	dimensions[0] = 0;
 	qb_get_array_initializer_dimensions(cxt, initializer, element_type, dimensions, dimension_count);
 
-	if(initializer->flags & QB_ARRAY_INITIALIZER_NON_CONSTANT) {
-		// need to use temporary fixed-length array, since the array can change (requiring separation on fork, therefore)
+	if(initializer->flags & QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS) {
+		// need to use temporary fixed-length array, since the elements can change 
+		// not using qb_obtain_temporary_fixed_length_array() since the address cannot be reused
 		address = qb_create_writable_fixed_length_multidimensional_array(cxt, element_type, dimensions, dimension_count);
+		address->flags |= QB_ADDRESS_TEMPORARY;
+
+		// allocate space for it so we can copy constants into the area
+		qb_allocate_storage_space(cxt, address, TRUE);
 	} else {
 		// the initializer is constant
 		address = qb_create_constant_fixed_length_multidimensional_array(cxt, element_type, dimensions, dimension_count);
@@ -2295,7 +2293,7 @@ qb_address * ZEND_FASTCALL qb_obtain_array_slice(qb_compiler_context *cxt, qb_ad
 }
 
 qb_address * ZEND_FASTCALL qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address) {
-	qb_address *result_address = qb_allocate_address(cxt->pool);
+	qb_address *result_address;
 	qb_address *offset_address = NULL;
 	qb_primitive_type element_type = container_address->type;
 
@@ -2306,17 +2304,14 @@ qb_address * ZEND_FASTCALL qb_obtain_array_element(qb_compiler_context *cxt, qb_
 		return NULL;
 	}
 
-	if(container_address->dimension_count == 1) {
-		qb_initialize_element_address(cxt, container_address, result_address);
-	} else {
-		qb_initialize_subarray_address(cxt, container_address, result_address);
-
+	if(container_address->dimension_count > 1) {
 		// multiple by the size of the sub-array 
 		if(index_address == container_address->dimension_addresses[0]) {
 			// dimension times the sub-array size is the array-size 
+			// (i.e. we're appending to a multidimensional address)
 			index_address = container_address->array_size_address;
 		} else {
-			index_address = qb_obtain_on_demand_product(cxt, index_address, result_address->array_size_address);
+			index_address = qb_obtain_on_demand_product(cxt, index_address, container_address->array_size_addresses[1]);
 		}
 	}
 
@@ -2326,18 +2321,39 @@ qb_address * ZEND_FASTCALL qb_obtain_array_element(qb_compiler_context *cxt, qb_
 	if(offset_address) {
 		index_address = qb_obtain_on_demand_sum(cxt, index_address, offset_address);
 	}
+	result_address = qb_allocate_address(cxt->pool);
 	result_address->array_index_address = index_address;
+	result_address->type = container_address->type;
+	result_address->flags = container_address->flags;
+	result_address->segment_selector = container_address->segment_selector;
+	result_address->segment_offset = container_address->segment_offset;
 	result_address->source_address = container_address;
+	result_address->dimension_count = container_address->dimension_count - 1;
+	if(result_address->dimension_count > 0) {
+		result_address->mode = QB_ADDRESS_MODE_ARR;
+		result_address->dimension_addresses = container_address->dimension_addresses + 1;
+		result_address->array_size_addresses = container_address->array_size_addresses + 1;
+		result_address->array_size_address = result_address->array_size_addresses[0];
+		if(container_address->index_alias_schemes) {
+			result_address->index_alias_schemes = container_address->index_alias_schemes + 1;
+		}
+	} else {
+		if(CONSTANT(index_address)) {
+			// SCA address mode can be used when the index is constant
+			result_address->mode = QB_ADDRESS_MODE_SCA;
+		} else {
+			// otherwise ELE is needed
+			result_address->mode = QB_ADDRESS_MODE_ELE;
+		}
+	}
+
 	if(CONSTANT(index_address)) {
+		// TODO: double check this
 		uint32_t index = VALUE(U32, index_address);
 		if(FIXED_LENGTH_ARRAY(container_address)) {
 			if(index < ARRAY_SIZE(container_address)) {
 				result_address->flags |= QB_ADDRESS_ALWAYS_IN_BOUND;
 			}
-		}
-	} else {
-		if(result_address->dimension_count == 0) {
-			result_address->mode = QB_ADDRESS_MODE_ELE;
 		}
 	}
 	return result_address;

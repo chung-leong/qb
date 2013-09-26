@@ -1282,20 +1282,21 @@ static void ZEND_FASTCALL qb_transfer_arguments_to_php(qb_interpreter_context *c
 	qb_function *func = cxt->function;
 	uint32_t i;
 
+	// copy value into return variable
+	if(func->return_variable->address) {
+		if(!SCALAR(func->return_variable->address)) {
+			qb_initialize_zval_array(cxt, func->return_variable->address, NULL, retval);
+		}
+		qb_transfer_value_to_zval(cxt, func->return_variable->address, retval);
+	}
+
 	// copy values into arguments passed by reference and return variable
-	for(i = 0; i < func->argument_count + 1; i++) {
+	for(i = 0; i < func->argument_count; i++) {
 		qb_variable *qvar = func->variables[i];
 
 		if(qvar->flags & QB_VARIABLE_ARGUMENT && qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
 			zval *zarg = *p_args[i];
 			qb_transfer_value_to_zval(cxt, qvar->address, zarg);
-		} else if(qvar->flags & QB_VARIABLE_RETURN_VALUE) {
-			if(qvar->address) {
-				if(!SCALAR(qvar->address)) {
-					qb_initialize_zval_array(cxt, func->return_variable->address, NULL, retval);
-				}
-				qb_transfer_value_to_zval(cxt, func->return_variable->address, retval);
-			}
 		}
 	}
 }

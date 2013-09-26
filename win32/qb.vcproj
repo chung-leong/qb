@@ -593,7 +593,6 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -601,7 +600,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -645,6 +643,14 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -763,12 +769,28 @@
 						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_op_factory_opcode_selection.c"
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -787,12 +809,28 @@
 						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_op_factory_operand_transfer.c"
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -811,12 +849,28 @@
 						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_op_factory_result_assignment.c"
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -835,12 +889,28 @@
 						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_op_factory_type_resolution.c"
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -857,6 +927,14 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
