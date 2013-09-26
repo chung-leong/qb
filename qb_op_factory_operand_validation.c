@@ -34,7 +34,7 @@ static void ZEND_FASTCALL qb_validate_operands_array_element_assignment(qb_compi
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_property_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void ZEND_FASTCALL qb_validate_operands_object_property_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
 	qb_operand *value = &operands[2];

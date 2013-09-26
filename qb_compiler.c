@@ -484,7 +484,7 @@ static qb_address * ZEND_FASTCALL qb_create_constant_scalar(qb_compiler_context 
 	qb_address *address = qb_allocate_address(cxt->pool);
 	address->mode = QB_ADDRESS_MODE_SCA;
 	address->type = element_type;
-	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT;
+	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT | QB_ADDRESS_ALWAYS_IN_BOUND;
 	qb_allocate_storage_space(cxt, address, TRUE);
 	qb_add_constant_scalar(cxt, address);
 	return address;
@@ -671,11 +671,11 @@ qb_address * ZEND_FASTCALL qb_obtain_constant_float(qb_compiler_context *cxt, fl
 }
 
 qb_address * ZEND_FASTCALL qb_obtain_constant_boolean(qb_compiler_context *cxt, int32_t value) {
-	qb_address *address = qb_obtain_constant_I32(cxt, value != 0, 0);
-	qb_address *new_address = qb_allocate_address(cxt->pool);
-	*new_address = *address;
-	new_address->flags |= QB_ADDRESS_BOOLEAN;
-	return new_address;
+	if(value == 0) {
+		return cxt->true_address;
+	} else {
+		return cxt->false_address;
+	}
 }
 
 static qb_address * ZEND_FASTCALL qb_create_constant_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count) {
@@ -683,12 +683,14 @@ static qb_address * ZEND_FASTCALL qb_create_constant_fixed_length_array(qb_compi
 	qb_address *size_address = qb_obtain_constant_U32(cxt, element_count);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
+	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT | QB_ADDRESS_ALWAYS_IN_BOUND;
 	address->dimension_count = 1;
 	address->dimension_addresses = &address->array_size_address;
 	address->array_size_addresses = &address->array_size_address;
 	address->array_size_address = size_address;
+	address->array_index_address = cxt->zero_address;
 	qb_allocate_storage_space(cxt, address, TRUE);
-	qb_add_writable_array(cxt, address);
+	qb_add_constant_array(cxt, address);
 	return address;
 }
 
@@ -1151,7 +1153,7 @@ qb_address * ZEND_FASTCALL qb_create_writable_scalar(qb_compiler_context *cxt, q
 
 	// here "read-only" doesn't mean we're not supposed to write to this address
 	// it just means no operation has done so yet
-	address->flags = QB_ADDRESS_READ_ONLY;
+	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
 	qb_add_writable_scalar(cxt, address);
 	return address;
 }
@@ -1179,13 +1181,14 @@ qb_address * ZEND_FASTCALL qb_create_writable_fixed_length_array(qb_compiler_con
 	qb_address *size_address = qb_obtain_constant_U32(cxt, QB_TYPE_U32);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
-	address->flags = QB_ADDRESS_READ_ONLY;
+	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
 	address->segment_selector = QB_SELECTOR_INVALID;
 	address->segment_offset = 0;
 	address->dimension_count = 1;
 	address->dimension_addresses = &address->array_size_address;
 	address->array_size_addresses = &address->array_size_address;
 	address->array_size_address = size_address;
+	address->array_index_address = cxt->zero_address;
 	qb_add_writable_array(cxt, address);
 	return address;
 }
@@ -1229,13 +1232,14 @@ static qb_address * ZEND_FASTCALL qb_create_writable_variable_length_array(qb_co
 	qb_address *size_address = qb_create_writable_scalar(cxt, QB_TYPE_INDEX);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
-	address->flags = QB_ADDRESS_READ_ONLY;
+	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
 	address->segment_selector = QB_SELECTOR_INVALID;
 	address->segment_offset = 0;
 	address->dimension_count = 1;
 	address->dimension_addresses = &address->array_size_address;
 	address->array_size_addresses = &address->array_size_address;
 	address->array_size_address = size_address;
+	address->array_index_address = cxt->zero_address;
 	qb_add_writable_array(cxt, address);
 	return address;
 }
@@ -2484,13 +2488,27 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 		result->type = QB_OPERAND_RESULT_PROTOTYPE;
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// use the result from the previous stage if it's available, finalizing it first
-		qb_finalize_result_prototype(cxt, result_prototype);
+		// use the result from the previous stage if it's available 
 		if(result_prototype) {
+			// finalize it first
+			qb_finalize_result_prototype(cxt, result_prototype);
 			expr_type = result_prototype->final_type;
 		} else {
 			expr_type = f->resolve_type(cxt, f, operands, operand_count);
 		}
+	}
+
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		// do validation
+		if(f->validate_operands) {
+			f->validate_operands(cxt, f, operands, operand_count);
+		}
+	}
+
+	// perform type coercion on operand
+	if(f->coerce_operands) {
+		// note that the handler might not necessarily convert all the operands to expr_type
+		f->coerce_operands(cxt, f, expr_type, operands, operand_count);
 	}
 
 	// then, assign result to result object
@@ -2502,12 +2520,6 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 		if(f->set_result) {
 			f->set_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 		}
-	}
-
-	// perform type coercion on operand
-	if(f->coerce_operands) {
-		// note that the handler might not necessarily convert all the operands to expr_type
-		f->coerce_operands(cxt, f, expr_type, operands, operand_count);
 	}
 
 	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
@@ -2528,6 +2540,52 @@ static void ZEND_FASTCALL qb_validate_op(qb_compiler_context *cxt, qb_op *qop, u
 	if(qop->opcode > QB_OPCODE_COUNT) {
 		qb_abort("invalid opcode: %d", qop->opcode);
 	} else {
+	}
+}
+
+static qb_address * ZEND_FASTCALL qb_promote_address_mode(qb_compiler_context *cxt, qb_address_mode mode, qb_address *original_address) {
+	qb_address *address = qb_allocate_address(cxt->pool);
+	*address = *original_address;
+	if(mode == QB_ADDRESS_MODE_ELE) {
+		// SCA -> ELE
+		if(!address->array_index_address) {
+			// put in zero as the index
+			address->array_index_address = cxt->zero_address;
+		}
+	} else if(mode == QB_ADDRESS_MODE_ARR) {
+		// SCA -> ARR or ELE -> ARR
+		if(!address->array_index_address) {
+			address->array_index_address = cxt->zero_address;
+		}
+		if(!address->array_size_address) {
+			// give it a size of one
+			address->array_size_address = cxt->one_address;
+		}
+	}
+	address->mode = mode;
+	return address;
+}
+
+static qb_address * ZEND_FASTCALL qb_get_base_address(qb_compiler_context *cxt, qb_address *address) {
+	qb_address *b = address;
+	while(b->source_address) {
+		b = b->source_address;
+	}
+	return b;
+}
+
+static void ZEND_FASTCALL qb_resolve_derived_address_storage(qb_compiler_context *cxt, qb_address *address) {
+	if(address->segment_selector == QB_SELECTOR_INVALID || address->segment_offset == QB_OFFSET_INVALID) {
+		// use the base address's selector and offset
+		qb_address *base_address = qb_get_base_address(cxt, address);
+		address->segment_selector = base_address->segment_selector;
+		address->segment_offset = base_address->segment_offset;
+
+		if(address->mode == QB_ADDRESS_MODE_SCA && address->array_index_address != NULL) {
+			// add in the index
+			uint32_t index = VALUE(U32, address->array_index_address);
+			address->segment_offset += BYTE_COUNT(index, address->type);
+		}
 	}
 }
 
@@ -2584,13 +2642,19 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 						if(operand->address->mode != operand_address_mode) {
 							// we can only go from SCA > ELE > ARR (an array cannot be passed as a scalar, for instance)
 							if(operand->address->mode < operand_address_mode) {
-								operand->address->mode = operand_address_mode;
+								operand->address = qb_promote_address_mode(cxt, operand_address_mode, operand->address);
 							} else {
 								operands_are_valid = FALSE;
+								break;
 							}
 						}
+
+						// at this point, the storage has been assigned to all base addresses
+						// make sure addresses derived from them are pointing to the right place
+						qb_resolve_derived_address_storage(cxt, operand->address);
 					} else {
 						operands_are_valid = FALSE;
+						break;
 					}
 				}
 			}
@@ -3041,6 +3105,14 @@ void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_c
 	cxt->storage->segments[QB_SELECTOR_SHARED_ARRAY].flags = QB_SEGMENT_PREALLOCATED | QB_SEGMENT_CLEAR_ON_CALL;
 	cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].flags = QB_SEGMENT_PREALLOCATED | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_FORK;
 	cxt->storage->segments[QB_SELECTOR_TEMPORARY_ARRAY].flags = QB_SEGMENT_PREALLOCATED | QB_SEGMENT_SEPARATE_ON_FORK;
+
+	// make sure these constants exist
+	cxt->zero_address = qb_obtain_constant_U32(cxt, 0);
+	cxt->one_address = qb_obtain_constant_U32(cxt, 1);
+	cxt->false_address = qb_obtain_constant_S32(cxt, 0);
+	cxt->false_address->flags |= QB_ADDRESS_BOOLEAN;
+	cxt->true_address = qb_obtain_constant_S32(cxt, 1);
+	cxt->true_address->flags |= QB_ADDRESS_BOOLEAN;
 }
 
 void ZEND_FASTCALL qb_free_compiler_context(qb_compiler_context *cxt) {

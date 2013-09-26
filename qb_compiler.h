@@ -167,6 +167,11 @@ struct qb_compiler_context {
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
 
+	qb_address *zero_address;
+	qb_address *one_address;
+	qb_address *false_address;
+	qb_address *true_address;
+
 	const char *intrinsic_function_name;
 
 	int32_t matrix_padding;

@@ -62,8 +62,9 @@ static void ZEND_FASTCALL qb_set_instruction_offsets(qb_encoder_context *cxt) {
 	cxt->instruction_op_count = count;
 }
 
-static zend_always_inline void *qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
-	return (void *) (cxt->storage->segments[0].memory + address->segment_offset);
+static void * ZEND_FASTCALL qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
+	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+	return (void *) (segment->memory + address->segment_offset);
 }
 
 static void ZEND_FASTCALL qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {

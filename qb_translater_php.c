@@ -1324,8 +1324,8 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL						},	// ZEND_ADD_INTERFACE
 	{	NULL,								NULL						},	// ZEND_DECLARE_INHERITED_CLASS_DELAYED
 	{	NULL,								NULL						},	// ZEND_VERIFY_ABSTRACT_CLASS
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ASSIGN_DIM
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ISSET_ISEMPTY_PROP_OBJ
+	{	qb_translate_basic_op,				&factory_array_element_assignment	},	// ZEND_ASSIGN_DIM
+	{	qb_translate_basic_op,				&factory_object_property_assignment	},	// ZEND_ISSET_ISEMPTY_PROP_OBJ
 	{	NULL,								NULL						},	// ZEND_HANDLE_EXCEPTION
 	{	qb_translate_user_opcode,			NULL						},	// ZEND_USER_OPCODE
 	{	NULL,								NULL						},	// 151

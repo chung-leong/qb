@@ -1648,48 +1648,6 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 		qb_function *qfunc = zfunc->op_array.reserved[0];
 		int8_t *memory;
 		uint32_t combined_byte_count, i;
-		/* TODO
-		// duplicate the storage if the function is active
-		if(qfunc->local_storage->flags & QB_STORAGE_IN_USE) {
-			qb_storage *prev_storage = qb_find_previous_storage(cxt, qfunc);
-			qb_storage *new_storage = emalloc(qfunc->local_storage->size);
-			int memory_offset = ((int8_t *) new_storage) - ((int8_t *) prev_storage);
-			uint32_t i;
-			memcpy(new_storage, prev_storage, prev_storage->size);
-			new_storage->segments = (qb_memory_segment *) ((int8_t *) new_storage->segments + memory_offset);
-			for(i = 0; i < new_storage->segment_count; i++) {
-				qb_memory_segment *segment = &new_storage->segments[i];
-				// adjust the pointers
-				if(segment->dimension_pointer) {
-					segment->dimension_pointer = (uint32_t *) ((int8_t *) segment->dimension_pointer + memory_offset);
-				}
-				if(segment->array_size_pointer) {
-					segment->array_size_pointer = (uint32_t *) ((int8_t *) segment->array_size_pointer + memory_offset);
-				}
-				if(segment->increment_pointer) {
-					segment->increment_pointer = (uint32_t *) ((int8_t *) segment->increment_pointer + memory_offset);
-				}
-				if(segment->flags & QB_SEGMENT_STATIC) {
-					// keep it pointed to the original space
-				} else if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-					// adjust the address
-					segment->memory = segment->memory + memory_offset;
-				} else {
-					// clear the memory
-					segment->memory = NULL;
-					segment->current_allocation = 0;
-					if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-						// make sure the size is zero
-						segment->element_count = *segment->array_size_pointer = 0;
-					}
-				}
-			}
-			cxt->storage = new_storage;
-		} else {
-			cxt->storage = qfunc->local_storage;
-			qfunc->local_storage->flags |= QB_STORAGE_IN_USE;
-		}
-		*/
 		cxt->storage = qfunc->local_storage;
 		cxt->function = qfunc;
 
@@ -1698,7 +1656,7 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 		combined_byte_count = cxt->storage->segments[QB_SELECTOR_SHARED_SCALAR].byte_count + cxt->storage->segments[QB_SELECTOR_LOCAL_SCALAR].byte_count;
 		memset(memory, 0, combined_byte_count);
 		memory = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].memory;
-		combined_byte_count = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].byte_count + cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].byte_count;
+		combined_byte_count = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].byte_count + cxt->storage->segments[QB_SELECTOR_SHARED_ARRAY].byte_count;
 		memset(memory, 0, combined_byte_count);
 
 		// process the other segments
