@@ -109,6 +109,22 @@ qb_derived_op_factory factory_object_property_assignment = {
 	&factory_assignment,
 };
 
+qb_simple_op_factory factory_fetch_array_element = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_fetch_array_element,
+	qb_validate_operands_fetch_array_element,
+	qb_set_result_fetch_array_element,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_assignment,
+	0,
+	0,
+	0,
+	QB_NOP
+};
+
 qb_cast_op_factory factory_cast_S08 = {
 	qb_resolve_expression_type_cast,
 	NULL,

@@ -85,6 +85,7 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 #define SHARED(address)						(address->flags & QB_ADDRESS_SHARED)
 #define IN_USE(address)						(address->flags & QB_ADDRESS_IN_USE)
 #define READ_ONLY(address)					(address->flags & QB_ADDRESS_READ_ONLY)
+#define ON_DEMAND(address)					(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)
 
 #define MULTIDIMENSIONAL_ARRAY(address)		(address->dimension_count > 1)
 #define FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && CONSTANT(address->array_size_address))
@@ -129,9 +130,6 @@ enum qb_primitive_type {
 	QB_TYPE_F64						= 9,
 
 	QB_TYPE_COUNT					= 10,
-
-	// the type used as array indices
-	QB_TYPE_INDEX					= QB_TYPE_U32,
 
 	// pseudo-types
 	QB_TYPE_VOID					= 100,

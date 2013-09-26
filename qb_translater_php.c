@@ -1258,24 +1258,24 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_foreach_fetch,			NULL						},	// ZEND_FE_FETCH
 	{	qb_translate_exit,					&factory_exit				},	// ZEND_EXIT
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_R
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_DIM_R
+	{	qb_translate_basic_op,				&factory_fetch_array_element	},	// ZEND_FETCH_DIM_R
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_OBJ_R
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_W
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_DIM_W
+	{	qb_translate_basic_op,				&factory_fetch_array_element	},	// ZEND_FETCH_DIM_W
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_OBJ_W
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_RW
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_DIM_RW
+	{	qb_translate_basic_op,				&factory_fetch_array_element	},	// ZEND_FETCH_DIM_RW
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_OBJ_RW
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_IS
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_DIM_IS
+	{	qb_translate_basic_op,				&factory_fetch_array_element	},	// ZEND_FETCH_DIM_IS
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_OBJ_IS
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_FUNC_ARG
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_DIM_FUNC_ARG
+	{	qb_translate_basic_op,				&factory_fetch_array_element	},	// ZEND_FETCH_DIM_FUNC_ARG
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_OBJ_FUNC_ARG
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_UNSET
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_DIM_UNSET
+	{	qb_translate_basic_op,				&factory_fetch_array_element	},	// ZEND_FETCH_DIM_UNSET
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_OBJ_UNSET
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_DIM_TMP_VAR
+	{	qb_translate_basic_op,				&factory_fetch_array_element	},	// ZEND_FETCH_DIM_TMP_VAR
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_CONSTANT
 	{	NULL,								NULL						},	// ZEND_GOTO
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_STMT
