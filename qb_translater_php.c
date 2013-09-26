@@ -826,6 +826,18 @@ static void ZEND_FASTCALL qb_translate_basic_op(qb_php_translater_context *cxt, 
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
+static void ZEND_FASTCALL qb_translate_combo_op(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	void **list = op_factories, *f;
+	if(cxt->zend_op->extended_value == ZEND_ASSIGN_DIM) {
+		f = list[1];
+	} else if(cxt->zend_op->extended_value == ZEND_ASSIGN_OBJ) {
+		f = list[2];
+	} else {
+		f = list[0];
+	}
+	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
+}
+
 static zval * ZEND_FASTCALL qb_get_special_constant(qb_php_translater_context *cxt, const char *name, uint32_t length) {
 	static zval type_constants[QB_TYPE_COUNT];
 	static zval qb_indicator;
@@ -1200,7 +1212,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_less_equal					},	// ZEND_IS_SMALLER_OR_EQUAL
 	{	qb_translate_basic_op,				NULL						},	// ZEND_CAST
 	{	qb_translate_basic_op,				NULL						},	// ZEND_QM_ASSIGN
-	{	qb_translate_basic_op,				&factory_add				},	// ZEND_ASSIGN_ADD
+	{	qb_translate_combo_op,				factories_add_assign					},	// ZEND_ASSIGN_ADD
 	{	qb_translate_basic_op,				&factory_subtract			},	// ZEND_ASSIGN_SUB
 	{	qb_translate_basic_op,				&factory_multiply			},	// ZEND_ASSIGN_MUL
 	{	qb_translate_basic_op,				&factory_divide				},	// ZEND_ASSIGN_DIV

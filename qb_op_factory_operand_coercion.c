@@ -53,7 +53,7 @@ static void ZEND_FASTCALL qb_coerce_operands_highest_rank(qb_compiler_context *c
 
 static void ZEND_FASTCALL qb_coerce_operands_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[1];
-	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS) {
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assignment) {
 		// since there're instruction for copying from type to another, 
 		// type coercion only needs to happen for result prototypes during type resolution
 		qb_perform_type_coercion(cxt, value, expr_type);
@@ -64,14 +64,14 @@ static void ZEND_FASTCALL qb_coerce_operands_array_element_assignment(qb_compile
 	qb_operand *index = &operands[1];
 	qb_operand *value = &operands[2];
 	qb_perform_type_coercion(cxt, index, QB_TYPE_U32);
-	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS) {
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_array_element_assignment) {
 		qb_perform_type_coercion(cxt, value, expr_type);
 	}
 }
 
 static void ZEND_FASTCALL qb_coerce_operands_object_property_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[2];
-	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS) {
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_object_property_assignment) {
 		qb_perform_type_coercion(cxt, value, expr);
 	}
 }

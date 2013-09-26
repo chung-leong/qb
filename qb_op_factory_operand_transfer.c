@@ -99,3 +99,9 @@ void ZEND_FASTCALL qb_transfer_operands_increment(qb_compiler_context *cxt, qb_o
 	}
 	dest[0] = *variable;
 }
+
+void ZEND_FASTCALL qb_transfer_operands_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+	dest[0] = *result;
+	dest[1] = operands[operand_count - 1];
+	dest[2] = *result;
+}

@@ -209,6 +209,8 @@ extern qb_arithmetic_op_factory factory_divide;
 extern qb_arithmetic_op_factory factory_modulo;
 extern qb_float_op_factory factory_floor_modulo;
 
+extern void *factories_add_assign[3];
+
 extern qb_basic_op_factory factory_set_equal;
 extern qb_basic_op_factory factory_set_not_equal;
 extern qb_basic_op_factory factory_set_less_than;

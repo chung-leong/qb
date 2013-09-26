@@ -719,6 +719,59 @@ qb_float_op_factory factory_floor_modulo = {
 	{	QB_MOD_FLR_F64_F64_F64,	QB_MOD_FLR_F32_F32_F32,	},
 };
 
+qb_derived_op_factory factory_add_assign = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assignment,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_add,
+};
+
+qb_derived_op_factory factory_add_assign_element = {	
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_array_element_assignment,
+	NULL,
+	qb_set_result_array_element,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_add,
+};
+
+qb_derived_op_factory factory_add_assign_object_property = {	
+	qb_resolve_expression_type_object_property,
+	qb_link_results_all_operands,
+	qb_coerce_operands_object_property_assignment,
+	NULL,
+	qb_set_result_object_property,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_modify_assign,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_add,
+};
+
+void *factories_add_assign[3] = { &factory_add_assign, &factory_add_assign_element, &factory_add_assign_object_property };
+
 qb_basic_op_factory factory_equal = {
 	qb_resolve_expression_type_boolean,
 	NULL,
