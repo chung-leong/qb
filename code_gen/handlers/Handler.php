@@ -105,6 +105,7 @@ class Handler {
 		} else if($targetCount == 1) {
 			// go to the jump target
 			$lines[] = "ip = INSTR->instruction_pointer;";
+			$lines[] = $this->getTimeoutCode();
 		} else if($targetCount == 2) {
 			// set the instruction pointer to pointer 1, if condition is true
 			// otherwise update the next handler and set ip to pointer 2
@@ -114,6 +115,7 @@ class Handler {
 			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler2");
 			$lines[] = 		"ip = INSTR->instruction_pointer2;";
 			$lines[] = "}";
+			$lines[] = $this->getTimeoutCode();
 		} 
 
 		// go to the next instruction unless the function is returning
@@ -694,16 +696,13 @@ class Handler {
 	protected function getTimeoutCode() {
 		if(self::$compiler == "MSVC") {
 			$lines = array();
-			$lines[] = "#ifdef ZEND_WIN32";
-			$lines[] = "if(windows_timeout_check_counter == 4096) {";
+			$lines[] = "if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {";
+			$lines[] =		"windows_timeout_check_counter = 0;";
 			$lines[] = 		"if(*windows_timed_out_pointer) {";
 			$lines[] =			"zend_timeout(1);";
-			$lines[] = 			"goto label_exit;";
+			$lines[] = 			"return;";
 			$lines[] =		"}";
-			$lines[] = "} else {";
-			$lines[] =		"windows_timeout_check_counter++;";
 			$lines[] = "}";
-			$lines[] = "#endif";
 			return $lines;
 		}
 	}	
