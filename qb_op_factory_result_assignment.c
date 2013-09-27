@@ -125,3 +125,41 @@ static void ZEND_FASTCALL qb_set_result_array_init(qb_compiler_context *cxt, qb_
 static void ZEND_FASTCALL qb_set_result_foreach_reset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 
 }
+
+static void ZEND_FASTCALL qb_set_result_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	zend_class_entry *ce = cxt->zend_function->common.scope;
+	result->type = QB_OPERAND_ZEND_CLASS;
+	result->zend_class = ce;
+}
+
+static void ZEND_FASTCALL qb_set_result_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	zend_class_entry *ce = cxt->zend_function->common.scope;
+	result->type = QB_OPERAND_ZEND_CLASS;
+	result->zend_class = ce->parent;
+}
+
+static void ZEND_FASTCALL qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	USE_TSRM
+	qb_operand *scope = &operands[0], *name = &operands[1];
+	zend_class_entry *ce = NULL;
+	zval *value;
+	if(scope->type == QB_OPERAND_ZEND_CLASS) {
+		ce = scope->zend_class;
+	} else if(scope->type == QB_OPERAND_ZVAL) {
+		ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
+	}
+	if(ce) {
+		zval **p_value;
+		zend_hash_find(&ce->constants_table, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1, (void **) &p_value);
+		value = *p_value;
+	} else {
+		zend_constant *zconst;
+		if(zend_hash_find(EG(zend_constants), Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1, (void **) &zconst) == SUCCESS) {
+			value = &zconst->value;
+		} else {
+			value = qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant));
+		}
+	}
+	result->type = QB_OPERAND_ZVAL;
+	result->constant = value;
+}

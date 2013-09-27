@@ -844,76 +844,24 @@ static void ZEND_FASTCALL qb_translate_combo_op(qb_php_translater_context *cxt, 
 	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static zval * ZEND_FASTCALL qb_get_special_constant(qb_php_translater_context *cxt, const char *name, uint32_t length) {
-	static zval type_constants[QB_TYPE_COUNT];
-	static zval qb_indicator;
+static void ZEND_FASTCALL qb_translate_fetch_class(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	int32_t fetch_type = cxt->zend_op->extended_value & ZEND_FETCH_CLASS_MASK;
+	void **list = op_factories, *f;
 
-	if(strcmp(name, "__QB__") == 0) {
-		Z_TYPE(qb_indicator) = IS_LONG;
-		Z_LVAL(qb_indicator) = 1;
-		return &qb_indicator;
-	} else {
-		uint32_t i;
-		for(i = 0; i < QB_TYPE_COUNT; i++) {
-			const char *type = type_names[i];
-			if(strcmp(name, type) == 0) {
-				Z_TYPE(type_constants[i]) = IS_LONG;
-				Z_LVAL(type_constants[i]) = i;
-				return &type_constants[i];
-			}
-		}
-	}
-	return NULL;
-}
-
-static void ZEND_FASTCALL qb_translate_fetch_constant(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *scope = &operands[0], *name = &operands[1];
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	if(scope->type == QB_OPERAND_ZVAL) {
-		qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op1, scope);
-	}
+	if(fetch_type == ZEND_FETCH_CLASS_SELF) {
+		f = list[0];
+	} else if(fetch_type == ZEND_FETCH_CLASS_PARENT) {
+		f = list[1];
+#if defined(ZEND_FETCH_CLASS_STATIC)
+	} else if(fetch_type == ZEND_FETCH_CLASS_STATIC) {
+		f = list[2];
 #endif
-
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		result_prototype->preliminary_type = QB_TYPE_ANY;
-	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		USE_TSRM
-		if(scope->type == QB_OPERAND_ZEND_CLASS) {
-			zval *name_value = name->constant;
-			ulong hash_value = Z_HASH_P(name_value);
-			zend_class_entry *ce = scope->zend_class;
-			zval **p_value;
-			if(zend_hash_quick_find(&ce->constants_table, Z_STRVAL_P(name_value), Z_STRLEN_P(name_value) + 1, hash_value, (void **) &p_value) == SUCCESS) {
-				result->type = QB_OPERAND_ZVAL;
-				result->constant = *p_value;
-			} else {
-				qb_abort("Undefined class constant '%s'", Z_STRVAL_P(name_value));
-			}
-		} else {
-			zval *value = NULL;
-#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-			zend_literal *key = Z_OPERAND_INFO(cxt->zend_op->op2, literal) + 1;
-			zval *name = &key->constant;
-			ulong hash_value = key->hash_value;
-#else
-			zval *name = Z_OPERAND_ZV(cxt->zend_op->op2);
-			ulong hash_value = zend_inline_hash_func(Z_STRVAL_P(name), Z_STRLEN_P(name) + 1);
-#endif
-			zend_constant *zconst;
-			if(zend_hash_quick_find(EG(zend_constants), Z_STRVAL_P(name), Z_STRLEN_P(name) + 1, hash_value, (void **) &zconst) == SUCCESS) {
-				value = &zconst->value;
-			}
-			if(!value) {
-				value = qb_get_special_constant(cxt, Z_STRVAL_P(name), Z_STRLEN_P(name));
-			}
-			if(value) {
-				result->type = QB_OPERAND_ZVAL;
-				result->constant = value;
-			} else {
-				qb_abort("Undefined constant '%s'", Z_STRVAL_P(name));
-			}
-		}
 	}
+	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
+
+#if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	qb_retire_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->result, result);
+#endif
 }
 
 static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -967,25 +915,6 @@ static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, voi
 	} else {
 		qb_abort("internal error");
 	}
-}
-
-static void ZEND_FASTCALL qb_translate_fetch_class(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	int32_t fetch_type = cxt->zend_op->extended_value & ZEND_FETCH_CLASS_MASK;
-
-	if(fetch_type == ZEND_FETCH_CLASS_SELF) {
-		result->zend_class = cxt->zend_class;
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-	} else if(fetch_type == ZEND_FETCH_CLASS_STATIC) {
-		result->zend_class = cxt->zend_class;
-#endif
-	} else if(fetch_type == ZEND_FETCH_CLASS_PARENT) {
-		result->zend_class = (cxt->zend_class) ? cxt->zend_class->parent : NULL;
-	}
-	result->type = QB_OPERAND_ZEND_CLASS;
-
-#if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	qb_retire_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->result, result);
-#endif
 }
 
 static void ZEND_FASTCALL qb_translate_receive_argument(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1294,7 +1223,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_TMP_VAR
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_CONSTANT
+	{	qb_translate_basic_op,				&factory_fetch_constant				},	// ZEND_FETCH_CONSTANT
 	{	NULL,								NULL						},	// ZEND_GOTO
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_STMT
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_BEGIN
@@ -1304,7 +1233,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				NULL						},	// ZEND_SEND_VAR_NO_REF
 	{	NULL,								NULL						},	// ZEND_CATCH
 	{	NULL,								NULL						},	// ZEND_THROW
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_CLASS
+	{	qb_translate_fetch_class,			factories_fetch_class				},	// ZEND_FETCH_CLASS
 	{	NULL,								NULL						},	// ZEND_CLONE
 	{	NULL,								NULL						},	// ZEND_RETURN_BY_REF
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_METHOD_CALL
@@ -1456,16 +1385,16 @@ static qb_php_function_translator intrinsic_functions[] = {
 	{	0,	"count",				1,		2,		NULL 						},
 	{	0,	"sizeof",				1,		2,		NULL 						},
 	{	0,	"strlen",				1,		2,		NULL 						},
-	{	0,	"int8",					1,		1,		(void *) QB_TYPE_S08		},
-	{	0,	"uint8",				1,		1,		(void *) QB_TYPE_U08		},
-	{	0,	"int16",				1,		1,		(void *) QB_TYPE_S16		},
-	{	0,	"uint16",				1,		1,		(void *) QB_TYPE_U16		},
-	{	0,	"int32",				1,		1,		(void *) QB_TYPE_S32		},
-	{	0,	"uint32",				1,		1,		(void *) QB_TYPE_U32		},
-	{	0,	"int64",				1,		2,		(void *) QB_TYPE_S64		},
-	{	0,	"uint64",				1,		2,		(void *) QB_TYPE_U64		},
-	{	0,	"float32",				1,		1,		(void *) QB_TYPE_F32		},
-	{	0,	"float64",				1,		1,		(void *) QB_TYPE_F64		},
+	{	0,	"int8",					1,		1,		&factory_cast_S08			},
+	{	0,	"uint8",				1,		1,		&factory_cast_U08			},
+	{	0,	"int16",				1,		1,		&factory_cast_S16			},
+	{	0,	"uint16",				1,		1,		&factory_cast_U16			},
+	{	0,	"int32",				1,		1,		&factory_cast_S32			},
+	{	0,	"uint32",				1,		1,		&factory_cast_U32			},
+	{	0,	"int64",				1,		2,		&factory_cast_S64			},
+	{	0,	"uint64",				1,		2,		&factory_cast_U64			},
+	{	0,	"float32",				1,		1,		&factory_cast_F32			},
+	{	0,	"float64",				1,		1,		&factory_cast_F64			},
 	{	0,	"defined",				1,		1,		NULL						},
 	{	0,	"define",				2,		2,		NULL						},
 	{	0,	"equal",				2,		2,		&factory_set_equal			},

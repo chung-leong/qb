@@ -76,6 +76,11 @@ static void ZEND_FASTCALL qb_coerce_operands_object_property_assignment(qb_compi
 	}
 }
 
+static void ZEND_FASTCALL qb_coerce_operands_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *value = &operands[0];
+	qb_perform_type_coercion(cxt, value, QB_TYPE_ANY);
+}
+
 static void ZEND_FASTCALL qb_coerce_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[0];
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS) {

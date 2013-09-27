@@ -114,3 +114,71 @@ static void ZEND_FASTCALL qb_validate_array_init(qb_compiler_context *cxt, qb_op
 		qb_validate_array_append(cxt, f, operands, operand_count);
 	}
 }
+
+static zval * ZEND_FASTCALL qb_get_special_constant(qb_compiler_context *cxt, const char *name, uint32_t length) {
+	static zval type_constants[QB_TYPE_COUNT];
+	static zval qb_indicator;
+
+	if(strcmp(name, "__QB__") == 0) {
+		Z_TYPE(qb_indicator) = IS_LONG;
+		Z_LVAL(qb_indicator) = 1;
+		return &qb_indicator;
+	} else {
+		uint32_t i;
+		for(i = 0; i < QB_TYPE_COUNT; i++) {
+			const char *type = type_names[i];
+			if(strcmp(name, type) == 0) {
+				Z_TYPE(type_constants[i]) = IS_LONG;
+				Z_LVAL(type_constants[i]) = i;
+				return &type_constants[i];
+			}
+		}
+	}
+	return NULL;
+}
+
+static void ZEND_FASTCALL qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	zend_class_entry *ce = cxt->zend_function->common.scope;
+	if(!ce) {
+		qb_abort("Cannot access self:: when no class scope is active");
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	zend_class_entry *ce = cxt->zend_function->common.scope;
+	if(!ce) {
+		qb_abort("Cannot access parent:: when no class scope is active");
+	}
+	if(!ce->parent) {
+		qb_abort("Cannot access parent:: when current class scope has no parent");
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	zend_class_entry *ce = cxt->zend_function->common.scope;
+	if(!ce) {
+		qb_abort("Cannot access static:: when no class scope is active");
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	USE_TSRM
+	qb_operand *scope = &operands[0], *name = &operands[1];
+	zend_class_entry *ce = NULL;
+	if(scope->type == QB_OPERAND_ZEND_CLASS) {
+		ce = scope->zend_class;
+	} else if(scope->type == QB_OPERAND_ZVAL) {
+		ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
+	}
+	if(ce) {
+		if(!zend_hash_exists(&ce->constants_table, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
+			qb_abort("Undefined class constant '%s'", Z_STRVAL_P(name->constant));
+		}
+	} else {
+		if(!zend_hash_exists(EG(zend_constants), Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
+			if(!qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant))) {
+				qb_abort("Undefined constant '%s'", Z_STRVAL_P(name->constant));
+			}
+		}
+	}
+}

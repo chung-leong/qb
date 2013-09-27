@@ -141,6 +141,72 @@ qb_simple_op_factory factory_fetch_object_property = {
 	QB_NOP
 };
 
+qb_simple_op_factory factory_fetch_class_self = {
+	NULL,
+	NULL,
+	NULL,
+	qb_validate_operands_fetch_class_self,
+	qb_set_result_fetch_class_self,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_NOP
+};
+
+qb_simple_op_factory factory_fetch_class_parent = {
+	NULL,
+	NULL,
+	NULL,
+	qb_validate_operands_fetch_class_parent,
+	qb_set_result_fetch_class_parent,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_NOP
+};
+
+qb_simple_op_factory factory_fetch_class_static = {
+	NULL,
+	NULL,
+	NULL,
+	qb_validate_operands_fetch_class_static,
+	qb_set_result_fetch_class_self,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_NOP
+};
+
+void *factories_fetch_class[] = { &factory_fetch_class_self, &factory_fetch_class_parent, &factory_fetch_class_static };
+
+qb_simple_op_factory factory_fetch_constant = {
+	qb_resolve_expression_type_any,
+	NULL,
+	NULL,
+	qb_validate_operands_fetch_constant,
+	qb_set_result_fetch_constant,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_NOP
+};
+
 qb_simple_op_factory factory_array_init = {
 	qb_resolve_expression_type_any,
 	qb_link_results_array_init,
@@ -1586,7 +1652,7 @@ static qb_string_op_factory factory_concat = {
 qb_string_op_factory factory_print = {
 	qb_resolve_expression_type_boolean,
 	qb_link_results_print,
-	NULL,
+	qb_coerce_operands_print,
 	NULL,
 	qb_set_result_true,
 	NULL,
@@ -1605,7 +1671,7 @@ qb_string_op_factory factory_print = {
 qb_derived_op_factory factory_echo = {
 	NULL,
 	qb_link_results_print,
-	NULL,
+	qb_coerce_operands_print,
 	NULL,
 	NULL,
 	NULL,
