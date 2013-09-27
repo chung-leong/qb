@@ -10,7 +10,7 @@ modified by anon
 */
 
 
-$n = 100;
+define('N', 500);
 
 /**
  * @engine qb
@@ -25,10 +25,10 @@ function A($i, $j){
 
 /**
  * @engine qb
- * @param float64[100]	$v
- * @local float64[100]	$Av
+ * @param float64[N]	$v
+ * @local float64[N]	$Av
  * @local float64		$.*
- * @return float64[100]
+ * @return float64[N]
  */
 function Av($v){
    for($i = 0; $i < count($v); ++$i) {
@@ -44,10 +44,10 @@ function Av($v){
 
 /**
  * @engine qb
- * @param float64[100]	$v
- * @local float64[100]	$Atv
+ * @param float64[N]	$v
+ * @local float64[N]	$Atv
  * @local float64		$.*
- * @return float64[100]
+ * @return float64[N]
  */
 function Atv($v){
    for($i = 0; $i < count($v); ++$i) {
@@ -62,9 +62,9 @@ function Atv($v){
 
 /**
  * @engine qb
- * @param float64[100]	$v
- * @local float64[100]	$tmp
- * @return float64[100]
+ * @param float64[N]	$v
+ * @local float64[N]	$tmp
+ * @return float64[N]
  */
 function AtAv($v){
    $tmp = Av($v);
@@ -73,8 +73,8 @@ function AtAv($v){
 
 /**
  * @engine qb
- * @local float64[100]	$u
- * @local float64[100]	$v
+ * @local float64[N]	$u
+ * @local float64[N]	$v
  * @local float64		$.*
  * @return float64
  */
@@ -103,4 +103,4 @@ printf("%0.9f\n", calc());
 
 ?>
 --EXPECT--
-1.274219991
+1.274224116

@@ -2,7 +2,7 @@
 
 class SetNot extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, BooleanResult;
+	use ArrayAddressMode, UnaryOperator, SetOperator, BooleanResult;
 
 	protected function getActionOnUnitData() {
 		return "res = (!op1);";

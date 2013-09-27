@@ -3,7 +3,7 @@
 class CodeGenerator {
 	protected $compiler;
 	protected $handlers = array();
-	protected $elementTypes = array("S32", "U32", "S08", "U08", "S16", "U16", "S64", "U64", "F32", "F64");
+	protected $elementTypes = array("S32", "U32", "F32", "F64", "S08", "U08", "S16", "U16", "S64", "U64");
 	protected $floatTypes = array("F32", "F64");
 	protected $addressModes = array("SCA", "ELE", "ARR");
 	protected $scalarAddressModes = array("SCA", "ELE");

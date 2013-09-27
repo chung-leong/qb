@@ -3026,18 +3026,17 @@ static void ZEND_FASTCALL qb_simplify_jump(qb_compiler_context *cxt, uint32_t in
 
 static void ZEND_FASTCALL qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 	uint32_t i;
-	return;
 	if(pass == 1) {
 		// opcodes are not address mode specific at this point
 		// the last op is always RET: there's no need to scan it
 		for(i = 0; i < cxt->op_count - 1; i++) {
 			if(qb_fuse_conditional_branch(cxt, i)) {
 				continue;
-			} 
+			}
 			if(qb_fuse_multiply_accumulate(cxt, i)) {
 				continue;
 			}
-			qb_simplify_jump(cxt, i);
+			//qb_simplify_jump(cxt, i);
 		}
 	} else if(pass == 2) {
 		// opcodes are address mode specific here
@@ -3129,7 +3128,7 @@ void ZEND_FASTCALL qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
 	uint32_t i;
 	for(i = pool->array_count - 1; (int32_t) i >= 0; i--) {
 		void **array = pool->arrays[i];
-		qb_destroy_array(array);
+		//qb_destroy_array(array);
 	}
 	qb_destroy_array((void **) &pool->arrays);
 

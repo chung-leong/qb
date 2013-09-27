@@ -55,7 +55,10 @@ class Handler {
 		}
 
 		if($this->multipleData) {
-			$name .= "_MIO";
+			// differentiate the op from the unit-data version
+			if($this->handlesUnitData()) {
+				$name .= "_MIO";
+			}
 		} else {
 			if(in_array('MultipleAddressMode', class_uses($this))) {
 				// append the address mode to distinct the different ops
@@ -82,46 +85,42 @@ class Handler {
 		$targetCount = $this->getJumpTargetCount();
 		$lines[] = $this->getLabelCode($name);
 		$lines[] = $this->getMacroDefinitions();
-		if($targetCount == 2) {
-			// assume the first branch is taken
-			$lines[] = "{";
-			$lines[] = 		"int32_t condition;";
-			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler1");
-			$lines[] = 		$this->getAction();
-			$lines[] = 		"if(condition) {";
-			$lines[] = 			"ip = INSTR->instruction_pointer1;";
-			$lines[] = 		"} else {";
-			$lines[] = 			$this->getSetHandlerCode("INSTR->next_handler2");
-			$lines[] = 			"ip = INSTR->instruction_pointer2;";
-			$lines[] = 		"}";
-			$lines[] = "}";
-			$lines[] = $this->getJumpCode();
-		} else if($targetCount == 1) {
-			// a unconditional jump instruction goes to the jump target
-			$lines[] = "{";
-			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler");
-			$lines[] = 		$this->getAction();
-			$lines[] = 		"ip = INSTR->instruction_pointer;";
-			$lines[] = "}";
-			$lines[] = $this->getJumpCode();
-		} else if($targetCount == 0) {
-			// regular, non-jump instruction goes to the next instruction
-			$lines[] = "{";
-			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler");
-			$lines[] = 		$this->getAction();
-			if($this->isVariableLength()) {
-				$lines[] = "ip += INSTR->length;";
-			} else {
-				$lines[] = "ip += sizeof($instr);";
-			}
-			$lines[] = "}";
-			$lines[] = $this->getJumpCode();
-		} else {
-			// end of execution
-			$lines[] = "{";
-			$lines[] = 		$this->getAction();
-			$lines[] = "}";
+		$lines[] = "{";
+		
+		if($targetCount == 0 || $targetCount == 1) {
+			// set next handler
+			$lines[] = $this->getSetHandlerCode("INSTR->next_handler");
+		} else if($targetCount == 2) {
+			// assume the first branch will be taken
+			$lines[] = "int32_t condition;";
+			$lines[] = $this->getSetHandlerCode("INSTR->next_handler1");
 		}
+				
+		$lines[] = $this->getAction();
+
+		if($targetCount == 0) {
+			// move the instruction pointer cover this one
+			$instrLength = $this->isVariableLength() ?  "INSTR->length" : "sizeof($instr)";
+			$lines[] = "ip += $instrLength;";
+		} else if($targetCount == 1) {
+			// go to the jump target
+			$lines[] = "ip = INSTR->instruction_pointer;";
+		} else if($targetCount == 2) {
+			// set the instruction pointer to pointer 1, if condition is true
+			// otherwise update the next handler and set ip to pointer 2
+			$lines[] = "if(condition) {";
+			$lines[] = 		"ip = INSTR->instruction_pointer1;";
+			$lines[] = "} else {";
+			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler2");
+			$lines[] = 		"ip = INSTR->instruction_pointer2;";
+			$lines[] = "}";
+		} 
+
+		// go to the next instruction unless the function is returning
+		if($targetCount != -1) {
+			$lines[] = $this->getJumpCode();
+		}
+		$lines[] = "}";
 		$lines[] = $this->getMacroUndefinitions();
 		return $lines;
 	}
@@ -276,7 +275,11 @@ class Handler {
 	
 	public function isMultipleData() {
 		return $this->multipleData;
-	}	
+	}
+	
+	public function handlesUnitData() {
+		return true;
+	}
 	
 	public function disableMultipleData() {
 		$this->multipleData = false;
