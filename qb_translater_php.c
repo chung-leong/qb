@@ -64,9 +64,11 @@ enum {
 	FUNC_DECL_PROPERTY,
 	FUNC_DECL_RETURN,
 	FUNC_DECL_DATA,
+
+	FUNC_DECL_TOKEN_COUNT,
 };
 
-ulong func_decl_hashes[10];
+ulong func_decl_hashes[FUNC_DECL_TOKEN_COUNT];
 
 #define TYPE_DECL_REGEXP			"^\\s*(?:(?:(u?int(\\d*))|(float(\\d*)))|(void)|(integer)|(double)|(char)|(bool|boolean)|(string)|(image[134]?)|(array)|(object)|(resource)|(mixed)|(callback))\\s*((?:\\[.*?\\])*)\\s*"
 
@@ -1807,6 +1809,7 @@ int ZEND_FASTCALL qb_initialize_php_translater(TSRMLS_D) {
 	func_decl_hashes[FUNC_DECL_IMPORT] = zend_inline_hash_func("import", 7);
 	func_decl_hashes[FUNC_DECL_PARAM] = zend_inline_hash_func("param", 6);
 	func_decl_hashes[FUNC_DECL_LOCAL] = zend_inline_hash_func("local", 6);
+	func_decl_hashes[FUNC_DECL_SHARED] = zend_inline_hash_func("shared", 7);
 	func_decl_hashes[FUNC_DECL_STATIC] = zend_inline_hash_func("static", 7);
 	func_decl_hashes[FUNC_DECL_GLOBAL] = zend_inline_hash_func("global", 7);
 	func_decl_hashes[FUNC_DECL_VAR] = zend_inline_hash_func("var", 4);

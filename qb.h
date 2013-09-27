@@ -116,7 +116,6 @@
 #endif
 
 #define QB_EXTNAME	"qb"
-#define QB_EXTVER	"1.0"
 
 #include "qb_version.h"
 #include "qb_compat.h"
