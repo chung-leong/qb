@@ -30,6 +30,7 @@ typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_build_context				qb_build_context;
 typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_variable_dimensions		qb_variable_dimensions;
+typedef struct qb_temporary_variable		qb_temporary_variable;
 
 typedef enum qb_stage						qb_stage;
 typedef enum qb_diagnostic_type				qb_diagnostic_type;
@@ -55,6 +56,11 @@ struct qb_result_prototype {
 	uint32_t address_flags;
 	qb_result_prototype *parent;
 	qb_result_destination *destination;
+};
+
+struct qb_temporary_variable {
+	qb_operand operand;
+	uint32_t last_access_op_index;
 };
 
 #pragma pack(push,1)
@@ -165,6 +171,12 @@ struct qb_compiler_context {
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
 
+	qb_result_prototype *result_prototypes;
+	uint32_t result_prototype_count;
+
+	qb_temporary_variable *temp_variables;
+	uint32_t temp_variable_count;
+
 	qb_address *zero_address;
 	qb_address *one_address;
 	qb_address *false_address;
@@ -240,6 +252,7 @@ enum {
 	QB_RESULT_IS_COLUMN_MAJOR		= 0x00000008,
 };
 
+// NOTE: never attach a stack variable
 static zend_always_inline void qb_attach_new_array(qb_compiler_data_pool *pool, void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initial_capacity) {
 	void ***pp_array = (void ***) qb_enlarge_array((void **) &pool->arrays, 1);
 	qb_create_array(p_array, p_count, item_size, initial_capacity);

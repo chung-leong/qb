@@ -94,6 +94,11 @@ static void ZEND_FASTCALL qb_encode_address(qb_encoder_context *cxt, qb_address 
 
 static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *qop) {
 	void *handler_address;
+#ifdef ZEND_DEBUG
+	if(qop->opcode >= QB_OPCODE_COUNT) {
+		qb_abort("illegal opcode");
+	}
+#endif
 #ifdef __GNUC__
 		handler_address = op_handlers[qop->opcode];
 #else
@@ -104,6 +109,16 @@ static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *q
 
 static void ZEND_FASTCALL qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
 	qb_op *target_qop = cxt->ops[target_index];
+
+#ifdef ZEND_DEBUG
+	if(target_index >= cxt->op_count) {
+		qb_abort("invalid op index");
+	}
+#endif
+
+	while(target_qop->opcode == QB_NOP) {
+		target_qop = cxt->ops[++target_index];
+	}
 
 	*((void **) *p_ip) = qb_get_handler(cxt, target_qop); 
 	*p_ip += sizeof(void *);
@@ -116,6 +131,15 @@ static zend_always_inline int8_t *qb_get_instruction_pointer(qb_encoder_context 
 
 static void ZEND_FASTCALL qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
 	qb_op *target_qop = cxt->ops[target_index];
+
+#ifdef ZEND_DEBUG
+	if(target_index >= cxt->op_count) {
+		qb_abort("invalid jump target");
+	}
+#endif
+	while(target_qop->opcode == QB_NOP) {
+		target_qop = cxt->ops[++target_index];
+	}
 
 	*((void **) *p_ip) = qb_get_handler(cxt, target_qop);
 	*p_ip += sizeof(void *);
@@ -154,11 +178,7 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, voi
 				// need the handler to the next instruction if it's not a jump operation
 				// as functions must always end with a return
 				// there's no check here if there is an op at i + 1
-				uint32_t next_index = i + 1;
-				while(cxt->ops[next_index]->opcode == QB_NOP) {
-					next_index++;
-				}
-				qb_encode_handler(cxt, next_index, &ip);
+				qb_encode_handler(cxt, i + 1, &ip);
 			}
 
 			for(j = 0; j < qop->operand_count; j++) {
