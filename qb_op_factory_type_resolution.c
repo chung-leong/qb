@@ -70,3 +70,39 @@ static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_object_propert
 	}
 	return expr_type;
 }
+
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *name = &operands[0];
+	qb_variable *qvar = qb_get_local_variable(cxt, name->constant);
+	if(qvar && qvar->address) {
+		return qvar->address->type;
+	}
+	return QB_TYPE_VOID;
+}
+
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_fetch_global(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *name = &operands[0];
+	qb_variable *qvar = qb_get_global_variable(cxt, name->constant);
+	if(qvar && qvar->address) {
+		return qvar->address->type;
+	}
+	return QB_TYPE_VOID;
+}
+
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_fetch_static(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *name = &operands[0];
+	qb_variable *qvar = qb_get_static_variable(cxt, name->constant);
+	if(qvar && qvar->address) {
+		return qvar->address->type;
+	}
+	return QB_TYPE_VOID;
+}
+
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_fetch_class(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *name = &operands[0], *scope = &operands[1];
+	qb_variable *qvar = qb_get_class_variable(cxt, scope->zend_class, name->constant);
+	if(qvar && qvar->address) {
+		return qvar->address->type;
+	}
+	return QB_TYPE_VOID;
+}

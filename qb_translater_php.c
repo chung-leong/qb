@@ -702,7 +702,7 @@ static void ZEND_FASTCALL qb_retrieve_operand(qb_php_translater_context *cxt, ui
 			if(!qvar->address) {
 				// the variable type hasn't been set yet
 				qvar->flags |= QB_VARIABLE_LOCAL;
-				qb_set_variable_type(cxt->compiler_context, qvar);
+				qb_apply_type_declaration(cxt->compiler_context, qvar);
 			}
 			operand->address = qvar->address;
 			operand->type = QB_OPERAND_ADDRESS;
@@ -858,63 +858,24 @@ static void ZEND_FASTCALL qb_translate_fetch_class(qb_php_translater_context *cx
 #endif
 	}
 	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
-
-#if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	qb_retire_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->result, result);
-#endif
 }
 
-static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	USE_TSRM
 	qb_operand *name = &operands[0], *scope = &operands[1];
+	uint32_t fetch_type = FETCH_TYPE(cxt->zend_op);
+	void **list = op_factories, *f;
 
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	if(scope->type == QB_OPERAND_ZVAL) {
-		qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op2, scope);
+	if(fetch_type == ZEND_FETCH_LOCAL) {
+		f = list[0];
+	} else if(fetch_type == ZEND_FETCH_GLOBAL || fetch_type == ZEND_FETCH_GLOBAL_LOCK) {
+		f = list[1];
+	} else if(fetch_type == ZEND_FETCH_STATIC) {
+		f = list[2];
+	} else if(fetch_type == ZEND_FETCH_STATIC_MEMBER) {
+		f = list[3];
 	}
-#endif
-	if(name->type == QB_OPERAND_ZVAL) {
-		if(scope->type == QB_OPERAND_NONE) {
-			uint32_t fetch_type = FETCH_TYPE(cxt->zend_op);
-			if(fetch_type == ZEND_FETCH_LOCAL) {
-				// look up the variable
-				qb_variable *qvar = qb_find_variable(cxt->compiler_context, NULL, name->constant, 0);
-				if(qvar) {
-					if(!(qvar->flags & QB_VARIABLE_LOCAL)) {
-						qvar->flags |= QB_VARIABLE_LOCAL;
-						qb_set_variable_type(cxt->compiler_context, qvar);
-					}
-					result->type = QB_OPERAND_ADDRESS;
-					result->address = qvar->address;
-				} else {
-					qb_abort("Undefined variable: %s", Z_STRVAL_P(name->constant));
-				}
-			} else if(fetch_type == ZEND_FETCH_GLOBAL || fetch_type == ZEND_FETCH_GLOBAL_LOCK) {
-				// look up the variable and mark it as global
-				qb_variable *qvar = qb_find_variable(cxt->compiler_context, NULL, name->constant, 0);
-				if(qvar) {
-					if(!(qvar->flags & QB_VARIABLE_GLOBAL)) {
-						qvar->flags |= QB_VARIABLE_GLOBAL;
-						qb_set_variable_type(cxt->compiler_context, qvar);
-					}
-				}
-				// set result to GLOBAL_STATIC so the ZEND_ASSIGN_REF handler knows that
-				// the original op is mapping a variable from the global/static symbol table
-				result->type = QB_OPERAND_GLOBAL_STATIC;
-				result->address = NULL;
-			} else if(fetch_type == ZEND_FETCH_STATIC) {
-				// static variables are already handled in qb_add_variables()
-				result->type = QB_OPERAND_GLOBAL_STATIC;
-				result->address = NULL;
-			}
-		} else if(scope->type == QB_OPERAND_ZEND_CLASS) {
-			// get class variable
-			result->type = QB_OPERAND_ADDRESS;
-			result->address = qb_obtain_class_variable(cxt->compiler_context, scope->zend_class, name->constant);
-		}
-	} else {
-		qb_abort("internal error");
-	}
+	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
 static void ZEND_FASTCALL qb_translate_receive_argument(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1204,22 +1165,22 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				NULL						},	// ZEND_FE_RESET
 	{	qb_translate_foreach_fetch,			NULL						},	// ZEND_FE_FETCH
 	{	qb_translate_exit,					&factory_exit						},	// ZEND_EXIT
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_R
+	{	qb_translate_fetch,					factories_fetch_variable			},	// ZEND_FETCH_R
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_R
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_R
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_W
+	{	qb_translate_fetch,					factories_fetch_variable			},	// ZEND_FETCH_W
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_W
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_W
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_RW
+	{	qb_translate_fetch,					factories_fetch_variable			},	// ZEND_FETCH_RW
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_RW
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_RW
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_IS
+	{	qb_translate_fetch,					factories_fetch_variable			},	// ZEND_FETCH_IS
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_IS
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_IS
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_FUNC_ARG
+	{	qb_translate_fetch,					factories_fetch_variable			},	// ZEND_FETCH_FUNC_ARG
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_FUNC_ARG
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_FUNC_ARG
-	{	qb_translate_basic_op,				NULL						},	// ZEND_FETCH_UNSET
+	{	qb_translate_fetch,					factories_fetch_variable			},	// ZEND_FETCH_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_TMP_VAR

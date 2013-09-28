@@ -18,6 +18,11 @@
 
 /* $Id$ */
 
+static void ZEND_FASTCALL qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	result->type = QB_OPERAND_RESULT_PROTOTYPE;
+	result->result_prototype = result_prototype;
+}
+
 static void ZEND_FASTCALL qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_variable_dimensions dim = { 0, 0 };
 
@@ -66,8 +71,24 @@ static void ZEND_FASTCALL qb_set_result_object_property(qb_compiler_context *cxt
 	}
 }
 
+static void ZEND_FASTCALL qb_set_result_none(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	result->type = QB_OPERAND_NONE;
+}
+
 static void ZEND_FASTCALL qb_set_result_true(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->address = qb_obtain_constant_boolean(cxt, TRUE);
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void ZEND_FASTCALL qb_set_result_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *name = &operands[0];
+	result->address = qb_obtain_local_variable(cxt, name->constant);
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void ZEND_FASTCALL qb_set_result_fetch_class(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *name = &operands[0], *scope = &operands[1];
+	result->address = qb_obtain_class_variable(cxt, scope->zend_class, name->constant);
 	result->type = QB_OPERAND_ADDRESS;
 }
 

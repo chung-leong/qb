@@ -1695,9 +1695,8 @@ static void ZEND_FASTCALL qb_initialize_dimensions(qb_compiler_context *cxt, qb_
 	*/
 }
 
-void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_variable *qvar) {
+void ZEND_FASTCALL qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 	qb_type_declaration *decl = qb_find_variable_declaration(cxt, qvar);
-
 	if(decl) {
 		if(decl->type != QB_TYPE_VOID) {
 			qb_address *address;
@@ -1742,7 +1741,7 @@ void ZEND_FASTCALL qb_set_variable_type(qb_compiler_context *cxt, qb_variable *q
 		}
 	} else {
 		if(qvar->flags & QB_VARIABLE_RETURN_VALUE) {
-			// assume to be void if missing
+			// function returns void by default if declaration is missing
 		} else {
 			qb_abort("missing type declaration: %s", qvar->name);
 		}
@@ -1774,50 +1773,51 @@ static void ZEND_FASTCALL qb_add_variables(qb_compiler_context *cxt) {
 			if(zarg->pass_by_reference) {
 				qvar->flags |= QB_VARIABLE_PASSED_BY_REF;
 			}
-			qb_set_variable_type(cxt, qvar);
+			qb_apply_type_declaration(cxt, qvar);
 		} else {
-			// TODO: transfer of values into static variable needs to be rethought
 			// see if it's static variable
 			qb_address *static_initializer = NULL;
 			zval **p_static_value, *static_value;
 			if(static_variable_table && zend_hash_quick_find(static_variable_table, zvar->name, zvar->name_len + 1, zvar->hash_value, (void **) &p_static_value) == SUCCESS) {
 				static_value = *p_static_value;
 				qvar->flags = QB_VARIABLE_STATIC;
-				qb_set_variable_type(cxt, qvar);
+				qb_apply_type_declaration(cxt, qvar);
 
 				/*
 				if(qvar->address->type == QB_TYPE_S64 || qvar->address->type == QB_TYPE_U64) {
 					// initializing 64-bit integer might require special handling
-					qb_primitive_type element_type = qvar->address->type;
-					uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, static_value, element_type);
+					qb_primitive_type desired_type = qvar->address->type;
+					uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, static_value, desired_type);
 					if(qvar->address->dimension_count + 1 == dimension_count) {
 						uint32_t dimensions[MAX_DIMENSION];
 						dimensions[0] = 0;
-						qb_get_zend_array_dimensions(cxt, static_value, element_type, dimensions, dimension_count);
+						qb_get_zend_array_dimensions(cxt, static_value, desired_type, dimensions, dimension_count);
 						if(dimensions[dimension_count - 1] == 2) {
 							// treat the last level as scalars
 							dimension_count--;
 							if(dimension_count > 0) {
-								static_initializer = qb_create_fixed_size_multidimensional_array(cxt, element_type, dimensions, dimension_count, FALSE);
+								static_initializer = qb_create_fixed_size_multidimensional_array(cxt, desired_type, dimensions, dimension_count, FALSE);
 								qb_copy_elements_from_zend_array(cxt, static_value, static_initializer);
 							} else {
-								static_initializer = qb_create_scalar(cxt, element_type);
+								static_initializer = qb_create_scalar(cxt, desired_type);
 								qb_copy_element_from_zval(cxt, static_value, static_initializer);
 							}
+							static_initializer->flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_INITIALIZED;
 						}
 					}
 				}
+				*/
 				if(!static_initializer) {
 					// handle it in the regular manner
 					static_initializer = qb_obtain_constant_zval(cxt, *p_static_value, qvar->address->type);
 				}
-				*/
 
 				if(VARIABLE_LENGTH_ARRAY(qvar->address)) {
 					qb_initialize_dimensions(cxt, static_initializer, qvar->address);
 				}
+				//qb_do_static_init(cxt, static_initializer, qvar->address);
 			} else {
-				// we don't know whether qvar a local or a global variable at this point
+				// we don't know whether it is a local or a global variable at this point
 				qvar->flags = 0;
 				qvar->address = NULL;
 			}
@@ -1831,9 +1831,9 @@ static void ZEND_FASTCALL qb_add_variables(qb_compiler_context *cxt) {
 	qvar->name_length = 0;
 	qvar->hash_value = 0;
 	qvar->flags = QB_VARIABLE_RETURN_VALUE;
-	qb_set_variable_type(cxt, qvar);
-	cxt->return_variable = qvar;
+	qb_apply_type_declaration(cxt, qvar);
 	qb_add_variable(cxt, qvar);
+	cxt->return_variable = qvar;
 }
 
 qb_variable * ZEND_FASTCALL qb_find_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name, uint32_t type_mask) {
@@ -1854,28 +1854,73 @@ qb_variable * ZEND_FASTCALL qb_find_variable(qb_compiler_context *cxt, zend_clas
 	return NULL;
 }
 
-qb_variable * ZEND_FASTCALL qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name) {
-	qb_variable *qvar = qb_find_variable(cxt, class, name, QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE);
+qb_variable * ZEND_FASTCALL qb_get_local_variable(qb_compiler_context *cxt, zval *name) {
+	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_LOCAL);
+	if(qvar) {
+		if(!(qvar->flags & QB_VARIABLE_LOCAL)) {
+			qvar->flags |= QB_VARIABLE_LOCAL;
+			qb_apply_type_declaration(cxt, qvar);
+		}
+	}
+	return qvar;
+}
+
+qb_variable * ZEND_FASTCALL qb_get_global_variable(qb_compiler_context *cxt, zval *name) {
+	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_GLOBAL);
+	if(qvar) {
+		if(!(qvar->flags & QB_VARIABLE_GLOBAL)) {
+			qvar->flags |= QB_VARIABLE_GLOBAL;
+			qb_apply_type_declaration(cxt, qvar);
+		}
+	}
+	return qvar;
+}
+
+qb_variable * ZEND_FASTCALL qb_get_static_variable(qb_compiler_context *cxt, zval *name) {
+	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_STATIC);
+	return qvar;
+}
+
+qb_variable * ZEND_FASTCALL qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name) {
+	// ce would be null if we're for a variable qualified by static::
+	zend_class_entry *search_ce = (ce) ? ce : cxt->zend_function->common.scope;
+	qb_variable *qvar = qb_find_variable(cxt, search_ce, name, QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE);
 	if(!qvar) {
 		qvar = qb_allocate_variable(cxt->pool);
-		qvar->flags = (class) ? QB_VARIABLE_CLASS : QB_VARIABLE_CLASS_INSTANCE;
+		qvar->flags = QB_VARIABLE_CLASS;
 		qvar->name = Z_STRVAL_P(name);
 		qvar->name_length = Z_STRLEN_P(name);
 		qvar->hash_value = Z_HASH_P(name);
-		qvar->zend_class = class;
-		qb_set_variable_type(cxt, qvar);
+		qvar->zend_class = ce;
+		qb_apply_type_declaration(cxt, qvar);
 		qb_add_variable(cxt, qvar);
 	}
 	return qvar;
 }
 
-qb_address * ZEND_FASTCALL qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name) {
-	qb_variable *qvar = qb_get_class_variable(cxt, class, name);
+qb_variable * ZEND_FASTCALL qb_get_instance_variable(qb_compiler_context *cxt, zval *name) {
+	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_CLASS_INSTANCE);
+	if(!qvar) {
+		qvar = qb_allocate_variable(cxt->pool);
+		qvar->flags = QB_VARIABLE_CLASS_INSTANCE;
+		qvar->name = Z_STRVAL_P(name);
+		qvar->name_length = Z_STRLEN_P(name);
+		qvar->hash_value = Z_HASH_P(name);
+		qvar->zend_class = NULL;
+		qb_apply_type_declaration(cxt, qvar);
+		qb_add_variable(cxt, qvar);
+	}
+	return qvar;
+}
+
+qb_address * ZEND_FASTCALL qb_obtain_local_variable(qb_compiler_context *cxt, zval *name) {
+	qb_variable *qvar = qb_get_local_variable(cxt, name);
 	return qvar->address;
 }
 
-qb_variable * ZEND_FASTCALL qb_get_instance_variable(qb_compiler_context *cxt, zval *name) {
-	return qb_get_class_variable(cxt, NULL, name);
+qb_address * ZEND_FASTCALL qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name) {
+	qb_variable *qvar = qb_get_class_variable(cxt, ce, name);
+	return qvar->address;
 }
 
 qb_address * ZEND_FASTCALL qb_obtain_instance_variable(qb_compiler_context *cxt, zval *name) {
@@ -2584,9 +2629,6 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 		}
 		result_prototype->coercion_flags = f->coercion_flags;
 		result_prototype->address_flags = f->address_flags;
-
-		result->type = QB_OPERAND_RESULT_PROTOTYPE;
-		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		// use the result from the previous stage if it's available 
 		if(result_prototype) {
@@ -2616,10 +2658,14 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 		if(f->link_results) {
 			f->link_results(cxt, f, operands, operand_count, result_prototype);
 		}
+		if(f->set_preliminary_result) {
+			f->set_preliminary_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+		}
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(f->set_result) {
-			f->set_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+		if(f->set_final_result) {
+			f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 
+			// TODO: handle this in a cleaner manner
 			if(result->type == QB_OPERAND_ADDRESS) {
 				if(f->address_flags & QB_ADDRESS_BOOLEAN && !(result->address->flags & QB_ADDRESS_BOOLEAN)) {
 					qb_address *new_address = qb_allocate_address(cxt->pool);
@@ -3772,17 +3818,20 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 							qb_class_declaration *class_decl = NULL;
 							for(p = ce->function_table.pListHead; p; p = p->pListNext) {
 								zend_function *zfunc = p->pData;
-								int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
-								if(fd_index == -1) {
-									qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc, ce);
-									if(function_decl) {
-										if(!class_decl) {
-											// parse the class doc comment if there's a method that's going to be translated
-											class_decl = qb_parse_class_doc_comment(cxt->pool, ce);
-											qb_add_class_declaration(cxt, class_decl);
+								// handle the function at the parent
+								if(zfunc->common.scope == ce) {
+									int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
+									if(fd_index == -1) {
+										qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc, ce);
+										if(function_decl) {
+											if(!class_decl) {
+												// parse the class doc comment if there's a method that's going to be translated
+												class_decl = qb_parse_class_doc_comment(cxt->pool, ce);
+												qb_add_class_declaration(cxt, class_decl);
+											}
+											function_decl->class_declaration = class_decl;
+											qb_add_function_declaration(cxt, function_decl);
 										}
-										function_decl->class_declaration = class_decl;
-										qb_add_function_declaration(cxt, function_decl);
 									}
 								}
 							}

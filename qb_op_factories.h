@@ -62,8 +62,9 @@ typedef void (ZEND_FASTCALL *qb_transfer_operands_proc)(qb_compiler_context *cxt
 	qb_resolve_expression_type_proc resolve_type;	\
 	qb_link_results_proc link_results;	\
 	qb_coerce_operands_proc coerce_operands;	\
+	qb_set_result_proc set_preliminary_result;	\
 	qb_validate_operands_proc validate_operands;	\
-	qb_set_result_proc set_result;	\
+	qb_set_result_proc set_final_result;	\
 	qb_set_dimensions_proc set_dimensions;	\
 	qb_select_opcode_proc select_opcode;	\
 	qb_get_operand_count_proc get_operand_count;	\
@@ -171,6 +172,7 @@ extern qb_simple_op_factory factory_fetch_array_element;
 extern qb_simple_op_factory factory_fetch_object_property;
 extern qb_simple_op_factory factory_fetch_constant;
 
+extern void *factories_fetch_variable[4];
 extern void *factories_fetch_class[3];
 
 extern qb_simple_op_factory factory_array_init;
