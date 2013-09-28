@@ -113,6 +113,23 @@ qb_derived_op_factory factory_object_property_assignment = {
 	&factory_assignment,
 };
 
+qb_simple_op_factory factory_ref_assignment = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_validate_operands_ref_assignment,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_NOP
+};
+
 qb_simple_op_factory factory_fetch_local = {
 	qb_resolve_expression_type_fetch_local,
 	NULL,
@@ -134,9 +151,9 @@ qb_simple_op_factory factory_fetch_global = {
 	qb_resolve_expression_type_fetch_global,
 	NULL,
 	NULL,
-	qb_set_result_none,
+	qb_set_result_fetch_global,
 	NULL,
-	qb_set_result_none,
+	qb_set_result_fetch_global,
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
@@ -151,9 +168,9 @@ qb_simple_op_factory factory_fetch_static = {
 	qb_resolve_expression_type_fetch_static,
 	NULL,
 	NULL,
-	qb_set_result_none,
+	qb_set_result_fetch_static,
 	NULL,
-	qb_set_result_none,
+	qb_set_result_fetch_static,
 	NULL,
 	qb_select_opcode_simple,
 	NULL,

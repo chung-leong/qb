@@ -168,6 +168,8 @@ extern qb_copy_op_factory factory_assignment;
 extern qb_derived_op_factory factory_array_element_assignment;
 extern qb_derived_op_factory factory_object_property_assignment;
 
+extern qb_simple_op_factory factory_ref_assignment;
+
 extern qb_simple_op_factory factory_fetch_array_element;
 extern qb_simple_op_factory factory_fetch_object_property;
 extern qb_simple_op_factory factory_fetch_constant;

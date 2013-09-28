@@ -405,7 +405,10 @@ qb_address * ZEND_FASTCALL qb_obtain_constant_integer(qb_compiler_context *cxt, 
 qb_address * ZEND_FASTCALL qb_obtain_constant_float(qb_compiler_context *cxt, float64_t value, qb_primitive_type desired_type);
 qb_address * ZEND_FASTCALL qb_obtain_constant_boolean(qb_compiler_context *cxt, int32_t value);
 qb_address * ZEND_FASTCALL qb_obtain_constant(qb_compiler_context *cxt, int64_t value, qb_primitive_type desired_type);
+
 qb_address * ZEND_FASTCALL qb_obtain_local_variable(qb_compiler_context *cxt, zval *name);
+qb_address * ZEND_FASTCALL qb_obtain_global_variable(qb_compiler_context *cxt, zval *name);
+qb_address * ZEND_FASTCALL qb_obtain_static_variable(qb_compiler_context *cxt, zval *name);
 qb_address * ZEND_FASTCALL qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_primitive_type desired_type);
 qb_address * ZEND_FASTCALL qb_obtain_instance_variable(qb_compiler_context *cxt, zval *name);
 qb_address * ZEND_FASTCALL qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name);

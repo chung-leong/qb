@@ -1855,7 +1855,7 @@ qb_variable * ZEND_FASTCALL qb_find_variable(qb_compiler_context *cxt, zend_clas
 }
 
 qb_variable * ZEND_FASTCALL qb_get_local_variable(qb_compiler_context *cxt, zval *name) {
-	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_LOCAL);
+	qb_variable *qvar = qb_find_variable(cxt, NULL, name, 0);
 	if(qvar) {
 		if(!(qvar->flags & QB_VARIABLE_LOCAL)) {
 			qvar->flags |= QB_VARIABLE_LOCAL;
@@ -1866,7 +1866,7 @@ qb_variable * ZEND_FASTCALL qb_get_local_variable(qb_compiler_context *cxt, zval
 }
 
 qb_variable * ZEND_FASTCALL qb_get_global_variable(qb_compiler_context *cxt, zval *name) {
-	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_GLOBAL);
+	qb_variable *qvar = qb_find_variable(cxt, NULL, name, 0);
 	if(qvar) {
 		if(!(qvar->flags & QB_VARIABLE_GLOBAL)) {
 			qvar->flags |= QB_VARIABLE_GLOBAL;
@@ -1913,6 +1913,16 @@ qb_variable * ZEND_FASTCALL qb_get_instance_variable(qb_compiler_context *cxt, z
 
 qb_address * ZEND_FASTCALL qb_obtain_local_variable(qb_compiler_context *cxt, zval *name) {
 	qb_variable *qvar = qb_get_local_variable(cxt, name);
+	return qvar->address;
+}
+
+qb_address * ZEND_FASTCALL qb_obtain_global_variable(qb_compiler_context *cxt, zval *name) {
+	qb_variable *qvar = qb_get_global_variable(cxt, name);
+	return qvar->address;
+}
+
+qb_address * ZEND_FASTCALL qb_obtain_static_variable(qb_compiler_context *cxt, zval *name) {
+	qb_variable *qvar = qb_get_static_variable(cxt, name);
 	return qvar->address;
 }
 
