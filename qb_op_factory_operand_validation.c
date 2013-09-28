@@ -50,7 +50,7 @@ static void ZEND_FASTCALL qb_validate_operands_object_property(qb_compiler_conte
 		qb_abort("no support for variable variable-names");
 	}
 	if(container->type == QB_OPERAND_NONE) {
-		if(!qb_find_instance_variable(cxt, name->constant)) {
+		if(!qb_get_instance_variable(cxt, name->constant)) {
 			qb_abort("no property by the name of '%s'", Z_STRVAL_P(name->constant));
 		}
 	} else if(container->type == QB_OPERAND_ADDRESS) {
@@ -164,20 +164,23 @@ static void ZEND_FASTCALL qb_validate_operands_fetch_class_static(qb_compiler_co
 static void ZEND_FASTCALL qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	USE_TSRM
 	qb_operand *scope = &operands[0], *name = &operands[1];
-	zend_class_entry *ce = NULL;
-	if(scope->type == QB_OPERAND_ZEND_CLASS) {
-		ce = scope->zend_class;
-	} else if(scope->type == QB_OPERAND_ZVAL) {
-		ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
-	}
-	if(ce) {
-		if(!zend_hash_exists(&ce->constants_table, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
-			qb_abort("Undefined class constant '%s'", Z_STRVAL_P(name->constant));
-		}
+	if(scope->type == QB_OPERAND_ZEND_STATIC_CLASS) {
 	} else {
-		if(!zend_hash_exists(EG(zend_constants), Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
-			if(!qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant))) {
-				qb_abort("Undefined constant '%s'", Z_STRVAL_P(name->constant));
+		zend_class_entry *ce = NULL;
+		if(scope->type == QB_OPERAND_ZEND_CLASS) {
+			ce = scope->zend_class;
+		} else if(scope->type == QB_OPERAND_ZVAL) {
+			ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
+		}
+		if(ce) {
+			if(!zend_hash_exists(&ce->constants_table, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
+				qb_abort("Undefined class constant '%s'", Z_STRVAL_P(name->constant));
+			}
+		} else {
+			if(!zend_hash_exists(EG(zend_constants), Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
+				if(!qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant))) {
+					qb_abort("Undefined constant '%s'", Z_STRVAL_P(name->constant));
+				}
 			}
 		}
 	}

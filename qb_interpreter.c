@@ -796,23 +796,35 @@ static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_co
 					zvalue = *p_zvalue;
 				}
 			} else {
-				zval *name = qb_string_to_zval(qvar->name, qvar->name_length TSRMLS_CC);
-				if(qvar->flags & QB_VARIABLE_CLASS) {
-					// copy value from class
-					p_zvalue = Z_CLASS_GET_PROP(qvar->zend_class, qvar->name, qvar->name_length);
-					if(p_zvalue) {
-						SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
-						zvalue = *p_zvalue;
-					}
-				} else if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
-					// copy value from class instance
-					zval *container = cxt->this_object;
-					p_zvalue = Z_OBJ_GET_PROP_PTR_PTR(container, name);
-					if(p_zvalue) {
-						SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
-						zvalue = *p_zvalue;
-					} else if(Z_OBJ_HT_P(container)->read_property) {
-						zvalue = Z_OBJ_READ_PROP(container, name);
+				// something from the object/class
+				USE_TSRM
+
+				if(qvar->flags & QB_VARIABLE_CLASS_CONSTANT) {
+					// only static:: constants are treated like variables
+					zend_class_entry *ce = EG(called_scope);
+					zval **p_value;
+					zend_hash_quick_find(&ce->constants_table, qvar->name, qvar->name_length + 1, qvar->hash_value, (void **) &p_value);
+					zvalue = *p_value;
+				} else {
+					zval *name = qb_string_to_zval(qvar->name, qvar->name_length TSRMLS_CC);
+					if(qvar->flags & QB_VARIABLE_CLASS) {
+						// copy value from class, using the called scope if the class wasn't known beforehand (i.e. static::)
+						zend_class_entry *ce = (qvar->zend_class) ? qvar->zend_class : EG(called_scope);
+						p_zvalue = Z_CLASS_GET_PROP(ce, qvar->name, qvar->name_length);
+						if(p_zvalue) {
+							SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
+							zvalue = *p_zvalue;
+						}
+					} else if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
+						// copy value from class instance
+						zval *container = cxt->this_object;
+						p_zvalue = Z_OBJ_GET_PROP_PTR_PTR(container, name);
+						if(p_zvalue) {
+							SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
+							zvalue = *p_zvalue;
+						} else if(Z_OBJ_HT_P(container)->read_property) {
+							zvalue = Z_OBJ_READ_PROP(container, name);
+						}
 					}
 				}
 			}
@@ -1948,7 +1960,7 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 		}
 		for(i = cxt->function->argument_count; i < cxt->function->variable_count; i++) {
 			qb_variable *qvar = cxt->function->variables[i];
-			if(qvar->flags & (QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS)) {
+			if(qvar->flags & (QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_CONSTANT)) {
 				// import external variables
 				qb_import_variable(cxt, qvar);
 			}

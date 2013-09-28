@@ -178,7 +178,7 @@ qb_simple_op_factory factory_fetch_class_static = {
 	NULL,
 	NULL,
 	qb_validate_operands_fetch_class_static,
-	qb_set_result_fetch_class_self,
+	qb_set_result_fetch_class_static,
 	NULL,
 	qb_select_opcode_simple,
 	NULL,

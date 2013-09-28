@@ -1844,7 +1844,7 @@ qb_variable * ZEND_FASTCALL qb_find_variable(qb_compiler_context *cxt, zend_clas
 		if(qvar->hash_value == hash_value && qvar->name_length == Z_STRLEN_P(name)) {
 			if(strncmp(qvar->name, Z_STRVAL_P(name), Z_STRLEN_P(name)) == 0) {
 				if(qvar->zend_class == class) {
-					if(qvar->flags & type_mask || !type_mask) {
+					if((qvar->flags & type_mask) || !type_mask && !(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS_CONSTANT))) {
 						return qvar;
 					}
 				}
@@ -1854,7 +1854,7 @@ qb_variable * ZEND_FASTCALL qb_find_variable(qb_compiler_context *cxt, zend_clas
 	return NULL;
 }
 
-qb_variable * ZEND_FASTCALL qb_find_class_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name) {
+qb_variable * ZEND_FASTCALL qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name) {
 	qb_variable *qvar = qb_find_variable(cxt, class, name, QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE);
 	if(!qvar) {
 		qvar = qb_allocate_variable(cxt->pool);
@@ -1870,17 +1870,33 @@ qb_variable * ZEND_FASTCALL qb_find_class_variable(qb_compiler_context *cxt, zen
 }
 
 qb_address * ZEND_FASTCALL qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name) {
-	qb_variable *qvar = qb_find_class_variable(cxt, class, name);
-	return (qvar) ? qvar->address  : NULL;
+	qb_variable *qvar = qb_get_class_variable(cxt, class, name);
+	return qvar->address;
 }
 
-qb_variable * ZEND_FASTCALL qb_find_instance_variable(qb_compiler_context *cxt, zval *name) {
-	return qb_find_class_variable(cxt, NULL, name);
+qb_variable * ZEND_FASTCALL qb_get_instance_variable(qb_compiler_context *cxt, zval *name) {
+	return qb_get_class_variable(cxt, NULL, name);
 }
 
 qb_address * ZEND_FASTCALL qb_obtain_instance_variable(qb_compiler_context *cxt, zval *name) {
-	qb_variable *qvar = qb_find_instance_variable(cxt, name);
-	return (qvar) ? qvar->address  : NULL;
+	qb_variable *qvar = qb_get_instance_variable(cxt, name);
+	return qvar->address;
+}
+
+qb_address * ZEND_FASTCALL qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *name, qb_primitive_type type) {
+	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_CLASS_CONSTANT);
+	if(!qvar) {
+		qvar = qb_allocate_variable(cxt->pool);
+		qvar->flags = QB_VARIABLE_CLASS_CONSTANT;
+		qvar->name = Z_STRVAL_P(name);
+		qvar->name_length = Z_STRLEN_P(name);
+		qvar->hash_value = Z_HASH_P(name);
+		qvar->zend_class = NULL;
+		qvar->address = qb_create_constant_scalar(cxt, type);
+		qb_mark_as_shared(cxt, qvar->address);
+		qb_add_variable(cxt, qvar);
+	}
+	return qvar->address;
 }
 
 static void ZEND_FASTCALL qb_initialize_function_prototype(qb_compiler_context *cxt) {
@@ -1987,7 +2003,7 @@ qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *cxt, qb
 
 qb_primitive_type ZEND_FASTCALL qb_get_property_type(qb_compiler_context *cxt, qb_operand *container, qb_operand *name) {
 	if(container->type == QB_OPERAND_NONE) {
-		qb_variable *qvar = qb_find_instance_variable(cxt, name->constant);
+		qb_variable *qvar = qb_get_instance_variable(cxt, name->constant);
 		if(qvar) {
 			return qvar->address->type;
 		}
