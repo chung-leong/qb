@@ -2048,12 +2048,14 @@ qb_primitive_type ZEND_FASTCALL qb_get_operand_type(qb_compiler_context *cxt, qb
 	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
 		return qb_get_array_initializer_type(cxt, operand->array_initializer, flags);
 	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		if(operand->result_prototype->final_type != QB_TYPE_UNKNOWN) {
+		if(operand->result_prototype->final_type != QB_TYPE_ANY) {
 			return operand->result_prototype->final_type;
 		} 
 		if(operand->result_prototype->preliminary_type != QB_TYPE_ANY) {
 			if(!(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
-				return operand->result_prototype->preliminary_type;
+				if(operand->result_prototype->preliminary_type != QB_TYPE_ANY) {
+					return operand->result_prototype->preliminary_type;
+				}
 			}
 		}
 	}
