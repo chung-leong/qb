@@ -1882,9 +1882,7 @@ qb_variable * ZEND_FASTCALL qb_get_static_variable(qb_compiler_context *cxt, zva
 }
 
 qb_variable * ZEND_FASTCALL qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name) {
-	// ce would be null if we're for a variable qualified by static::
-	zend_class_entry *search_ce = (ce) ? ce : cxt->zend_function->common.scope;
-	qb_variable *qvar = qb_find_variable(cxt, search_ce, name, QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE);
+	qb_variable *qvar = qb_find_variable(cxt, ce, name, QB_VARIABLE_CLASS);
 	if(!qvar) {
 		qvar = qb_allocate_variable(cxt->pool);
 		qvar->flags = QB_VARIABLE_CLASS;
@@ -1929,18 +1927,34 @@ qb_address * ZEND_FASTCALL qb_obtain_instance_variable(qb_compiler_context *cxt,
 }
 
 qb_address * ZEND_FASTCALL qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *name, qb_primitive_type type) {
-	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_CLASS_CONSTANT);
-	if(!qvar) {
-		qvar = qb_allocate_variable(cxt->pool);
-		qvar->flags = QB_VARIABLE_CLASS_CONSTANT;
-		qvar->name = Z_STRVAL_P(name);
-		qvar->name_length = Z_STRLEN_P(name);
-		qvar->hash_value = Z_HASH_P(name);
-		qvar->zend_class = NULL;
-		qvar->address = qb_create_constant_scalar(cxt, type);
-		qb_mark_as_shared(cxt, qvar->address);
-		qb_add_variable(cxt, qvar);
+	qb_variable *qvar = NULL;
+	ulong hash_value = Z_HASH_P(name);
+	uint32_t i;
+	for(i = cxt->argument_count; i < cxt->variable_count; i++) {
+		qvar = cxt->variables[i];
+		if(qvar->flags & QB_VARIABLE_CLASS_CONSTANT) {
+			if(qvar->hash_value == hash_value && qvar->name_length == Z_STRLEN_P(name)) {
+				if(strncmp(qvar->name, Z_STRVAL_P(name), Z_STRLEN_P(name)) == 0) {
+					if(qvar->zend_class == NULL) {
+						// the type has to match as well
+						if(qvar->address->type == type) {
+							return qvar->address;
+						}
+					}
+				}
+			}
+		}
 	}
+
+	qvar = qb_allocate_variable(cxt->pool);
+	qvar->flags = QB_VARIABLE_CLASS_CONSTANT;
+	qvar->name = Z_STRVAL_P(name);
+	qvar->name_length = Z_STRLEN_P(name);
+	qvar->hash_value = Z_HASH_P(name);
+	qvar->zend_class = NULL;
+	qvar->address = qb_create_constant_scalar(cxt, type);
+	qb_mark_as_shared(cxt, qvar->address);
+	qb_add_variable(cxt, qvar);
 	return qvar->address;
 }
 
@@ -2576,7 +2590,8 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 		qb_add_op(cxt, qop);
 
 		if(result && result->type == QB_OPERAND_ADDRESS) {
-			if(CONSTANT(result->address) && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT)) {
+			if(CONSTANT(result->address) && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT) && FALSE) {
+				// TODO: fix qb_execute_op()
 				// evalulate the expression at compile-time if it's constant and side-effect-free
 				qb_execute_op(cxt, qop);
 
@@ -2640,17 +2655,17 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 		}
 	}
 
+	// perform type coercion on operand
+	if(f->coerce_operands) {
+		// note that the handler might not necessarily convert all the operands to expr_type
+		f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+	}
+
 	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		// do validation
 		if(f->validate_operands) {
 			f->validate_operands(cxt, f, operands, operand_count);
 		}
-	}
-
-	// perform type coercion on operand
-	if(f->coerce_operands) {
-		// note that the handler might not necessarily convert all the operands to expr_type
-		f->coerce_operands(cxt, f, expr_type, operands, operand_count);
 	}
 
 	// then, assign result to result object
@@ -3439,7 +3454,11 @@ static void ZEND_FASTCALL qb_print_address(qb_compiler_context *cxt, qb_address 
 		if((qvar = qb_find_variable_with_address(cxt, address))) {
 			if(qvar->name) {
 				if(qvar->flags & QB_VARIABLE_CLASS) {
-					php_printf("self::$%s", qvar->name);
+					if(qvar->zend_class) {
+						php_printf("self::$%s", qvar->name);
+					} else {
+						php_printf("static::$%s", qvar->name);
+					}
 				} else if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
 					php_printf("$this->%s", qvar->name);
 				} else {
@@ -3568,7 +3587,7 @@ static zend_function * ZEND_FASTCALL qb_get_function(qb_build_context *cxt, zval
 	return zfunc;
 }
 
-static qb_function * ZEND_FASTCALL qb_replace_zend_function(zend_function *zfunc, qb_function *qfunc TSRMLS_DC) {
+static void ZEND_FASTCALL qb_replace_zend_function(zend_function *zfunc, qb_function *qfunc TSRMLS_DC) {
 	// save values that will get wiped by destroy_op_array()
 	zend_uint fn_flags = zfunc->common.fn_flags;
 	zend_class_entry *scope = zfunc->common.scope;
@@ -3605,7 +3624,43 @@ static qb_function * ZEND_FASTCALL qb_replace_zend_function(zend_function *zfunc
 
 	// store the pointer to the qb function in space vacated by the op array
 	zfunc->op_array.reserved[0] = qfunc;
-	return qfunc;
+}
+
+static void ZEND_FASTCALL qb_replace_zend_functions(zend_function *zfunc, qb_function *qfunc TSRMLS_DC) {
+	zend_uint refcount = *zfunc->op_array.refcount - 1;
+	zend_op *opcodes = zfunc->op_array.opcodes;
+	zend_class_entry *scope = zfunc->common.scope;
+	uint32_t function_count = 1, function_buffer_size = 16;
+	qb_replace_zend_function(zfunc, qfunc TSRMLS_CC);	
+
+	// replace the function in descendant classes as well
+	if(scope && refcount > 0) {
+		Bucket *q;
+		const char *name = qfunc->name;
+		uint32_t name_length = strlen(qfunc->name);
+		ulong name_hash = zend_inline_hash_func(name, name_length + 1);
+		for(q = EG(class_table)->pListTail; q && refcount > 0; q = q->pListLast) {
+			zend_class_entry **p_ce = q->pData, *ce = *p_ce;
+			if(ce->type == ZEND_USER_CLASS) {
+				zend_class_entry *ancestor = ce->parent;
+				for(ancestor = ce->parent; ancestor; ancestor = ancestor->parent) {
+					if(ancestor == scope) {
+						if(zend_hash_quick_find(&ce->function_table, name, name_length + 1, name_hash, (void **) &zfunc) == SUCCESS) {
+							if(zfunc->common.scope == scope) {
+								if(zfunc->type == ZEND_USER_FUNCTION && zfunc->op_array.opcodes == opcodes) {
+									qb_replace_zend_function(zfunc, qfunc TSRMLS_CC);
+									refcount--;
+								}
+							}
+						}
+						break;
+					}
+				}
+			} else {
+				break;
+			}
+		}
+	}
 }
 
 void ZEND_FASTCALL qb_compile_functions(qb_build_context *cxt) {
@@ -3700,7 +3755,7 @@ void ZEND_FASTCALL qb_compile_functions(qb_build_context *cxt) {
 		qfunc = qb_encode_function(encoder_cxt);
 
 		// replace the zend function with the qb version
-		qb_replace_zend_function(compiler_cxt->zend_function, qfunc TSRMLS_CC);
+		qb_replace_zend_functions(compiler_cxt->zend_function, qfunc TSRMLS_CC);
 
 		if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
 			native_compile = TRUE;

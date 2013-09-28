@@ -244,6 +244,8 @@ extern qb_basic_op_factory factory_equal;
 extern qb_basic_op_factory factory_not_equal;
 extern qb_basic_op_factory factory_less_than;
 extern qb_basic_op_factory factory_less_equal;
+extern qb_derived_op_factory factory_identical;
+extern qb_derived_op_factory factory_not_identical;
 
 extern qb_basic_op_factory factory_branch_on_equal;
 extern qb_basic_op_factory factory_branch_on_not_equal;

@@ -866,15 +866,17 @@ static void ZEND_FASTCALL qb_import_variable(qb_interpreter_context *cxt, qb_var
 	import->previous_copy_index = -1;
 	import->value_pointer = NULL;
 
-	for(i = cxt->variable_import_count - 2; i >= 0; i--) {
-		qb_variable_import *previous_import = &cxt->variable_imports[i];
-		qb_variable *previous_qvar = previous_import->variable;
+	if(!(qvar->flags & QB_VARIABLE_CLASS_CONSTANT)) {
+		for(i = cxt->variable_import_count - 2; i >= 0; i--) {
+			qb_variable_import *previous_import = &cxt->variable_imports[i];
+			qb_variable *previous_qvar = previous_import->variable;
 
-		if(previous_qvar->hash_value == qvar->hash_value && strcmp(qvar->name, previous_qvar->name) == 0) {
-			if(previous_qvar->address->type != qvar->address->type) {
-				qb_abort("Redeclaring %s, which was previously declared as %s, as %s", qvar->name, type_names[previous_qvar->address->type], type_names[qvar->address->type]);
+			if(previous_qvar->hash_value == qvar->hash_value && strcmp(qvar->name, previous_qvar->name) == 0) {
+				if(previous_qvar->address->type != qvar->address->type) {
+					qb_abort("Redeclaring %s, which was previously declared as %s, as %s", qvar->name, type_names[previous_qvar->address->type], type_names[qvar->address->type]);
+				}
+				import->previous_copy_index = i;
 			}
-			import->previous_copy_index = i;
 		}
 	}
 

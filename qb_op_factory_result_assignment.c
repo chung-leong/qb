@@ -170,6 +170,10 @@ static void ZEND_FASTCALL qb_set_result_fetch_constant(qb_compiler_context *cxt,
 	if(scope->type == QB_OPERAND_ZEND_STATIC_CLASS) {
 		// since we don't know what class the function is in until it's called
 		// the constant actually has to be a variable 
+		if(expr_type == QB_TYPE_ANY) {
+			// use F64 if we don't know what it is
+			expr_type = QB_TYPE_F64;
+		}
 		result->type = QB_OPERAND_ADDRESS;
 		result->address = qb_obtain_class_static_constant(cxt, name->constant, expr_type);
 	} else {

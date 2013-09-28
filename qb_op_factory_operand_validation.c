@@ -70,6 +70,15 @@ static void ZEND_FASTCALL qb_validate_operands_object_property(qb_compiler_conte
 	}
 }
 
+static void ZEND_FASTCALL qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	uint32_t i;
+	for(i = 1; i < operand_count; i++) {
+		if(operands[0].address->type != operands[i].address->type) {
+			qb_abort("type mismatch");
+		}
+	}
+}
+
 static void ZEND_FASTCALL qb_validate_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	if(!cxt->return_variable->address) {
 		qb_operand *value = &operands[0];

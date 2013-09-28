@@ -1100,8 +1100,8 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_bitwise_not				},	// ZEND_BW_NOT
 	{	qb_translate_basic_op,				&factory_logical_not				},	// ZEND_BOOL_NOT
 	{	qb_translate_basic_op,				&factory_logical_xor				},	// ZEND_BOOL_XOR
-	{	qb_translate_basic_op,				NULL						},	// ZEND_IS_IDENTICAL
-	{	qb_translate_basic_op,				NULL						},	// ZEND_IS_NOT_IDENTICAL
+	{	qb_translate_basic_op,				&factory_identical					},	// ZEND_IS_IDENTICAL
+	{	qb_translate_basic_op,				&factory_not_identical				},	// ZEND_IS_NOT_IDENTICAL
 	{	qb_translate_basic_op,				&factory_equal						},	// ZEND_IS_EQUAL
 	{	qb_translate_basic_op,				&factory_not_equal					},	// ZEND_IS_NOT_EQUAL
 	{	qb_translate_basic_op,				&factory_less_than					},	// ZEND_IS_SMALLER
@@ -1185,7 +1185,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_fetch_object_property		},	// ZEND_FETCH_OBJ_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_array_element		},	// ZEND_FETCH_DIM_TMP_VAR
 	{	qb_translate_basic_op,				&factory_fetch_constant				},	// ZEND_FETCH_CONSTANT
-	{	NULL,								NULL						},	// ZEND_GOTO
+	{	NULL,								NULL								},	// ZEND_GOTO
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_STMT
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_BEGIN
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_END
