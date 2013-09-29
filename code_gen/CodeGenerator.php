@@ -98,6 +98,7 @@ class CodeGenerator {
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
 			$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
+			$lines[] =		"qb_storage *local_storage = function->local_storage;";
 		}
 		$lines[] =			"USE_TSRM";
 		$lines[] = 			"";
@@ -1190,7 +1191,7 @@ class CodeGenerator {
 		$float = preg_match('/^F/', $elementType);
 		if($elementType == "U08") {
 			$this->handlers[] = new PrintString("PRN_STR", $elementType);
-			//$this->handlers[] = new ConcatString("CAT_STR", $elementType);
+			$this->handlers[] = new ConcatString("CAT_STR", $elementType);
 			
 		}
 		if($elementType == "U16" || $elementType == "U32") {
@@ -1202,7 +1203,7 @@ class CodeGenerator {
 		}
 		$this->handlers[] = new PrintMultidimensionalVariable("PRN_DIM", $elementType);
 		foreach($this->addressModes as $addressMode) {
-			//$this->handlers[] = new ConcatVariable("CAT", $elementType, $addressMode);
+			$this->handlers[] = new ConcatVariable("CAT", $elementType, $addressMode);
 		}
 		//$this->handlers[] = new ConcatMultidimensionalVariable("CAT_DIM", $elementType);
 		

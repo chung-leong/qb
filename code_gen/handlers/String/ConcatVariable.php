@@ -2,8 +2,26 @@
 
 class ConcatVariable extends Handler {
 
-	use MultipleAddressMode, ArrayResult, StringResult, UseSprintf;
-
+	use MultipleAddressMode, ArrayResult, BinaryOperator, UseSprintf, ResizeResult {
+        ResizeResult::needsInterpreterContext insteadof UseSprintf;
+	}
+	
+	public function getOperandType($i) {
+		switch($i) {
+			case 1: return $this->operandType;
+			case 2: return "U32";
+			case 3: return "U08";
+		}
+	}
+	
+	public function getOperandAddressMode($i) {
+		switch($i) {
+			case 1: return "ARR";
+			case 2: return "CON";
+			case 3: return "ARR";
+		}
+	}
+	
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);
@@ -44,11 +62,14 @@ class ConcatVariable extends Handler {
 		$lines = array();
 		$lines[] = "char sprintf_buffer[64];";
 		$lines[] = "uint32_t len = $sprintf;";
-		$lines[] = "memcpy(res_ptr + res_count_before, sprintf_buffer, len);";
+		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op2, *res_count_ptr + len);";
+		$lines[] = "memcpy(res_ptr + *res_count_ptr, sprintf_buffer, len);";
+		$lines[] = "*res_count_ptr += len;";
 		return $lines;	
 	}
 	
 	public function getActionOnMultipleData() {
+	/*
 		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);
 		$lines = array();
@@ -68,6 +89,8 @@ class ConcatVariable extends Handler {
 		$lines[] = "}";
 		$lines[] = "res_ptr[pos++] = ']';";
 		return $lines;
+	*/
+		return "// do nothing for now";
 	}
 }
 

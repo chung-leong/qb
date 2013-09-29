@@ -156,6 +156,9 @@ class Handler {
 				$class = get_class($this);
 				die("Operand $i of $class has null address mode\n");
 			}
+			if($addressMode == "CON") {
+				$addressMode = $this->getOperandType($i);
+			}
 			$instr .= "_{$addressMode}";
 		}
 		
@@ -191,7 +194,12 @@ class Handler {
 		
 		for($i = 1; $i <= $opCount; $i++) {
 			$addressMode = $this->getOperandAddressMode($i);
-			$lines[] = "qb_pointer_{$addressMode} operand{$i};";
+			if($addressMode == "CON") {
+				$cType = $this->getOperandCType($i);
+				$lines[] = "$cType operand{$i};";
+			} else {
+				$lines[] = "qb_pointer_{$addressMode} operand{$i};";
+			}
 		}
 		
 		if($this->needsLineNumber()) {
@@ -212,6 +220,7 @@ class Handler {
 				case 'SCA': $format .= 's'; break;
 				case 'ELE': $format .= 'e'; break;
 				case 'ARR': $format .= 'a'; break;
+				case 'CON': $format .= 'c'; break;
 			}
 		}
 
@@ -311,6 +320,10 @@ class Handler {
 		return false;
 	}
 	
+	public function adjustsResultSize() {
+		return false;
+	}
+	
 	public function performsWrapAround() {
 		if($this->addressMode == "ARR" && !$this->isOverridden('getActionOnMultipleData')) {
 			return true;
@@ -332,6 +345,7 @@ class Handler {
 			$addressMode = $this->getOperandAddressMode($i);
 			$operand = "INSTR->operand$i";
 			$name = ($i <= $srcCount) ? "op{$i}" : "res";
+			$needSizePointer = ($i > $srcCount && $this->adjustsResultSize());
 			switch($addressMode) {
 				case 'SCA':
 					$lines[] = "#define $name	(($cType *) $operand.data_pointer)[0]";
@@ -341,7 +355,10 @@ class Handler {
 					break;
 				case 'ARR':
 					$lines[] = "#define {$name}_ptr		((($cType *) $operand.data_pointer) + $operand.index_pointer[0])";
-					$lines[] = "#define {$name}_count	$operand.count_pointer[0]";
+					$lines[] = ($needSizePointer) ? "#define {$name}_count_ptr	$operand.count_pointer" : "#define {$name}_count	$operand.count_pointer[0]";
+					break;
+				case 'CON':
+					$lines[] = "#define $name	$operand";
 					break;
 			}
 		}
@@ -359,6 +376,7 @@ class Handler {
 		for($i = 1; $i <= $opCount; $i++) {
 			$addressMode = $this->getOperandAddressMode($i);
 			$name = ($i <= $srcCount) ? "op{$i}" : "res";
+			$needSizePointer = ($i > $srcCount && $this->adjustsResultSize());
 			switch($addressMode) {
 				case 'SCA':
 					$lines[] = "#undef $name";
@@ -368,7 +386,10 @@ class Handler {
 					break;
 				case 'ARR':
 					$lines[] = "#undef {$name}_ptr";
-					$lines[] = "#undef {$name}_count";
+					$lines[] = ($needSizePointer) ? "#undef {$name}_count_ptr" : "#undef {$name}_count";
+					break;
+				case 'CON':
+					$lines[] = "#undef $name";
 					break;
 			}
 		}
@@ -477,14 +498,23 @@ class Handler {
 				$params[] = "cxt";
 			}
 		} 
+		if($this->adjustsResultSize()) {
+			if($forDeclaration) {
+				$params[] = "qb_storage *__restrict local_storage";
+			} else {
+				$params[] = "local_storage";
+			}
+		}
 		for($i = 1; $i <= $opCount; $i++) {
 			$cType = $this->getOperandCType($i);
 			$addressMode = $this->getOperandAddressMode($i);
 			$operand = "((($instr *) ip)->operand$i)";
 			$name = ($i <= $srcCount) ? "op{$i}" : "res";
+			$needSizePointer = ($i > $srcCount && $this->adjustsResultSize());
 			switch($addressMode) {
 				case 'SCA':
 				case 'ELE':
+				case 'CON':
 					if($forDeclaration) {
 						$params[] = ($i <= $srcCount) ? "$cType $name" : "$cType *{$name}_ptr";
 					} else {
@@ -494,10 +524,10 @@ class Handler {
 				case 'ARR':
 					if($forDeclaration) {
 						$params[] = "$cType *{$name}_ptr";
-						$params[] = "uint32_t {$name}_count";
+						$params[] = ($needSizePointer) ? "uint32_t *{$name}_count_ptr" : "uint32_t {$name}_count";
 					} else {
 						$params[] = "{$name}_ptr";
-						$params[] = "{$name}_count";
+						$params[] = ($needSizePointer) ? "{$name}_count_ptr" : "{$name}_count";
 					}
 					break;
 			}
