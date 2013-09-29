@@ -907,9 +907,31 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_php_translater_context *
 		func_operands[2].type = QB_OPERAND_NUMBER;
 		func_operand_count = 3;
 		op_factory = list[0];
+	} else {
+		qb_abort("Function call not yet implemented");
 	}
 	qb_produce_op(cxt->compiler_context, op_factory, func_operands, func_operand_count, result, NULL, 0, result_prototype);
 	free_alloca(arguments, use_heap);
+}
+
+static void ZEND_FASTCALL qb_translate_init_function_call(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *object = &operands[0], *name = &operands[1];
+	cxt->fcall_by_name_operands[0] = *name;
+#if !ZEND_ENGINE_2_3
+	cxt->fcall_by_name_operands[1] = *object;
+#else
+	// for some reason in Zend Engine 2.3, the name of the function would show up here
+	if(object->type == QB_OPERAND_ZVAL && object->constant->type == IS_OBJECT) {
+		cxt->fcall_by_name_operands[1] = *object;
+	} else {
+		cxt->fcall_by_name_operands[1].type = QB_OPERAND_NONE;
+		cxt->fcall_by_name_operands[1].address = NULL;
+	}
+#endif
+}
+
+static void ZEND_FASTCALL qb_translate_function_call_by_name(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_translate_function_call(cxt, op_factories, cxt->fcall_by_name_operands, 2, result, result_prototype);
 }
 
 static void ZEND_FASTCALL qb_translate_receive_argument(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1173,9 +1195,9 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_concat_variable			},	// ZEND_ADD_VAR
 	{	qb_translate_basic_op,				NULL						},	// ZEND_BEGIN_SILENCE
 	{	qb_translate_basic_op,				NULL						},	// ZEND_END_SILENCE
-	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_FCALL_BY_NAME
+	{	qb_translate_init_function_call,	NULL								},	// ZEND_INIT_FCALL_BY_NAME
 	{	qb_translate_function_call,			factories_fcall						},	// ZEND_DO_FCALL
-	{	qb_translate_basic_op,				NULL						},	// ZEND_DO_FCALL_BY_NAME
+	{	qb_translate_function_call_by_name,	factories_fcall						},	// ZEND_DO_FCALL_BY_NAME
 	{	qb_translate_return,				&factory_return				},	// ZEND_RETURN
 	{	qb_translate_receive_argument,		&factory_receive_argument			},	// ZEND_RECV
 	{	qb_translate_receive_argument,		&factory_receive_argument			},	// ZEND_RECV_INIT
@@ -1481,6 +1503,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"unpack_be",			1,		3,		&factory_unpack_be			},
 	{	0,	"utf8_decode",			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			1,		1,		&factory_utf8_encode		},
+*/
 	{	0,	"cabs",					1,		1,		&factory_complex_abs		},
 	{	0,	"carg",					1,		1,		&factory_complex_arg		},
 	{	0,	"cmult",				2,		2,		&factory_complex_multiply	},
@@ -1495,6 +1518,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"csinh",				1,		1,		&factory_complex_sinh		},
 	{	0,	"ccosh",				1,		1,		&factory_complex_cosh		},
 	{	0,	"ctanh",				1,		1,		&factory_complex_tanh		},
+/*
 	{	0,	"rgb2hsv",				1,		1,		&factory_rgb2hsv			},
 	{	0,	"hsv2rgb",				1,		1,		&factory_hsv2rgb			},
 	{	0,	"rgb2hsl",				1,		1,		&factory_rgb2hsl			},

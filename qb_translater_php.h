@@ -56,6 +56,8 @@ struct qb_php_translater_context {
 	zval *previous_object;
 	zval *previous_function_name;
 
+	qb_operand fcall_by_name_operands[2];
+
 	void ***tsrm_ls;
 };
 

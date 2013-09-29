@@ -316,4 +316,19 @@ extern qb_basic_op_factory factory_rand;
 extern qb_basic_op_factory factory_mt_rand;
 extern qb_float_op_factory factory_lcg;
 
+extern qb_float_op_factory factory_complex_abs;
+extern qb_float_op_factory factory_complex_arg;
+extern qb_float_op_factory factory_complex_multiply;
+extern qb_float_op_factory factory_complex_divide;
+extern qb_float_op_factory factory_complex_exp;
+extern qb_float_op_factory factory_complex_log;
+extern qb_float_op_factory factory_complex_sqrt;
+extern qb_float_op_factory factory_complex_pow;
+extern qb_float_op_factory factory_complex_sin;
+extern qb_float_op_factory factory_complex_cos;
+extern qb_float_op_factory factory_complex_tan;
+extern qb_float_op_factory factory_complex_sinh;
+extern qb_float_op_factory factory_complex_cosh;
+extern qb_float_op_factory factory_complex_tanh;
+
 #endif

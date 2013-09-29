@@ -508,7 +508,7 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 static uint32_t ZEND_FASTCALL qb_get_storage_structure_size(qb_encoder_context *cxt) {
 	uint32_t size = sizeof(qb_storage), i;
 	size += sizeof(qb_memory_segment) * cxt->compiler_context->storage->segment_count;
-	size = ALIGN_TO(size, sizeof(intptr_t));
+	size = ALIGN_TO(size, sizeof(uintptr_t));
 	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
 		qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
 		size += src->reference_count * sizeof(uintptr_t *);
@@ -536,7 +536,9 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 		dst->stream = NULL;
 		dst->memory = NULL;
 		dst->reference_count = 0;
+
 		if(src->reference_count > 0) {
+			p = (int8_t *) ALIGN_TO((uintptr_t) p, sizeof(uintptr_t));
 			dst->references = (uintptr_t **) p;
 			p += src->reference_count * sizeof(uintptr_t *);
 		} else {

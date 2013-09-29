@@ -2121,7 +2121,7 @@ qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cx
 	for(i = 0; i < count; i++) {
 		qb_operand *operand = &operands[i];
 		type2 = qb_get_operand_type(cxt, operand, flags | QB_RETRIEVE_DEFINITE_TYPE_ONLY);
-		if(type2 != QB_TYPE_UNKNOWN) {
+		if(type2 != QB_TYPE_ANY) {
 			if(type1 == QB_TYPE_UNKNOWN || type1 < type2) {
 				type1 = type2;
 			}
@@ -2134,7 +2134,7 @@ qb_primitive_type ZEND_FASTCALL qb_get_highest_rank_type(qb_compiler_context *cx
 	for(i = 0; i < count; i++) {
 		qb_operand *operand = &operands[i];
 		type2 = qb_get_operand_type(cxt, operand, flags);
-		if(type2 != QB_TYPE_UNKNOWN) {
+		if(type2 != QB_TYPE_ANY) {
 			if(type1 == QB_TYPE_UNKNOWN || type1 < type2) {
 				type1 = type2;
 			}
@@ -2208,13 +2208,13 @@ void ZEND_FASTCALL qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand
 			// no type information to record if we don't have any
 			if(desired_type != QB_TYPE_ANY) {
 				// change the type only if there's flexibility 
-				if(operand->result_prototype->final_type == QB_TYPE_ANY) {
+				if(operand->result_prototype->final_type == QB_TYPE_ANY || operand->result_prototype->final_type == QB_TYPE_UNKNOWN) {
 					if(desired_type >= QB_TYPE_F32 && operand->result_prototype->coercion_flags & QB_COERCE_TO_INTEGER) {
 						// operand cannot be floating point (e.g. result of bitwise operator) 
 						// use the largest integer type instead
 						desired_type = QB_TYPE_I64;
 					} 
-					if(operand->result_prototype->preliminary_type == QB_TYPE_ANY || desired_type > operand->result_prototype->preliminary_type) {
+					if(desired_type > operand->result_prototype->preliminary_type || operand->result_prototype->preliminary_type == QB_TYPE_ANY || operand->result_prototype->preliminary_type == QB_TYPE_UNKNOWN) {
 						operand->result_prototype->preliminary_type = desired_type;
 						if(!(operand->result_prototype->coercion_flags & QB_COERCE_TO_LVALUE_TYPE)) {
 							operand->result_prototype->final_type = desired_type;
@@ -2648,17 +2648,17 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 		// determine the expression type
 		if(f->resolve_type) {
 			expr_type = f->resolve_type(cxt, f, operands, operand_count);
-		}
 
-		// indicate in the prototype that the expression has this type
-		result_prototype->preliminary_type = expr_type;
-		if(!(f->coercion_flags & QB_COERCE_TO_LVALUE_TYPE) || result->type == QB_OPERAND_NONE) {
-			// as the result doesn't depend on the context (or there is no context at all)
-			// we're certain about the type 
-			result_prototype->final_type = expr_type;
+			// indicate in the prototype that the expression has this type
+			result_prototype->preliminary_type = expr_type;
+			if(!(f->coercion_flags & QB_COERCE_TO_LVALUE_TYPE) || result->type == QB_OPERAND_NONE) {
+				// as the result doesn't depend on the context (or there is no context at all)
+				// we're certain about the type 
+				result_prototype->final_type = expr_type;
+			}
+			result_prototype->coercion_flags = f->coercion_flags;
+			result_prototype->address_flags = f->address_flags;
 		}
-		result_prototype->coercion_flags = f->coercion_flags;
-		result_prototype->address_flags = f->address_flags;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		// use the result from the previous stage if it's available 
 		if(result_prototype) {

@@ -110,7 +110,7 @@ static qb_opcode ZEND_FASTCALL qb_select_vectorized_opcode(qb_compiler_context *
 
 static qb_opcode ZEND_FASTCALL qb_select_opcode_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_copy_op_factory *cf = (qb_copy_op_factory *) f;
-	qb_address *src_address = operands[1].address;
+	qb_address *src_address = operands[operand_count - 1].address;
 	qb_address *dst_address = result->address;	
 	qb_opcode opcode = QB_NOP;
 	if(result->type != QB_OPERAND_NONE) {
