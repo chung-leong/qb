@@ -2176,6 +2176,27 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 	return SUCCESS;
 }
 
+intptr_t ZEND_FASTCALL qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size) {
+	qb_memory_segment *segment = &storage->segments[segment_selector];
+	segment->byte_count = new_size;
+	if(new_size > segment->current_allocation) {
+		int8_t *original_location = segment->memory, *new_location;
+		segment->current_allocation = ALIGN_TO(new_size, 1024);
+		qb_resize_segment(cxt, segment, new_size);
+		new_location = segment->memory;
+		if(new_location != original_location) {
+			uint32_t i;
+			uint32_t diff = new_location - original_location;
+			for(i = 0; i < segment->reference_count; i++) {
+				uintptr_t *p_ref = segment->references[i];
+				*p_ref += diff;
+			}
+			return diff;
+		}
+	}
+	return 0;
+}
+
 void ZEND_FASTCALL qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
 	uint32_t i;
 	uint32_t count = cxt->thread_count_for_next_op;

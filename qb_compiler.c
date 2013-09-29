@@ -75,17 +75,16 @@ static qb_address_mode ZEND_FASTCALL qb_get_operand_address_mode(qb_compiler_con
 		case 'S':
 		case 's':
 			return QB_ADDRESS_MODE_SCA;
-			break;
 		case 'E':
 		case 'e':
 			return QB_ADDRESS_MODE_ELE;
-			break;
 		case 'A':
 		case 'a':
 			return QB_ADDRESS_MODE_ARR;
-			break;
+		case 'c':
+			return QB_ADDRESS_MODE_SCA;
 	}
-	return QB_OPERAND_NONE;
+	return -1;
 }
 
 static int32_t ZEND_FASTCALL qb_is_operand_write_target(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_index) {
@@ -705,7 +704,7 @@ static void ZEND_FASTCALL qb_set_variable_dimensions(qb_compiler_context *cxt, u
 		dim->dimension_addresses[i] = dimension_address;
 	}
 	dim->array_size = array_size;
-	dim->dimension_count = 0;
+	dim->dimension_count = dimension_count;
 	dim->source_address = NULL;
 }
 
@@ -1215,7 +1214,7 @@ qb_address * ZEND_FASTCALL qb_create_writable_fixed_length_multidimensional_arra
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count) {
+qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count) {
 	qb_address *address;
 	uint32_t i;
 	for(i = 0; i < cxt->writable_array_count; i++) {
@@ -1255,7 +1254,7 @@ static qb_address * ZEND_FASTCALL qb_create_writable_variable_length_array(qb_co
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_compiler_context *cxt, qb_primitive_type element_type) {
+qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_compiler_context *cxt, qb_primitive_type element_type) {
 	qb_address *address;
 	uint32_t i;
 	for(i = 0; i < cxt->writable_array_count; i++) {
@@ -1275,7 +1274,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_c
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim) {
+qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim) {
 	qb_address *address;
 	if(dim && dim->dimension_count > 0) {
 		if(dim->array_size != 0) {
@@ -1709,19 +1708,14 @@ void ZEND_FASTCALL qb_apply_type_declaration(qb_compiler_context *cxt, qb_variab
 			if(decl->dimension_count == 0) {
 				address = qb_create_writable_scalar(cxt, decl->type);
 			} else {
-				uint32_t i;
-				int32_t element_count = 1;
-				for(i = 0; i < decl->dimension_count; i++) {
-					element_count *= decl->dimensions[i];
-				}
-				if(element_count) {
-					address = qb_create_writable_fixed_length_array(cxt, decl->type, element_count);
+				qb_variable_dimensions dim;
+				qb_set_variable_dimensions(cxt, decl->dimensions, decl->dimension_count, &dim);
+				if(dim.array_size) {
+					address = qb_create_writable_fixed_length_array(cxt, decl->type, dim.array_size);
 				} else {
 					address = qb_create_writable_variable_length_array(cxt, decl->type);
 				}
-				if(decl->dimension_count > 1) {
-					qb_variable_dimensions dim;
-					qb_set_variable_dimensions(cxt, decl->dimensions, decl->dimension_count, &dim);
+				if(dim.dimension_count > 1) {
 					qb_copy_dimensions(cxt, &dim, address);
 				}
 				if(decl->flags & QB_TYPE_DECL_EXPANDABLE) {
@@ -2887,9 +2881,25 @@ static void ZEND_FASTCALL qb_resolve_address_modes(qb_compiler_context *cxt) {
 				cxt->line_number = qop->line_number;
 				qb_abort("invalid operands for %s", op_name);
 			}
-#if ZEND_DEBUG
-			qb_validate_op(cxt, qop, i);
-#endif
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_resolve_reference_counts(qb_compiler_context *cxt) {
+	uint32_t i, j;
+	for(i = 0; i < cxt->op_count; i++) {
+		qb_op *qop = cxt->ops[i];
+
+		if(qop->opcode != QB_NOP) {
+			for(j = 0; j < qop->operand_count; j++) {
+				if(qop->operands[j].type == QB_OPERAND_ADDRESS) {
+					qb_address *address = qop->operands[j].address;
+					qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+					if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
+						segment->reference_count++;
+					}
+				}
+			}
 		}
 	}
 }
@@ -3523,6 +3533,9 @@ static void ZEND_FASTCALL qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint
 				qb_external_symbol *symbol = &cxt->external_symbols[operand->symbol_index];
 				php_printf("[%s]", symbol->name);
 			}	break;
+			case QB_OPERAND_SEGMENT_SELECTOR: {
+				php_printf("@%d", operand->address->segment_selector);
+			}	break;
 			default: {
 				php_printf("(ERROR)");
 				break;
@@ -3760,6 +3773,9 @@ void ZEND_FASTCALL qb_compile_functions(qb_build_context *cxt) {
 
 		// try to fuse more instructions
 		qb_fuse_instructions(compiler_cxt, 2);
+
+		// figure out how many references to relocatable segments there are
+		qb_resolve_reference_counts(compiler_cxt);
 
 		// show the qb opcodes if turned on
 		if(QB_G(show_opcodes)) {

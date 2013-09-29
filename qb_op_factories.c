@@ -1885,19 +1885,43 @@ qb_simple_op_factory factory_any = {
 	QB_ANY_I32_I32,
 };
 
-/*
-qb_string_op_factory factory_concat = {
-	qb_append_concat_op,
+qb_string_op_factory factory_concat_variable = {
+	qb_resolve_expression_type_string,
 	NULL,
-	0,
+	qb_coerce_operands_concat_variable,
 	qb_set_result_prototype,
+	NULL,
+	qb_set_result_concat,
+	NULL,
+	qb_select_opcode_concat_variable,
+	NULL,
+	qb_transfer_operands_concat,
+
 	0,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_CAT_F64_U08,	QB_CAT_F32_U08,	QB_CAT_U64_U08,	QB_CAT_S64_U08,	QB_CAT_U32_U08,	QB_CAT_S32_U08,	QB_CAT_U16_U08,	QB_CAT_S16_U08,	QB_CAT_U08_U08,	QB_CAT_S08_U08,	},
-	{	QB_CAT_DIM_F64_U32_U08,	QB_CAT_DIM_F32_U32_U08,	QB_CAT_DIM_U64_U32_U08,	QB_CAT_DIM_S64_U32_U08,	QB_CAT_DIM_U32_U32_U08,	QB_CAT_DIM_S32_U32_U08,	QB_CAT_DIM_U16_U32_U08,	QB_CAT_DIM_S16_U32_U08,	QB_CAT_DIM_U08_U32_U08,	QB_CAT_DIM_S08_U32_U08,	},
-	QB_CAT_STR_U08_U08,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
+	{	QB_CAT_F64_U32_U08,	QB_CAT_F32_U32_U08,	QB_CAT_U64_U32_U08,	QB_CAT_S64_U32_U08,	QB_CAT_U32_U32_U08,	QB_CAT_S32_U32_U08,	QB_CAT_U16_U32_U08,	QB_CAT_S16_U32_U08,	QB_CAT_U08_U32_U08,	QB_CAT_S08_U32_U08,	},
+	{	QB_CAT_DIM_F64_U32_U32_U08,	QB_CAT_DIM_F32_U32_U32_U08,	QB_CAT_DIM_U64_U32_U32_U08,	QB_CAT_DIM_S64_U32_U32_U08,	QB_CAT_DIM_U32_U32_U32_U08,	QB_CAT_DIM_S32_U32_U32_U08,	QB_CAT_DIM_U16_U32_U32_U08,	QB_CAT_DIM_S16_U32_U32_U08,	QB_CAT_DIM_U08_U32_U32_U08,	QB_CAT_DIM_S08_U32_U32_U08,	},
+	QB_CAT_STR_U08_U32_U08,
 };
-*/
+
+qb_simple_op_factory factory_concat_string = {
+	qb_resolve_expression_type_string,
+	NULL,
+	qb_coerce_operands_concat_string,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_concat,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_concat,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
+	QB_CAT_STR_U08_U32_U08,
+};
 
 qb_string_op_factory factory_print = {
 	qb_resolve_expression_type_boolean,

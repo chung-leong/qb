@@ -139,4 +139,6 @@ void qb_abort_at(const char *format, uint32_t line_number, ...);
 NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t count, uint32_t line_number);
 NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number);
 
+intptr_t ZEND_FASTCALL qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size);
+
 #endif

@@ -1168,9 +1168,9 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_continue,				&factory_jump						},	// ZEND_CONT
 	{	qb_translate_basic_op,				&factory_boolean					},	// ZEND_BOOL
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_STRING
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ADD_CHAR
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ADD_STRING
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ADD_VAR
+	{	qb_translate_basic_op,				&factory_concat_string				},	// ZEND_ADD_CHAR
+	{	qb_translate_basic_op,				&factory_concat_string				},	// ZEND_ADD_STRING
+	{	qb_translate_basic_op,				&factory_concat_variable			},	// ZEND_ADD_VAR
 	{	qb_translate_basic_op,				NULL						},	// ZEND_BEGIN_SILENCE
 	{	qb_translate_basic_op,				NULL						},	// ZEND_END_SILENCE
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_FCALL_BY_NAME

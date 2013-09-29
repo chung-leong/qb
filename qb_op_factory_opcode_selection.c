@@ -134,6 +134,23 @@ static qb_opcode ZEND_FASTCALL qb_select_opcode_arithmetic(qb_compiler_context *
 	return opcode;
 }
 
+static qb_opcode ZEND_FASTCALL qb_select_opcode_concat_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_string_op_factory *sf = (qb_string_op_factory *) f;
+	qb_address *address = operands[1].address;
+	qb_opcode opcode;
+
+	if(address->dimension_count > 1) {
+		opcode = qb_select_type_dependent_opcode(cxt, sf->multidim_opcodes, &operands[1]);
+	} else {
+		if(address->flags & QB_ADDRESS_STRING) {
+			opcode = sf->text_opcode;
+		} else {
+			opcode = qb_select_type_dependent_opcode(cxt, sf->opcodes, &operands[1]);
+		}
+	}
+	return opcode;
+}
+
 static qb_opcode ZEND_FASTCALL qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *sf = (qb_string_op_factory *) f;
 	qb_address *address = operands[0].address;

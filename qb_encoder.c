@@ -62,6 +62,14 @@ static void ZEND_FASTCALL qb_set_instruction_offsets(qb_encoder_context *cxt) {
 	cxt->instruction_op_count = count;
 }
 
+static void ZEND_FASTCALL qb_add_segment_reference(qb_encoder_context *cxt, qb_address *address, void **p_pointer) {
+	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+	if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
+		uintptr_t **p_reference = &segment->references[segment->reference_count++];
+		*p_reference = (uintptr_t *) p_pointer;
+	}
+}
+
 static void * ZEND_FASTCALL qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 	return (void *) (segment->memory + address->segment_offset);
@@ -73,12 +81,16 @@ static void ZEND_FASTCALL qb_encode_address(qb_encoder_context *cxt, qb_address 
 			qb_pointer_SCA *p = ((qb_pointer_SCA *) *p_ip);
 			p->data_pointer = qb_get_pointer(cxt, address);
 			*p_ip += sizeof(qb_pointer_SCA);
+
+			qb_add_segment_reference(cxt, address, &p->data_pointer);
 		}	break;
 		case QB_ADDRESS_MODE_ELE: {
 			qb_pointer_ELE *p = ((qb_pointer_ELE *) *p_ip);
 			p->data_pointer = qb_get_pointer(cxt, address);
 			p->index_pointer = qb_get_pointer(cxt, address->array_index_address);
 			*p_ip += sizeof(qb_pointer_ELE);
+
+			qb_add_segment_reference(cxt, address, &p->data_pointer);
 		}	break;
 		case QB_ADDRESS_MODE_ARR: {
 			qb_pointer_ARR *p = ((qb_pointer_ARR *) *p_ip);
@@ -86,6 +98,8 @@ static void ZEND_FASTCALL qb_encode_address(qb_encoder_context *cxt, qb_address 
 			p->index_pointer = qb_get_pointer(cxt, address->array_index_address);
 			p->count_pointer = qb_get_pointer(cxt, address->array_size_address);
 			*p_ip += sizeof(qb_pointer_ARR);
+
+			qb_add_segment_reference(cxt, address, &p->data_pointer);
 		}	break;
 		default:
 			qb_abort("invalid address type");
@@ -153,6 +167,11 @@ static void ZEND_FASTCALL qb_encode_line_number(qb_encoder_context *cxt, uint32_
 	*p_ip += sizeof(uint32_t);
 }
 
+static void ZEND_FASTCALL qb_encode_segment_selector(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
+	*((uint32_t *) *p_ip) = address->segment_selector;
+	*p_ip += sizeof(uint32_t);
+}
+
 int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, void *memory) {
 	uint32_t i, j;
 	int8_t *ip = memory;
@@ -187,6 +206,9 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, voi
 				switch(operand->type) {
 					case QB_OPERAND_ADDRESS: {
 						qb_encode_address(cxt, operand->address, &ip);
+					}	break;
+					case QB_OPERAND_SEGMENT_SELECTOR: {
+						qb_encode_segment_selector(cxt, operand->address, &ip);
 					}	break;
 					default: {
 						qb_abort("unknown operand type: %d", operand->type);
@@ -484,8 +506,13 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 }
 
 static uint32_t ZEND_FASTCALL qb_get_storage_structure_size(qb_encoder_context *cxt) {
-	uint32_t size = sizeof(qb_storage);
+	uint32_t size = sizeof(qb_storage), i;
 	size += sizeof(qb_memory_segment) * cxt->compiler_context->storage->segment_count;
+	size = ALIGN_TO(size, sizeof(intptr_t));
+	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
+		qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
+		size += src->reference_count * sizeof(uintptr_t *);
+	}
 	size = ALIGN_TO(size, 16);
 	return size;
 }
@@ -508,6 +535,13 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 		dst->current_allocation = 0;
 		dst->stream = NULL;
 		dst->memory = NULL;
+		dst->reference_count = 0;
+		if(src->reference_count > 0) {
+			dst->references = (uintptr_t **) p;
+			p += src->reference_count * sizeof(uintptr_t *);
+		} else {
+			dst->references = NULL;
+		}
 	}
 
 	p = (int8_t *) ALIGN_TO((uintptr_t) p, 16);

@@ -116,7 +116,6 @@ enum qb_primitive_type {
 	QB_TYPE_I16						= 2,
 	QB_TYPE_I32						= 4,
 	QB_TYPE_I64						= 6,
-	QB_TYPE_UNSIGNED				= 0x0001,
 
 	QB_TYPE_S08						= 0,
 	QB_TYPE_U08						= 1,
@@ -129,6 +128,8 @@ enum qb_primitive_type {
 
 	QB_TYPE_F32						= 8,
 	QB_TYPE_F64						= 9,
+
+	QB_TYPE_UNSIGNED				= 0x0001,
 
 	QB_TYPE_COUNT					= 10,
 
@@ -264,6 +265,7 @@ enum qb_operand_type {
 	QB_OPERAND_INTRINSIC_FUNCTION,
 	QB_OPERAND_ZEND_FUNCTION,
 	QB_OPERAND_ARGUMENTS,
+	QB_OPERAND_SEGMENT_SELECTOR,
 };
 
 enum {
@@ -459,6 +461,8 @@ struct qb_memory_segment {
 	uint32_t byte_count;						// number of bytes in this segment
 	uint32_t current_allocation;				// number of bytes allocated
 	php_stream *stream;							// memory-mapped file
+	uintptr_t **references;
+	uint32_t reference_count;
 };
 
 struct qb_storage {
