@@ -108,10 +108,8 @@ static void ZEND_FASTCALL qb_coerce_operands_return(qb_compiler_context *cxt, qb
 		qb_primitive_type retval_type;
 		if(cxt->return_variable->address) {
 			retval_type = cxt->return_variable->address->type;
-		} else {
-			retval_type = QB_TYPE_ANY;
+			qb_perform_type_coercion(cxt, value, retval_type, f->coercion_flags);
 		}
-		qb_perform_type_coercion(cxt, value, retval_type, f->coercion_flags);
 	}
 }
 

@@ -1075,6 +1075,9 @@ static uint32_t ZEND_FASTCALL qb_get_zval_type(qb_compiler_context *cxt, zval *z
 		case IS_ARRAY: {
 			type = qb_get_zval_array_type(cxt, zvalue, flags);
 		}	break;
+		case IS_NULL: {
+			type = QB_TYPE_U08;
+		}	break;
 	}
 	return type;
 }
