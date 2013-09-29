@@ -2,71 +2,58 @@
 
 class ConcatMultidimensionalVariable extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, UseSprintf;
+	use ArrayAddressMode, ArrayResult, TernaryOperator, UseSprintf, ResizeResult {
+        ResizeResult::needsInterpreterContext insteadof UseSprintf;
+	}
 	
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return $this->operandType;
 			case 2: return "U32";
-			case 3: return "U08";
+			case 3: return "U32";
+			case 4: return "U08";
+		}
+	}
+	
+	public function getOperandAddressMode($i) {
+		switch($i) {
+			case 1: return "ARR";
+			case 2: return "ARR";
+			case 3: return "CON";
+			case 4: return "ARR";
 		}
 	}
 
-	public function getOperandAddressMode($i) {
-		return "ARR";
-	}
-
-	public function getHelperFunctions() {
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
-		$sprintf = $this->getSprintf("*op1_ptr");
-		$functions = array(
-			array(
-				"uint32_t qb_get_multidimensional_array_sprintf_length_$type(qb_interpreter_context *cxt, $cType *op1_ptr, uint32_t op1_count, uint32_t *op2_ptr, uint32_t op2_count) {",
-					"$cType *op1_end = op1_ptr + op1_count;",
-					"uint32_t *op2_end = op2_ptr + op2_count;",
-					"uint32_t total = 0, multiplier = 1;",
-					"while(op1_ptr < op1_end) {",
-						"char sprintf_buffer[64];",
-						"uint32_t len = $sprintf;",
-						"total += len;",
-						"op1_ptr++;",
-					"}",
-					"while(op2_ptr < op2_end) {",
-						"total += multiplier * *op2_ptr * 2;",
-						"multiplier *= *op2_ptr;",
-						"op2_ptr++;",
-					"}",
-					"if(total == 0) {",
-						"total = 2;",
-					"}",
-					"return total;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-			
-	
-	public function getResultSizePossibilities() {
-		return "res_count + string_length";
-	}
-
-	public function getResultSizeCalculation() {
-		$type = $this->getOperandType(1);
-		return "string_length = qb_get_multidimensional_array_sprintf_length_$type(cxt, op1_ptr, op1_count, op2_ptr, op2_count);";
-	}
-	
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);
 		$lines = array();
-		$lines[] = "USE_TSRM";
+		$lines[] = "$cType *op1_start = op1_ptr;";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
+		$lines[] = "uint32_t *op2_start = op2_ptr;";
+		$lines[] = "uint32_t *op2_end = op2_ptr + op2_count;";
 		$lines[] = "uint32_t depth = 0, pos = 0;";
 		$lines[] = "uint32_t counts[64];";
+		$lines[] = "uint32_t total = 0, multiplier = 1;";
+		$lines[] = "while(op1_ptr < op1_end) {";
+		$lines[] = 		"char sprintf_buffer[64];";
+		$lines[] = 		"uint32_t len = $sprintf;";
+		$lines[] = 		"total += len;";
+		$lines[] = 		"op1_ptr++;";
+		$lines[] = "}";
+		$lines[] = "while(op2_ptr < op2_end) {";
+		$lines[] = 		"total += multiplier * *op2_ptr * 2;";
+		$lines[] = 		"multiplier *= *op2_ptr;";
+		$lines[] = 		"op2_ptr++;";
+		$lines[] = "}";
+		$lines[] = "if(total == 0) {";
+		$lines[] = 		"total = 2;";
+		$lines[] = "}";
+		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op3, *res_count_ptr + total);";
 		$lines[] = "memset(counts, 0, sizeof(uint32_t) * op2_count);";
 		$lines[] = "res_ptr[pos++] = '[';";
+		$lines[] = "op1_ptr = op1_start;";
+		$lines[] = "op2_ptr = op2_start;";
 		$lines[] = "while(op1_ptr < op1_end || depth > 0) {";
 		$lines[] = 		"if(counts[depth] < op2_ptr[depth]) {";
 		$lines[] = 			"if(counts[depth] > 0) {";
@@ -92,6 +79,7 @@ class ConcatMultidimensionalVariable extends Handler {
 		$lines[] = 		"}";
 		$lines[] = "}";
 		$lines[] = "res_ptr[pos++] = ']';";
+		$lines[] = "*res_count_ptr += total;";
 		return $lines;
 	}
 }

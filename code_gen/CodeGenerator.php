@@ -1205,7 +1205,7 @@ class CodeGenerator {
 		foreach($this->addressModes as $addressMode) {
 			$this->handlers[] = new ConcatVariable("CAT", $elementType, $addressMode);
 		}
-		//$this->handlers[] = new ConcatMultidimensionalVariable("CAT_DIM", $elementType);
+		$this->handlers[] = new ConcatMultidimensionalVariable("CAT_DIM", $elementType);
 		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
 			/*
