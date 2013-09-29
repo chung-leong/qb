@@ -162,25 +162,30 @@ struct qb_pixel_op_factory {
 	qb_opcode opcodes[2][2];
 }; 
 
-extern qb_simple_op_factory factory_nop;
+extern qb_op_factory factory_nop;
 
 extern qb_copy_op_factory factory_assignment;
 extern qb_derived_op_factory factory_array_element_assignment;
 extern qb_derived_op_factory factory_object_property_assignment;
 
-extern qb_simple_op_factory factory_ref_assignment;
+extern qb_op_factory factory_ref_assignment;
 
-extern qb_simple_op_factory factory_fetch_array_element;
-extern qb_simple_op_factory factory_fetch_object_property;
-extern qb_simple_op_factory factory_fetch_constant;
+extern qb_op_factory factory_fetch_array_element;
+extern qb_op_factory factory_fetch_object_property;
+extern qb_op_factory factory_fetch_constant;
 
 extern void *factories_fetch_variable[4];
 extern void *factories_fetch_class[3];
 
-extern qb_simple_op_factory factory_array_init;
-extern qb_simple_op_factory factory_array_append;
+extern qb_op_factory factory_array_init;
+extern qb_op_factory factory_array_append;
 
-extern qb_simple_op_factory factory_free;
+extern qb_op_factory factory_receive_argument;
+extern qb_op_factory factory_send_argument;
+
+extern void *factories_fcall[3];
+
+extern qb_op_factory factory_free;
 
 extern qb_cast_op_factory factory_cast_S08;
 extern qb_cast_op_factory factory_cast_U08;

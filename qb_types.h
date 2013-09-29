@@ -38,6 +38,7 @@ typedef struct qb_block_allocator 		qb_block_allocator;
 typedef struct qb_array_initializer		qb_array_initializer;
 typedef struct qb_result_prototype		qb_result_prototype;
 typedef struct qb_result_destination	qb_result_destination;
+typedef struct qb_intrinsic_function	qb_intrinsic_function;
 
 typedef struct qb_pointer_SCA			qb_pointer_SCA;
 typedef struct qb_pointer_ELE			qb_pointer_ELE;
@@ -257,9 +258,12 @@ enum qb_operand_type {
 	QB_OPERAND_ZEND_CLASS,
 	QB_OPERAND_ZEND_STATIC_CLASS,
 	QB_OPERAND_ZVAL,
-	QB_OPERAND_GLOBAL_STATIC,
 	QB_OPERAND_EMPTY,
 	QB_OPERAND_RESULT_PROTOTYPE,
+	QB_OPERAND_NUMBER,
+	QB_OPERAND_INTRINSIC_FUNCTION,
+	QB_OPERAND_ZEND_FUNCTION,
+	QB_OPERAND_ARGUMENTS,
 };
 
 enum {
@@ -279,11 +283,14 @@ struct qb_operand {
 		qb_address *address;
 		qb_function *function;
 		uint32_t symbol_index;
-
+		int32_t number;
 		zval *constant;
 		zend_class_entry *zend_class;
+		zend_function *zend_function;
 		qb_array_initializer *array_initializer;
 		qb_result_prototype *result_prototype;
+		qb_intrinsic_function *intrinsic_function;
+		qb_operand *arguments;
 		void *generic_pointer;
 	};
 };
@@ -298,6 +305,14 @@ struct qb_array_initializer {
 	uint32_t element_count;
 	qb_primitive_type desired_type;
 	int32_t flags;
+};
+
+struct qb_intrinsic_function {
+	ulong hash_value;
+	const char *name;
+	uint32_t argument_count_min;
+	uint32_t argument_count_max;
+	void *extra;
 };
 
 struct qb_variable_dimensions {

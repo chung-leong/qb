@@ -833,65 +833,94 @@ static void ZEND_FASTCALL qb_translate_basic_op(qb_php_translater_context *cxt, 
 }
 
 static void ZEND_FASTCALL qb_translate_combo_op(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	void **list = op_factories, *f;
+	void **list = op_factories, *op_factory;
 	if(cxt->zend_op->extended_value == ZEND_ASSIGN_DIM) {
-		f = list[1];
+		op_factory = list[1];
 	} else if(cxt->zend_op->extended_value == ZEND_ASSIGN_OBJ) {
-		f = list[2];
+		op_factory = list[2];
 	} else {
-		f = list[0];
+		op_factory = list[0];
 	}
-	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
+	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
 static void ZEND_FASTCALL qb_translate_fetch_class(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	int32_t fetch_type = cxt->zend_op->extended_value & ZEND_FETCH_CLASS_MASK;
-	void **list = op_factories, *f;
+	void **list = op_factories, *op_factory;
 
 	if(fetch_type == ZEND_FETCH_CLASS_SELF) {
-		f = list[0];
+		op_factory = list[0];
 	} else if(fetch_type == ZEND_FETCH_CLASS_PARENT) {
-		f = list[1];
+		op_factory = list[1];
 #if defined(ZEND_FETCH_CLASS_STATIC)
 	} else if(fetch_type == ZEND_FETCH_CLASS_STATIC) {
-		f = list[2];
+		op_factory = list[2];
 #endif
 	}
-	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
+	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
 static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	USE_TSRM
 	qb_operand *name = &operands[0], *scope = &operands[1];
 	uint32_t fetch_type = FETCH_TYPE(cxt->zend_op);
-	void **list = op_factories, *f;
+	void **list = op_factories, *op_factory;
 
 	if(fetch_type == ZEND_FETCH_LOCAL) {
-		f = list[0];
+		op_factory = list[0];
 	} else if(fetch_type == ZEND_FETCH_GLOBAL || fetch_type == ZEND_FETCH_GLOBAL_LOCK) {
-		f = list[1];
+		op_factory = list[1];
 	} else if(fetch_type == ZEND_FETCH_STATIC) {
-		f = list[2];
+		op_factory = list[2];
 	} else if(fetch_type == ZEND_FETCH_STATIC_MEMBER) {
-		f = list[3];
+		op_factory = list[3];
 	}
-	qb_produce_op(cxt->compiler_context, f, operands, operand_count, result, NULL, 0, result_prototype);
+	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
+}
+
+static void ZEND_FASTCALL qb_translate_function_call(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *name = &operands[0], *object = &operands[1];
+	qb_intrinsic_function *ifunc;
+	qb_operand *arguments, **stack_pointer;
+	qb_operand func_operands[4];
+	uint32_t func_operand_count;
+	uint32_t argument_count = cxt->zend_op->extended_value;
+	uint32_t i;
+	void **list = op_factories, *op_factory;
+	ALLOCA_FLAG(use_heap);
+
+
+	// copy the arguments
+	arguments = do_alloca(sizeof(qb_operand *) * argument_count, use_heap);
+	stack_pointer = qb_pop_stack_items(cxt->compiler_context, argument_count);
+	for(i = 0; i < argument_count; i++) {
+		arguments[i] = *stack_pointer[i];
+	}
+
+	ifunc = (object->type == QB_OPERAND_NONE) ? qb_find_intrinsic_function(cxt, name->constant) : NULL;
+	if(ifunc) {
+		func_operands[0].intrinsic_function = ifunc;
+		func_operands[0].type = QB_OPERAND_INTRINSIC_FUNCTION;
+		func_operands[1].arguments = arguments;
+		func_operands[1].type = QB_OPERAND_ARGUMENTS;
+		func_operands[2].number = argument_count;
+		func_operands[2].type = QB_OPERAND_NUMBER;
+		func_operand_count = 3;
+		op_factory = list[0];
+	}
+	qb_produce_op(cxt->compiler_context, op_factory, func_operands, func_operand_count, result, NULL, 0, result_prototype);
+	free_alloca(arguments, use_heap);
 }
 
 static void ZEND_FASTCALL qb_translate_receive_argument(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		qb_operand *init_value = &operands[1];
-
-		if(init_value->type == QB_OPERAND_ZVAL) {
+	qb_operand *argument = &operands[0];
+	argument->type = QB_OPERAND_NUMBER;
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-			uint32_t argument_number = Z_OPERAND_INFO(cxt->zend_op->op1, num);
+	argument->number = Z_OPERAND_INFO(cxt->zend_op->op1, num);
 #else
-			uint32_t argument_number = Z_LVAL_P(Z_OPERAND_ZV(cxt->zend_op->op1));
+	argument->number = Z_LVAL_P(Z_OPERAND_ZV(cxt->zend_op->op1));
 #endif
-			qb_variable *qvar = cxt->compiler_context->variables[argument_number - 1];
-			qvar->default_value_address = qb_obtain_constant_zval(cxt->compiler_context, init_value->constant, qvar->address->type);
-		}
-	}
+	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
 static void ZEND_FASTCALL qb_translate_return(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1145,14 +1174,14 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				NULL						},	// ZEND_BEGIN_SILENCE
 	{	qb_translate_basic_op,				NULL						},	// ZEND_END_SILENCE
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_FCALL_BY_NAME
-	{	qb_translate_basic_op,				NULL						},	// ZEND_DO_FCALL
+	{	qb_translate_function_call,			factories_fcall						},	// ZEND_DO_FCALL
 	{	qb_translate_basic_op,				NULL						},	// ZEND_DO_FCALL_BY_NAME
 	{	qb_translate_return,				&factory_return				},	// ZEND_RETURN
-	{	qb_translate_receive_argument,		NULL						},	// ZEND_RECV
-	{	qb_translate_receive_argument,		NULL						},	// ZEND_RECV_INIT
-	{	qb_translate_basic_op,				NULL						},	// ZEND_SEND_VAL
-	{	qb_translate_basic_op,				NULL						},	// ZEND_SEND_VAR
-	{	qb_translate_basic_op,				NULL						},	// ZEND_SEND_REF
+	{	qb_translate_receive_argument,		&factory_receive_argument			},	// ZEND_RECV
+	{	qb_translate_receive_argument,		&factory_receive_argument			},	// ZEND_RECV_INIT
+	{	qb_translate_basic_op,				&factory_send_argument				},	// ZEND_SEND_VAL
+	{	qb_translate_basic_op,				&factory_send_argument				},	// ZEND_SEND_VAR
+	{	qb_translate_basic_op,				&factory_send_argument				},	// ZEND_SEND_REF
 	{	NULL,								NULL								},	// ZEND_NEW
 	{	NULL,								NULL								},	// ZEND_INIT_NS_FCALL_BY_NAME
 	{	qb_translate_basic_op,				&factory_free						},	// ZEND_FREE
@@ -1292,35 +1321,6 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_php_translater_con
 			cxt->compiler_context->line_number = cxt->zend_op->lineno;
 			t->translate(cxt, t->extra, operands, operand_count, &result, result_prototype);
 
-			if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-				if(result.type == QB_OPERAND_ADDRESS) {
-					result_prototype->preliminary_type = result_prototype->final_type = result.address->type;
-					result_prototype->address_flags = result.address->flags;
-				} else if(result.type == QB_OPERAND_RESULT_PROTOTYPE) {
-					if(result.result_prototype != result_prototype) {
-						// copy the result and link it to the previous one
-						*result_prototype = *result.result_prototype;
-						result.result_prototype->parent = result_prototype;
-						result.result_prototype = result_prototype;
-					}
-					if(result_prototype->preliminary_type == QB_TYPE_UNKNOWN) {
-						// if we're returning it, it's got to be something
-						result_prototype->preliminary_type = QB_TYPE_ANY;
-					}
-				} 
-				if(result_prototype->preliminary_type != QB_TYPE_UNKNOWN) {
-					// link any operand that's a prototype operands to this prototype
-					uint32_t i;
-					for(i = 0; i < operand_count; i++) {
-						if(operands[i].type == QB_OPERAND_RESULT_PROTOTYPE) {
-							operands[i].result_prototype->parent = result_prototype;
-						}
-					}
-				} else {
-					result_prototype->preliminary_type = QB_TYPE_VOID;
-				}
-			}
-
 			if(operand_count >= 1) {
 				qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0]);
 			}
@@ -1342,7 +1342,7 @@ static void ZEND_FASTCALL qb_translate_current_instruction(qb_php_translater_con
 	}
 }
 
-static qb_php_function_translator intrinsic_functions[] = {
+static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"count",				1,		2,		NULL 						},
 	{	0,	"sizeof",				1,		2,		NULL 						},
 	{	0,	"strlen",				1,		2,		NULL 						},
@@ -1520,7 +1520,7 @@ static qb_php_function_translator intrinsic_functions[] = {
 
 #define MAX_INLINE_FUNCTION_NAME_LEN		32
 
-static qb_php_function_translator * ZEND_FASTCALL qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable) {
+qb_intrinsic_function * ZEND_FASTCALL qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable) {
 	const char *name = Z_STRVAL_P(callable);
 	uint32_t len = Z_STRLEN_P(callable);
 
@@ -1537,8 +1537,8 @@ static qb_php_function_translator * ZEND_FASTCALL qb_find_intrinsic_function(qb_
 
 		// calculate the hash value and look up the function
 		hash_value = zend_inline_hash_func(name_buffer, len + 1);
-		for(i = 0; i < sizeof(intrinsic_functions) / sizeof(qb_php_function_translator); i++) {
-			qb_php_function_translator *f = &intrinsic_functions[i];
+		for(i = 0; i < sizeof(intrinsic_functions) / sizeof(qb_intrinsic_function); i++) {
+			qb_intrinsic_function *f = &intrinsic_functions[i];
 			if(f->hash_value == hash_value && strcmp(name_buffer, f->name) == 0) {
 				return f;
 			}
@@ -1690,8 +1690,8 @@ int ZEND_FASTCALL qb_initialize_php_translater(TSRMLS_D) {
 	int pcre_error_offset = 0;
 
 	// calculate the hash of inline function names for quicker look-ups
-	for(i = 0; i < sizeof(intrinsic_functions) / sizeof(qb_php_function_translator); i++) {
-		qb_php_function_translator *f = &intrinsic_functions[i];
+	for(i = 0; i < sizeof(intrinsic_functions) / sizeof(qb_intrinsic_function); i++) {
+		qb_intrinsic_function *f = &intrinsic_functions[i];
 		f->hash_value = zend_inline_hash_func(f->name, strlen(f->name) + 1);
 	}
 

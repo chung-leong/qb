@@ -22,7 +22,7 @@
 static void ZEND_FASTCALL qb_coerce_operands_all(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
-		qb_perform_type_coercion(cxt, &operands[i], expr_type);
+		qb_perform_type_coercion(cxt, &operands[i], expr_type, f->coercion_flags);
 	}
 }
 
@@ -38,7 +38,7 @@ static void ZEND_FASTCALL qb_coerce_operands_boolean(qb_compiler_context *cxt, q
 static void ZEND_FASTCALL qb_coerce_operands_int(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
-		qb_perform_type_coercion(cxt, &operands[i], QB_TYPE_I32);
+		qb_perform_type_coercion(cxt, &operands[i], QB_TYPE_I32, f->coercion_flags);
 	}
 }
 
@@ -47,7 +47,7 @@ static void ZEND_FASTCALL qb_coerce_operands_highest_rank(qb_compiler_context *c
 	qb_primitive_type operand_type = qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
-		qb_perform_type_coercion(cxt, &operands[i], operand_type);
+		qb_perform_type_coercion(cxt, &operands[i], operand_type, f->coercion_flags);
 	}
 }
 
@@ -57,7 +57,7 @@ static void ZEND_FASTCALL qb_coerce_operands_no_cast(qb_compiler_context *cxt, q
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
 		if(operands[i].type != QB_OPERAND_ADDRESS) {
-			qb_perform_type_coercion(cxt, &operands[i], operand_type);
+			qb_perform_type_coercion(cxt, &operands[i], operand_type, f->coercion_flags);
 		}
 	}
 }
@@ -67,29 +67,29 @@ static void ZEND_FASTCALL qb_coerce_operands_assignment(qb_compiler_context *cxt
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assignment) {
 		// since there're instruction for copying from type to another, 
 		// type coercion only needs to happen for result prototypes during type resolution
-		qb_perform_type_coercion(cxt, value, expr_type);
+		qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags);
 	}
 }
 
 static void ZEND_FASTCALL qb_coerce_operands_array_element_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *index = &operands[1];
 	qb_operand *value = &operands[2];
-	qb_perform_type_coercion(cxt, index, QB_TYPE_U32);
+	qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0);
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_array_element_assignment) {
-		qb_perform_type_coercion(cxt, value, expr_type);
+		qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags);
 	}
 }
 
 static void ZEND_FASTCALL qb_coerce_operands_object_property_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[2];
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_object_property_assignment) {
-		qb_perform_type_coercion(cxt, value, expr);
+		qb_perform_type_coercion(cxt, value, expr, f->coercion_flags);
 	}
 }
 
 static void ZEND_FASTCALL qb_coerce_operands_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[0];
-	qb_perform_type_coercion(cxt, value, QB_TYPE_ANY);
+	qb_perform_type_coercion(cxt, value, QB_TYPE_ANY, f->coercion_flags);
 }
 
 static void ZEND_FASTCALL qb_coerce_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
@@ -101,11 +101,19 @@ static void ZEND_FASTCALL qb_coerce_operands_return(qb_compiler_context *cxt, qb
 		} else {
 			retval_type = QB_TYPE_ANY;
 		}
-		qb_perform_type_coercion(cxt, value, retval_type);
+		qb_perform_type_coercion(cxt, value, retval_type, f->coercion_flags);
 	}
 }
 
 static void ZEND_FASTCALL qb_coerce_operands_fetch_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *index = &operands[1];
-	qb_perform_type_coercion(cxt, index, QB_TYPE_U32);
+	qb_perform_type_coercion(cxt, index, QB_TYPE_U32, f->coercion_flags);
+}
+
+static void ZEND_FASTCALL qb_coerce_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	f = func->intrinsic_function->extra;
+	if(f->coerce_operands) {
+		f->coerce_operands(cxt, f, expr_type, arguments->arguments, argument_count->number);
+	}
 }

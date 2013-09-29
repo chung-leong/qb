@@ -337,3 +337,11 @@ static qb_opcode ZEND_FASTCALL qb_select_opcode_complex_number(qb_compiler_conte
 	return opcode;
 }
 
+static qb_opcode ZEND_FASTCALL qb_select_opcode_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	f = func->intrinsic_function->extra;
+	if(f->select_opcode) {
+		return f->select_opcode(cxt, f, arguments->arguments, argument_count->number, result);
+	}
+	return QB_NOP;
+}

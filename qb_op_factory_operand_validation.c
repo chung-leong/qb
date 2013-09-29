@@ -89,7 +89,7 @@ static void ZEND_FASTCALL qb_validate_operands_return(qb_compiler_context *cxt, 
 }
 static void ZEND_FASTCALL qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	if(operand_count != 0 && operand_count != 2) {
-		qb_abort("%s() expects either 0 or 2 arguments", cxt->intrinsic_function_name);
+		qb_abort("%s() expects either 0 or 2 arguments", cxt->intrinsic_function->name);
 	}
 }
 
@@ -98,7 +98,7 @@ static void ZEND_FASTCALL qb_validate_operands_minmax(qb_compiler_context *cxt, 
 
 	if(operand_count == 1) {
 		if(SCALAR(container->address)) {
-			qb_abort("%s() expects an array as parameter when only one parameter is given", cxt->intrinsic_function_name);
+			qb_abort("%s() expects an array as parameter when only one parameter is given", cxt->intrinsic_function->name);
 		}
 	}
 }
@@ -201,4 +201,22 @@ static void ZEND_FASTCALL qb_validate_operands_ref_assignment(qb_compiler_contex
 	if(variable->address != value->address) {
 		qb_abort("No support for reference");
 	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	qb_intrinsic_function *ifunc = func->intrinsic_function;
+	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
+		if(ifunc->argument_count_min == ifunc->argument_count_max) {
+			qb_abort("%s() expects %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, argument_count->number);
+		} else {
+			qb_abort("%s() expects %d to %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count->number);
+		}
+	}
+	cxt->intrinsic_function = ifunc;
+	f = func->intrinsic_function->extra;
+	if(f->validate_operands) {
+		f->validate_operands(cxt, f, arguments->arguments, argument_count->number);
+	}
+	cxt->intrinsic_function = NULL;
 }

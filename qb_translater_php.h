@@ -23,23 +23,14 @@
 
 typedef struct qb_php_translater_context	qb_php_translater_context;
 typedef struct qb_php_op_translator			qb_php_op_translator;
-typedef struct qb_php_function_translator	qb_php_function_translator;
 
 int ZEND_FASTCALL qb_initialize_php_translater(TSRMLS_D);
 
 typedef void (ZEND_FASTCALL *qb_php_op_translator_proc)(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
-typedef void (ZEND_FASTCALL *qb_php_intrinsic_translator_proc)(qb_php_translater_context *cxt, qb_php_function_translator *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (ZEND_FASTCALL *qb_php_intrinsic_translator_proc)(qb_php_translater_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 struct qb_php_op_translator {
 	qb_php_op_translator_proc translate;
-	void *extra;
-};
-
-struct qb_php_function_translator {
-	ulong hash_value;
-	const char *name;
-	uint32_t argument_count_min;
-	uint32_t argument_count_max;
 	void *extra;
 };
 
@@ -111,5 +102,7 @@ void ZEND_FASTCALL qb_print_zend_ops(qb_php_translater_context *cxt);
 void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void ZEND_FASTCALL qb_free_php_translater_context(qb_php_translater_context *cxt);
 void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt);
+
+qb_intrinsic_function * ZEND_FASTCALL qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable);
 
 #endif

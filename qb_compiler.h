@@ -64,12 +64,10 @@ struct qb_temporary_variable {
 };
 
 #pragma pack(push,1)
-
 struct qb_op_info {
 	uint16_t format_index;
 	uint16_t flags;
 };
-
 #pragma pack(pop)
 
 struct qb_class_declaration {
@@ -182,7 +180,7 @@ struct qb_compiler_context {
 	qb_address *false_address;
 	qb_address *true_address;
 
-	const char *intrinsic_function_name;
+	qb_intrinsic_function *intrinsic_function;
 
 	int32_t matrix_padding;
 	qb_matrix_order matrix_order;
@@ -438,8 +436,11 @@ qb_address * ZEND_FASTCALL qb_retrieve_temporary_copy(qb_compiler_context *cxt, 
 qb_address * ZEND_FASTCALL qb_retrieve_unary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address);
 qb_address * ZEND_FASTCALL qb_retrieve_binary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address1, qb_address *address2);
 
-void ZEND_FASTCALL qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type);
+void ZEND_FASTCALL qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
 void ZEND_FASTCALL qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
+
+qb_operand * ZEND_FASTCALL qb_push_stack_item(qb_compiler_context *cxt);
+qb_operand ** ZEND_FASTCALL qb_pop_stack_items(qb_compiler_context *cxt, int32_t count);
 
 void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);

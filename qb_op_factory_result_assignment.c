@@ -109,7 +109,7 @@ static void ZEND_FASTCALL qb_set_result_increment(qb_compiler_context *cxt, qb_o
 	if(!result_prototype->destination || result_prototype->destination->type != QB_RESULT_DESTINATION_FREE) {
 		// use the destination's type
 		qb_primitive_type destination_type = qb_get_result_destination_type(cxt, result_prototype->destination);
-		if(destination_type != QB_TYPE_UNKNOWN && destination_type != QB_TYPE_ANY) {
+		if(destination_type != QB_TYPE_ANY) {
 			expr_type = destination_type;
 		}
 		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
@@ -210,5 +210,33 @@ static void ZEND_FASTCALL qb_set_result_fetch_constant(qb_compiler_context *cxt,
 		}
 		result->type = QB_OPERAND_ZVAL;
 		result->constant = value;
+	}
+}
+
+static void ZEND_FASTCALL qb_set_result_receive_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *argument = &operands[0], *default_value = &operands[1];
+	if(default_value->type == QB_OPERAND_ZVAL) {
+		qb_variable *qvar = cxt->variables[argument->number - 1];
+		qvar->default_value_address = qb_obtain_constant_zval(cxt, default_value->constant, qvar->address->type);
+	}
+}
+
+static void ZEND_FASTCALL qb_set_result_send_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *argument = &operands[0];
+	qb_operand *stack_item = qb_push_stack_item(cxt);
+	*stack_item = *argument;
+}
+
+static void ZEND_FASTCALL qb_set_preliminary_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	f = func->intrinsic_function->extra;
+	f->set_preliminary_result(cxt, f, expr_type, arguments->arguments, argument_count->number, result, result_prototype);
+}
+
+static void ZEND_FASTCALL qb_set_final_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	f = func->intrinsic_function->extra;
+	if(f->set_final_result) {
+		f->set_final_result(cxt, f, expr_type, arguments->arguments, argument_count->number, result, result_prototype);
 	}
 }

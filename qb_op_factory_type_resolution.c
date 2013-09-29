@@ -28,11 +28,6 @@ static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_index(qb_compi
 	return QB_TYPE_U32;
 }
 
-// the expresion could be any type
-static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_any(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	return QB_TYPE_ANY;
-}
-
 // the expresion has the same type as the highest-rank operand
 static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_highest_rank(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);
@@ -65,7 +60,7 @@ static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_object_propert
 	qb_primitive_type expr_type = qb_get_property_type(cxt, container, name);
 
 	// just return something--it'll fail during validation
-	if(expr_type == QB_TYPE_UNKNOWN) {
+	if(expr_type == QB_TYPE_ANY) {
 		expr_type = QB_TYPE_I32;
 	}
 	return expr_type;
@@ -103,6 +98,15 @@ static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_fetch_class(qb
 	qb_variable *qvar = qb_get_class_variable(cxt, scope->zend_class, name->constant);
 	if(qvar && qvar->address) {
 		return qvar->address->type;
+	}
+	return QB_TYPE_VOID;
+}
+
+static qb_primitive_type ZEND_FASTCALL qb_resolve_expression_type_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	f = func->intrinsic_function->extra;
+	if(f->resolve_type) {
+		return f->resolve_type(cxt, f, arguments->arguments, argument_count->number);
 	}
 	return QB_TYPE_VOID;
 }
