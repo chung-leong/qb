@@ -56,6 +56,11 @@ struct qb_pbj_constant {
 
 struct qb_pbj_translater_context {
 	qb_compiler_context *compiler_context;
+	qb_compiler_data_pool *pool;
+	qb_storage *storage;
+
+	uint32_t jump_target_index1;
+	uint32_t jump_target_index2;
 
 	qb_pbj_op *pbj_ops;
 	uint32_t pbj_op_count;

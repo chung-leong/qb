@@ -17,9 +17,15 @@
 */
 
 /* $Id$ */
-#ifdef __DISABLED__
 
-static uint8_t ZEND_FASTCALL qb_pbj_read_I08(qb_compiler_context *cxt) {
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "qb.h"
+#include "qb_translater_pbj.h"
+
+static uint8_t ZEND_FASTCALL qb_pbj_read_I08(qb_pbj_translater_context *cxt) {
 	uint8_t value = 0;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 1) { 
 		value = *((uint8_t *) cxt->pbj_data);
@@ -28,7 +34,7 @@ static uint8_t ZEND_FASTCALL qb_pbj_read_I08(qb_compiler_context *cxt) {
 	return value;
 }
 
-static uint16_t ZEND_FASTCALL qb_pbj_read_I16(qb_compiler_context *cxt) {
+static uint16_t ZEND_FASTCALL qb_pbj_read_I16(qb_pbj_translater_context *cxt) {
 	uint16_t value = 0;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 2) { 
 		value = SWAP_LE_I16(*((uint16_t *) cxt->pbj_data));
@@ -37,7 +43,7 @@ static uint16_t ZEND_FASTCALL qb_pbj_read_I16(qb_compiler_context *cxt) {
 	return value;
 }
 
-static uint32_t ZEND_FASTCALL qb_pbj_read_I32(qb_compiler_context *cxt) {
+static uint32_t ZEND_FASTCALL qb_pbj_read_I32(qb_pbj_translater_context *cxt) {
 	uint32_t value = 0;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 4) { 
 		value = SWAP_LE_I32(*((uint32_t *) cxt->pbj_data));
@@ -46,7 +52,7 @@ static uint32_t ZEND_FASTCALL qb_pbj_read_I32(qb_compiler_context *cxt) {
 	return value;
 }
 
-static float32_t ZEND_FASTCALL qb_pbj_read_F32(qb_compiler_context *cxt) {
+static float32_t ZEND_FASTCALL qb_pbj_read_F32(qb_pbj_translater_context *cxt) {
 	float32_t value = 0.0f;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 4) { 
 		uint32_t int_value = SWAP_BE_I32(*((uint32_t *) cxt->pbj_data));
@@ -56,7 +62,7 @@ static float32_t ZEND_FASTCALL qb_pbj_read_F32(qb_compiler_context *cxt) {
 	return value;
 }
 
-static const char * ZEND_FASTCALL qb_pbj_read_string(qb_compiler_context *cxt, uint32_t *p_length) {
+static const char * ZEND_FASTCALL qb_pbj_read_string(qb_pbj_translater_context *cxt, uint32_t *p_length) {
 	const char *value = "";
 	if(p_length) {
 		uint16_t len = qb_pbj_read_I16(cxt);
@@ -81,7 +87,7 @@ static const char * ZEND_FASTCALL qb_pbj_read_string(qb_compiler_context *cxt, u
 	return value;
 }
 
-static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter_by_address(qb_compiler_context *cxt, qb_pbj_address *address) {
+static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter_by_address(qb_pbj_translater_context *cxt, qb_pbj_address *address) {
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_parameter_count; i++) {
 		qb_pbj_parameter *parameter = &cxt->pbj_parameters[i];
@@ -106,7 +112,7 @@ static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter_by_address(qb_comp
 	return NULL;
 }
 
-static qb_pbj_texture * ZEND_FASTCALL qb_pbj_find_texture_by_id(qb_compiler_context *cxt, uint32_t image_id) {
+static qb_pbj_texture * ZEND_FASTCALL qb_pbj_find_texture_by_id(qb_pbj_translater_context *cxt, uint32_t image_id) {
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_texture_count; i++) {
 		qb_pbj_texture *texture = &cxt->pbj_textures[i];
@@ -117,7 +123,7 @@ static qb_pbj_texture * ZEND_FASTCALL qb_pbj_find_texture_by_id(qb_compiler_cont
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_pbj_print_address(qb_compiler_context *cxt, qb_pbj_address *address) {
+static void ZEND_FASTCALL qb_pbj_print_address(qb_pbj_translater_context *cxt, qb_pbj_address *address) {
 	if(address->dimension) {
 		qb_pbj_parameter *parameter = qb_pbj_find_parameter_by_address(cxt, address);
 		if(parameter) {
@@ -151,7 +157,7 @@ static void ZEND_FASTCALL qb_pbj_print_address(qb_compiler_context *cxt, qb_pbj_
 
 extern const char compressed_table_pbj_op_names[];
 
-static zend_always_inline const char * qb_pbj_get_op_name(qb_compiler_context *cxt, uint32_t opcode) {
+static zend_always_inline const char * qb_pbj_get_op_name(qb_pbj_translater_context *cxt, uint32_t opcode) {
 	if(!cxt->pool->pbj_op_names) {
 		qb_uncompress_table(compressed_table_pbj_op_names, (void ***) &cxt->pool->pbj_op_names, NULL, 0);
 		if(!cxt->pool->pbj_op_names) {
@@ -161,7 +167,7 @@ static zend_always_inline const char * qb_pbj_get_op_name(qb_compiler_context *c
 	return cxt->pool->pbj_op_names[opcode];
 }
 
-static void ZEND_FASTCALL qb_pbj_print_op(qb_compiler_context *cxt, qb_pbj_op *pop, uint32_t pop_index) {
+static void ZEND_FASTCALL qb_pbj_print_op(qb_pbj_translater_context *cxt, qb_pbj_op *pop, uint32_t pop_index) {
 	const char *op_name = qb_pbj_get_op_name(cxt, pop->opcode);
 	php_printf("%04d: %s ", pop_index, op_name);
 
@@ -204,7 +210,7 @@ static void ZEND_FASTCALL qb_pbj_print_op(qb_compiler_context *cxt, qb_pbj_op *p
 	php_printf("\n");
 }
 
-static void ZEND_FASTCALL qb_pbj_print_ops(qb_compiler_context *cxt) {
+static void ZEND_FASTCALL qb_pbj_print_ops(qb_pbj_translater_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_op_count; i++) {
 		qb_pbj_op *pop = &cxt->pbj_ops[i];
@@ -212,7 +218,7 @@ static void ZEND_FASTCALL qb_pbj_print_ops(qb_compiler_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_read_value(qb_compiler_context *cxt, uint32_t type, qb_pbj_value *value) {
+static void ZEND_FASTCALL qb_pbj_read_value(qb_pbj_translater_context *cxt, uint32_t type, qb_pbj_value *value) {
 	uint32_t i;
 	value->type = type;
 	switch(type) {
@@ -277,7 +283,7 @@ static void ZEND_FASTCALL qb_pbj_read_value(qb_compiler_context *cxt, uint32_t t
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_set_destination_channels(qb_compiler_context *cxt, qb_pbj_address *address, uint32_t channel_mask, uint32_t dimension) {
+static void ZEND_FASTCALL qb_pbj_set_destination_channels(qb_pbj_translater_context *cxt, qb_pbj_address *address, uint32_t channel_mask, uint32_t dimension) {
 	// dimension is used only if no destination channels are selected 
 	// otherwise dimension is pertinent only to the source
 	if(channel_mask) {
@@ -296,7 +302,7 @@ static void ZEND_FASTCALL qb_pbj_set_destination_channels(qb_compiler_context *c
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_set_source_channels(qb_compiler_context *cxt, qb_pbj_address *address, uint32_t channel_swizzle, uint32_t channel_count, uint32_t dimension) {
+static void ZEND_FASTCALL qb_pbj_set_source_channels(qb_pbj_translater_context *cxt, qb_pbj_address *address, uint32_t channel_swizzle, uint32_t channel_count, uint32_t dimension) {
 	if(dimension == 1) {
 		uint32_t channel, i;
 		address->dimension = 1;
@@ -312,7 +318,7 @@ static void ZEND_FASTCALL qb_pbj_set_source_channels(qb_compiler_context *cxt, q
 	}
 }
 
-/*static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter(qb_compiler_context *cxt, const char *name) {
+/*static qb_pbj_parameter * ZEND_FASTCALL qb_pbj_find_parameter(qb_pbj_translater_context *cxt, const char *name) {
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_parameter_count; i++) {
 		qb_pbj_parameter *parameter = &cxt->pbj_parameters[i];
@@ -323,7 +329,7 @@ static void ZEND_FASTCALL qb_pbj_set_source_channels(qb_compiler_context *cxt, q
 	return NULL;
 }*/
 
-static qb_pbj_texture * ZEND_FASTCALL qb_pbj_find_texture(qb_compiler_context *cxt, const char *name) {
+static qb_pbj_texture * ZEND_FASTCALL qb_pbj_find_texture(qb_pbj_translater_context *cxt, const char *name) {
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_texture_count; i++) {
 		qb_pbj_texture *texture = &cxt->pbj_textures[i];
@@ -334,7 +340,7 @@ static qb_pbj_texture * ZEND_FASTCALL qb_pbj_find_texture(qb_compiler_context *c
 	return NULL;
 }
 
-static uint32_t zend_always_inline qb_pbj_match_addresses(qb_compiler_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
+static uint32_t zend_always_inline qb_pbj_match_addresses(qb_pbj_translater_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
 	return (reg1_address->register_id == reg2_address->register_id && reg1_address->dimension == reg2_address->dimension 
 		 && reg1_address->channel_count == reg2_address->channel_count && reg1_address->all_channels == reg2_address->all_channels);
 }
@@ -345,7 +351,7 @@ static uint32_t zend_always_inline qb_pbj_match_addresses(qb_compiler_context *c
 #define PBJ_ADDRESS_FIRST_CONTAINS_SECOND		4
 #define PBJ_ADDRESS_OVERLAP						5
 
-static uint32_t ZEND_FASTCALL qb_pbj_get_channel_mask(qb_compiler_context *cxt, qb_pbj_address *reg_address) {
+static uint32_t ZEND_FASTCALL qb_pbj_get_channel_mask(qb_pbj_translater_context *cxt, qb_pbj_address *reg_address) {
 	uint32_t mask;
 	if(reg_address->dimension == 1) {
 		uint32_t i, channel;
@@ -363,7 +369,7 @@ static uint32_t ZEND_FASTCALL qb_pbj_get_channel_mask(qb_compiler_context *cxt, 
 	return mask;
 }
 
-static int32_t ZEND_FASTCALL qb_pbj_find_channel_overlap(qb_compiler_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
+static int32_t ZEND_FASTCALL qb_pbj_find_channel_overlap(qb_pbj_translater_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
 	uint32_t channel_mask1 = qb_pbj_get_channel_mask(cxt, reg1_address);
 	uint32_t channel_mask2 = qb_pbj_get_channel_mask(cxt, reg2_address);
 	if(channel_mask1 & channel_mask2) {
@@ -381,7 +387,7 @@ static int32_t ZEND_FASTCALL qb_pbj_find_channel_overlap(qb_compiler_context *cx
 	return 0;
 }
 
-static int32_t ZEND_FASTCALL qb_pbj_find_address_overlap(qb_compiler_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
+static int32_t ZEND_FASTCALL qb_pbj_find_address_overlap(qb_pbj_translater_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
 	// see if the they're of the same type
 	if((reg1_address->register_id & PBJ_REGISTER_INT) == (reg2_address->register_id & PBJ_REGISTER_INT)) {
 		// see if the dimension matches
@@ -424,7 +430,7 @@ static int32_t ZEND_FASTCALL qb_pbj_find_address_overlap(qb_compiler_context *cx
 	return 0;
 }
 
-static qb_pbj_register * ZEND_FASTCALL qb_pbj_obtain_registers(qb_compiler_context *cxt, uint32_t id, uint32_t count) {
+static qb_pbj_register * ZEND_FASTCALL qb_pbj_obtain_registers(qb_pbj_translater_context *cxt, uint32_t id, uint32_t count) {
 	qb_pbj_register *reg;
 	if(id & PBJ_REGISTER_INT) {
 		uint32_t index = id & ~PBJ_REGISTER_INT;
@@ -442,11 +448,11 @@ static qb_pbj_register * ZEND_FASTCALL qb_pbj_obtain_registers(qb_compiler_conte
 	return reg;
 }
 
-static zend_always_inline qb_pbj_register * qb_pbj_obtain_register(qb_compiler_context *cxt, uint32_t id) {
+static zend_always_inline qb_pbj_register * qb_pbj_obtain_register(qb_pbj_translater_context *cxt, uint32_t id) {
 	return qb_pbj_obtain_registers(cxt, id, 1);
 }
 
-static qb_address * ZEND_FASTCALL qb_pbj_obtain_channel_address(qb_compiler_context *cxt, uint32_t id, uint32_t channel, uint32_t channel_count) {
+static qb_address * ZEND_FASTCALL qb_pbj_obtain_channel_address(qb_pbj_translater_context *cxt, uint32_t id, uint32_t channel, uint32_t channel_count) {
 	qb_pbj_register *reg = qb_pbj_obtain_register(cxt, id);
 	uint32_t access_type = PBJ_CHANNEL_ACCESS_TYPE(channel, channel_count);
 #if ZEND_DEBUG
@@ -476,7 +482,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_channel_address(qb_compiler_cont
 	return reg->channel_addresses[access_type];
 }
 
-static qb_address * ZEND_FASTCALL qb_pbj_obtain_matrix_address(qb_compiler_context *cxt, uint32_t id, uint32_t dimension) {
+static qb_address * ZEND_FASTCALL qb_pbj_obtain_matrix_address(qb_pbj_translater_context *cxt, uint32_t id, uint32_t dimension) {
 	uint32_t row_count, col_count, reg_count, i;
 	qb_pbj_register *reg;
 
@@ -522,7 +528,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_matrix_address(qb_compiler_conte
 	return reg->matrix_address;
 }
 
-static void ZEND_FASTCALL qb_pbj_allocate_registers(qb_compiler_context *cxt, qb_pbj_address *reg_address) {
+static void ZEND_FASTCALL qb_pbj_allocate_registers(qb_pbj_translater_context *cxt, qb_pbj_address *reg_address) {
 	if(reg_address->dimension == 1) {
 		uint32_t i;
 		uint32_t channel_count = 1;
@@ -541,8 +547,8 @@ static void ZEND_FASTCALL qb_pbj_allocate_registers(qb_compiler_context *cxt, qb
 	}
 }
 
-static qb_address * ZEND_FASTCALL qb_pbj_map_registers_to_memory(qb_compiler_context *cxt, qb_pbj_register *regs, uint32_t reg_count, uint32_t type) {
-	qb_address *base_address = qb_create_fixed_length_array(cxt, type, reg_count * 4, QB_CREATE_IN_VARIABLE_SEGMENT);
+static qb_address * ZEND_FASTCALL qb_pbj_map_registers_to_memory(qb_pbj_translater_context *cxt, qb_pbj_register *regs, uint32_t reg_count, uint32_t type) {
+	qb_address *base_address = qb_create_fixed_length_array(cxt, type, reg_count * 4);
 	qb_address *matrix_address = NULL, *channel_address;
 	uint32_t i, j, k;
 	for(i = 0; i < reg_count; i++) {
@@ -633,7 +639,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_map_registers_to_memory(qb_compiler_con
 	return base_address;
 }
 
-static qb_address * ZEND_FASTCALL qb_pbj_obtain_value_address(qb_compiler_context *cxt, qb_pbj_value *value) {
+static qb_address * ZEND_FASTCALL qb_pbj_obtain_value_address(qb_pbj_translater_context *cxt, qb_pbj_value *value) {
 	qb_address *address = NULL;
 	int32_t *int_values = NULL;
 	float32_t *float_values;
@@ -641,8 +647,8 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_value_address(qb_compiler_contex
 
 	switch(value->type) {
 		case PBJ_TYPE_BOOL:
-		case PBJ_TYPE_INT: return qb_obtain_constant_S32(cxt, value->int1);
-		case PBJ_TYPE_FLOAT: return qb_obtain_constant_F32(cxt, value->float1);
+		case PBJ_TYPE_INT: return qb_obtain_constant_S32(cxt->compiler_context, value->int1);
+		case PBJ_TYPE_FLOAT: return qb_obtain_constant_F32(cxt->compiler_context, value->float1);
 		case PBJ_TYPE_INT2: {
 			value_count = 2;
 			int_values = value->int2;
@@ -684,14 +690,14 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_value_address(qb_compiler_contex
 	}
 
 	if(int_values) {
-		address = qb_create_fixed_length_array(cxt, QB_TYPE_S32, value_count, QB_CREATE_IN_VARIABLE_SEGMENT);
+		address = qb_create_fixed_length_array(cxt, QB_TYPE_S32, value_count);
 		address->flags |= QB_ADDRESS_CONSTANT;
 		for(i = 0; i < value_count; i++) {
 			ARRAY(S32, address)[i] = int_values[i];
 		}
 	} else if(float_values) {
 		if(value_count == 9) {
-			address = qb_create_fixed_length_array(cxt, QB_TYPE_F32, 12, QB_CREATE_IN_VARIABLE_SEGMENT);
+			address = qb_create_fixed_length_array(cxt, QB_TYPE_F32, 12);
 			address->flags |= QB_ADDRESS_CONSTANT;
 			for(i = 0, j = 0; i < value_count; i++) {
 				ARRAY(F32, address)[j] = float_values[j];
@@ -702,7 +708,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_value_address(qb_compiler_contex
 				}
 			}
 		} else {
-			address = qb_create_fixed_length_array(cxt, QB_TYPE_F32, value_count, QB_CREATE_IN_VARIABLE_SEGMENT);
+			address = qb_create_fixed_length_array(cxt, QB_TYPE_F32, value_count);
 			address->flags |= QB_ADDRESS_CONSTANT;
 			for(i = 0; i < value_count; i++) {
 				ARRAY(F32, address)[i] = float_values[i];
@@ -712,22 +718,22 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_value_address(qb_compiler_contex
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_pbj_obtain_address(qb_compiler_context *cxt, qb_pbj_address *reg_address) {
+static qb_address * ZEND_FASTCALL qb_pbj_obtain_address(qb_pbj_translater_context *cxt, qb_pbj_address *reg_address) {
 	if(reg_address->dimension > 1) {
 		return qb_pbj_obtain_matrix_address(cxt, reg_address->register_id, reg_address->dimension);
 	} else if(reg_address->channel_count == 0) {
 		qb_pbj_constant *constant = (qb_pbj_constant *) reg_address;
 		if(constant->type == PBJ_TYPE_INT) {
-			return qb_obtain_constant_U32(cxt, constant->int_value);
+			return qb_obtain_constant_U32(cxt->compiler_context, constant->int_value);
 		} else {
-			return qb_obtain_constant_F32(cxt, constant->float_value);
+			return qb_obtain_constant_F32(cxt->compiler_context, constant->float_value);
 		}
 	} else {
 		return qb_pbj_obtain_channel_address(cxt, reg_address->register_id, reg_address->channels[0], reg_address->channel_count);
 	}
 }
 
-static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_compiler_context *cxt, qb_pbj_address_bundle *bundle) {
+static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_pbj_translater_context *cxt, qb_pbj_address_bundle *bundle) {
 	qb_address *address;
 	if(bundle->address_count == 1 && (!SCALAR(bundle->addresses[0]) || bundle->channel_counts[0] == 1)) {
 		// there's one address and it's a vector (or is supposed to be a scalar)
@@ -736,14 +742,14 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_compiler_con
 	} else {
 		// the channels are not in order then we need to use a temporary variable
 		uint32_t i, channel, type = bundle->addresses[0]->type;
-		address = qb_obtain_temporary_fixed_length_array(cxt, type, bundle->total_channel_count);
+		address = qb_obtain_temporary_fixed_length_array(cxt->compiler_context, type, bundle->total_channel_count);
 		if(bundle->access == PBJ_READ_SOURCE) {
 			for(i = 0, channel = 0; i < bundle->address_count; i++, channel += bundle->channel_counts[i]) {
 				qb_address *offset_address = cxt->pbj_int_numerals[channel];
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *source_address = bundle->addresses[i];
-				qb_address *channel_address = qb_obtain_array_slice(cxt, address, offset_address, length_address);
-				qb_create_unary_op(cxt, &factory_copy, source_address, channel_address);
+				qb_address *channel_address = qb_obtain_array_slice(cxt->compiler_context, address, offset_address, length_address);
+				qb_create_unary_op(cxt, &factory_assignment, source_address, channel_address);
 			}
 		}
 		bundle->temporary_address = address;
@@ -751,7 +757,7 @@ static qb_address * ZEND_FASTCALL qb_pbj_obtain_temporary_vector(qb_compiler_con
 	return address;
 }
 
-static void ZEND_FASTCALL qb_pbj_release_temporary_vector(qb_compiler_context *cxt, qb_pbj_address_bundle *bundle) {
+static void ZEND_FASTCALL qb_pbj_release_temporary_vector(qb_pbj_translater_context *cxt, qb_pbj_address_bundle *bundle) {
 	if(bundle->temporary_address) {
 		if(bundle->access == PBJ_WRITE_DESTINATION) {
 			// copy the result to the proper location
@@ -760,14 +766,14 @@ static void ZEND_FASTCALL qb_pbj_release_temporary_vector(qb_compiler_context *c
 				qb_address *offset_address = cxt->pbj_int_numerals[channel];
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *destination_address = bundle->addresses[i];
-				qb_address *channel_address = qb_obtain_array_slice(cxt, bundle->temporary_address, offset_address, length_address);
-				qb_create_unary_op(cxt, &factory_copy, channel_address, destination_address);
+				qb_address *channel_address = qb_obtain_array_slice(cxt->compiler_context, bundle->temporary_address, offset_address, length_address);
+				qb_create_unary_op(cxt, &factory_assignment, channel_address, destination_address);
 			}
 		}
 	} 
 }
 
-static void ZEND_FASTCALL qb_pbj_create_address_bundles(qb_compiler_context *cxt, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output, qb_pbj_address_bundle *input_bundles, qb_pbj_address_bundle *output_bundle) {
+static void ZEND_FASTCALL qb_pbj_create_address_bundles(qb_pbj_translater_context *cxt, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output, qb_pbj_address_bundle *input_bundles, qb_pbj_address_bundle *output_bundle) {
 	uint32_t current_channel, previous_channel;
 	uint32_t group_count = 0, group_channel_index, group_channel_count, group_channel_indices[4], group_channel_counts[4];
 	uint32_t input_use_scalar[3][3];
@@ -903,15 +909,15 @@ static void ZEND_FASTCALL qb_pbj_create_address_bundles(qb_compiler_context *cxt
 	} 
 }
 
-static void zend_always_inline qb_pbj_create_input_bundle(qb_compiler_context *cxt, qb_pbj_address *input, qb_pbj_address_bundle *input_bundle) {
+static void zend_always_inline qb_pbj_create_input_bundle(qb_pbj_translater_context *cxt, qb_pbj_address *input, qb_pbj_address_bundle *input_bundle) {
 	qb_pbj_create_address_bundles(cxt, &input, 1, NULL, input_bundle, NULL);
 }
 
-static void zend_always_inline qb_pbj_create_output_bundle(qb_compiler_context *cxt, qb_pbj_address *output, qb_pbj_address_bundle *output_bundle) {
+static void zend_always_inline qb_pbj_create_output_bundle(qb_pbj_translater_context *cxt, qb_pbj_address *output, qb_pbj_address_bundle *output_bundle) {
 	qb_pbj_create_address_bundles(cxt, NULL, 0, output, NULL, output_bundle);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_copy(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_copy(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundle, output_bundle;
 	qb_address *op_address, *result_address;
 	uint32_t i;
@@ -920,11 +926,11 @@ static void ZEND_FASTCALL qb_pbj_translate_copy(qb_compiler_context *cxt, qb_pbj
 	for(i = 0; i < output_bundle.address_count; i++) {
 		op_address = input_bundle.addresses[i];
 		result_address = output_bundle.addresses[i];
-		qb_create_unary_op(cxt, &factory_copy, op_address, result_address);
+		qb_create_unary_op(cxt, &factory_assignment, op_address, result_address);
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_bool(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_bool(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundle, output_bundle;
 	qb_address *zero_address = (inputs[0]->register_id & PBJ_REGISTER_INT) ? cxt->pbj_int_numerals[0] : cxt->pbj_float_numerals[0];
 	uint32_t i;
@@ -935,7 +941,7 @@ static void ZEND_FASTCALL qb_pbj_translate_bool(qb_compiler_context *cxt, qb_pbj
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_reciprocal(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_reciprocal(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundle, output_bundle;
 	uint32_t i;
 
@@ -946,7 +952,7 @@ static void ZEND_FASTCALL qb_pbj_translate_reciprocal(qb_compiler_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_basic_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_basic_op(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundles[2], output_bundle;
 	qb_operand operands[2], result;
 	uint32_t i, j;
@@ -959,11 +965,11 @@ static void ZEND_FASTCALL qb_pbj_translate_basic_op(qb_compiler_context *cxt, qb
 		}
 		result.type = QB_OPERAND_ADDRESS;
 		result.address = output_bundle.addresses[i];
-		qb_create_op(cxt, t->extra, operands, input_count, &result);
+		qb_create_op(cxt->compiler_context, t->extra, operands, input_count, &result);
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_basic_vector_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_basic_vector_op(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle input_bundles[2], output_bundle;
 	qb_operand operands[2], result;
 	uint32_t j;
@@ -978,7 +984,7 @@ static void ZEND_FASTCALL qb_pbj_translate_basic_vector_op(qb_compiler_context *
 	result.type = QB_OPERAND_ADDRESS;
 	result.address = qb_pbj_obtain_temporary_vector(cxt, &output_bundle);
 
-	qb_create_op(cxt, t->extra, operands, input_count, &result);
+	qb_create_op(cxt->compiler_context, t->extra, operands, input_count, &result);
 
 	for(j = 0; j < input_count; j++) {
 		qb_pbj_release_temporary_vector(cxt, &input_bundles[j]);
@@ -986,14 +992,14 @@ static void ZEND_FASTCALL qb_pbj_translate_basic_vector_op(qb_compiler_context *
 	qb_pbj_release_temporary_vector(cxt, &output_bundle);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_reverse_vector_op(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_reverse_vector_op(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address *reverse_inputs[2];
 	reverse_inputs[1] = inputs[0];
 	reverse_inputs[0] = inputs[1];
 	qb_pbj_translate_basic_vector_op(cxt, t, reverse_inputs, 2, output);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_load_constant(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_load_constant(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_address *constant_address, *result_address, *expected_result_address = NULL;
 	qb_pbj_register *reg;
 	uint32_t current_index, previous_index, current_int_flag, int_flag;
@@ -1062,7 +1068,7 @@ static void ZEND_FASTCALL qb_pbj_translate_load_constant(qb_compiler_context *cx
 	}
 
 	if(constant_count > 1) {
-		constant_address = qb_create_fixed_length_array(cxt, type, (expected_constant_count == 9) ? 12 : constant_count, QB_CREATE_IN_VARIABLE_SEGMENT);
+		constant_address = qb_create_fixed_length_array(cxt, type, (expected_constant_count == 9) ? 12 : constant_count);
 	} else {
 		constant_address = qb_create_scalar(cxt, type);
 	}
@@ -1086,13 +1092,13 @@ static void ZEND_FASTCALL qb_pbj_translate_load_constant(qb_compiler_context *cx
 			}
 		}
 	}
-	qb_create_unary_op(cxt, &factory_copy, constant_address, result_address);
+	qb_create_unary_op(cxt, &factory_assignment, constant_address, result_address);
 
 	// jump over ops which are processed already
 	cxt->jump_target_index1 = cxt->pbj_op_index + constant_count;
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_sample(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_sample(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address_bundle output_bundle;
 	qb_pbj_texture *texture = qb_pbj_find_texture_by_id(cxt, cxt->pbj_op->image_id);
 	qb_pbj_address *coord = inputs[0];
@@ -1106,7 +1112,7 @@ static void ZEND_FASTCALL qb_pbj_translate_sample(qb_compiler_context *cxt, qb_p
 	qb_pbj_release_temporary_vector(cxt, &output_bundle);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_select(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_select(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address *condition = inputs[0];
 	qb_address *condition_address;
 	qb_op *if_qop, *jmp_qop;
@@ -1114,32 +1120,32 @@ static void ZEND_FASTCALL qb_pbj_translate_select(qb_compiler_context *cxt, qb_p
 
 	// fall into true block if non-zero, else branch to false block
 	condition_address = qb_pbj_obtain_channel_address(cxt, condition->register_id, condition->channels[0], 1);
-	if_index = cxt->op_count;
+	if_index = cxt->compiler_context->op_count;
 	if_qop = qb_create_branch_op(cxt,  &factory_branch_on_true, QB_INSTRUCTION_NEXT, QB_OP_INDEX_NONE, condition_address);
 
-	target_t_index = cxt->op_count;
+	target_t_index = cxt->compiler_context->op_count;
 	qb_pbj_translate_copy(cxt, t, &inputs[1], 1, output);
 
 	// jump over the false block
-	jmp_index = cxt->op_count;
+	jmp_index = cxt->compiler_context->op_count;
 	jmp_qop = qb_create_jump_op(cxt, &factory_jump, QB_OP_INDEX_NONE);
 
-	target_f_index = cxt->op_count;
+	target_f_index = cxt->compiler_context->op_count;
 	qb_pbj_translate_copy(cxt, t, &inputs[2], 1, output);
-	end_index = cxt->op_count;
+	end_index = cxt->compiler_context->op_count;
 
 	// set the jump target indices now that we know what they are
 	if_qop->jump_target_indices[1] = (target_f_index - if_index) | QB_INSTRUCTION_OFFSET;
 	jmp_qop->jump_target_indices[0] = (end_index - jmp_index) | QB_INSTRUCTION_OFFSET;
 
 	// flags the ops as jump targets
-	cxt->ops[target_t_index]->flags |= QB_OP_JUMP_TARGET;
-	cxt->ops[target_f_index]->flags |= QB_OP_JUMP_TARGET;
+	cxt->compiler_context->ops[target_t_index]->flags |= QB_OP_JUMP_TARGET;
+	cxt->compiler_context->ops[target_f_index]->flags |= QB_OP_JUMP_TARGET;
 	cxt->jump_target_index1 = cxt->pbj_op_index + 2;
 	cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->jump_target_index1] = QB_OP_INDEX_JUMP_TARGET;
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_if(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_if(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	qb_pbj_address *condition = inputs[0];
 	qb_address *condition_address;
 
@@ -1148,12 +1154,12 @@ static void ZEND_FASTCALL qb_pbj_translate_if(qb_compiler_context *cxt, qb_pbj_t
 	qb_create_branch_op(cxt, &factory_branch_on_false, cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1, QB_INSTRUCTION_NEXT, condition_address);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_else(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_else(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	// jump over the else block
 	qb_create_jump_op(cxt, &factory_jump, cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1);
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_end_if(qb_compiler_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void ZEND_FASTCALL qb_pbj_translate_end_if(qb_pbj_translater_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
 	// do nothing
 }
 
@@ -1195,9 +1201,9 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_floor				},	// PBJ_FLOOR
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_ceil				},	// PBJ_CEIL
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_fract				},	// PBJ_FRACT
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_COPY
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_FLOAT_TO_INT
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_INT_TO_FLOAT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_COPY
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_FLOAT_TO_INT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_INT_TO_FLOAT
 	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mm_multiply_cm		},	// PBJ_MATRIX_MATRIX_MULTIPLY
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_vm_multiply_cm		},	// PBJ_VECTOR_MATRIX_MULTIPLY
 	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mv_multiply_cm		},	// PBJ_MATRIX_VECTOR_MULTIPLY
@@ -1222,9 +1228,9 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_else,						0,					NULL,						},	// PBJ_ELSE
 	{	qb_pbj_translate_end_if,					0,					NULL						},	// PBJ_END_IF
 	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_FLOAT_TO_BOOL
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_copy				},	// PBJ_BOOL_TO_FLOAT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_BOOL_TO_FLOAT
 	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_INT_TO_BOOL
-	{	NULL,										PBJ_RS_WD,			&factory_copy				},	// PBJ_BOOL_TO_INT
+	{	NULL,										PBJ_RS_WD,			&factory_assignment				},	// PBJ_BOOL_TO_INT
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_set_equal			},	// PBJ_VECTOR_EQUAL
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_set_not_equal		},	// PBJ_VECTOR_NOT_EQUAL
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_any				},	// PBJ_ANY
@@ -1232,7 +1238,7 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step		},	// PBJ_SMOOTH_STEP
 };
 
-static void ZEND_FASTCALL qb_pbj_translate_current_instruction(qb_compiler_context *cxt) {
+static void ZEND_FASTCALL qb_pbj_translate_current_instruction(qb_pbj_translater_context *cxt) {
 	qb_pbj_translator *t;
 	if(cxt->pbj_op->opcode != PBJ_OP_DATA && cxt->pbj_op->opcode != PBJ_NOP) {
 		t = &pbj_op_translators[cxt->pbj_op->opcode];
@@ -1285,17 +1291,17 @@ static void ZEND_FASTCALL qb_pbj_translate_current_instruction(qb_compiler_conte
 				}
 			}
 
-			cxt->line_number = cxt->pbj_op_index + 1;
+			cxt->compiler_context->line_number = cxt->pbj_op_index + 1;
 			t->translate(cxt, t, inputs, input_count, output);
 		}
 	}
 }
 
-void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
+void ZEND_FASTCALL qb_pbj_decode(qb_pbj_translater_context *cxt) {
 	uint32_t opcode, prev_opcode, i;
 	float32_t f;
-	cxt->pbj_data = (uint8_t *) cxt->external_code;
-	cxt->pbj_data_end = cxt->pbj_data + cxt->external_code_length;
+	cxt->pbj_data = (uint8_t *) cxt->compiler_context->external_code;
+	cxt->pbj_data_end = cxt->pbj_data + cxt->compiler_context->external_code_length;
 
 	qb_attach_new_array(cxt->pool, (void **) &cxt->pbj_conditionals, &cxt->pbj_conditional_count, sizeof(qb_pbj_op *), 8);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->pbj_parameters, &cxt->pbj_parameter_count, sizeof(qb_pbj_parameter), 8);
@@ -1307,12 +1313,12 @@ void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 	cxt->pbj_int_numerals = qb_allocate_address_pointers(cxt->pool, 17);
 	for(i = 0; i < 17; i++) {
 		if(i <= 4 || i == 12 || i == 16) {
-			cxt->pbj_int_numerals[i] = qb_obtain_constant_U32(cxt, i);
+			cxt->pbj_int_numerals[i] = qb_obtain_constant_U32(cxt->compiler_context, i);
 		}
 	}
 	cxt->pbj_float_numerals = qb_allocate_address_pointers(cxt->pool, 3);
 	for(i = 0, f = 0; i < 3; i++, f += 0.5) {
-		cxt->pbj_float_numerals[i] = qb_obtain_constant_F32(cxt, f);
+		cxt->pbj_float_numerals[i] = qb_obtain_constant_F32(cxt->compiler_context, f);
 	}
 
 	while(cxt->pbj_data < cxt->pbj_data_end) {
@@ -1532,7 +1538,7 @@ void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt) {
 	}
 }
 
-static uint32_t zend_always_inline qb_pbj_get_op_effect(qb_compiler_context *cxt, qb_pbj_op *pop, qb_pbj_address *address, uint32_t effect_mask) {
+static uint32_t zend_always_inline qb_pbj_get_op_effect(qb_pbj_translater_context *cxt, qb_pbj_op *pop, qb_pbj_address *address, uint32_t effect_mask) {
 	qb_pbj_address *dst[1], *input[4];
 	uint32_t i, dst_count = 0, dst_types[1], input_count = 0, input_types[4], flags = 0;
 	qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
@@ -1605,7 +1611,7 @@ static uint32_t zend_always_inline qb_pbj_get_op_effect(qb_compiler_context *cxt
 	return flags;
 }
 
-static int32_t qb_pbj_check_value_reuse(qb_compiler_context *cxt, uint32_t start_index, qb_pbj_address *address) {
+static int32_t qb_pbj_check_value_reuse(qb_pbj_translater_context *cxt, uint32_t start_index, qb_pbj_address *address) {
 	uint32_t i, effect, mask = qb_pbj_get_channel_mask(cxt, address);
 	for(i = start_index; i < cxt->pbj_op_count; i++) {
 		qb_pbj_op *pop = &cxt->pbj_ops[i];
@@ -1647,7 +1653,7 @@ typedef struct qb_pbj_op_info {
 	qb_pbj_address **dst_ptr;
 } qb_pbj_op_info;
 
-static uint32_t ZEND_FASTCALL ob_pbj_find_op_sequence(qb_compiler_context *cxt, qb_pbj_op_info *seq, uint32_t seq_len) {
+static uint32_t ZEND_FASTCALL ob_pbj_find_op_sequence(qb_pbj_translater_context *cxt, qb_pbj_op_info *seq, uint32_t seq_len) {
 	// use Boyer-Moore-Horspool to locate the opcode sequence
 	uint32_t i, j, last = seq_len - 1, skip;
     uint32_t bad_opcode_skip[PBJ_MAX_OPCODE + 1];
@@ -1708,7 +1714,7 @@ static uint32_t ZEND_FASTCALL ob_pbj_find_op_sequence(qb_compiler_context *cxt, 
     return (uint32_t) -1;
 }
 
-static void ZEND_FASTCALL qb_pbj_substitute_ops(qb_compiler_context *cxt) {
+static void ZEND_FASTCALL qb_pbj_substitute_ops(qb_pbj_translater_context *cxt) {
 	// look for smoothStep sequence
 	qb_pbj_address *x = NULL, *edge0 = NULL, *edge1 = NULL, *result = NULL;
 	qb_pbj_address *zero = NULL, *one = NULL, *var1 = NULL, *var2 = NULL, *var3 = NULL; 
@@ -1756,7 +1762,7 @@ static void ZEND_FASTCALL qb_pbj_substitute_ops(qb_compiler_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_remove_redundant_ops(qb_compiler_context *cxt) {
+static void ZEND_FASTCALL qb_pbj_remove_redundant_ops(qb_pbj_translater_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_op_count; i++) {
 		qb_pbj_op *pop = &cxt->pbj_ops[i];
@@ -1806,7 +1812,7 @@ static void ZEND_FASTCALL qb_pbj_remove_redundant_ops(qb_compiler_context *cxt) 
 	}
 }
 
-static int32_t ZEND_FASTCALL qb_pbj_is_image(qb_compiler_context *cxt, qb_address *address, uint32_t channel_count) {
+static int32_t ZEND_FASTCALL qb_pbj_is_image(qb_pbj_translater_context *cxt, qb_address *address, uint32_t channel_count) {
 	if(address && address->type == QB_TYPE_F32 && address->dimension_count == 3) {
 		if(VALUE(U32, address->dimension_addresses[2]) == channel_count) {
 			return TRUE;
@@ -1815,10 +1821,10 @@ static int32_t ZEND_FASTCALL qb_pbj_is_image(qb_compiler_context *cxt, qb_addres
 	return FALSE;
 }
 
-static qb_variable * ZEND_FASTCALL qb_pbj_find_argument(qb_compiler_context *cxt, const char *name) {
+static qb_variable * ZEND_FASTCALL qb_pbj_find_argument(qb_pbj_translater_context *cxt, const char *name) {
 	uint32_t i;
-	for(i = 0; i < cxt->argument_count; i++) {
-		qb_variable *qvar = cxt->variables[i];
+	for(i = 0; i < cxt->compiler_context->argument_count; i++) {
+		qb_variable *qvar = cxt->compiler_context->variables[i];
 		if(strcmp(qvar->name, name) == 0) {
 			return qvar;
 		}
@@ -1826,11 +1832,11 @@ static qb_variable * ZEND_FASTCALL qb_pbj_find_argument(qb_compiler_context *cxt
 	return NULL;
 }
 
-static qb_variable * ZEND_FASTCALL qb_pbj_find_input(qb_compiler_context *cxt) {
+static qb_variable * ZEND_FASTCALL qb_pbj_find_input(qb_pbj_translater_context *cxt) {
 	qb_variable *input_var = NULL;
 	uint32_t i;
-	for(i = 0; i < cxt->argument_count; i++) {
-		qb_variable *qvar = cxt->variables[i];
+	for(i = 0; i < cxt->compiler_context->argument_count; i++) {
+		qb_variable *qvar = cxt->compiler_context->variables[i];
 		if(!(qvar->flags & QB_VARIABLE_PASSED_BY_REF)) {
 			if(qb_pbj_is_image(cxt, qvar->address, 4) || qb_pbj_is_image(cxt, qvar->address, 3)) {
 				if(!input_var) {
@@ -1844,10 +1850,10 @@ static qb_variable * ZEND_FASTCALL qb_pbj_find_input(qb_compiler_context *cxt) {
 	return input_var;
 }
 
-static qb_variable * ZEND_FASTCALL qb_pbj_find_output(qb_compiler_context *cxt) {
+static qb_variable * ZEND_FASTCALL qb_pbj_find_output(qb_pbj_translater_context *cxt) {
 	uint32_t i;
-	for(i = 0; i < cxt->argument_count; i++) {
-		qb_variable *qvar = cxt->variables[i];
+	for(i = 0; i < cxt->compiler_context->argument_count; i++) {
+		qb_variable *qvar = cxt->compiler_context->variables[i];
 		if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
 			if(qb_pbj_is_image(cxt, qvar->address, 4) || qb_pbj_is_image(cxt, qvar->address, 3)) {
 				return qvar;
@@ -1857,7 +1863,7 @@ static qb_variable * ZEND_FASTCALL qb_pbj_find_output(qb_compiler_context *cxt) 
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
+static void ZEND_FASTCALL qb_pbj_map_arguments(qb_pbj_translater_context *cxt) {
 	uint32_t i;
 	qb_variable *qvar;
 
@@ -1935,28 +1941,28 @@ static void ZEND_FASTCALL qb_pbj_map_arguments(qb_compiler_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt) {
+static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_pbj_translater_context *cxt) {
 	qb_address *image_address, *pixel_address, *output_address;
 	qb_address *width_address, *height_address, *x_address, *y_address, *pixel_index_address, *channel_count_address;
 	qb_address *out_coord_x_address, *out_coord_y_address;
 	qb_op *qop;
 	uint32_t i, end_index, channel_count;
 
-	cxt->stage = QB_STAGE_OPCODE_TRANSLATION;
+	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
 
 	// interpret 3x4 matrix as 3x3 with padded element
-	cxt->matrix_padding = TRUE;
+	cxt->compiler_context->matrix_padding = TRUE;
 
 	// coordinates for looping 
-	x_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
-	y_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
+	x_address = qb_obtain_temporary_scalar(cxt->compiler_context, QB_TYPE_U32);
+	y_address = qb_obtain_temporary_scalar(cxt->compiler_context, QB_TYPE_U32);
 	image_address = cxt->pbj_out_pixel->address;
 	width_address = image_address->dimension_addresses[1];
 	height_address = image_address->dimension_addresses[0];
 	channel_count_address = image_address->dimension_addresses[2];
 
 	// index into output image array
-	pixel_index_address = qb_obtain_temporary_scalar(cxt, QB_TYPE_U32);
+	pixel_index_address = qb_obtain_temporary_scalar(cxt->compiler_context, QB_TYPE_U32);
 
 	// sub-array representing the pixel
 	pixel_address = qb_allocate_address(cxt->pool);
@@ -1997,20 +2003,20 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 				qb_address *input_height_address = input_image_address->dimension_addresses[0];
 				qb_address *input_size_x_address = qb_pbj_obtain_channel_address(cxt, parameter->destination.register_id, parameter->destination.channels[0], 1);
 				qb_address *input_size_y_address = qb_pbj_obtain_channel_address(cxt, parameter->destination.register_id, parameter->destination.channels[1], 1);
-				qb_create_unary_op(cxt, &factory_copy, input_width_address, input_size_x_address);
-				qb_create_unary_op(cxt, &factory_copy, input_height_address, input_size_y_address);
+				qb_create_unary_op(cxt, &factory_assignment, input_width_address, input_size_x_address);
+				qb_create_unary_op(cxt, &factory_assignment, input_height_address, input_size_y_address);
 			} else if(parameter->address) {
 				qb_address *dst_address;
 				qb_address *src_address = parameter->address;
 				qb_pbj_address *dst = &parameter->destination;
 				dst_address = qb_pbj_obtain_address(cxt, dst);
-				qb_create_unary_op(cxt, &factory_copy, src_address, dst_address);
+				qb_create_unary_op(cxt, &factory_assignment, src_address, dst_address);
 			} else if(parameter->default_value.type) {
 				// use default value if parameter isn't mapped to an argument
 				qb_address *value_address = qb_pbj_obtain_value_address(cxt, &parameter->default_value);
 				qb_address *param_address = qb_pbj_obtain_address(cxt, &parameter->destination);
 				if(value_address) {
-					qb_create_unary_op(cxt, &factory_copy, value_address, param_address);
+					qb_create_unary_op(cxt, &factory_assignment, value_address, param_address);
 				}
 			}
 		}
@@ -2025,24 +2031,24 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	}
 
 	// set pixel index to zero
-	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_int_numerals[0], pixel_index_address);
+	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_int_numerals[0], pixel_index_address);
 
 	// set y to zero, but _OutCoord.y to 0.5, as that's the center of the grid
-	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_int_numerals[0], y_address);
-	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_float_numerals[1], out_coord_y_address);
+	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_int_numerals[0], y_address);
+	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_float_numerals[1], out_coord_y_address);
 
 	// set x to zero, but _OutCoord.x to 0.5
 	// the outer loop starts here
-	cxt->compiler_context->op_translations[OUTER_LOOK_JUMP_TARGET_INDEX] = cxt->op_count;
-	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_int_numerals[0], x_address);
-	qop = cxt->ops[cxt->op_count - 1];
+	cxt->compiler_context->op_translations[OUTER_LOOK_JUMP_TARGET_INDEX] = cxt->compiler_context->op_count;
+	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_int_numerals[0], x_address);
+	qop = cxt->compiler_context->ops[cxt->compiler_context->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
-	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_float_numerals[1], out_coord_x_address);
+	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_float_numerals[1], out_coord_x_address);
 
 	// initialize the output pixel to zero--the inner loop starts here
-	cxt->compiler_context->op_translations[INNER_LOOP_JUMP_TARGET_INDEX] = cxt->op_count;
-	qb_create_unary_op(cxt, &factory_copy, cxt->pbj_float_numerals[0], output_address);
-	qop = cxt->ops[cxt->op_count - 1];
+	cxt->compiler_context->op_translations[INNER_LOOP_JUMP_TARGET_INDEX] = cxt->compiler_context->op_count;
+	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_float_numerals[0], output_address);
+	qop = cxt->compiler_context->ops[cxt->compiler_context->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
 
 	// replace specific sequences of ops with inline functions (only smoothStep for now)
@@ -2054,17 +2060,17 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	// translate the PB instructions
 	cxt->pbj_op = &cxt->pbj_ops[0];
 	while(cxt->pbj_op_index < cxt->pbj_op_count) {
-		uint32_t current_op_count = cxt->op_count;
+		uint32_t current_op_count = cxt->compiler_context->op_count;
 		qb_pbj_translate_current_instruction(cxt);
 
 		// add a nop if new one wasn't generated
-		if(current_op_count == cxt->op_count) {
+		if(current_op_count == cxt->compiler_context->op_count) {
 			qb_create_nop(cxt);
 		}
 
 		// flag new op as a jump target if there's a placeholder in the position
 		if(cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_index] == QB_OP_INDEX_JUMP_TARGET) {
-			qb_op *first_op = cxt->ops[current_op_count];
+			qb_op *first_op = cxt->compiler_context->ops[current_op_count];
 			first_op->flags |= QB_OP_JUMP_TARGET;
 		}
 		cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_index] = current_op_count;
@@ -2078,7 +2084,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 			cxt->pbj_op_index++;
 		}
 	}
-	end_index = cxt->op_count;
+	end_index = cxt->compiler_context->op_count;
 
 	// copy the output pixel into the image
 	qb_perform_assignment(cxt, output_address, pixel_address);
@@ -2092,7 +2098,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 
 	// if there's an jump to the end of the PB program, mark the instruction as a jump target
 	if(cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] == QB_OP_INDEX_JUMP_TARGET) {
-		qop = cxt->ops[end_index];
+		qop = cxt->compiler_context->ops[end_index];
 		qop->flags |= QB_OP_JUMP_TARGET;
 		cxt->compiler_context->op_translations[cxt->pbj_op_offset + cxt->pbj_op_count] = end_index;
 	}
@@ -2113,7 +2119,7 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 	}
 
 	// return
-	qb_create_op(cxt, &factory_return, NULL, 0, NULL);
+	qb_create_op(cxt->compiler_context, &factory_return, NULL, 0, NULL);
 
 	// allocate memory space for the registers
 	if(cxt->pbj_float_register_count > 0) {
@@ -2125,5 +2131,3 @@ static void ZEND_FASTCALL qb_pbj_translate_instructions(qb_compiler_context *cxt
 }
 
 uint32_t pbj_matrix_sizes[] = { 0, 1, 4, 12, 16 };
-
-#endif
