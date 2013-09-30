@@ -36,6 +36,7 @@ typedef enum qb_stage						qb_stage;
 typedef enum qb_diagnostic_type				qb_diagnostic_type;
 typedef enum qb_result_destination_type		qb_result_destination_type;
 typedef enum qb_matrix_order				qb_matrix_order;
+typedef enum qb_derived_variable_type		qb_derived_variable_type;
 
 struct qb_type_declaration {
 	pcre *regexp;
@@ -174,6 +175,9 @@ struct qb_compiler_context {
 
 	qb_temporary_variable *temp_variables;
 	uint32_t temp_variable_count;
+
+	qb_address **address_aliases;
+	uint32_t address_alias_count;
 
 	qb_address *zero_address;
 	qb_address *one_address;

@@ -472,6 +472,51 @@ static void ZEND_FASTCALL qb_assign_storage_space(qb_compiler_context *cxt) {
 	}
 }
 
+static qb_address * ZEND_FASTCALL qb_create_address_alias(qb_compiler_context *cxt, qb_address *address) {
+	qb_address *alias = qb_allocate_address(cxt->pool);
+	qb_address **p_alias = qb_enlarge_array((void **) &cxt->address_aliases, 1);
+	*alias = *address;
+	alias->source_address = address;
+	*p_alias = alias;
+	return alias;
+}
+
+static qb_address * ZEND_FASTCALL qb_obtain_alias_by_address_flag(qb_compiler_context *cxt, qb_address *address, uint32_t flag) {
+	qb_address *alias;
+	if(address->flags & flag) {
+		return address;
+	} else {
+		uint32_t i; 
+		for(i = 0; i < cxt->address_alias_count; i++) {
+			alias = cxt->address_aliases[i];
+			if(alias->source_address == address) {
+				if(alias->flags & QB_ADDRESS_STRING) {
+					return alias;
+				}
+			}
+		}
+	}
+	alias = qb_create_address_alias(cxt, address);
+	alias->flags |= flag;
+	return alias;
+}
+
+static qb_address * ZEND_FASTCALL qb_obtain_string_alias(qb_compiler_context *cxt, qb_address *address) {
+	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_STRING);
+}
+
+static qb_address * ZEND_FASTCALL qb_obtain_boolean_alias(qb_compiler_context *cxt, qb_address *address) {
+	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_BOOLEAN);
+}
+
+static qb_address * ZEND_FASTCALL qb_obtain_cast_alias(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type) {
+	qb_address *alias = qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_CAST);
+	if(alias->type != type) {
+		alias->type = type;
+	}
+	return alias;
+}
+
 static qb_address * ZEND_FASTCALL qb_create_constant_scalar(qb_compiler_context *cxt, qb_primitive_type element_type) {
 	qb_address *address = qb_allocate_address(cxt->pool);
 	address->mode = QB_ADDRESS_MODE_SCA;
@@ -492,10 +537,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_constant_I08(qb_compiler_context *cx
 				if(address->type == type) {
 					return address;
 				} else {
-					qb_address *new_address = qb_allocate_address(cxt->pool);
-					*new_address = *address;
-					new_address->type = type;
-					return new_address;
+					return qb_obtain_cast_alias(cxt, address, type);
 				}
 			}
 		}
@@ -523,10 +565,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_constant_I16(qb_compiler_context *cx
 				if(address->type == type) {
 					return address;
 				} else {
-					qb_address *new_address = qb_allocate_address(cxt->pool);
-					*new_address = *address;
-					new_address->type = type;
-					return new_address;
+					return qb_obtain_cast_alias(cxt, address, type);
 				}
 			}
 		}
@@ -554,10 +593,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_constant_I32(qb_compiler_context *cx
 				if(address->type == type) {
 					return address;
 				} else {
-					qb_address *new_address = qb_allocate_address(cxt->pool);
-					*new_address = *address;
-					new_address->type = type;
-					return new_address;
+					return qb_obtain_cast_alias(cxt, address, type);
 				}
 			}
 		}
@@ -585,10 +621,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_constant_I64(qb_compiler_context *cx
 				if(address->type == type) {
 					return address;
 				} else {
-					qb_address *new_address = qb_allocate_address(cxt->pool);
-					*new_address = *address;
-					new_address->type = type;
-					return new_address;
+					return qb_obtain_cast_alias(cxt, address, type);
 				}
 			}
 		}
@@ -2234,11 +2267,7 @@ void ZEND_FASTCALL qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand
 							new_address = operand->address->source_address;
 						} else {
 							// storage type is the same--just create a new address
-							new_address = qb_allocate_address(cxt->pool);
-							*new_address = *operand->address;
-							new_address->type = desired_type;
-							new_address->source_address = operand->address;
-							new_address->flags |= QB_ADDRESS_CAST;
+							new_address = qb_obtain_cast_alias(cxt, operand->address, desired_type);
 						}
 					} else {
 						// the bit pattern is different--need to do a copy
@@ -2704,12 +2733,10 @@ void ZEND_FASTCALL qb_produce_op(qb_compiler_context *cxt, void *factory, qb_ope
 
 			// TODO: handle this in a cleaner manner
 			if(result->type == QB_OPERAND_ADDRESS) {
-				if(f->address_flags & QB_ADDRESS_BOOLEAN && !(result->address->flags & QB_ADDRESS_BOOLEAN)) {
-					qb_address *new_address = qb_allocate_address(cxt->pool);
-					*new_address = *result->address;
-					new_address->flags |= QB_ADDRESS_BOOLEAN;
-					new_address->source_address = result->address;
-					result->address = new_address;
+				if(f->address_flags & QB_ADDRESS_BOOLEAN) {
+					result->address = qb_obtain_boolean_alias(cxt, result->address);
+				} else if(f->address_flags & QB_ADDRESS_STRING) {
+					result->address = qb_obtain_string_alias(cxt, result->address);
 				}
 			}
 		}
@@ -3308,6 +3335,7 @@ void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_c
 	qb_attach_new_array(pool, (void **) &cxt->writable_scalars, &cxt->writable_scalar_count, sizeof(qb_address *), 64);
 	qb_attach_new_array(pool, (void **) &cxt->constant_arrays, &cxt->constant_array_count, sizeof(qb_address *), 16);
 	qb_attach_new_array(pool, (void **) &cxt->writable_arrays, &cxt->writable_array_count, sizeof(qb_address *), 16);
+	qb_attach_new_array(pool, (void **) &cxt->address_aliases, &cxt->address_alias_count, sizeof(qb_address *), 64);
 
 	cxt->matrix_order = QB_G(column_major_matrix) ? QB_MATRIX_ORDER_COLUMN_MAJOR : QB_MATRIX_ORDER_ROW_MAJOR;
 
