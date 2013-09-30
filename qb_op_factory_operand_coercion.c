@@ -42,6 +42,12 @@ static void ZEND_FASTCALL qb_coerce_operands_int(qb_compiler_context *cxt, qb_op
 	}
 }
 
+// coerce one operand to suitable type, ignoring expr_type (which is something else like boolean)
+static void ZEND_FASTCALL qb_coerce_operands_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_primitive_type operand_type = qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
+	qb_perform_type_coercion(cxt, &operands[0], operand_type, f->coercion_flags);
+}
+
 // coerce all operands to the type of the highest-rank operand, ignoring expr_type
 static void ZEND_FASTCALL qb_coerce_operands_highest_rank(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_primitive_type operand_type = qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);

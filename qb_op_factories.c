@@ -2714,7 +2714,7 @@ qb_float_op_factory factory_rad2deg = {
 qb_float_op_factory factory_is_finite = {
 	qb_resolve_expression_type_boolean,
 	NULL,
-	qb_coerce_operands_all,
+	qb_coerce_operands_first_operand,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_temporary_value,
@@ -2732,7 +2732,7 @@ qb_float_op_factory factory_is_finite = {
 qb_float_op_factory factory_is_infinite = {
 	qb_resolve_expression_type_boolean,
 	NULL,
-	qb_coerce_operands_all,
+	qb_coerce_operands_first_operand,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_temporary_value,
@@ -2750,7 +2750,7 @@ qb_float_op_factory factory_is_infinite = {
 qb_float_op_factory factory_is_nan = {
 	qb_resolve_expression_type_boolean,
 	NULL,
-	qb_coerce_operands_all,
+	qb_coerce_operands_first_operand,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_temporary_value,
