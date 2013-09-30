@@ -190,6 +190,9 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, voi
 
 			if((int8_t *) memory + qop->instruction_offset != ip) {
 				qb_op *prev_qop = cxt->ops[i - 1];
+				do {
+					prev_qop = cxt->ops[--i];
+				} while(prev_qop->opcode == QB_NOP);
 				qb_abort("the previous op was not correctly encoded");
 			}
 

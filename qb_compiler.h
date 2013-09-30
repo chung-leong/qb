@@ -179,6 +179,9 @@ struct qb_compiler_context {
 	qb_address **address_aliases;
 	uint32_t address_alias_count;
 
+	qb_on_demand_address **on_demand_expressions;
+	uint32_t on_demand_expression_count;
+
 	qb_address *zero_address;
 	qb_address *one_address;
 	qb_address *false_address;

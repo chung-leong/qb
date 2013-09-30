@@ -164,6 +164,7 @@ enum {
 	QB_ADDRESS_NON_LOCAL			= 0x00800000,
 	QB_ADDRESS_FOREACH_INDEX		= 0x01000000,
 	QB_ADDRESS_ON_DEMAND_VALUE		= 0x02000000,
+	QB_ADDRESS_ON_DEMAND_RESULT		= 0x04000000,
 
 	QB_ADDRESS_IN_USE				= 0x80000000,
 
@@ -247,7 +248,8 @@ struct qb_on_demand_address {
 	uint32_t dimension_count;
 	uint32_t segment_selector;
 	uint32_t segment_offset;
-	qb_address *operand_addresses[4];
+	qb_address *operand_addresses[3];
+	qb_address *result_address;
 	uint32_t operand_count;
 	void *op_factory;
 };
