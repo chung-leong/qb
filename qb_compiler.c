@@ -750,7 +750,7 @@ static qb_address * ZEND_FASTCALL qb_create_constant_fixed_length_array(qb_compi
 	return address;
 }
 
-static qb_address * ZEND_FASTCALL qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
+qb_address * ZEND_FASTCALL qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 
 static void ZEND_FASTCALL qb_set_variable_dimensions(qb_compiler_context *cxt, uint32_t *dimensions, uint32_t dimension_count, qb_variable_dimensions *dim) {
 	uint32_t array_size = 1;
@@ -2612,30 +2612,6 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 		opcode = QB_NOP;
 	}
 
-	if(opcode != QB_NOP) {
-		// add the ops for calculating on-demand values first
-		for(i = 0; i < operand_count; i++) {
-			qb_create_on_demand_op(cxt, &operands[i]);
-		}
-		if(result) {
-			qb_create_on_demand_op(cxt, result);
-		}
-
-		/*
-		for(i = 0; i < operand_count; i++) {
-			qb_address *address = operands[i].address;
-			if(address->mode == QB_ADDRESS_MODE_ELE) {
-				// see if the opcode has an ELE version; most do, but a few do not
-				uint32_t op_flags = qb_get_op_flags(cxt, opcode);
-				if(!(op_flags & QB_OP_VERSION_AVAILABLE_ELE)) {
-					// copy the element to an temporary variable
-					// TODO
-				}
-			}
-		}
-		*/
-	}
-		
 	// create the op
 	op_index = cxt->op_count;
 	qop = qb_allocate_op(cxt->pool);
@@ -2665,6 +2641,25 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 	if(f->transfer_operands) {
 		f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands, qop->operand_count);
 	}
+
+	// add the ops for calculating on-demand values 
+	for(i = 0; i < qop->operand_count; i++) {
+		qb_create_on_demand_op(cxt, &qop->operands[i]);
+	}
+
+	/*
+	for(i = 0; i < operand_count; i++) {
+		qb_address *address = operands[i].address;
+		if(address->mode == QB_ADDRESS_MODE_ELE) {
+			// see if the opcode has an ELE version; most do, but a few do not
+			uint32_t op_flags = qb_get_op_flags(cxt, opcode);
+			if(!(op_flags & QB_OP_VERSION_AVAILABLE_ELE)) {
+				// copy the element to an temporary variable
+				// TODO
+			}
+		}
+	}
+	*/
 
 	// add the op
 	qb_add_op(cxt, qop);

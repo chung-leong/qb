@@ -2069,6 +2069,42 @@ qb_simple_op_factory factory_branch_on_false = {
 	QB_IF_F_I32,
 };
 
+qb_simple_op_factory factory_foreach_reset = {
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_foreach_reset,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_foreach_reset,
+
+	0,
+	0,
+	0,
+	QB_MOV_I32_I32,
+};
+
+qb_simple_op_factory factory_foreach_fetch = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_foreach_fetch,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_foreach_fetch,
+
+	QB_COERCE_TO_BOOLEAN,
+	0,
+	0,
+	QB_INC_IF_GT_U32_U32,
+};
+
 /*
 qb_fcall_op_factory factory_fcall = {
 	qb_append_fcall,

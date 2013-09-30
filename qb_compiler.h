@@ -188,6 +188,7 @@ struct qb_compiler_context {
 	qb_address *true_address;
 
 	qb_intrinsic_function *intrinsic_function;
+	qb_operand foreach_index;
 
 	int32_t matrix_padding;
 	qb_matrix_order matrix_order;
@@ -425,6 +426,7 @@ qb_address * ZEND_FASTCALL qb_obtain_temporary_fixed_length_array(qb_compiler_co
 qb_address * ZEND_FASTCALL qb_obtain_temporary_variable_length_array(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_address * ZEND_FASTCALL qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
 
+qb_address * ZEND_FASTCALL qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_operand * ZEND_FASTCALL qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index);
 
 int32_t ZEND_FASTCALL qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);

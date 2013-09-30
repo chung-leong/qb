@@ -690,7 +690,6 @@ class CodeGenerator {
 			}
 		}
 		ksort($formats);
-		print_r($formats);
 		return $formats;
 	}
 
@@ -1162,6 +1161,9 @@ class CodeGenerator {
 			$this->handlers[] = new StaticInitializationEnd("END_STATIC");
 		}
 		$branchHandlers = array();
+		if($elementType == "U32") {
+			$this->handlers[] = new IncrementBranchOnGreaterThan("INC_IF_GT", $elementType, "SCA");
+		}
 		if(!$unsigned) {
 			if($elementTypeNoSign == "I32") {
 				foreach($this->scalarAddressModes as $addressMode) {

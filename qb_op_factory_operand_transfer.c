@@ -68,6 +68,19 @@ static void ZEND_FASTCALL qb_transfer_operands_print(qb_compiler_context *cxt, q
 	}
 }
 
+static void ZEND_FASTCALL qb_transfer_operands_foreach_reset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0].address = qb_obtain_constant_S32(cxt, -1);
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1] = cxt->foreach_index;
+}
+
+static void ZEND_FASTCALL qb_transfer_operands_foreach_fetch(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0];
+	dest[0].address = container->address->dimension_addresses[0];
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1] = cxt->foreach_index;
+}
+
 static void ZEND_FASTCALL qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0];
 	if(cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS && cxt->return_variable->address != value->address) {
