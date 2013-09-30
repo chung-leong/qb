@@ -83,7 +83,7 @@ static void ZEND_FASTCALL qb_transfer_operands_foreach_fetch(qb_compiler_context
 
 static void ZEND_FASTCALL qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0];
-	if(cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS && cxt->return_variable->address != value->address) {
+	if(cxt->return_variable && cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS && cxt->return_variable->address != value->address) {
 		qb_operand assigment_operands[2];
 		qb_operand assignment_result;
 		assigment_operands[0].type = QB_OPERAND_ADDRESS;

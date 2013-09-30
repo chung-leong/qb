@@ -266,6 +266,7 @@ extern qb_simple_op_factory factory_branch_on_true;
 extern qb_simple_op_factory factory_branch_on_false;
 extern qb_simple_op_factory factory_foreach_reset;
 extern qb_simple_op_factory factory_foreach_fetch;
+extern qb_simple_op_factory factory_loop;
 extern qb_simple_op_factory factory_ext;
 
 extern qb_string_op_factory factory_concat_variable;

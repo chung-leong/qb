@@ -1661,32 +1661,8 @@ void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend
 	cxt->function_call_line_number = line_number;
 	if(qb_is_compiled_function(zfunc)) {
 		qb_function *qfunc = zfunc->op_array.reserved[0];
-		int8_t *memory;
-		uint32_t combined_byte_count, i;
 		cxt->storage = qfunc->local_storage;
 		cxt->function = qfunc;
-
-		// the following optimization depends very much on how the segments are laid out
-		memory = cxt->storage->segments[QB_SELECTOR_SHARED_SCALAR].memory;
-		combined_byte_count = cxt->storage->segments[QB_SELECTOR_SHARED_SCALAR].byte_count + cxt->storage->segments[QB_SELECTOR_LOCAL_SCALAR].byte_count;
-		memset(memory, 0, combined_byte_count);
-		memory = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].memory;
-		combined_byte_count = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].byte_count + cxt->storage->segments[QB_SELECTOR_SHARED_ARRAY].byte_count;
-		memset(memory, 0, combined_byte_count);
-
-		// process the other segments
-		for(i = QB_SELECTOR_ARRAY_START; i < cxt->storage->segment_count; i++) {
-			qb_memory_segment *segment = &cxt->storage->segments[i];
-			if(segment->byte_count) {
-				if(segment->byte_count < segment->current_allocation) {
-					qb_resize_segment(cxt, segment, segment->byte_count);
-					segment->current_allocation = segment->byte_count;
-				}
-				if(segment->flags & QB_SEGMENT_CLEAR_ON_CALL) {
-					memset(segment->memory, 0, segment->byte_count);
-				}
-			}
-		}
 	} else {
 		// allocate space for arguments
 		if(argument_count + 1 > cxt->zend_argument_buffer_size) {
@@ -1938,15 +1914,31 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 
 void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 	if(cxt->function) {
-		uint32_t i;
-		if(cxt->argument_count != cxt->function->argument_count) {
-			if(cxt->argument_count > cxt->function->argument_count) {
-				qb_abort("%s() expects %d parameter%s, %d passed", cxt->function->name, cxt->function->argument_count, (cxt->function->argument_count > 1) ? "s" : "", cxt->argument_count);
-			} else if(cxt->argument_count < cxt->function->required_argument_count) {
-				qb_abort("%s() expects at least %d parameter%s, only %d passed", cxt->function->name, cxt->function->required_argument_count, (cxt->function->required_argument_count > 1) ? "s" : "", cxt->argument_count);
+		int8_t *memory;
+		uint32_t combined_byte_count, i;
+		
+		// the following optimization depends very much on how the segments are laid out
+		memory = cxt->storage->segments[QB_SELECTOR_SHARED_SCALAR].memory;
+		combined_byte_count = cxt->storage->segments[QB_SELECTOR_SHARED_SCALAR].byte_count + cxt->storage->segments[QB_SELECTOR_LOCAL_SCALAR].byte_count;
+		memset(memory, 0, combined_byte_count);
+		memory = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].memory;
+		combined_byte_count = cxt->storage->segments[QB_SELECTOR_LOCAL_ARRAY].byte_count + cxt->storage->segments[QB_SELECTOR_SHARED_ARRAY].byte_count;
+		memset(memory, 0, combined_byte_count);
+
+		// process the other segments
+		for(i = QB_SELECTOR_ARRAY_START; i < cxt->storage->segment_count; i++) {
+			qb_memory_segment *segment = &cxt->storage->segments[i];
+			if(segment->byte_count) {
+				if(segment->byte_count < segment->current_allocation) {
+					qb_resize_segment(cxt, segment, segment->byte_count);
+					segment->current_allocation = segment->byte_count;
+				}
+				if(segment->flags & QB_SEGMENT_CLEAR_ON_CALL) {
+					memset(segment->memory, 0, segment->byte_count);
+				}
 			}
 		}
-		
+
 		for(i = cxt->argument_count; i < cxt->function->argument_count; i++) {
 			qb_variable *qvar = cxt->function->variables[i];
 			if(qvar->default_value_address) {

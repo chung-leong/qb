@@ -2626,16 +2626,6 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 		qop->operand_count = f->get_operand_count(cxt, f, operands, operand_count);
 	}
 
-	// copy the jump target indices and mark instructions they refer to
-	qop->jump_target_count = jump_target_count;
-	if(jump_target_count > 0) {
-		qop->jump_target_indices = qb_allocate_indices(cxt->pool, jump_target_count);
-		for(i = 0; i < jump_target_count; i++) {
-			qop->jump_target_indices[i] = jump_target_indices[i];
-			qb_mark_jump_target(cxt, op_index, jump_target_indices[i]);
-		}
-	}
-
 	// move the operands into the op
 	qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
 	if(f->transfer_operands) {
@@ -2663,6 +2653,16 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 
 	// add the op
 	qb_add_op(cxt, qop);
+
+	// copy the jump target indices and mark instructions they refer to
+	qop->jump_target_count = jump_target_count;
+	if(jump_target_count > 0) {
+		qop->jump_target_indices = qb_allocate_indices(cxt->pool, jump_target_count);
+		for(i = 0; i < jump_target_count; i++) {
+			qop->jump_target_indices[i] = jump_target_indices[i];
+			qb_mark_jump_target(cxt, op_index, jump_target_indices[i]);
+		}
+	}
 
 	if(result && result->type == QB_OPERAND_ADDRESS && opcode != QB_NOP) {
 		if(CONSTANT(result->address) && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT) && FALSE) {
@@ -3886,7 +3886,7 @@ void ZEND_FASTCALL qb_compile_functions(qb_build_context *cxt) {
 	// generate the instruction streams
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
-		qb_function *qfunc;
+		qb_function *qfunc, **p_qfunc;
 
 		compiler_cxt = &cxt->compiler_contexts[i];
 		qb_initialize_encoder_context(encoder_cxt, compiler_cxt TSRMLS_CC);
@@ -3896,6 +3896,13 @@ void ZEND_FASTCALL qb_compile_functions(qb_build_context *cxt) {
 
 		// replace the zend function with the qb version
 		qb_replace_zend_functions(compiler_cxt->zend_function, qfunc TSRMLS_CC);
+
+		// add the function to the global table so we can free it afterward
+		if(!QB_G(compiled_functions)) {
+			qb_create_array((void **) &QB_G(compiled_functions), &QB_G(compiled_function_count), sizeof(qb_function *), 16);
+		}
+		p_qfunc = qb_enlarge_array((void **) &QB_G(compiled_functions), 1);
+		*p_qfunc = qfunc;
 
 		if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
 			native_compile = TRUE;
@@ -4055,27 +4062,27 @@ int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
 }
 
 void ZEND_FASTCALL qb_open_diagnostic_loop(qb_compiler_context *cxt) {
-	// nothing needs to be done
+	cxt->stage = QB_STAGE_OPCODE_TRANSLATION;
 }
 
 #define DIAGNOSTIC_ITERATION	1000000
 
 void ZEND_FASTCALL qb_close_diagnostic_loop(qb_compiler_context *cxt) {
-	/*
-	qb_variable *loop_counter = qb_allocate_variable(cxt->pool);
-	qb_address * iteration_address = qb_obtain_constant_U32(cxt, DIAGNOSTIC_ITERATION);
-	loop_counter->name = "i";
-	loop_counter->name_length = 1;
-	loop_counter->address = qb_create_scalar(cxt, QB_TYPE_U32);
-	qb_add_variable(cxt, loop_counter);
-	qb_create_nullary_op(cxt, &factory_increment_pre, loop_counter->address);
-	qb_create_comparison_branch_op(cxt, &factory_branch_on_less_than, 0, QB_INSTRUCTION_NEXT, loop_counter->address, iteration_address);
-	qb_create_op(cxt, &factory_return, NULL, 0, NULL);
-	*/
+	qb_operand iteration, counter;
+	uint32_t jump_target_indices[2];
+
+	iteration.address = qb_obtain_constant_U32(cxt, DIAGNOSTIC_ITERATION);
+	iteration.type = QB_OPERAND_ADDRESS;
+	counter.address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+	counter.type = QB_OPERAND_ADDRESS;
+	jump_target_indices[0] = 0;
+	jump_target_indices[1] = QB_INSTRUCTION_NEXT;
+
+	qb_create_op(cxt, &factory_loop, &iteration, 1, &counter, jump_target_indices, 2, FALSE);
+	qb_create_op(cxt, &factory_return, NULL, 0, NULL, NULL, 0, FALSE);
 }
 
 void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagnostic_type test_type) {
-	/*
 	qb_address *value1_address, *value2_address, *result_address, *intermediate_address;
 	qb_open_diagnostic_loop(cxt);
 	if(test_type != QB_DIAGNOSTIC_EMPTY) {
@@ -4102,8 +4109,8 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 			case QB_DIAGNOSTIC_VECTOR_MAC: {
 				uint32_t i;
 				float32_t v;
-				value1_address = qb_create_fixed_length_array(cxt, QB_TYPE_F32, 4, 0);
-				value2_address = qb_create_fixed_length_array(cxt, QB_TYPE_F32, 4, 0);
+				value1_address = qb_create_constant_fixed_length_array(cxt, QB_TYPE_F32, 4);
+				value2_address = qb_create_constant_fixed_length_array(cxt, QB_TYPE_F32, 4);
 				for(i = 0, v = (float32_t) M_E; i < 4; i++) {
 					ARRAY(F32, value1_address)[i] = v * 3;
 					ARRAY(F32, value2_address)[i] = v * 8000;
@@ -4140,29 +4147,23 @@ void ZEND_FASTCALL qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagno
 		}
 	}
 	qb_close_diagnostic_loop(cxt);
-	*/
 }
 
 void ZEND_FASTCALL qb_run_diagnostic_loop(qb_compiler_context *cxt) {
-	/*
 	USE_TSRM
-	qb_function _qfunc, *qfunc = &_qfunc;
+	qb_function *qfunc;
+	qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
 
+	qb_resolve_jump_targets(cxt);
 	qb_fuse_instructions(cxt, 1);
+	qb_assign_storage_space(cxt);
 	qb_resolve_address_modes(cxt);
 	qb_fuse_instructions(cxt, 2);
 
-	memset(qfunc, 0, sizeof(qb_function));
-	qfunc->local_storage = cxt->storage;
-	qfunc->variables = cxt->variables;
-	qfunc->variable_count = cxt->variable_count;
-	qb_set_instruction_offsets(cxt);
-	qfunc->instruction_length = cxt->instruction_length;
-	qfunc->instruction_opcode_count = cxt->initialization_op_count;
-	qfunc->instructions = cxt->instructions = emalloc(cxt->instruction_length + sizeof(uint16_t) * cxt->instruction_op_count);
-	qb_encode_instructions(cxt);	
+	qb_initialize_encoder_context(encoder_cxt, cxt TSRMLS_CC);
+	qfunc = qb_encode_function(encoder_cxt);
 	qb_execute_internal(qfunc TSRMLS_CC);
-	*/
+	qb_free_function(qfunc);
 }
 
 int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
@@ -4177,7 +4178,7 @@ int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 		compiler_cxt = qb_enlarge_array((void **) &cxt->compiler_contexts, 1);
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, NULL TSRMLS_CC);
 		qb_create_diagnostic_loop(compiler_cxt, i);
-
+		
 		start_time = qb_get_high_res_timestamp();
 		qb_run_diagnostic_loop(compiler_cxt);
 		end_time = qb_get_high_res_timestamp();

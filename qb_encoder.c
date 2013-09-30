@@ -172,7 +172,7 @@ static void ZEND_FASTCALL qb_encode_segment_selector(qb_encoder_context *cxt, qb
 	*p_ip += sizeof(uint32_t);
 }
 
-int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, void *memory) {
+int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 	uint32_t i, j;
 	int8_t *ip = memory;
 
@@ -230,10 +230,15 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, voi
 			}
 		}
 	}
+#if ZEND_DEBUG
+	if(memory + cxt->instruction_stream_length != ip) {
+		qb_abort("length mismatch");
+	}
+#endif
 	return ip;
 }
 
-int8_t * ZEND_FASTCALL qb_copy_instruction_opcodes(qb_encoder_context *cxt, void *memory) {
+int8_t * ZEND_FASTCALL qb_copy_instruction_opcodes(qb_encoder_context *cxt, int8_t *memory) {
 	int16_t *cp = memory;
 	uint32_t i;
 	for(i = 0; i < cxt->op_count; i++) {
@@ -456,8 +461,10 @@ static uint32_t ZEND_FASTCALL qb_get_function_structure_size(qb_encoder_context 
 	for(i = 0; i < cxt->compiler_context->external_symbol_count; i++) {
 		size += qb_get_external_symbol_length(cxt, &cxt->compiler_context->external_symbols[i]);
 	}
-	size += strlen(cxt->compiler_context->zend_function->common.function_name) + 1;
-	size += strlen(cxt->compiler_context->zend_function->op_array.filename) + 1;
+	if(cxt->compiler_context->zend_function) {
+		size += strlen(cxt->compiler_context->zend_function->common.function_name) + 1;
+		size += strlen(cxt->compiler_context->zend_function->op_array.filename) + 1;
+	}
 	size = ALIGN_TO(size, 16);
 	return size;
 }
@@ -465,10 +472,8 @@ static uint32_t ZEND_FASTCALL qb_get_function_structure_size(qb_encoder_context 
 static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memory) {
 	int8_t *p = memory;
 	qb_function *qfunc;
+	char *func_name = NULL, *filename = NULL;
 	uint32_t i;
-	uint32_t func_name_len = strlen(cxt->compiler_context->zend_function->common.function_name);
-	uint32_t filename_len = strlen(cxt->compiler_context->zend_function->op_array.filename);
-	char *func_name, *filename;
 
 	qfunc = (qb_function *) p; p += sizeof(qb_function);
 
@@ -492,13 +497,18 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 		p = qb_copy_external_symbol(cxt, &cxt->compiler_context->external_symbols[i], p);
 	}
 
-	// copy function name
-	func_name = (char *) p; p += func_name_len + 1;
-	memcpy(func_name, cxt->compiler_context->zend_function->common.function_name, func_name_len + 1);
+	if(cxt->compiler_context->zend_function) {
+		uint32_t func_name_len = strlen(cxt->compiler_context->zend_function->common.function_name);
+		uint32_t filename_len = strlen(cxt->compiler_context->zend_function->op_array.filename);
 
-	// copy script name
-	filename = (char *) p; p += filename_len + 1;
-	memcpy(filename, cxt->compiler_context->zend_function->op_array.filename, filename_len + 1);
+		// copy function name
+		func_name = (char *) p; p += func_name_len + 1;
+		memcpy(func_name, cxt->compiler_context->zend_function->common.function_name, func_name_len + 1);
+
+		// copy script name
+		filename = (char *) p; p += filename_len + 1;
+		memcpy(filename, cxt->compiler_context->zend_function->op_array.filename, filename_len + 1);
+	}
 
 	qfunc->argument_count = cxt->compiler_context->argument_count;
 	qfunc->required_argument_count = cxt->compiler_context->required_argument_count;
@@ -529,6 +539,9 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 	int8_t *p = memory;
 	qb_storage *storage;
 	uint32_t i;
+#if ZEND_DEBUG
+	uint32_t length = qb_get_storage_structure_size(cxt);
+#endif
 
 	storage = (qb_storage *) p;	p += sizeof(qb_storage);
 	storage->flags = 0;
@@ -555,6 +568,11 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 	}
 
 	p = (int8_t *) ALIGN_TO((uintptr_t) p, 16);
+#if ZEND_DEBUG
+	if(memory + length != p) {
+		qb_abort("length mismatch");
+	}
+#endif
 	return p;
 }
 
@@ -618,8 +636,7 @@ static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, i
 }
 
 qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt) {
-	USE_TSRM
-	qb_function *qfunc, **p_qfunc;
+	qb_function *qfunc;
 	int8_t *memory, *p;
 	uint32_t function_struct_size, storage_struct_size, preallocated_segment_size, instruction_length, opcode_length;
 	uint32_t total_size;
@@ -637,7 +654,8 @@ qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt) {
 	total_size = function_struct_size + storage_struct_size + preallocated_segment_size + instruction_length + opcode_length;
 
 	// allocate memory and copy everything into a continuous block of memory
-	p = memory = emalloc(total_size);
+	// add a bit of padding in case the memory pointer returned isn't aligned
+	p = memory = emalloc(total_size + 16);
 
 	// copy stuff into the function structure 
 	qfunc = (qb_function *) p;
@@ -666,14 +684,6 @@ qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt) {
 	// calculate the CRC64 signature
 	qfunc->instruction_crc64 = qb_calculate_crc64((uint8_t *) qfunc->instructions, cxt->instruction_stream_length, 0);
 	qfunc->size = total_size;
-
-	// add the function to the global table so we can free it afterward
-	if(!QB_G(compiled_functions)) {
-		qb_create_array((void **) &QB_G(compiled_functions), &QB_G(compiled_function_count), sizeof(qb_function *), 16);
-	}
-	p_qfunc = qb_enlarge_array((void **) &QB_G(compiled_functions), 1);
-	*p_qfunc = qfunc;
-
 	return qfunc;
 }
 

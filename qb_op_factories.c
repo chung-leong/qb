@@ -2099,7 +2099,25 @@ qb_simple_op_factory factory_foreach_fetch = {
 	NULL,
 	qb_transfer_operands_foreach_fetch,
 
-	QB_COERCE_TO_BOOLEAN,
+	0,
+	0,
+	0,
+	QB_INC_IF_GT_U32_U32,
+};
+
+qb_simple_op_factory factory_loop = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_variable,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_assignment,
+
+	0,
 	0,
 	0,
 	QB_INC_IF_GT_U32_U32,
