@@ -239,7 +239,7 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, int
 }
 
 int8_t * ZEND_FASTCALL qb_copy_instruction_opcodes(qb_encoder_context *cxt, int8_t *memory) {
-	int16_t *cp = memory;
+	int16_t *cp = (int8_t *) memory;
 	uint32_t i;
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];

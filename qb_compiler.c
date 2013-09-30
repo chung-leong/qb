@@ -4065,7 +4065,7 @@ void ZEND_FASTCALL qb_open_diagnostic_loop(qb_compiler_context *cxt) {
 	cxt->stage = QB_STAGE_OPCODE_TRANSLATION;
 }
 
-#define DIAGNOSTIC_ITERATION	1000000
+#define DIAGNOSTIC_ITERATION	2000000
 
 void ZEND_FASTCALL qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 	qb_operand iteration, counter;

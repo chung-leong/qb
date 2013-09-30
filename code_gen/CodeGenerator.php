@@ -94,11 +94,11 @@ class CodeGenerator {
 		}
 		$lines[] = 			"register void *__restrict handler;";
 		$lines[] = 			"register int8_t *__restrict ip;";
+		$lines[] =			"qb_storage *local_storage = function->local_storage;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
 			$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
-			$lines[] =		"qb_storage *local_storage = function->local_storage;";
 		}
 		$lines[] =			"USE_TSRM";
 		$lines[] = 			"";
