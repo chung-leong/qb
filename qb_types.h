@@ -106,6 +106,7 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 #define VALUE(type, address)				VALUE_IN(cxt->storage, type, address)
 #define ARRAY_SIZE(address)					VALUE(U32, address->array_size_address)
 
+#define CONSTANT_DIMENSION(address, i)		CONSTANT(address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
 #define DIMENSION(address, i)				VALUE(U32, address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
 
 #define BYTE_COUNT(element_count, type)		((element_count) << type_size_shifts[type])

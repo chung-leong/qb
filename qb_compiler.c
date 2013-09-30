@@ -2598,7 +2598,7 @@ void ZEND_FASTCALL qb_create_op(qb_compiler_context *cxt, void *factory, qb_oper
 		// move the operands into the op
 		qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
 		if(f->transfer_operands) {
-			f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands);
+			f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands, qop->operand_count);
 		}
 
 		// add the op

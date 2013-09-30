@@ -18,7 +18,7 @@
 
 /* $Id$ */
 
-static void ZEND_FASTCALL qb_transfer_operands_all(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_all(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
 		dest[i] = operands[i];
@@ -28,22 +28,22 @@ static void ZEND_FASTCALL qb_transfer_operands_all(qb_compiler_context *cxt, qb_
 	}
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[operand_count - 1];
 	dest[1] = *result;
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_result_only(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_result_only(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = *result;
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_reverse_binary(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_reverse_binary(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[1];
 	dest[1] = operands[0];
 	dest[2] = *result;
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[1];
 	dest[0] = *value;
 	if(value->address->dimension_count > 1) {
@@ -59,7 +59,7 @@ static void ZEND_FASTCALL qb_transfer_operands_concat(qb_compiler_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_print(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_print(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0];
 	dest[0] = *value;
 	if(value->address->dimension_count > 1) {
@@ -68,7 +68,7 @@ static void ZEND_FASTCALL qb_transfer_operands_print(qb_compiler_context *cxt, q
 	}
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0];
 	if(cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS && cxt->return_variable->address != value->address) {
 		qb_operand assigment_operands[2];
@@ -83,7 +83,7 @@ static void ZEND_FASTCALL qb_transfer_operands_return(qb_compiler_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	if(operand_count == 1) {
 		dest[0] = operands[0];
 		dest[1] = *result;
@@ -101,7 +101,7 @@ static void ZEND_FASTCALL qb_transfer_operands_minmax(qb_compiler_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *variable = &operands[0];
 
 	// perform the assignment if there's an address
@@ -116,17 +116,79 @@ static void ZEND_FASTCALL qb_transfer_operands_increment(qb_compiler_context *cx
 	dest[0] = *variable;
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = *result;
 	dest[1] = operands[operand_count - 1];
 	dest[2] = *result;
 }
 
-static void ZEND_FASTCALL qb_transfer_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest) {
+static void ZEND_FASTCALL qb_transfer_operands_one_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *vector = &operands[0];
+	dest[0] = *vector;
+	if(dest_count == 3) {
+		dest[1].type = QB_OPERAND_ADDRESS;
+		dest[1].address = vector->address;
+		dest[2] = *result;
+	} else {
+		dest[1] = *result;
+	}
+}
+
+static void ZEND_FASTCALL qb_transfer_operands_two_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	if(dest_count == 3) {
+		// need the dimension
+		qb_address *address = operands[0].address;
+		dest[1].type = QB_OPERAND_ADDRESS;
+		dest[1].address = address->dimension_addresses[address->dimension_count - 1];
+		dest[2] = *result;
+	} else {
+		dest[1] = *result;
+	}
+}
+
+static void ZEND_FASTCALL qb_transfer_operands_two_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	dest[1] = operands[1];
+	if(dest_count == 4) {
+		// need the dimension
+		qb_address *address1 = operands[0].address, *address2 = operands[1].address;		
+		dest[2].type = QB_OPERAND_ADDRESS;
+		dest[2].address = address1->dimension_addresses[address1->dimension_count - 1];
+		dest[3] = *result;
+
+		if(!CONSTANT_DIMENSION(address1, -1) || !CONSTANT_DIMENSION(address2, -1)) {
+			// TODO add check
+		}
+	} else {
+		dest[2] = *result;
+	}
+}
+
+static void ZEND_FASTCALL qb_transfer_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	dest[1] = operands[1];
+	dest[2] = operands[2];
+	if(dest_count == 5) {
+		// need the dimension
+		qb_address *address1 = operands[0].address, *address2 = operands[1].address;		
+		dest[3].type = QB_OPERAND_ADDRESS;
+		dest[3].address = address1->dimension_addresses[address1->dimension_count - 1];
+		dest[4] = *result;
+
+		if(!CONSTANT_DIMENSION(address1, -1) || !CONSTANT_DIMENSION(address2, -1)) {
+			// TODO add check
+		}
+	} else {
+		dest[3] = *result;
+	}
+}
+
+static void ZEND_FASTCALL qb_transfer_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	f = func->intrinsic_function->extra;
 	if(f->transfer_operands) {
-		f->transfer_operands(cxt, f, arguments->arguments, argument_count->number, result, dest);
+		f->transfer_operands(cxt, f, arguments->arguments, argument_count->number, result, dest, dest_count);
 	}
 }
 
@@ -138,3 +200,4 @@ static uint32_t ZEND_FASTCALL qb_get_operand_count_intrinsic(qb_compiler_context
 	}
 	return 0;
 }
+

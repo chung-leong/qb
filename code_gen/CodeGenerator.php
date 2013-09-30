@@ -690,6 +690,7 @@ class CodeGenerator {
 			}
 		}
 		ksort($formats);
+		print_r($formats);
 		return $formats;
 	}
 

@@ -188,6 +188,11 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, voi
 				qb_encode_handler(cxt, i, &ip);
 			}
 
+			if((int8_t *) memory + qop->instruction_offset != ip) {
+				qb_op *prev_qop = cxt->ops[i - 1];
+				qb_abort("the previous op was not correctly encoded");
+			}
+
 			if(qop->flags & QB_OP_JUMP) {
 				// put in the jump targets
 				for(j = 0; j < qop->jump_target_count; j++) {

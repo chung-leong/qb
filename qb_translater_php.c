@@ -1434,7 +1434,6 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"clamp",				3,		3,		&factory_clamp				},
 	{	0,	"mix",					3,		3,		&factory_mix				},
 	{	0,	"smooth_step",			3,		3,		&factory_smooth_step		},
-/*
 	{	0,	"normalize",			1,		1,		&factory_normalize			},
 	{	0,	"length",				1,		1,		&factory_length				},
 	{	0,	"distance",				2,		2,		&factory_distance			},
@@ -1443,6 +1442,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"faceforward",			2,		2,		&factory_faceforward		},
 	{	0,	"reflect",				2,		2,		&factory_reflect			},
 	{	0,	"refract",				3,		3,		&factory_refract			},
+/*
 	{	0,	"mm_mult",				2,		2,		&factory_mm_multiply		},
 	{	0,	"mv_mult",				2,		2,		&factory_mv_multiply		},
 	{	0,	"vm_mult",				2,		2,		&factory_vm_multiply		},

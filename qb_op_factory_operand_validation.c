@@ -220,3 +220,59 @@ static void ZEND_FASTCALL qb_validate_operands_intrinsic(qb_compiler_context *cx
 	}
 	cxt->intrinsic_function = NULL;
 }
+
+static void ZEND_FASTCALL qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand = &operands[0];
+
+	if(SCALAR(operand->address)) {
+		qb_abort("%s() expects an array as parameter", cxt->intrinsic_function->name);
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_two_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+
+	if(SCALAR(operand1->address)) {
+		qb_abort("%s() expects the first parameter to be an array", cxt->intrinsic_function->name);
+	}
+	if(SCALAR(operand2->address)) {
+		qb_abort("%s() expects the second parameter to be an array", cxt->intrinsic_function->name);
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+
+	qb_validate_operands_two_array(cxt, f, operands, operand_count);
+
+	if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1)) {
+		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
+		uint32_t vector_width2 = DIMENSION(operand2->address, -1);
+		if(vector_width1 != vector_width2) {
+			qb_abort("%s() expects the dimension of the first parameter to match the dimension of the second parameter", cxt->intrinsic_function->name);
+		}
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1], *operand3 = &operands[2];
+
+	qb_validate_operands_matching_vector_width(cxt, f, operands, operand_count);
+
+	if(!SCALAR(operand3->address)) {
+		qb_abort("%s() expects the third parameter to be a scalar", cxt->intrinsic_function->name);
+	}
+}
+
+static void ZEND_FASTCALL qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+
+	qb_validate_operands_matching_vector_width(cxt, f, operands, operand_count);
+
+	if(CONSTANT_DIMENSION(operand1->address, -1)) {
+		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
+		if(!(2 <= vector_width1 && vector_width1 <= 4)) {
+			qb_abort("%s() can only handle two, three, or four-dimensional vectors", cxt->intrinsic_function->name);
+		}
+	}
+}

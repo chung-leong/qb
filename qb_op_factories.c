@@ -2919,18 +2919,17 @@ qb_pixel_op_factory factory_sample_bilinear = {
 };
 */
 
-/*
 qb_vector_op_factory factory_dot_product = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
+	qb_validate_operands_matching_vector_width,
+	qb_set_result_temporary_value,
 	qb_set_result_dimensions_vector,
-	qb_select_opcode_vector,
+	qb_select_opcode_two_vectors,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -2942,20 +2941,18 @@ qb_vector_op_factory factory_dot_product = {
 		{	QB_DOT_4X_F64_F64_F64,	QB_DOT_4X_F32_F32_F32,	},
 	},
 };
-*/
 
-/*
 qb_vector_op_factory factory_length = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
+	qb_validate_operands_one_array,
+	qb_set_result_temporary_value,
 	qb_set_result_dimensions_vector,
-	qb_select_opcode_vector,
+	qb_select_opcode_one_vector,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_one_vector,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -2967,20 +2964,18 @@ qb_vector_op_factory factory_length = {
 		{	QB_LEN_4X_F64_F64,		QB_LEN_4X_F32_F32,	},
 	},
 };
-*/
 
-/*
 qb_vector_op_factory factory_distance = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
+	qb_validate_operands_matching_vector_width,
+	qb_set_result_temporary_value,
 	qb_set_result_dimensions_vector,
-	qb_select_opcode_vector,
+	qb_select_opcode_one_vector,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_one_vector,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -2992,20 +2987,18 @@ qb_vector_op_factory factory_distance = {
 		{	QB_DIS_4X_F64_F64_F64,	QB_DIS_4X_F32_F32_F32,	},
 	},
 };
-*/
 
-/*
 qb_vector_op_factory factory_normalize = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_one_array,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matching,
-	qb_select_opcode_vector,
+	qb_select_opcode_one_vector,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_one_vector,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3017,20 +3010,18 @@ qb_vector_op_factory factory_normalize = {
 		{	QB_NORM_4X_F64_F64,		QB_NORM_4X_F32_F32,	},
 	},
 };
-*/
 
-/*
 qb_vector_op_factory factory_faceforward = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_matching_vector_width,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matching,
-	qb_select_opcode_vector,
+	qb_select_opcode_two_vectors,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3042,20 +3033,18 @@ qb_vector_op_factory factory_faceforward = {
 		{	QB_FORE_4X_F64_F64_F64,		QB_FORE_4X_F32_F32_F32,	},
 	},
 };
-*/
 
-/*
 qb_vector_op_factory factory_reflect = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_matching_vector_width,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matching,
-	qb_select_opcode_vector,
+	qb_select_opcode_two_vectors,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3067,20 +3056,18 @@ qb_vector_op_factory factory_reflect = {
 		{	QB_REFL_4X_F64_F64_F64,		QB_REFL_4X_F32_F32_F32,	},
 	},
 };
-*/
 
-/*
 qb_vector_op_factory factory_refract = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_refract,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matching,
-	qb_select_opcode_vector,
+	qb_select_opcode_two_vectors,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_refract,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3092,20 +3079,18 @@ qb_vector_op_factory factory_refract = {
 		{	QB_REFR_4X_F64_F64_F64_F64,		QB_REFR_4X_F32_F32_F32_F32,	},
 	},
 };
-*/
 
-/*
 qb_vector_op_factory factory_cross_product = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_cross_product,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matching,
-	qb_select_opcode_vector,
+	qb_select_opcode_two_vectors,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3117,7 +3102,6 @@ qb_vector_op_factory factory_cross_product = {
 		{	QB_CROSS_4X_F64_F64_F64_F64,	QB_CROSS_4X_F32_F32_F32_F32,	},
 	},
 };
-*/
 
 /*
 qb_matrix_op_factory factory_mm_multiply_cm = {

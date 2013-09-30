@@ -181,23 +181,42 @@ static qb_opcode ZEND_FASTCALL qb_select_opcode_pixel(qb_compiler_context *cxt, 
 	return opcode;
 }
 
-static qb_opcode ZEND_FASTCALL qb_select_opcode_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static qb_opcode ZEND_FASTCALL qb_select_opcode_one_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_vector_op_factory *vf = (qb_vector_op_factory *) f;
 	qb_address *address = operands[0].address;
-	uint32_t dimension = DIMENSION(address, -1);
 	qb_opcode opcode = QB_NOP;
-	uint32_t i;
-
-	if(2 <= dimension && dimension <= 4) {
-		opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address->type];
-	} else {
+	if(CONSTANT_DIMENSION(address, -1)) {
+		uint32_t dimension = DIMENSION(address, -1);
+		if(2 <= dimension && dimension <= 4) {
+			opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address->type];
+		}
+	}
+	if(opcode == QB_NOP) {
 		opcode = vf->opcodes_any_size[QB_TYPE_F64 - address->type];
 	}
-	for(i = 0; i < operand_count; i++) {
-		address = operands[i].address;
-		if(address->dimension_count > 1) {
-			opcode = qb_select_multidata_opcode(cxt, opcode);
+	if(address->dimension_count > 1) {
+		opcode = qb_select_multidata_opcode(cxt, opcode);
+	}
+	return opcode;
+}
+
+static qb_opcode ZEND_FASTCALL qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_vector_op_factory *vf = (qb_vector_op_factory *) f;
+	qb_address *address1 = operands[0].address;
+	qb_address *address2 = operands[1].address;
+	qb_opcode opcode = QB_NOP;
+	if(CONSTANT_DIMENSION(address1, -1) && CONSTANT_DIMENSION(address2, -1)) {
+		uint32_t dimension = DIMENSION(address1, -1);
+
+		if(2 <= dimension && dimension <= 4) {
+			opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address1->type];
 		}
+	}
+	if(opcode == QB_NOP) {
+		opcode = vf->opcodes_any_size[QB_TYPE_F64 - address1->type];
+	}
+	if(address1->dimension_count > 1 || address2->dimension_count > 1) {
+		opcode = qb_select_multidata_opcode(cxt, opcode);
 	}
 	return opcode;
 }

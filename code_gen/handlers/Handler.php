@@ -225,7 +225,7 @@ class Handler {
 		}
 
 		for($i = 1; $i <= $dstCount; $i++) {
-			$addressMode = $this->getOperandAddressMode($i);
+			$addressMode = $this->getOperandAddressMode($srcCount + $i);
 			switch($addressMode) {
 				case 'SCA': $format .= 'S'; break;
 				case 'ELE': $format .= 'E'; break;

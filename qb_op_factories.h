@@ -56,7 +56,7 @@ typedef uint32_t (ZEND_FASTCALL *qb_get_operand_count_proc)(qb_compiler_context 
 
 typedef qb_opcode (ZEND_FASTCALL *qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
-typedef void (ZEND_FASTCALL *qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest);
+typedef void (ZEND_FASTCALL *qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
 
 #define OP_FACTORY_COMMON_ELEMENTS		\
 	qb_resolve_expression_type_proc resolve_type;	\
@@ -330,5 +330,14 @@ extern qb_float_op_factory factory_complex_tan;
 extern qb_float_op_factory factory_complex_sinh;
 extern qb_float_op_factory factory_complex_cosh;
 extern qb_float_op_factory factory_complex_tanh;
+
+extern qb_vector_op_factory factory_dot_product;
+extern qb_vector_op_factory factory_length;
+extern qb_vector_op_factory factory_distance;
+extern qb_vector_op_factory factory_normalize;
+extern qb_vector_op_factory factory_faceforward;
+extern qb_vector_op_factory factory_reflect;
+extern qb_vector_op_factory factory_refract;
+extern qb_vector_op_factory factory_cross_product;
 
 #endif
