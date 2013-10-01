@@ -340,6 +340,60 @@ qb_op_factory factory_free = {
 	0,
 };
 
+qb_simple_op_factory factory_bound_checking_nop = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_BC_NOP_U32_U32_U32,
+};
+
+qb_simple_op_factory factory_bound_checking_add = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_BC_ADD_U32_U32_U32_U32,
+};
+
+qb_simple_op_factory factory_bound_checking_multiply = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_BC_MUL_U32_U32_U32_U32,
+};
+
 qb_op_factory factory_receive_argument = {
 	NULL,
 	NULL,

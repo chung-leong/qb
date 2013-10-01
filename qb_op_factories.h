@@ -187,6 +187,10 @@ extern void *factories_fcall[3];
 
 extern qb_op_factory factory_free;
 
+extern qb_simple_op_factory factory_bound_checking_nop;
+extern qb_simple_op_factory factory_bound_checking_add;
+extern qb_simple_op_factory factory_bound_checking_multiply;
+
 extern qb_cast_op_factory factory_cast_S08;
 extern qb_cast_op_factory factory_cast_U08;
 extern qb_cast_op_factory factory_cast_S16;

@@ -913,6 +913,7 @@
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

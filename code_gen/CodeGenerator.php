@@ -3,7 +3,7 @@
 class CodeGenerator {
 	protected $compiler;
 	protected $handlers = array();
-	protected $elementTypes = array("S32", "U32", "F32", "F64", "S08", "U08", "S16", "U16", "S64", "U64");
+	protected $elementTypes = array("U32", "S32", "F32", "F64", "S08", "U08", "S16", "U16", "S64", "U64");
 	protected $floatTypes = array("F32", "F64");
 	protected $addressModes = array("SCA", "ELE", "ARR");
 	protected $scalarAddressModes = array("SCA", "ELE");
@@ -819,6 +819,7 @@ class CodeGenerator {
 		foreach($this->elementTypes as $elementType) {
 			$this->addFlowControlHandlers($elementType);
 			$this->addIncrementDecrementHandlers($elementType);
+			$this->addBoundCheckingHandlers($elementType);
 			$this->addArithmeticHandlers($elementType);
 			$this->addAssignmentHandlers($elementType);
 			$this->addComparisonHandlers($elementType);
@@ -833,6 +834,14 @@ class CodeGenerator {
 			$this->addComplexNumberHandlers($elementType);
 		}
 		$this->addDebugHandlers();
+	}
+	
+	protected function addBoundCheckingHandlers($elementType) {
+		if($elementType == "U32") {
+			$this->handlers[] = new BoundCheck("BC_NOP", "U32");
+			$this->handlers[] = new BoundCheckAdd("BC_ADD", "U32");
+			$this->handlers[] = new BoundCheckMultiply("BC_MUL", "U32");
+		}
 	}
 
 	protected function addArithmeticHandlers($elementType) {
