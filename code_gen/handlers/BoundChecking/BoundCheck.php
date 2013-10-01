@@ -3,6 +3,10 @@
 class BoundCheck extends Handler {
 
 	use ScalarAddressMode, BinaryOperator, MayEmitError;
+	
+	public function getOutputOperandCount() {
+		return 0;
+	}
 
 	protected function getActionOnUnitData() {
 		$lines = array();

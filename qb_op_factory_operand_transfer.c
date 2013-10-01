@@ -28,9 +28,16 @@ static void qb_transfer_operands_all(qb_compiler_context *cxt, qb_op_factory *f,
 	}
 }
 
-static void qb_transfer_operands_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+static void qb_transfer_operands_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[operand_count - 1];
 	dest[1] = *result;
+}
+
+static void qb_transfer_operands_bound_check_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *variable = &operands[1];
+	dest[0] = operands[0];
+	dest[1].address = (variable->address->array_size_address) ? variable->address->array_size_address : cxt->one_address;
+	dest[1].type = QB_OPERAND_ADDRESS;
 }
 
 static void qb_transfer_operands_result_only(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
@@ -92,7 +99,7 @@ static void qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory 
 		assigment_operands[1].address = value->address;
 		assignment_result.type = QB_OPERAND_ADDRESS;
 		assignment_result.address = cxt->return_variable->address;
-		qb_create_op(cxt, &factory_assignment, assigment_operands, 2, &assignment_result, NULL, 0, TRUE);
+		qb_create_op(cxt, &factory_assign, assigment_operands, 2, &assignment_result, NULL, 0, TRUE);
 	}
 }
 
@@ -124,7 +131,7 @@ static void qb_transfer_operands_increment(qb_compiler_context *cxt, qb_op_facto
 		assigment_operands[0].address = result->address;
 		assigment_operands[1].type = QB_OPERAND_ADDRESS;
 		assigment_operands[1].address = variable->address;
-		qb_create_op(cxt, &factory_assignment, assigment_operands, 2, result, NULL, 0, TRUE);
+		qb_create_op(cxt, &factory_assign, assigment_operands, 2, result, NULL, 0, TRUE);
 	}
 	dest[0] = *variable;
 }

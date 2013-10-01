@@ -749,7 +749,7 @@ static qb_address * qb_pbj_obtain_temporary_vector(qb_pbj_translater_context *cx
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *source_address = bundle->addresses[i];
 				qb_address *channel_address = qb_obtain_array_slice(cxt->compiler_context, address, offset_address, length_address);
-				qb_create_unary_op(cxt, &factory_assignment, source_address, channel_address);
+				qb_create_unary_op(cxt, &factory_assign, source_address, channel_address);
 			}
 		}
 		bundle->temporary_address = address;
@@ -767,7 +767,7 @@ static void qb_pbj_release_temporary_vector(qb_pbj_translater_context *cxt, qb_p
 				qb_address *length_address = cxt->pbj_int_numerals[bundle->channel_counts[i]];
 				qb_address *destination_address = bundle->addresses[i];
 				qb_address *channel_address = qb_obtain_array_slice(cxt->compiler_context, bundle->temporary_address, offset_address, length_address);
-				qb_create_unary_op(cxt, &factory_assignment, channel_address, destination_address);
+				qb_create_unary_op(cxt, &factory_assign, channel_address, destination_address);
 			}
 		}
 	} 
@@ -926,7 +926,7 @@ static void qb_pbj_translate_copy(qb_pbj_translater_context *cxt, qb_pbj_transla
 	for(i = 0; i < output_bundle.address_count; i++) {
 		op_address = input_bundle.addresses[i];
 		result_address = output_bundle.addresses[i];
-		qb_create_unary_op(cxt, &factory_assignment, op_address, result_address);
+		qb_create_unary_op(cxt, &factory_assign, op_address, result_address);
 	}
 }
 
@@ -1092,7 +1092,7 @@ static void qb_pbj_translate_load_constant(qb_pbj_translater_context *cxt, qb_pb
 			}
 		}
 	}
-	qb_create_unary_op(cxt, &factory_assignment, constant_address, result_address);
+	qb_create_unary_op(cxt, &factory_assign, constant_address, result_address);
 
 	// jump over ops which are processed already
 	cxt->jump_target_index1 = cxt->pbj_op_index + constant_count;
@@ -1201,9 +1201,9 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_floor				},	// PBJ_FLOOR
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_ceil				},	// PBJ_CEIL
 	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_fract				},	// PBJ_FRACT
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_COPY
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_FLOAT_TO_INT
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_INT_TO_FLOAT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assign				},	// PBJ_COPY
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assign				},	// PBJ_FLOAT_TO_INT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assign				},	// PBJ_INT_TO_FLOAT
 	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mm_multiply_cm		},	// PBJ_MATRIX_MATRIX_MULTIPLY
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WD,		&factory_vm_multiply_cm		},	// PBJ_VECTOR_MATRIX_MULTIPLY
 	{	qb_pbj_translate_reverse_vector_op,			PBJ_RS_RD_WD,		&factory_mv_multiply_cm		},	// PBJ_MATRIX_VECTOR_MULTIPLY
@@ -1228,9 +1228,9 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_pbj_translate_else,						0,					NULL,						},	// PBJ_ELSE
 	{	qb_pbj_translate_end_if,					0,					NULL						},	// PBJ_END_IF
 	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_FLOAT_TO_BOOL
-	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assignment				},	// PBJ_BOOL_TO_FLOAT
+	{	qb_pbj_translate_copy,						PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_FLOAT
 	{	qb_pbj_translate_bool,						0,					&factory_not_equal			},	// PBJ_INT_TO_BOOL
-	{	NULL,										PBJ_RS_WD,			&factory_assignment				},	// PBJ_BOOL_TO_INT
+	{	NULL,										PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_INT
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_set_equal			},	// PBJ_VECTOR_EQUAL
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_RD_WB,		&factory_set_not_equal		},	// PBJ_VECTOR_NOT_EQUAL
 	{	qb_pbj_translate_basic_vector_op,			PBJ_RS_WD,			&factory_any				},	// PBJ_ANY
@@ -2003,20 +2003,20 @@ static void qb_pbj_translate_instructions(qb_pbj_translater_context *cxt) {
 				qb_address *input_height_address = input_image_address->dimension_addresses[0];
 				qb_address *input_size_x_address = qb_pbj_obtain_channel_address(cxt, parameter->destination.register_id, parameter->destination.channels[0], 1);
 				qb_address *input_size_y_address = qb_pbj_obtain_channel_address(cxt, parameter->destination.register_id, parameter->destination.channels[1], 1);
-				qb_create_unary_op(cxt, &factory_assignment, input_width_address, input_size_x_address);
-				qb_create_unary_op(cxt, &factory_assignment, input_height_address, input_size_y_address);
+				qb_create_unary_op(cxt, &factory_assign, input_width_address, input_size_x_address);
+				qb_create_unary_op(cxt, &factory_assign, input_height_address, input_size_y_address);
 			} else if(parameter->address) {
 				qb_address *dst_address;
 				qb_address *src_address = parameter->address;
 				qb_pbj_address *dst = &parameter->destination;
 				dst_address = qb_pbj_obtain_address(cxt, dst);
-				qb_create_unary_op(cxt, &factory_assignment, src_address, dst_address);
+				qb_create_unary_op(cxt, &factory_assign, src_address, dst_address);
 			} else if(parameter->default_value.type) {
 				// use default value if parameter isn't mapped to an argument
 				qb_address *value_address = qb_pbj_obtain_value_address(cxt, &parameter->default_value);
 				qb_address *param_address = qb_pbj_obtain_address(cxt, &parameter->destination);
 				if(value_address) {
-					qb_create_unary_op(cxt, &factory_assignment, value_address, param_address);
+					qb_create_unary_op(cxt, &factory_assign, value_address, param_address);
 				}
 			}
 		}
@@ -2031,23 +2031,23 @@ static void qb_pbj_translate_instructions(qb_pbj_translater_context *cxt) {
 	}
 
 	// set pixel index to zero
-	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_int_numerals[0], pixel_index_address);
+	qb_create_unary_op(cxt, &factory_assign, cxt->pbj_int_numerals[0], pixel_index_address);
 
 	// set y to zero, but _OutCoord.y to 0.5, as that's the center of the grid
-	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_int_numerals[0], y_address);
-	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_float_numerals[1], out_coord_y_address);
+	qb_create_unary_op(cxt, &factory_assign, cxt->pbj_int_numerals[0], y_address);
+	qb_create_unary_op(cxt, &factory_assign, cxt->pbj_float_numerals[1], out_coord_y_address);
 
 	// set x to zero, but _OutCoord.x to 0.5
 	// the outer loop starts here
 	cxt->compiler_context->op_translations[OUTER_LOOK_JUMP_TARGET_INDEX] = cxt->compiler_context->op_count;
-	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_int_numerals[0], x_address);
+	qb_create_unary_op(cxt, &factory_assign, cxt->pbj_int_numerals[0], x_address);
 	qop = cxt->compiler_context->ops[cxt->compiler_context->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
-	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_float_numerals[1], out_coord_x_address);
+	qb_create_unary_op(cxt, &factory_assign, cxt->pbj_float_numerals[1], out_coord_x_address);
 
 	// initialize the output pixel to zero--the inner loop starts here
 	cxt->compiler_context->op_translations[INNER_LOOP_JUMP_TARGET_INDEX] = cxt->compiler_context->op_count;
-	qb_create_unary_op(cxt, &factory_assignment, cxt->pbj_float_numerals[0], output_address);
+	qb_create_unary_op(cxt, &factory_assign, cxt->pbj_float_numerals[0], output_address);
 	qop = cxt->compiler_context->ops[cxt->compiler_context->op_count - 1];
 	qop->flags |= QB_OP_JUMP_TARGET;
 

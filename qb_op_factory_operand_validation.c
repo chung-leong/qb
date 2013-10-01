@@ -195,7 +195,7 @@ static void qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_
 	}
 }
 
-static void qb_validate_operands_ref_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 	// global and static assign ref to bring variables into the local scope
 	if(variable->address != value->address) {

@@ -68,27 +68,27 @@ static void qb_coerce_operands_no_cast(qb_compiler_context *cxt, qb_op_factory *
 	}
 }
 
-static void qb_coerce_operands_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+static void qb_coerce_operands_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[1];
-	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assignment) {
+	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assign) {
 		// since there're instructions for copying from one type to another, 
 		// don't perform casting on when there's an address
 		qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags);
 	}
 }
 
-static void qb_coerce_operands_array_element_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+static void qb_coerce_operands_assign_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *index = &operands[1];
 	qb_operand *value = &operands[2];
 	qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0);
-	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_array_element_assignment) {
+	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assign_array_element) {
 		qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags);
 	}
 }
 
-static void qb_coerce_operands_object_property_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr, qb_operand *operands, uint32_t operand_count) {
+static void qb_coerce_operands_assign_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[2];
-	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_object_property_assignment) {
+	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assign_object_property) {
 		qb_perform_type_coercion(cxt, value, expr, f->coercion_flags);
 	}
 }

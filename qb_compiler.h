@@ -425,6 +425,7 @@ qb_address * qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_t
 qb_address * qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count);
 qb_address * qb_obtain_temporary_variable_length_array(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
+qb_address * qb_obtain_non_reusable_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
 
 qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index);
@@ -443,6 +444,8 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name);
 qb_address * qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address);
 qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address);
+
+qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_address *address, qb_address *size_address);
 
 qb_address * qb_retrieve_temporary_copy(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type);
 qb_address * qb_retrieve_unary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address);
