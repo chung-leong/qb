@@ -27,13 +27,13 @@
 extern const qb_op_info global_op_info[];
 extern const uint32_t global_instruction_lengths[];
 
-static uint32_t ZEND_FASTCALL qb_get_instruction_length(qb_encoder_context *cxt, uint32_t opcode) {
+static uint32_t qb_get_instruction_length(qb_encoder_context *cxt, uint32_t opcode) {
 	const qb_op_info *op = &global_op_info[opcode];
 	uint32_t length = global_instruction_lengths[op->format_index];
 	return length;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_op_encoded_length(qb_encoder_context *cxt, qb_op *qop) {
+static uint32_t qb_get_op_encoded_length(qb_encoder_context *cxt, qb_op *qop) {
 	uint32_t length = qb_get_instruction_length(cxt, qop->opcode);
 	if(!length) {
 		// variable-length instruction
@@ -41,7 +41,7 @@ static uint32_t ZEND_FASTCALL qb_get_op_encoded_length(qb_encoder_context *cxt, 
 	return length;
 }
 
-static void ZEND_FASTCALL qb_set_instruction_offsets(qb_encoder_context *cxt) {
+static void qb_set_instruction_offsets(qb_encoder_context *cxt) {
 	uint32_t instruction_offset, i;
 	uint32_t count = 0;
 
@@ -62,7 +62,7 @@ static void ZEND_FASTCALL qb_set_instruction_offsets(qb_encoder_context *cxt) {
 	cxt->instruction_op_count = count;
 }
 
-static void ZEND_FASTCALL qb_add_segment_reference(qb_encoder_context *cxt, qb_address *address, void **p_pointer) {
+static void qb_add_segment_reference(qb_encoder_context *cxt, qb_address *address, void **p_pointer) {
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 	if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
 		uintptr_t **p_reference = &segment->references[segment->reference_count++];
@@ -70,12 +70,12 @@ static void ZEND_FASTCALL qb_add_segment_reference(qb_encoder_context *cxt, qb_a
 	}
 }
 
-static void * ZEND_FASTCALL qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
+static void * qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 	return (void *) (segment->memory + address->segment_offset);
 }
 
-static void ZEND_FASTCALL qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
+static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
 	switch(address->mode) {
 		case QB_ADDRESS_MODE_SCA: {
 			qb_pointer_SCA *p = ((qb_pointer_SCA *) *p_ip);
@@ -121,7 +121,7 @@ static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *q
 	return handler_address;
 }
 
-static void ZEND_FASTCALL qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
+static void qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
 	qb_op *target_qop = cxt->ops[target_index];
 
 #ifdef ZEND_DEBUG
@@ -143,7 +143,7 @@ static zend_always_inline int8_t *qb_get_instruction_pointer(qb_encoder_context 
 	return p;
 }
 
-static void ZEND_FASTCALL qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
+static void qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
 	qb_op *target_qop = cxt->ops[target_index];
 
 #ifdef ZEND_DEBUG
@@ -162,17 +162,17 @@ static void ZEND_FASTCALL qb_encode_jump_target(qb_encoder_context *cxt, uint32_
 	*p_ip += sizeof(int8_t *);
 }
 
-static void ZEND_FASTCALL qb_encode_line_number(qb_encoder_context *cxt, uint32_t line_number, int8_t **p_ip) {
+static void qb_encode_line_number(qb_encoder_context *cxt, uint32_t line_number, int8_t **p_ip) {
 	*((uint32_t *) *p_ip) = line_number; 
 	*p_ip += sizeof(uint32_t);
 }
 
-static void ZEND_FASTCALL qb_encode_segment_selector(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
+static void qb_encode_segment_selector(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
 	*((uint32_t *) *p_ip) = address->segment_selector;
 	*p_ip += sizeof(uint32_t);
 }
 
-int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
+int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 	uint32_t i, j;
 	int8_t *ip = memory;
 
@@ -238,7 +238,7 @@ int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, int
 	return ip;
 }
 
-int8_t * ZEND_FASTCALL qb_copy_instruction_opcodes(qb_encoder_context *cxt, int8_t *memory) {
+int8_t * qb_copy_instruction_opcodes(qb_encoder_context *cxt, int8_t *memory) {
 	int16_t *cp = (int16_t *) memory;
 	uint32_t i;
 	for(i = 0; i < cxt->op_count; i++) {
@@ -251,7 +251,7 @@ int8_t * ZEND_FASTCALL qb_copy_instruction_opcodes(qb_encoder_context *cxt, int8
 	return (int8_t *) cp;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_address_length(qb_encoder_context *cxt, qb_address *address) {
+static uint32_t qb_get_address_length(qb_encoder_context *cxt, qb_address *address) {
 	uint32_t i, j;
 	uint32_t length = sizeof(qb_address);	// the address itself
 	if(!SCALAR(address)) {
@@ -283,7 +283,7 @@ static uint32_t ZEND_FASTCALL qb_get_address_length(qb_encoder_context *cxt, qb_
 	return length;
 }
 
-static uint8_t * ZEND_FASTCALL qb_copy_address(qb_encoder_context *cxt, qb_address *address, int8_t *memory) {
+static uint8_t * qb_copy_address(qb_encoder_context *cxt, qb_address *address, int8_t *memory) {
 #if ZEND_DEBUG
 	uint32_t length = qb_get_address_length(cxt, address);
 #endif
@@ -361,7 +361,7 @@ static uint8_t * ZEND_FASTCALL qb_copy_address(qb_encoder_context *cxt, qb_addre
 	return p;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_variable_length(qb_encoder_context *cxt, qb_variable *qvar) {
+static uint32_t qb_get_variable_length(qb_encoder_context *cxt, qb_variable *qvar) {
 	uint32_t length = sizeof(qb_variable);
 	if(qvar->name) {
 		length += qvar->name_length + 1;
@@ -375,7 +375,7 @@ static uint32_t ZEND_FASTCALL qb_get_variable_length(qb_encoder_context *cxt, qb
 	return length;
 }
 
-static uint8_t * ZEND_FASTCALL qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, int8_t *memory) {
+static uint8_t * qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, int8_t *memory) {
 #if ZEND_DEBUG
 	uint32_t length = qb_get_variable_length(cxt, qvar);
 #endif
@@ -426,7 +426,7 @@ static uint32_t qb_get_external_symbol_length(qb_encoder_context *cxt, qb_extern
 	return length;
 }
 
-static uint8_t * ZEND_FASTCALL qb_copy_external_symbol(qb_encoder_context *cxt, qb_external_symbol *symbol, uint8_t *memory) {
+static uint8_t * qb_copy_external_symbol(qb_encoder_context *cxt, qb_external_symbol *symbol, uint8_t *memory) {
 #if ZEND_DEBUG
 	uint32_t length = qb_get_external_symbol_length(cxt, symbol);
 #endif
@@ -449,7 +449,7 @@ static uint8_t * ZEND_FASTCALL qb_copy_external_symbol(qb_encoder_context *cxt, 
 	return p;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_function_structure_size(qb_encoder_context *cxt) {
+static uint32_t qb_get_function_structure_size(qb_encoder_context *cxt) {
 	uint32_t size = sizeof(qb_function);
 	uint32_t i;
 
@@ -469,7 +469,7 @@ static uint32_t ZEND_FASTCALL qb_get_function_structure_size(qb_encoder_context 
 	return size;
 }
 
-static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memory) {
+static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memory) {
 	int8_t *p = memory;
 	qb_function *qfunc;
 	char *func_name = NULL, *filename = NULL;
@@ -523,7 +523,7 @@ static int8_t * ZEND_FASTCALL qb_copy_function_structure(qb_encoder_context *cxt
 	return p;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_storage_structure_size(qb_encoder_context *cxt) {
+static uint32_t qb_get_storage_structure_size(qb_encoder_context *cxt) {
 	uint32_t size = sizeof(qb_storage), i;
 	size += sizeof(qb_memory_segment) * cxt->compiler_context->storage->segment_count;
 	size = ALIGN_TO(size, sizeof(uintptr_t));
@@ -535,7 +535,7 @@ static uint32_t ZEND_FASTCALL qb_get_storage_structure_size(qb_encoder_context *
 	return size;
 }
 
-static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt, int8_t * memory) {
+static int8_t * qb_copy_storage_structure(qb_encoder_context *cxt, int8_t * memory) {
 	int8_t *p = memory;
 	qb_storage *storage;
 	uint32_t i;
@@ -576,7 +576,7 @@ static int8_t * ZEND_FASTCALL qb_copy_storage_structure(qb_encoder_context *cxt,
 	return p;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_preallocated_segment_size(qb_encoder_context *cxt) {
+static uint32_t qb_get_preallocated_segment_size(qb_encoder_context *cxt) {
 	uint32_t size = 0;
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context->storage->segment_count; i++) {
@@ -589,7 +589,7 @@ static uint32_t ZEND_FASTCALL qb_get_preallocated_segment_size(qb_encoder_contex
 	return size;
 }
 
-static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, int8_t *memory, qb_storage *storage) {
+static int8_t * qb_preallocate_segments(qb_encoder_context *cxt, int8_t *memory, qb_storage *storage) {
 #if ZEND_DEBUG
 	uint32_t length = qb_get_preallocated_segment_size(cxt);
 #endif
@@ -635,7 +635,7 @@ static int8_t * ZEND_FASTCALL qb_preallocate_segments(qb_encoder_context *cxt, i
 	return p;
 }
 
-qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt) {
+qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	qb_function *qfunc;
 	int8_t *memory, *p;
 	uint32_t function_struct_size, storage_struct_size, preallocated_segment_size, instruction_length, opcode_length;
@@ -687,7 +687,7 @@ qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt) {
 	return qfunc;
 }
 
-void ZEND_FASTCALL qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
+void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_encoder_context));
 
 	cxt->compiler_context = compiler_cxt;
@@ -698,7 +698,7 @@ void ZEND_FASTCALL qb_initialize_encoder_context(qb_encoder_context *cxt, qb_com
 	SAVE_TSRMLS
 }
 
-void ZEND_FASTCALL qb_free_function(qb_function *qfunc) {
+void qb_free_function(qb_function *qfunc) {
 	uint32_t i;
 
 	// set the type to a invalid value so clean_non_persistent_function() doesn't return ZEND_HASH_APPLY_STOP

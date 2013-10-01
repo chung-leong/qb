@@ -1102,7 +1102,7 @@ const uint64_t lzma_crc64_table[4][256] = {
 };
 #endif
 
-uint64_t ZEND_FASTCALL qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc) {
+uint64_t qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc) {
 	crc = ~crc;
 	crc = SWAP_LE_I64(crc);
 

@@ -3580,7 +3580,7 @@ qb_float_op_factory factory_alpha_blend = {
 */
 
 /*
-qb_op * ZEND_FASTCALL qb_append_utf8_decode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+qb_op * qb_append_utf8_decode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *f = factory;
 	qb_address *address = result->address;
 	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];

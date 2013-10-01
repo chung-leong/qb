@@ -66,7 +66,7 @@ static void qb_printf(qb_native_compiler_context *cxt, const char *format, ...) 
 	}
 }
 
-static void ZEND_FASTCALL qb_print(qb_native_compiler_context *cxt, const char *s) {
+static void qb_print(qb_native_compiler_context *cxt, const char *s) {
 	USE_TSRM
 	uint32_t len = strlen(s);
 	if(cxt->print_source) {
@@ -76,7 +76,7 @@ static void ZEND_FASTCALL qb_print(qb_native_compiler_context *cxt, const char *
 }
 
 #ifdef __GNUC__
-static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
+static int32_t qb_launch_gcc(qb_native_compiler_context *cxt) {
 	USE_TSRM
 
 	int gcc_pipe_write[2];
@@ -158,7 +158,7 @@ static int32_t ZEND_FASTCALL qb_launch_gcc(qb_native_compiler_context *cxt) {
 #endif	// __GNUC__
 
 #ifdef _MSC_VER
-static int32_t ZEND_FASTCALL qb_launch_cl(qb_native_compiler_context *cxt) {
+static int32_t qb_launch_cl(qb_native_compiler_context *cxt) {
 	USE_TSRM
 	const char *compiler_path = QB_G(compiler_path);
 	const char *compiler_env_path = QB_G(compiler_env_path);
@@ -263,7 +263,7 @@ static zend_always_inline int32_t qb_launch_compiler(qb_native_compiler_context 
 #endif
 }
 
-static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
+static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define NAN	"STRING(NAN)"\n");
 	qb_print(cxt, "#define INF	"STRING(INFINITY)"\n");
 	qb_print(cxt, "#define restrict	__restrict\n");
@@ -309,7 +309,7 @@ static void ZEND_FASTCALL qb_print_macros(qb_native_compiler_context *cxt) {
 #endif
 }
 
-static void ZEND_FASTCALL qb_print_typedefs(qb_native_compiler_context *cxt) {
+static void qb_print_typedefs(qb_native_compiler_context *cxt) {
 #ifdef __GNUC__
 	qb_print(cxt, STRING(typedef __SIZE_TYPE__ size_t;)"\n");
 #endif
@@ -468,7 +468,7 @@ typedef struct qb_native_proc_record {\
 
 #define PROTOTYPE_COUNT		1200
 
-static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
+static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
 	int32_t *prototype_indices, index;
 	uint32_t required[PROTOTYPE_COUNT];
@@ -503,25 +503,25 @@ static void ZEND_FASTCALL qb_print_prototypes(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "\n");
 }
 
-static char * ZEND_FASTCALL qb_get_buffer(qb_native_compiler_context *cxt) {
+static char * qb_get_buffer(qb_native_compiler_context *cxt) {
 	if(cxt->string_buffer_index == 16) {
 		cxt->string_buffer_index = 0;
 	}
 	return cxt->string_buffers[cxt->string_buffer_index++];
 }
 
-static qb_address * ZEND_FASTCALL qb_get_root_container(qb_native_compiler_context *cxt, qb_address *address) {
+static qb_address * qb_get_root_container(qb_native_compiler_context *cxt, qb_address *address) {
 	while(address->source_address) {
 		address = address->source_address;
 	}
 	return address;
 }
 
-static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address);
-static const char * ZEND_FASTCALL qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address);
-static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_address *address);
+static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address);
+static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address);
+static const char * qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_address *address);
 
-static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
+static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
 	char *buffer = qb_get_buffer(cxt);
 	if(CONSTANT(address)) {
 		switch(address->type) {
@@ -550,7 +550,7 @@ static const char * ZEND_FASTCALL qb_get_scalar(qb_native_compiler_context *cxt,
 	return buffer;
 }
 
-static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_address *address) {
+static const char * qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_address *address) {
 	const char *ctype = type_cnames[address->type];
 	char *buffer = qb_get_buffer(cxt);
 	if(address->array_index_address) {
@@ -565,7 +565,7 @@ static const char * ZEND_FASTCALL qb_get_segment_pointer(qb_native_compiler_cont
 	return buffer;
 }
 
-static const char * ZEND_FASTCALL qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address) {
+static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address) {
 	if(SCALAR(address) && !CONSTANT(address)) {
 		char *buffer = qb_get_buffer(cxt);
 		if(IS_CAST(address)) {
@@ -580,7 +580,7 @@ static const char * ZEND_FASTCALL qb_get_pointer(qb_native_compiler_context *cxt
 	}
 }
 
-static const char * ZEND_FASTCALL qb_get_array_size(qb_native_compiler_context *cxt, qb_address *address) {
+static const char * qb_get_array_size(qb_native_compiler_context *cxt, qb_address *address) {
 	if(address->array_size_address) {
 		return qb_get_scalar(cxt, address->array_size_address);
 	} else {
@@ -588,7 +588,7 @@ static const char * ZEND_FASTCALL qb_get_array_size(qb_native_compiler_context *
 	}
 }
 
-static const char * ZEND_FASTCALL qb_get_segment_index(qb_native_compiler_context *cxt, qb_address *address) {
+static const char * qb_get_segment_index(qb_native_compiler_context *cxt, qb_address *address) {
 	if(address->array_index_address) {
 		return qb_get_scalar(cxt, address->array_index_address);
 	} else if(address->segment_offset) {
@@ -600,7 +600,7 @@ static const char * ZEND_FASTCALL qb_get_segment_index(qb_native_compiler_contex
 	}
 }
 
-static const char * ZEND_FASTCALL qb_get_segment_offset(qb_native_compiler_context *cxt, qb_address *address) {
+static const char * qb_get_segment_offset(qb_native_compiler_context *cxt, qb_address *address) {
 	if(address->array_index_address) {
 		char *buffer = qb_get_buffer(cxt);
 		snprintf(buffer, 128, "%s << %d", qb_get_scalar(cxt, address->array_index_address), type_size_shifts[address->type]);
@@ -629,7 +629,7 @@ static int32_t qb_get_jump_direction(qb_native_compiler_context *cxt, uint32_t j
 	return +1;
 }
 
-static const char * ZEND_FASTCALL qb_get_jump(qb_native_compiler_context *cxt, uint32_t jump_target_index, uint32_t current_qop_index) {
+static const char * qb_get_jump(qb_native_compiler_context *cxt, uint32_t jump_target_index, uint32_t current_qop_index) {
 	if(jump_target_index != QB_INSTRUCTION_NEXT) {
 		uint32_t target_qop_index, next_qop_index;
 		if(jump_target_index & QB_INSTRUCTION_OFFSET) {
@@ -651,7 +651,7 @@ static const char * ZEND_FASTCALL qb_get_jump(qb_native_compiler_context *cxt, u
 	return NULL;
 }
 
-static int32_t ZEND_FASTCALL qb_is_always_in_bound(qb_native_compiler_context *cxt, qb_address *container, qb_address *address, uint32_t new_element_count) {
+static int32_t qb_is_always_in_bound(qb_native_compiler_context *cxt, qb_address *container, qb_address *address, uint32_t new_element_count) {
 	if(container != address || new_element_count != 0) {
 		uint32_t index, element_count, container_size;
 		if(SCALAR(address)) {
@@ -689,7 +689,7 @@ static int32_t ZEND_FASTCALL qb_is_always_in_bound(qb_native_compiler_context *c
 	return TRUE;
 }
 
-static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_context *cxt, qb_address *address, const char *new_size) {
+static void qb_print_segment_bound_check(qb_native_compiler_context *cxt, qb_address *address, const char *new_size) {
 	const char *index = qb_get_segment_index(cxt, address);
 	const char *size = (new_size) ? new_size : qb_get_array_size(cxt, address);
 
@@ -702,7 +702,7 @@ static void ZEND_FASTCALL qb_print_segment_bound_check(qb_native_compiler_contex
 	qb_print(cxt,  "}\n");
 }
 
-static void ZEND_FASTCALL qb_print_segment_enlargement(qb_native_compiler_context *cxt, qb_address *address, const char *new_size) {
+static void qb_print_segment_enlargement(qb_native_compiler_context *cxt, qb_address *address, const char *new_size) {
 	const char *index = qb_get_segment_index(cxt, address);
 	const char *size = (new_size) ? new_size : qb_get_array_size(cxt, address);
 
@@ -713,7 +713,7 @@ static void ZEND_FASTCALL qb_print_segment_enlargement(qb_native_compiler_contex
 	qb_print(cxt,  "}\n");
 }
 
-static void ZEND_FASTCALL qb_print_segment_shrinkage(qb_native_compiler_context *cxt, qb_address *address) {
+static void qb_print_segment_shrinkage(qb_native_compiler_context *cxt, qb_address *address) {
 	const char *index = qb_get_segment_index(cxt, address);
 	const char *size = qb_get_array_size(cxt, address);
 
@@ -736,7 +736,7 @@ static zend_always_inline uint32_t qb_get_operand_flags(qb_native_compiler_conte
 
 extern const char compressed_table_op_names[];
 
-static const char * ZEND_FASTCALL qb_get_op_name(qb_native_compiler_context *cxt, uint32_t opcode) {
+static const char * qb_get_op_name(qb_native_compiler_context *cxt, uint32_t opcode) {
 	if(!cxt->op_names) {
 		qb_uncompress_table(compressed_table_op_names, (void ***) &cxt->pool->op_names, NULL, 0);
 		cxt->op_names = cxt->pool->op_names;
@@ -760,7 +760,7 @@ static zend_always_inline const char * qb_get_op_result_size_variables(qb_native
 #define POST_FUNCTION_CALL		2
 #define POST_ARRAY_RESIZE		3
 
-static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context *cxt, qb_address *address, int32_t context) {
+static void qb_print_resynchronization(qb_native_compiler_context *cxt, qb_address *address, int32_t context) {
 	if(!(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)) {
 		if(address->source_address) {
 			qb_print_resynchronization(cxt, address->source_address, context);
@@ -788,7 +788,7 @@ static void ZEND_FASTCALL qb_print_resynchronization(qb_native_compiler_context 
 	}
 }
 
-static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
+static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
 	if(qop->flags & QB_OP_JUMP_TARGET) {
 		qb_printf(cxt, "L%04d:\n", qop_index);
 	}
@@ -1224,7 +1224,7 @@ static void ZEND_FASTCALL qb_print_op(qb_native_compiler_context *cxt, qb_op *qo
 	}
 }
 
-static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *cxt) {
+static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 	uint32_t i, j, need_pointer[QB_TYPE_COUNT][6];
 
 	// print local variables, declarations first
@@ -1306,7 +1306,7 @@ static void ZEND_FASTCALL qb_print_local_variables(qb_native_compiler_context *c
 	qb_print(cxt, "\n");
 }
 
-static void ZEND_FASTCALL qb_print_exit_section(qb_native_compiler_context *cxt) {
+static void qb_print_exit_section(qb_native_compiler_context *cxt) {
 	uint32_t i;
 
 	qb_print(cxt, "L_EXIT:\n");
@@ -1319,7 +1319,7 @@ static void ZEND_FASTCALL qb_print_exit_section(qb_native_compiler_context *cxt)
 	qb_print(cxt, "return 0;\n");
 }
 
-static void ZEND_FASTCALL qb_print_function(qb_native_compiler_context *cxt) {
+static void qb_print_function(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	if(cxt->print_source) {
 		qb_printf(cxt, "\n// Handle for %s()\n", cxt->function_name);
@@ -1333,11 +1333,11 @@ static void ZEND_FASTCALL qb_print_function(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "}\n");
 }
 
-static void ZEND_FASTCALL qb_print_version(qb_native_compiler_context *cxt) {
+static void qb_print_version(qb_native_compiler_context *cxt) {
 	qb_printf(cxt, "\nuint32_t QB_VERSION = 0x%08x;\n\n", QB_VERSION_SIGNATURE);
 }
 
-static void ZEND_FASTCALL qb_print_functions(qb_native_compiler_context *cxt) {
+static void qb_print_functions(qb_native_compiler_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
@@ -1374,7 +1374,7 @@ static void ZEND_FASTCALL qb_print_functions(qb_native_compiler_context *cxt) {
 	}
 }
 
-static void ZEND_FASTCALL qb_print_function_records(qb_native_compiler_context *cxt) {
+static void qb_print_function_records(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	qb_print(cxt, "\n");
 	qb_print(cxt, "#define HAVE_NATIVE_PROC_RECORDS\n");
@@ -1388,7 +1388,7 @@ static void ZEND_FASTCALL qb_print_function_records(qb_native_compiler_context *
 	qb_print(cxt, "};\n");
 }
 
-static void * ZEND_FASTCALL qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
+static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
 	long hash_value;
 	uint32_t i, name_len = strlen(name);
 #if defined(_MSC_VER)
@@ -1426,7 +1426,7 @@ static void * ZEND_FASTCALL qb_find_symbol(qb_native_compiler_context *cxt, cons
 }
 
 #ifdef __GNUC__
-static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
+static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	// close the write stream
 	fclose(cxt->write_stream);
 	cxt->write_stream = NULL;
@@ -1452,7 +1452,7 @@ static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_co
 #endif
 
 #ifdef _MSC_VER
-static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
+static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	USE_TSRM
 	char buffer[256];
 	int count;
@@ -1485,7 +1485,7 @@ static int32_t ZEND_FASTCALL qb_wait_for_compiler_response(qb_native_compiler_co
 #endif	// _MSC_VER
 
 #ifdef __GNUC__
-static int32_t ZEND_FASTCALL qb_load_object_file(qb_native_compiler_context *cxt) {
+static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 	// map the file into memory 
 	int file_descriptor = open(cxt->obj_file_path, O_RDWR);
 	size_t binary_size;
@@ -1517,7 +1517,7 @@ static int32_t ZEND_FASTCALL qb_load_object_file(qb_native_compiler_context *cxt
 	return TRUE;
 }
 
-static void ZEND_FASTCALL qb_remove_object_file(qb_native_compiler_context *cxt) {
+static void qb_remove_object_file(qb_native_compiler_context *cxt) {
 	if(cxt->binary) {
 		munmap(cxt->binary, cxt->binary_size);
 		cxt->binary = NULL;
@@ -1529,7 +1529,7 @@ static void ZEND_FASTCALL qb_remove_object_file(qb_native_compiler_context *cxt)
 #endif	// __GNUC__
 
 #ifdef _MSC_VER
-static int32_t ZEND_FASTCALL qb_load_object_file(qb_native_compiler_context *cxt) {
+static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 	USE_TSRM
 	HANDLE file = NULL, mapping = NULL;
 
@@ -1547,7 +1547,7 @@ static int32_t ZEND_FASTCALL qb_load_object_file(qb_native_compiler_context *cxt
 	return (cxt->binary != NULL);
 }
 
-static void ZEND_FASTCALL qb_remove_object_file(qb_native_compiler_context *cxt) {
+static void qb_remove_object_file(qb_native_compiler_context *cxt) {
 	if(cxt->binary) {
 		UnmapViewOfFile(cxt->binary);
 		cxt->binary = NULL;
@@ -1558,18 +1558,18 @@ static void ZEND_FASTCALL qb_remove_object_file(qb_native_compiler_context *cxt)
 #endif
 
 #ifdef __GNUC__
-static void ZEND_FASTCALL qb_lock_object_file(qb_native_compiler_context *cxt) {
+static void qb_lock_object_file(qb_native_compiler_context *cxt) {
 	mprotect(cxt->binary, cxt->binary_size, PROT_EXEC | PROT_READ);
 }
 #endif
 
 #ifdef _MSC_VER
-static void ZEND_FASTCALL qb_lock_object_file(qb_native_compiler_context *cxt) {
+static void qb_lock_object_file(qb_native_compiler_context *cxt) {
 	VirtualProtect(cxt->binary, cxt->binary_size, FILE_MAP_EXECUTE | FILE_MAP_READ, NULL);
 }
 #endif
 
-static uint32_t ZEND_FASTCALL qb_attach_symbol(qb_native_compiler_context *cxt, const char *symbol_name, const char *address) {
+static uint32_t qb_attach_symbol(qb_native_compiler_context *cxt, const char *symbol_name, const char *address) {
 	uint32_t count = 0;
 	if(strncmp(symbol_name, "QBN_", 4) == 0) {
 		qb_native_proc proc = (qb_native_proc) address;
@@ -1586,7 +1586,7 @@ static uint32_t ZEND_FASTCALL qb_attach_symbol(qb_native_compiler_context *cxt, 
 	return count;
 }
 
-static void ZEND_FASTCALL qb_detach_symbols(qb_native_compiler_context *cxt) {
+static void qb_detach_symbols(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
@@ -1597,7 +1597,7 @@ static void ZEND_FASTCALL qb_detach_symbols(qb_native_compiler_context *cxt) {
 
 #ifdef __ELF__
 	#ifdef __LP64__
-static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
+static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 	if(cxt->binary_size < sizeof(Elf64_Ehdr)) {
 		return FALSE;
 	}
@@ -1726,7 +1726,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf64(qb_native_compiler_context *cxt) {
 	return (count > 0);
 }
 	#else
-static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
+static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 	if(cxt->binary_size < sizeof(Elf32_Ehdr)) {
 		return FALSE;
 	}
@@ -1853,7 +1853,7 @@ static int32_t ZEND_FASTCALL qb_parse_elf32(qb_native_compiler_context *cxt) {
 
 #ifdef __MACH__
 	#ifdef __LP64__
-static int32_t ZEND_FASTCALL qb_parse_macho64(qb_native_compiler_context *cxt) {
+static int32_t qb_parse_macho64(qb_native_compiler_context *cxt) {
 	struct mach_header_64 *header;
 	struct load_command *command;
 	struct segment_command_64 *segment_command;
@@ -1975,7 +1975,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho64(qb_native_compiler_context *cxt) {
 	return (count > 0);
 }
 	#else
-static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
+static int32_t qb_parse_macho32(qb_native_compiler_context *cxt) {
 	struct mach_header *header;
 	struct load_command *command;
 	struct segment_command *segment_command;
@@ -2100,7 +2100,7 @@ static int32_t ZEND_FASTCALL qb_parse_macho32(qb_native_compiler_context *cxt) {
 #endif 	// __MACH__
 
 #ifdef _MSC_VER
-static int32_t ZEND_FASTCALL qb_parse_coff(qb_native_compiler_context *cxt) {
+static int32_t qb_parse_coff(qb_native_compiler_context *cxt) {
 	IMAGE_FILE_HEADER *header;
 	IMAGE_SECTION_HEADER *sections;
 	IMAGE_SYMBOL *symbols;
@@ -2222,7 +2222,7 @@ extern const char compressed_table_native_result_size_calculations[];
 extern const char compressed_table_native_prototypes[];
 extern const char compressed_table_native_references[];
 
-static void ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC) {
+static void qb_initialize_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_native_compiler_context));
 
 	cxt->pool = build_cxt->pool;
@@ -2235,7 +2235,7 @@ static void ZEND_FASTCALL qb_initialize_context(qb_native_compiler_context *cxt,
 	cxt->cache_folder_path = QB_G(native_code_cache_path);
 }
 
-static void ZEND_FASTCALL qb_free_context(qb_native_compiler_context *cxt) {
+static void qb_free_context(qb_native_compiler_context *cxt) {
 	USE_TSRM
 	if(cxt->write_stream) {
 		fclose(cxt->write_stream);
@@ -2273,7 +2273,7 @@ static void ZEND_FASTCALL qb_free_context(qb_native_compiler_context *cxt) {
 #endif
 }
 
-void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle) {
+void qb_free_native_code(qb_native_code_bundle *bundle) {
 #ifdef __GNUC__
 	munmap(bundle->memory, bundle->size);
 #endif
@@ -2282,7 +2282,7 @@ void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle) {
 #endif
 }
 
-static void ZEND_FASTCALL qb_create_cache_folder(qb_native_compiler_context *cxt) {
+static void qb_create_cache_folder(qb_native_compiler_context *cxt) {
 	int len = strlen(cxt->cache_folder_path);
 	if(len == 0) {
 		// use the system temp folder when no cache folder is specified
@@ -2313,7 +2313,7 @@ static void ZEND_FASTCALL qb_create_cache_folder(qb_native_compiler_context *cxt
 }
 
 #if ZEND_DEBUG
-static void ZEND_FASTCALL qb_link_debuggable_functions(qb_native_compiler_context *cxt) {
+static void qb_link_debuggable_functions(qb_native_compiler_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
@@ -2327,7 +2327,7 @@ static void ZEND_FASTCALL qb_link_debuggable_functions(qb_native_compiler_contex
 }
 #endif
 
-int32_t ZEND_FASTCALL qb_decompress_code(qb_native_compiler_context *cxt) {
+int32_t qb_decompress_code(qb_native_compiler_context *cxt) {
 	// decompress string tables used to generate the C source code
 	if(!cxt->pool->op_actions) {
 		qb_uncompress_table(compressed_table_native_actions, (void ***) &cxt->pool->op_actions, NULL, 0);
@@ -2361,7 +2361,7 @@ int32_t ZEND_FASTCALL qb_decompress_code(qb_native_compiler_context *cxt) {
 	return (cxt->op_actions && cxt->op_result_size_variables && cxt->op_result_size_codes && cxt->op_function_usages && cxt->function_prototypes);
 }
 
-int ZEND_FASTCALL qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
+int qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 	int result = FAILURE;
 	uint32_t i, attempt;
 	qb_native_compiler_context _cxt, *cxt = &_cxt;
@@ -2470,11 +2470,11 @@ int ZEND_FASTCALL qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 
 #else
 
-int ZEND_FASTCALL qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
+int qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 	return FAILURE;
 }
 
-void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle) {
+void qb_free_native_code(qb_native_code_bundle *bundle) {
 }
 
 #endif	// NATIVE_COMPILE_ENABLED

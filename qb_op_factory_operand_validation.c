@@ -18,7 +18,7 @@
 
 /* $Id$ */
 
-static void ZEND_FASTCALL qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
 
@@ -42,7 +42,7 @@ static void ZEND_FASTCALL qb_validate_operands_array_element(qb_compiler_context
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
 
@@ -70,7 +70,7 @@ static void ZEND_FASTCALL qb_validate_operands_object_property(qb_compiler_conte
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	uint32_t i;
 	for(i = 1; i < operand_count; i++) {
 		if(operands[0].address->type != operands[i].address->type) {
@@ -79,7 +79,7 @@ static void ZEND_FASTCALL qb_validate_operands_matching_type(qb_compiler_context
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	if(!cxt->return_variable->address) {
 		qb_operand *value = &operands[0];
 		if(value->type != QB_OPERAND_NONE && !(value->type == QB_OPERAND_ZVAL && value->constant->type == IS_NULL)) {
@@ -87,13 +87,13 @@ static void ZEND_FASTCALL qb_validate_operands_return(qb_compiler_context *cxt, 
 		}
 	}
 }
-static void ZEND_FASTCALL qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	if(operand_count != 0 && operand_count != 2) {
 		qb_abort("%s() expects either 0 or 2 arguments", cxt->intrinsic_function->name);
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 
 	if(operand_count == 1) {
@@ -103,7 +103,7 @@ static void ZEND_FASTCALL qb_validate_operands_minmax(qb_compiler_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[0], *index = &operands[1];
 
 	if(index->type == QB_OPERAND_ZVAL) {
@@ -118,13 +118,13 @@ static void ZEND_FASTCALL qb_validate_array_append(qb_compiler_context *cxt, qb_
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	if(operand_count > 0) {
 		qb_validate_array_append(cxt, f, operands, operand_count);
 	}
 }
 
-static zval * ZEND_FASTCALL qb_get_special_constant(qb_compiler_context *cxt, const char *name, uint32_t length) {
+static zval * qb_get_special_constant(qb_compiler_context *cxt, const char *name, uint32_t length) {
 	static zval type_constants[QB_TYPE_COUNT];
 	static zval qb_indicator;
 
@@ -146,14 +146,14 @@ static zval * ZEND_FASTCALL qb_get_special_constant(qb_compiler_context *cxt, co
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	if(!ce) {
 		qb_abort("Cannot access self:: when no class scope is active");
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	if(!ce) {
 		qb_abort("Cannot access parent:: when no class scope is active");
@@ -163,14 +163,14 @@ static void ZEND_FASTCALL qb_validate_operands_fetch_class_parent(qb_compiler_co
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	if(!ce) {
 		qb_abort("Cannot access static:: when no class scope is active");
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	USE_TSRM
 	qb_operand *scope = &operands[0], *name = &operands[1];
 	if(scope->type == QB_OPERAND_ZEND_STATIC_CLASS) {
@@ -195,7 +195,7 @@ static void ZEND_FASTCALL qb_validate_operands_fetch_constant(qb_compiler_contex
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_ref_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_ref_assignment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 	// global and static assign ref to bring variables into the local scope
 	if(variable->address != value->address) {
@@ -203,7 +203,7 @@ static void ZEND_FASTCALL qb_validate_operands_ref_assignment(qb_compiler_contex
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_intrinsic_function *ifunc = func->intrinsic_function;
 	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
@@ -221,7 +221,7 @@ static void ZEND_FASTCALL qb_validate_operands_intrinsic(qb_compiler_context *cx
 	cxt->intrinsic_function = NULL;
 }
 
-static void ZEND_FASTCALL qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand = &operands[0];
 
 	if(SCALAR(operand->address)) {
@@ -229,7 +229,7 @@ static void ZEND_FASTCALL qb_validate_operands_one_array(qb_compiler_context *cx
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_two_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_two_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	if(SCALAR(operand1->address)) {
@@ -240,7 +240,7 @@ static void ZEND_FASTCALL qb_validate_operands_two_array(qb_compiler_context *cx
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	qb_validate_operands_two_array(cxt, f, operands, operand_count);
@@ -254,7 +254,7 @@ static void ZEND_FASTCALL qb_validate_operands_matching_vector_width(qb_compiler
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1], *operand3 = &operands[2];
 
 	qb_validate_operands_matching_vector_width(cxt, f, operands, operand_count);
@@ -264,7 +264,7 @@ static void ZEND_FASTCALL qb_validate_operands_refract(qb_compiler_context *cxt,
 	}
 }
 
-static void ZEND_FASTCALL qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	qb_validate_operands_matching_vector_width(cxt, f, operands, operand_count);

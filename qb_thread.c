@@ -40,7 +40,7 @@ uint32_t qb_get_cpu_count() {
 	return count;
 }
 
-int32_t ZEND_FASTCALL qb_schedule_task(qb_thread_pool *pool, void *proc, void *param1, void *param2) {
+int32_t qb_schedule_task(qb_thread_pool *pool, void *proc, void *param1, void *param2) {
 	qb_thread_task *next_task;
 	if(pool->task_count >= pool->task_buffer_size) {
 		pool->task_buffer_size += 16;
@@ -96,7 +96,7 @@ void *qb_run_task(void *arg) {
 }
 #endif
 
-int ZEND_FASTCALL qb_initialize_thread_pool(qb_thread_pool *pool) {
+int qb_initialize_thread_pool(qb_thread_pool *pool) {
 	uint32_t i ;
 	pool->task_buffer_size = 16;
 	pool->tasks = malloc(sizeof(qb_thread_task) * pool->task_buffer_size);
@@ -135,7 +135,7 @@ int ZEND_FASTCALL qb_initialize_thread_pool(qb_thread_pool *pool) {
 	return TRUE;
 }
 
-int ZEND_FASTCALL qb_run_tasks(qb_thread_pool *pool) {
+int qb_run_tasks(qb_thread_pool *pool) {
 	uint32_t i, j, start_index = 0, active_thread_count = 0, suspended_thread_count = 0;
 	// wake up the threads
 	for(i = 0; i < pool->thread_count; i++) {

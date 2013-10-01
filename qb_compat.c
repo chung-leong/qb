@@ -368,7 +368,7 @@ char *	(*vc6_strdup)(const char * _Src);
 
 
 
-int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void) {
+int qb_get_vc6_msvcrt_functions(void) {
 
 	HMODULE lib = GetModuleHandle("MSVCRT.DLL");
 

@@ -87,7 +87,7 @@ class CodeGenerator {
 		
 		$lines = array();
 		$lines[] = "";			
-		$lines[] = "void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function) {";
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function) {";
 		// cxt is null when we initialize the handler array
 		if($compiler == "GCC") {
 			$lines[] = 	"if(cxt) {";
@@ -503,12 +503,6 @@ class CodeGenerator {
 							$parameterDecls = "void";
 						}
 					
-						// link name of function to itself when fastcall matches cdecl
-						if(!$isMacro) {
-							fwrite($handle, "#ifdef FASTCALL_MATCHES_CDECL\n");
-							fwrite($handle, "#define $target	$functionName\n");
-							fwrite($handle, "#else\n");
-						}
 						// create a cdecl wrapper for it
 						fwrite($handle, "$returnType $target($parameterDecls) {\n");
 						if($returnType != 'void') {
@@ -517,9 +511,6 @@ class CodeGenerator {
 							fwrite($handle, "	$functionName($parameterList);\n");
 						}
 						fwrite($handle, "}\n");
-						if(!$isMacro) {
-							fwrite($handle, "#endif\n");
-						}
 						fwrite($handle, "\n");
 					} else {
 						$target = $functionName;

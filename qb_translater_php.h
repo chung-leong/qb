@@ -24,10 +24,10 @@
 typedef struct qb_php_translater_context	qb_php_translater_context;
 typedef struct qb_php_op_translator			qb_php_op_translator;
 
-int ZEND_FASTCALL qb_initialize_php_translater(TSRMLS_D);
+int qb_initialize_php_translater(TSRMLS_D);
 
-typedef void (ZEND_FASTCALL *qb_php_op_translator_proc)(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
-typedef void (ZEND_FASTCALL *qb_php_intrinsic_translator_proc)(qb_php_translater_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (*qb_php_op_translator_proc)(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (*qb_php_intrinsic_translator_proc)(qb_php_translater_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 struct qb_php_op_translator {
 	qb_php_op_translator_proc translate;
@@ -95,16 +95,16 @@ enum {
 #define ZEND_OP_INDEX(zop)						(((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op)
 #define ZEND_OP(index)							&cxt->zend_op_array->opcodes[index]
 
-qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc, zend_class_entry *ce);
-qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_table(qb_compiler_data_pool *pool, zend_function *zfunc, HashTable *ht);
-qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compiler_data_pool *pool, zend_class_entry *ce);
+qb_function_declaration * qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc, zend_class_entry *ce);
+qb_function_declaration * qb_parse_function_declaration_table(qb_compiler_data_pool *pool, zend_function *zfunc, HashTable *ht);
+qb_class_declaration * qb_parse_class_doc_comment(qb_compiler_data_pool *pool, zend_class_entry *ce);
 
-void ZEND_FASTCALL qb_print_zend_ops(qb_php_translater_context *cxt);
+void qb_print_zend_ops(qb_php_translater_context *cxt);
 
-void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
-void ZEND_FASTCALL qb_free_php_translater_context(qb_php_translater_context *cxt);
-void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt);
+void qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+void qb_free_php_translater_context(qb_php_translater_context *cxt);
+void qb_translate_instructions(qb_php_translater_context *cxt);
 
-qb_intrinsic_function * ZEND_FASTCALL qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable);
+qb_intrinsic_function * qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable);
 
 #endif

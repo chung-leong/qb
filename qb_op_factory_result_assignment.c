@@ -18,12 +18,12 @@
 
 /* $Id$ */
 
-static void ZEND_FASTCALL qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->type = QB_OPERAND_RESULT_PROTOTYPE;
 	result->result_prototype = result_prototype;
 }
 
-static void ZEND_FASTCALL qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_variable_dimensions dim = { 0, 0 };
 
 	// figure out the result size (it's a scalar if set_dimensions is null)
@@ -36,7 +36,7 @@ static void ZEND_FASTCALL qb_set_result_temporary_value(qb_compiler_context *cxt
 	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_set_result_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0];
 
 	// if the expression type was set to void, then an earlier op has used the r-value as write target
@@ -46,7 +46,7 @@ static void ZEND_FASTCALL qb_set_result_variable(qb_compiler_context *cxt, qb_op
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
 
@@ -56,7 +56,7 @@ static void ZEND_FASTCALL qb_set_result_array_element(qb_compiler_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
 
@@ -71,40 +71,40 @@ static void ZEND_FASTCALL qb_set_result_object_property(qb_compiler_context *cxt
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_none(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_none(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->type = QB_OPERAND_NONE;
 }
 
-static void ZEND_FASTCALL qb_set_result_true(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_true(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->address = qb_obtain_constant_boolean(cxt, TRUE);
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *name = &operands[0];
 	result->address = qb_obtain_local_variable(cxt, name->constant);
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_global(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_global(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *name = &operands[0];
 	result->address = qb_obtain_global_variable(cxt, name->constant);
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *name = &operands[0];
 	result->address = qb_obtain_static_variable(cxt, name->constant);
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_class(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_class(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *name = &operands[0], *scope = &operands[1];
 	result->address = qb_obtain_class_variable(cxt, scope->zend_class, name->constant);
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void ZEND_FASTCALL qb_set_result_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// set result to a temporary variable unless it'll end up just getting freed
 	if(!result_prototype->destination || result_prototype->destination->type != QB_RESULT_DESTINATION_FREE) {
 		// use the destination's type
@@ -116,7 +116,7 @@ static void ZEND_FASTCALL qb_set_result_increment(qb_compiler_context *cxt, qb_o
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0], *index = &operands[1];
 	qb_operand *element;
 	qb_array_initializer *initializer = result->array_initializer;
@@ -147,7 +147,7 @@ static void ZEND_FASTCALL qb_set_result_array_append(qb_compiler_context *cxt, q
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->type = QB_OPERAND_ARRAY_INITIALIZER;
 	result->array_initializer = qb_allocate_array_initializer(cxt->pool);
 	if(operand_count > 0) {
@@ -155,7 +155,7 @@ static void ZEND_FASTCALL qb_set_result_array_init(qb_compiler_context *cxt, qb_
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *string = &operands[0], *addend = &operands[1];
 	if(string->type == QB_OPERAND_ADDRESS) {
 		*result = *string;
@@ -166,14 +166,14 @@ static void ZEND_FASTCALL qb_set_result_concat(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_foreach_reset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_foreach_reset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	cxt->foreach_index.address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
 	cxt->foreach_index.type = QB_OPERAND_ADDRESS;
 	*result = *container;
 }
 
-static void ZEND_FASTCALL qb_set_result_foreach_fetch(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_foreach_fetch(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0], *extra_result = &result[1];
 	if(extra_result->type != QB_OPERAND_NONE) {
 		*extra_result = cxt->foreach_index;
@@ -182,24 +182,24 @@ static void ZEND_FASTCALL qb_set_result_foreach_fetch(qb_compiler_context *cxt, 
 	result->address = qb_obtain_array_element(cxt, container->address, cxt->foreach_index.address);
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	result->type = QB_OPERAND_ZEND_CLASS;
 	result->zend_class = ce;
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	result->type = QB_OPERAND_ZEND_CLASS;
 	result->zend_class = ce->parent;
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->type = QB_OPERAND_ZEND_STATIC_CLASS;
 	result->zend_class = NULL;
 }
 
-static void ZEND_FASTCALL qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	USE_TSRM
 	qb_operand *scope = &operands[0], *name = &operands[1];
 	if(scope->type == QB_OPERAND_ZEND_STATIC_CLASS) {
@@ -236,7 +236,7 @@ static void ZEND_FASTCALL qb_set_result_fetch_constant(qb_compiler_context *cxt,
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_receive_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_receive_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *argument = &operands[0], *default_value = &operands[1];
 	if(default_value->type == QB_OPERAND_ZVAL) {
 		qb_variable *qvar = cxt->variables[argument->number - 1];
@@ -244,19 +244,19 @@ static void ZEND_FASTCALL qb_set_result_receive_argument(qb_compiler_context *cx
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_send_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_send_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *argument = &operands[0];
 	qb_operand *stack_item = qb_push_stack_item(cxt);
 	*stack_item = *argument;
 }
 
-static void ZEND_FASTCALL qb_set_preliminary_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_preliminary_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	f = func->intrinsic_function->extra;
 	f->set_preliminary_result(cxt, f, expr_type, arguments->arguments, argument_count->number, result, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_set_final_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_final_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	f = func->intrinsic_function->extra;
 	if(f->set_final_result) {

@@ -23,7 +23,7 @@ class ArrayResize extends Handler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"void ZEND_FASTCALL qb_relocate_elements_{$type}($cType *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {",
+				"void qb_relocate_elements_{$type}($cType *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {",
 					"uint32_t i;",
 					"int32_t expansion = FALSE;",
 					"int32_t contraction = FALSE;",

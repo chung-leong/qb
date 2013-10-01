@@ -9,7 +9,7 @@ class UTF8Encode extends Handler {
 		$cType = $this->getOperandCType(1);
 		$functions = array(
 			array(
-				"uint32_t ZEND_FASTCALL qb_get_utf8_encoded_length_$type($cType *op1_ptr, uint32_t op1_count) {",
+				"uint32_t qb_get_utf8_encoded_length_$type($cType *op1_ptr, uint32_t op1_count) {",
 					"uint32_t length = 0, i;",
 					"uint8_t buffer[4];",
 					"for(i = 0; i < op1_count; i++) {",

@@ -94,7 +94,7 @@ struct qb_native_proc_record {
 	void *proc;
 };
 
-void ZEND_FASTCALL qb_execute_internal(qb_function *qfunc TSRMLS_DC);
+void qb_execute_internal(qb_function *qfunc TSRMLS_DC);
 
 #if ZEND_DEBUG
 extern qb_native_proc_record *native_proc_table;
@@ -125,20 +125,20 @@ extern void *op_handlers[];
 	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, (char *) n, len, TRUE TSRMLS_CC)
 #endif
 
-void ZEND_FASTCALL qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers);
-void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number);
-void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt);
-void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index);
-void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index);
-void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt);
-void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size);
-void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count);
-void ZEND_FASTCALL qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
+void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers);
+void qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number);
+void qb_execute_function_call(qb_interpreter_context *cxt);
+void qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index);
+void qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index);
+void qb_finalize_function_call(qb_interpreter_context *cxt);
+void qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size);
+void qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count);
+void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 3) NO_RETURN
 void qb_abort_at(const char *format, uint32_t line_number, ...);
 NO_RETURN void qb_abort_range_error(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t index, uint32_t count, uint32_t line_number);
 NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number);
 
-intptr_t ZEND_FASTCALL qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size);
+intptr_t qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size);
 
 #endif

@@ -25,15 +25,15 @@
 
 #include "qb.h"
 
-void ZEND_FASTCALL qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool);
-void ZEND_FASTCALL qb_free_compiler_data_pool(qb_compiler_data_pool *pool);
-void ZEND_FASTCALL qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
-void ZEND_FASTCALL qb_free_external_code(qb_compiler_context *cxt);
-void ZEND_FASTCALL qb_initialize_compiler_context(qb_compiler_context *cxt, qb_compiler_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
-void ZEND_FASTCALL qb_free_compiler_context(qb_compiler_context *cxt);
-void ZEND_FASTCALL qb_pbj_decode(qb_compiler_context *cxt);
+void qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool);
+void qb_free_compiler_data_pool(qb_compiler_data_pool *pool);
+void qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
+void qb_free_external_code(qb_compiler_context *cxt);
+void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_compiler_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
+void qb_free_compiler_context(qb_compiler_context *cxt);
+void qb_pbj_decode(qb_compiler_context *cxt);
 
-static zval * ZEND_FASTCALL qb_add_string(zval *array, const char *name, const char *s, int32_t len) {
+static zval * qb_add_string(zval *array, const char *name, const char *s, int32_t len) {
 	HashTable *ht = Z_ARRVAL_P(array);
 	zval *zvalue;
 	ALLOC_INIT_ZVAL(zvalue);
@@ -51,7 +51,7 @@ static zval * ZEND_FASTCALL qb_add_string(zval *array, const char *name, const c
 	return zvalue;
 }
 
-static zval * ZEND_FASTCALL qb_add_int(zval *array, const char *name, long value) {
+static zval * qb_add_int(zval *array, const char *name, long value) {
 	HashTable *ht = Z_ARRVAL_P(array);
 	zval *zvalue;
 	ALLOC_INIT_ZVAL(zvalue);
@@ -64,7 +64,7 @@ static zval * ZEND_FASTCALL qb_add_int(zval *array, const char *name, long value
 	return zvalue;
 }
 
-static zval * ZEND_FASTCALL qb_add_float(zval *array, const char *name, double value) {
+static zval * qb_add_float(zval *array, const char *name, double value) {
 	HashTable *ht = Z_ARRVAL_P(array);
 	zval *zvalue;
 	ALLOC_INIT_ZVAL(zvalue);
@@ -77,7 +77,7 @@ static zval * ZEND_FASTCALL qb_add_float(zval *array, const char *name, double v
 	return zvalue;
 }
 
-static zval * ZEND_FASTCALL qb_add_array(zval *array, const char *name) {
+static zval * qb_add_array(zval *array, const char *name) {
 	HashTable *ht = Z_ARRVAL_P(array);
 	zval *zvalue;
 	ALLOC_INIT_ZVAL(zvalue);
@@ -90,7 +90,7 @@ static zval * ZEND_FASTCALL qb_add_array(zval *array, const char *name) {
 	return zvalue;
 }
 
-static zval * ZEND_FASTCALL qb_add_float_array(zval *array, const char *name, float32_t *values, uint32_t count) {
+static zval * qb_add_float_array(zval *array, const char *name, float32_t *values, uint32_t count) {
 	zval *container = qb_add_array(array, name);
 	uint32_t i;
 	for(i = 0; i < count; i++) {
@@ -99,7 +99,7 @@ static zval * ZEND_FASTCALL qb_add_float_array(zval *array, const char *name, fl
 	return container;
 }
 
-static zval * ZEND_FASTCALL qb_add_int_array(zval *array, const char *name, int32_t *values, uint32_t count) {
+static zval * qb_add_int_array(zval *array, const char *name, int32_t *values, uint32_t count) {
 	zval *container = qb_add_array(array, name);
 	uint32_t i;
 	for(i = 0; i < count; i++) {
@@ -164,7 +164,7 @@ const char *pbj_param_qb_types[] = {
 	"bool[4]",
 };
 
-static zval * ZEND_FASTCALL qb_add_pbj_value(zval *array, const char *name, qb_pbj_value *value) {
+static zval * qb_add_pbj_value(zval *array, const char *name, qb_pbj_value *value) {
 	switch(value->type) {
 		case PBJ_TYPE_FLOAT:	return qb_add_float(array, name, value->float1);
 		case PBJ_TYPE_FLOAT2:	return qb_add_float_array(array, name, value->float2, 2);
@@ -202,7 +202,7 @@ static void qb_append_string(zval *string, const char *format, ...) {
 	efree(addition);
 }
 
-void ZEND_FASTCALL qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
+void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 	USE_TSRM
 	qb_compiler_context *compiler_cxt = cxt->compiler_cxt;
 	zval path = *cxt->input, *parameters;
@@ -347,7 +347,7 @@ void ZEND_FASTCALL qb_extract_pbj_info(qb_extractor_context *cxt, int output_typ
 	zval_dtor(&path);
 }
 
-void ZEND_FASTCALL qb_initialize_extractor_context(qb_extractor_context *cxt, zval *input, zval *return_value TSRMLS_DC) {
+void qb_initialize_extractor_context(qb_extractor_context *cxt, zval *input, zval *return_value TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_extractor_context));
 	cxt->input = input;
 	cxt->return_value = return_value;
@@ -358,12 +358,12 @@ void ZEND_FASTCALL qb_initialize_extractor_context(qb_extractor_context *cxt, zv
 	SAVE_TSRMLS
 }
 
-void ZEND_FASTCALL qb_free_extractor_context(qb_extractor_context *cxt) {
+void qb_free_extractor_context(qb_extractor_context *cxt) {
 	qb_free_compiler_context(cxt->compiler_cxt);
 	qb_free_compiler_data_pool(cxt->pool);
 }
 
-int ZEND_FASTCALL qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC) {
+int qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC) {
 	qb_extractor_context _cxt, *cxt = &_cxt;
 	qb_initialize_extractor_context(cxt, input, return_value TSRMLS_CC);
 

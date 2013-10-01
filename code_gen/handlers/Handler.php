@@ -457,7 +457,7 @@ class Handler {
 		$expressions = $this->getActionExpressions();
 		switch($functionType) {
 			case 'inline': $typeDecl = "static zend_always_inline void"; break;
-			case 'extern': $typeDecl = "void ZEND_FASTCALL"; break;
+			case 'extern': $typeDecl = "void"; break;
 		}
 		
 		// replace op# with (*op#_ptr) for array operands and res with (*res_ptr)
@@ -571,7 +571,7 @@ class Handler {
 			return null;
 		}
 		$instr = $this->getInstructionStructure();
-		$dispatcherTypeDecl = "void ZEND_FASTCALL";
+		$dispatcherTypeDecl = "void";
 		$dispatcherFunction = $this->getDispatcherFunctionName();
 		$dispatcherParameterList = $this->getDispatcherFunctionParameterList(true);
 		$opCount = $this->getOperandCount();

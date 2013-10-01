@@ -24,7 +24,7 @@
 
 #include "qb.h"
 
-void ZEND_FASTCALL qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
+void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
 	if(filled_byte_count) {
 		while(filled_byte_count < required_byte_count) {
 			uint32_t gap = (required_byte_count - filled_byte_count);
@@ -37,7 +37,7 @@ void ZEND_FASTCALL qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_coun
 	}
 }
 
-void ZEND_FASTCALL qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count) {
+void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count) {
 	uint32_t i, count = min(source_count, dest_count);
 	switch(dest_type) {
 		case QB_TYPE_S08: {
@@ -186,7 +186,7 @@ void ZEND_FASTCALL qb_copy_elements(uint32_t source_type, int8_t *restrict sourc
 	}
 }
 
-int64_t ZEND_FASTCALL qb_zval_to_long(zval *zvalue) {
+int64_t qb_zval_to_long(zval *zvalue) {
 	if(Z_TYPE_P(zvalue) == IS_DOUBLE) {
 		float64_t value = Z_DVAL_P(zvalue);
 		if(value > 0) {
@@ -204,7 +204,7 @@ int64_t ZEND_FASTCALL qb_zval_to_long(zval *zvalue) {
 	}
 }
 
-double ZEND_FASTCALL qb_zval_to_double(zval *zvalue) {
+double qb_zval_to_double(zval *zvalue) {
 	if(Z_TYPE_P(zvalue) == IS_DOUBLE) {
 		float64_t value = Z_DVAL_P(zvalue);
 		return value;
@@ -218,7 +218,7 @@ double ZEND_FASTCALL qb_zval_to_double(zval *zvalue) {
 	}
 }
 
-int64_t ZEND_FASTCALL qb_zval_array_to_int64(zval *zvalue) {
+int64_t qb_zval_array_to_int64(zval *zvalue) {
 	int32_t hi_dword_present = FALSE, lo_dword_present = FALSE;
 	int64_t hi_dword, lo_dword;
 	HashTable *ht = Z_ARRVAL_P(zvalue);
@@ -249,7 +249,7 @@ int64_t ZEND_FASTCALL qb_zval_array_to_int64(zval *zvalue) {
 	return (hi_dword & 0xFFFFFFFF) << 32 | (lo_dword & 0xFFFFFFFF);
 }
 
-zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {
+zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {
 	zval *value = &QB_G(static_zvals)[ QB_G(static_zval_index)++ ];
 	if(QB_G(static_zval_index) >= sizeof(QB_G(static_zvals)) / sizeof(zval)) {
 		QB_G(static_zval_index) = 0;
@@ -259,11 +259,11 @@ zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {
 	return value;
 }
 
-zval * ZEND_FASTCALL qb_cstring_to_zval(const char *s TSRMLS_DC) {
+zval * qb_cstring_to_zval(const char *s TSRMLS_DC) {
 	return qb_string_to_zval(s, strlen(s) TSRMLS_CC);
 }
 
-uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type) {
+uint32_t qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type) {
 	switch(type) {
 		case QB_TYPE_S08: return snprintf(buffer, buffer_len, "%" PRId8, ((CTYPE(S08) *) bytes)[0]); 
 		case QB_TYPE_U08: return snprintf(buffer, buffer_len, "%" PRIu8, ((CTYPE(U08) *) bytes)[0]); 
@@ -279,7 +279,7 @@ uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, i
 	return 0;
 }
 
-int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent) {
+int32_t qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent) {
 	static int32_t decompression_failed = FALSE;
 	uint32_t compressed_length = SWAP_LE_I32(((uint32_t *) data)[0]);
 	uint32_t uncompressed_length = SWAP_LE_I32(((uint32_t *) data)[1]);
@@ -364,7 +364,7 @@ int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uin
 	}
 }
 
-void ZEND_FASTCALL qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity) {
+void qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity) {
 	uint32_t total_size = offsetof(qb_block_allocator, data) + (item_size * capacity);
 	qb_block_allocator *al = emalloc(total_size);
 	al->count = 0;
@@ -376,7 +376,7 @@ void ZEND_FASTCALL qb_create_block_allocator(qb_block_allocator **p_allocator, u
 	*p_allocator = al;
 }
 
-void * ZEND_FASTCALL qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count) {
+void * qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count) {
 	qb_block_allocator *al = *p_allocator;
 	void *pointer;
 	if(al->count + count > al->capacity) {
@@ -398,7 +398,7 @@ void * ZEND_FASTCALL qb_allocate_items(qb_block_allocator **p_allocator, uint32_
 	return pointer;
 }
 
-void ZEND_FASTCALL qb_reset_block_allocator(qb_block_allocator **p_allocator) {
+void qb_reset_block_allocator(qb_block_allocator **p_allocator) {
 	qb_block_allocator *al = *p_allocator, *bl;
 	while(al->previous_block) {
 		bl = al;
@@ -411,7 +411,7 @@ void ZEND_FASTCALL qb_reset_block_allocator(qb_block_allocator **p_allocator) {
 	*p_allocator = al;
 }
 
-void ZEND_FASTCALL qb_destroy_block_allocator(qb_block_allocator **p_allocator) {
+void qb_destroy_block_allocator(qb_block_allocator **p_allocator) {
 	qb_block_allocator *al = *p_allocator, *bl;
 	while(al) {
 		bl = al;
@@ -430,7 +430,7 @@ typedef struct qb_array_attributes {
 
 #define GET_ARRAY_ATTRIBUTES(p)		((qb_array_attributes *) ((char *) (p) - offsetof(qb_array_attributes, data)))
 
-void ZEND_FASTCALL qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initial_capacity) {
+void qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initial_capacity) {
 	uint32_t total_size = offsetof(qb_array_attributes, data) + (item_size * initial_capacity);
 	qb_array_attributes *a = emalloc(total_size);
 	a->item_size = item_size;
@@ -442,7 +442,7 @@ void ZEND_FASTCALL qb_create_array(void **p_array, uint32_t *p_count, uint32_t i
 	*p_array = a->data;
 }
 
-void * ZEND_FASTCALL qb_enlarge_array(void **p_array, uint32_t addition) {
+void * qb_enlarge_array(void **p_array, uint32_t addition) {
 	qb_array_attributes *a = GET_ARRAY_ATTRIBUTES(*p_array);
 	void *pointer;
 	uint32_t current_count = *a->p_count;
@@ -464,7 +464,7 @@ void * ZEND_FASTCALL qb_enlarge_array(void **p_array, uint32_t addition) {
 	return pointer;
 }
 
-void ZEND_FASTCALL qb_destroy_array(void **p_array) {
+void qb_destroy_array(void **p_array) {
 	if(*p_array) {
 		qb_array_attributes *a = GET_ARRAY_ATTRIBUTES(*p_array);
 		efree(a);
@@ -472,7 +472,7 @@ void ZEND_FASTCALL qb_destroy_array(void **p_array) {
 }
 
 #ifdef PHP_WIN32
-double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
+double qb_get_high_res_timestamp(void) {
 	double seconds;
 	LARGE_INTEGER count, frequency;
 	QueryPerformanceCounter(&count);
@@ -482,7 +482,7 @@ double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
 }
 #elif defined(__MACH__)
 #include <mach/mach_time.h>
-double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
+double qb_get_high_res_timestamp(void) {
 	double seconds;
 	uint64_t abs_time = mach_absolute_time();
 	mach_timebase_info_data_t info;
@@ -492,7 +492,7 @@ double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
 }
 #else
 #include <time.h>
-double ZEND_FASTCALL qb_get_high_res_timestamp(void) {
+double qb_get_high_res_timestamp(void) {
 	double seconds;
 	struct timespec t;
 	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);

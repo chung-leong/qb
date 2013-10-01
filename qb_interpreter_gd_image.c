@@ -37,7 +37,7 @@ enum qb_pixel_format {
 	QB_PIXEL_2D_F64_4 = QB_PIXEL_F64_4 | QB_PIXEL_ARRANGEMENT_2D,
 };
 
-static gdImagePtr ZEND_FASTCALL qb_get_gd_image(qb_interpreter_context *cxt, zval *resource) {
+static gdImagePtr qb_get_gd_image(qb_interpreter_context *cxt, zval *resource) {
 	USE_TSRM
 	if(Z_TYPE_P(resource) == IS_RESOURCE) {
 		static int le_gd = -1;
@@ -52,7 +52,7 @@ static gdImagePtr ZEND_FASTCALL qb_get_gd_image(qb_interpreter_context *cxt, zva
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_set_image_dimensions(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
+static void qb_set_image_dimensions(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
 	qb_address *width_address = address->dimension_addresses[1];
 	qb_address *height_address = address->dimension_addresses[0];
 	uint32_t width_expected = VALUE(U32, width_address);
@@ -76,7 +76,7 @@ static void ZEND_FASTCALL qb_set_image_dimensions(qb_interpreter_context *cxt, g
 	}
 }
 
-static void ZEND_FASTCALL qb_set_image_linear_size(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
+static void qb_set_image_linear_size(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
 	qb_address *length_address = address->dimension_addresses[0];
 	uint32_t pixel_count = image->sx * image->sy;
 	uint32_t length_expected = VALUE(U32, length_address);
@@ -90,7 +90,7 @@ static void ZEND_FASTCALL qb_set_image_linear_size(qb_interpreter_context *cxt, 
 	VALUE(U32, length_address) = pixel_count;
 }
 
-static qb_pixel_format ZEND_FASTCALL qb_get_compatible_pixel_format(qb_interpreter_context *cxt, qb_address *address, int32_t true_color) {
+static qb_pixel_format qb_get_compatible_pixel_format(qb_interpreter_context *cxt, qb_address *address, int32_t true_color) {
 	qb_pixel_format pixel_format = QB_PIXEL_INVALID;
 	qb_primitive_type element_type = address->type;
 	qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
@@ -167,7 +167,7 @@ static qb_pixel_format ZEND_FASTCALL qb_get_compatible_pixel_format(qb_interpret
 	return pixel_format;
 }
 
-static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_image(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
+static uint32_t qb_set_array_dimensions_from_image(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
 	uint32_t array_size, i;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(cxt, address, image->trueColor);
 
@@ -259,7 +259,7 @@ static void qb_reallocate_gd_image(qb_interpreter_context *cxt, gdImagePtr image
 	image->sy = height;
 }
 
-static void ZEND_FASTCALL qb_copy_elements_from_gd_image(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
+static void qb_copy_elements_from_gd_image(qb_interpreter_context *cxt, gdImagePtr image, qb_address *address) {
 	uint32_t i, j;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(cxt, address, image->trueColor);
 	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
@@ -379,7 +379,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_gd_image(qb_interpreter_context 
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_elements_to_gd_image(qb_interpreter_context *cxt, qb_address *address, gdImagePtr image) {
+static void qb_copy_elements_to_gd_image(qb_interpreter_context *cxt, qb_address *address, gdImagePtr image) {
 	int32_t width, height;
 	uint32_t i, j;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(cxt, address, image->trueColor);

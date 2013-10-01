@@ -10,7 +10,7 @@ class RGB2HSL extends Handler {
 		$f = ($type == 'F32') ? 'f' : '';
 		$functions = array(
 			array(
-				"void ZEND_FASTCALL qb_convert_rgb_to_hsl_$type($cType *op1_ptr, $cType *res_ptr) {",
+				"void qb_convert_rgb_to_hsl_$type($cType *op1_ptr, $cType *res_ptr) {",
 					"$cType r = op1_ptr[0], g = op1_ptr[1], b = op1_ptr[2];",
 					"$cType min, max, delta, h, s, l;",
 					"if(r > g) {",

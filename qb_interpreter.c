@@ -26,7 +26,7 @@
 #include <math.h>
 #include "zend_variables.h"
 
-static const char * ZEND_FASTCALL qb_get_address_name(qb_interpreter_context *cxt, qb_address *address) {
+static const char * qb_get_address_name(qb_interpreter_context *cxt, qb_address *address) {
 	uint32_t i, j;
 	if(cxt->function) {
 		for(i = 0; i < cxt->function->variable_count; i++) {
@@ -50,7 +50,7 @@ static const char * ZEND_FASTCALL qb_get_address_name(qb_interpreter_context *cx
 
 #include "qb_interpreter_gd_image.c"
 
-static php_stream * ZEND_FASTCALL qb_get_file_stream(qb_interpreter_context *cxt, zval *resource) {
+static php_stream * qb_get_file_stream(qb_interpreter_context *cxt, zval *resource) {
 	USE_TSRM 
 	if(Z_TYPE_P(resource) == IS_RESOURCE) {
 		php_stream *stream = (php_stream*) zend_fetch_resource(&resource TSRMLS_CC, -1, NULL, NULL, 2, php_file_le_stream(), php_file_le_pstream());
@@ -63,7 +63,7 @@ static php_stream * ZEND_FASTCALL qb_get_file_stream(qb_interpreter_context *cxt
 	return NULL;
 }
 
-static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_bytes(qb_interpreter_context *cxt, uint32_t byte_count, qb_address *address) {
+static uint32_t qb_set_array_dimensions_from_bytes(qb_interpreter_context *cxt, uint32_t byte_count, qb_address *address) {
 	uint32_t element_count = ELEMENT_COUNT(byte_count, address->type);
 	uint32_t item_element_count, item_byte_count, dimension, dimension_expected;
 	qb_address *dimension_address, *item_size_address;
@@ -106,7 +106,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_bytes(qb_interpreter_
 	return element_count;
 }
 
-static uint32_t ZEND_FASTCALL qb_get_zend_array_size(qb_interpreter_context *cxt, zval *zvalue) {
+static uint32_t qb_get_zend_array_size(qb_interpreter_context *cxt, zval *zvalue) {
 	if(Z_TYPE_P(zvalue) == IS_ARRAY) {
 		HashTable *ht = Z_ARRVAL_P(zvalue);
 		return ht->nNextFreeElement;
@@ -119,7 +119,7 @@ static uint32_t ZEND_FASTCALL qb_get_zend_array_size(qb_interpreter_context *cxt
 	}
 }
 
-static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_caller_address(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address) {
+static uint32_t qb_set_array_dimensions_from_caller_address(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address) {
 	if(caller_address->dimension_count == address->dimension_count) {
 		int32_t i;
 		uint32_t array_size = 1;
@@ -152,7 +152,7 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_caller_address(qb_int
 	}
 }
 
-static int32_t ZEND_FASTCALL qb_is_linear_zval_array(qb_interpreter_context *cxt, zval *zvalue) {
+static int32_t qb_is_linear_zval_array(qb_interpreter_context *cxt, zval *zvalue) {
 	HashTable *ht = Z_ARRVAL_P(zvalue);
 	Bucket *p;
 	for(p = ht->pListHead; p; p = p->pListNext) {
@@ -166,7 +166,7 @@ static int32_t ZEND_FASTCALL qb_is_linear_zval_array(qb_interpreter_context *cxt
 	return TRUE;
 }
 
-static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
+static uint32_t qb_set_array_dimensions_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
 	USE_TSRM
 
 	gdImagePtr image;
@@ -269,13 +269,13 @@ static uint32_t ZEND_FASTCALL qb_set_array_dimensions_from_zval(qb_interpreter_c
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_elements_from_caller_address(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address) {
+static void qb_copy_elements_from_caller_address(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address) {
 	uint32_t src_element_count = SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
 	uint32_t dst_element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
 	qb_copy_elements(caller_address->type, ARRAY_IN(caller_storage, I08, caller_address), src_element_count, address->type, ARRAY(I08, address), dst_element_count);
 }
 
-static void ZEND_FASTCALL qb_copy_element_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
+static void qb_copy_element_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
 	if(Z_TYPE_P(zvalue) == IS_LONG || Z_TYPE_P(zvalue) == IS_BOOL) {
 		long value = Z_LVAL_P(zvalue);
 #if SIZEOF_LONG == 8
@@ -308,7 +308,7 @@ static void ZEND_FASTCALL qb_copy_element_from_zval(qb_interpreter_context *cxt,
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
+static void qb_copy_elements_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address) {
 	USE_TSRM
 	uint32_t i;
 	gdImagePtr image;
@@ -434,7 +434,7 @@ static void ZEND_FASTCALL qb_copy_elements_from_zval(qb_interpreter_context *cxt
 	}
 }
 
-static int32_t ZEND_FASTCALL qb_map_segment_to_file(qb_interpreter_context *cxt, qb_memory_segment *segment, php_stream *stream, int32_t write_access, uint32_t byte_count) {
+static int32_t qb_map_segment_to_file(qb_interpreter_context *cxt, qb_memory_segment *segment, php_stream *stream, int32_t write_access, uint32_t byte_count) {
 	USE_TSRM
 	if(QB_G(allow_memory_map)) {
 		php_stream_mmap_range range;
@@ -466,7 +466,7 @@ static int32_t ZEND_FASTCALL qb_map_segment_to_file(qb_interpreter_context *cxt,
 	return FALSE;
 }
 
-static void ZEND_FASTCALL qb_unmap_segment(qb_interpreter_context *cxt, qb_memory_segment *segment) {
+static void qb_unmap_segment(qb_interpreter_context *cxt, qb_memory_segment *segment) {
 	USE_TSRM
 	php_stream_set_option(segment->stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_UNMAP, NULL);
 	segment->memory = NULL;
@@ -474,7 +474,7 @@ static void ZEND_FASTCALL qb_unmap_segment(qb_interpreter_context *cxt, qb_memor
 	segment->flags &= ~QB_SEGMENT_MAPPED;
 }
 
-static void ZEND_FASTCALL qb_free_segment(qb_interpreter_context *cxt, qb_memory_segment *segment) {
+static void qb_free_segment(qb_interpreter_context *cxt, qb_memory_segment *segment) {
 	USE_TSRM
 	if(segment->flags & QB_SEGMENT_MAPPED) {
 		php_stream *stream = segment->stream;
@@ -500,7 +500,7 @@ static void ZEND_FASTCALL qb_free_segment(qb_interpreter_context *cxt, qb_memory
 	segment->current_allocation = 0;
 }
 
-static void ZEND_FASTCALL qb_resize_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t byte_count) {
+static void qb_resize_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t byte_count) {
 	USE_TSRM
 	if(segment->flags & QB_SEGMENT_MAPPED) {
 		php_stream *stream = segment->stream;
@@ -516,7 +516,7 @@ static void ZEND_FASTCALL qb_resize_segment(qb_interpreter_context *cxt, qb_memo
 	}
 }
 
-void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size) {
+void qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_segment *segment, uint32_t desired_size) {
 	int8_t *current_data_end;
 
 	if(desired_size > segment->current_allocation) {
@@ -530,7 +530,7 @@ void ZEND_FASTCALL qb_enlarge_segment(qb_interpreter_context *cxt, qb_memory_seg
 	}
 }
 
-void ZEND_FASTCALL qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
+void qb_shrink_segment(qb_interpreter_context *restrict cxt, qb_memory_segment *segment, uint32_t start_index, uint32_t count) {
 	/*
 	uint32_t current_size = segment->byte_count;
 	uint32_t desired_size = current_size - count;
@@ -628,7 +628,7 @@ enum {
 	QB_TRANSFER_CAN_ENLARGE_SEGMENT	= 0x0004,
 };
 
-static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address, int32_t transfer_flags) {
+static void qb_transfer_value_from_zval(qb_interpreter_context *cxt, zval *zvalue, qb_address *address, int32_t transfer_flags) {
 	USE_TSRM
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 	uint32_t element_start_index = address->segment_offset;
@@ -711,7 +711,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_zval(qb_interpreter_context *cx
 	}
 }
 
-static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address, uint32_t transfer_flags) {
+static void qb_transfer_value_from_caller_storage(qb_interpreter_context *cxt, qb_storage *caller_storage, qb_address *caller_address, qb_address *address, uint32_t transfer_flags) {
 	/* TODO
 	// make sure the address is in bound in the caller segment
 	if(caller_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
@@ -774,7 +774,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_caller_storage(qb_interpreter_c
 	*/
 }
 
-static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
+static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
 	USE_TSRM
 	qb_variable *qvar = import->variable;
 
@@ -844,7 +844,7 @@ static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_co
 	}
 }
 
-static void ZEND_FASTCALL qb_update_imported_variables(qb_interpreter_context *cxt) {
+static void qb_update_imported_variables(qb_interpreter_context *cxt) {
 	int32_t i;
 
 	for(i = cxt->variable_import_count - 1; i >= 0; i--) {
@@ -853,7 +853,7 @@ static void ZEND_FASTCALL qb_update_imported_variables(qb_interpreter_context *c
 	}
 }
 
-static void ZEND_FASTCALL qb_import_variable(qb_interpreter_context *cxt, qb_variable *qvar) {
+static void qb_import_variable(qb_interpreter_context *cxt, qb_variable *qvar) {
 	int32_t i;
 	qb_variable_import *import;
 
@@ -883,7 +883,7 @@ static void ZEND_FASTCALL qb_import_variable(qb_interpreter_context *cxt, qb_var
 	qb_transfer_value_from_import_source(cxt, import);
 }
 
-static void ZEND_FASTCALL qb_transfer_arguments_from_php(qb_interpreter_context *cxt, zval *this, zval *retval, zval ***p_args, uint32_t arg_count) {
+static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt, zval *this, zval *retval, zval ***p_args, uint32_t arg_count) {
 	qb_function *func = cxt->function;
 	uint32_t i;
 
@@ -906,7 +906,7 @@ static void ZEND_FASTCALL qb_transfer_arguments_from_php(qb_interpreter_context 
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_element_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
+static void qb_copy_element_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
 	zval_dtor(zvalue);
 	switch(address->type) {
 		case QB_TYPE_S08: {
@@ -992,7 +992,7 @@ static void ZEND_FASTCALL qb_copy_element_to_zval(qb_interpreter_context *cxt, q
 	}
 }
 
-static void ZEND_FASTCALL qb_initialize_zval_array(qb_interpreter_context *cxt, qb_address *item_address, zval *container, zval *item) {
+static void qb_initialize_zval_array(qb_interpreter_context *cxt, qb_address *item_address, zval *container, zval *item) {
 	USE_TSRM
 	zend_class_entry *ce = NULL;
 	if(item_address->index_alias_schemes && item_address->index_alias_schemes[0]) {
@@ -1033,7 +1033,7 @@ static void ZEND_FASTCALL qb_initialize_zval_array(qb_interpreter_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
+static void qb_copy_elements_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
 	USE_TSRM
 	qb_address *dimension_address = address->dimension_addresses[0];
 	uint32_t dimension = VALUE(U32, dimension_address);
@@ -1138,7 +1138,7 @@ static void ZEND_FASTCALL qb_copy_elements_to_zval(qb_interpreter_context *cxt, 
 	}
 }
 
-static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
+static void qb_transfer_value_to_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
 	if(SCALAR(address)) {
 		qb_copy_element_to_zval(cxt, address, zvalue);
 	} else {
@@ -1187,13 +1187,13 @@ static void ZEND_FASTCALL qb_transfer_value_to_zval(qb_interpreter_context *cxt,
 	}
 }
 
-static void ZEND_FASTCALL qb_copy_elements_to_caller_address(qb_interpreter_context *cxt, qb_address *address, qb_storage *caller_storage, qb_address *caller_address) {
+static void qb_copy_elements_to_caller_address(qb_interpreter_context *cxt, qb_address *address, qb_storage *caller_storage, qb_address *caller_address) {
 	uint32_t src_element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
 	uint32_t dst_element_count = SCALAR(caller_address) ? 1 : ARRAY_SIZE_IN(caller_storage, caller_address);
 	qb_copy_elements(address->type, ARRAY(I08, address), src_element_count, caller_address->type, ARRAY_IN(caller_storage, I08, caller_address), dst_element_count);
 }
 
-static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_context *cxt, qb_address *address, qb_storage *caller_storage, qb_address *caller_address) {
+static void qb_transfer_value_to_caller_storage(qb_interpreter_context *cxt, qb_address *address, qb_storage *caller_storage, qb_address *caller_address) {
 	/* TODO
 	if(caller_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
 		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
@@ -1237,7 +1237,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_caller_storage(qb_interpreter_con
 	*/
 }
 
-static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
+static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
 	USE_TSRM
 	qb_variable *qvar = import->variable;
 
@@ -1278,7 +1278,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_import_source(qb_interpreter_cont
 	}
 }
 
-static void ZEND_FASTCALL qb_sync_imported_variables(qb_interpreter_context *cxt) {
+static void qb_sync_imported_variables(qb_interpreter_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->variable_import_count; i++) {
 		qb_variable_import *import = &cxt->variable_imports[i];
@@ -1286,13 +1286,13 @@ static void ZEND_FASTCALL qb_sync_imported_variables(qb_interpreter_context *cxt
 	}
 }
 
-static void ZEND_FASTCALL qb_retire_imported_variable(qb_interpreter_context *cxt, qb_variable *qvar) {
+static void qb_retire_imported_variable(qb_interpreter_context *cxt, qb_variable *qvar) {
 	// assume the function will be called in the correct order
 	qb_variable_import *import = &cxt->variable_imports[--cxt->variable_import_count];
 	qb_transfer_value_to_import_source(cxt, import);
 }
 
-static void ZEND_FASTCALL qb_transfer_arguments_to_php(qb_interpreter_context *cxt, zval *retval, zval ***p_args, int arg_count) {
+static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt, zval *retval, zval ***p_args, int arg_count) {
 	qb_function *func = cxt->function;
 	uint32_t i;
 
@@ -1315,7 +1315,7 @@ static void ZEND_FASTCALL qb_transfer_arguments_to_php(qb_interpreter_context *c
 	}
 }
 
-static void ZEND_FASTCALL qb_free_interpreter_context(qb_interpreter_context *cxt) {
+static void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 	if(cxt->zend_arguments) {
 		efree(cxt->zend_arguments);
 		efree(cxt->zend_argument_pointers);
@@ -1324,9 +1324,9 @@ static void ZEND_FASTCALL qb_free_interpreter_context(qb_interpreter_context *cx
 	qb_destroy_array((void **) &cxt->call_stack);
 }
 
-void ZEND_FASTCALL qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function);
+void qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function);
 
-static void ZEND_FASTCALL qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
+static void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
 	uint32_t i;
 
 	memset(cxt, 0, sizeof(qb_interpreter_context));
@@ -1371,7 +1371,7 @@ static zend_class_entry *qb_get_value_type_debug_class(qb_interpreter_context *c
 	return value_type_debug_classes[type];
 }
 
-static void ZEND_FASTCALL qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
+static void qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
 	USE_TSRM
 	if(SCALAR(address)) {
 		if(address->flags & QB_ADDRESS_STRING) {
@@ -1534,7 +1534,7 @@ static void ZEND_FASTCALL qb_transfer_value_to_debug_zval(qb_interpreter_context
 	}
 }
 
-static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt) {
+static void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 	USE_TSRM
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
@@ -1574,7 +1574,7 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 #endif
 }
 
-static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) {
+static void qb_sync_shadow_variables(qb_interpreter_context *cxt) {
 	USE_TSRM
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
@@ -1592,7 +1592,7 @@ static void ZEND_FASTCALL qb_sync_shadow_variables(qb_interpreter_context *cxt) 
 	}
 }
 
-static void ZEND_FASTCALL qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
+static void qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
 	// Zend will actually perform the clean-up of the CVs
 	// the only thing we need to do here is to put arguments that were passed by reference
 	// back into the symbol table and pop them off the stack
@@ -1634,7 +1634,7 @@ static void ZEND_FASTCALL qb_destroy_shadow_variables(qb_interpreter_context *cx
 	}
 }
 
-static qb_storage * ZEND_FASTCALL qb_find_previous_storage(qb_interpreter_context *cxt, qb_function *qfunc) {
+static qb_storage * qb_find_previous_storage(qb_interpreter_context *cxt, qb_function *qfunc) {
 	int32_t i;
 	for(i = cxt->call_stack_height - 1; i >= 0; i++) {
 		qb_call_stack_item *call_stack_item = &cxt->call_stack[i];
@@ -1645,7 +1645,7 @@ static qb_storage * ZEND_FASTCALL qb_find_previous_storage(qb_interpreter_contex
 	return qfunc->local_storage;
 }
 
-void ZEND_FASTCALL qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number) {
+void qb_initialize_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t argument_count, uint32_t line_number) {
 	qb_call_stack_item *caller = NULL;
 	if(cxt->function) {
 		if(!cxt->call_stack) {
@@ -1704,7 +1704,7 @@ extern zend_module_entry qb_module_entry;
 #include "zend_extensions.h"
 #include "zend_vm.h"
 
-void ZEND_FASTCALL qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
+void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
 	// see if a handler for the op exists before doing any of the hard work
 	USE_TSRM
 	int32_t handler_exists = FALSE;
@@ -1820,7 +1820,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 
 int32_t qb_user_opcode = -1;
 
-static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
+static void qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 	USE_TSRM
 	qb_function *qfunc = cxt->function;
 	zend_function *zfunc = qfunc->zend_function;
@@ -1912,7 +1912,7 @@ static void ZEND_FASTCALL qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
 	}
 }
 
-void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
+void qb_execute_function_call(qb_interpreter_context *cxt) {
 	if(cxt->function) {
 		int8_t *memory;
 		uint32_t combined_byte_count, i;
@@ -2035,7 +2035,7 @@ void ZEND_FASTCALL qb_execute_function_call(qb_interpreter_context *cxt) {
 	}
 }
 
-void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt) {
+void qb_finalize_function_call(qb_interpreter_context *cxt) {
 	if(cxt->function) {
 		uint32_t i;
 		for(i = QB_SELECTOR_ARRAY_START; i < cxt->storage->segment_count; i++) {
@@ -2064,7 +2064,7 @@ void ZEND_FASTCALL qb_finalize_function_call(qb_interpreter_context *cxt) {
 	}
 }
 
-void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
+void qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
 	if(cxt->function) {
 		if(argument_index < cxt->function->argument_count) {
 			qb_variable *qvar = cxt->function->variables[argument_index];
@@ -2086,7 +2086,7 @@ void ZEND_FASTCALL qb_copy_argument(qb_interpreter_context *cxt, uint32_t argume
 	}
 }
 
-void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
+void qb_resync_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
 	if(cxt->function) {
 		qb_variable *qvar = cxt->function->variables[argument_index];
 		qb_call_stack_item *caller = &cxt->call_stack[cxt->call_stack_height - 1];
@@ -2115,7 +2115,7 @@ void ZEND_FASTCALL qb_resync_argument(qb_interpreter_context *cxt, uint32_t argu
 	}
 }
 
-int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC) {
+int qb_execute(zend_function *zfunc, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC) {
 	int result = SUCCESS;
 	qb_interpreter_context _cxt, *cxt = &_cxt;
 	qb_initialize_interpreter_context(cxt TSRMLS_CC);
@@ -2142,7 +2142,7 @@ int ZEND_FASTCALL qb_execute(zend_function *zfunc, zval *this, zval ***arguments
 	return result;
 }
 
-void ZEND_FASTCALL qb_execute_internal(qb_function *qfunc TSRMLS_DC) {
+void qb_execute_internal(qb_function *qfunc TSRMLS_DC) {
 	qb_interpreter_context _cxt, *cxt = &_cxt;
 	unsigned char windows_time_out = 0;
 	SAVE_TSRMLS
@@ -2153,7 +2153,7 @@ void ZEND_FASTCALL qb_execute_internal(qb_function *qfunc TSRMLS_DC) {
 	qb_execute_function_call(cxt);
 }
 
-int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
+int qb_initialize_interpreter(TSRMLS_D) {
 #ifdef NATIVE_COMPILE_ENABLED
 	uint32_t i;
 	// calculate hash for faster lookup
@@ -2168,7 +2168,7 @@ int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D) {
 	return SUCCESS;
 }
 
-intptr_t ZEND_FASTCALL qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size) {
+intptr_t qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size) {
 	qb_memory_segment *segment = &storage->segments[segment_selector];
 	segment->byte_count = new_size;
 	if(new_size > segment->current_allocation) {
@@ -2189,7 +2189,7 @@ intptr_t ZEND_FASTCALL qb_resize_array(qb_interpreter_context *__restrict cxt, q
 	return 0;
 }
 
-void ZEND_FASTCALL qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
+void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
 	uint32_t i;
 	uint32_t count = cxt->thread_count_for_next_op;
 	cxt->thread_count_for_next_op = 0;

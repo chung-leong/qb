@@ -40,23 +40,23 @@ typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
 typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
 typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 
-typedef qb_primitive_type (ZEND_FASTCALL *qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
+typedef qb_primitive_type (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
 
-typedef void (ZEND_FASTCALL *qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
+typedef void (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
 
-typedef void (ZEND_FASTCALL *qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
+typedef void (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
 
-typedef void (ZEND_FASTCALL *qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
+typedef void (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
 
-typedef void (ZEND_FASTCALL *qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef void (*qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
-typedef void (ZEND_FASTCALL *qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
+typedef void (*qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
 
-typedef uint32_t (ZEND_FASTCALL *qb_get_operand_count_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
+typedef uint32_t (*qb_get_operand_count_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
 
-typedef qb_opcode (ZEND_FASTCALL *qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+typedef qb_opcode (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
-typedef void (ZEND_FASTCALL *qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
+typedef void (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
 
 #define OP_FACTORY_COMMON_ELEMENTS		\
 	qb_resolve_expression_type_proc resolve_type;	\

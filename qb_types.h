@@ -556,8 +556,8 @@ extern const char *type_cnames[];
 extern int64_t integer_lower_bounds[];
 extern uint64_t integer_upper_bounds[];
 
-void ZEND_FASTCALL qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count);
-void ZEND_FASTCALL qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count);
+void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count);
+void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count);
 
 static zend_always_inline void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint32_t dest_type, int8_t *restrict dest_memory) {
 	qb_copy_elements(source_type, source_memory, 1, dest_type, dest_memory, 1);
@@ -569,14 +569,14 @@ static zend_always_inline int32_t qb_is_compiled_function(zend_function *zfunc) 
 	return (zfunc->type == ZEND_INTERNAL_FUNCTION && zfunc->internal_function.handler == PHP_FN(qb_execute));
 }
 
-int64_t ZEND_FASTCALL qb_zval_to_long(zval *zvalue);
-double ZEND_FASTCALL qb_zval_to_double(zval *zvalue);
-int64_t ZEND_FASTCALL qb_zval_array_to_int64(zval *zvalue);
+int64_t qb_zval_to_long(zval *zvalue);
+double qb_zval_to_double(zval *zvalue);
+int64_t qb_zval_array_to_int64(zval *zvalue);
 
-zval * ZEND_FASTCALL qb_cstring_to_zval(const char *s TSRMLS_DC);
-zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC);
+zval * qb_cstring_to_zval(const char *s TSRMLS_DC);
+zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC);
 
-uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type);
+uint32_t qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type);
 
 #define __qb_clamp_float32(f, max)				qb_clamp_float32_0_##max(f)
 #define qb_clamp_float32(f, max)				__qb_clamp_float32(f, max)
@@ -679,7 +679,7 @@ static zend_always_inline int32_t qb_clamp_float64_0_127(float64_t f) {
 #endif
 }
 
-int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent);
+int32_t qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent);
 
 struct qb_block_allocator {
 	uint32_t count;
@@ -695,21 +695,21 @@ struct qb_native_code_bundle {
 	uint32_t size;
 };
 
-void ZEND_FASTCALL qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);
-void * ZEND_FASTCALL qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count);
-void ZEND_FASTCALL qb_destroy_block_allocator(qb_block_allocator **p_allocator);
+void qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);
+void * qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count);
+void qb_destroy_block_allocator(qb_block_allocator **p_allocator);
 
-void ZEND_FASTCALL qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t increment);
-void * ZEND_FASTCALL qb_enlarge_array(void **p_array, uint32_t count);
-void ZEND_FASTCALL qb_destroy_array(void **p_array);
+void qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t increment);
+void * qb_enlarge_array(void **p_array, uint32_t count);
+void qb_destroy_array(void **p_array);
 
 float qb_fast_rsqrtf(float a);
 double qb_fast_rsqrt(double a);
 float qb_fast_sqrtf(float a);
 double qb_fast_sqrt(double a);
 
-uint64_t ZEND_FASTCALL qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc);
-double ZEND_FASTCALL qb_get_high_res_timestamp(void);
+uint64_t qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc);
+double qb_get_high_res_timestamp(void);
 
 // Copyright (c) 2008-2010 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 // See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.

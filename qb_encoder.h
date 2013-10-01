@@ -41,9 +41,9 @@ struct qb_encoder_context {
 	void ***tsrm_ls;
 };
 
-void ZEND_FASTCALL qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 
-qb_function * ZEND_FASTCALL qb_encode_function(qb_encoder_context *cxt);
-int8_t * ZEND_FASTCALL qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory);
+qb_function * qb_encode_function(qb_encoder_context *cxt);
+int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory);
 
 #endif

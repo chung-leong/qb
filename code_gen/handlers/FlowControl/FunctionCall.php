@@ -67,7 +67,7 @@ class FunctionCall extends Handler {
 		if($this->addressMode == "SCA") {
 			$functions = array(
 				array(
-					"uint32_t ZEND_FASTCALL qb_decode_fcall_variable_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {",
+					"uint32_t qb_decode_fcall_variable_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {",
 						"uint32_t operand1 = operands[0];",
 						"uint32_t var_operand2 = operands[1];",
 						"uint32_t type = operand1 & 0x00FF;",
@@ -84,7 +84,7 @@ class FunctionCall extends Handler {
 		} else {
 			$functions = array(
 				array(
-					"uint32_t ZEND_FASTCALL qb_decode_fcall_mix_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {",
+					"uint32_t qb_decode_fcall_mix_operand(qb_interpreter_context *__restrict cxt, int8_t *__restrict *segments, uint32_t *__restrict operands) {",
 						"uint32_t operand_count = 0;",
 						"uint32_t operand1 = operands[operand_count++];",
 				 		"uint32_t type = operand1 & 0x00FF;",

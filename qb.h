@@ -102,19 +102,6 @@
 #endif
 */
 
-#ifdef ZEND_FASTCALL
-	#undef ZEND_FASTCALL
-#endif
-
-#if defined(__GNUC__) && ZEND_GCC_VERSION >= 3004 && defined(__i386__)
-	# define ZEND_FASTCALL __attribute__((fastcall))
-#elif defined(_MSC_VER) && defined(_M_IX86)
-	# define ZEND_FASTCALL __fastcall
-#else
-	# define ZEND_FASTCALL
-	# define FASTCALL_MATCHES_CDECL
-#endif
-
 #define QB_EXTNAME	"qb"
 
 #include "qb_version.h"
@@ -182,18 +169,18 @@ ZEND_END_MODULE_GLOBALS(qb)
 # define QB_G(v) (qb_globals.v)
 #endif
 
-int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC);
-int ZEND_FASTCALL qb_execute(zend_function *function, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
-int ZEND_FASTCALL qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC);
-int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
+int qb_compile(zval *arg1, zval *arg2 TSRMLS_DC);
+int qb_execute(zend_function *function, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
+int qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC);
+int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 
-int ZEND_FASTCALL qb_initialize_compiler(TSRMLS_D);
-int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D);
+int qb_initialize_compiler(TSRMLS_D);
+int qb_initialize_interpreter(TSRMLS_D);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);
 
-void ZEND_FASTCALL qb_free_function(qb_function *qfunc);
+void qb_free_function(qb_function *qfunc);
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

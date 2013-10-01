@@ -9,7 +9,7 @@ class RGB2HSV extends Handler {
 		$type = $this->getOperandType(1);
 		$functions = array(
 			array(
-				"void ZEND_FASTCALL qb_convert_rgb_to_hsv_$type($cType *op1_ptr, $cType *res_ptr) {",
+				"void qb_convert_rgb_to_hsv_$type($cType *op1_ptr, $cType *res_ptr) {",
 					"$cType r = op1_ptr[0], g = op1_ptr[1], b = op1_ptr[2];",
 					"$cType min, max, delta, h, s, v;",
 					"if(r > g) {",

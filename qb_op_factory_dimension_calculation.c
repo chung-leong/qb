@@ -18,7 +18,7 @@
 
 /* $Id$ */
 
-static void ZEND_FASTCALL qb_set_result_dimensions_matching(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_matching(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	// size of the result matches the largest of the operands
 	// the structure of the result also comes from the largest of the operands
 	// if two operands are the same size, then the one with MORE dimensions wins
@@ -63,7 +63,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_matching(qb_compiler_context 
 	dim->source_address = dimension_source;
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *vector_address = operands[0].address;
 	if(vector_address->dimension_count > 1) {
 		dim->dimension_count = 1;
@@ -88,7 +88,7 @@ static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_facto
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *m1_address, *m1_size_address, *m1_row_address;
 	qb_address *m2_address, *m2_size_address, *m2_col_address;
 	uint32_t i, m1_count, m2_count, res_count;
@@ -158,7 +158,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_mm_mult(qb_compiler_context *
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *m_address, *m_size_address;
 	qb_address *v_address, *v_width_address;
 	uint32_t i, m_count, v_count, res_count;
@@ -220,7 +220,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_mv_mult(qb_compiler_context *
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	// TODO: I think this is broken when the matrix isn't square
 	qb_operand reversed_operands[2];
 	reversed_operands[0] = operands[1];
@@ -229,7 +229,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_vm_mult(qb_compiler_context *
 }
 
 // make use of the fact that A' * B' = (B * A)' 
-static void ZEND_FASTCALL qb_set_result_dimensions_matrix_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_matrix_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_operand reversed_operands[2];
 	reversed_operands[0] = operands[1];
@@ -238,7 +238,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_matrix_equivalent(qb_compiler
 	f->set_dimensions(cxt, f, reversed_operands, operand_count, dim);
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
 	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
 		f = s->cm_factory;
@@ -248,7 +248,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_matrix_current_mode(qb_compil
 	f->set_dimensions(cxt, f, operands, operand_count, dim);
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *matrix_address = operands[0].address;
 	uint32_t i;
 
@@ -266,7 +266,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_transpose(qb_compiler_context
 	dim->source_address = matrix_address;
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_matrix_unary(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_matrix_unary(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *matrix_address = operands[0].address;
 	if(matrix_address->dimension_count > 2) {
 		dim->dimension_count = 1;
@@ -281,7 +281,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_matrix_unary(qb_compiler_cont
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *image_address = operands[0].address;
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
@@ -318,7 +318,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_sampling(qb_compiler_context 
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	uint32_t i, final_length = 0;
 	qb_address *dimension_source = NULL;
 	for(i = 0; i < operand_count; i++) {
@@ -351,7 +351,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_array_merge(qb_compiler_conte
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *index_address = operands[0].address;
 	qb_address *number_address = operands[1].address;
 	qb_address *value_address = operands[2].address;
@@ -394,7 +394,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_array_fill(qb_compiler_contex
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *container_address = operands[0].address;
 	dim->array_size = 0;
 	if(container_address->dimension_count > 1) {
@@ -409,7 +409,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_array_pad(qb_compiler_context
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *address1 = operands[0].address;
 	if(VARIABLE_LENGTH_ARRAY(address1)) {
 		dim->array_size = 0;
@@ -442,7 +442,7 @@ uint32_t qb_get_range_length_U16(uint16_t op1, uint16_t op2, int16_t op3);
 uint32_t qb_get_range_length_U32(uint32_t op1, uint32_t op2, int32_t op3);
 uint32_t qb_get_range_length_U64(uint64_t op1, uint64_t op2, int64_t op3);
 
-static void ZEND_FASTCALL qb_set_result_dimensions_range(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_range(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	// the result size is known only if the all operands are constant
 	qb_address *start_address = operands[0].address;
 	qb_address *end_address = operands[1].address;
@@ -472,7 +472,7 @@ static void ZEND_FASTCALL qb_set_result_dimensions_range(qb_compiler_context *cx
 	}
 }
 
-static void ZEND_FASTCALL qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *count_address = operands[1].address;
 	if(CONSTANT(count_address)) {
 		uint32_t count = VALUE(U32, count_address);

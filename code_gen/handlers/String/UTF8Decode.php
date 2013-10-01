@@ -16,7 +16,7 @@ class UTF8Decode extends Handler {
 	public function getHelperFunctions() {
 		$functions = array(
 			array(
-				"uint32_t ZEND_FASTCALL qb_get_utf8_codepoint_count(uint8_t *op1_ptr, uint32_t op1_count) {",
+				"uint32_t qb_get_utf8_codepoint_count(uint8_t *op1_ptr, uint32_t op1_count) {",
 					"uint32_t codepoint, state = 0, count = 0, i;",
 					"for(i = 0; i < op1_count; i++) {",
 						"if(!decode(&state, &codepoint, op1_ptr[i])) {",

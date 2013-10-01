@@ -76,8 +76,8 @@ struct qb_thread_pool {
 #endif
 };
 
-int32_t ZEND_FASTCALL qb_schedule_task(qb_thread_pool *pool, void *proc, void *param1, void *param2);
-int ZEND_FASTCALL qb_initialize_thread_pool(qb_thread_pool *pool);
-int ZEND_FASTCALL qb_run_tasks(qb_thread_pool *pool);
+int32_t qb_schedule_task(qb_thread_pool *pool, void *proc, void *param1, void *param2);
+int qb_initialize_thread_pool(qb_thread_pool *pool);
+int qb_run_tasks(qb_thread_pool *pool);
 
 #endif

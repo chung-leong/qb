@@ -27,7 +27,7 @@
 
 extern const char compressed_table_zend_op_names[];
 
-const char * ZEND_FASTCALL qb_get_zend_op_name(qb_php_translater_context *cxt, uint32_t opcode) {
+const char * qb_get_zend_op_name(qb_php_translater_context *cxt, uint32_t opcode) {
 	if(!cxt->pool->zend_op_names) {
 		qb_uncompress_table(compressed_table_zend_op_names, (void ***) &cxt->pool->zend_op_names, NULL, 0);
 		if(!cxt->pool->zend_op_names) {
@@ -37,7 +37,7 @@ const char * ZEND_FASTCALL qb_get_zend_op_name(qb_php_translater_context *cxt, u
 	return cxt->pool->zend_op_names[opcode];
 }
 
-void ZEND_FASTCALL qb_print_zend_ops(qb_php_translater_context *cxt) {
+void qb_print_zend_ops(qb_php_translater_context *cxt) {
 	uint32_t i = 0;
 	for(i = 0; i < cxt->zend_op_array->last; i++) {
 		zend_op *zop = &cxt->zend_op_array->opcodes[i];
@@ -121,7 +121,7 @@ pcre *type_dim_regexp;
 pcre *type_dim_alias_regexp;
 pcre *identifier_regexp;
 
-static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool, const char *s, uint32_t len, qb_type_declaration *decl, uint32_t dimension_index, zend_class_entry *ce) {
+static int32_t qb_parse_type_dimension(qb_compiler_data_pool *pool, const char *s, uint32_t len, qb_type_declaration *decl, uint32_t dimension_index, zend_class_entry *ce) {
 	int offsets[64], matches;
 	uint32_t dimension = 0;
 
@@ -228,7 +228,7 @@ static int32_t ZEND_FASTCALL qb_parse_type_dimension(qb_compiler_data_pool *pool
 	return offsets[1];
 }
 
-static qb_type_declaration * ZEND_FASTCALL qb_parse_type_declaration(qb_compiler_data_pool *pool, const char *s, uint32_t len, uint32_t var_type, zend_class_entry *ce) {
+static qb_type_declaration * qb_parse_type_declaration(qb_compiler_data_pool *pool, const char *s, uint32_t len, uint32_t var_type, zend_class_entry *ce) {
 	qb_type_declaration *decl = NULL;
 	int offsets[64], matches;
 
@@ -448,7 +448,7 @@ static void qb_abort_doc_comment_syntax_error(const char *comment, uint32_t comm
 	qb_abort("Syntax error encountered while parsing Doc Comments for type information");
 }
 
-qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_table(qb_compiler_data_pool *pool, zend_function *zfunc, HashTable *ht) {
+qb_function_declaration * qb_parse_function_declaration_table(qb_compiler_data_pool *pool, zend_function *zfunc, HashTable *ht) {
 	qb_function_declaration *function_decl = qb_allocate_function_declaration(pool);
 	Bucket *p;
 
@@ -545,7 +545,7 @@ qb_function_declaration * ZEND_FASTCALL qb_parse_function_declaration_table(qb_c
 	return function_decl;
 }
 
-qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc, zend_class_entry *ce) {
+qb_function_declaration * qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc, zend_class_entry *ce) {
 	qb_function_declaration *function_decl = NULL;
 	const char *s = zfunc->op_array.doc_comment;
 	size_t len = zfunc->op_array.doc_comment_len;
@@ -612,7 +612,7 @@ qb_function_declaration * ZEND_FASTCALL qb_parse_function_doc_comment(qb_compile
 	return function_decl;
 }
 
-qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compiler_data_pool *pool, zend_class_entry *ce) {
+qb_class_declaration * qb_parse_class_doc_comment(qb_compiler_data_pool *pool, zend_class_entry *ce) {
 	qb_class_declaration *class_decl;
 	const char *s = Z_CLASS_INFO(ce, doc_comment);
 	size_t len = Z_CLASS_INFO(ce, doc_comment_len);
@@ -694,7 +694,7 @@ qb_class_declaration * ZEND_FASTCALL qb_parse_class_doc_comment(qb_compiler_data
 	return class_decl;
 }
 
-static int32_t ZEND_FASTCALL qb_retrieve_operand(qb_php_translater_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
+static int32_t qb_retrieve_operand(qb_php_translater_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	switch(zoperand_type) {
 		case Z_OPERAND_CV: {
 			uint32_t var_index = Z_OPERAND_INFO(*zoperand, var);
@@ -732,7 +732,7 @@ static int32_t ZEND_FASTCALL qb_retrieve_operand(qb_php_translater_context *cxt,
 	return TRUE;
 }
 
-static void ZEND_FASTCALL qb_retire_operand(qb_php_translater_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
+static void qb_retire_operand(qb_php_translater_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	switch(zoperand_type) {
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
@@ -761,7 +761,7 @@ static void ZEND_FASTCALL qb_retire_operand(qb_php_translater_context *cxt, uint
 	}
 }
 
-static void ZEND_FASTCALL qb_lock_temporary_variables(qb_php_translater_context *cxt) {
+static void qb_lock_temporary_variables(qb_php_translater_context *cxt) {
 	uint32_t i = 0;
 	for(i = 0; i < cxt->compiler_context->temp_variable_count; i++) {
 		qb_temporary_variable *temp_variable = &cxt->compiler_context->temp_variables[i];
@@ -782,7 +782,7 @@ static void ZEND_FASTCALL qb_lock_temporary_variables(qb_php_translater_context 
 	}
 }
 
-static qb_address * ZEND_FASTCALL qb_obtain_write_target_size(qb_php_translater_context *cxt, qb_result_prototype *result_prototype) {
+static qb_address * qb_obtain_write_target_size(qb_php_translater_context *cxt, qb_result_prototype *result_prototype) {
 	if(result_prototype->destination) {
 		qb_result_destination *destination = result_prototype->destination;
 
@@ -813,7 +813,7 @@ static qb_address * ZEND_FASTCALL qb_obtain_write_target_size(qb_php_translater_
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_translate_cast(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_cast(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	uint32_t zend_type = cxt->zend_op->extended_value;
 	qb_primitive_type type;
 
@@ -826,7 +826,7 @@ static void ZEND_FASTCALL qb_translate_cast(qb_php_translater_context *cxt, void
 	}
 }
 
-static void ZEND_FASTCALL qb_translate_basic_op(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_basic_op(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(!op_factory) {
 		const char *zend_op_name = qb_get_zend_op_name(cxt, cxt->zend_op->opcode);
 		qb_abort("no op factory for %s", zend_op_name);
@@ -834,7 +834,7 @@ static void ZEND_FASTCALL qb_translate_basic_op(qb_php_translater_context *cxt, 
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_translate_combo_op(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_combo_op(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	void **list = op_factories, *op_factory;
 
 	if(cxt->zend_op->extended_value == ZEND_ASSIGN_DIM) {
@@ -847,7 +847,7 @@ static void ZEND_FASTCALL qb_translate_combo_op(qb_php_translater_context *cxt, 
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_translate_fetch_class(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_fetch_class(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	int32_t fetch_type = cxt->zend_op->extended_value & ZEND_FETCH_CLASS_MASK;
 	void **list = op_factories, *op_factory;
 
@@ -863,7 +863,7 @@ static void ZEND_FASTCALL qb_translate_fetch_class(qb_php_translater_context *cx
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_fetch(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	USE_TSRM
 	qb_operand *name = &operands[0], *scope = &operands[1];
 	uint32_t fetch_type = FETCH_TYPE(cxt->zend_op);
@@ -881,7 +881,7 @@ static void ZEND_FASTCALL qb_translate_fetch(qb_php_translater_context *cxt, voi
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_translate_function_call(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_function_call(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *name = &operands[0], *object = &operands[1];
 	qb_intrinsic_function *ifunc;
 	qb_operand *arguments, **stack_pointer;
@@ -917,7 +917,7 @@ static void ZEND_FASTCALL qb_translate_function_call(qb_php_translater_context *
 	free_alloca(arguments, use_heap);
 }
 
-static void ZEND_FASTCALL qb_translate_init_function_call(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_init_function_call(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *object = &operands[0], *name = &operands[1];
 	cxt->fcall_by_name_operands[0] = *name;
 #if !ZEND_ENGINE_2_3
@@ -933,11 +933,11 @@ static void ZEND_FASTCALL qb_translate_init_function_call(qb_php_translater_cont
 #endif
 }
 
-static void ZEND_FASTCALL qb_translate_function_call_by_name(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_function_call_by_name(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_translate_function_call(cxt, op_factories, cxt->fcall_by_name_operands, 2, result, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_translate_receive_argument(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_receive_argument(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *argument = &operands[0];
 	argument->type = QB_OPERAND_NUMBER;
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
@@ -948,19 +948,19 @@ static void ZEND_FASTCALL qb_translate_receive_argument(qb_php_translater_contex
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void ZEND_FASTCALL qb_translate_return(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_return(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 
 	cxt->jump_target_index1 = QB_INSTRUCTION_END;
 }
 
-static void ZEND_FASTCALL qb_translate_exit(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_exit(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 
 	cxt->jump_target_index1 = QB_INSTRUCTION_END;
 }
 
-static void ZEND_FASTCALL qb_translate_jump(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_jump(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	zend_op *target_op = Z_OPERAND_INFO(cxt->zend_op->op1, jmp_addr);
 	uint32_t target_index = ZEND_OP_INDEX(target_op);
 
@@ -969,14 +969,14 @@ static void ZEND_FASTCALL qb_translate_jump(qb_php_translater_context *cxt, void
 	cxt->jump_target_index1 = target_index;
 }
 
-static void ZEND_FASTCALL qb_translate_jump_set(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_jump_set(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// TODO
 	// jump over the false clause first
 	//cxt->jump_target_index1 = ZEND_OP_INDEX(target_op);
 	//cxt->jump_target_index2 = cxt->zend_op_index + 1;
 }
 
-static void ZEND_FASTCALL qb_translate_branch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_branch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *condition = &operands[0];
 	zend_op *target_op1 = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
 	uint32_t target_indices[2];
@@ -991,7 +991,7 @@ static void ZEND_FASTCALL qb_translate_branch(qb_php_translater_context *cxt, vo
 	cxt->jump_target_index2 = target_indices[0];
 }
 
-static void ZEND_FASTCALL qb_translate_for_loop(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_for_loop(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *condition = &operands[0];
 	uint32_t target_indices[2];
 	
@@ -1004,7 +1004,7 @@ static void ZEND_FASTCALL qb_translate_for_loop(qb_php_translater_context *cxt, 
 	cxt->jump_target_index2 = target_indices[1];
 }
 
-static zend_brk_cont_element * ZEND_FASTCALL qb_find_break_continue_element(qb_php_translater_context *cxt, int32_t nest_levels, int32_t array_offset) {
+static zend_brk_cont_element * qb_find_break_continue_element(qb_php_translater_context *cxt, int32_t nest_levels, int32_t array_offset) {
 	zend_brk_cont_element *brk_cont_array = cxt->zend_op_array->brk_cont_array, *jmp_to;
 	int32_t i;
 	for(i = 0; i < nest_levels; i++) {
@@ -1018,7 +1018,7 @@ static zend_brk_cont_element * ZEND_FASTCALL qb_find_break_continue_element(qb_p
 }
 
 
-static void ZEND_FASTCALL qb_translate_break(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_break(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	zval *nest_level = Z_OPERAND_ZV(cxt->zend_op->op2);
 	zend_brk_cont_element *jmp_to = qb_find_break_continue_element(cxt, Z_LVAL_P(nest_level), Z_OPERAND_INFO(cxt->zend_op->op1, opline_num));
 	uint32_t target_index = jmp_to->brk;
@@ -1028,7 +1028,7 @@ static void ZEND_FASTCALL qb_translate_break(qb_php_translater_context *cxt, voi
 	cxt->jump_target_index1 = target_index;
 }
 
-static void ZEND_FASTCALL qb_translate_continue(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_continue(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	zval *nest_level = Z_OPERAND_ZV(cxt->zend_op->op2);
 	zend_brk_cont_element *jmp_to = qb_find_break_continue_element(cxt, Z_LVAL_P(nest_level), Z_OPERAND_INFO(cxt->zend_op->op1, opline_num));
 	uint32_t target_index = jmp_to->cont;
@@ -1038,7 +1038,7 @@ static void ZEND_FASTCALL qb_translate_continue(qb_php_translater_context *cxt, 
 	cxt->jump_target_index1 = jmp_to->cont;
 }
 
-static void ZEND_FASTCALL qb_translate_foreach_fetch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_foreach_fetch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	uint32_t target_indices[2];
 
@@ -1055,7 +1055,7 @@ static void ZEND_FASTCALL qb_translate_foreach_fetch(qb_php_translater_context *
 	cxt->jump_target_index2 = target_indices[1];
 }
 
-static zend_function * ZEND_FASTCALL qb_find_function(qb_php_translater_context *cxt, zend_class_entry *ce, zval *name) {
+static zend_function * qb_find_function(qb_php_translater_context *cxt, zend_class_entry *ce, zval *name) {
 	USE_TSRM
 
 	// check to see if we've found the function already (this function is called whenever an argument is pushed)
@@ -1116,7 +1116,7 @@ static zend_function * ZEND_FASTCALL qb_find_function(qb_php_translater_context 
 	return cxt->previous_function;
 }
 
-static qb_function * ZEND_FASTCALL qb_get_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
+static qb_function * qb_get_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
 	uint32_t i;
 	if(qb_is_compiled_function(zfunc)) {
 		return zfunc->op_array.reserved[0];
@@ -1134,13 +1134,13 @@ static qb_function * ZEND_FASTCALL qb_get_compiled_function(qb_php_translater_co
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_translate_user_opcode(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_user_opcode(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
-static void ZEND_FASTCALL qb_translate_extension_op(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_extension_op(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
-static void ZEND_FASTCALL qb_translate_nop(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_translate_nop(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
 static qb_php_op_translator op_translators[] = {
@@ -1310,7 +1310,7 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL,								},	// ZEND_FAST_RET
 };
 
-static void ZEND_FASTCALL qb_translate_current_instruction(qb_php_translater_context *cxt) {
+static void qb_translate_current_instruction(qb_php_translater_context *cxt) {
 	if(cxt->zend_op->opcode != ZEND_OP_DATA) {
 		USE_TSRM
 		qb_operand operands[3], results[2];
@@ -1562,7 +1562,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 
 #define MAX_INLINE_FUNCTION_NAME_LEN		32
 
-qb_intrinsic_function * ZEND_FASTCALL qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable) {
+qb_intrinsic_function * qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable) {
 	const char *name = Z_STRVAL_P(callable);
 	uint32_t len = Z_STRLEN_P(callable);
 
@@ -1589,7 +1589,7 @@ qb_intrinsic_function * ZEND_FASTCALL qb_find_intrinsic_function(qb_php_translat
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_translate_instruction_range(qb_php_translater_context *cxt, uint32_t start_index, uint32_t end_index) {
+static void qb_translate_instruction_range(qb_php_translater_context *cxt, uint32_t start_index, uint32_t end_index) {
 	uint32_t zend_op_index;
 
 	// save states
@@ -1665,7 +1665,7 @@ static void ZEND_FASTCALL qb_translate_instruction_range(qb_php_translater_conte
 	cxt->zend_op_index = zend_op_index;
 }
 
-void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt) {
+void qb_translate_instructions(qb_php_translater_context *cxt) {
 	uint32_t i;
 	cxt->compiler_context->op_translations = qb_allocate_indices(cxt->pool, cxt->zend_op_array->last);
 	memset(cxt->compiler_context->op_translations, 0xFF, cxt->zend_op_array->last * sizeof(uint32_t));
@@ -1712,7 +1712,7 @@ void ZEND_FASTCALL qb_translate_instructions(qb_php_translater_context *cxt) {
 	}
 }
 
-void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
+void qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_php_translater_context));
 	cxt->pool = compiler_cxt->pool;
 	cxt->compiler_context = compiler_cxt;
@@ -1723,10 +1723,10 @@ void ZEND_FASTCALL qb_initialize_php_translater_context(qb_php_translater_contex
 	SAVE_TSRMLS
 }
 
-void ZEND_FASTCALL qb_free_php_translater_context(qb_php_translater_context *cxt) {
+void qb_free_php_translater_context(qb_php_translater_context *cxt) {
 }
 
-int ZEND_FASTCALL qb_initialize_php_translater(TSRMLS_D) {
+int qb_initialize_php_translater(TSRMLS_D) {
 	uint32_t i;
 	const char *pcre_error = NULL;
 	int pcre_error_offset = 0;

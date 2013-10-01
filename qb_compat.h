@@ -310,7 +310,7 @@ extern char *	(*vc6_strdup)(const char * _Src);
 #undef strdup
 #define strdup				vc6_strdup
 
-int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void);
+int qb_get_vc6_msvcrt_functions(void);
 
 #endif
 
