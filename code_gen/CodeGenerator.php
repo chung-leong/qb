@@ -832,6 +832,7 @@ class CodeGenerator {
 			$this->handlers[] = new BoundCheck("BC_NOP", "U32");
 			$this->handlers[] = new BoundCheckAdd("BC_ADD", "U32");
 			$this->handlers[] = new BoundCheckMultiply("BC_MUL", "U32");
+			$this->handlers[] = new BoundExpansionMultiply("BE_MUL", "U32");
 		}
 	}
 

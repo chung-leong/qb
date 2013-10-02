@@ -40,6 +40,41 @@ static void qb_transfer_operands_bound_check_array(qb_compiler_context *cxt, qb_
 	dest[1].type = QB_OPERAND_ADDRESS;
 }
 
+static void qb_transfer_operands_bound_check_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *index = &operands[0], *container = &operands[1];
+	qb_address *index_limit_address = container->address->dimension_addresses[0];
+	qb_address *sub_array_size_address = container->address->array_size_addresses[1];
+
+	dest[0].address = index->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = index_limit_address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = sub_array_size_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *result;
+}
+
+static void qb_transfer_operands_bound_expand_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *index = &operands[0], *container = &operands[1];
+	qb_address *index_limit_address = container->address->dimension_addresses[0];
+	qb_address *array_size_address = container->address->array_size_addresses[0];
+	qb_address *sub_array_size_address = container->address->array_size_addresses[1];
+
+	dest[0].address = index->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = index_limit_address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = sub_array_size_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3].address = array_size_address;
+	dest[3].type = QB_OPERAND_ADDRESS;
+	dest[4].address = container->address;
+	dest[4].type = QB_OPERAND_SEGMENT_SELECTOR;
+	dest[5].number = BYTE_COUNT(1, container->address->type);
+	dest[5].type = QB_OPERAND_NUMBER;
+	dest[6] = *result;
+}
+
 static void qb_transfer_operands_result_only(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = *result;
 }

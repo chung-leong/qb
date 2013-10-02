@@ -404,12 +404,30 @@ qb_simple_op_factory factory_bound_check_multiply = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-	qb_transfer_operands_all,
+	qb_transfer_operands_bound_check_multiply,
 
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
 	QB_BC_MUL_U32_U32_U32_U32,
+};
+
+qb_simple_op_factory factory_bound_expand_multiply = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_non_reusable_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_bound_expand_multiply,
+
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_BE_MUL_U32_U32_U32_U32_U32_U32_U32,
 };
 
 qb_op_factory factory_receive_argument = {

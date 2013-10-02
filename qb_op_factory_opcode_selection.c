@@ -59,7 +59,7 @@ static qb_opcode qb_select_multidata_opcode(qb_compiler_context *cxt, qb_opcode 
 
 static uint32_t qb_get_minimum_width(qb_compiler_context *cxt, qb_operand *operand) {
 	qb_address *address = operand->address;
-	uint32_t i, width = 0;
+	uint32_t i, width = 1;
 	for(i = 0; i < address->dimension_count; i++) {
 		qb_address *array_size_address = address->array_size_addresses[i];
 		if(CONSTANT(array_size_address)) {
@@ -116,7 +116,7 @@ static qb_opcode qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory
 	if(result->type != QB_OPERAND_NONE) {
 		if(src_address->type == dst_address->type) {
 			// vectorized instructions are available only for copying between variables of the same type
-			opcode = qb_select_vectorized_opcode(cxt, cf->vector_opcodes, operands, operand_count, result);
+			opcode = qb_select_vectorized_opcode(cxt, cf->vector_opcodes, &operands[operand_count - 1], 1, result);
 		}
 		if(opcode == QB_NOP) {
 			opcode = cf->opcodes[QB_TYPE_F64 - src_address->type][QB_TYPE_F64 - dst_address->type];

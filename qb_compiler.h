@@ -93,6 +93,7 @@ struct qb_compiler_data_pool {
 
 	qb_block_allocator *op_allocator;
 	qb_block_allocator *address_allocator;
+	qb_block_allocator *expression_allocator;
 	qb_block_allocator *pointer_allocator;
 	qb_block_allocator *operand_allocator;
 	qb_block_allocator *index_alias_scheme_allocator;
@@ -179,7 +180,7 @@ struct qb_compiler_context {
 	qb_address **address_aliases;
 	uint32_t address_alias_count;
 
-	qb_on_demand_address **on_demand_expressions;
+	qb_address **on_demand_expressions;
 	uint32_t on_demand_expression_count;
 
 	qb_address *zero_address;
@@ -348,6 +349,10 @@ static zend_always_inline qb_address **qb_allocate_address_pointers(qb_compiler_
 	return (qb_address **) qb_allocate_pointers(pool, count);
 }
 
+static zend_always_inline qb_expression *qb_allocate_expression(qb_compiler_data_pool *pool) {
+	return qb_allocate_items(&pool->expression_allocator, 1);
+}
+
 static zend_always_inline void qb_add_constant_scalar(qb_compiler_context *cxt, qb_address *address) {
 	qb_address **p = qb_enlarge_array((void **) &cxt->constant_scalars, 1);
 	*p = address;
@@ -440,7 +445,7 @@ qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name);
 
 void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar);
 
-qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address);
+qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, int32_t allow_expansion);
 qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name);
 qb_address * qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address);
 qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address);

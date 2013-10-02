@@ -191,6 +191,7 @@ extern qb_simple_op_factory factory_bound_check_index;
 extern qb_simple_op_factory factory_bound_check_array;
 extern qb_simple_op_factory factory_bound_check_add;
 extern qb_simple_op_factory factory_bound_check_multiply;
+extern qb_simple_op_factory factory_bound_expand_multiply;
 
 extern qb_cast_op_factory factory_cast_S08;
 extern qb_cast_op_factory factory_cast_U08;

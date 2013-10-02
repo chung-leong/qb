@@ -113,40 +113,6 @@ static const char * qb_get_op_name(qb_compiler_context *cxt, uint32_t opcode) {
 	return cxt->pool->op_names[opcode];
 }
 
-// return an address whose value is only calculated when used
-static qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op_factory, qb_primitive_type expr_type, qb_address **operand_addresses, uint32_t operand_count) {
-	qb_on_demand_address *address, **p_address;
-	uint32_t i, j;
-	// see if there's an existing expression
-	for(i = 0; i < cxt->on_demand_expression_count; i++) {
-		address = cxt->on_demand_expressions[i];
-		if(address->op_factory == op_factory) {
-			int32_t match = TRUE;
-			for(j = 0; j < address->operand_count; j++) {
-				if(address->operand_addresses[j] != operand_addresses[j]) {
-					match = FALSE;
-				}
-			}
-			if(match) {
-				return (qb_address *) address;
-			}
-		}
-	}
-	p_address = qb_enlarge_array((void **) &cxt->on_demand_expressions, 1);
-	address = (qb_on_demand_address *) qb_allocate_address(cxt->pool);
-	address->flags = QB_ADDRESS_ON_DEMAND_VALUE;
-	address->type = expr_type;
-	address->segment_selector = QB_SELECTOR_INVALID;
-	address->segment_offset = QB_OFFSET_INVALID;
-	address->operand_count = operand_count;
-	for(i = 0; i < operand_count; i++) {
-		address->operand_addresses[i] = operand_addresses[i];
-	}
-	address->op_factory = op_factory;
-	*p_address = address;
-	return (qb_address *) address;
-}
-
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address) {
 	if(READ_ONLY(address)) {
 		address->flags &= ~QB_ADDRESS_READ_ONLY;
@@ -158,7 +124,9 @@ void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address) {
 
 static void qb_mark_as_expandable(qb_compiler_context *cxt, qb_address *address) {
 	qb_address *dimension_address = address->dimension_addresses[0];
+	qb_address *array_size_address = address->array_size_address;
 	dimension_address->flags &= ~QB_ADDRESS_READ_ONLY;
+	array_size_address->flags &= ~QB_ADDRESS_READ_ONLY;
 }
 
 void qb_mark_as_static(qb_compiler_context *cxt, qb_address *address) {
@@ -295,6 +263,60 @@ void qb_mark_jump_target(qb_compiler_context *cxt, uint32_t current_qop_index, u
 static void qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
 }
 
+static qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *address);
+
+// return an address whose value is only calculated when used
+static qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
+	qb_op_factory *f = op_factory;
+	qb_address *address, **p_address;
+	qb_expression *expr;
+	qb_primitive_type expr_type;
+	uint32_t i, j;
+
+	// see if there's an existing expression
+	for(i = 0; i < cxt->on_demand_expression_count; i++) {
+		address = cxt->on_demand_expressions[i];
+		expr = address->expression;
+		if(expr->op_factory == op_factory) {
+			int32_t match = TRUE;
+			for(j = 0; j < expr->operand_count; j++) {
+				if(expr->operands[j].type != operands[j].type || expr->operands[j].address != operands[j].address) {
+					match = FALSE;
+				}
+			}
+			if(match) {
+				return address;
+			}
+		}
+	}
+
+	// create the expression
+	expr = qb_allocate_expression(cxt->pool);
+	expr->operands = qb_allocate_operands(cxt->pool, operand_count + 1);
+	expr->operand_count = operand_count;
+	expr->result = &expr->operands[operand_count];
+	expr->op_factory = op_factory;
+	for(i = 0; i < operand_count; i++) {
+		expr->operands[i] = operands[i];
+	}
+	expr->result->type = QB_OPERAND_EMPTY;
+	expr->result->address = NULL;
+
+	// call the handler to obtain the result
+	expr_type = f->resolve_type(cxt, f, expr->operands, expr->operand_count);
+	f->set_final_result(cxt, f, expr_type, expr->operands, expr->operand_count, expr->result, NULL);
+
+	// create an copy of the address and attach the expression to it
+	address = qb_create_address_alias(cxt, expr->result->address);
+	address->flags = QB_ADDRESS_ON_DEMAND_VALUE;
+	address->expression = expr;
+
+	// save it to the list
+	p_address = qb_enlarge_array((void **) &cxt->on_demand_expressions, 1);
+	*p_address = address;
+	return address;
+}
+
 // the qb_obtain_on_demand_??? functions only works with U32 scalar addresses
 static qb_address * qb_obtain_on_demand_sum(qb_compiler_context *cxt, qb_address *augend_address, qb_address *addend_address) {
 	if(CONSTANT(augend_address) && CONSTANT(addend_address)) {
@@ -307,8 +329,8 @@ static qb_address * qb_obtain_on_demand_sum(qb_compiler_context *cxt, qb_address
 		// augend + 0 = augend
 		return augend_address;
 	} else {
-		qb_address *operand_addresses[2] = { augend_address, addend_address };
-		return qb_obtain_on_demand_value(cxt, &factory_add, QB_TYPE_U32, operand_addresses, 2);
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, addend_address } };
+		return qb_obtain_on_demand_value(cxt, &factory_add, operands, 2);
 	}
 }
 
@@ -325,11 +347,11 @@ static qb_address * qb_obtain_bound_checked_sum(qb_compiler_context *cxt, qb_add
 		return addend_address;
 	} else if(CONSTANT(addend_address) && VALUE(U32, addend_address) == 0) {
 		// augend + 0 = augend
-		qb_address *operand_addresses[2] = { augend_address, augend_address_limit };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_index, QB_TYPE_U32, operand_addresses, 2);
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, augend_address_limit } };
+		return qb_obtain_on_demand_value(cxt, &factory_bound_check_index, operands, 2);
 	} else {
-		qb_address *operand_addresses[3] = { augend_address, addend_address, augend_address_limit };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_add, QB_TYPE_U32, operand_addresses, 3);
+		qb_operand operands[3] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, addend_address }, { QB_OPERAND_ADDRESS, augend_address_limit } };
+		return qb_obtain_on_demand_value(cxt, &factory_bound_check_add, operands, 3);
 	}
 }
 
@@ -341,8 +363,8 @@ static qb_address * qb_obtain_on_demand_difference(qb_compiler_context *cxt, qb_
 		// minuend - 0 = minuend
 		return minuend_address;
 	} else {
-		qb_address *operand_addresses[2] = { minuend_address, subtrahend_address };
-		return qb_obtain_on_demand_value(cxt, &factory_subtract, QB_TYPE_U32, operand_addresses, 2);
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, minuend_address }, { QB_OPERAND_ADDRESS, subtrahend_address } };
+		return qb_obtain_on_demand_value(cxt, &factory_subtract, operands, 2);
 	}
 }
 
@@ -362,14 +384,14 @@ qb_address * qb_obtain_bound_checked_product(qb_compiler_context *cxt, qb_addres
 		return qb_obtain_constant_U32(cxt, 0);
 	} else if(CONSTANT(multiplicand_address) && VALUE(U32, multiplicand_address) == 1) {
 		// 1 * multiplier = multiplier
-		qb_address *operand_addresses[2] = { multiplicand_address, multiplicand_limit_address };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_index, QB_TYPE_U32, operand_addresses, 2);
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, multiplicand_address }, { QB_OPERAND_ADDRESS, multiplicand_limit_address } };
+		return qb_obtain_on_demand_value(cxt, &factory_bound_check_index, operands, 2);
 	} else if(CONSTANT(multiplier_address) && VALUE(U32, multiplier_address) == 1) {
 		// multiplicand * 1 = multiplicand
 		return multiplicand_address;
 	} else {
-		qb_address *operand_addresses[3] = { multiplicand_address, multiplier_address, multiplicand_limit_address };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_multiply, QB_TYPE_U32, operand_addresses, 3);
+		qb_operand operands[3] = { { QB_OPERAND_ADDRESS, multiplicand_address }, { QB_OPERAND_ADDRESS, multiplier_address }, { QB_OPERAND_ADDRESS, multiplicand_limit_address } };
+		return qb_obtain_on_demand_value(cxt, &factory_bound_check_multiply, operands, 3);
 	}
 }
 
@@ -390,8 +412,8 @@ static qb_address * qb_obtain_on_demand_product(qb_compiler_context *cxt, qb_add
 		// multiplicand * 1 = multiplicand
 		return multiplicand_address;
 	} else {
-		qb_address *operand_addresses[2] = { multiplicand_address, multiplier_address };
-		return qb_obtain_on_demand_value(cxt, &factory_multiply, QB_TYPE_U32, operand_addresses, 2);
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, multiplicand_address }, { QB_OPERAND_ADDRESS, multiplier_address } };
+		return qb_obtain_on_demand_value(cxt, &factory_multiply, operands, 2);
 	}
 }
 
@@ -400,14 +422,14 @@ static qb_address * qb_obtain_on_demand_quotient(qb_compiler_context *cxt, qb_ad
 		uint32_t quotient = VALUE(U32, numerator_address) / VALUE(U32, denominator_address);
 		return qb_obtain_constant_U32(cxt, quotient);
 	} else {
-		qb_address *operand_addresses[2] = { numerator_address, denominator_address };
-		return qb_obtain_on_demand_value(cxt, &factory_divide, QB_TYPE_I32, operand_addresses, 2);
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, numerator_address }, { QB_OPERAND_ADDRESS, denominator_address } };
+		return qb_obtain_on_demand_value(cxt, &factory_divide, operands, 2);
 	}
 }
 
 static qb_address * qb_obtain_on_demand_greater_than(qb_compiler_context *cxt, qb_address *address1, qb_address *address2) {
-	qb_address *operand_addresses[2] = { address2, address1 };
-	return qb_obtain_on_demand_value(cxt, &factory_less_than, QB_TYPE_I32, operand_addresses, 2);
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address2 }, { QB_OPERAND_ADDRESS, address1 } };
+	return qb_obtain_on_demand_value(cxt, &factory_less_than, operands, 2);
 }
 
 qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_address *size_address, qb_address *address) {
@@ -422,8 +444,8 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 			// the destination is large enough
 			return address;
 		} else {
-			qb_address *operand_addresses[2] = { src_size_address, address };
-			return qb_obtain_on_demand_value(cxt, &factory_bound_check_array, address->type, operand_addresses, 2);
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address } };
+			return qb_obtain_on_demand_value(cxt, &factory_bound_check_array, operands, 2);
 		}
 	}
 }
@@ -1560,7 +1582,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 							// make sure the index is a U32
 							qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0);
 						}
-						lvalue_address = qb_obtain_array_element(cxt, container->address, index->address);
+						lvalue_address = qb_obtain_array_element(cxt, container->address, index->address, FALSE);
 					}	break;
 					case QB_RESULT_DESTINATION_PROPERTY: {
 						qb_operand *container = &destination->property.container, *name = &destination->property.name;
@@ -2549,31 +2571,43 @@ qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *contain
 	return slice_address;
 }
 
-qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address) {
+qb_address * qb_obtain_bound_checked_array_index_multiply(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, int32_t expandable) {
+	qb_address *index_limit_address = container_address->dimension_addresses[0];
+	qb_address *sub_array_size_address = container_address->array_size_addresses[1];
+
+	// if the index and array dimensions are constant, perform the calculation now if it's within bounds
+	if(CONSTANT(index_address) && CONSTANT(sub_array_size_address) && CONSTANT(index_limit_address)) {
+		if(VALUE(U32, index_address) < VALUE(U32, index_limit_address)) {
+			uint32_t product = VALUE(U32, index_address) * VALUE(U32, sub_array_size_address);
+			return qb_obtain_constant_U32(cxt, product);
+		}
+	} 
+	if(CONSTANT(index_address) && VALUE(U32, index_address) == 0) {
+		// 0 * sub_array_size = 0
+		return qb_obtain_constant_U32(cxt, 0);
+	} else {
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, container_address } };
+		if(expandable) {
+			return qb_obtain_on_demand_value(cxt, &factory_bound_expand_multiply, operands, 2);
+		} else {
+			return qb_obtain_on_demand_value(cxt, &factory_bound_check_multiply, operands, 2);
+		}
+	}
+}
+
+qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, int32_t allow_expansion) {
 	qb_address *result_address;
 	qb_address *offset_address = NULL;
 	qb_address *index_limit_address;
 	qb_primitive_type element_type = container_address->type;
 	uint32_t i;
 
-	if(SCALAR(container_address)) {
-		return NULL;
-	}
-	if(!SCALAR(index_address)) {
-		return NULL;
-	}
-	
 	index_limit_address = container_address->dimension_addresses[0];
 	offset_address = container_address->array_index_address;
 	if(container_address->dimension_count > 1) {
 		// multiple by the size of the sub-array 
-		qb_address *array_size_address = container_address->array_size_addresses[1];
-		if(READ_ONLY(index_limit_address)) {
-			index_address = qb_obtain_bound_checked_product(cxt, index_address, array_size_address, index_limit_address);
-			index_address = qb_obtain_on_demand_sum(cxt, index_address, offset_address);
-		} else {
-			// TODO: expanding array
-		}
+		index_address = qb_obtain_bound_checked_array_index_multiply(cxt, container_address, index_address, EXPANDABLE_ARRAY(container_address) && allow_expansion);
+		index_address = qb_obtain_on_demand_sum(cxt, index_address, offset_address);
 	} else {
 		if(READ_ONLY(index_limit_address)) {
 			index_address = qb_obtain_bound_checked_sum(cxt, index_address, offset_address, index_limit_address);
@@ -2633,7 +2667,7 @@ qb_address * qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *
 	for(i = 0; i < address->dimension_count; i++) {
 		qb_address *index_address = qb_obtain_constant_U32(cxt, i);
 		qb_address *src_dimension_address = address->dimension_addresses[i];
-		qb_address *dst_dimension_address = qb_obtain_array_element(cxt, dimensions_address, index_address);
+		qb_address *dst_dimension_address = qb_obtain_array_element(cxt, dimensions_address, index_address, FALSE);
 		qb_retrieve_binary_op_result(cxt, &factory_assign, dst_dimension_address, src_dimension_address);
 	}
 	return dimensions_address;
@@ -2656,7 +2690,7 @@ qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *conta
 			int32_t index = qb_find_index_alias(cxt, container_address->index_alias_schemes[0], name);
 			if(index != -1) {
 				qb_address *index_address = qb_obtain_constant_U32(cxt, index);
-				qb_address *value_address = qb_obtain_array_element(cxt, container_address, index_address);
+				qb_address *value_address = qb_obtain_array_element(cxt, container_address, index_address, FALSE);
 				return value_address;
 			}
 		}
@@ -2790,27 +2824,9 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 	}
 }
 
-void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address) {
-	qb_on_demand_address *od_address = (qb_on_demand_address *) address;
-	qb_operand od_result;
-	qb_operand od_operands[4];
-	uint32_t i;
-
-	if(od_address->result_address) {
-		od_result.type = QB_OPERAND_ADDRESS;
-		od_result.address = od_address->result_address;
-	} else {
-		od_result.type = QB_OPERAND_EMPTY;
-		od_result.address = NULL;
-	}
-	for(i = 0; i < od_address->operand_count; i++) {
-		od_operands[i].address = od_address->operand_addresses[i];
-		od_operands[i].type = QB_OPERAND_ADDRESS;
-	}
-	qb_produce_op(cxt, od_address->op_factory, od_operands, od_address->operand_count, &od_result, NULL, 0, NULL);
-
-	// save the result
-	od_address->result_address = od_result.address;
+static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address) {
+	qb_expression *expr = address->expression;
+	qb_produce_op(cxt, expr->op_factory, expr->operands, expr->operand_count, expr->result, NULL, 0, NULL);
 }
 
 void qb_create_on_demand_op(qb_compiler_context *cxt, qb_operand *operand) {
@@ -2970,17 +2986,8 @@ static qb_address * qb_promote_address_mode(qb_compiler_context *cxt, qb_address
 
 static qb_address * qb_get_base_address(qb_compiler_context *cxt, qb_address *address) {
 	qb_address *b = address;
-	if(ON_DEMAND(b)) {
-		qb_on_demand_address *od_address = (qb_on_demand_address *) b;
-		b = od_address->result_address;
-	}
 	while(b->source_address) {
-		if(ON_DEMAND(b->source_address)) {
-			qb_on_demand_address *od_address = (qb_on_demand_address *) b->source_address;
-			b = od_address->result_address;
-		} else {
-			b = b->source_address;
-		}
+		b = b->source_address;
 	}
 	return b;
 }
@@ -3059,17 +3066,6 @@ static void qb_resolve_address_modes(qb_compiler_context *cxt) {
 					qb_address_mode operand_address_mode = qb_get_operand_address_mode(cxt, qop->opcode, j);
 					qb_address *address = operand->address;
 					if(operand_address_mode != QB_ADDRESS_MODE_UNKNOWN) {
-						// TODO: do this in a more systematic way
-						if(ON_DEMAND(address)) {
-							address = operand->address = ((qb_on_demand_address *) address)->result_address;
-						}
-						if(address->array_index_address && ON_DEMAND(address->array_index_address)) {
-							address->array_index_address = ((qb_on_demand_address *) address->array_index_address)->result_address;
-						}
-						if(address->array_size_address && ON_DEMAND(address->array_size_address)) {
-							address->array_size_address = ((qb_on_demand_address *) address->array_size_address)->result_address;
-						}
-
 						if(address->mode != operand_address_mode) {
 							// we can only go from SCA > ELE > ARR (an array cannot be passed as a scalar, for instance)
 							if(address->mode < operand_address_mode) {
@@ -3437,6 +3433,7 @@ void qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool) {
 	
 	qb_create_block_allocator(&pool->op_allocator, sizeof(qb_op), 256);
 	qb_create_block_allocator(&pool->address_allocator, sizeof(qb_address), 1024);
+	qb_create_block_allocator(&pool->expression_allocator, sizeof(qb_expression), 256);
 	qb_create_block_allocator(&pool->pointer_allocator, sizeof(void *), 256);
 	qb_create_block_allocator(&pool->operand_allocator, sizeof(qb_operand), 1024);
 	qb_create_block_allocator(&pool->index_alias_scheme_allocator, sizeof(qb_index_alias_scheme), 16);
@@ -3634,10 +3631,6 @@ static qb_variable * qb_find_variable_with_size_address(qb_compiler_context *cxt
 
 static void qb_print_address(qb_compiler_context *cxt, qb_address *address, int32_t ignore_index) {
 	uint32_t i;
-	if(address->flags & QB_ADDRESS_ON_DEMAND_VALUE) {
-		php_printf("[ON DEMAND VALUE]");
-		return;
-	}
 	if(CONSTANT(address)) {
 		if(!SCALAR(address)) {
 			if(address->flags & QB_ADDRESS_STRING) {
@@ -3748,6 +3741,9 @@ static void qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint32_t index) {
 			}	break;
 			case QB_OPERAND_SEGMENT_SELECTOR: {
 				php_printf("@%d", operand->address->segment_selector);
+			}	break;
+			case QB_OPERAND_NUMBER: {
+				php_printf("'%d'", operand->number);
 			}	break;
 			default: {
 				php_printf("(ERROR)");

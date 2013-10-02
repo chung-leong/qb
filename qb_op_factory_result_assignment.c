@@ -65,7 +65,7 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 static void qb_set_result_fetch_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
-	qb_address *result_address = qb_obtain_array_element(cxt, container->address, index->address);
+	qb_address *result_address = qb_obtain_array_element(cxt, container->address, index->address, FALSE);
 	result->address = result_address;
 	result->type = QB_OPERAND_ADDRESS;
 }
@@ -76,7 +76,8 @@ static void qb_set_result_assign_array_element(qb_compiler_context *cxt, qb_op_f
 	qb_operand *value = &operands[2];
 
 	if(expr_type != QB_TYPE_VOID) {
-		qb_address *result_address = qb_obtain_array_element(cxt, container->address, index->address);
+		qb_address *index_address = (index->type == QB_OPERAND_NONE) ? container->address->array_size_address : index->address;
+		qb_address *result_address = qb_obtain_array_element(cxt, container->address, index_address, TRUE);
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address);
 		result->type = QB_OPERAND_ADDRESS;
 	}
@@ -220,7 +221,7 @@ static void qb_set_result_foreach_fetch(qb_compiler_context *cxt, qb_op_factory 
 		*extra_result = cxt->foreach_index;
 	}
 	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_array_element(cxt, container->address, cxt->foreach_index.address);
+	result->address = qb_obtain_array_element(cxt, container->address, cxt->foreach_index.address, FALSE);
 }
 
 static void qb_set_result_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {

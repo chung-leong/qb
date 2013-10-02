@@ -24,33 +24,33 @@
 typedef float  float32_t;
 typedef double float64_t;
 
-typedef struct qb_op					qb_op;
-typedef struct qb_address				qb_address;
-typedef struct qb_on_demand_address		qb_on_demand_address;
-typedef struct qb_variable				qb_variable;
-typedef struct qb_function				qb_function;
-typedef struct qb_memory_segment		qb_memory_segment;
-typedef struct qb_storage				qb_storage;
-typedef struct qb_index_alias_scheme	qb_index_alias_scheme;
-typedef struct qb_external_symbol		qb_external_symbol;
-typedef struct qb_native_code_bundle	qb_native_code_bundle;
-typedef struct qb_block_allocator 		qb_block_allocator;
-typedef struct qb_array_initializer		qb_array_initializer;
-typedef struct qb_result_prototype		qb_result_prototype;
-typedef struct qb_result_destination	qb_result_destination;
-typedef struct qb_intrinsic_function	qb_intrinsic_function;
+typedef struct qb_op						qb_op;
+typedef struct qb_address					qb_address;
+typedef struct qb_expression				qb_expression;
+typedef struct qb_variable					qb_variable;
+typedef struct qb_function					qb_function;
+typedef struct qb_memory_segment			qb_memory_segment;
+typedef struct qb_storage					qb_storage;
+typedef struct qb_index_alias_scheme		qb_index_alias_scheme;
+typedef struct qb_external_symbol			qb_external_symbol;
+typedef struct qb_native_code_bundle		qb_native_code_bundle;
+typedef struct qb_block_allocator 			qb_block_allocator;
+typedef struct qb_array_initializer			qb_array_initializer;
+typedef struct qb_result_prototype			qb_result_prototype;
+typedef struct qb_result_destination		qb_result_destination;
+typedef struct qb_intrinsic_function		qb_intrinsic_function;
 
-typedef struct qb_pointer_SCA			qb_pointer_SCA;
-typedef struct qb_pointer_ELE			qb_pointer_ELE;
-typedef struct qb_pointer_ARR			qb_pointer_ARR;
-typedef struct qb_pointer_adjustment	qb_pointer_adjustment;
+typedef struct qb_pointer_SCA				qb_pointer_SCA;
+typedef struct qb_pointer_ELE				qb_pointer_ELE;
+typedef struct qb_pointer_ARR				qb_pointer_ARR;
+typedef struct qb_pointer_adjustment		qb_pointer_adjustment;
 
-typedef struct qb_thread_parameters		qb_thread_parameters;
+typedef struct qb_thread_parameters			qb_thread_parameters;
 
 typedef struct qb_operand					qb_operand;
 
-typedef enum qb_primitive_type			qb_primitive_type;
-typedef enum qb_address_mode			qb_address_mode;
+typedef enum qb_primitive_type				qb_primitive_type;
+typedef enum qb_address_mode				qb_address_mode;
 typedef enum qb_operand_type				qb_operand_type;
 typedef enum qb_opcode						qb_opcode;
 typedef enum qb_result_destination_type		qb_result_destination_type;
@@ -226,6 +226,13 @@ struct qb_index_alias_scheme {
 	zend_class_entry *zend_class;
 };
 
+struct qb_expression {
+	qb_operand *operands;
+	qb_operand *result;
+	uint32_t operand_count;
+	void *op_factory;
+};
+
 struct qb_address {
 	qb_address_mode mode;
 	qb_primitive_type type;
@@ -237,21 +244,9 @@ struct qb_address {
 	qb_address *array_size_address;
 	qb_address **dimension_addresses;
 	qb_address **array_size_addresses;
-	qb_address *source_address;
 	qb_index_alias_scheme **index_alias_schemes;
-};
-
-struct qb_on_demand_address {
-	qb_address_mode mode;
-	qb_primitive_type type;
-	uint32_t flags;
-	uint32_t dimension_count;
-	uint32_t segment_selector;
-	uint32_t segment_offset;
-	qb_address *operand_addresses[3];
-	qb_address *result_address;
-	uint32_t operand_count;
-	void *op_factory;
+	qb_address *source_address;
+	qb_expression *expression;
 };
 
 enum qb_operand_type {
