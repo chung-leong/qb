@@ -36,10 +36,11 @@ class BoundExpansionMultiply extends Handler {
 		$lines = array();
 		$lines[] = "res = op1 * op3;";
 		$lines[] = "if(UNEXPECTED(op1 >= op2)) {";
-		$lines[] =		"uint32_t new_count = ((op1 + 1) * op3);";
-		$lines[] =		"op4 = new_count;";
-		$lines[] =		"op2 = op1 + 1;";
-		$lines[] = 		"qb_resize_array(cxt, local_storage, op5, new_count * op6);";
+		$lines[] =		"uint32_t new_dim = op1 + 1;";
+		$lines[] =		"uint32_t new_size = new_dim * op3;";
+		$lines[] =		"op4 = new_size;";
+		$lines[] =		"op2 = new_dim;";
+		$lines[] = 		"qb_resize_array(cxt, local_storage, op5, new_size * op6);";
 		$lines[] = "}";
 		return $lines;
 	}

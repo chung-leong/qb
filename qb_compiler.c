@@ -350,7 +350,7 @@ static qb_address * qb_obtain_bound_checked_sum(qb_compiler_context *cxt, qb_add
 		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, augend_address_limit } };
 		return qb_obtain_on_demand_value(cxt, &factory_bound_check_index, operands, 2);
 	} else {
-		qb_operand operands[3] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, addend_address }, { QB_OPERAND_ADDRESS, augend_address_limit } };
+		qb_operand operands[3] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, augend_address_limit }, { QB_OPERAND_ADDRESS, addend_address } };
 		return qb_obtain_on_demand_value(cxt, &factory_bound_check_add, operands, 3);
 	}
 }
@@ -3675,8 +3675,7 @@ static void qb_print_address(qb_compiler_context *cxt, qb_address *address, int3
 				}
 				php_printf("]");
 			}
-		} else if(address->source_address->type != address->type) {
-			// a cast
+		} else {
 			qb_print_address(cxt, address->source_address, FALSE); 
 		}
 	} else {
