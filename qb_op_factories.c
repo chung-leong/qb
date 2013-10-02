@@ -1130,7 +1130,7 @@ qb_derived_op_factory factory_bitwise_xor_assign_object_property = {
 
 void *factories_bitwise_xor_assign[3] = { &factory_bitwise_xor_assign, &factory_bitwise_xor_assign_element, &factory_bitwise_xor_assign_object_property };
 
-qb_basic_op_factory factory_boolean = {
+qb_basic_op_factory factory_boolean_cast = {
 	qb_resolve_expression_type_boolean,
 	NULL,
 	NULL,
@@ -1138,9 +1138,9 @@ qb_basic_op_factory factory_boolean = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_boolean_cast,
 	NULL,
-	qb_transfer_operands_all,
+	qb_transfer_operands_boolean_cast,
 
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -1739,6 +1739,40 @@ qb_derived_op_factory factory_not_identical = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
 	&factory_not_equal,
+};
+
+qb_basic_op_factory factory_isset_array_element = {
+	qb_resolve_expression_type_boolean,
+	NULL,
+	qb_coerce_operands_fetch_array_element,
+	qb_set_result_prototype,
+	qb_validate_operands_array_element,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_isset_array_element,
+	NULL,
+	qb_transfer_operands_isset_array_element,
+	0,
+	0,
+	0,
+	{ QB_BC_BOOL_U32_U32_F64_I32, QB_BC_BOOL_U32_U32_F32_I32, QB_BC_BOOL_U32_U32_I64_I32, QB_BC_BOOL_U32_U32_I64_I32, QB_BC_BOOL_U32_U32_I32_I32, QB_BC_BOOL_U32_U32_I32_I32, QB_BC_BOOL_U32_U32_I16_I32, QB_BC_BOOL_U32_U32_I16_I32, QB_BC_BOOL_U32_U32_I08_I32, QB_BC_BOOL_U32_U32_I08_I32 }
+};
+
+qb_basic_op_factory factory_isset_object_property = {
+	qb_resolve_expression_type_boolean,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_object_property,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_isset_object_property,
+	NULL,
+	qb_transfer_operands_isset_object_property,
+	0,
+	0,
+	0,
+	{ QB_BC_BOOL_U32_U32_F64_I32, QB_BC_BOOL_U32_U32_F32_I32, QB_BC_BOOL_U32_U32_I64_I32, QB_BC_BOOL_U32_U32_I64_I32, QB_BC_BOOL_U32_U32_I32_I32, QB_BC_BOOL_U32_U32_I32_I32, QB_BC_BOOL_U32_U32_I16_I32, QB_BC_BOOL_U32_U32_I16_I32, QB_BC_BOOL_U32_U32_I08_I32, QB_BC_BOOL_U32_U32_I08_I32 }
 };
 
 qb_basic_op_factory factory_branch_on_equal = {

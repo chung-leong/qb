@@ -828,11 +828,19 @@ class CodeGenerator {
 	}
 	
 	protected function addBoundCheckingHandlers($elementType) {
-		if($elementType == "U32") {
-			$this->handlers[] = new BoundCheck("BC_NOP", "U32");
-			$this->handlers[] = new BoundCheckAdd("BC_ADD", "U32");
-			$this->handlers[] = new BoundCheckMultiply("BC_MUL", "U32");
-			$this->handlers[] = new BoundExpansionMultiply("BE_MUL", "U32");
+		$float = preg_match('/^F/', $elementType);
+		$unsigned = preg_match('/^U/', $elementType);
+		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
+			if($elementType == "U32") {
+				$this->handlers[] = new BoundCheck("BC_NOP", $elementType);
+				$this->handlers[] = new BoundCheckAdd("BC_ADD", $elementType);
+				$this->handlers[] = new BoundCheckMultiply("BC_MUL", $elementType);
+				$this->handlers[] = new BoundExpansionMultiply("BE_MUL", $elementType);
+			}
+		if(!$unsigned) {
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new BoundCheckBooleanCast("BC_BOOL", $elementTypeNoSign, $addressMode);
+			}
 		}
 	}
 
@@ -1001,7 +1009,7 @@ class CodeGenerator {
 			}
 		}
 		if(!$elementUnsigned) {
-			foreach($this->addressModes as $addressMode) {
+			foreach($this->scalarAddressModes as $addressMode) {
 				$this->handlers[] = new BooleanCast("BOOL", $elementTypeNoSign, $addressMode);
 			}
 		}

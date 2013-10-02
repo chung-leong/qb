@@ -2492,7 +2492,7 @@ void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand) 
 					}
 					operand->address = qb_obtain_constant_boolean(cxt, is_true);
 				} else {
-					operand->address = qb_retrieve_unary_op_result(cxt, &factory_boolean, operand->address);
+					operand->address = qb_retrieve_unary_op_result(cxt, &factory_boolean_cast, operand->address);
 				}
 			}
 		} else if(operand->type == QB_OPERAND_ZVAL) {
@@ -2586,7 +2586,7 @@ qb_address * qb_obtain_bound_checked_array_index_multiply(qb_compiler_context *c
 		// 0 * sub_array_size = 0
 		return qb_obtain_constant_U32(cxt, 0);
 	} else {
-		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, container_address } };
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
 		if(expandable) {
 			return qb_obtain_on_demand_value(cxt, &factory_bound_expand_multiply, operands, 2);
 		} else {

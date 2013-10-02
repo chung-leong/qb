@@ -1196,7 +1196,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_free						},	// ZEND_SWITCH_FREE
 	{	qb_translate_break,					&factory_jump						},	// ZEND_BRK
 	{	qb_translate_continue,				&factory_jump						},	// ZEND_CONT
-	{	qb_translate_basic_op,				&factory_boolean					},	// ZEND_BOOL
+	{	qb_translate_basic_op,				&factory_boolean_cast				},	// ZEND_BOOL
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_STRING
 	{	qb_translate_basic_op,				&factory_concat_string				},	// ZEND_ADD_CHAR
 	{	qb_translate_basic_op,				&factory_concat_string				},	// ZEND_ADD_STRING
@@ -1258,8 +1258,8 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL						},	// ZEND_RETURN_BY_REF
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_METHOD_CALL
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_STATIC_METHOD_CALL
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ISSET_ISEMPTY_VAR
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ISSET_ISEMPTY_DIM_OBJ
+	{	qb_translate_basic_op,				&factory_boolean_cast				},	// ZEND_ISSET_ISEMPTY_VAR
+	{	qb_translate_basic_op,				&factory_isset_array_element		},	// ZEND_ISSET_ISEMPTY_DIM_OBJ
 	{	NULL,								NULL								},	// 116
 	{	NULL,								NULL								},	// 117
 	{	NULL,								NULL								},	// 118
@@ -1292,7 +1292,7 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL								},	// ZEND_DECLARE_INHERITED_CLASS_DELAYED
 	{	NULL,								NULL								},	// ZEND_VERIFY_ABSTRACT_CLASS
 	{	qb_translate_basic_op,				&factory_assign_array_element		},	// ZEND_ASSIGN_DIM
-	{	qb_translate_basic_op,				&factory_fetch_object_property	},	// ZEND_ISSET_ISEMPTY_PROP_OBJ
+	{	qb_translate_basic_op,				&factory_isset_object_property		},	// ZEND_ISSET_ISEMPTY_PROP_OBJ
 	{	NULL,								NULL								},	// ZEND_HANDLE_EXCEPTION
 	{	qb_translate_user_opcode,			NULL						},	// ZEND_USER_OPCODE
 	{	NULL,								NULL								},	// 151

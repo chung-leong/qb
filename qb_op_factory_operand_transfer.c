@@ -41,7 +41,7 @@ static void qb_transfer_operands_bound_check_array(qb_compiler_context *cxt, qb_
 }
 
 static void qb_transfer_operands_bound_check_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_operand *index = &operands[0], *container = &operands[1];
+	qb_operand *container = &operands[0], *index = &operands[1];
 	qb_address *index_limit_address = container->address->dimension_addresses[0];
 	qb_address *sub_array_size_address = container->address->array_size_addresses[1];
 
@@ -55,7 +55,7 @@ static void qb_transfer_operands_bound_check_multiply(qb_compiler_context *cxt, 
 }
 
 static void qb_transfer_operands_bound_expand_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_operand *index = &operands[0], *container = &operands[1];
+	qb_operand *container = &operands[0], *index = &operands[1];
 	qb_address *index_limit_address = container->address->dimension_addresses[0];
 	qb_address *array_size_address = container->address->array_size_addresses[0];
 	qb_address *sub_array_size_address = container->address->array_size_addresses[1];
@@ -73,6 +73,41 @@ static void qb_transfer_operands_bound_expand_multiply(qb_compiler_context *cxt,
 	dest[5].number = BYTE_COUNT(1, container->address->type);
 	dest[5].type = QB_OPERAND_NUMBER;
 	dest[6] = *result;
+}
+
+static void qb_transfer_operands_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *variable = &operands[0];
+	if(SCALAR(variable->address)) {
+		dest[0] = *variable;
+	} else {
+		dest[0].address = variable->address->array_size_address;
+		dest[0].type = QB_OPERAND_ADDRESS;
+	}
+	dest[1] = *result;
+}
+
+static void qb_transfer_operands_isset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
+	qb_operand *container = &operands[0], *index = &operands[1];
+	qb_address *index_limit_address = container->address->dimension_addresses[0];
+	qb_address *variable_address;
+
+	if(container->address->dimension_count == 1) {
+		variable_address = qb_obtain_array_element(cxt, container->address, index->address, FALSE);
+	} else {
+		variable_address = container->address->array_size_addresses[1];
+	}
+
+	dest[0].address = index->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = index_limit_address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = variable_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *result;
+}
+
+static void qb_transfer_operands_isset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 }
 
 static void qb_transfer_operands_result_only(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {

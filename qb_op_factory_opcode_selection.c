@@ -45,6 +45,32 @@ static qb_opcode qb_select_opcode_derived(qb_compiler_context *cxt, qb_op_factor
 	return f->select_opcode(cxt, f, operands, operand_count, result);
 }
 
+static qb_opcode qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
+	qb_operand *variable = &operands[0];
+	if(SCALAR(variable->address)) {
+		return qb_select_type_dependent_opcode(cxt, bf->opcodes, result);
+	} else {
+		// will be checking the length of the array
+		return bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
+	}
+}
+
+static qb_opcode qb_select_opcode_isset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
+	qb_operand *container = &operands[0];
+	if(container->address->dimension_count == 1) {
+		return qb_select_type_dependent_opcode(cxt, bf->opcodes, container);
+	} else {
+		// will be checking the length of the sub-array
+		return bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
+	}
+}
+
+static qb_opcode qb_select_opcode_isset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	return QB_NOP;
+}
+
 static qb_opcode qb_select_multidata_opcode(qb_compiler_context *cxt, qb_opcode opcode) {
 	uint32_t op_flags = qb_get_op_flags(cxt, opcode);
 	if(op_flags & QB_OP_VERSION_AVAILABLE_MIO) {

@@ -270,6 +270,10 @@ class Handler {
 			"F32" => "float32_t",	"F64" => "float64_t",
 		);
 		$operandType = $this->getOperandType($i);
+		if(!$operandType) {
+			$class = get_class($this);
+			die("Operand $i of $class has null type\n");
+		}
 		return $cTypes[$operandType];
 	}
 	
