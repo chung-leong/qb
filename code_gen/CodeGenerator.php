@@ -837,10 +837,16 @@ class CodeGenerator {
 				$this->handlers[] = new BoundCheckPredicateAdd("BC_ADD_PR", $elementType);
 				$this->handlers[] = new BoundCheckPredicateAddSet("BC_ADD_PR_SET", $elementType);
 				$this->handlers[] = new BoundCheckMultiply("BC_MUL", $elementType);
-				$this->handlers[] = new BoundCheckPredicateMultiply("BC_MUL_PR", $elementType);
-				$this->handlers[] = new BoundCheckPredicateMultiplySet("BC_MUL_PR_SET", $elementType);
+				$this->handlers[] = new BoundCheckMultiplyAdd("BC_MAC", $elementType);
 				
+				$this->handlers[] = new BoundCheckPredicateMultiply("BC_MUL_PR", $elementType);
+				$this->handlers[] = new BoundCheckPredicateMultiplyAdd("BC_MAC_PR", $elementType);
+				$this->handlers[] = new BoundCheckPredicateMultiplySet("BC_MUL_PR_SET", $elementType);
+				$this->handlers[] = new BoundCheckPredicateMultiplyAddSet("BC_MAC_PR_SET", $elementType);
+				
+				$this->handlers[] = new BoundExpansionAdd("BE_ADD", $elementType);
 				$this->handlers[] = new BoundExpansionMultiply("BE_MUL", $elementType);
+				$this->handlers[] = new BoundExpansionMultiplyAdd("BE_MAC", $elementType);
 			}
 		if(!$unsigned) {
 			foreach($this->scalarAddressModes as $addressMode) {
