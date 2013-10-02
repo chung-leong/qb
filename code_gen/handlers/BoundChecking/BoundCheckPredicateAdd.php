@@ -4,8 +4,8 @@ class BoundCheckPredicateAdd extends Handler {
 
 	use ScalarAddressMode, QuaternaryOperator, MayEmitError;
 
-	public function getHandlerFunctionType() {
-		return null;
+	public function changesOperand($i) {
+		return ($i == 4 || $i == 5);
 	}
 	
 	public function getOperandType($i) {

@@ -4,8 +4,16 @@ class BoundExpansionMultiply extends Handler {
 
 	use ScalarAddressMode, SenaryOperator;
 	
-	public function getHandlerFunctionType() {
-		return null;
+	public function changesOperand($i) {
+		return ($i == 2 || $i == 4 || $i == 7);
+	}
+	
+	public function needsInterpreterContext() {
+		return true;
+	}
+	
+	public function needsLocalStorage() {
+		return true;
 	}
 
 	public function getOperandType($i) {

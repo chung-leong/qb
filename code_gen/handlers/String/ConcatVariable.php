@@ -27,9 +27,9 @@ class ConcatVariable extends Handler {
 		$lines = array();
 		$lines[] = "char sprintf_buffer[64];";
 		$lines[] = "uint32_t len = $sprintf;";
-		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op2, *res_count_ptr + len);";
-		$lines[] = "memcpy(res_ptr + *res_count_ptr, sprintf_buffer, len);";
-		$lines[] = "*res_count_ptr += len;";
+		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op2, res_count + len);";
+		$lines[] = "memcpy(res_ptr + res_count, sprintf_buffer, len);";
+		$lines[] = "res_count += len;";
 		return $lines;	
 	}
 	
@@ -37,7 +37,7 @@ class ConcatVariable extends Handler {
 		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);
 		$lines = array();
-		$lines[] = "uint32_t pos = *res_count_ptr;";
+		$lines[] = "uint32_t pos = res_count;";
 		$lines[] = "uint32_t total = 0;";
 		$lines[] = "$cType *op1_start = op1_ptr;";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
@@ -52,7 +52,7 @@ class ConcatVariable extends Handler {
 		$lines[] = "} else {";
 		$lines[] = 		"total = 2;";
 		$lines[] = "}";
-		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op2, *res_count_ptr + total);";
+		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op2, res_count + total);";
 		$lines[] = "res_ptr[pos++] = '[';";
 		$lines[] = "op1_ptr = op1_start;";
 		$lines[] = "while(op1_ptr < op1_end) {";
@@ -67,7 +67,7 @@ class ConcatVariable extends Handler {
 		$lines[] = 		"}";
 		$lines[] = "}";
 		$lines[] = "res_ptr[pos++] = ']';";
-		$lines[] = "*res_count_ptr += total;";
+		$lines[] = "res_count += total;";
 		return $lines;
 	}
 }

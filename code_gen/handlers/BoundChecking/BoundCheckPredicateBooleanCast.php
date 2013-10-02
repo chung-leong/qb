@@ -4,8 +4,8 @@ class BoundCheckPredicateBooleanCast extends Handler {
 
 	use MultipleAddressMode, QuaternaryOperator;
 
-	public function getHandlerFunctionType() {
-		return null;
+	public function changesOperand($i) {
+		return ($i == 4 || $i == 5);
 	}
 	
 	public function getOperandType($i) {
@@ -30,10 +30,10 @@ class BoundCheckPredicateBooleanCast extends Handler {
 	
 	protected function getActionOnUnitData() {
 		$lines = array();
-		$lines[] = "if(op4 && op1 < op2) {";
-		$lines[] = 		"res = (op3 != 0);";
-		$lines[] = "} else {";
+		$lines[] = "if(UNEXPECTED(!op4 || op1 >= op2)) {";
 		$lines[] = 		"res = FALSE;";
+		$lines[] = "} else {";
+		$lines[] = 		"res = (op3 != 0);";
 		$lines[] = "}";
 		return $lines;
 	}

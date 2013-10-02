@@ -2,11 +2,16 @@
 
 trait ResizeResult {
 
-	public function adjustsResultSize() {
-		return true;
+	public function changesOperandSize($i) {
+		$srcCount = $this->getInputOperandCount();
+		return ($i > $srcCount);
 	}
 	
 	public function needsInterpreterContext() {
+		return true;
+	}
+	
+	public function needsLocalStorage() {
 		return true;
 	}
 	

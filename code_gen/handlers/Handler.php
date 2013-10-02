@@ -316,6 +316,10 @@ class Handler {
 		return false;
 	}
 	
+	public function needsLocalStorage() {
+		return false;
+	}
+	
 	public function needsReplication() {
 		return false;
 	}
@@ -323,8 +327,18 @@ class Handler {
 	public function needsLineNumber() {
 		return false;
 	}
+
+	public function needsCondition() {
+		$targetCount = $this->getJumpTargetCount();
+		return ($targetCount == 2);
+	}
+
+	public function changesOperand($i) {
+		$srcCount = $this->getInputOperandCount();
+		return ($i > $srcCount);
+	}
 	
-	public function adjustsResultSize() {
+	public function changesOperandSize($i) {
 		return false;
 	}
 	
@@ -349,7 +363,6 @@ class Handler {
 			$addressMode = $this->getOperandAddressMode($i);
 			$operand = "INSTR->operand$i";
 			$name = ($i <= $srcCount) ? "op{$i}" : "res";
-			$needSizePointer = ($i > $srcCount && $this->adjustsResultSize());
 			switch($addressMode) {
 				case 'SCA':
 					$lines[] = "#define $name	(($cType *) $operand.data_pointer)[0]";
@@ -359,7 +372,10 @@ class Handler {
 					break;
 				case 'ARR':
 					$lines[] = "#define {$name}_ptr		((($cType *) $operand.data_pointer) + $operand.index_pointer[0])";
-					$lines[] = ($needSizePointer) ? "#define {$name}_count_ptr	$operand.count_pointer" : "#define {$name}_count	$operand.count_pointer[0]";
+					$lines[] = "#define {$name}_count	$operand.count_pointer[0]";
+					if($this->changesOperandSize($i)) {
+						$lines[] = "#define {$name}_count_ptr	$operand.count_pointer";
+					}
 					break;
 				case 'CON':
 					$lines[] = "#define $name	$operand";
@@ -380,7 +396,6 @@ class Handler {
 		for($i = 1; $i <= $opCount; $i++) {
 			$addressMode = $this->getOperandAddressMode($i);
 			$name = ($i <= $srcCount) ? "op{$i}" : "res";
-			$needSizePointer = ($i > $srcCount && $this->adjustsResultSize());
 			switch($addressMode) {
 				case 'SCA':
 					$lines[] = "#undef $name";
@@ -390,7 +405,10 @@ class Handler {
 					break;
 				case 'ARR':
 					$lines[] = "#undef {$name}_ptr";
-					$lines[] = ($needSizePointer) ? "#undef {$name}_count_ptr" : "#undef {$name}_count";
+					$lines[] = "#undef {$name}_count";
+					if($this->changesOperandSize($i)) {
+						$lines[] = "#undef {$name}_count_ptr";
+					}
 					break;
 				case 'CON':
 					$lines[] = "#undef $name";
@@ -464,25 +482,27 @@ class Handler {
 			case 'extern': $typeDecl = "void"; break;
 		}
 		
-		// replace op# with (*op#_ptr) for array operands and res with (*res_ptr)
+		// replace op# with (*op#_ptr) and res with (*res_ptr) where it's necessary
 		$expressions = array_linearize($expressions);
 		$srcCount = $this->getInputOperandCount();
-		$arrayOperands = array();
+		$needPointers = array();
 		for($i = 1; $i <= $srcCount; $i++) {
-			if($this->getOperandAddressMode($i) == "ARR") {
-				$arrayOperands[] = $i;
+			if($this->getOperandAddressMode($i) == "ARR" || $this->changesOperand($i)) {
+				$needPointers[] = "op{$i}";
+			}
+			if($this->changesOperandSize($i)) {
+				$needPointers[] = "op{$i}_count";
 			}
 		}
-		if($arrayOperands) {
-			$inputOperandRegExp = '/\bop(' . implode('|', $arrayOperands) . ')\b/';
+		$needPointers[] = "res";
+		if($this->changesOperandSize($i)) {
+			$needPointers[] = "res_count";
 		}
-		foreach($expressions as &$expression) {
-			if($arrayOperands) {
-				$expression = preg_replace($inputOperandRegExp, '(*op\1_ptr)', $expression);
-			}
-			$expression = preg_replace('/\bres\b/', '(*res_ptr)', $expression);
+		if($this->needsCondition()) {
+			$needPointers[] = "condition";
 		}
-		
+		$regExp = '/\b(' . implode('|', $needPointers) . ')\b/';
+		$expressions = preg_replace($regExp, '(*\1_ptr)', $expressions);
 		$lines = array();			
 		$lines[] = "$typeDecl $function($parameterList) {";
 		$lines[] = $expressions;
@@ -502,11 +522,18 @@ class Handler {
 				$params[] = "cxt";
 			}
 		} 
-		if($this->adjustsResultSize()) {
+		if($this->needsLocalStorage()) {
 			if($forDeclaration) {
 				$params[] = "qb_storage *__restrict local_storage";
 			} else {
 				$params[] = "local_storage";
+			}
+		}
+		if($this->needsCondition()) {
+			if($forDeclaration) {
+				$params[] = "int32_t *condition_ptr";
+			} else {
+				$params[] = "&condition";
 			}
 		}
 		for($i = 1; $i <= $opCount; $i++) {
@@ -514,24 +541,39 @@ class Handler {
 			$addressMode = $this->getOperandAddressMode($i);
 			$operand = "((($instr *) ip)->operand$i)";
 			$name = ($i <= $srcCount) ? "op{$i}" : "res";
-			$needSizePointer = ($i > $srcCount && $this->adjustsResultSize());
 			switch($addressMode) {
 				case 'SCA':
 				case 'ELE':
 				case 'CON':
 					if($forDeclaration) {
-						$params[] = ($i <= $srcCount) ? "$cType $name" : "$cType *{$name}_ptr";
+						if($this->changesOperand($i)) {
+							$params[] = "$cType *{$name}_ptr";
+						} else {
+							$params[] = "$cType $name";
+						}
 					} else {
-						$params[] = ($i <= $srcCount) ? "$name" : "&$name";
+						if($this->changesOperand($i)) {
+							$params[] = "&$name";
+						} else {
+							$params[] = "$name";
+						}
 					}
 					break;
 				case 'ARR':
 					if($forDeclaration) {
 						$params[] = "$cType *{$name}_ptr";
-						$params[] = ($needSizePointer) ? "uint32_t *{$name}_count_ptr" : "uint32_t {$name}_count";
+						if($this->changesOperandSize($i)) {
+							$params[] = "uint32_t *{$name}_count_ptr";
+						} else {
+							$params[] = "uint32_t {$name}_count";
+						}
 					} else {
 						$params[] = "{$name}_ptr";
-						$params[] = ($needSizePointer) ? "{$name}_count_ptr" : "{$name}_count";
+						if($this->changesOperandSize($i)) {
+							$params[] = "{$name}_count_ptr";
+						} else {
+							$params[] = "{$name}_count";
+						}
 					}
 					break;
 			}
@@ -755,13 +797,7 @@ class Handler {
 		for($i = 0; $i < $count; $i++) {
 			$patterns = array('/\bres\b/', '/\bop(' . $nums . ')\b/');
 			$replacements = array("res_ptr[{$i}]", "op\\1_ptr[{$i}]");
-			if(is_array($expression)) {
-				foreach($expression as $subexpression) {
-					$lines[] = preg_replace($patterns, $replacements, $subexpression);
-				}
-			} else {
-				$lines[] = preg_replace($patterns, $replacements, $expression);
-			}
+			$lines[] = preg_replace($patterns, $replacements, $expression);
 		}
 		return $lines;
 	}

@@ -2586,7 +2586,6 @@ qb_address * qb_obtain_bound_checked_array_index_multiply(qb_compiler_context *c
 		// 0 * sub_array_size = 0
 		return qb_obtain_constant_U32(cxt, 0);
 	} else {
-		void *factory;
 		if(bound_check_flags & QB_ARRAY_BOUND_CHECK_ISSET) {
 			qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_EMPTY, NULL } };
 			return qb_obtain_on_demand_value(cxt, &factory_bound_check_predicate_multiply, operands, 3);

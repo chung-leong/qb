@@ -10,9 +10,11 @@ trait BranchInstruction {
 		return 2;
 	}
 	
+	/*
 	public function getHandlerFunctionType() {
 		return null;
 	}
+	*/
 }
 
 ?>
