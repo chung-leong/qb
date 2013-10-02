@@ -54,6 +54,21 @@ static void qb_transfer_operands_bound_check_multiply(qb_compiler_context *cxt, 
 	dest[3] = *result;
 }
 
+static void qb_transfer_operands_bound_check_predicate_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *index = &operands[1], *predicate = &operands[2];
+	qb_address *index_limit_address = container->address->dimension_addresses[0];
+	qb_address *sub_array_size_address = container->address->array_size_addresses[1];
+
+	dest[0].address = index->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = index_limit_address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = sub_array_size_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *predicate;
+	dest[4] = *result;
+}
+
 static void qb_transfer_operands_bound_expand_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *index = &operands[1];
 	qb_address *index_limit_address = container->address->dimension_addresses[0];
@@ -90,12 +105,16 @@ static void qb_transfer_operands_isset_array_element(qb_compiler_context *cxt, q
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0], *index = &operands[1];
 	qb_address *index_limit_address = container->address->dimension_addresses[0];
-	qb_address *variable_address;
+	qb_address *variable_address, *predicate_address;
 
 	if(container->address->dimension_count == 1) {
 		variable_address = qb_obtain_array_element(cxt, container->address, index->address, FALSE);
 	} else {
 		variable_address = container->address->array_size_addresses[1];
+	}
+	predicate_address = qb_find_predicate_address(cxt, container->address);
+	if(!predicate_address) {
+		predicate_address = cxt->true_address;
 	}
 
 	dest[0].address = index->address;
@@ -104,7 +123,9 @@ static void qb_transfer_operands_isset_array_element(qb_compiler_context *cxt, q
 	dest[1].type = QB_OPERAND_ADDRESS;
 	dest[2].address = variable_address;
 	dest[2].type = QB_OPERAND_ADDRESS;
-	dest[3] = *result;
+	dest[3].address = predicate_address;
+	dest[3].type = QB_OPERAND_ADDRESS;
+	dest[4] = *result;
 }
 
 static void qb_transfer_operands_isset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {

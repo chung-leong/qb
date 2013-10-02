@@ -194,7 +194,7 @@ qb_op_factory factory_fetch_class = {
 
 void *factories_fetch_variable[] = { &factory_fetch_local, &factory_fetch_global, &factory_fetch_static, &factory_fetch_class };
 
-qb_op_factory factory_fetch_array_element = {
+qb_fetch_op_factory factory_fetch_array_element_read = {
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -208,9 +208,44 @@ qb_op_factory factory_fetch_array_element = {
 	0,
 	0,
 	0,
+	QB_ARRAY_BOUND_CHECK_READ,
 };
 
-qb_op_factory factory_fetch_object_property = {
+qb_fetch_op_factory factory_fetch_array_element_write = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_fetch_array_element,
+	qb_set_result_prototype,
+	qb_validate_operands_array_element,
+	qb_set_result_fetch_array_element,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_ARRAY_BOUND_CHECK_WRITE,
+};
+
+qb_fetch_op_factory factory_fetch_array_element_isset = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_fetch_array_element,
+	qb_set_result_prototype,
+	qb_validate_operands_array_element,
+	qb_set_result_fetch_array_element,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_ARRAY_BOUND_CHECK_ISSET,
+};
+
+qb_fetch_op_factory factory_fetch_object_property_read = {
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -224,6 +259,41 @@ qb_op_factory factory_fetch_object_property = {
 	0,
 	0,
 	0,
+	QB_ARRAY_BOUND_CHECK_READ,
+};
+
+qb_fetch_op_factory factory_fetch_object_property_write = {
+	qb_resolve_expression_type_object_property,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_object_property,
+	qb_set_result_fetch_object_property,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_ARRAY_BOUND_CHECK_WRITE,
+};
+
+qb_fetch_op_factory factory_fetch_object_property_isset = {
+	qb_resolve_expression_type_object_property,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_object_property,
+	qb_set_result_fetch_object_property,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+	QB_ARRAY_BOUND_CHECK_ISSET,
 };
 
 qb_op_factory factory_fetch_class_self = {
@@ -410,6 +480,25 @@ qb_simple_op_factory factory_bound_check_multiply = {
 	0,
 	QB_ADDRESS_TEMPORARY,
 	QB_BC_MUL_U32_U32_U32_U32,
+};
+
+qb_predicate_op_factory factory_bound_check_predicate_multiply = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_bound_check_predicate_multiply,
+	NULL,
+	qb_select_opcode_bound_check_predicate_multiply,
+	NULL,
+	qb_transfer_operands_bound_check_predicate_multiply,
+
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_BC_MUL_PR_SET_U32_U32_U32_I32_U32,
+	QB_BC_MUL_PR_U32_U32_U32_I32_U32,
 };
 
 qb_simple_op_factory factory_bound_expand_multiply = {
@@ -1755,7 +1844,7 @@ qb_basic_op_factory factory_isset_array_element = {
 	0,
 	0,
 	0,
-	{ QB_BC_BOOL_U32_U32_F64_I32, QB_BC_BOOL_U32_U32_F32_I32, QB_BC_BOOL_U32_U32_I64_I32, QB_BC_BOOL_U32_U32_I64_I32, QB_BC_BOOL_U32_U32_I32_I32, QB_BC_BOOL_U32_U32_I32_I32, QB_BC_BOOL_U32_U32_I16_I32, QB_BC_BOOL_U32_U32_I16_I32, QB_BC_BOOL_U32_U32_I08_I32, QB_BC_BOOL_U32_U32_I08_I32 }
+	{ QB_BC_BOOL_PR_U32_U32_F64_I32_I32, QB_BC_BOOL_PR_U32_U32_F32_I32_I32, QB_BC_BOOL_PR_U32_U32_I64_I32_I32, QB_BC_BOOL_PR_U32_U32_I64_I32_I32, QB_BC_BOOL_PR_U32_U32_I32_I32_I32, QB_BC_BOOL_PR_U32_U32_I32_I32_I32, QB_BC_BOOL_PR_U32_U32_I16_I32_I32, QB_BC_BOOL_PR_U32_U32_I16_I32_I32, QB_BC_BOOL_PR_U32_U32_I08_I32_I32, QB_BC_BOOL_PR_U32_U32_I08_I32_I32 }
 };
 
 qb_basic_op_factory factory_isset_object_property = {

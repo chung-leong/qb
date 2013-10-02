@@ -1591,7 +1591,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 							lvalue_address = qb_obtain_instance_variable(cxt, name->constant);
 						}
 						if(name->type == QB_OPERAND_ZVAL) {
-							lvalue_address = qb_obtain_named_element(cxt, container->address, name->constant);
+							lvalue_address = qb_obtain_named_element(cxt, container->address, name->constant, QB_ARRAY_BOUND_CHECK_WRITE);
 						}
 					}	break;
 					case QB_RESULT_DESTINATION_RETURN: {
@@ -2571,7 +2571,7 @@ qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *contain
 	return slice_address;
 }
 
-qb_address * qb_obtain_bound_checked_array_index_multiply(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, int32_t expandable) {
+qb_address * qb_obtain_bound_checked_array_index_multiply(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
 	qb_address *index_limit_address = container_address->dimension_addresses[0];
 	qb_address *sub_array_size_address = container_address->array_size_addresses[1];
 
@@ -2586,16 +2586,22 @@ qb_address * qb_obtain_bound_checked_array_index_multiply(qb_compiler_context *c
 		// 0 * sub_array_size = 0
 		return qb_obtain_constant_U32(cxt, 0);
 	} else {
-		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
-		if(expandable) {
-			return qb_obtain_on_demand_value(cxt, &factory_bound_expand_multiply, operands, 2);
+		void *factory;
+		if(bound_check_flags & QB_ARRAY_BOUND_CHECK_ISSET) {
+			qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_EMPTY, NULL } };
+			return qb_obtain_on_demand_value(cxt, &factory_bound_check_predicate_multiply, operands, 3);
 		} else {
-			return qb_obtain_on_demand_value(cxt, &factory_bound_check_multiply, operands, 2);
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
+			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && EXPANDABLE_ARRAY(container_address)) {
+				return qb_obtain_on_demand_value(cxt, &factory_bound_expand_multiply, operands, 2);
+			} else {
+				return qb_obtain_on_demand_value(cxt, &factory_bound_check_multiply, operands, 2);
+			}
 		}
 	}
 }
 
-qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, int32_t allow_expansion) {
+qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
 	qb_address *result_address;
 	qb_address *offset_address = NULL;
 	qb_address *index_limit_address;
@@ -2606,7 +2612,7 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 	offset_address = container_address->array_index_address;
 	if(container_address->dimension_count > 1) {
 		// multiple by the size of the sub-array 
-		index_address = qb_obtain_bound_checked_array_index_multiply(cxt, container_address, index_address, EXPANDABLE_ARRAY(container_address) && allow_expansion);
+		index_address = qb_obtain_bound_checked_array_index_multiply(cxt, container_address, index_address, bound_check_flags);
 		index_address = qb_obtain_on_demand_sum(cxt, index_address, offset_address);
 	} else {
 		if(READ_ONLY(index_limit_address)) {
@@ -2684,13 +2690,13 @@ int32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *sch
 	return -1;
 }
 
-qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name) {
+qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name, uint32_t bound_check_flags) {
 	 if(!SCALAR(container_address)) {
 		if(container_address->index_alias_schemes && container_address->index_alias_schemes[0]) {
 			int32_t index = qb_find_index_alias(cxt, container_address->index_alias_schemes[0], name);
 			if(index != -1) {
 				qb_address *index_address = qb_obtain_constant_U32(cxt, index);
-				qb_address *value_address = qb_obtain_array_element(cxt, container_address, index_address, FALSE);
+				qb_address *value_address = qb_obtain_array_element(cxt, container_address, index_address, bound_check_flags);
 				return value_address;
 			}
 		}

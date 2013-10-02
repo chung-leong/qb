@@ -834,12 +834,20 @@ class CodeGenerator {
 			if($elementType == "U32") {
 				$this->handlers[] = new BoundCheck("BC_NOP", $elementType);
 				$this->handlers[] = new BoundCheckAdd("BC_ADD", $elementType);
+				$this->handlers[] = new BoundCheckPredicateAdd("BC_ADD_PR", $elementType);
+				$this->handlers[] = new BoundCheckPredicateAddSet("BC_ADD_PR_SET", $elementType);
 				$this->handlers[] = new BoundCheckMultiply("BC_MUL", $elementType);
+				$this->handlers[] = new BoundCheckPredicateMultiply("BC_MUL_PR", $elementType);
+				$this->handlers[] = new BoundCheckPredicateMultiplySet("BC_MUL_PR_SET", $elementType);
+				
 				$this->handlers[] = new BoundExpansionMultiply("BE_MUL", $elementType);
 			}
 		if(!$unsigned) {
 			foreach($this->scalarAddressModes as $addressMode) {
 				$this->handlers[] = new BoundCheckBooleanCast("BC_BOOL", $elementTypeNoSign, $addressMode);
+			}
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new BoundCheckPredicateBooleanCast("BC_BOOL_PR", $elementTypeNoSign, $addressMode);
 			}
 		}
 	}

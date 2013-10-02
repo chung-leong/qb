@@ -26,7 +26,9 @@ typedef struct qb_derived_op_factory			qb_derived_op_factory;
 typedef struct qb_basic_op_factory				qb_basic_op_factory; 
 typedef struct qb_float_op_factory				qb_float_op_factory; 
 typedef struct qb_simple_op_factory				qb_simple_op_factory;
+typedef struct qb_fetch_op_factory				qb_fetch_op_factory;
 typedef struct qb_copy_op_factory				qb_copy_op_factory;
+typedef struct qb_predicate_op_factory			qb_predicate_op_factory;
 typedef struct qb_cast_op_factory				qb_cast_op_factory;
 typedef struct qb_comparison_op_factory			qb_comparison_op_factory;
 typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
@@ -95,6 +97,17 @@ struct qb_float_op_factory {
 struct qb_simple_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcode;
+};
+
+struct qb_fetch_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	uint32_t bound_check_flags;
+}; 
+
+struct qb_predicate_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	qb_opcode opcode_initial;
+	qb_opcode opcode_subsequent;
 };
 
 struct qb_copy_op_factory {
@@ -170,8 +183,13 @@ extern qb_derived_op_factory factory_assign_object_property;
 
 extern qb_op_factory factory_assign_ref;
 
-extern qb_op_factory factory_fetch_array_element;
-extern qb_op_factory factory_fetch_object_property;
+extern qb_fetch_op_factory factory_fetch_array_element_read;
+extern qb_fetch_op_factory factory_fetch_array_element_write;
+extern qb_fetch_op_factory factory_fetch_array_element_isset;
+extern qb_fetch_op_factory factory_fetch_object_property_read;
+extern qb_fetch_op_factory factory_fetch_object_property_write;
+extern qb_fetch_op_factory factory_fetch_object_property_isset;
+
 extern qb_op_factory factory_fetch_constant;
 
 extern void *factories_fetch_variable[4];
@@ -191,6 +209,7 @@ extern qb_simple_op_factory factory_bound_check_index;
 extern qb_simple_op_factory factory_bound_check_array;
 extern qb_simple_op_factory factory_bound_check_add;
 extern qb_simple_op_factory factory_bound_check_multiply;
+extern qb_predicate_op_factory factory_bound_check_predicate_multiply;
 extern qb_simple_op_factory factory_bound_expand_multiply;
 
 extern qb_cast_op_factory factory_cast_S08;

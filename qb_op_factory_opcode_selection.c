@@ -56,6 +56,17 @@ static qb_opcode qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
+static qb_opcode qb_select_opcode_bound_check_predicate_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_predicate_op_factory *pf = (qb_predicate_op_factory *) f;
+	qb_operand *container = &operands[0];
+	
+	if(qb_find_predicate_address(cxt, container->address)) {
+		return pf->opcode_subsequent;
+	} else {
+		return pf->opcode_initial;
+	}
+}
+
 static qb_opcode qb_select_opcode_isset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0];

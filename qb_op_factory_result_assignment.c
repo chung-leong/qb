@@ -45,6 +45,38 @@ static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt,
 	}
 }
 
+static qb_address *qb_find_predicate_address(qb_compiler_context *cxt, qb_address *container_address) {
+	while(container_address) {
+		if(container_address->array_index_address) {
+			if(container_address->array_index_address->expression) {
+				qb_expression *expr = container_address->array_index_address->expression;
+				if(expr->op_factory == &factory_bound_check_predicate_multiply) {
+					return expr->operands[2].address;
+				}
+			}
+		}
+		container_address = container_address->source_address;
+	}
+	return NULL;
+}
+
+static void qb_set_result_bound_check_predicate_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0], *predicate = &operands[2];
+
+	if(predicate->type == QB_OPERAND_EMPTY) {
+		// see if there's an predicate multiply higher up 
+		qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
+		if(!predicate_address) {
+			// allocate a new variable
+			predicate_address = qb_obtain_non_reusable_temporary_variable(cxt, QB_TYPE_I32, NULL);
+		}
+		predicate->address = predicate_address;
+		predicate->type = QB_OPERAND_ADDRESS;
+	}
+
+	qb_set_result_non_reusable_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+}
+
 static void qb_set_result_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	*result = operands[0];
 }
@@ -63,9 +95,10 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 }
 
 static void qb_set_result_fetch_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_fetch_op_factory *ff = (qb_fetch_op_factory *) f;
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
-	qb_address *result_address = qb_obtain_array_element(cxt, container->address, index->address, FALSE);
+	qb_address *result_address = qb_obtain_array_element(cxt, container->address, index->address, ff->bound_check_flags);
 	result->address = result_address;
 	result->type = QB_OPERAND_ADDRESS;
 }
@@ -77,20 +110,21 @@ static void qb_set_result_assign_array_element(qb_compiler_context *cxt, qb_op_f
 
 	if(expr_type != QB_TYPE_VOID) {
 		qb_address *index_address = (index->type == QB_OPERAND_NONE) ? container->address->array_size_address : index->address;
-		qb_address *result_address = qb_obtain_array_element(cxt, container->address, index_address, TRUE);
+		qb_address *result_address = qb_obtain_array_element(cxt, container->address, index_address, QB_ARRAY_BOUND_CHECK_WRITE);
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address);
 		result->type = QB_OPERAND_ADDRESS;
 	}
 }
 
 static void qb_set_result_fetch_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_fetch_op_factory *ff = (qb_fetch_op_factory *) f;
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
 	qb_address *result_address;
 	if(container->type == QB_OPERAND_NONE) {
 		result_address = qb_obtain_instance_variable(cxt, name->constant);
 	} else if(container->type == QB_OPERAND_ADDRESS) {
-		result_address = qb_obtain_named_element(cxt, container->address, name->constant);
+		result_address = qb_obtain_named_element(cxt, container->address, name->constant, ff->bound_check_flags);
 	}
 	result->address = result_address;
 	result->type = QB_OPERAND_ADDRESS;
@@ -106,7 +140,7 @@ static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op
 		if(container->type == QB_OPERAND_NONE) {
 			result_address = qb_obtain_instance_variable(cxt, name->constant);
 		} else if(container->type == QB_OPERAND_ADDRESS) {
-			result_address = qb_obtain_named_element(cxt, container->address, name->constant);
+			result_address = qb_obtain_named_element(cxt, container->address, name->constant, QB_ARRAY_BOUND_CHECK_WRITE);
 		}
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address);
 		result->type = QB_OPERAND_ADDRESS;

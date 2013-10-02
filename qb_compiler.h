@@ -445,8 +445,14 @@ qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name);
 
 void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar);
 
-qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, int32_t allow_expansion);
-qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name);
+enum {
+	QB_ARRAY_BOUND_CHECK_READ	= 0x0001,
+	QB_ARRAY_BOUND_CHECK_WRITE	= 0x0002,
+	QB_ARRAY_BOUND_CHECK_ISSET	= 0x0004,
+};
+
+qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags);
+qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name, uint32_t bound_check_flags);
 qb_address * qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address);
 qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address);
 
