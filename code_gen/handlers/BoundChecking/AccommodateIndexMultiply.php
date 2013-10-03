@@ -1,6 +1,6 @@
 <?php
 
-class BoundExpansionMultiply extends Handler {
+class AccommodateIndexMultiply extends Handler {
 
 	use ScalarAddressMode, SenaryOperator;
 	
@@ -43,7 +43,7 @@ class BoundExpansionMultiply extends Handler {
 	protected function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "res = op1 * op3;";
-		$lines[] = "if(UNEXPECTED(op1 >= op2)) {";
+		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
 		$lines[] =		"uint32_t new_dim = op1 + 1;";
 		$lines[] =		"uint32_t new_size = new_dim * op3;";
 		$lines[] =		"op4 = new_size;";

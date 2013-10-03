@@ -1,6 +1,6 @@
 <?php
 
-class LessThanOrEqual extends Handler {
+class LessThanEqual extends Handler {
 
 	use MultipleAddressMode, BinaryOperator;
 	use BooleanResult;

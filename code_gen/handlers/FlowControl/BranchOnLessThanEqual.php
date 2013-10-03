@@ -1,6 +1,6 @@
 <?php
 
-class BranchOnLessThanOrEqual extends Handler {
+class BranchOnLessThanEqual extends Handler {
 
 	use MultipleAddressMode, BinaryOperator, BranchInstruction {
         BranchInstruction::getOutputOperandCount insteadof BinaryOperator;

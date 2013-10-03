@@ -1,6 +1,6 @@
 <?php
 
-class BoundCheck extends Handler {
+class GuardIndex extends Handler {
 
 	use ScalarAddressMode, BinaryOperator, MayEmitError;
 	
@@ -10,7 +10,7 @@ class BoundCheck extends Handler {
 
 	protected function getActionOnUnitData() {
 		$lines = array();
-		$lines[] = "if(UNEXPECTED(op1 >= op2)) {";
+		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
 		$lines[] =		"qb_abort(\"Array index out of bounds (%d >= %d)\", op1, op2);";
 		$lines[] = "}";
 		return $lines;

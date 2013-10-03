@@ -1,6 +1,6 @@
 <?php
 
-class BoundCheckPredicateMultiplyAddSet extends Handler {
+class CheckIndexMultiplyAddInit extends Handler {
 
 	use ScalarAddressMode, QuinaryOperator, MayEmitError;
 
@@ -22,7 +22,7 @@ class BoundCheckPredicateMultiplyAddSet extends Handler {
 	protected function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "res = op1 * op3 + op4;";
-		$lines[] = "if(UNEXPECTED(op1 >= op2)) {";
+		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
 		$lines[] = 		"op5 = FALSE;";
 		$lines[] = "} else {";
 		$lines[] = 		"op5 = TRUE;";

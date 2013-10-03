@@ -1,6 +1,6 @@
 <?php
 
-class BoundCheckBooleanCast extends Handler {
+class GuardIndexBooleanCast extends Handler {
 
 	use MultipleAddressMode, TernaryOperator;
 
@@ -24,10 +24,10 @@ class BoundCheckBooleanCast extends Handler {
 	
 	protected function getActionOnUnitData() {
 		$lines = array();
-		$lines[] = "if(op1 < op2) {";
-		$lines[] = 		"res = (op3 != 0);";
-		$lines[] = "} else {";
+		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
 		$lines[] = 		"res = FALSE;";
+		$lines[] = "} else {";
+		$lines[] = 		"res = (op3 != 0);";
 		$lines[] = "}";
 		return $lines;
 	}

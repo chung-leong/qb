@@ -1,6 +1,6 @@
 <?php
 
-class BoundCheckPredicateBooleanCast extends Handler {
+class CheckIndexBooleanCast extends Handler {
 
 	use MultipleAddressMode, QuaternaryOperator;
 
@@ -30,7 +30,7 @@ class BoundCheckPredicateBooleanCast extends Handler {
 	
 	protected function getActionOnUnitData() {
 		$lines = array();
-		$lines[] = "if(UNEXPECTED(!op4 || op1 >= op2)) {";
+		$lines[] = "if(UNEXPECTED(!op4 || !(op1 < op2))) {";
 		$lines[] = 		"res = FALSE;";
 		$lines[] = "} else {";
 		$lines[] = 		"res = (op3 != 0);";

@@ -1,6 +1,6 @@
 <?php
 
-class SetLessThanOrEqual extends Handler {
+class SetLessThanEqual extends Handler {
 
 	use ArrayAddressMode, BinaryOperator, SetOperator, BooleanResult;
 	

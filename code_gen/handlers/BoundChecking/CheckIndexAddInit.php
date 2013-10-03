@@ -1,6 +1,6 @@
 <?php
 
-class BoundCheckPredicateAdd extends Handler {
+class CheckIndexAddInit extends Handler {
 
 	use ScalarAddressMode, QuaternaryOperator, MayEmitError;
 
@@ -21,8 +21,10 @@ class BoundCheckPredicateAdd extends Handler {
 	protected function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "res = op1 + op3;";
-		$lines[] = "if(UNEXPECTED(op1 >= op2)) {";
+		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
 		$lines[] = 		"op4 = FALSE;";
+		$lines[] = "} else {";
+		$lines[] =		"op4 = TRUE;";
 		$lines[] = "}";
 		return $lines;
 	}
