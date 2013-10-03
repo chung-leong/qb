@@ -334,27 +334,6 @@ static qb_address * qb_obtain_on_demand_sum(qb_compiler_context *cxt, qb_address
 	}
 }
 
-static qb_address * qb_obtain_bound_checked_sum(qb_compiler_context *cxt, qb_address *augend_address, qb_address *addend_address, qb_address *augend_address_limit) {
-	if(CONSTANT(augend_address) && CONSTANT(addend_address) && CONSTANT(augend_address_limit)) {
-		if(VALUE(U32, augend_address) < VALUE(U32, augend_address_limit)) {
-			uint32_t sum = VALUE(U32, augend_address) + VALUE(U32, addend_address);
-			return qb_obtain_constant_U32(cxt, sum);
-		}
-	}
-	
-	if(CONSTANT(augend_address) && VALUE(U32, augend_address) == 0) {
-		// 0 + addend = addend
-		return addend_address;
-	} else if(CONSTANT(addend_address) && VALUE(U32, addend_address) == 0) {
-		// augend + 0 = augend
-		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, augend_address_limit } };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_index, operands, 2);
-	} else {
-		qb_operand operands[3] = { { QB_OPERAND_ADDRESS, augend_address }, { QB_OPERAND_ADDRESS, augend_address_limit }, { QB_OPERAND_ADDRESS, addend_address } };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_add, operands, 3);
-	}
-}
-
 static qb_address * qb_obtain_on_demand_difference(qb_compiler_context *cxt, qb_address *minuend_address, qb_address *subtrahend_address) {
 	if(CONSTANT(minuend_address) && CONSTANT(subtrahend_address)) {
 		uint32_t difference = VALUE(U32, minuend_address) - VALUE(U32, subtrahend_address);
@@ -365,33 +344,6 @@ static qb_address * qb_obtain_on_demand_difference(qb_compiler_context *cxt, qb_
 	} else {
 		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, minuend_address }, { QB_OPERAND_ADDRESS, subtrahend_address } };
 		return qb_obtain_on_demand_value(cxt, &factory_subtract, operands, 2);
-	}
-}
-
-qb_address * qb_obtain_bound_checked_product(qb_compiler_context *cxt, qb_address *multiplicand_address, qb_address *multiplier_address, qb_address *multiplicand_limit_address) {
-	if(CONSTANT(multiplicand_address) && CONSTANT(multiplier_address) && CONSTANT(multiplicand_limit_address)) {
-		if(VALUE(U32, multiplicand_address) < VALUE(U32, multiplicand_limit_address)) {
-			uint32_t product = VALUE(U32, multiplicand_address) * VALUE(U32, multiplier_address);
-			return qb_obtain_constant_U32(cxt, product);
-		}
-	} 
-
-	if(CONSTANT(multiplicand_address) && VALUE(U32, multiplicand_address) == 0) {
-		// 0 * multiplier = 0
-		return qb_obtain_constant_U32(cxt, 0);
-	} else if(CONSTANT(multiplier_address) && VALUE(U32, multiplier_address) == 0) {
-		// multiplicand * 0 = 0
-		return qb_obtain_constant_U32(cxt, 0);
-	} else if(CONSTANT(multiplicand_address) && VALUE(U32, multiplicand_address) == 1) {
-		// 1 * multiplier = multiplier
-		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, multiplicand_address }, { QB_OPERAND_ADDRESS, multiplicand_limit_address } };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_index, operands, 2);
-	} else if(CONSTANT(multiplier_address) && VALUE(U32, multiplier_address) == 1) {
-		// multiplicand * 1 = multiplicand
-		return multiplicand_address;
-	} else {
-		qb_operand operands[3] = { { QB_OPERAND_ADDRESS, multiplicand_address }, { QB_OPERAND_ADDRESS, multiplier_address }, { QB_OPERAND_ADDRESS, multiplicand_limit_address } };
-		return qb_obtain_on_demand_value(cxt, &factory_bound_check_multiply, operands, 3);
 	}
 }
 
@@ -444,8 +396,9 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 			// the destination is large enough
 			return address;
 		} else {
+			// need to guard against overrun
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address } };
-			return qb_obtain_on_demand_value(cxt, &factory_bound_check_array, operands, 2);
+			return qb_obtain_on_demand_value(cxt, &factory_guard_array_size, operands, 2);
 		}
 	}
 }
@@ -2575,90 +2528,73 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 	qb_address *index_limit_address = container_address->dimension_addresses[0];
 	qb_address *array_offset_address = container_address->array_index_address;
 	qb_address *sub_array_size_address = (container_address->dimension_count > 1) ? container_address->array_size_addresses[1] : NULL;
-	qb_address *product_address = NULL;
+	int32_t no_offset = (array_offset_address == cxt->zero_address);
 	void *factory;
 
 	if(sub_array_size_address) {
-		// if the index and array dimensions are constant, perform the calculation now if it's within bounds
-		if(CONSTANT(index_address) && CONSTANT(sub_array_size_address) && CONSTANT(index_limit_address)) {
+		// if everything is constant, perform the calculation now if it's within bounds
+		if(CONSTANT(index_address) && CONSTANT(sub_array_size_address) && CONSTANT(index_limit_address) && CONSTANT(array_offset_address)) {
 			if(VALUE(U32, index_address) < VALUE(U32, index_limit_address)) {
 				uint32_t product = VALUE(U32, index_address) * VALUE(U32, sub_array_size_address);
-				if(CONSTANT(array_offset_address)) {
-					uint32_t sum = product + VALUE(U32, array_offset_address);
-					return qb_obtain_constant_U32(cxt, sum);
-				} else {
-					product_address = qb_obtain_constant_U32(cxt, product);
-				}
+				uint32_t sum = product + VALUE(U32, array_offset_address);
+				return qb_obtain_constant_U32(cxt, sum);
 			}
 		}
-	} else {
-		if(CONSTANT(index_address) && CONSTANT(index_limit_address)) {
-			if(VALUE(U32, index_address) < VALUE(U32, index_limit_address)) {
-				if(CONSTANT(array_offset_address)) {
-					uint32_t sum = VALUE(U32, index_address) + VALUE(U32, array_offset_address);
-					return qb_obtain_constant_U32(cxt, sum);
-				} else {
-					// it was multiplied by one, basically
-					product_address = index_address;
-				}
-			}
-		}
-	}
-	if(product_address) {
-		// the product is calculated already, just need to add it
 		if(bound_check_flags & QB_ARRAY_BOUND_CHECK_ISSET) {
-			qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, product_address }, { QB_OPERAND_EMPTY, NULL } };
-			void *factory = &factory_bound_check_predicate_add;
+			// isset() involves only a check of the index
+			// the third operand is the predicate variable, which the op factory will obtain
+			// use multiply-add if there's an offset, otherwise just multiply the index by the sub-array size
+			qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_EMPTY, NULL } };
+			factory = (no_offset) ? &factory_check_array_index_multiply : &factory_check_array_index_multiply_add;
 			return qb_obtain_on_demand_value(cxt, factory, operands, 3);
 		} else {
-			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, product_address } };
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
 			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && EXPANDABLE_ARRAY(container_address)) {
-				factory = factory_bound_expand_add;
+				// a write operation and the array is expandable
+				// enlarge the array to accommodate an index larger than the current size
+				// since sub-arrays are never expandable, the offset should always be zero
+				factory = &factory_accommodate_array_index_multiply;
 			} else {
-				factory = factory_bound_check_add;
+				// a read operation or a write to a non-expanding array
+				factory = (no_offset) ? &factory_guard_array_index_multiply : &factory_guard_array_index_multiply_add;
 			}
 			return qb_obtain_on_demand_value(cxt, factory, operands, 2);
 		}
 	} else {
-		if(CONSTANT(index_address) && VALUE(U32, index_address) == 0) {
-			// 0 * sub_array_size + offset = offset
-			return array_offset_address;
-		} else {
-			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_ISSET) {
-				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_EMPTY, NULL } };
-				factory = (array_offset_address == cxt->zero_address) ? &factory_bound_check_predicate_multiply : &factory_bound_check_predicate_multiply_add;
-				return qb_obtain_on_demand_value(cxt, factory, operands, 3);
-			} else {
-				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
-				if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && EXPANDABLE_ARRAY(container_address)) {
-					factory = (array_offset_address == cxt->zero_address) ? &factory_bound_expand_multiply : &factory_bound_expand_multiply_add;
-				} else {
-					factory = (array_offset_address == cxt->zero_address) ? &factory_bound_check_multiply : &factory_bound_check_multiply_add;
-				}
-				return qb_obtain_on_demand_value(cxt, factory, operands, 2);
+		// for retrieve a scalar, the logic is similar
+		if(CONSTANT(index_address) && CONSTANT(index_limit_address) && CONSTANT(array_offset_address)) {
+			if(VALUE(U32, index_address) < VALUE(U32, index_limit_address)) {
+				uint32_t sum = VALUE(U32, index_address) + VALUE(U32, array_offset_address);
+				return qb_obtain_constant_U32(cxt, sum);
 			}
+		}
+		if(bound_check_flags & QB_ARRAY_BOUND_CHECK_ISSET) {
+			// this shouldn't happen, since we handle the index and value check in the same op
+			// there's no separate fetch step
+			qb_abort("Internal error");
+		} else {
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
+			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && EXPANDABLE_ARRAY(container_address)) {
+				if(index_address == index_limit_address) {
+					factory = &factory_accommodate_array_push;
+				} else {
+					factory = &factory_accommodate_array_index;
+				}
+			} else {
+				factory = (no_offset) ? &factory_guard_array_index : &factory_guard_array_index_add;
+			}
+			return qb_obtain_on_demand_value(cxt, factory, operands, 2);
 		}
 	}
 }
 
 qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
 	qb_address *result_address;
-	qb_address *offset_address = NULL;
-	qb_address *index_limit_address;
 	qb_primitive_type element_type = container_address->type;
 	uint32_t i;
 
-	index_limit_address = container_address->dimension_addresses[0];
-	offset_address = container_address->array_index_address;
-	if(container_address->dimension_count > 1) {
-		// multiple by the size of the sub-array 
-		index_address = qb_obtain_bound_checked_array_index_multiply(cxt, container_address, index_address, bound_check_flags);
-		index_address = qb_obtain_on_demand_sum(cxt, index_address, offset_address);
-	} else {
-		if(READ_ONLY(index_limit_address)) {
-			index_address = qb_obtain_bound_checked_sum(cxt, index_address, offset_address, index_limit_address);
-		}
-	}
+	// obtain the expanded index, multiplying it by the sub-array size and adding in the array offset
+	index_address = qb_obtain_bound_checked_array_index(cxt, container_address, index_address, bound_check_flags);
 
 	// see if we have created the address earlier
 	for(i = 0; i < cxt->address_alias_count; i++) {

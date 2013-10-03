@@ -831,29 +831,30 @@ class CodeGenerator {
 		$float = preg_match('/^F/', $elementType);
 		$unsigned = preg_match('/^U/', $elementType);
 		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
-			if($elementType == "U32") {
-				$this->handlers[] = new BoundCheck("BC_NOP", $elementType);
-				$this->handlers[] = new BoundCheckAdd("BC_ADD", $elementType);
-				$this->handlers[] = new BoundCheckPredicateAdd("BC_ADD_PR", $elementType);
-				$this->handlers[] = new BoundCheckPredicateAddSet("BC_ADD_PR_SET", $elementType);
-				$this->handlers[] = new BoundCheckMultiply("BC_MUL", $elementType);
-				$this->handlers[] = new BoundCheckMultiplyAdd("BC_MAC", $elementType);
-				
-				$this->handlers[] = new BoundCheckPredicateMultiply("BC_MUL_PR", $elementType);
-				$this->handlers[] = new BoundCheckPredicateMultiplyAdd("BC_MAC_PR", $elementType);
-				$this->handlers[] = new BoundCheckPredicateMultiplySet("BC_MUL_PR_SET", $elementType);
-				$this->handlers[] = new BoundCheckPredicateMultiplyAddSet("BC_MAC_PR_SET", $elementType);
-				
-				$this->handlers[] = new BoundExpansionAdd("BE_ADD", $elementType);
-				$this->handlers[] = new BoundExpansionMultiply("BE_MUL", $elementType);
-				$this->handlers[] = new BoundExpansionMultiplyAdd("BE_MAC", $elementType);
-			}
+		if($elementType == "U32") {
+			$this->handlers[] = new GuardIndex("IDX_GUARD", $elementType);
+			$this->handlers[] = new GuardIndexAdd("IDX_GUARD_ADD", $elementType);
+			$this->handlers[] = new GuardIndexMultiply("IDX_GUARD_MUL", $elementType);
+			$this->handlers[] = new GuardIndexMultiplyAdd("IDX_GUARD_MAC", $elementType);
+			
+			$this->handlers[] = new GuardSize("SZ_GUARD", $elementType);
+			
+			$this->handlers[] = new CheckIndexAdd("IDX_CHECK_ADD", $elementType);
+			$this->handlers[] = new CheckIndexAddInit("IDX_CHECK_ADD_INIT", $elementType);
+			$this->handlers[] = new CheckIndexMultiply("IDX_CHECK_MUL", $elementType);
+			$this->handlers[] = new CheckIndexMultiplyInit("IDX_CHECK_MUL_INIT", $elementType);
+			$this->handlers[] = new CheckIndexMultiplyAdd("IDX_CHECK_MAC", $elementType);
+			$this->handlers[] = new CheckIndexMultiplyAddInit("IDX_CHECK_MAC_INIT", $elementType);
+			
+			$this->handlers[] = new AccommodateIndex("IDX_ACCOM", $elementType);
+			$this->handlers[] = new AccommodateIndexMultiply("IDX_ACCOM_MUL", $elementType);
+			$this->handlers[] = new AccommodatePush("IDX_ACCOM_PUSH", $elementType);
+			
+			$this->handlers[] = new AccommodateSize("SZ_ACCOM", $elementType);
+		}
 		if(!$unsigned) {
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new BoundCheckBooleanCast("BC_BOOL", $elementTypeNoSign, $addressMode);
-			}
-			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new BoundCheckPredicateBooleanCast("BC_BOOL_PR", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new CheckIndexBooleanCast("IDX_CHECK_BOOL", $elementTypeNoSign, $addressMode);
 			}
 		}
 	}
@@ -935,14 +936,14 @@ class CodeGenerator {
 			$this->handlers[] = new LessThan("LT", $elementType, $addressMode);
 		}
 		foreach($this->addressModes as $addressMode) {
-			$this->handlers[] = new LessThanOrEqual("LE", $elementType, $addressMode);
+			$this->handlers[] = new LessThanEqual("LE", $elementType, $addressMode);
 		}
 		if(!$unsigned) {
 			$this->handlers[] = new SetEqual("EQ_SET", $elementTypeNoSign);
 			$this->handlers[] = new SetNotEqual("NE_SET", $elementTypeNoSign);
 		}
 		$this->handlers[] = new SetLessThan("LT_SET", $elementType);
-		$this->handlers[] = new SetLessThanOrEqual("LE_SET", $elementType);
+		$this->handlers[] = new SetLessThanEqual("LE_SET", $elementType);
 		if($elementTypeNoSign == "I32") {
 			$this->handlers[] = new SetNot("NOT_SET", $elementTypeNoSign);
 			foreach($this->scalarAddressModes as $addressMode) {
@@ -1207,7 +1208,7 @@ class CodeGenerator {
 			$this->handlers[] = new BranchOnLessThan("IF_LT", $elementType, $addressMode);
 		}
 		foreach($this->scalarAddressModes as $addressMode) {
-			$this->handlers[] = new BranchOnLessThanOrEqual("IF_LE", $elementType, $addressMode);
+			$this->handlers[] = new BranchOnLessThanEqual("IF_LE", $elementType, $addressMode);
 		}
 	}
 

@@ -34,6 +34,14 @@ static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factor
 	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype);
 }
 
+static void qb_set_result_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	*result = operands[0];
+}
+
+static void qb_set_result_second_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	*result = operands[1];
+}
+
 static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result->type != QB_OPERAND_ADDRESS) {
 		qb_variable_dimensions dim = { 0, 0 };
@@ -50,7 +58,7 @@ static qb_address *qb_find_predicate_address(qb_compiler_context *cxt, qb_addres
 		if(container_address->array_index_address) {
 			if(container_address->array_index_address->expression) {
 				qb_expression *expr = container_address->array_index_address->expression;
-				if(expr->op_factory == &factory_bound_check_predicate_multiply) {
+				if(expr->op_factory == &factory_check_array_index_add || expr->op_factory == &factory_check_array_index_multiply || expr->op_factory == &factory_check_array_index_multiply_add) {
 					return expr->operands[2].address;
 				}
 			}
@@ -60,11 +68,12 @@ static qb_address *qb_find_predicate_address(qb_compiler_context *cxt, qb_addres
 	return NULL;
 }
 
-static void qb_set_result_bound_check_predicate_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_check_array_index(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0], *predicate = &operands[2];
 
 	if(predicate->type == QB_OPERAND_EMPTY) {
-		// see if there's an predicate multiply higher up 
+		// see if there's a check done on higher dimension 
+		// use the same predicate so that if one check fails, the whole chain fails
 		qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
 		if(!predicate_address) {
 			// allocate a new variable
@@ -75,10 +84,6 @@ static void qb_set_result_bound_check_predicate_multiply(qb_compiler_context *cx
 	}
 
 	qb_set_result_non_reusable_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
-}
-
-static void qb_set_result_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	*result = operands[0];
 }
 
 static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {

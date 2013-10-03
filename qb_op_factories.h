@@ -28,7 +28,7 @@ typedef struct qb_float_op_factory				qb_float_op_factory;
 typedef struct qb_simple_op_factory				qb_simple_op_factory;
 typedef struct qb_fetch_op_factory				qb_fetch_op_factory;
 typedef struct qb_copy_op_factory				qb_copy_op_factory;
-typedef struct qb_predicate_op_factory			qb_predicate_op_factory;
+typedef struct qb_chained_op_factory			qb_chained_op_factory;
 typedef struct qb_cast_op_factory				qb_cast_op_factory;
 typedef struct qb_comparison_op_factory			qb_comparison_op_factory;
 typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
@@ -104,7 +104,7 @@ struct qb_fetch_op_factory {
 	uint32_t bound_check_flags;
 }; 
 
-struct qb_predicate_op_factory {
+struct qb_chained_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcode_initial;
 	qb_opcode opcode_subsequent;
@@ -205,19 +205,20 @@ extern void *factories_fcall[3];
 
 extern qb_op_factory factory_free;
 
-extern qb_simple_op_factory factory_bound_check_index;
-extern qb_simple_op_factory factory_bound_check_array;
-extern qb_simple_op_factory factory_bound_check_add;
-extern qb_simple_op_factory factory_bound_check_multiply;
-extern qb_simple_op_factory factory_bound_check_multiply_add;
+extern qb_simple_op_factory factory_guard_array_index;
+extern qb_simple_op_factory factory_guard_array_index_add;
+extern qb_simple_op_factory factory_guard_array_index_multiply;
+extern qb_simple_op_factory factory_guard_array_index_multiply_add;
+extern qb_simple_op_factory factory_guard_array_size;
 
-extern qb_simple_op_factory factory_bound_expand_add;
-extern qb_simple_op_factory factory_bound_expand_multiply;
-extern qb_simple_op_factory factory_bound_expand_multiply_add;
+extern qb_chained_op_factory factory_check_array_index_add;
+extern qb_chained_op_factory factory_check_array_index_multiply;
+extern qb_chained_op_factory factory_check_array_index_multiply_add;
 
-extern qb_predicate_op_factory factory_bound_check_predicate_add;
-extern qb_predicate_op_factory factory_bound_check_predicate_multiply;
-extern qb_predicate_op_factory factory_bound_check_predicate_multiply_add;
+extern qb_simple_op_factory factory_accommodate_array_index;
+extern qb_simple_op_factory factory_accommodate_array_index_multiply;
+extern qb_simple_op_factory factory_accommodate_array_push;
+extern qb_simple_op_factory factory_accommodate_array_size;
 
 extern qb_cast_op_factory factory_cast_S08;
 extern qb_cast_op_factory factory_cast_U08;
