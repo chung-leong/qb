@@ -64,12 +64,11 @@ struct qb_temporary_variable {
 	uint32_t last_access_op_index;
 };
 
-#pragma pack(push,1)
 struct qb_op_info {
-	uint16_t format_index;
 	uint16_t flags;
+	uint16_t instruction_length;
+	const char *instruction_format;
 };
-#pragma pack(pop)
 
 struct qb_class_declaration {
 	qb_type_declaration **declarations;

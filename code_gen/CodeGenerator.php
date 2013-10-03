@@ -171,20 +171,6 @@ class CodeGenerator {
 		$lines[] = "QB_OPCODE_COUNT";
 		$lines[] = "};";		
 		$this->writeCode($handle, $lines);
-		
-		$formats = $this->getInstructionFormats();
-		$lines = array();
-		$lines[] = "enum qb_instruction_format {";
-		foreach($formats as $instr => $format) {
-			if($instr) {
-				$instrIndex = strtoupper($instr);
-			} else {
-				$instrIndex = "QB_INSTRUCTION_NULL";
-			}
-			$lines[] = "$instrIndex,";
-		}
-		$lines[] = "};";		
-		$this->writeCode($handle, $lines);
 	}
 	
 	public function writeOpInfo($handle) {
@@ -235,47 +221,25 @@ class CodeGenerator {
 				$flags[] = "QB_OP_PERFORM_WRAP_AROUND";
 			}
 			$combined = ($flags) ? implode(" | ", $flags) : "0";
-
-			$instr = $handler->getInstructionStructure();
-			if($instr) {
-				$instrIndex = strtoupper($instr);
-			} else {
-				$instrIndex = "QB_INSTRUCTION_NULL";
-			}
 			
+			$instr = $handler->getInstructionStructure();
+			if($instr && !$handler->isVariableLength()) {
+				$length = "sizeof($instr)";
+			} else {
+				$length = 0;
+			}
+
+			$format = $handler->getInstructionFormat();
+
 			$name = $handler->getName();
 			$lines[] = "// $name";
-			$lines[] = "{	$instrIndex,	$combined	},";
+			$lines[] = "{	$combined, $length, \"$format\"	},";
 			
 			$prevHandler = $handler;
 		}
 		$lines[] = "};";
 		$lines[] = "";
 		$this->writeCode($handle, $lines);
-		
-		$formats = $this->getInstructionFormats();
-		$lines = array();
-		$lines[] = "const char *global_operand_codes[] = {";
-		foreach($formats as $format) {
-			$lines[] = "\"$format\",";
-		}
-		$lines[] = "};";
-		$lines[] = "";
-		$this->writeCode($handle, $lines);
-		
-		$lines = array();
-		$lines[] = "const uint32_t global_instruction_lengths[] = {";
-		foreach($formats as $struct => $format) {
-			if($struct && $format != "v") {
-				$lines[] = "sizeof($struct),";
-			} else {
-				$lines[] = "0,";
-			}
-		}
-		$lines[] = "};";
-		$lines[] = "";
-		$this->writeCode($handle, $lines);
-		
 	}
 	
 	public function writeOpNames($handle) {
@@ -671,19 +635,6 @@ class CodeGenerator {
 		return $structs;
 	}
 
-	protected function getInstructionFormats() {
-		$formats = array();
-		foreach($this->handlers as $handler) {
-			$instr = $handler->getInstructionStructure();
-			if(!isset($formats[$instr])) {
-				$format = $handler->getInstructionFormat();
-				$formats[$instr] = $format;
-			}
-		}
-		ksort($formats);
-		return $formats;
-	}
-
 	protected function writeCode($handle, $lines) {
 		foreach($lines as $line) {
 			if($line !== null) {
@@ -852,9 +803,10 @@ class CodeGenerator {
 			
 			$this->handlers[] = new AccommodateSize("SZ_ACCOM", $elementType);
 		}
+		
 		if(!$unsigned) {
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new CheckIndexBooleanCast("IDX_CHECK_BOOL", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new PredicateBooleanCast("CBOOL", $elementTypeNoSign, $addressMode);
 			}
 		}
 	}

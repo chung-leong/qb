@@ -63,13 +63,13 @@ uint32_t qb_get_op_flags(qb_compiler_context *cxt, uint32_t opcode) {
 
 uint32_t qb_get_operand_count(qb_compiler_context *cxt, uint32_t opcode) {
 	const qb_op_info *op = &global_op_info[opcode];
-	const char *codes = global_operand_codes[op->format_index];
+	const char *codes = op->instruction_format;
 	return strlen(codes);
 }
 
 static qb_address_mode qb_get_operand_address_mode(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_index) {
 	const qb_op_info *op = &global_op_info[opcode];
-	const char *codes = global_operand_codes[op->format_index];
+	const char *codes = op->instruction_format;
 	char code = codes[operand_index];
 	switch(code) {
 		case 'S':
@@ -87,9 +87,9 @@ static qb_address_mode qb_get_operand_address_mode(qb_compiler_context *cxt, uin
 	return -1;
 }
 
-static int32_t qb_is_operand_write_target(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_index) {
+static int32_t qb_is_operand_write_target(qb_compiler_context *cxt, qb_opcode opcode, uint32_t operand_index) {
 	const qb_op_info *op = &global_op_info[opcode];
-	const char *codes = global_operand_codes[op->format_index];
+	const char *codes = op->instruction_format;
 	char code = codes[operand_index];
 	switch(code) {
 		case 'S':
@@ -532,6 +532,13 @@ static void qb_assign_storage_space(qb_compiler_context *cxt) {
 				qb_allocate_storage_space(cxt, address, FALSE);
 			}
 		}
+	}
+
+	// update the address aliases
+	for(i = 0; i < cxt->address_alias_count; i++) {
+		qb_address *address = cxt->address_aliases[i];
+		address->segment_selector = address->source_address->segment_selector;
+		address->segment_offset = address->source_address->segment_offset;
 	}
 }
 
@@ -1309,7 +1316,7 @@ qb_address * qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_t
 	uint32_t i;
 	for(i = 0; i < cxt->writable_scalar_count; i++) {
 		qb_address *address = cxt->writable_scalars[i];
-		if(TEMPORARY(address) && !IN_USE(address)) {
+		if(TEMPORARY(address) && !IN_USE(address) && !NON_REUSABLE(address)) {
 			if(address->type == element_type) {
 				qb_lock_address(cxt, address);
 				return address;
@@ -1355,7 +1362,7 @@ qb_address * qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, qb
 	uint32_t i;
 	for(i = 0; i < cxt->writable_array_count; i++) {
 		qb_address *address = cxt->writable_arrays[i];
-		if(TEMPORARY(address) && !IN_USE(address)) {
+		if(TEMPORARY(address) && !IN_USE(address) && !NON_REUSABLE(address)) {
 			if(FIXED_LENGTH_ARRAY(address)) {
 				if(address->type == element_type) {
 					if(ARRAY_SIZE(address) == element_count) {
@@ -1395,7 +1402,7 @@ qb_address * qb_obtain_temporary_variable_length_array(qb_compiler_context *cxt,
 	uint32_t i;
 	for(i = 0; i < cxt->writable_array_count; i++) {
 		address = cxt->writable_arrays[i];
-		if(TEMPORARY(address) && !IN_USE(address)) {
+		if(TEMPORARY(address) && !IN_USE(address) && !NON_REUSABLE(address)) {
 			if(EXPANDABLE_ARRAY(address)) {
 				if(address->type == element_type) {
 					qb_lock_address(cxt, address);
@@ -1441,7 +1448,7 @@ qb_address * qb_obtain_non_reusable_temporary_variable(qb_compiler_context *cxt,
 	} else {
 		address = qb_create_writable_scalar(cxt, element_type);
 	}
-	address->flags |= QB_ADDRESS_TEMPORARY;
+	address->flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_NON_REUSABLE;
 	return address;
 }
 
@@ -1696,7 +1703,6 @@ static void qb_copy_elements_from_array_initializer(qb_compiler_context *cxt, qb
 		item_address->mode = QB_ADDRESS_MODE_SCA;
 		item_element_count = 1;
 	}
-	item_address->source_address = address;
 	item_byte_count = BYTE_COUNT(item_element_count, item_address->type);
 
 	if(address->source_address) {
@@ -1729,8 +1735,8 @@ static void qb_copy_elements_from_array_initializer(qb_compiler_context *cxt, qb
 			} else {
 				// need an address from qb_allocate_address() instead of this fake one sitting on the stack
 				// since we're attaching it to an op
-				qb_address *item_address_copy = qb_allocate_address(cxt->pool);
-				*item_address_copy = *item_address;
+				qb_address *item_address_copy = qb_create_address_alias(cxt, item_address);
+				item_address_copy->source_address = item_address->source_address;
 				qb_retrieve_binary_op_result(cxt, &factory_assign, item_address_copy, element->address);
 			}
 		} else {
@@ -2569,9 +2575,9 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 			}
 		}
 		if(bound_check_flags & QB_ARRAY_BOUND_CHECK_ISSET) {
-			// this shouldn't happen, since we handle the index and value check in the same op
-			// there's no separate fetch step
-			qb_abort("Internal error");
+			qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_EMPTY, NULL } };
+			factory = &factory_check_array_index_add;
+			return qb_obtain_on_demand_value(cxt, factory, operands, 3);
 		} else {
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
 			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && EXPANDABLE_ARRAY(container_address)) {
@@ -2800,8 +2806,12 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 			qop->operand_count = 0;
 			qop->operands = NULL;
 		} else {
-			// mark result address as writable
-			qb_mark_as_writable(cxt, result->address);
+			for(i = 0; i < qop->operand_count; i++) {
+				// mark result address as writable
+				if(qb_is_operand_write_target(cxt, qop->opcode, i)) {
+					qb_mark_as_writable(cxt, qop->operands[i].address);
+				}
+			}
 		}
 	}
 }
@@ -2915,6 +2925,9 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 				qb_unlock_address(cxt, operand->address);
 			}
 		}
+		if(result && result->type == QB_OPERAND_ADDRESS) {
+			qb_unlock_address(cxt, result->address);
+		}
 	}
 }
 
@@ -2972,29 +2985,6 @@ static qb_address * qb_get_base_address(qb_compiler_context *cxt, qb_address *ad
 		b = b->source_address;
 	}
 	return b;
-}
-
-static void qb_resolve_derived_address_storage(qb_compiler_context *cxt, qb_address *address) {
-	if(address->segment_selector == QB_SELECTOR_INVALID || address->segment_offset == QB_OFFSET_INVALID) {
-		// use the base address's selector and offset
-		qb_address *base_address = qb_get_base_address(cxt, address);
-		address->segment_selector = base_address->segment_selector;
-		address->segment_offset = base_address->segment_offset;
-
-		if(address->mode == QB_ADDRESS_MODE_SCA && address->array_index_address != NULL) {
-			// add in the index (array_index_address will always be constant)
-			uint32_t index = VALUE(U32, address->array_index_address);
-			address->segment_offset += BYTE_COUNT(index, address->type);
-		} else {
-			// resolve array_index_address and array_size_address
-			if(address->array_index_address) {
-				qb_resolve_derived_address_storage(cxt, address->array_index_address);
-			}
-			if(address->array_size_address) {
-				qb_resolve_derived_address_storage(cxt, address->array_size_address);
-			}
-		}
-	}
 }
 
 static void qb_resolve_address_modes(qb_compiler_context *cxt) {
@@ -3057,10 +3047,6 @@ static void qb_resolve_address_modes(qb_compiler_context *cxt) {
 								break;
 							}
 						}
-
-						// at this point, the storage has been assigned to all base addresses
-						// make sure addresses derived from them are pointing to the right place
-						qb_resolve_derived_address_storage(cxt, operand->address);
 					} else {
 						operands_are_valid = FALSE;
 						break;

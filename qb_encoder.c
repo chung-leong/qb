@@ -29,7 +29,7 @@ extern const uint32_t global_instruction_lengths[];
 
 static uint32_t qb_get_instruction_length(qb_encoder_context *cxt, uint32_t opcode) {
 	const qb_op_info *op = &global_op_info[opcode];
-	uint32_t length = global_instruction_lengths[op->format_index];
+	uint32_t length = op->instruction_length;
 	return length;
 }
 

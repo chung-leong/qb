@@ -210,26 +210,24 @@ class Handler {
 	}
 	
 	public function getInstructionFormat() {
-		$srcCount = $this->getInputOperandCount();
-		$dstCount = $this->getOutputOperandCount();
+		$opCount = $this->getOperandCount();
 		$format = "";
 		
-		for($i = 1; $i <= $srcCount; $i++) {
+		for($i = 1; $i <= $opCount; $i++) {
 			$addressMode = $this->getOperandAddressMode($i);
-			switch($addressMode) {
-				case 'SCA': $format .= 's'; break;
-				case 'ELE': $format .= 'e'; break;
-				case 'ARR': $format .= 'a'; break;
-				case 'CON': $format .= 'c'; break;
-			}
-		}
-
-		for($i = 1; $i <= $dstCount; $i++) {
-			$addressMode = $this->getOperandAddressMode($srcCount + $i);
-			switch($addressMode) {
-				case 'SCA': $format .= 'S'; break;
-				case 'ELE': $format .= 'E'; break;
-				case 'ARR': $format .= 'A'; break;
+			if($this->changesOperand($i)) {
+				switch($addressMode) {
+					case 'SCA': $format .= 'S'; break;
+					case 'ELE': $format .= 'E'; break;
+					case 'ARR': $format .= 'A'; break;
+				}
+			} else {
+				switch($addressMode) {
+					case 'SCA': $format .= 's'; break;
+					case 'ELE': $format .= 'e'; break;
+					case 'ARR': $format .= 'a'; break;
+					case 'CON': $format .= 'c'; break;
+				}
 			}
 		}
 		return $format;
