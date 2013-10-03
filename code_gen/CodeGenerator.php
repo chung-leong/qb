@@ -802,6 +802,7 @@ class CodeGenerator {
 			$this->handlers[] = new AccommodatePush("IDX_ACCOM_PUSH", $elementType);
 			
 			$this->handlers[] = new AccommodateSize("SZ_ACCOM", $elementType);
+			$this->handlers[] = new AccommodateSizeUpdateDimension("SZ_ACCOM_DIM", $elementType);
 		}
 		
 		if(!$unsigned) {

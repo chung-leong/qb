@@ -629,6 +629,24 @@ qb_simple_op_factory factory_accommodate_array_size = {
 	QB_SZ_ACCOM_U32_U32_U32_U32,
 };
 
+qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_first_operand,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_accommodate_array_size_update_dimension,
+
+	0,
+	0,
+	0,
+	QB_SZ_ACCOM_DIM_U32_U32_U32_U32_U32_U32,
+};
+
 qb_op_factory factory_receive_argument = {
 	NULL,
 	NULL,

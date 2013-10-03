@@ -41,9 +41,9 @@ class AccommodateIndex extends Handler {
 	protected function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
-		$lines[] =		"uint32_t new_dim = op1 + 1;";
-		$lines[] =		"op2 = new_dim;";
-		$lines[] = 		"qb_resize_array(cxt, local_storage, op3, new_dim * op4);";
+		$lines[] =		"uint32_t new_size = op1 + 1;";
+		$lines[] =		"op2 = new_size;";
+		$lines[] = 		"qb_resize_array(cxt, local_storage, op3, new_size * op4);";
 		$lines[] = "}";
 		return $lines;
 	}

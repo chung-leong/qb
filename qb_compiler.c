@@ -281,7 +281,11 @@ static qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op
 			int32_t match = TRUE;
 			for(j = 0; j < expr->operand_count; j++) {
 				if(expr->operands[j].type != operands[j].type || expr->operands[j].address != operands[j].address) {
-					match = FALSE;
+					// don't consider it different if the operand is empty
+					// it's just a slot where the handler would put a variable
+					if(operands[j].type != QB_OPERAND_EMPTY) {
+						match = FALSE;
+					}
 				}
 			}
 			if(match) {
@@ -396,9 +400,17 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 			// the destination is large enough
 			return address;
 		} else {
-			// need to guard against overrun
-			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address } };
-			return qb_obtain_on_demand_value(cxt, &factory_guard_array_size, operands, 2);
+			if(EXPANDABLE_ARRAY(address)) {
+				// accommodate the input by resizing the array
+				// if it's multidimensional, the dimension has to be updated as well
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address }, { QB_OPERAND_ADDRESS, src_size_address } };
+				void *factory = (address->dimension_count > 1) ? &factory_accommodate_array_size_update_dimension : &factory_accommodate_array_size;
+				return qb_obtain_on_demand_value(cxt, factory, operands, 2);
+			} else {
+				// need to guard against overrun
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address }, { QB_OPERAND_ADDRESS, src_size_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_size, operands, 2);
+			}
 		}
 	}
 }
@@ -539,6 +551,11 @@ static void qb_assign_storage_space(qb_compiler_context *cxt) {
 		qb_address *address = cxt->address_aliases[i];
 		address->segment_selector = address->source_address->segment_selector;
 		address->segment_offset = address->source_address->segment_offset;
+		if(address->mode == QB_ADDRESS_MODE_SCA && address->array_index_address) {
+			// add the offset
+			uint32_t index = VALUE(U32, address->array_index_address);
+			address->segment_offset += BYTE_COUNT(index, address->type);
+		}
 	}
 }
 
