@@ -2170,13 +2170,23 @@ int qb_initialize_interpreter(TSRMLS_D) {
 
 intptr_t qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size) {
 	qb_memory_segment *segment = &storage->segments[segment_selector];
-	segment->byte_count = new_size;
 	if(new_size > segment->current_allocation) {
+		int8_t *current_data_end;
 		int8_t *original_location = segment->memory, *new_location;
-		segment->current_allocation = ALIGN_TO(new_size, 1024);
-		qb_resize_segment(cxt, segment, new_size);
+		uint32_t new_allocation = ALIGN_TO(new_size, 4);
+		uint32_t addition = new_allocation - segment->current_allocation;
+
+		segment->current_allocation = new_allocation;
+		qb_resize_segment(cxt, segment, new_allocation);
 		new_location = segment->memory;
+
+		// clear the newly allcoated bytes
+		current_data_end = new_location + segment->byte_count;
+		memset(current_data_end, 0, addition);
+		segment->byte_count = new_size;
+
 		if(new_location != original_location) {
+			// adjust references in code
 			uint32_t i;
 			uint32_t diff = new_location - original_location;
 			for(i = 0; i < segment->reference_count; i++) {
@@ -2185,6 +2195,8 @@ intptr_t qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__r
 			}
 			return diff;
 		}
+	} else {
+		segment->byte_count = new_size;
 	}
 	return 0;
 }

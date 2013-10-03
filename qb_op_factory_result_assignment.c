@@ -114,7 +114,7 @@ static void qb_set_result_assign_array_element(qb_compiler_context *cxt, qb_op_f
 	qb_operand *value = &operands[2];
 
 	if(expr_type != QB_TYPE_VOID) {
-		qb_address *index_address = (index->type == QB_OPERAND_NONE) ? container->address->array_size_address : index->address;
+		qb_address *index_address = (index->type == QB_OPERAND_NONE) ? container->address->dimension_addresses[0] : index->address;
 		qb_address *result_address = qb_obtain_array_element(cxt, container->address, index_address, QB_ARRAY_BOUND_CHECK_WRITE);
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address);
 		result->type = QB_OPERAND_ADDRESS;
