@@ -3770,18 +3770,17 @@ qb_matrix_op_factory_selector factory_vm_multiply = {
 };
 */
 
-/*
 qb_matrix_op_factory factory_transpose = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
+	qb_validate_operands_one_matrix,
+	qb_set_result_temporary_value,
 	qb_set_result_dimensions_transpose,
 	qb_select_opcode_matrix_unary,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_tranpose,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3794,20 +3793,18 @@ qb_matrix_op_factory factory_transpose = {
 	},
 	0,
 };
-*/
 
-/*
 qb_matrix_op_factory factory_inverse = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_square_matrix,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_matrix_unary,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_square_matrix,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3820,20 +3817,18 @@ qb_matrix_op_factory factory_inverse = {
 	},
 	0,
 };
-*/
 
-/*
 qb_matrix_op_factory factory_determinant = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_matrix_unary,
+	qb_validate_operands_square_matrix,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_determinant,
 	qb_select_opcode_matrix_unary,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_square_matrix,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3846,7 +3841,6 @@ qb_matrix_op_factory factory_determinant = {
 	},
 	0,
 };
-*/
 
 /*
 qb_matrix_op_factory factory_transform_cm = {

@@ -276,3 +276,36 @@ static void qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_f
 		}
 	}
 }
+
+static void qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0];
+
+	if(operand1->address->dimension_count < 2) {
+		qb_abort("%s() expects a matrix as parameter", cxt->intrinsic_function->name);
+	}
+}
+
+static void qb_validate_operands_two_matrices(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+
+	if(operand1->address->dimension_count < 2) {
+		qb_abort("%s() expects the first parameter to be a matrix", cxt->intrinsic_function->name);
+	}
+	if(operand1->address->dimension_count < 2) {
+		qb_abort("%s() expects the second parameter to be a matrix", cxt->intrinsic_function->name);
+	}
+}
+
+static void qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0];
+
+	qb_validate_operands_one_matrix(cxt, f, operands, operand_count);
+
+	if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand1->address, -2)) {
+		uint32_t row = DIMENSION(operand1->address, -1);
+		uint32_t col = DIMENSION(operand1->address, -2);
+		if(row != col) {
+			qb_abort("%s() expects a square matrix as parameter", cxt->intrinsic_function->name);
+		}
+	}
+}

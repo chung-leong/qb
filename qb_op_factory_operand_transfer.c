@@ -431,10 +431,40 @@ static void qb_transfer_operands_refract(qb_compiler_context *cxt, qb_op_factory
 		dest[4] = *result;
 
 		if(!CONSTANT_DIMENSION(address1, -1) || !CONSTANT_DIMENSION(address2, -1)) {
-			// TODO add check
+			// TODO: add check for equality
 		}
 	} else {
 		dest[3] = *result;
+	}
+}
+
+static void qb_transfer_operands_tranpose(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	if(dest_count == 4) {
+		qb_address *address = operands[0].address;
+		dest[1].address = address->dimension_addresses[address->dimension_count - 2];
+		dest[1].type = QB_OPERAND_ADDRESS;
+		dest[2].address = address->dimension_addresses[address->dimension_count - 1];
+		dest[2].type = QB_OPERAND_ADDRESS;
+		dest[3] = *result;
+	} else {
+		dest[1] = *result;
+	}
+}
+
+static void qb_transfer_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	if(dest_count == 3) {
+		qb_address *address = operands[0].address;
+		dest[1].address = address->dimension_addresses[address->dimension_count - 1];
+		dest[1].type = QB_OPERAND_ADDRESS;
+		dest[2] = *result;
+
+		if(!CONSTANT_DIMENSION(address, -1) || !CONSTANT_DIMENSION(address, -2)) {
+			// TODO: add check for squareness
+		}
+	} else {
+		dest[1] = *result;
 	}
 }
 

@@ -385,4 +385,8 @@ extern qb_vector_op_factory factory_reflect;
 extern qb_vector_op_factory factory_refract;
 extern qb_vector_op_factory factory_cross_product;
 
+extern qb_matrix_op_factory factory_transpose;
+extern qb_matrix_op_factory factory_inverse;
+extern qb_matrix_op_factory factory_determinant;
+
 #endif

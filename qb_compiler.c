@@ -1632,6 +1632,10 @@ static void qb_copy_elements_from_array_initializer(qb_compiler_context *cxt, qb
 				// since we're attaching it to an op
 				qb_address *item_address_copy = qb_create_address_alias(cxt, item_address);
 				item_address_copy->source_address = item_address->source_address;
+				item_address_copy->array_size_addresses = 
+				item_address_copy->dimension_addresses = &item_address_copy->array_size_address;
+				item_address_copy->array_index_address = cxt->zero_address;
+				item_address_copy->array_size_address = cxt->one_address;
 				qb_retrieve_binary_op_result(cxt, &factory_assign, item_address_copy, element->address);
 			}
 		} else {

@@ -310,27 +310,19 @@ static void qb_set_result_dimensions_matrix_current_mode(qb_compiler_context *cx
 }
 
 static void qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	/*
-	qb_address *matrix_address = operands[0].address;
-	uint32_t i;
-	dim->dimension_count = matrix_address->dimension_count;
-	dim->array_size = ARRAY_SIZE(matrix_address);
-	for(i = 0; i < dim->dimension_count; i++) {
-		if(i == dim->dimension_count - 2) {
-			dim->dimension_addresses[i] = matrix_address->dimension_addresses[i + 1];
-		} else if(i == dim->dimension_count - 1) {
-			dim->dimension_addresses[i] = matrix_address->dimension_addresses[i - 1];
-		} else {
-			dim->dimension_addresses[i] = matrix_address->dimension_addresses[i];
-		}
-	}
+	qb_address *matrix_address = operands[0].address, *temp;
+	qb_copy_address_dimensions(cxt, matrix_address, 0, dim);
+
+	// swap the lowest two dimensions
+	temp = dim->dimension_addresses[dim->dimension_count - 2];
+	dim->dimension_addresses[dim->dimension_count - 2] = dim->dimension_addresses[dim->dimension_count - 1];
+	dim->dimension_addresses[dim->dimension_count - 1] = dim->array_size_addresses[dim->dimension_count - 1] = temp;
 	dim->source_address = matrix_address;
-	*/
 }
 
-static void qb_set_result_dimensions_matrix_unary(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_determinant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *matrix_address = operands[0].address;
-	qb_copy_address_dimensions(cxt, matrix_address, 0, dim);
+	qb_copy_address_dimensions(cxt, matrix_address, -2, dim);
 }
 
 static void qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
