@@ -425,11 +425,8 @@ qb_address * qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry
 qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *name, qb_primitive_type type);
 qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim, qb_result_prototype *result_prototype);
 
-qb_address * qb_obtain_temporary_scalar(qb_compiler_context *cxt, qb_primitive_type desired_type);
-qb_address * qb_obtain_temporary_fixed_length_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t element_count);
-qb_address * qb_obtain_temporary_variable_length_array(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
-qb_address * qb_obtain_non_reusable_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
+qb_address * qb_create_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
 
 qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index);

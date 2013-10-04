@@ -49,7 +49,8 @@ static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt,
 			f->set_dimensions(cxt, f, operands, operand_count, &dim);
 		}
 		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_non_reusable_temporary_variable(cxt, expr_type, &dim);
+		result->address = qb_create_temporary_variable(cxt, expr_type, &dim);
+		result->address->flags |= QB_ADDRESS_NON_REUSABLE;
 	}
 }
 
@@ -77,7 +78,8 @@ static void qb_set_result_check_array_index(qb_compiler_context *cxt, qb_op_fact
 		qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
 		if(!predicate_address) {
 			// allocate a new variable
-			predicate_address = qb_obtain_non_reusable_temporary_variable(cxt, QB_TYPE_I32, NULL);
+			predicate_address = qb_create_temporary_variable(cxt, QB_TYPE_I32, NULL);
+			predicate_address->flags |= QB_ADDRESS_NON_REUSABLE;
 		}
 		predicate->address = predicate_address;
 		predicate->type = QB_OPERAND_ADDRESS;
@@ -241,7 +243,7 @@ static void qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_
 	if(string->type == QB_OPERAND_ADDRESS) {
 		*result = *string;
 	} else {
-		result->address = qb_obtain_temporary_variable_length_array(cxt, QB_TYPE_U08);
+		//result->address = qb_obtain_temporary_variable_length_array(cxt, QB_TYPE_U08);
 		result->type = QB_OPERAND_ADDRESS;
 		result->address->flags |= QB_ADDRESS_STRING;
 	}
