@@ -89,6 +89,7 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 #define ON_DEMAND(address)					(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)
 #define NON_REUSABLE(address)				(address->flags & QB_ADDRESS_NON_REUSABLE)
 
+#define FIXED_LENGTH(address)				CONSTANT(address->array_size_address)
 #define MULTIDIMENSIONAL_ARRAY(address)		(address->dimension_count > 1)
 #define FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && CONSTANT(address->array_size_address))
 #define VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
@@ -317,10 +318,11 @@ struct qb_intrinsic_function {
 };
 
 struct qb_variable_dimensions {
-	uint32_t dimension_count;
-	uint32_t array_size;
-	qb_address *dimension_addresses[64];
 	qb_address *source_address;
+	uint32_t dimension_count;
+	qb_address *array_size_address;
+	qb_address *dimension_addresses[64];
+	qb_address *array_size_addresses[64];
 };
 
 enum qb_result_destination_type {

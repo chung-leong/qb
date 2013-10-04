@@ -457,6 +457,12 @@ qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *contain
 
 qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_address *address, qb_address *size_address);
 
+qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count);
+qb_address * qb_obtain_on_demand_sum(qb_compiler_context *cxt, qb_address *augend_address, qb_address *addend_address);
+qb_address * qb_obtain_on_demand_difference(qb_compiler_context *cxt, qb_address *minuend_address, qb_address *subtrahend_address);
+qb_address * qb_obtain_on_demand_product(qb_compiler_context *cxt, qb_address *multiplicand_address, qb_address *multiplier_address);
+qb_address * qb_obtain_on_demand_quotient(qb_compiler_context *cxt, qb_address *numerator_address, qb_address *denominator_address);
+
 qb_address * qb_retrieve_temporary_copy(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type);
 qb_address * qb_retrieve_unary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address);
 qb_address * qb_retrieve_binary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address1, qb_address *address2);

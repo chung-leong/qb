@@ -24,7 +24,7 @@ static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, 
 }
 
 static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_variable_dimensions dim = { 0, 0 };
+	qb_variable_dimensions dim = { NULL, 0, cxt->one_address };
 
 	// figure out the result size (it's a scalar if set_dimensions is null)
 	if(f->set_dimensions) {
@@ -44,7 +44,7 @@ static void qb_set_result_second_operand(qb_compiler_context *cxt, qb_op_factory
 
 static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result->type != QB_OPERAND_ADDRESS) {
-		qb_variable_dimensions dim = { 0, 0 };
+		qb_variable_dimensions dim = { NULL, 0, cxt->one_address };
 		if(f->set_dimensions) {
 			f->set_dimensions(cxt, f, operands, operand_count, &dim);
 		}

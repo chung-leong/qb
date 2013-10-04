@@ -215,6 +215,29 @@ static void qb_transfer_operands_accommodate_array_size_update_dimension(qb_comp
 	dest[5].type = QB_OPERAND_NUMBER;
 }
 
+static void qb_transfer_operands_choose_size_of_larger_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *array1_size = &operands[0], *array1_value = &operands[1];
+	qb_operand *array2_size = &operands[2], *array2_value = &operands[3];
+	dest[0].address = array1_size->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = array1_value->address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = array2_size->address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3].address = array2_value->address;
+	dest[3].type = QB_OPERAND_ADDRESS;
+	dest[4] = *result;
+}
+
+static void qb_transfer_operands_choose_size_of_larger_array_top_level(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *array1_size = &operands[0], *array2_size = &operands[2];
+	dest[0].address = array1_size->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = array2_size->address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2] = *result;
+}
+
 static void qb_transfer_operands_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *variable = &operands[0];
 	if(SCALAR(variable->address)) {
