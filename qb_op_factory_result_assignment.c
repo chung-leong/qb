@@ -104,7 +104,6 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 	// so there's no need to perform the assignment
 	if(expr_type != QB_TYPE_VOID) {
 		qb_address *result_address = variable->address;
-		// TODO: handle expandable array
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address);
 		result->type = QB_OPERAND_ADDRESS;
 	}

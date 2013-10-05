@@ -401,7 +401,7 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 				return address;
 			}
 		}
-		if(EXPANDABLE_ARRAY(address)) {
+		if(VARIABLE_LENGTH_ARRAY(address)) {
 			// accommodate the input by resizing the array
 			// if it's multidimensional, the dimension has to be updated as well
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address }, { QB_OPERAND_ADDRESS, src_size_address } };
@@ -1474,7 +1474,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 	if(!target_address) {
 		target_address = qb_obtain_temporary_variable(cxt, element_type, dim);
 	}
-	if(EXPANDABLE_ARRAY(target_address)) {
+	if(VARIABLE_LENGTH_ARRAY(target_address)) {
 		// put a wrapper around it to make it expand/contract
 		target_address = qb_obtain_bound_checked_address(cxt, dim->array_size_address, target_address);
 	}
