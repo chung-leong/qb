@@ -243,7 +243,8 @@ static void qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_
 	if(string->type == QB_OPERAND_ADDRESS) {
 		*result = *string;
 	} else {
-		//result->address = qb_obtain_temporary_variable_length_array(cxt, QB_TYPE_U08);
+		qb_variable_dimensions dim = { NULL, 1, NULL };
+		result->address = qb_obtain_temporary_variable(cxt, QB_TYPE_U08, &dim);
 		result->type = QB_OPERAND_ADDRESS;
 		result->address->flags |= QB_ADDRESS_STRING;
 	}

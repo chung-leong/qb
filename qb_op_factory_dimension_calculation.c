@@ -58,17 +58,15 @@ static qb_address * qb_obtain_larger_of_two(qb_compiler_context *cxt, qb_address
 }
 
 static void qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variable_dimensions *dim1, qb_variable_dimensions *dim2, qb_variable_dimensions *dim) {
-	if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2)) {
-		// we can figure one which to use now
-		qb_variable_dimensions *dim_chosen;
-		uint32_t i;
-		if(SCALAR(dim1)) {
-			// use the second if the first is a scalar
-			dim_chosen = dim2;
-		} else if(SCALAR(dim2)) {
-			// use the first if the second is a scalar
-			dim_chosen = dim1;
-		} else if(ARRAY_SIZE(dim1) > ARRAY_SIZE(dim2)) {
+	qb_variable_dimensions *dim_chosen = NULL;
+	if(SCALAR(dim1)) {
+		// use the second if the first is a scalar
+		dim_chosen = dim2;
+	} else if(SCALAR(dim2)) {
+		// use the first if the second is a scalar
+		dim_chosen = dim1;
+	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2)) {
+		if(ARRAY_SIZE(dim1) > ARRAY_SIZE(dim2)) {
 			// use the first if it's bigger
 			dim_chosen = dim1;
 		} else if(ARRAY_SIZE(dim1) < ARRAY_SIZE(dim2)) {
@@ -81,6 +79,10 @@ static void qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variable_
 			// use the first otherwise
 			dim_chosen = dim1;
 		}
+	} 
+	if(dim_chosen) {
+		// we can figure one which to use now
+		uint32_t i;
 		dim->dimension_count = dim_chosen->dimension_count;
 		dim->source_address = dim_chosen->source_address;
 		for(i = 0; i < dim->dimension_count; i++) {
@@ -111,10 +113,10 @@ static void qb_choose_dimensions_from_two_addresses(qb_compiler_context *cxt, qb
 	} else if(SCALAR(address2)) {
 		qb_copy_address_dimensions(cxt, address1, offset1, dim);
 	} else {
-		qb_variable_dimensions _dim1, _dim2, *dim1 = &_dim1, *dim2 = &_dim2;
-		qb_copy_address_dimensions(cxt, address1, offset1, dim1);
-		qb_copy_address_dimensions(cxt, address2, offset2, dim2);
-
+		qb_variable_dimensions dim1, dim2;
+		qb_copy_address_dimensions(cxt, address1, offset1, &dim1);
+		qb_copy_address_dimensions(cxt, address2, offset2, &dim2);
+		qb_choose_dimensions_from_two(cxt, &dim1, &dim2, dim);
 	}
 }
 
@@ -129,20 +131,18 @@ static qb_address * qb_obtain_largest_of_three(qb_compiler_context *cxt, qb_addr
 }
 
 static void qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_variable_dimensions *dim1, qb_variable_dimensions *dim2, qb_variable_dimensions *dim3, qb_variable_dimensions *dim) {
-	if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2) && FIXED_LENGTH(dim3)) {
-		// we can figure one which to use now
-		qb_variable_dimensions *dim_chosen;
-		uint32_t i;
-		if(SCALAR(dim1) && SCALAR(dim2)) {
-			// use the third if the first and second are scalars
-			dim_chosen = dim3;
-		} else if(SCALAR(dim1) && SCALAR(dim3)) {
-			// use the second if the first and third are scalars
-			dim_chosen = dim2;
-		} else if(SCALAR(dim2) && SCALAR(dim3)) {
-			// use the first if the second and third are scalars
-			dim_chosen = dim1;
-		} else if(ARRAY_SIZE(dim1) > ARRAY_SIZE(dim2) && ARRAY_SIZE(dim1) > ARRAY_SIZE(dim3)) {
+	qb_variable_dimensions *dim_chosen;
+	if(SCALAR(dim1) && SCALAR(dim2)) {
+		// use the third if the first and second are scalars
+		dim_chosen = dim3;
+	} else if(SCALAR(dim1) && SCALAR(dim3)) {
+		// use the second if the first and third are scalars
+		dim_chosen = dim2;
+	} else if(SCALAR(dim2) && SCALAR(dim3)) {
+		// use the first if the second and third are scalars
+		dim_chosen = dim1;
+	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2) && FIXED_LENGTH(dim3)) {
+		if(ARRAY_SIZE(dim1) > ARRAY_SIZE(dim2) && ARRAY_SIZE(dim1) > ARRAY_SIZE(dim3)) {
 			// use the first if it's bigger
 			dim_chosen = dim1;
 		} else if(ARRAY_SIZE(dim2) > ARRAY_SIZE(dim1) && ARRAY_SIZE(dim2) > ARRAY_SIZE(dim3)) {
@@ -161,6 +161,10 @@ static void qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_variabl
 			// use the first otherwise
 			dim_chosen = dim1;
 		}
+	}
+	if(dim_chosen) {
+		// we can figure one which to use now
+		uint32_t i;
 		dim->dimension_count = dim_chosen->dimension_count;
 		dim->source_address = dim_chosen->source_address;
 		for(i = 0; i < dim->dimension_count; i++) {
@@ -233,9 +237,14 @@ static void qb_set_result_dimensions_largest_of_three(qb_compiler_context *cxt, 
 	qb_choose_dimensions_from_three_addresses(cxt, first->address, 0, second->address, 0, third->address, 0, dim);
 }
 
-static void qb_set_result_dimensions_vector_count(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_length(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *vector_address = operands[0].address;
 	qb_copy_address_dimensions(cxt, vector_address, -1, dim);
+}
+
+static void qb_set_result_dimensions_dot_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0], *second = &operands[1];
+	qb_choose_dimensions_from_two_addresses(cxt, first->address, -1, second->address, -1, dim);
 }
 
 static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_factory *f) {
