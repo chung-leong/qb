@@ -20,12 +20,17 @@
 
 static void qb_copy_address_dimensions(qb_compiler_context *cxt, qb_address *address, int32_t offset, qb_variable_dimensions *dim) {
 	uint32_t i;
-	dim->dimension_count = address->dimension_count + offset;
+	if(offset < 0) {
+		dim->dimension_count = address->dimension_count + offset;
+		offset = 0;
+	} else {
+		dim->dimension_count = address->dimension_count - offset;		
+	}
 	if(dim->dimension_count > 0) {
 		for(i = 0; i < dim->dimension_count; i++) {
-			dim->dimension_addresses[i] = address->dimension_addresses[i];
+			dim->dimension_addresses[i] = address->dimension_addresses[i + offset];
 		}
-		if(offset == 0) {
+		if(dim->dimension_count == address->dimension_count) {
 			// the array sizes are the same
 			for(i = 0; i < dim->dimension_count; i++) {
 				dim->array_size_addresses[i] = address->array_size_addresses[i];
@@ -45,6 +50,56 @@ static void qb_copy_address_dimensions(qb_compiler_context *cxt, qb_address *add
 	}
 	dim->array_size_address = dim->array_size_addresses[0];
 	dim->source_address = address;
+}
+
+static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *address1, int32_t offset1, qb_address *address2, int32_t offset2, qb_variable_dimensions *dim) {
+	uint32_t i, count1, count2;
+	if(offset1 < 0) {
+		count1 = address1->dimension_count + offset1;
+		offset1 = 0;
+	} else {
+		count1 = address1->dimension_count - offset1;		
+	}
+	if(offset2 < 0) {
+		count2 = address1->dimension_count + offset2;
+		offset2 = 0;
+	} else {
+		count2 = address1->dimension_count - offset2;		
+	}
+	dim->dimension_count = count1 + count2;
+	if(dim->dimension_count > 0) {
+		for(i = 0; i < dim->dimension_count; i++) {
+			if(i < count1) {
+				dim->dimension_addresses[i] = address1->dimension_addresses[i + offset1];
+			} else {
+				dim->dimension_addresses[i] = address2->dimension_addresses[(i - count1) + offset2];
+			}
+		}
+		if(dim->dimension_count == address1->dimension_count && count2 == 0) {
+			// the array sizes are the same as those of address1 
+			for(i = 0; i < dim->dimension_count; i++) {
+				dim->array_size_addresses[i] = address1->array_size_addresses[i];
+			}
+		} else if(dim->dimension_count == address2->dimension_count && count1 == 0) {
+			// the array sizes are the same as those of address2 
+			for(i = 0; i < dim->dimension_count; i++) {
+				dim->array_size_addresses[i] = address2->array_size_addresses[i];
+			}
+		} else {
+			// need to be recalculated
+			for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
+				if(i == dim->dimension_count - 1) {
+					dim->array_size_addresses[i] = dim->dimension_addresses[i];
+				} else {
+					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+				}
+			}
+		}
+	} else {
+		dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
+	}
+	dim->array_size_address = dim->array_size_addresses[0];
+	dim->source_address = NULL;
 }
 
 static qb_address * qb_obtain_larger_of_two(qb_compiler_context *cxt, qb_address *size_address1, qb_address *value_address1, qb_address *size_address2, qb_address *value_address2) {
@@ -335,13 +390,26 @@ static void qb_set_result_dimensions_determinant(qb_compiler_context *cxt, qb_op
 }
 
 static void qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	/*
 	qb_address *image_address = operands[0].address;
+	qb_address *channel_count_address = image_address->dimension_addresses[image_address->dimension_count - 1];
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
-	qb_address *channel_count_address = image_address->dimension_addresses[image_address->dimension_count - 1];
-	uint32_t channel_count = VALUE(U32, channel_count_address), i;
-	*/
+
+	if(SCALAR(x_address) && SCALAR(y_address)) {
+		qb_copy_address_dimensions(cxt, image_address, 2, dim);
+	} else if(SCALAR(x_address)) {
+		// merge the dimensions of y with the last dimension of image
+		qb_merge_address_dimensions(cxt, y_address, 0, image_address, 2, dim);
+	} else if(SCALAR(y_address)) {
+		// merge the dimensions of x with the last dimension of image
+		qb_merge_address_dimensions(cxt, x_address, 0, image_address, 2, dim);
+	} else {
+		// need to choose between x and y
+		qb_variable_dimensions dim1, dim2;
+		qb_merge_address_dimensions(cxt, x_address, 0, image_address, 2, &dim1);
+		qb_merge_address_dimensions(cxt, y_address, 0, image_address, 2, &dim2);
+		qb_choose_dimensions_from_two(cxt, &dim1, &dim2, dim);
+	}
 }
 
 static void qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

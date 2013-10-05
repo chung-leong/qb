@@ -1494,9 +1494,11 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"transform_cm",			2,		2,		&factory_transform_cm		},
 	{	0,	"transform_rm",			2,		2,		&factory_transform_rm		},
 	{	0,	"transform",			2,		2,		&factory_transform			},
+*/
 	{	0,	"sample_nearest",		3,		3,		&factory_sample_nearest		},
 	{	0,	"sample_bilinear",		3,		3,		&factory_sample_bilinear	},
 	{	0,	"blend",				2,		2,		&factory_alpha_blend		},
+/*
 	{	0,	"array_pop",			1,		1,		NULL						},
 	{	0,	"array_shift",			1,		1,		NULL						},
 	{	0,	"array_push",			2,		-1,		NULL						},

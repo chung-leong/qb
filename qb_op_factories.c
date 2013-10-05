@@ -3344,50 +3344,6 @@ qb_float_op_factory factory_lcg = {
 	{	QB_LCG_F64,				QB_LCG_F32,	},
 };
 
-/*
-qb_pixel_op_factory factory_sample_nearest	 = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_sampling,
-	qb_select_opcode_pixel,
-	NULL,
-	qb_transfer_operands,
-
-	QB_COERCE_TO_FLOATING_POINT,
-	0,
-	{
-		{	QB_SAMPLE_NN_3X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32,	},
-		{	QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32,	},
-	}
-};
-*/
-
-/*
-qb_pixel_op_factory factory_sample_bilinear = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_sampling,
-	qb_select_opcode_pixel,
-	NULL,
-	qb_transfer_operands,
-
-	QB_COERCE_TO_FLOATING_POINT,
-	0,
-	{
-		{	QB_SAMPLE_BL_3X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_BL_3X_F32_U32_U32_F32_F32_F32,	},
-		{	QB_SAMPLE_BL_4X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_BL_4X_F32_U32_U32_F32_F32_F32,	},
-	}
-};
-*/
-
 qb_vector_op_factory factory_dot_product = {
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -3911,26 +3867,6 @@ qb_matrix_op_factory_selector factory_transform = {
 	QB_ADDRESS_TEMPORARY,
 	(qb_op_factory *) &factory_transform_cm,
 	(qb_op_factory *) &factory_transform_rm,
-};
-*/
-
-/*
-qb_float_op_factory factory_alpha_blend = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands,
-
-	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_BLEND_F64_F64_F64,		QB_BLEND_F32_F32_F32,	},
 };
 */
 
@@ -4675,6 +4611,66 @@ qb_float_op_factory factory_complex_tanh = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_CTANH_F64_F64,	QB_CTANH_F32_F32	},
+};
+
+qb_pixel_op_factory factory_sample_nearest = {
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_sampling,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_sampling,
+	qb_select_opcode_pixel,
+	NULL,
+	qb_transfer_operands_sampling,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{
+		{	QB_SAMPLE_NN_3X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32,	},
+		{	QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32,	},
+	}
+};
+
+qb_pixel_op_factory factory_sample_bilinear = {
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_sampling,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_sampling,
+	qb_select_opcode_pixel,
+	NULL,
+	qb_transfer_operands_sampling,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{
+		{	QB_SAMPLE_BL_3X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_BL_3X_F32_U32_U32_F32_F32_F32,	},
+		{	QB_SAMPLE_BL_4X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_BL_4X_F32_U32_U32_F32_F32_F32,	},
+	}
+};
+
+qb_float_op_factory factory_alpha_blend = {
+	qb_resolve_expression_type_highest_rank,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_rgba,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_larger_of_two,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_all,
+
+	QB_COERCE_TO_FLOATING_POINT,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_BLEND_F64_F64_F64,		QB_BLEND_F32_F32_F32,	},
 };
 
 qb_pixel_op_factory factory_apply_premult = {

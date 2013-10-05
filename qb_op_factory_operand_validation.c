@@ -335,3 +335,21 @@ static void qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f
 		qb_abort("%s() can only handle fixed-length arrays", cxt->intrinsic_function->name);
 	}
 }
+
+static void qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *image = &operands[0];
+	uint32_t channel_count;
+
+	if(image->address->dimension_count != 3) {
+		qb_abort("%s() expects a three-dimensional array as the first parameter", cxt->intrinsic_function->name);
+	}
+	if(CONSTANT_DIMENSION(image->address, -1)) {
+		channel_count = DIMENSION(image->address, -1);
+		if(!(3 <= channel_count && channel_count <= 4)) {
+			qb_abort("%s() expects an array whose last dimension is 3 or 4", cxt->intrinsic_function->name);
+		}
+	}
+	if(!(image->address->type >= QB_TYPE_F32)) {
+		qb_abort("%s() expects image data to be in floating-point representation", cxt->intrinsic_function->name);
+	}
+}
