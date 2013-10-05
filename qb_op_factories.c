@@ -194,6 +194,22 @@ qb_op_factory factory_fetch_class = {
 
 void *factories_fetch_variable[] = { &factory_fetch_local, &factory_fetch_global, &factory_fetch_static, &factory_fetch_class };
 
+qb_op_factory factory_fetch_array_size = {
+	qb_resolve_expression_type_index,
+	NULL,
+	qb_coerce_operands_fetch_array_size,
+	qb_set_result_prototype,
+	qb_validate_operands_one_array,
+	qb_set_result_fetch_array_size,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
+};
+
 qb_fetch_op_factory factory_fetch_array_element_read = {
 	qb_resolve_expression_type_first_operand,
 	NULL,

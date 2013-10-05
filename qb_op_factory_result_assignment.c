@@ -103,17 +103,29 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 
 static void qb_set_result_fetch_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_fetch_op_factory *ff = (qb_fetch_op_factory *) f;
-	qb_operand *container = &operands[0];
-	qb_operand *index = &operands[1];
-	qb_address *result_address = qb_obtain_array_element(cxt, container->address, index->address, ff->bound_check_flags);
-	result->address = result_address;
+	qb_operand *container = &operands[0], *index = &operands[1];
+	result->address = qb_obtain_array_element(cxt, container->address, index->address, ff->bound_check_flags);
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void qb_set_result_fetch_array_size(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0], *recursive = &operands[1];
+	qb_address *dimension_address = container->address->dimension_addresses[0];
+	qb_address *array_size_address = container->address->array_size_address;
+	if(recursive->type == QB_OPERAND_ADDRESS) {
+		if(CONSTANT(recursive->address)) {
+			result->address = VALUE(I32, recursive->address) ? array_size_address : dimension_address;
+		} else {
+			result->address = qb_obtain_larger_of_two(cxt, cxt->zero_address, dimension_address, recursive->address, array_size_address);
+		}
+	} else {
+		result->address = dimension_address;
+	}
 	result->type = QB_OPERAND_ADDRESS;
 }
 
 static void qb_set_result_assign_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *container = &operands[0];
-	qb_operand *index = &operands[1];
-	qb_operand *value = &operands[2];
+	qb_operand *container = &operands[0], *index = &operands[1], *value = &operands[2];
 
 	if(expr_type != QB_TYPE_VOID) {
 		qb_address *index_address = (index->type == QB_OPERAND_NONE) ? container->address->dimension_addresses[0] : index->address;
@@ -125,8 +137,7 @@ static void qb_set_result_assign_array_element(qb_compiler_context *cxt, qb_op_f
 
 static void qb_set_result_fetch_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_fetch_op_factory *ff = (qb_fetch_op_factory *) f;
-	qb_operand *container = &operands[0];
-	qb_operand *name = &operands[1];
+	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *result_address;
 	if(container->type == QB_OPERAND_NONE) {
 		result_address = qb_obtain_instance_variable(cxt, name->constant);
@@ -138,9 +149,7 @@ static void qb_set_result_fetch_object_property(qb_compiler_context *cxt, qb_op_
 }
 
 static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *container = &operands[0];
-	qb_operand *name = &operands[1];
-	qb_operand *value = &operands[2];
+	qb_operand *container = &operands[0], *name = &operands[1], *value = &operands[2];
 
 	if(expr_type != QB_TYPE_VOID) {
 		qb_address *result_address;

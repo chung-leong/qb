@@ -1393,9 +1393,9 @@ static void qb_translate_current_instruction(qb_php_translater_context *cxt) {
 }
 
 static qb_intrinsic_function intrinsic_functions[] = {
-	{	0,	"count",				1,		2,		NULL 						},
-	{	0,	"sizeof",				1,		2,		NULL 						},
-	{	0,	"strlen",				1,		2,		NULL 						},
+	{	0,	"count",				1,		2,		&factory_fetch_array_size	},
+	{	0,	"sizeof",				1,		2,		&factory_fetch_array_size	},
+	{	0,	"strlen",				1,		2,		&factory_fetch_array_size	},
 	{	0,	"int8",					1,		1,		&factory_cast_S08			},
 	{	0,	"uint8",				1,		1,		&factory_cast_U08			},
 	{	0,	"int16",				1,		1,		&factory_cast_S16			},

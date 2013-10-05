@@ -183,6 +183,8 @@ extern qb_derived_op_factory factory_assign_object_property;
 
 extern qb_op_factory factory_assign_ref;
 
+extern qb_op_factory factory_fetch_array_size;
+
 extern qb_fetch_op_factory factory_fetch_array_element_read;
 extern qb_fetch_op_factory factory_fetch_array_element_write;
 extern qb_fetch_op_factory factory_fetch_array_element_isset;
