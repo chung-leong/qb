@@ -353,3 +353,13 @@ static void qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factor
 		qb_abort("%s() expects image data to be in floating-point representation", cxt->intrinsic_function->name);
 	}
 }
+
+static void qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *column_index = &operands[1];
+	if(container->address->dimension_count < 2) {
+		qb_abort("%s() expects a multidimensional array as the first parameter", cxt->intrinsic_function->name);
+	}
+	if(!SCALAR(column_index->address)) {
+		qb_abort("%s() expects a scalar as the second parameter", cxt->intrinsic_function->name);
+	}
+}

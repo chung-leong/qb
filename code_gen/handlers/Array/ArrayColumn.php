@@ -51,13 +51,13 @@ class ArrayColumn extends Handler {
 		$lines[] = 		"while(op1_ptr < op1_end) {";
 		$lines[] =			"*res_ptr = *op1_ptr;";
 		$lines[] =			"res_ptr += 1;";
-		$lines[] =			"op1_ptr += column_count;";
+		$lines[] =			"op1_ptr += column_count * element_size;";
 		$lines[] =		"}";
 		$lines[] = "} else {";
 		$lines[] = 		"while(op1_ptr < op1_end) {";
 		$lines[] =			"memcpy(res_ptr, op1_ptr, element_size * sizeof($cType));";
 		$lines[] =			"res_ptr += element_size;";
-		$lines[] =			"op1_ptr += column_count;";
+		$lines[] =			"op1_ptr += column_count * element_size;";
 		$lines[] =		"}";
 		$lines[] = "}";
 		return $lines;

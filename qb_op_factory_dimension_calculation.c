@@ -509,27 +509,9 @@ static void qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_op_f
 }
 
 static void qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	qb_address *address1 = operands[0].address;
-	/*
-	if(VARIABLE_LENGTH_ARRAY(address1)) {
-		dim->array_size = 0;
-	} else {
-		dim->array_size = VALUE(U32, address1->dimension_addresses[0]);
-		if(address1->dimension_count > 2) {
-			dim->array_size *= VALUE(U32, address1->array_size_addresses[2]);
-		}
-	}
-	if(address1->dimension_count > 2) {
-		uint32_t i;
-		dim->dimension_count = address1->dimension_count - 1;
-		dim->dimension_addresses[0] = address1->dimension_addresses[0];
-		for(i = 2; i < address1->dimension_count; i++) {
-			dim->dimension_addresses[i - 1] = address1->dimension_addresses[i];
-		}
-	} else {
-		dim->dimension_count = 1;
-	}
-	*/
+	qb_address *address = operands[0].address;
+	// copy the first dimension then the rest, skipping over the second
+	qb_merge_address_dimensions(cxt, address, -((int32_t) address->dimension_count - 1), address, +2, dim);
 }
 
 uint32_t qb_get_range_length_F32(float32_t op1, float32_t op2, float32_t op3);

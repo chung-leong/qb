@@ -399,4 +399,6 @@ extern qb_pixel_op_factory factory_hsv2rgb;
 extern qb_pixel_op_factory factory_rgb2hsl;
 extern qb_pixel_op_factory factory_hsl2rgb;
 
+extern qb_basic_op_factory factory_array_column;
+
 #endif

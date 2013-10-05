@@ -469,15 +469,27 @@ static void qb_transfer_operands_square_matrix(qb_compiler_context *cxt, qb_op_f
 }
 
 static void qb_transfer_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_address *image_address = operands[0].address;
+	qb_operand *image = &operands[0];
 	dest[0] = operands[0];
-	dest[1].address = image_address->dimension_addresses[0];
+	dest[1].address = image->address->dimension_addresses[0];
 	dest[1].type = QB_OPERAND_ADDRESS;
-	dest[2].address = image_address->dimension_addresses[1];
+	dest[2].address = image->address->dimension_addresses[1];
 	dest[2].type = QB_OPERAND_ADDRESS;
 	dest[3] = operands[1];
 	dest[4] = operands[2];
 	dest[5] = *result;
+}
+
+static void qb_transfer_operands_array_column(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *column_index = &operands[1];
+	dest[0] = *container;
+	dest[1].address = container->address->dimension_addresses[1];
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = (container->address->dimension_count > 2) ? container->address->array_size_addresses[2] : cxt->one_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *column_index;
+	dest[4] = *result;
+
 }
 
 static void qb_transfer_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
