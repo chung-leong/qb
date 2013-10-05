@@ -309,3 +309,29 @@ static void qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_f
 		}
 	}
 }
+
+static void qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+
+	if(CONSTANT_DIMENSION(operand1->address, -1)) {
+		uint32_t channel_count = DIMENSION(operand1->address, -1);
+		if(!(3 <= channel_count && channel_count <= 4)) {
+			qb_abort("%s() expects an array whose last dimension is 3 or 4", cxt->intrinsic_function->name);
+		}
+	} else {
+		qb_abort("%s() can only handle fixed-length arrays", cxt->intrinsic_function->name);
+	}
+}
+
+static void qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+
+	if(CONSTANT_DIMENSION(operand1->address, -1)) {
+		uint32_t channel_count = DIMENSION(operand1->address, -1);
+		if(channel_count != 4) {
+			qb_abort("%s() expects an array whose last dimension is 4", cxt->intrinsic_function->name);
+		}
+	} else {
+		qb_abort("%s() can only handle fixed-length arrays", cxt->intrinsic_function->name);
+	}
+}

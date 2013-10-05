@@ -4677,18 +4677,17 @@ qb_float_op_factory factory_complex_tanh = {
 	{	QB_CTANH_F64_F64,	QB_CTANH_F32_F32	},
 };
 
-/*
 qb_pixel_op_factory factory_apply_premult = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_rgba,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4698,20 +4697,18 @@ qb_pixel_op_factory factory_apply_premult = {
 		{	QB_PREMULT_F64_F64,			QB_PREMULT_F32_F32		},
 	}
 };
-*/
 
-/*
 qb_pixel_op_factory factory_remove_premult = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_rgba,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4721,20 +4718,18 @@ qb_pixel_op_factory factory_remove_premult = {
 		{	QB_UNPREMULT_F64_F64,		QB_UNPREMULT_F32_F32	},
 	}
 };
-*/
 
-/*
 qb_pixel_op_factory factory_rgb2hsv = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_pixel,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4744,20 +4739,18 @@ qb_pixel_op_factory factory_rgb2hsv = {
 		{	QB_RGB2HSV_4X_F64_F64,		QB_RGB2HSV_4X_F32_F32	},
 	}
 };
-*/
 
-/*
 qb_pixel_op_factory factory_hsv2rgb = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_pixel,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4767,20 +4760,18 @@ qb_pixel_op_factory factory_hsv2rgb = {
 		{	QB_HSV2RGB_4X_F64_F64,		QB_HSV2RGB_4X_F32_F32	},
 	}
 };
-*/
 
-/*
 qb_pixel_op_factory factory_rgb2hsl = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_pixel,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4790,20 +4781,18 @@ qb_pixel_op_factory factory_rgb2hsl = {
 		{	QB_RGB2HSL_4X_F64_F64,		QB_RGB2HSL_4X_F32_F32	},
 	}
 };
-*/
 
-/*
 qb_pixel_op_factory factory_hsl2rgb = {
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
+	qb_validate_operands_pixel,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	NULL,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4813,4 +4802,3 @@ qb_pixel_op_factory factory_hsl2rgb = {
 		{	QB_HSL2RGB_4X_F64_F64,		QB_HSL2RGB_4X_F32_F32	},
 	}
 };
-*/

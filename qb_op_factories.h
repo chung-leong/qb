@@ -389,4 +389,11 @@ extern qb_matrix_op_factory factory_transpose;
 extern qb_matrix_op_factory factory_inverse;
 extern qb_matrix_op_factory factory_determinant;
 
+extern qb_pixel_op_factory factory_apply_premult;
+extern qb_pixel_op_factory factory_remove_premult;
+extern qb_pixel_op_factory factory_rgb2hsv;
+extern qb_pixel_op_factory factory_hsv2rgb;
+extern qb_pixel_op_factory factory_rgb2hsl;
+extern qb_pixel_op_factory factory_hsl2rgb;
+
 #endif

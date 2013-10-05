@@ -32,7 +32,7 @@ class ConcatMultidimensionalVariable extends Handler {
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
 		$lines[] = "uint32_t *op2_start = op2_ptr;";
 		$lines[] = "uint32_t *op2_end = op2_ptr + op2_count;";
-		$lines[] = "uint32_t depth = 0, pos = 0;";
+		$lines[] = "uint32_t depth = 0, pos = res_count;";
 		$lines[] = "uint32_t counts[64];";
 		$lines[] = "uint32_t total = 0, multiplier = 1;";
 		$lines[] = "while(op1_ptr < op1_end) {";

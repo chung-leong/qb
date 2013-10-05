@@ -881,21 +881,17 @@ static void qb_translate_fetch(qb_php_translater_context *cxt, void *op_factorie
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void qb_translate_function_call(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *name = &operands[0], *object = &operands[1];
+static void qb_do_function_call_translation(qb_php_translater_context *cxt, void *op_factories, qb_operand *name, qb_operand *object, qb_operand **stack_pointer, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_intrinsic_function *ifunc;
-	qb_operand *arguments, **stack_pointer;
+	qb_operand *arguments;
 	qb_operand func_operands[4];
 	uint32_t func_operand_count;
-	uint32_t argument_count = cxt->zend_op->extended_value;
 	uint32_t i;
 	void **list = op_factories, *op_factory;
 	ALLOCA_FLAG(use_heap);
 
-
 	// copy the arguments
 	arguments = do_alloca(sizeof(qb_operand *) * argument_count, use_heap);
-	stack_pointer = qb_pop_stack_items(cxt->compiler_context, argument_count);
 	for(i = 0; i < argument_count; i++) {
 		arguments[i] = *stack_pointer[i];
 	}
@@ -917,24 +913,38 @@ static void qb_translate_function_call(qb_php_translater_context *cxt, void *op_
 	free_alloca(arguments, use_heap);
 }
 
+static void qb_translate_function_call(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *name = &operands[0], *object = &operands[1];
+	uint32_t argument_count = cxt->zend_op->extended_value;
+	qb_operand **stack_pointer = qb_pop_stack_items(cxt->compiler_context, argument_count);
+	qb_do_function_call_translation(cxt, op_factories, name, object, stack_pointer, argument_count, result, result_prototype);
+}
+
 static void qb_translate_init_function_call(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *object = &operands[0], *name = &operands[1];
-	cxt->fcall_by_name_operands[0] = *name;
+	qb_operand *object = &operands[0], *name = &operands[1], *stack_item;
+	stack_item = qb_push_stack_item(cxt->compiler_context);	// function name
+	*stack_item = *name;
+
+	stack_item = qb_push_stack_item(cxt->compiler_context);	// object
 #if !ZEND_ENGINE_2_3
-	cxt->fcall_by_name_operands[1] = *object;
+	*stack_item = *object;
 #else
 	// for some reason in Zend Engine 2.3, the name of the function would show up here
 	if(object->type == QB_OPERAND_ZVAL && object->constant->type == IS_OBJECT) {
-		cxt->fcall_by_name_operands[1] = *object;
+		*stack_item = *object;
 	} else {
-		cxt->fcall_by_name_operands[1].type = QB_OPERAND_NONE;
-		cxt->fcall_by_name_operands[1].address = NULL;
+		stack_item->type = QB_OPERAND_NONE;
+		stack_item->address = NULL;
 	}
 #endif
 }
 
 static void qb_translate_function_call_by_name(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_translate_function_call(cxt, op_factories, cxt->fcall_by_name_operands, 2, result, result_prototype);
+	uint32_t argument_count = cxt->zend_op->extended_value;
+	qb_operand **stack_pointer = qb_pop_stack_items(cxt->compiler_context, argument_count + 2);
+	qb_operand *name = stack_pointer[0];
+	qb_operand *object = stack_pointer[1];
+	qb_do_function_call_translation(cxt, op_factories, name, object, stack_pointer + 2, argument_count, result, result_prototype);
 }
 
 static void qb_translate_receive_argument(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1250,7 +1260,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_END
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_NOP
 	{	NULL,								NULL						},	// ZEND_TICKS
-	{	qb_translate_basic_op,				NULL						},	// ZEND_SEND_VAR_NO_REF
+	{	qb_translate_basic_op,				&factory_send_argument				},	// ZEND_SEND_VAR_NO_REF
 	{	NULL,								NULL						},	// ZEND_CATCH
 	{	NULL,								NULL						},	// ZEND_THROW
 	{	qb_translate_fetch_class,			factories_fetch_class				},	// ZEND_FETCH_CLASS
@@ -1538,14 +1548,13 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"csinh",				1,		1,		&factory_complex_sinh		},
 	{	0,	"ccosh",				1,		1,		&factory_complex_cosh		},
 	{	0,	"ctanh",				1,		1,		&factory_complex_tanh		},
-/*
 	{	0,	"rgb2hsv",				1,		1,		&factory_rgb2hsv			},
 	{	0,	"hsv2rgb",				1,		1,		&factory_hsv2rgb			},
 	{	0,	"rgb2hsl",				1,		1,		&factory_rgb2hsl			},
 	{	0,	"hsl2rgb",				1,		1,		&factory_hsl2rgb			},
 	{	0,	"rgb_premult",			1,		1,		&factory_apply_premult		},
 	{	0,	"rgb_demult",			1,		1,		&factory_remove_premult		},
-*/
+
 	// unsupported functions
 	{	0,	"compact",				0,		-1,		NULL						},
 	{	0,	"extract",				0,		-1,		NULL						},

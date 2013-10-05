@@ -49,8 +49,8 @@ function test_function() {
 	
 	echo "$a\n";
 	echo "$b\n";
-	echo "$c\n";
-	echo "$d\n";
+	//echo "$c\n";
+	//echo "$d\n";
 }
 
 qb_compile();
