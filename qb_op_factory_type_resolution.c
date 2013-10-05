@@ -109,7 +109,11 @@ static qb_primitive_type qb_resolve_expression_type_fetch_class(qb_compiler_cont
 
 static qb_primitive_type qb_resolve_expression_type_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	f = func->intrinsic_function->extra;
+	qb_op_factory *ff = func->intrinsic_function->extra;
+	f->address_flags = ff->address_flags;
+	f->coercion_flags = ff->coercion_flags;
+	f->result_flags = ff->result_flags;
+	f = ff;
 	if(f->resolve_type) {
 		return f->resolve_type(cxt, f, arguments->arguments, argument_count->number);
 	}

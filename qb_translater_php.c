@@ -1406,8 +1406,10 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"uint64",				1,		2,		&factory_cast_U64			},
 	{	0,	"float32",				1,		1,		&factory_cast_F32			},
 	{	0,	"float64",				1,		1,		&factory_cast_F64			},
+/*
 	{	0,	"defined",				1,		1,		NULL						},
 	{	0,	"define",				2,		2,		NULL						},
+*/
 	{	0,	"equal",				2,		2,		&factory_set_equal			},
 	{	0,	"not_equal",			2,		2,		&factory_set_not_equal		},
 	{	0,	"less_than",			2,		2,		&factory_set_less_than		},
@@ -1513,7 +1515,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_pad",			3,		3,		&factory_array_pad			},
 	{	0,	"array_pop",			1,		1,		NULL						},
 	{	0,	"array_pos",			2,		3,		&factory_subarray_pos		},
+*/
 	{	0,	"array_product",		1,		1,		&factory_array_product		},
+/*
 	{	0,	"array_push",			2,		-1,		NULL						},
 	{	0,	"array_rand",			1,		2,		&factory_array_rand			},
 	{	0,	"array_resize",			2,		-1,		&factory_array_resize		},
@@ -1523,15 +1527,18 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_shift",			1,		1,		NULL						},
 	{	0,	"array_slice",			2,		3,		NULL						},
 	{	0,	"array_splice",			2,		4,		NULL						},
+*/
 	{	0,	"array_sum",			1,		1,		&factory_array_sum			},
+/*
 	{	0,	"array_unique",			1,		1,		&factory_array_unique		},
 	{	0,	"array_unshift",		2,		-1,		NULL						},
 	{	0,	"in_array",				2,		2,		&factory_in_array			},
 	{	0,	"range",				2,		3,		&factory_range				},
+*/
 	{	0,	"rsort",				1,		1,		&factory_rsort				},
 	{	0,	"shuffle",				1,		1,		&factory_shuffle			},
 	{	0,	"sort",					1,		1,		&factory_sort				},
-
+/*
 	{	0,	"substr",				2,		3,		NULL						},
 	{	0,	"strpos",				2,		3,		&factory_subarray_pos		},
 	{	0,	"strrpos",				2,		3,		&factory_subarray_rpos		},

@@ -2,7 +2,7 @@
 
 class ReverseSort extends Sort {
 
-	protected $direction = "ascending";
+	protected $direction = "descending";
 	
 }
 

@@ -34,14 +34,6 @@ static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factor
 	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype);
 }
 
-static void qb_set_result_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	*result = operands[0];
-}
-
-static void qb_set_result_second_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	*result = operands[1];
-}
-
 static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result->type != QB_OPERAND_ADDRESS) {
 		qb_variable_dimensions dim = { NULL, 0, cxt->one_address };
@@ -52,6 +44,23 @@ static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt,
 		result->address = qb_create_temporary_variable(cxt, expr_type, &dim);
 		result->address->flags |= QB_ADDRESS_NON_REUSABLE;
 	}
+}
+
+static void qb_set_result_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	*result = operands[0];
+}
+
+static void qb_set_result_second_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	*result = operands[1];
+}
+
+static void qb_set_result_true(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	result->type = QB_OPERAND_ADDRESS;
+	result->address = cxt->true_address;
+}
+
+static void qb_set_result_none(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	result->type = QB_OPERAND_NONE;
 }
 
 static qb_address *qb_find_predicate_address(qb_compiler_context *cxt, qb_address *container_address) {
@@ -161,15 +170,6 @@ static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address);
 		result->type = QB_OPERAND_ADDRESS;
 	}
-}
-
-static void qb_set_result_none(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	result->type = QB_OPERAND_NONE;
-}
-
-static void qb_set_result_true(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	result->address = qb_obtain_constant_boolean(cxt, TRUE);
-	result->type = QB_OPERAND_ADDRESS;
 }
 
 static void qb_set_result_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
