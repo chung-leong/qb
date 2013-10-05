@@ -1472,27 +1472,21 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"faceforward",			2,		2,		&factory_faceforward		},
 	{	0,	"reflect",				2,		2,		&factory_reflect			},
 	{	0,	"refract",				3,		3,		&factory_refract			},
-/*
-	{	0,	"mm_mult",				2,		2,		&factory_mm_multiply		},
-	{	0,	"mv_mult",				2,		2,		&factory_mv_multiply		},
-	{	0,	"vm_mult",				2,		2,		&factory_vm_multiply		},
-*/
+	{	0,	"mm_mult",				2,		2,		&factory_mm_mult			},
+	{	0,	"mv_mult",				2,		2,		&factory_mv_mult			},
+	{	0,	"vm_mult",				2,		2,		&factory_vm_mult			},
 	{	0,	"transpose",			1,		1,		&factory_transpose			},
 	{	0,	"det",					1,		1,		&factory_determinant		},
 	{	0,	"inverse",				1,		1,		&factory_inverse			},
-/*
-	{	0,	"mm_mult_cm",			2,		2,		&factory_mm_multiply_cm		},
-	{	0,	"mv_mult_cm",			2,		2,		&factory_mv_multiply_cm		},
-	{	0,	"vm_mult_cm",			2,		2,		&factory_vm_multiply_cm		},
-*/
+	{	0,	"mm_mult_cm",			2,		2,		&factory_mm_mult_cm			},
+	{	0,	"mv_mult_cm",			2,		2,		&factory_mv_mult_cm			},
+	{	0,	"vm_mult_cm",			2,		2,		&factory_vm_mult_cm			},
 	{	0,	"transpose_cm",			1,		1,		&factory_transpose			},
 	{	0,	"det_cm",				1,		1,		&factory_determinant		},
 	{	0,	"inverse_cm",			1,		1,		&factory_inverse			},
-/*
-	{	0,	"mm_mult_rm",			2,		2,		&factory_mm_multiply_rm		},
-	{	0,	"mv_mult_rm",			2,		2,		&factory_mv_multiply_rm		},
-	{	0,	"vm_mult_rm",			2,		2,		&factory_vm_multiply_rm		},
-*/
+	{	0,	"mm_mult_rm",			2,		2,		&factory_mm_mult_rm			},
+	{	0,	"mv_mult_rm",			2,		2,		&factory_mv_mult_rm			},
+	{	0,	"vm_mult_rm",			2,		2,		&factory_vm_mult_rm			},
 	{	0,	"transpose_rm",			1,		1,		&factory_transpose			},
 	{	0,	"det_rm",				1,		1,		&factory_determinant		},
 	{	0,	"inverse_rm",			1,		1,		&factory_inverse			},

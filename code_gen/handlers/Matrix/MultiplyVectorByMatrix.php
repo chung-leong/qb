@@ -17,8 +17,8 @@ class MultiplyVectorByMatrix extends Handler {
 			switch($i) {
 				case 1: return "ARR";
 				case 2: return "ARR";
-				case 3: return "SCA";
-				case 4: return "SCA";
+				case 3: return "SCA";	// matrix rows
+				case 4: return "SCA";	// matrix cols
 				case 5: return "ARR";
 			}
 		} else {

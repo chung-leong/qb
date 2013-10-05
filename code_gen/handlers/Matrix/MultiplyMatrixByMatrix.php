@@ -17,9 +17,9 @@ class MultiplyMatrixByMatrix extends Handler {
 			switch($i) {
 				case 1: return "ARR";
 				case 2: return "ARR";
-				case 3: return "SCA";
-				case 4: return "SCA";
-				case 5: return "SCA";
+				case 3: return "SCA";		//	m1 rows
+				case 4: return "SCA";		//  m1 cols / m2 rows
+				case 5: return "SCA";		//  m2 cols
 				case 6: return "ARR";
 			}
 		} else {

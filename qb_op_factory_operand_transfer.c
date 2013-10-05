@@ -411,8 +411,8 @@ static void qb_transfer_operands_two_vectors(qb_compiler_context *cxt, qb_op_fac
 		dest[2].address = address1->dimension_addresses[address1->dimension_count - 1];
 		dest[3] = *result;
 
-		if(!CONSTANT_DIMENSION(address1, -1) || !CONSTANT_DIMENSION(address2, -1)) {
-			// TODO add check
+		if(address1->dimension_addresses[address1->dimension_count - 1] != address2->dimension_addresses[address2->dimension_count - 1]) {
+			// TODO add check for equality
 		}
 	} else {
 		dest[2] = *result;
@@ -430,7 +430,7 @@ static void qb_transfer_operands_refract(qb_compiler_context *cxt, qb_op_factory
 		dest[3].address = address1->dimension_addresses[address1->dimension_count - 1];
 		dest[4] = *result;
 
-		if(!CONSTANT_DIMENSION(address1, -1) || !CONSTANT_DIMENSION(address2, -1)) {
+		if(address1->dimension_addresses[address1->dimension_count - 1] != address2->dimension_addresses[address2->dimension_count - 1]) {
 			// TODO: add check for equality
 		}
 	} else {
@@ -460,12 +460,103 @@ static void qb_transfer_operands_square_matrix(qb_compiler_context *cxt, qb_op_f
 		dest[1].type = QB_OPERAND_ADDRESS;
 		dest[2] = *result;
 
-		if(!CONSTANT_DIMENSION(address, -1) || !CONSTANT_DIMENSION(address, -2)) {
+		if(address->dimension_addresses[address->dimension_count - 1] != address->dimension_addresses[address->dimension_count - 2]) {
 			// TODO: add check for squareness
 		}
 	} else {
 		dest[1] = *result;
 	}
+}
+
+static void qb_transfer_operands_mm_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	dest[1] = operands[1];
+	if(dest_count == 6) {
+		qb_address *m1_address = operands[0].address;
+		qb_address *m2_address = operands[1].address;
+		qb_address *m1_row_address = m1_address->dimension_addresses[m1_address->dimension_count - 1];
+		qb_address *m1_col_address = m1_address->dimension_addresses[m1_address->dimension_count - 2];
+		qb_address *m2_row_address = m2_address->dimension_addresses[m2_address->dimension_count - 1];
+		qb_address *m2_col_address = m2_address->dimension_addresses[m2_address->dimension_count - 2];
+		dest[2].address = m1_row_address;
+		dest[2].type = QB_OPERAND_ADDRESS;
+		dest[3].address = m1_col_address;
+		dest[3].type = QB_OPERAND_ADDRESS;
+		dest[4].address = m2_col_address;
+		dest[4].type = QB_OPERAND_ADDRESS;
+		dest[5] = *result;
+
+		if(m1_col_address != m2_row_address) {
+			// TODO: add check for equality
+		}
+	} else {
+		dest[2] = *result;
+	}
+}
+
+static void qb_transfer_operands_mv_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	dest[1] = operands[1];
+	if(dest_count == 5) {
+		qb_address *m1_address = operands[0].address;
+		qb_address *m2_address = operands[1].address;
+		qb_address *m1_row_address = m1_address->dimension_addresses[m1_address->dimension_count - 1];
+		qb_address *m1_col_address = m1_address->dimension_addresses[m1_address->dimension_count - 2];
+		qb_address *m2_row_address = m2_address->dimension_addresses[m2_address->dimension_count - 1];
+		dest[2].address = m1_row_address;
+		dest[2].type = QB_OPERAND_ADDRESS;
+		dest[3].address = m1_col_address;
+		dest[3].type = QB_OPERAND_ADDRESS;
+		dest[4] = *result;
+
+		if(m1_col_address != m2_row_address) {
+			// TODO: add check for equality
+		}
+	} else {
+		dest[2] = *result;
+	}
+}
+
+static void qb_transfer_operands_vm_mult_cm(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	dest[1] = operands[1];
+	if(dest_count == 5) {
+		qb_address *m1_address = operands[0].address;
+		qb_address *m2_address = operands[1].address;
+		qb_address *m1_col_address = m2_address->dimension_addresses[m2_address->dimension_count - 1];
+		qb_address *m2_row_address = m1_address->dimension_addresses[m1_address->dimension_count - 1];
+		qb_address *m2_col_address = m1_address->dimension_addresses[m1_address->dimension_count - 2];
+		dest[2].address = m2_row_address;
+		dest[2].type = QB_OPERAND_ADDRESS;
+		dest[3].address = m2_col_address;
+		dest[3].type = QB_OPERAND_ADDRESS;
+		dest[4] = *result;
+
+		if(m1_col_address != m2_row_address) {
+			// TODO: add check for equality
+		}
+	} else {
+		dest[2] = *result;
+	}
+}
+
+static void qb_transfer_operands_transpose_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	qb_operand reversed_operands[2];
+	reversed_operands[0] = operands[1];
+	reversed_operands[1] = operands[0];
+	f = df->parent;
+	f->transfer_operands(cxt, f, reversed_operands, 2, result, dest, dest_count);
+}
+
+static void qb_transfer_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
+	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
+		f = s->cm_factory;
+	} else {
+		f = s->rm_factory;
+	}
+	f->transfer_operands(cxt, f, operands, operand_count, result, dest, dest_count);
 }
 
 static void qb_transfer_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {

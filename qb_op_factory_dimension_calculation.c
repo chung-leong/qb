@@ -52,6 +52,19 @@ static void qb_copy_address_dimensions(qb_compiler_context *cxt, qb_address *add
 	dim->source_address = address;
 }
 
+static int32_t qb_compare_addresses(qb_address **addresses1, uint32_t count1, qb_address **addresses2, uint32_t count2) {
+	uint32_t i;
+	if(count1 != count2) {
+		return FALSE;
+	}
+	for(i = 0; i < count1; i++) {
+		if(addresses1[i] != addresses2[i]) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *address1, int32_t offset1, qb_address *address2, int32_t offset2, qb_variable_dimensions *dim) {
 	uint32_t i, count1, count2;
 	if(offset1 < 0) {
@@ -75,12 +88,12 @@ static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *ad
 				dim->dimension_addresses[i] = address2->dimension_addresses[(i - count1) + offset2];
 			}
 		}
-		if(dim->dimension_count == address1->dimension_count && count2 == 0) {
+		if(qb_compare_addresses(dim->dimension_addresses, dim->dimension_count, address1->dimension_addresses, address1->dimension_count)) {
 			// the array sizes are the same as those of address1 
 			for(i = 0; i < dim->dimension_count; i++) {
 				dim->array_size_addresses[i] = address1->array_size_addresses[i];
 			}
-		} else if(dim->dimension_count == address2->dimension_count && count1 == 0) {
+		} else if(qb_compare_addresses(dim->dimension_addresses, dim->dimension_count, address2->dimension_addresses, address2->dimension_count)) {
 			// the array sizes are the same as those of address2 
 			for(i = 0; i < dim->dimension_count; i++) {
 				dim->array_size_addresses[i] = address2->array_size_addresses[i];
@@ -302,65 +315,106 @@ static void qb_set_result_dimensions_dot_product(qb_compiler_context *cxt, qb_op
 	qb_choose_dimensions_from_two_addresses(cxt, first->address, -1, second->address, -1, dim);
 }
 
-static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_factory *f) {
-	if(f->result_flags & QB_RESULT_IS_COLUMN_MAJOR) {
-		return QB_MATRIX_ORDER_COLUMN_MAJOR;
-	} else if(f->result_flags & QB_RESULT_IS_ROW_MAJOR) {
-		return QB_MATRIX_ORDER_ROW_MAJOR;
+static void qb_copy_matrix_multiplication_result_dimensions(qb_compiler_context *cxt, qb_address *matrix_address, int32_t offset, qb_address *row_address, qb_address *col_address, qb_matrix_order order, qb_variable_dimensions *dim) {
+	uint32_t i;
+	dim->dimension_count = matrix_address->dimension_count + offset;
+	for(i = 0; i < dim->dimension_count; i++) {
+		dim->dimension_addresses[i] = matrix_address->dimension_addresses[i];
+	}
+	if(!row_address) {
+		dim->dimension_addresses[dim->dimension_count] = col_address;
+		dim->dimension_count += 1;
+	} else if(!col_address) {
+		dim->dimension_addresses[dim->dimension_count] = row_address;
+		dim->dimension_count += 1;
 	} else {
-		return cxt->matrix_order;
+		int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? 0 : 1;
+		int32_t col_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? 1 : 0;
+		dim->dimension_addresses[dim->dimension_count + row_offset] = row_address;
+		dim->dimension_addresses[dim->dimension_count + col_offset] = col_address;
+		dim->dimension_count += 2;
+	}
+	if(qb_compare_addresses(dim->dimension_addresses, dim->dimension_count, matrix_address->dimension_addresses, matrix_address->dimension_count)) {
+		// the array sizes are the same
+		for(i = 0; i < dim->dimension_count; i++) {
+			dim->array_size_addresses[i] = matrix_address->array_size_addresses[i];
+		}
+	} else {
+		// need to be recalculated
+		for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
+			if(i == dim->dimension_count - 1) {
+				dim->array_size_addresses[i] = dim->dimension_addresses[i];
+			} else {
+				dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+			}
+		}
+	}
+	dim->array_size_address = dim->array_size_addresses[0];
+	dim->source_address = NULL;
+}
+
+
+static void qb_set_result_dimensions_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+	qb_matrix_order order = qb_get_matrix_order(cxt, f);
+	qb_address *m1_row_address = qb_obtain_matrix_row_address(cxt, matrix1->address, order);
+	qb_address *m2_col_address = qb_obtain_matrix_column_address(cxt, matrix2->address, order);
+
+	// the result matrix is m1_row x m2_col
+	if(matrix1->address->dimension_count == 2) {
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix2->address, -2, m1_row_address, m2_col_address, order, dim);
+	} else if(matrix2->address->dimension_count == 2) {
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix1->address, -2, m1_row_address, m2_col_address, order, dim);
+	} else {
+		qb_variable_dimensions dim1, dim2;
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix1->address, -2, m1_row_address, m2_col_address, order, &dim1);
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix2->address, -2, m1_row_address, m2_col_address, order, &dim2);
+		qb_choose_dimensions_from_two(cxt, &dim1, &dim2, dim);
 	}
 }
 
-static void qb_set_result_dimensions_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	/*
-	qb_address *m1_address, *m1_size_address, *m1_row_address;
-	qb_address *m2_address, *m2_size_address, *m2_col_address;
-	qb_address *m1_count_address, *m2_count_address;
-	uint32_t i, m1_count, m2_count, res_count;
-
-	qb_matrix_order order = qb_get_matrix_order(cxt, f);
-	int32_t col_offset = (order == QB_MATRIX_ORDER_COLUMN_MAJOR) ? -2 : -1;
-	int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
-
-	m1_address = operands[0].address;
-	m2_address = operands[1].address;
-	m1_size_address = m1_address->array_size_addresses[m1_address->dimension_count - 2];
-	m2_size_address = m2_address->array_size_addresses[m2_address->dimension_count - 2];
-	m1_row_address = m1_address->dimension_addresses[m1_address->dimension_count + row_offset];
-	m2_col_address = m2_address->dimension_addresses[m2_address->dimension_count + col_offset];
-	*/
-}
-
 static void qb_set_result_dimensions_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	/*
-	qb_address *m_address, *m_size_address;
-	qb_address *v_address, *v_width_address;
-	uint32_t i, m_count, v_count, res_count;
+	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+	qb_matrix_order order = qb_get_matrix_order(cxt, f);
+	qb_address *m1_row_address = qb_obtain_matrix_row_address(cxt, matrix1->address, order);
 
-	m_address = operands[0].address;
-	v_address = operands[1].address;
-	v_width_address = v_address->array_size_addresses[v_address->dimension_count - 1];
-	m_size_address = m_address->array_size_addresses[m_address->dimension_count - 2];
-	*/
+	if(matrix1->address->dimension_count == 2) {
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix2->address, -1, m1_row_address, NULL, order, dim);
+	} else if(matrix2->address->dimension_count == 1) {
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix1->address, -2, m1_row_address, NULL, order, dim);
+	} else {
+		qb_variable_dimensions dim1, dim2;
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix1->address, -2, m1_row_address, NULL, order, &dim1);
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix2->address, -1, m1_row_address, NULL, order, &dim2);
+		qb_choose_dimensions_from_two(cxt, &dim1, &dim2, dim);
+	}
 }
 
 static void qb_set_result_dimensions_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	// TODO: I think this is broken when the matrix isn't square
-	qb_operand reversed_operands[2];
-	reversed_operands[0] = operands[1];
-	reversed_operands[1] = operands[0];
-	qb_set_result_dimensions_mv_mult(cxt, f, reversed_operands, operand_count, dim);
+	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+	qb_matrix_order order = qb_get_matrix_order(cxt, f);
+	qb_address *m2_col_address = qb_obtain_matrix_column_address(cxt, matrix2->address, order);
+
+	if(matrix1->address->dimension_count == 1) {
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix2->address, -2, NULL, m2_col_address, order, dim);
+	} else if(matrix2->address->dimension_count == 2) {
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix1->address, -1, NULL, m2_col_address, order, dim);
+	} else {
+		qb_variable_dimensions dim1, dim2;
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix1->address, -1, NULL, m2_col_address, order, &dim1);
+		qb_copy_matrix_multiplication_result_dimensions(cxt, matrix2->address, -2, NULL, m2_col_address, order, &dim2);
+		qb_choose_dimensions_from_two(cxt, &dim1, &dim2, dim);
+	}
 }
 
 // make use of the fact that A' * B' = (B * A)' 
-static void qb_set_result_dimensions_matrix_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_transpose_equivalent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_operand reversed_operands[2];
 	reversed_operands[0] = operands[1];
 	reversed_operands[1] = operands[0];
 	f = df->parent;
-	f->set_dimensions(cxt, f, reversed_operands, operand_count, dim);
+	f->set_dimensions(cxt, f, reversed_operands, 2, dim);
 }
 
 static void qb_set_result_dimensions_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

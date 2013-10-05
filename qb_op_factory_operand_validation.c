@@ -203,24 +203,6 @@ static void qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_fact
 	}
 }
 
-static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	qb_intrinsic_function *ifunc = func->intrinsic_function;
-	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
-		if(ifunc->argument_count_min == ifunc->argument_count_max) {
-			qb_abort("%s() expects %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, argument_count->number);
-		} else {
-			qb_abort("%s() expects %d to %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count->number);
-		}
-	}
-	cxt->intrinsic_function = ifunc;
-	f = func->intrinsic_function->extra;
-	if(f->validate_operands) {
-		f->validate_operands(cxt, f, arguments->arguments, argument_count->number);
-	}
-	cxt->intrinsic_function = NULL;
-}
-
 static void qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand = &operands[0];
 
@@ -294,17 +276,6 @@ static void qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_fact
 	}
 }
 
-static void qb_validate_operands_two_matrices(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
-
-	if(operand1->address->dimension_count < 2) {
-		qb_abort("%s() expects the first parameter to be a matrix", cxt->intrinsic_function->name);
-	}
-	if(operand1->address->dimension_count < 2) {
-		qb_abort("%s() expects the second parameter to be a matrix", cxt->intrinsic_function->name);
-	}
-}
-
 static void qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0];
 
@@ -372,3 +343,121 @@ static void qb_validate_operands_multidimensional_array(qb_compiler_context *cxt
 		qb_abort("%s() expects a scalar as the second parameter", cxt->intrinsic_function->name);
 	}
 }
+
+static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_factory *f) {
+	if(f->result_flags & QB_RESULT_IS_COLUMN_MAJOR) {
+		return QB_MATRIX_ORDER_COLUMN_MAJOR;
+	} else if(f->result_flags & QB_RESULT_IS_ROW_MAJOR) {
+		return QB_MATRIX_ORDER_ROW_MAJOR;
+	} else {
+		return cxt->matrix_order;
+	}
+}
+
+static qb_address *qb_obtain_matrix_row_address(qb_compiler_context *cxt, qb_address *address, qb_matrix_order order) {
+	int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
+	return address->dimension_addresses[address->dimension_count + row_offset];
+}
+
+static qb_address *qb_obtain_matrix_column_address(qb_compiler_context *cxt, qb_address *address, qb_matrix_order order) {
+	int32_t col_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -1 : -2;
+	return address->dimension_addresses[address->dimension_count + col_offset];
+}
+
+static void qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+
+	if(matrix1->address->dimension_count < 2) {
+		qb_abort("%s() expects the first parameter to be a matrix", cxt->intrinsic_function->name);
+	}
+	if(matrix2->address->dimension_count < 2) {
+		qb_abort("%s() expects the second parameter to be a matrix", cxt->intrinsic_function->name);
+	}
+
+	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -2) && CONSTANT_DIMENSION(matrix2->address, -1)) {
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
+		qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
+		qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
+		uint32_t m1_col_count = VALUE(U32, m1_col_address);
+		uint32_t m2_row_count = VALUE(U32, m2_row_address);
+
+		if(m1_col_count != m2_row_count) {
+			qb_abort("The number of columns in the first matrix (%d) does not match the number of rows in the second matrix (%d)", m1_col_count, m2_row_count);
+		}
+	}
+}
+
+static void qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+
+	if(matrix1->address->dimension_count < 2) {
+		qb_abort("%s() expects the first parameter to be a matrix", cxt->intrinsic_function->name);
+	}
+	if(matrix2->address->dimension_count < 1) {
+		qb_abort("%s() expects the second parameter to be a vector", cxt->intrinsic_function->name);
+	}
+
+	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -1)) {
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
+		qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
+		qb_address *m2_row_address = matrix2->address->dimension_addresses[matrix2->address->dimension_count - 1];
+		uint32_t m1_col_count = VALUE(U32, m1_col_address);
+		uint32_t m2_row_count = VALUE(U32, m2_row_address);
+
+		if(m1_col_count != m2_row_count) {
+			qb_abort("The number of columns in the matrix (%d) does not match the vector's dimension (%d)", m1_col_count, m2_row_count);
+		}
+	}
+}
+
+static void qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+
+	if(matrix1->address->dimension_count < 1) {
+		qb_abort("%s() expects the first parameter to be a vector", cxt->intrinsic_function->name);
+	}
+	if(matrix2->address->dimension_count < 2) {
+		qb_abort("%s() expects the second parameter to be a matrix", cxt->intrinsic_function->name);
+	}
+
+	if(CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -2) && CONSTANT_DIMENSION(matrix2->address, -1)) {
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
+		qb_address *m1_col_address = matrix1->address->dimension_addresses[matrix1->address->dimension_count - 1];
+		qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
+		uint32_t m1_col_count = VALUE(U32, m1_col_address);
+		uint32_t m2_row_count = VALUE(U32, m2_row_address);
+
+		if(m1_col_count != m2_row_count) {
+			qb_abort("The number of rows in the matrix (%d) does not match the vector's dimension (%d)", m2_row_count, m1_col_count);
+		}
+	}
+}
+
+static void qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
+	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
+		f = s->cm_factory;
+	} else {
+		f = s->rm_factory;
+	}
+	f->validate_operands(cxt, f, operands, operand_count);
+}
+
+static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	qb_intrinsic_function *ifunc = func->intrinsic_function;
+	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
+		if(ifunc->argument_count_min == ifunc->argument_count_max) {
+			qb_abort("%s() expects %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, argument_count->number);
+		} else {
+			qb_abort("%s() expects %d to %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count->number);
+		}
+	}
+	cxt->intrinsic_function = ifunc;
+	f = func->intrinsic_function->extra;
+	if(f->validate_operands) {
+		f->validate_operands(cxt, f, arguments->arguments, argument_count->number);
+	}
+	cxt->intrinsic_function = NULL;
+}
+
