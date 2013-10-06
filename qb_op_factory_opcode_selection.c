@@ -83,6 +83,16 @@ static qb_opcode qb_select_opcode_isset_object_property(qb_compiler_context *cxt
 	return QB_NOP;
 }
 
+static qb_opcode qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
+	qb_operand *container = &operands[0];
+	if(RESIZABLE(container->address)) {
+		return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, container);
+	} else {
+		return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, container);
+	}
+}
+
 static qb_opcode qb_select_multidata_opcode(qb_compiler_context *cxt, qb_opcode opcode) {
 	uint32_t op_flags = qb_get_op_flags(cxt, opcode);
 	if(op_flags & QB_OP_VERSION_AVAILABLE_MIO) {
@@ -133,7 +143,7 @@ static qb_opcode qb_select_vectorized_opcode(qb_compiler_context *cxt, qb_opcode
 				int32_t multiple_data = FALSE;
 				for(i = 0; i <= operand_count; i++) {
 					qb_address *address = (i < operand_count) ? operands[i].address : result->address;
-					if(VARIABLE_LENGTH_ARRAY(address) || ARRAY_SIZE(address) > j) {
+					if(VARIABLE_LENGTH(address) || ARRAY_SIZE(address) > j) {
 						// the MIO version is right behind the regular one
 						opcode++;
 						break;

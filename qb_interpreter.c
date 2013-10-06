@@ -179,7 +179,7 @@ static uint32_t qb_set_array_dimensions_from_zval(qb_interpreter_context *cxt, z
 
 		if(CONSTANT(dimension_address)) {
 			if(dimension > dimension_expected) {
-				if(address->dimension_count > 1 && FIXED_LENGTH_ARRAY(address)) {
+				if(MULTIDIMENSIONAL(address) && FIXED_LENGTH(address)) {
 					// maybe we're trying to initialize a multidimensional array with a linear array
 					if(qb_is_linear_zval_array(cxt, zvalue)) {
 						uint32_t array_size = Z_ARRVAL_P(zvalue)->nNextFreeElement;

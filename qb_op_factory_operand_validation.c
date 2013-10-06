@@ -36,8 +36,8 @@ static void qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_f
 		}
 	} else if(index->type == QB_OPERAND_NONE) {
 		// an append operation
-		if(!EXPANDABLE_ARRAY(container->address)) {
-			qb_abort("cannot append element to a non-expanding array");
+		if(!RESIZABLE(container->address)) {
+			qb_abort("cannot append element to a fixed-length array");
 		}
 	}
 }

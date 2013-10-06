@@ -2065,7 +2065,7 @@ qb_basic_op_factory factory_isset_array_element = {
 	{ QB_CBOOL_F64_I32_I32, QB_CBOOL_F32_I32_I32, QB_CBOOL_I64_I32_I32, QB_CBOOL_I64_I32_I32, QB_CBOOL_I32_I32_I32, QB_CBOOL_I32_I32_I32, QB_CBOOL_I16_I32_I32, QB_CBOOL_I16_I32_I32, QB_CBOOL_I08_I32_I32, QB_CBOOL_I08_I32_I32 }
 };
 
-qb_basic_op_factory factory_unset_array_element = {
+qb_unset_op_factory factory_unset_array_element = {
 	NULL,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -2073,13 +2073,14 @@ qb_basic_op_factory factory_unset_array_element = {
 	qb_validate_operands_referenceable,
 	NULL,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_unset,
 	NULL,
 	qb_transfer_operands_unset_array_element,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	{ QB_CLR_U32_U32_F64, QB_CLR_U32_U32_F32, QB_CLR_U32_U32_I64, QB_CLR_U32_U32_I64, QB_CLR_U32_U32_I32, QB_CLR_U32_U32_I32, QB_CLR_U32_U32_I16, QB_CLR_U32_U32_I16, QB_CLR_U32_U32_I08, QB_CLR_U32_U32_I08 }
+	{ QB_CLR_ELE_U32_U32_F64, QB_CLR_ELE_U32_U32_F32, QB_CLR_ELE_U32_U32_I64, QB_CLR_ELE_U32_U32_I64, QB_CLR_ELE_U32_U32_I32, QB_CLR_ELE_U32_U32_I32, QB_CLR_ELE_U32_U32_I16, QB_CLR_ELE_U32_U32_I16, QB_CLR_ELE_U32_U32_I08, QB_CLR_ELE_U32_U32_I08 },
+	{ QB_CLR_ELE_RSZ_U32_U32_F64, QB_CLR_ELE_RSZ_U32_U32_F32, QB_CLR_ELE_RSZ_U32_U32_I64, QB_CLR_ELE_RSZ_U32_U32_I64, QB_CLR_ELE_RSZ_U32_U32_I32, QB_CLR_ELE_RSZ_U32_U32_I32, QB_CLR_ELE_RSZ_U32_U32_I16, QB_CLR_ELE_RSZ_U32_U32_I16, QB_CLR_ELE_RSZ_U32_U32_I08, QB_CLR_ELE_RSZ_U32_U32_I08 },
 };
 
 qb_basic_op_factory factory_isset_object_property = {

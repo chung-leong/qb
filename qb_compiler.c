@@ -131,7 +131,7 @@ void qb_mark_as_static(qb_compiler_context *cxt, qb_address *address) {
 	if(READ_ONLY(address)) {
 		address->flags |= QB_ADDRESS_STATIC;
 
-		if(VARIABLE_LENGTH_ARRAY(address)) {
+		if(VARIABLE_LENGTH(address)) {
 			// dimensions that aren't constant must become static as well 
 			uint32_t i;
 			for(i = 0; i < address->dimension_count; i++) {
@@ -152,7 +152,7 @@ void qb_mark_as_shared(qb_compiler_context *cxt, qb_address *address) {
 	if(READ_ONLY(address)) {
 		address->flags |= QB_ADDRESS_SHARED;
 
-		if(VARIABLE_LENGTH_ARRAY(address)) {
+		if(VARIABLE_LENGTH(address)) {
 			// dimensions that aren't constant must become shared as well 
 			uint32_t i;
 			for(i = 0; i < address->dimension_count; i++) {
@@ -222,12 +222,13 @@ void qb_unlock_operand(qb_compiler_context *cxt, qb_operand *operand) {
 }
 
 static void qb_mark_as_non_local(qb_compiler_context *cxt, qb_address *address) {
+	// TODO: need to consider whether this is still relevant
 	if(!(address->flags & QB_ADDRESS_NON_LOCAL)) {
 		address->flags |= QB_ADDRESS_NON_LOCAL;
 		if(address->source_address) {
 			qb_mark_as_non_local(cxt, address->source_address);
 		}
-		if(EXPANDABLE_ARRAY(address)) {
+		if(VARIABLE_LENGTH(address)) {
 			qb_mark_as_non_local(cxt, address->array_size_addresses[0]);
 			qb_mark_as_non_local(cxt, address->dimension_addresses[0]);
 		}
@@ -401,7 +402,7 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 				return address;
 			}
 		}
-		if(VARIABLE_LENGTH_ARRAY(address)) {
+		if(RESIZABLE(address)) {
 			// accommodate the input by resizing the array
 			// if it's multidimensional, the dimension has to be updated as well
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address }, { QB_OPERAND_ADDRESS, src_size_address } };
@@ -431,7 +432,7 @@ static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *addr
 		byte_count = BYTE_COUNT(1, address->type);
 		alignment = max(byte_count, 4);
 	} else {
-		if(FIXED_LENGTH_ARRAY(address)) {
+		if(FIXED_LENGTH(address)) {
 			element_count = ARRAY_SIZE(address);
 			byte_count = BYTE_COUNT(element_count, address->type);
 		} else {
@@ -810,6 +811,7 @@ static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions,
 		if(dimensions[0] == 0) {
 			// if it's zero, it's unknown at compile time
 			address->array_size_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+			address->flags |= QB_ADDRESS_RESIZABLE;
 		} else {
 			address->array_size_address = qb_obtain_constant_U32(cxt, dimensions[0]);
 		}
@@ -828,6 +830,7 @@ static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions,
 			array_size *= dimension;
 			if(dimension == 0) {
 				dimension_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+				address->flags |= QB_ADDRESS_RESIZABLE;
 			} else {
 				dimension_address = qb_obtain_constant_U32(cxt, dimension);
 			}
@@ -1321,12 +1324,12 @@ qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive
 	uint32_t i;
 	qb_address *usable_address = NULL;
 	if(dim && dim->dimension_count > 0) {
-		int32_t need_variable_length = !dim->array_size_address || VARIABLE_LENGTH_ARRAY(dim);
+		int32_t need_variable_length = !dim->array_size_address || VARIABLE_LENGTH(dim);
 		for(i = 0; i < cxt->writable_array_count; i++) {
 			qb_address *address = cxt->writable_arrays[i];
 			if(TEMPORARY(address) && !IN_USE(address) && !NON_REUSABLE(address)) {
 				if(address->type == element_type) {
-					if((address->array_size_address == dim->array_size_address)	|| (VARIABLE_LENGTH_ARRAY(address) && need_variable_length)) {
+					if((address->array_size_address == dim->array_size_address)	|| (VARIABLE_LENGTH(address) && need_variable_length)) {
 						usable_address = address;
 						break;
 					}
@@ -1433,7 +1436,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 						qb_operand *container = &destination->element.container, *index = &destination->element.index;
 						if(index->type == QB_OPERAND_NONE) {
 							// an append operation
-							if(EXPANDABLE_ARRAY(container->address)) {
+							if(RESIZABLE(container->address)) {
 								index->address = container->address->dimension_addresses[0];
 								index->type = QB_OPERAND_ADDRESS;
 							} else {
@@ -1474,7 +1477,8 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 	if(!target_address) {
 		target_address = qb_obtain_temporary_variable(cxt, element_type, dim);
 	}
-	if(VARIABLE_LENGTH_ARRAY(target_address)) {
+
+	if(RESIZABLE(target_address)) {
 		// put a wrapper around it to make it expand/contract
 		target_address = qb_obtain_bound_checked_address(cxt, dim->array_size_address, target_address);
 	}
@@ -1782,8 +1786,8 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 				address->index_alias_schemes = decl->index_alias_schemes;
 			}
 			if(qvar->flags & (QB_VARIABLE_ARGUMENT | QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE)) {
-				// not adjustment of array size when the source of the variable is external
-				address->flags |= QB_ADDRESS_INITIALIZED;
+				// no adjustment of array size when the source of the variable is external
+				//address->flags |= QB_ADDRESS_INITIALIZED;
 			}
 			if(qvar->flags & (QB_VARIABLE_PASSED_BY_REF | QB_VARIABLE_RETURN_VALUE | QB_VARIABLE_STATIC | QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE)) {
 				// indicate that the value of the variable can be read outside the function 
@@ -1865,9 +1869,6 @@ static void qb_add_variables(qb_compiler_context *cxt) {
 					static_initializer = qb_obtain_constant_zval(cxt, *p_static_value, qvar->address->type);
 				}
 
-				if(VARIABLE_LENGTH_ARRAY(qvar->address)) {
-					qb_initialize_dimensions(cxt, static_initializer, qvar->address);
-				}
 				//qb_do_static_init(cxt, static_initializer, qvar->address);
 			} else {
 				// we don't know whether it is a local or a global variable at this point
@@ -2431,7 +2432,17 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 	qb_address *array_offset_address = container_address->array_index_address;
 	qb_address *sub_array_size_address = (container_address->dimension_count > 1) ? container_address->array_size_addresses[1] : NULL;
 	int32_t no_offset = (array_offset_address == cxt->zero_address);
+	int32_t can_expand = FALSE;
 	void *factory;
+
+	if(AUTO_EXPAND(container_address)) {
+		can_expand = TRUE;
+	} else if(RESIZABLE(container_address)) {
+		if(index_limit_address == index_address) {
+			// an append operation
+			can_expand = TRUE;
+		}
+	}
 
 	if(sub_array_size_address) {
 		// if everything is constant, perform the calculation now if it's within bounds
@@ -2451,8 +2462,8 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 			return qb_obtain_on_demand_value(cxt, factory, operands, 3);
 		} else {
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
-			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && EXPANDABLE_ARRAY(container_address)) {
-				// a write operation and the array is expandable
+			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
+				// a write operation and the array can expand
 				// enlarge the array to accommodate an index larger than the current size
 				// since sub-arrays are never expandable, the offset should always be zero
 				factory = &factory_accommodate_array_index_multiply;
@@ -2476,8 +2487,9 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 			return qb_obtain_on_demand_value(cxt, factory, operands, 3);
 		} else {
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
-			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && EXPANDABLE_ARRAY(container_address)) {
+			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
 				if(index_address == index_limit_address) {
+					// done slightly differently, since we need to put the original size of the array in a temporary variable
 					factory = &factory_accommodate_array_push;
 				} else {
 					factory = &factory_accommodate_array_index;
@@ -2509,6 +2521,7 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 	}
 
 	result_address = qb_create_address_alias(cxt, container_address);
+	result_address->flags &= ~QB_ADDRESS_RESIZABLE;
 	result_address->array_index_address = index_address;
 	result_address->dimension_count--;
 	if(result_address->dimension_count > 0) {
@@ -2531,16 +2544,6 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 		result_address->array_size_addresses = 
 		result_address->dimension_addresses = &result_address->array_size_address;
 		result_address->index_alias_schemes = NULL;
-	}
-
-	if(CONSTANT(index_address)) {
-		// TODO: double check this
-		uint32_t index = VALUE(U32, index_address);
-		if(FIXED_LENGTH_ARRAY(container_address)) {
-			if(index < ARRAY_SIZE(container_address)) {
-				result_address->flags |= QB_ADDRESS_ALWAYS_IN_BOUND;
-			}
-		}
 	}
 	return result_address;
 }
@@ -3557,7 +3560,7 @@ static void qb_print_address(qb_compiler_context *cxt, qb_address *address, int3
 					php_printf("(%u:%u)", address->segment_selector, address->segment_offset);
 				}
 			} else {
-				if(VARIABLE_LENGTH_ARRAY(address)) {
+				if(VARIABLE_LENGTH(address)) {
 					php_printf("(%u:%u...)", address->segment_selector, address->segment_offset);
 				} else {
 					php_printf("(%u:%u..%u:%u)", address->segment_selector, address->segment_offset, address->segment_selector, address->segment_offset + (ARRAY_SIZE(address) - 1));

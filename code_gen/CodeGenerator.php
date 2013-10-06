@@ -863,7 +863,9 @@ class CodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new Copy("MOV", $elementTypeNoSign, $addressMode);
 			}
-			$this->handlers[] = new ClearElement("CLR", $elementTypeNoSign);
+			$this->handlers[] = new ClearArray("CLR_ARR", $elementTypeNoSign);
+			$this->handlers[] = new ClearElement("CLR_ELE", $elementTypeNoSign);
+			$this->handlers[] = new ClearElementResize("CLR_ELE_RSZ", $elementTypeNoSign);
 		}
 	}
 

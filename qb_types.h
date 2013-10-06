@@ -88,13 +88,13 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 #define READ_ONLY(address)					(address->flags & QB_ADDRESS_READ_ONLY)
 #define ON_DEMAND(address)					(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)
 #define NON_REUSABLE(address)				(address->flags & QB_ADDRESS_NON_REUSABLE)
-
+#define RESIZABLE(address)					(address->flags & QB_ADDRESS_RESIZABLE)
+#define AUTO_EXPAND(address)				(address->flags & QB_ADDRESS_AUTO_EXPAND)
 #define FIXED_LENGTH(address)				CONSTANT(address->array_size_address)
-#define MULTIDIMENSIONAL_ARRAY(address)		(address->dimension_count > 1)
-#define FIXED_LENGTH_ARRAY(address)			(address->dimension_count > 0 && CONSTANT(address->array_size_address))
-#define VARIABLE_LENGTH_ARRAY(address)		(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
-#define EXPANDABLE_ARRAY(address)			(address->dimension_count > 0 && !READ_ONLY(address->array_size_address))
+#define VARIABLE_LENGTH(address)			(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
+#define MULTIDIMENSIONAL(address)			(address->dimension_count > 1)
 
+// TODO: fix these
 #define ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
 #define CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
 
@@ -159,12 +159,13 @@ enum {
 	QB_ADDRESS_SHARED				= 0x00000020,
 	QB_ADDRESS_TEMPORARY			= 0x00000040,
 	QB_ADDRESS_REUSED				= 0x00000080,
-	QB_ADDRESS_INITIALIZED			= 0x00000100,
+	QB_ADDRESS_RESIZABLE			= 0x00000100,
 	QB_ADDRESS_ALWAYS_IN_BOUND		= 0x00000200,
 	QB_ADDRESS_AUTO_INCREMENT		= 0x00000400,
 	QB_ADDRESS_CAST					= 0x00000800,
 	QB_ADDRESS_NON_LOCAL			= 0x00001000,
 	QB_ADDRESS_NON_REUSABLE			= 0x00002000,
+	QB_ADDRESS_AUTO_EXPAND			= 0x00004000,
 	QB_ADDRESS_FOREACH_INDEX		= 0x01000000,
 	QB_ADDRESS_ON_DEMAND_VALUE		= 0x02000000,
 

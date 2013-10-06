@@ -28,6 +28,7 @@ typedef struct qb_float_op_factory				qb_float_op_factory;
 typedef struct qb_simple_op_factory				qb_simple_op_factory;
 typedef struct qb_fetch_op_factory				qb_fetch_op_factory;
 typedef struct qb_copy_op_factory				qb_copy_op_factory;
+typedef struct qb_unset_op_factory				qb_unset_op_factory;
 typedef struct qb_chained_op_factory			qb_chained_op_factory;
 typedef struct qb_cast_op_factory				qb_cast_op_factory;
 typedef struct qb_comparison_op_factory			qb_comparison_op_factory;
@@ -108,6 +109,12 @@ struct qb_chained_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcode_initial;
 	qb_opcode opcode_subsequent;
+};
+
+struct qb_unset_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	qb_opcode no_resizing_opcodes[10];
+	qb_opcode resizing_opcodes[10];
 };
 
 struct qb_copy_op_factory {
@@ -297,7 +304,7 @@ extern qb_derived_op_factory factory_not_identical;
 
 extern qb_basic_op_factory factory_isset_array_element;
 extern qb_basic_op_factory factory_isset_object_property;
-extern qb_basic_op_factory factory_unset_array_element;
+extern qb_unset_op_factory factory_unset_array_element;
 
 extern qb_basic_op_factory factory_branch_on_equal;
 extern qb_basic_op_factory factory_branch_on_not_equal;
