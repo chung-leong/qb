@@ -297,6 +297,7 @@ extern qb_derived_op_factory factory_not_identical;
 
 extern qb_basic_op_factory factory_isset_array_element;
 extern qb_basic_op_factory factory_isset_object_property;
+extern qb_basic_op_factory factory_unset_array_element;
 
 extern qb_basic_op_factory factory_branch_on_equal;
 extern qb_basic_op_factory factory_branch_on_not_equal;

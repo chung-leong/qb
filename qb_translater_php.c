@@ -1229,7 +1229,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_array_append				},	// ZEND_ADD_ARRAY_ELEMENT
 	{	NULL,								NULL								},	// ZEND_INCLUDE_OR_EVAL
 	{	qb_translate_basic_op,				NULL						},	// ZEND_UNSET_VAR
-	{	qb_translate_basic_op,				NULL						},	// ZEND_UNSET_DIM
+	{	qb_translate_basic_op,				&factory_unset_array_element		},	// ZEND_UNSET_DIM
 	{	qb_translate_basic_op,				NULL						},	// ZEND_UNSET_OBJ
 	{	qb_translate_basic_op,				&factory_foreach_reset				},	// ZEND_FE_RESET
 	{	qb_translate_foreach_fetch,			&factory_foreach_fetch				},	// ZEND_FE_FETCH

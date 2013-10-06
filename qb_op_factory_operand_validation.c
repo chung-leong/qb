@@ -211,12 +211,18 @@ static void qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_facto
 	}
 }
 
-static void qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand = &operands[0];
 
 	if(operand->type != QB_OPERAND_ADDRESS) {
 		qb_abort("%s() can only operate on variables", cxt->intrinsic_function->name);
 	}
+}
+
+static void qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand = &operands[0];
+
+	qb_validate_operands_referenceable(cxt, f, operands, operand_count);
 	qb_validate_operands_one_array(cxt, f, operands, operand_count);
 }
 

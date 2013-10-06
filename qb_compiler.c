@@ -3300,6 +3300,7 @@ void qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
 
 	qb_destroy_block_allocator(&pool->op_allocator);
 	qb_destroy_block_allocator(&pool->address_allocator);
+	qb_destroy_block_allocator(&pool->expression_allocator);
 	qb_destroy_block_allocator(&pool->pointer_allocator);
 	qb_destroy_block_allocator(&pool->operand_allocator);
 	qb_destroy_block_allocator(&pool->array_initializer_allocator);
