@@ -348,7 +348,11 @@ static void qb_transfer_operands_unset_object_property(qb_compiler_context *cxt,
 				dest[1].type = QB_OPERAND_ADDRESS;
 			}
 		} else {
-			dest[0].address = cxt->true_address;
+			qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
+			if(!predicate_address) {
+				predicate_address = cxt->true_address;
+			}
+			dest[0].address = predicate_address;
 			dest[0].type = QB_OPERAND_ADDRESS;
 			dest[1].address = address;
 			dest[1].type = QB_OPERAND_ADDRESS;
@@ -359,13 +363,19 @@ static void qb_transfer_operands_unset_object_property(qb_compiler_context *cxt,
 static void qb_transfer_operands_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
+	if(!predicate_address) {
+		predicate_address = cxt->true_address;
+	}
 	if(SCALAR(address)) {
 		dest[0].address = address;
 	} else {
 		dest[0].address = address->array_size_address;
 	}
 	dest[0].type = QB_OPERAND_ADDRESS;
-	dest[1] = *result;
+	dest[1].address = predicate_address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2] = *result;
 }
 
 static void qb_transfer_operands_result_only(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {

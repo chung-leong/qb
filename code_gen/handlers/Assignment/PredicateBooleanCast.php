@@ -3,6 +3,12 @@
 class PredicateBooleanCast extends Handler {
 
 	use MultipleAddressMode, BinaryOperator;
+	
+	public function getHandlerFunctionType() {
+		// since the reference to op1 might not be valid
+		// this handler can never be placed in a function
+		return null;
+	}
 
 	public function getOperandType($i) {
 		switch($i) {
