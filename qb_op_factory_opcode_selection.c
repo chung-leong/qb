@@ -85,6 +85,24 @@ static qb_opcode qb_select_opcode_isset_object_property(qb_compiler_context *cxt
 
 static qb_opcode qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
+	qb_operand *variable = &operands[0];
+	if(SCALAR(variable->address)) {
+		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, variable);
+	} else {
+		if(RESIZABLE(variable->address)) {
+			if(MULTIDIMENSIONAL(variable->address)) {
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, variable);
+			} else {
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, variable);
+			}
+		} else {
+			return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, variable);
+		}
+	}
+}
+
+static qb_opcode qb_select_opcode_unset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_unset_element_op_factory *uf = (qb_unset_element_op_factory *) f;
 	qb_operand *container = &operands[0];
 	if(RESIZABLE(container->address)) {
 		return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, container);

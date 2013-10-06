@@ -56,12 +56,12 @@ static int32_t qb_find_class_declaration(qb_build_context *cxt, zend_class_entry
 extern const qb_op_info global_op_info[];
 extern const char *global_operand_codes[];
 
-uint32_t qb_get_op_flags(qb_compiler_context *cxt, uint32_t opcode) {
+uint32_t qb_get_op_flags(qb_compiler_context *cxt, qb_opcode opcode) {
 	const qb_op_info *op = &global_op_info[opcode];
 	return op->flags;
 }
 
-uint32_t qb_get_operand_count(qb_compiler_context *cxt, uint32_t opcode) {
+uint32_t qb_get_operand_count(qb_compiler_context *cxt, qb_opcode opcode) {
 	const qb_op_info *op = &global_op_info[opcode];
 	const char *codes = op->instruction_format;
 	return strlen(codes);
@@ -118,13 +118,6 @@ void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address) {
 	if(address->source_address) {
 		qb_mark_as_writable(cxt, address->source_address);
 	}
-}
-
-static void qb_mark_as_expandable(qb_compiler_context *cxt, qb_address *address) {
-	qb_address *dimension_address = address->dimension_addresses[0];
-	qb_address *array_size_address = address->array_size_address;
-	dimension_address->flags &= ~QB_ADDRESS_READ_ONLY;
-	array_size_address->flags &= ~QB_ADDRESS_READ_ONLY;
 }
 
 void qb_mark_as_static(qb_compiler_context *cxt, qb_address *address) {
@@ -1267,9 +1260,6 @@ qb_address * qb_create_temporary_variable(qb_compiler_context *cxt, qb_primitive
 			array_size = VALUE(U32, dim->array_size_address);
 		}
 		address = qb_create_writable_array(cxt, element_type, &array_size, 1);
-		if(!array_size) {
-			qb_mark_as_expandable(cxt, address);
-		}
 	} else {
 		address = qb_create_writable_scalar(cxt, element_type);
 	}
@@ -1776,7 +1766,7 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 			} else {
 				address = qb_create_writable_array(cxt, decl->type, decl->dimensions, decl->dimension_count);
 				if(decl->flags & QB_TYPE_DECL_EXPANDABLE) {
-					qb_mark_as_expandable(cxt, address);
+					address->flags |= QB_ADDRESS_AUTO_EXPAND;
 				}
 			}
 			if(decl->flags & QB_TYPE_DECL_STRING) {

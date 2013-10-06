@@ -2,17 +2,26 @@
 
 class ClearElementResize extends Handler {
 
-	use ArrayAddressMode, BinaryOperator;
+	use ArrayAddressMode, TernaryOperator;
 	
 	public function changesOperandSize($i) {
-		return ($i == 3);
+		return ($i == 4);
 	}
 	
+	public function needsInterpreterContext() {
+		return true;
+	}
+	
+	public function needsLocalStorage() {
+		return true;
+	}
+
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";				// element index
 			case 2: return "U32";				// element count
-			case 3: return $this->operandType;	// array containing element
+			case 3: return "U32";				// segment offset
+			case 4: return $this->operandType;	// array containing element
 		}
 	}
 	
@@ -20,20 +29,25 @@ class ClearElementResize extends Handler {
 		switch($i) {
 			case 1: return "SCA";
 			case 2: return "SCA";
-			case 3: return "ARR";
+			case 3: return "CON";
+			case 4: return "ARR";
 		}
 	}
 	
 	protected function getActionOnUnitData() {
+		$cType = $this->getOperandCType(4);
 		$lines = array();
 		$lines[] = "uint32_t i, shift = op2, start = op1 * op2, end = res_count - shift;";
-		$lines[] = "for(i = start; i < end; i++) {";
-		$lines[] =		"res_ptr[i] = res_ptr[i + shift];";
+		$lines[] = "if(start < end) {";
+		$lines[] = 		"for(i = start; i < end; i++) {";
+		$lines[] =			"res_ptr[i] = res_ptr[i + shift];";
+		$lines[] = 		"}";
+		$lines[] = 		"for(i = end; i < res_count; i++) {";
+		$lines[] =			"res_ptr[i] = 0;";
+		$lines[] = 		"}";
+		$lines[] = 		"res_count = end;";
+		$lines[] = 		"qb_resize_array(cxt, local_storage, op3, res_count * sizeof($cType));";
 		$lines[] = "}";
-		$lines[] = "for(i = end; i < res_count; i++) {";
-		$lines[] =		"res_ptr[i] = 0;";
-		$lines[] = "}";
-		$lines[] = "res_count = end;";
 		return $lines;
 	}
 }

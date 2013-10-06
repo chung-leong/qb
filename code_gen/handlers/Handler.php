@@ -220,6 +220,9 @@ class Handler {
 					case 'SCA': $format .= 'S'; break;
 					case 'ELE': $format .= 'E'; break;
 					case 'ARR': $format .= 'A'; break;
+					case 'CON':
+						$class = get_class($this);
+						die("Operand $i of $class is constant and changeable at the same time\n");
 				}
 			} else {
 				switch($addressMode) {

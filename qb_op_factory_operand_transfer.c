@@ -271,12 +271,57 @@ static void qb_transfer_operands_isset_array_element(qb_compiler_context *cxt, q
 	dest[2] = *result;
 }
 
+static void qb_transfer_operands_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *variable = &operands[0];
+
+	if(SCALAR(variable->address)) {
+		dest[0] = *variable;
+	} else {
+		if(RESIZABLE(variable->address)) {
+			if(MULTIDIMENSIONAL(variable->address)) {
+				// need to set the first dimension to zero as well
+				dest[0].address = variable->address->dimension_addresses[0];
+				dest[0].type = QB_OPERAND_ADDRESS;
+				dest[1].address = variable->address;
+				dest[1].type = QB_OPERAND_SEGMENT_SELECTOR;
+				dest[2] = *variable;
+			} else {
+				dest[0].address = variable->address;
+				dest[0].type = QB_OPERAND_SEGMENT_SELECTOR;
+				dest[1] = *variable;
+			}
+		} else {
+			// need a predicate, since the unset() might performed on a sub-array (whose existence is not guaranteed)
+			qb_address *predicate_address = qb_find_predicate_address(cxt, variable->address);
+			if(!predicate_address) {
+				// just use true if there isn't one
+				predicate_address = cxt->true_address;
+			}
+			dest[0].address = predicate_address;
+			dest[1].type = QB_OPERAND_ADDRESS;
+			dest[1] = *variable;
+		}
+	}
+}
+
 static void qb_transfer_operands_unset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *index = &operands[1];
 	dest[0] = *index;
 	dest[1].address = (container->address->dimension_count > 1) ? container->address->array_size_addresses[1] : cxt->one_address;
 	dest[1].type = QB_OPERAND_ADDRESS;
-	dest[2] = *container;
+	if(RESIZABLE(container->address)) {
+		dest[2].address = container->address;
+		dest[2].type = QB_OPERAND_SEGMENT_SELECTOR;
+		dest[3] = *container;
+	} else {
+		qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
+		if(!predicate_address) {
+			predicate_address = cxt->true_address;
+		}
+		dest[2].address = predicate_address;
+		dest[2].type = QB_OPERAND_ADDRESS;
+		dest[3] = *container;
+	}
 }
 
 static void qb_transfer_operands_isset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
