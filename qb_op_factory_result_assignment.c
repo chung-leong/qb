@@ -247,25 +247,35 @@ static void qb_set_result_array_init(qb_compiler_context *cxt, qb_op_factory *f,
 }
 
 static void qb_set_result_empty_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(result->type != QB_OPERAND_ADDRESS) {
-		qb_variable_dimensions dim = { NULL, 1, NULL };
-		qb_address *address = qb_create_temporary_variable(cxt, QB_TYPE_U08, &dim);
-		address->flags |= QB_ADDRESS_NON_REUSABLE | QB_ADDRESS_STRING;
-		result->address = address;
+	qb_variable_dimensions dim = { NULL, 1, NULL };
+	qb_address *address = qb_obtain_temporary_variable(cxt, QB_TYPE_U08, &dim);
+	qb_obtain_string_alias(cxt, address);
+	result->address = address;
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void qb_set_result_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *augend = &operands[0], *addend = &operands[1];
+	if(augend->type == QB_OPERAND_ADDRESS) {
+		*result = *augend;
+	} else {
+		qb_operand es_result = { QB_OPERAND_EMPTY, NULL };
+		qb_produce_op(cxt, &factory_empty_string, NULL, 0, &es_result, NULL, 0, NULL);
+		result->address = es_result.address;
 		result->type = QB_OPERAND_ADDRESS;
 	}
 }
 
-static void qb_set_result_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *string = &operands[0], *addend = &operands[1];
-	if(string->type == QB_OPERAND_ADDRESS) {
-		*result = *string;
+static void qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *augend = &operands[0], *addend = &operands[1];
+	if(augend->type == QB_OPERAND_ADDRESS && TEMPORARY(augend->address) && (augend->address->flags & QB_ADDRESS_STRING)) {
+		// append to the augend
+		*result = *augend;
 	} else {
-		qb_variable_dimensions dim = { NULL, 1, NULL };
-		string->address = qb_obtain_on_demand_value(cxt, &factory_empty_string, NULL, 0);
-		string->type = QB_OPERAND_ADDRESS;
-		result->address = string->address->expression->result->address;
-		result->type = QB_OPERAND_ADDRESS;
+		qb_operand av_operands[2] = { { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_ADDRESS, augend->address } };
+		qb_operand av_result = { QB_OPERAND_EMPTY, NULL };
+		qb_produce_op(cxt, &factory_add_variable, av_operands, 2, &av_result, NULL, 0, NULL);
+		*result = av_result;
 	}
 }
 

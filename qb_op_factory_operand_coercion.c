@@ -93,14 +93,20 @@ static void qb_coerce_operands_assign_object_property(qb_compiler_context *cxt, 
 	}
 }
 
+static void qb_coerce_operands_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *augend = &operands[0], *addend = &operands[1];
+	qb_perform_type_coercion(cxt, augend, QB_TYPE_ANY, f->coercion_flags);
+	qb_perform_type_coercion(cxt, addend, QB_TYPE_ANY, f->coercion_flags);
+}
+
 static void qb_coerce_operands_add_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *value = &operands[1];
-	qb_perform_type_coercion(cxt, value, QB_TYPE_ANY, f->coercion_flags);
+	qb_operand *addend = &operands[1];
+	qb_perform_type_coercion(cxt, addend, QB_TYPE_ANY, f->coercion_flags);
 }
 
 static void qb_coerce_operands_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *value = &operands[1];
-	qb_perform_type_coercion(cxt, value, QB_TYPE_U08, f->coercion_flags);
+	qb_operand *addend = &operands[1];
+	qb_perform_type_coercion(cxt, addend, QB_TYPE_U08, f->coercion_flags);
 }
 
 static void qb_coerce_operands_print(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {

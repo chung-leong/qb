@@ -28,6 +28,12 @@ static void qb_transfer_operands_all(qb_compiler_context *cxt, qb_op_factory *f,
 	}
 }
 
+static void qb_transfer_operands_derived(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	f = df->parent;
+	f->transfer_operands(cxt, f, operands, operand_count, result, dest, dest_count);
+}
+
 static void qb_transfer_operands_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[operand_count - 1];
 	dest[1] = *result;
@@ -344,18 +350,18 @@ static void qb_transfer_operands_empty_string(qb_compiler_context *cxt, qb_op_fa
 }
 
 static void qb_transfer_operands_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_operand *string = &operands[0], *addition = &operands[1];
-	dest[0] = *addition;
-	if(addition->address->dimension_count > 1) {
+	qb_operand *addend = &operands[1];
+	dest[0] = *addend;
+	if(addend->address->dimension_count > 1) {
 		dest[1].type = QB_OPERAND_ADDRESS;
-		dest[1].address = qb_retrieve_array_dimensions(cxt, addition->address);
-		dest[2].address = string->address;
+		dest[1].address = qb_retrieve_array_dimensions(cxt, addend->address);
+		dest[2].address = result->address;
 		dest[2].type = QB_OPERAND_SEGMENT_SELECTOR;
-		dest[3] = *string;
+		dest[3] = *result;
 	} else {
-		dest[1].address = string->address;
+		dest[1].address = result->address;
 		dest[1].type = QB_OPERAND_SEGMENT_SELECTOR;
-		dest[2] = *string;
+		dest[2] = *result;
 	}
 }
 

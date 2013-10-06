@@ -1162,7 +1162,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_modulo						},	// ZEND_MOD
 	{	qb_translate_basic_op,				&factory_shift_left					},	// ZEND_SL
 	{	qb_translate_basic_op,				&factory_shift_right				},	// ZEND_SR
-	{	qb_translate_basic_op,				NULL								},	// ZEND_CONCAT
+	{	qb_translate_basic_op,				&factory_concat						},	// ZEND_CONCAT
 	{	qb_translate_basic_op,				&factory_bitwise_or					},	// ZEND_BW_OR
 	{	qb_translate_basic_op,				&factory_bitwise_and				},	// ZEND_BW_AND
 	{	qb_translate_basic_op,				&factory_bitwise_xor				},	// ZEND_BW_XOR
@@ -1193,7 +1193,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_increment_post				},	// ZEND_POST_INC
 	{	qb_translate_basic_op,				&factory_decrement_post				},	// ZEND_POST_DEC
 	{	qb_translate_basic_op,				&factory_assign						},	// ZEND_ASSIGN
-	{	qb_translate_basic_op,				&factory_assign_ref				},	// ZEND_ASSIGN_REF
+	{	qb_translate_basic_op,				&factory_assign_ref					},	// ZEND_ASSIGN_REF
 	{	qb_translate_basic_op,				&factory_echo						},	// ZEND_ECHO
 	{	qb_translate_basic_op,				&factory_print						},	// ZEND_PRINT
 	{	qb_translate_jump,					&factory_jump						},	// ZEND_JMP
@@ -1207,16 +1207,16 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_break,					&factory_jump						},	// ZEND_BRK
 	{	qb_translate_continue,				&factory_jump						},	// ZEND_CONT
 	{	qb_translate_basic_op,				&factory_boolean_cast				},	// ZEND_BOOL
-	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_STRING
+	{	qb_translate_basic_op,				&factory_empty_string				},	// ZEND_INIT_STRING
 	{	qb_translate_basic_op,				&factory_add_string					},	// ZEND_ADD_CHAR
 	{	qb_translate_basic_op,				&factory_add_string					},	// ZEND_ADD_STRING
-	{	qb_translate_basic_op,				&factory_add_variable			},	// ZEND_ADD_VAR
+	{	qb_translate_basic_op,				&factory_add_variable				},	// ZEND_ADD_VAR
 	{	qb_translate_basic_op,				NULL						},	// ZEND_BEGIN_SILENCE
 	{	qb_translate_basic_op,				NULL						},	// ZEND_END_SILENCE
 	{	qb_translate_init_function_call,	NULL								},	// ZEND_INIT_FCALL_BY_NAME
 	{	qb_translate_function_call,			factories_fcall						},	// ZEND_DO_FCALL
 	{	qb_translate_function_call_by_name,	factories_fcall						},	// ZEND_DO_FCALL_BY_NAME
-	{	qb_translate_return,				&factory_return				},	// ZEND_RETURN
+	{	qb_translate_return,				&factory_return						},	// ZEND_RETURN
 	{	qb_translate_receive_argument,		&factory_receive_argument			},	// ZEND_RECV
 	{	qb_translate_receive_argument,		&factory_receive_argument			},	// ZEND_RECV_INIT
 	{	qb_translate_basic_op,				&factory_send_argument				},	// ZEND_SEND_VAL
@@ -1259,13 +1259,13 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_BEGIN
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_END
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_NOP
-	{	NULL,								NULL						},	// ZEND_TICKS
+	{	NULL,								NULL								},	// ZEND_TICKS
 	{	qb_translate_basic_op,				&factory_send_argument				},	// ZEND_SEND_VAR_NO_REF
-	{	NULL,								NULL						},	// ZEND_CATCH
-	{	NULL,								NULL						},	// ZEND_THROW
+	{	NULL,								NULL								},	// ZEND_CATCH
+	{	NULL,								NULL								},	// ZEND_THROW
 	{	qb_translate_fetch_class,			factories_fetch_class				},	// ZEND_FETCH_CLASS
-	{	NULL,								NULL						},	// ZEND_CLONE
-	{	NULL,								NULL						},	// ZEND_RETURN_BY_REF
+	{	NULL,								NULL								},	// ZEND_CLONE
+	{	NULL,								NULL								},	// ZEND_RETURN_BY_REF
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_METHOD_CALL
 	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_STATIC_METHOD_CALL
 	{	qb_translate_basic_op,				&factory_boolean_cast				},	// ZEND_ISSET_ISEMPTY_VAR

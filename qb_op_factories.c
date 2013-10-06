@@ -2410,6 +2410,24 @@ qb_simple_op_factory factory_add_string = {
 	QB_APP_STR_U08_U32_U08,
 };
 
+qb_derived_op_factory factory_concat = {
+	qb_resolve_expression_type_string,
+	NULL,
+	qb_coerce_operands_concat,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_concat,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_derived,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
+	&factory_add_variable,
+};
+
 qb_string_op_factory factory_print = {
 	qb_resolve_expression_type_boolean,
 	qb_link_results_print,

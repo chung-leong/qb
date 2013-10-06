@@ -585,15 +585,15 @@ static qb_address * qb_obtain_alias_by_address_flag(qb_compiler_context *cxt, qb
 	return alias;
 }
 
-static qb_address * qb_obtain_string_alias(qb_compiler_context *cxt, qb_address *address) {
+qb_address * qb_obtain_string_alias(qb_compiler_context *cxt, qb_address *address) {
 	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_STRING);
 }
 
-static qb_address * qb_obtain_boolean_alias(qb_compiler_context *cxt, qb_address *address) {
+qb_address * qb_obtain_boolean_alias(qb_compiler_context *cxt, qb_address *address) {
 	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_BOOLEAN);
 }
 
-static qb_address * qb_obtain_cast_alias(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type) {
+qb_address * qb_obtain_cast_alias(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type) {
 	qb_address *alias;
 	uint32_t i; 
 	for(i = 0; i < cxt->address_alias_count; i++) {

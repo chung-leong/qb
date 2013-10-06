@@ -334,6 +334,7 @@ extern qb_simple_op_factory factory_ext;
 extern qb_simple_op_factory factory_empty_string;
 extern qb_string_op_factory factory_add_variable;
 extern qb_simple_op_factory factory_add_string;
+extern qb_derived_op_factory factory_concat;
 extern qb_string_op_factory factory_print;
 extern qb_derived_op_factory factory_echo;
 
