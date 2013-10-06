@@ -283,7 +283,10 @@ qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op_factor
 				}
 			}
 			if(match) {
-				return address;
+				// return it if it's currently in use
+				if(!IN_USE(address)) {
+					return address;
+				}
 			}
 		}
 	}

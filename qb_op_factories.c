@@ -2354,17 +2354,35 @@ qb_simple_op_factory factory_any = {
 	QB_ANY_I32_I32,
 };
 
+qb_simple_op_factory factory_empty_string = {
+	qb_resolve_expression_type_string,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_empty_string,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_empty_string,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
+	QB_CLR_ARR_RSZ_U32_I08,
+};
+
 qb_string_op_factory factory_add_variable = {
 	qb_resolve_expression_type_string,
 	NULL,
-	qb_coerce_operands_concat_variable,
+	qb_coerce_operands_add_variable,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_concat,
+	qb_set_result_add_string,
 	NULL,
-	qb_select_opcode_concat_variable,
+	qb_select_opcode_add_variable,
 	NULL,
-	qb_transfer_operands_concat,
+	qb_transfer_operands_add_string,
 
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -2377,14 +2395,14 @@ qb_string_op_factory factory_add_variable = {
 qb_simple_op_factory factory_add_string = {
 	qb_resolve_expression_type_string,
 	NULL,
-	qb_coerce_operands_concat_string,
+	qb_coerce_operands_add_string,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_concat,
+	qb_set_result_add_string,
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-	qb_transfer_operands_concat,
+	qb_transfer_operands_add_string,
 
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,

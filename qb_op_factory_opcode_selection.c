@@ -200,7 +200,7 @@ static qb_opcode qb_select_opcode_arithmetic(qb_compiler_context *cxt, qb_op_fac
 	return opcode;
 }
 
-static qb_opcode qb_select_opcode_concat_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static qb_opcode qb_select_opcode_add_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *sf = (qb_string_op_factory *) f;
 	qb_address *address = operands[1].address;
 	qb_opcode opcode;

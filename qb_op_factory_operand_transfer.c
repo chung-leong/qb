@@ -337,19 +337,25 @@ static void qb_transfer_operands_reverse_binary(qb_compiler_context *cxt, qb_op_
 	dest[2] = *result;
 }
 
-static void qb_transfer_operands_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_operand *value = &operands[1];
-	dest[0] = *value;
-	if(value->address->dimension_count > 1) {
+static void qb_transfer_operands_empty_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0].address = result->address;
+	dest[0].type = QB_OPERAND_SEGMENT_SELECTOR;
+	dest[1] = *result;
+}
+
+static void qb_transfer_operands_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *string = &operands[0], *addition = &operands[1];
+	dest[0] = *addition;
+	if(addition->address->dimension_count > 1) {
 		dest[1].type = QB_OPERAND_ADDRESS;
-		dest[1].address = qb_retrieve_array_dimensions(cxt, value->address);
-		dest[2].address = result->address;
+		dest[1].address = qb_retrieve_array_dimensions(cxt, addition->address);
+		dest[2].address = string->address;
 		dest[2].type = QB_OPERAND_SEGMENT_SELECTOR;
-		dest[3] = *result;
+		dest[3] = *string;
 	} else {
-		dest[1].address = result->address;
+		dest[1].address = string->address;
 		dest[1].type = QB_OPERAND_SEGMENT_SELECTOR;
-		dest[2] = *result;
+		dest[2] = *string;
 	}
 }
 
