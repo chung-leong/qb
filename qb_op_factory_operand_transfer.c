@@ -255,7 +255,7 @@ static void qb_transfer_operands_boolean_cast(qb_compiler_context *cxt, qb_op_fa
 	dest[1] = *result;
 }
 
-static void qb_transfer_operands_isset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+static void qb_transfer_operands_array_element_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *index = &operands[1];
 	qb_address *variable_address, *predicate_address;
 
@@ -330,7 +330,16 @@ static void qb_transfer_operands_unset_array_element(qb_compiler_context *cxt, q
 	}
 }
 
-static void qb_transfer_operands_isset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+static void qb_transfer_operands_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	if(SCALAR(address)) {
+		dest[0].address = address;
+	} else {
+		dest[0].address = address->array_size_address;
+	}
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1] = *result;
 }
 
 static void qb_transfer_operands_result_only(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
@@ -433,6 +442,23 @@ static void qb_transfer_operands_increment(qb_compiler_context *cxt, qb_op_facto
 		qb_create_op(cxt, &factory_assign, assigment_operands, 2, result, NULL, 0, TRUE);
 	}
 	dest[0] = *variable;
+}
+
+static void qb_transfer_operands_increment_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_address *variable_address = qb_obtain_object_property(cxt, container, name);
+	if(result->type == QB_OPERAND_ADDRESS) {
+		if(result->address != variable_address) {
+			qb_operand assigment_operands[2];
+			assigment_operands[0].type = QB_OPERAND_ADDRESS;
+			assigment_operands[0].address = result->address;
+			assigment_operands[1].type = QB_OPERAND_ADDRESS;
+			assigment_operands[1].address = variable_address;
+			qb_create_op(cxt, &factory_assign, assigment_operands, 2, result, NULL, 0, TRUE);
+		}
+	}
+	dest[0].address = variable_address;
+	dest[0].type = QB_OPERAND_ADDRESS;
 }
 
 static void qb_transfer_operands_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {

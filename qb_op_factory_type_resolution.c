@@ -59,13 +59,25 @@ static qb_primitive_type qb_resolve_expression_type_cast(qb_compiler_context *cx
 	return cf->type;
 }
 
-static qb_primitive_type qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *container = &operands[0];
-	qb_operand *name = &operands[1];
-	qb_primitive_type expr_type = qb_get_property_type(cxt, container, name);
+static qb_address * qb_obtain_object_property(qb_compiler_context *cxt, qb_operand *container, qb_operand *name) {
+	qb_address *address;
+	if(container->type == QB_OPERAND_NONE) {
+		address = qb_obtain_instance_variable(cxt, name->constant);
+	} else if(container->type == QB_OPERAND_ADDRESS) {
+		address = qb_obtain_named_element(cxt, container->address, name->constant, QB_ARRAY_BOUND_CHECK_WRITE);
+	}
+	return address;
+}
 
-	// just return something--it'll fail during validation
-	if(expr_type == QB_TYPE_ANY) {
+static qb_primitive_type qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_primitive_type expr_type;
+
+	if(address) {
+		expr_type = address->type;
+	} else {
+		// just return something--it'll fail during validation
 		expr_type = QB_TYPE_I32;
 	}
 	return expr_type;

@@ -21,6 +21,11 @@
 static qb_opcode qb_select_type_dependent_opcode(qb_compiler_context *cxt, qb_opcode opcodes[], qb_operand *operand) {
 	qb_address *address = operand->address;
 	qb_opcode opcode = opcodes[QB_TYPE_F64 - address->type];
+#ifdef ZEND_DEBUG
+	if(address->type >= QB_TYPE_COUNT) {
+		qb_abort("Invalid type");
+	}
+#endif
 	return opcode;
 }
 
@@ -68,7 +73,7 @@ static qb_opcode qb_select_opcode_check_array_index(qb_compiler_context *cxt, qb
 	}
 }
 
-static qb_opcode qb_select_opcode_isset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static qb_opcode qb_select_opcode_array_element_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0];
 	if(container->address->dimension_count == 1) {
@@ -79,8 +84,17 @@ static qb_opcode qb_select_opcode_isset_array_element(qb_compiler_context *cxt, 
 	}
 }
 
-static qb_opcode qb_select_opcode_isset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	return QB_NOP;
+static qb_opcode qb_select_opcode_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_address *address = qb_obtain_object_property(cxt, container, name);
+
+	if(SCALAR(address)) {
+		qb_operand operand = { QB_OPERAND_ADDRESS, address };
+		return qb_select_type_dependent_opcode(cxt, bf->opcodes, &operand);
+	} else {
+		return bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
+	}
 }
 
 static qb_opcode qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -139,11 +153,11 @@ static uint32_t qb_get_minimum_width(qb_compiler_context *cxt, qb_operand *opera
 static qb_opcode qb_select_vectorized_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_address *address = operands[0].address;
 	if(address->type >= QB_TYPE_F32) {
-		uint32_t i, j;
+		uint32_t i, j, result_count = (result->type == QB_OPERAND_ADDRESS ? 1 : 0);
 
 		// see if the operands are divisible by 2, 3, or 4
 		int32_t divisible[5] = { FALSE, TRUE, TRUE, TRUE, TRUE };
-		for(i = 0; i <= operand_count; i++) {
+		for(i = 0; i < operand_count + result_count; i++) {
 			uint32_t width = qb_get_minimum_width(cxt, (i < operand_count) ? &operands[i] : result);
 			if(width) {
 				divisible[2] = divisible[2] && !(width & 0x0001);
@@ -159,7 +173,7 @@ static qb_opcode qb_select_vectorized_opcode(qb_compiler_context *cxt, qb_opcode
 
 				// see if the multiple-input-output version of the op is needed
 				int32_t multiple_data = FALSE;
-				for(i = 0; i <= operand_count; i++) {
+				for(i = 0; i < operand_count + result_count; i++) {
 					qb_address *address = (i < operand_count) ? operands[i].address : result->address;
 					if(VARIABLE_LENGTH(address) || ARRAY_SIZE(address) > j) {
 						// the MIO version is right behind the regular one
@@ -196,6 +210,27 @@ static qb_opcode qb_select_opcode_arithmetic(qb_compiler_context *cxt, qb_op_fac
 	qb_opcode opcode = qb_select_vectorized_opcode(cxt, af->vector_opcodes, operands, operand_count, result);
 	if(opcode == QB_NOP) {
 		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, (operand_count > 0) ? &operands[0] : result);
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_opcode_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
+	qb_operand operand = operands[0];
+	qb_opcode opcode = qb_select_vectorized_opcode(cxt, af->vector_opcodes, &operand, 1, result);
+	if(opcode == QB_NOP) {
+		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operand);
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_opcode_increment_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
+	qb_operand operand = { QB_OPERAND_ADDRESS, qb_obtain_object_property(cxt, container, name) };
+	qb_opcode opcode = qb_select_vectorized_opcode(cxt, af->vector_opcodes, &operand, 1, result);
+	if(opcode == QB_NOP) {
+		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operand);
 	}
 	return opcode;
 }

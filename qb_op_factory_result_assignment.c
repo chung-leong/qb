@@ -160,12 +160,7 @@ static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op
 	qb_operand *container = &operands[0], *name = &operands[1], *value = &operands[2];
 
 	if(expr_type != QB_TYPE_VOID) {
-		qb_address *result_address;
-		if(container->type == QB_OPERAND_NONE) {
-			result_address = qb_obtain_instance_variable(cxt, name->constant);
-		} else if(container->type == QB_OPERAND_ADDRESS) {
-			result_address = qb_obtain_named_element(cxt, container->address, name->constant, QB_ARRAY_BOUND_CHECK_WRITE);
-		}
+		qb_address *result_address = qb_obtain_object_property(cxt, container, name);
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address);
 		result->type = QB_OPERAND_ADDRESS;
 	}
@@ -195,12 +190,12 @@ static void qb_set_result_fetch_class(qb_compiler_context *cxt, qb_op_factory *f
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void qb_set_result_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_increment_post(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// set result to a temporary variable unless it'll end up just getting freed
 	if(!result_prototype->destination || result_prototype->destination->type != QB_RESULT_DESTINATION_FREE) {
 		// use the destination's type
 		qb_primitive_type destination_type = qb_get_result_destination_type(cxt, result_prototype->destination);
-		if(destination_type != QB_TYPE_ANY) {
+		if(destination_type != QB_TYPE_ANY && destination_type != QB_TYPE_UNKNOWN) {
 			expr_type = destination_type;
 		}
 		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);

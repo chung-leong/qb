@@ -259,6 +259,10 @@ extern qb_arithmetic_op_factory factory_increment_pre;
 extern qb_arithmetic_op_factory factory_decrement_pre;
 extern qb_derived_op_factory factory_increment_post;
 extern qb_derived_op_factory factory_decrement_post;
+extern qb_arithmetic_op_factory factory_increment_object_property_pre;
+extern qb_arithmetic_op_factory factory_decrement_object_property_pre;
+extern qb_derived_op_factory factory_increment_object_property_post;
+extern qb_derived_op_factory factory_decrement_object_property_post;
 
 extern qb_basic_op_factory factory_shift_left;
 extern qb_basic_op_factory factory_shift_right;
@@ -311,8 +315,8 @@ extern qb_basic_op_factory factory_less_equal;
 extern qb_derived_op_factory factory_identical;
 extern qb_derived_op_factory factory_not_identical;
 
-extern qb_basic_op_factory factory_isset_array_element;
-extern qb_basic_op_factory factory_isset_object_property;
+extern qb_basic_op_factory factory_array_element_isset;
+extern qb_basic_op_factory factory_object_property_isset;
 extern qb_unset_op_factory factory_unset;
 extern qb_unset_element_op_factory factory_unset_array_element;
 

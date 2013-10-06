@@ -974,8 +974,8 @@ qb_arithmetic_op_factory factory_increment_pre = {
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_first_operand,
-	NULL,
-	qb_select_opcode_arithmetic,
+	qb_set_result_dimensions_first_operand,
+	qb_select_opcode_increment,
 	NULL,
 	qb_transfer_operands_result_only,
 
@@ -997,8 +997,8 @@ qb_arithmetic_op_factory factory_decrement_pre = {
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_first_operand,
-	NULL,
-	qb_select_opcode_arithmetic,
+	qb_set_result_dimensions_first_operand,
+	qb_select_opcode_increment,
 	NULL,
 	qb_transfer_operands_result_only,
 
@@ -1019,8 +1019,8 @@ qb_derived_op_factory factory_increment_post = {
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_increment,
-	NULL,
+	qb_set_result_increment_post,
+	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
 	NULL,
 	qb_transfer_operands_increment,
@@ -1037,8 +1037,8 @@ qb_derived_op_factory factory_decrement_post = {
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_increment,
-	NULL,
+	qb_set_result_increment_post,
+	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
 	NULL,
 	qb_transfer_operands_increment,
@@ -1047,6 +1047,88 @@ qb_derived_op_factory factory_decrement_post = {
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	&factory_decrement_pre,
+};
+
+qb_arithmetic_op_factory factory_increment_object_property_pre = {
+	qb_resolve_expression_type_object_property,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_object_property,
+	qb_set_result_fetch_object_property,
+	qb_set_result_dimensions_object_property,
+	qb_select_opcode_increment_object_property,
+	NULL,
+	qb_transfer_operands_increment_object_property,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	{	QB_INC_F64,	QB_INC_F32,	QB_INC_I64,	QB_INC_I64,	QB_INC_I32,	QB_INC_I32,	QB_INC_I16,	QB_INC_I16,	QB_INC_I08,	QB_INC_I08,	},
+	{
+		{	QB_INC_2X_F64,	QB_INC_2X_F32,	},
+		{	QB_INC_3X_F64,	QB_INC_3X_F32,	},
+		{	QB_INC_4X_F64,	QB_INC_4X_F32,	},
+	},
+};
+
+qb_arithmetic_op_factory factory_decrement_object_property_pre = {
+	qb_resolve_expression_type_object_property,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_object_property,
+	qb_set_result_fetch_object_property,
+	qb_set_result_dimensions_object_property,
+	qb_select_opcode_increment_object_property,
+	NULL,
+	qb_transfer_operands_increment_object_property,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	{	QB_DEC_F64,	QB_DEC_F32,	QB_DEC_I64,	QB_DEC_I64,	QB_DEC_I32,	QB_DEC_I32,	QB_DEC_I16,	QB_DEC_I16,	QB_DEC_I08,	QB_DEC_I08,	},
+	{
+		{	QB_DEC_2X_F64,	QB_DEC_2X_F32,	},
+		{	QB_DEC_3X_F64,	QB_DEC_3X_F32,	},
+		{	QB_DEC_4X_F64,	QB_DEC_4X_F32,	},
+	},
+};
+
+qb_derived_op_factory factory_increment_object_property_post = {
+	qb_resolve_expression_type_object_property,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_object_property,
+	qb_set_result_increment_post,
+	qb_set_result_dimensions_object_property,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_increment_object_property,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_increment_object_property_pre,
+};
+
+qb_derived_op_factory factory_decrement_object_property_post = {
+	qb_resolve_expression_type_object_property,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_object_property,
+	qb_set_result_increment_post,
+	qb_set_result_dimensions_object_property,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_increment_object_property,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_decrement_object_property_pre,
 };
 
 qb_basic_op_factory factory_shift_left = {
@@ -2048,7 +2130,7 @@ qb_derived_op_factory factory_not_identical = {
 	&factory_not_equal,
 };
 
-qb_basic_op_factory factory_isset_array_element = {
+qb_basic_op_factory factory_array_element_isset = {
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -2056,16 +2138,16 @@ qb_basic_op_factory factory_isset_array_element = {
 	qb_validate_operands_array_element,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_isset_array_element,
+	qb_select_opcode_array_element_isset,
 	NULL,
-	qb_transfer_operands_isset_array_element,
+	qb_transfer_operands_array_element_isset,
 	0,
 	0,
 	0,
 	{ QB_CBOOL_F64_I32_I32, QB_CBOOL_F32_I32_I32, QB_CBOOL_I64_I32_I32, QB_CBOOL_I64_I32_I32, QB_CBOOL_I32_I32_I32, QB_CBOOL_I32_I32_I32, QB_CBOOL_I16_I32_I32, QB_CBOOL_I16_I32_I32, QB_CBOOL_I08_I32_I32, QB_CBOOL_I08_I32_I32 }
 };
 
-qb_basic_op_factory factory_isset_object_property = {
+qb_basic_op_factory factory_object_property_isset = {
 	qb_resolve_expression_type_boolean,
 	NULL,
 	NULL,
@@ -2073,13 +2155,13 @@ qb_basic_op_factory factory_isset_object_property = {
 	qb_validate_operands_object_property,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_isset_object_property,
+	qb_select_opcode_object_property_isset,
 	NULL,
-	qb_transfer_operands_isset_object_property,
+	qb_transfer_operands_object_property_isset,
 	0,
 	0,
 	0,
-	{ QB_CBOOL_F64_I32_I32, QB_CBOOL_F32_I32_I32, QB_CBOOL_I64_I32_I32, QB_CBOOL_I64_I32_I32, QB_CBOOL_I32_I32_I32, QB_CBOOL_I32_I32_I32, QB_CBOOL_I16_I32_I32, QB_CBOOL_I16_I32_I32, QB_CBOOL_I08_I32_I32, QB_CBOOL_I08_I32_I32 }
+	{ QB_BOOL_F64_I32, QB_BOOL_F32_I32, QB_BOOL_I64_I32, QB_BOOL_I64_I32, QB_BOOL_I32_I32, QB_BOOL_I32_I32, QB_BOOL_I16_I32, QB_BOOL_I16_I32, QB_BOOL_I08_I32, QB_BOOL_I08_I32 }
 };
 
 qb_unset_op_factory factory_unset = {
