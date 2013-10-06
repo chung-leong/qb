@@ -1230,7 +1230,7 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL										},	// ZEND_INCLUDE_OR_EVAL
 	{	qb_translate_basic_op,				&factory_unset								},	// ZEND_UNSET_VAR
 	{	qb_translate_basic_op,				&factory_unset_array_element				},	// ZEND_UNSET_DIM
-	{	qb_translate_basic_op,				NULL						},	// ZEND_UNSET_OBJ
+	{	qb_translate_basic_op,				&factory_unset_object_property				},	// ZEND_UNSET_OBJ
 	{	qb_translate_basic_op,				&factory_foreach_reset						},	// ZEND_FE_RESET
 	{	qb_translate_foreach_fetch,			&factory_foreach_fetch						},	// ZEND_FE_FETCH
 	{	qb_translate_exit,					&factory_exit								},	// ZEND_EXIT
@@ -1287,9 +1287,9 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL										},	// 130
 	{	NULL,								NULL										},	// 131
 	{	qb_translate_basic_op,				&factory_increment_object_property_pre		},	// ZEND_PRE_INC_OBJ
-	{	qb_translate_basic_op,				NULL			},	// ZEND_PRE_DEC_OBJ
+	{	qb_translate_basic_op,				&factory_decrement_object_property_pre		},	// ZEND_PRE_DEC_OBJ
 	{	qb_translate_basic_op,				&factory_increment_object_property_post		},	// ZEND_POST_INC_OBJ
-	{	qb_translate_basic_op,				NULL			},	// ZEND_POST_DEC_OBJ
+	{	qb_translate_basic_op,				&factory_decrement_object_property_post		},	// ZEND_POST_DEC_OBJ
 	{	qb_translate_basic_op,				&factory_assign_object_property				},	// ZEND_ASSIGN_OBJ
 	{	NULL,								NULL										},	// ZEND_OP_DATA
 	{	NULL,								NULL										},	// ZEND_INSTANCEOF

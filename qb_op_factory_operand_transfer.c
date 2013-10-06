@@ -279,7 +279,6 @@ static void qb_transfer_operands_array_element_isset(qb_compiler_context *cxt, q
 
 static void qb_transfer_operands_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *variable = &operands[0];
-
 	if(SCALAR(variable->address)) {
 		dest[0] = *variable;
 	} else {
@@ -297,14 +296,9 @@ static void qb_transfer_operands_unset(qb_compiler_context *cxt, qb_op_factory *
 				dest[1] = *variable;
 			}
 		} else {
-			// need a predicate, since the unset() might performed on a sub-array (whose existence is not guaranteed)
-			qb_address *predicate_address = qb_find_predicate_address(cxt, variable->address);
-			if(!predicate_address) {
-				// just use true if there isn't one
-				predicate_address = cxt->true_address;
-			}
-			dest[0].address = predicate_address;
-			dest[1].type = QB_OPERAND_ADDRESS;
+			// the predicate is always use, since we're unsetting an array accessible through a variable
+			dest[0].address = cxt->true_address;
+			dest[0].type = QB_OPERAND_ADDRESS;
 			dest[1] = *variable;
 		}
 	}
@@ -320,13 +314,45 @@ static void qb_transfer_operands_unset_array_element(qb_compiler_context *cxt, q
 		dest[2].type = QB_OPERAND_SEGMENT_SELECTOR;
 		dest[3] = *container;
 	} else {
+		// need a predicate, since the unset() might performed on a sub-array (whose existence is not guaranteed)
 		qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
 		if(!predicate_address) {
+			// just use true if there isn't one
 			predicate_address = cxt->true_address;
 		}
 		dest[2].address = predicate_address;
 		dest[2].type = QB_OPERAND_ADDRESS;
 		dest[3] = *container;
+	}
+}
+
+static void qb_transfer_operands_unset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	if(SCALAR(address)) {
+		dest[0].address = address;
+		dest[0].type = QB_OPERAND_ADDRESS;
+	} else {
+		if(RESIZABLE(address)) {
+			if(MULTIDIMENSIONAL(address)) {
+				dest[0].address = address->dimension_addresses[0];
+				dest[0].type = QB_OPERAND_ADDRESS;
+				dest[1].address = address;
+				dest[1].type = QB_OPERAND_SEGMENT_SELECTOR;
+				dest[2].address = address;
+				dest[2].type = QB_OPERAND_ADDRESS;
+			} else {
+				dest[0].address = address;
+				dest[0].type = QB_OPERAND_SEGMENT_SELECTOR;
+				dest[1].address = address;
+				dest[1].type = QB_OPERAND_ADDRESS;
+			}
+		} else {
+			dest[0].address = cxt->true_address;
+			dest[0].type = QB_OPERAND_ADDRESS;
+			dest[1].address = address;
+			dest[1].type = QB_OPERAND_ADDRESS;
+		}
 	}
 }
 

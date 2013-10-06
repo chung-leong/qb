@@ -125,6 +125,26 @@ static qb_opcode qb_select_opcode_unset_array_element(qb_compiler_context *cxt, 
 	}
 }
 
+static qb_opcode qb_select_opcode_unset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_operand operand = { QB_OPERAND_ADDRESS, address };
+	if(SCALAR(address)) {
+		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, &operand);
+	} else {
+		if(RESIZABLE(address)) {
+			if(MULTIDIMENSIONAL(address)) {
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, &operand);
+			} else {
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, &operand);
+			}
+		} else {
+			return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, &operand);
+		}
+	}
+}
+
 static qb_opcode qb_select_multidata_opcode(qb_compiler_context *cxt, qb_opcode opcode) {
 	uint32_t op_flags = qb_get_op_flags(cxt, opcode);
 	if(op_flags & QB_OP_VERSION_AVAILABLE_MIO) {
