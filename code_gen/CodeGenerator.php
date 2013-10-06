@@ -1184,7 +1184,7 @@ class CodeGenerator {
 		$float = preg_match('/^F/', $elementType);
 		if($elementType == "U08") {
 			$this->handlers[] = new PrintString("PRN_STR", $elementType);
-			$this->handlers[] = new ConcatString("CAT_STR", $elementType);
+			$this->handlers[] = new AppendString("APP_STR", $elementType);
 			
 		}
 		if($elementType == "U16" || $elementType == "U32") {
@@ -1196,9 +1196,9 @@ class CodeGenerator {
 		}
 		$this->handlers[] = new PrintMultidimensionalVariable("PRN_DIM", $elementType);
 		foreach($this->addressModes as $addressMode) {
-			$this->handlers[] = new ConcatVariable("CAT", $elementType, $addressMode);
+			$this->handlers[] = new AppendVariable("APP_VAR", $elementType, $addressMode);
 		}
-		$this->handlers[] = new ConcatMultidimensionalVariable("CAT_DIM", $elementType);
+		$this->handlers[] = new AppendMultidimensionalVariable("APP_VAR_DIM", $elementType);
 		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
 			/*

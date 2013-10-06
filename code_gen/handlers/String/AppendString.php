@@ -1,6 +1,6 @@
 <?php
 
-class ConcatString extends Handler {
+class AppendString extends Handler {
 
 	use ArrayAddressMode, BinaryOperator, ResizeResult;
 	

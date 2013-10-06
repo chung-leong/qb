@@ -1,6 +1,6 @@
 <?php
 
-class ConcatMultidimensionalVariable extends Handler {
+class AppendMultidimensionalVariable extends Handler {
 
 	use ArrayAddressMode, ArrayResult, TernaryOperator, UseSprintf, ResizeResult {
         ResizeResult::needsInterpreterContext insteadof UseSprintf;

@@ -331,8 +331,8 @@ extern qb_simple_op_factory factory_foreach_fetch;
 extern qb_simple_op_factory factory_loop;
 extern qb_simple_op_factory factory_ext;
 
-extern qb_string_op_factory factory_concat_variable;
-extern qb_simple_op_factory factory_concat_string;
+extern qb_string_op_factory factory_add_variable;
+extern qb_simple_op_factory factory_add_string;
 extern qb_string_op_factory factory_print;
 extern qb_derived_op_factory factory_echo;
 

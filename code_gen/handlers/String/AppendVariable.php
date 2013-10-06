@@ -1,6 +1,6 @@
 <?php
 
-class ConcatVariable extends Handler {
+class AppendVariable extends Handler {
 
 	use MultipleAddressMode, ArrayResult, BinaryOperator, UseSprintf, ResizeResult {
         ResizeResult::needsInterpreterContext insteadof UseSprintf;
