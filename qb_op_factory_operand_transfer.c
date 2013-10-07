@@ -28,6 +28,13 @@ static void qb_transfer_operands_all(qb_compiler_context *cxt, qb_op_factory *f,
 	}
 }
 
+static void qb_transfer_operands_first(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[0];
+	if(result) {
+		dest[1] = *result;
+	}
+}
+
 static void qb_transfer_operands_derived(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	f = df->parent;

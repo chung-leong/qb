@@ -471,4 +471,7 @@ extern qb_utf8_op_factory factory_utf8_decode_count;
 extern qb_utf8_op_factory factory_utf8_encode;
 extern qb_utf8_op_factory factory_utf8_encode_count;
 
+extern qb_basic_op_factory factory_pack_le;
+extern qb_basic_op_factory factory_pack_be;
+
 #endif

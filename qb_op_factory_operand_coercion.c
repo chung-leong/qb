@@ -179,6 +179,22 @@ static void qb_coerce_operands_utf8_encode(qb_compiler_context *cxt, qb_op_facto
 	qb_perform_type_coercion(cxt, codepoints, operand_type, 0);
 }
 
+static void qb_coerce_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *value = &operands[0], *type = &operands[1];
+	qb_primitive_type operand_type = QB_TYPE_UNKNOWN;
+	if(type->type == QB_OPERAND_ZVAL && type->constant->type == IS_LONG) {
+		uint32_t value = Z_LVAL_P(type->constant);
+		if(value < QB_TYPE_COUNT) {
+			operand_type = value;
+		}
+	}
+	if(value->type != QB_OPERAND_ADDRESS) {
+		if(operand_type != QB_TYPE_UNKNOWN) {
+			qb_perform_type_coercion(cxt, value, operand_type, 0);
+		}
+	}
+}
+
 static void qb_coerce_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	f = func->intrinsic_function->extra;

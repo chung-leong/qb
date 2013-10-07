@@ -457,6 +457,21 @@ static void qb_validate_operands_utf8_encode(qb_compiler_context *cxt, qb_op_fac
 	// nothing
 }
 
+static void qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *value = &operands[0], *index = &operands[1];
+	if(!SCALAR(value->address)) {
+		qb_abort("%s() expects the first parameter to be a scalar", cxt->intrinsic_function->name);
+	}
+	if(value->type != QB_OPERAND_ADDRESS) {
+		// type coercion had failed earlier
+		if(index->type == QB_OPERAND_NONE) {
+			qb_abort("%s() requires the second parameter when the input type cannot be determined", cxt->intrinsic_function->name);
+		} else {
+			qb_abort("%s() expects the second parameter to be a constant indicating the type", cxt->intrinsic_function->name);
+		}
+	}
+}
+
 static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_intrinsic_function *ifunc = func->intrinsic_function;

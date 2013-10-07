@@ -1,6 +1,6 @@
 <?php
 
-class Unpack extends Handler {
+class UnpackLittleEndian extends Handler {
 
 	use MultipleAddressMode, UnaryOperator;
 
@@ -19,10 +19,9 @@ class Unpack extends Handler {
 	}
 	
 	public function getActionOnUnitData() {
-		list($name, $byteOrder) = explode('_', $this->baseName);
 		$cType = $this->getOperandCType(2);
 		$width = substr($this->operandType, 1);
-		$macro = "SWAP_{$byteOrder}_I{$width}";
+		$macro = "SWAP_BE_I{$width}";
 		return "*((uint{$width}_t *) &res) = $macro(*((uint{$width}_t *) op1_ptr));";
 	}
 }

@@ -5000,7 +5000,7 @@ qb_utf8_op_factory factory_utf8_decode_count = {
 	NULL,
 	qb_select_opcode_utf8_decode,
 	NULL,
-	qb_transfer_operands_all,
+	qb_transfer_operands_first,
 
 	0,
 	0,
@@ -5019,7 +5019,7 @@ qb_utf8_op_factory factory_utf8_encode = {
 	qb_set_result_dimensions_utf8_encode,
 	qb_select_opcode_utf8_encode,
 	NULL,
-	qb_transfer_operands_all,
+	qb_transfer_operands_first,
 	
 	0,
 	0,
@@ -5038,7 +5038,7 @@ qb_utf8_op_factory factory_utf8_encode_count = {
 	NULL,
 	qb_select_opcode_utf8_encode,
 	NULL,
-	qb_transfer_operands_all,
+	qb_transfer_operands_first,
 	
 	0,
 	0,
@@ -5047,18 +5047,17 @@ qb_utf8_op_factory factory_utf8_encode_count = {
 	QB_SZ_UTF8_ENC_U32_U32,
 };
 
-/*
 qb_basic_op_factory factory_pack_le = {
 	qb_resolve_expression_type_string,
-	qb_link_results_all_operands,
+	NULL,
 	qb_coerce_operands_pack,
 	qb_set_result_prototype,
 	qb_validate_operands_pack,
 	qb_set_result_temporary_value,
+	qb_set_result_dimensions_pack,
+	qb_select_opcode_basic,
 	NULL,
-	qb_select_opcode_pack,
-	NULL,
-	qb_transfer_operands_pack,
+	qb_transfer_operands_first,
 
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -5068,15 +5067,15 @@ qb_basic_op_factory factory_pack_le = {
 
 qb_basic_op_factory factory_pack_be = {
 	qb_resolve_expression_type_string,
-	qb_link_results_all_operands,
+	NULL,
 	qb_coerce_operands_pack,
 	qb_set_result_prototype,
 	qb_validate_operands_pack,
 	qb_set_result_temporary_value,
+	qb_set_result_dimensions_pack,
+	qb_select_opcode_basic,
 	NULL,
-	qb_select_opcode_pack,
-	NULL,
-	qb_transfer_operands_pack,
+	qb_transfer_operands_first,
 
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -5084,6 +5083,7 @@ qb_basic_op_factory factory_pack_be = {
 	{	QB_PACK_BE_F64_U08 ,	QB_PACK_BE_F32_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I16_U08,	QB_PACK_BE_I16_U08,	},
 };
 
+/*
 qb_basic_op_factory factory_unpack_le = {
 	qb_resolve_expression_type_unpack,
 	NULL,

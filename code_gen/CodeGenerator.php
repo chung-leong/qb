@@ -1206,16 +1206,16 @@ class CodeGenerator {
 		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
 			foreach($this->scalarAddressModes as $addressMode) {		
-				$this->handlers[] = new Pack("PACK_LE", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new PackLittleEndian("PACK_LE", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Pack("PACK_BE", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new PackBigEndian("PACK_BE", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Unpack("UNPACK_LE", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new UnpackLittleEndian("UNPACK_LE", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Unpack("UNPACK_BE", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new UnpackBigEndian("UNPACK_BE", $elementTypeNoSign, $addressMode);
 			}
 		}
 	}

@@ -1561,10 +1561,10 @@ static qb_intrinsic_function intrinsic_functions[] = {
 */
 	{	0,	"strpos",				2,		3,		&factory_array_pos			},
 	{	0,	"strrpos",				2,		3,		&factory_array_rpos			},
-/*
 	{	0,	"pack_le",				1,		2,		&factory_pack_le			},
-	{	0,	"unpack_le",			1,		3,		&factory_unpack_le			},
 	{	0,	"pack_be",				1,		2,		&factory_pack_be			},
+/*
+	{	0,	"unpack_le",			1,		3,		&factory_unpack_le			},
 	{	0,	"unpack_be",			1,		3,		&factory_unpack_be			},
 */
 	{	0,	"utf8_decode",			1,		1,		&factory_utf8_decode		},

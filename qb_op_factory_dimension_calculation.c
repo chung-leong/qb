@@ -649,3 +649,11 @@ static void qb_set_result_dimensions_utf8_encode(qb_compiler_context *cxt, qb_op
 	dim->dimension_count = 1;
 	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = decoded_length_address;
 }
+
+static void qb_set_result_dimensions_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *value = &operands[0];
+	uint32_t byte_count = BYTE_COUNT(1, value->address->type);
+	qb_address *byte_count_address = qb_obtain_constant_U32(cxt, byte_count);
+	dim->dimension_count = 1;
+	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = byte_count_address;
+}
