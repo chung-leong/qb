@@ -2130,6 +2130,25 @@ qb_derived_op_factory factory_not_identical = {
 	&factory_not_equal,
 };
 
+qb_derived_op_factory factory_case = {
+	qb_resolve_expression_type_boolean,
+	NULL,
+	qb_coerce_operands_highest_rank,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
+	&factory_equal,
+};
+
+
 qb_basic_op_factory factory_array_element_isset = {
 	qb_resolve_expression_type_boolean,
 	NULL,

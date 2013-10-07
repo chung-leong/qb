@@ -1202,7 +1202,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_for_loop,				&factory_branch_on_true						},	// ZEND_JMPZNZ
 	{	qb_translate_branch,				&factory_branch_on_false					},	// ZEND_JMPZ_EX
 	{	qb_translate_branch,				&factory_branch_on_true						},	// ZEND_JMPNZ_EX
-	{	qb_translate_basic_op,				NULL						},	// ZEND_CASE
+	{	qb_translate_basic_op,				&factory_case								},	// ZEND_CASE
 	{	qb_translate_basic_op,				&factory_free								},	// ZEND_SWITCH_FREE
 	{	qb_translate_break,					&factory_jump								},	// ZEND_BRK
 	{	qb_translate_continue,				&factory_jump								},	// ZEND_CONT
@@ -1538,8 +1538,10 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"sort",					1,		1,		&factory_sort				},
 /*
 	{	0,	"substr",				2,		3,		NULL						},
-	{	0,	"strpos",				2,		3,		&factory_subarray_pos		},
-	{	0,	"strrpos",				2,		3,		&factory_subarray_rpos		},
+*/
+	{	0,	"strpos",				2,		3,		&factory_array_pos			},
+	{	0,	"strrpos",				2,		3,		&factory_array_rpos			},
+/*
 	{	0,	"pack_le",				1,		2,		&factory_pack_le			},
 	{	0,	"unpack_le",			1,		3,		&factory_unpack_le			},
 	{	0,	"pack_be",				1,		2,		&factory_pack_be			},
