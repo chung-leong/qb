@@ -31,7 +31,7 @@ static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factor
 		f->set_dimensions(cxt, f, operands, operand_count, &dim);
 	}
 	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype);
+	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype);
 }
 
 static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -391,7 +391,7 @@ static void qb_set_result_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f
 	}
 	f->set_dimensions(cxt, f, operands, operand_count, &dim);
 	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype);
+	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype);
 }
 
 static void qb_set_preliminary_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {

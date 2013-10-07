@@ -5009,7 +5009,6 @@ qb_utf8_op_factory factory_utf8_decode_count = {
 	QB_SZ_UTF8_DEC_U08_U32,	
 };
 
-/*
 qb_utf8_op_factory factory_utf8_encode = {
 	qb_resolve_expression_type_string,
 	NULL,
@@ -5020,11 +5019,11 @@ qb_utf8_op_factory factory_utf8_encode = {
 	qb_set_result_dimensions_utf8_encode,
 	qb_select_opcode_utf8_encode,
 	NULL,
-	qb_transfer_operands_utf8_encode,
+	qb_transfer_operands_all,
 	
 	0,
 	0,
-	QB_ADDRESS_TEMPORARY,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
 	QB_UTF8_ENC_U16_U08,
 	QB_UTF8_ENC_U32_U08,
 };
@@ -5036,18 +5035,17 @@ qb_utf8_op_factory factory_utf8_encode_count = {
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_non_reusable_temporary_value,
-	qb_set_result_dimensions_utf8_encode,
+	NULL,
 	qb_select_opcode_utf8_encode,
 	NULL,
-	qb_transfer_operands_utf8_encode,
+	qb_transfer_operands_all,
 	
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
-	QB_SZ_UTF8_ENC_U16_U08,
-	QB_SZ_UTF8_ENC_U32_U08,
+	QB_SZ_UTF8_ENC_U16_U32,
+	QB_SZ_UTF8_ENC_U32_U32,
 };
-*/
 
 /*
 qb_basic_op_factory factory_pack_le = {

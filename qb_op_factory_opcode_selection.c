@@ -522,6 +522,16 @@ static qb_opcode qb_select_opcode_utf8_decode(qb_compiler_context *cxt, qb_op_fa
 	}
 }
 
+static qb_opcode qb_select_opcode_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_operand *codepoints = &operands[0];
+	qb_utf8_op_factory *uf = (qb_utf8_op_factory *) f;
+	if(codepoints->address->type == QB_TYPE_U32) {
+		return uf->ucs32_opcode;
+	} else {
+		return uf->ucs16_opcode;
+	}
+}
+
 static qb_opcode qb_select_opcode_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	f = func->intrinsic_function->extra;

@@ -468,5 +468,7 @@ extern qb_basic_op_factory factory_sort;
 
 extern qb_utf8_op_factory factory_utf8_decode;
 extern qb_utf8_op_factory factory_utf8_decode_count;
+extern qb_utf8_op_factory factory_utf8_encode;
+extern qb_utf8_op_factory factory_utf8_encode_count;
 
 #endif

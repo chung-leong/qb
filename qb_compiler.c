@@ -309,7 +309,7 @@ qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op_factor
 
 	// create an copy of the address and attach the expression to it
 	address = qb_create_address_alias(cxt, expr->result->address);
-	address->flags = QB_ADDRESS_ON_DEMAND_VALUE;
+	address->flags |= QB_ADDRESS_ON_DEMAND_VALUE;
 	address->expression = expr;
 
 	// save it to the list
@@ -1364,7 +1364,7 @@ qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive
 	return usable_address;
 }
 
-qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim, qb_result_prototype *result_prototype) {
+qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim, uint32_t address_flags, qb_result_prototype *result_prototype) {
 	qb_address *target_address = NULL;
 
 	if(result_prototype && result_prototype->destination) {
@@ -1496,6 +1496,11 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 		if(dim->dimension_count > 1) {
 			// obtain an alias with dimensional info 
 			target_address = qb_obtain_multidimensional_alias(cxt, target_address, dim);
+		}
+		if(address_flags & QB_ADDRESS_BOOLEAN) {
+			target_address = qb_obtain_boolean_alias(cxt, target_address);
+		} else if(address_flags & QB_ADDRESS_STRING) {
+			target_address = qb_obtain_string_alias(cxt, target_address);
 		}
 	}
 	return target_address;
@@ -2813,15 +2818,6 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 				}
 			}
 			f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
-
-			// TODO: handle this in a cleaner manner
-			if(result->type == QB_OPERAND_ADDRESS) {
-				if(f->address_flags & QB_ADDRESS_BOOLEAN) {
-					result->address = qb_obtain_boolean_alias(cxt, result->address);
-				} else if(f->address_flags & QB_ADDRESS_STRING) {
-					result->address = qb_obtain_string_alias(cxt, result->address);
-				}
-			}
 		}
 	}
 
