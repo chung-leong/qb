@@ -610,6 +610,23 @@ qb_address * qb_obtain_cast_alias(qb_compiler_context *cxt, qb_address *address,
 	return alias;
 }
 
+qb_address * qb_obtain_array_alias(qb_compiler_context *cxt, qb_address *address) {
+	qb_address *alias;
+	uint32_t i; 
+	for(i = 0; i < cxt->address_alias_count; i++) {
+		alias = cxt->address_aliases[i];
+		if(alias->source_address == address) {
+			if(alias->dimension_count == 1) {
+				return alias;
+			}
+		}
+	}
+	alias = qb_create_address_alias(cxt, address);
+	alias->dimension_count = 1;
+	alias->mode = QB_ADDRESS_MODE_ARR;
+	return alias;
+}
+
 static qb_address * qb_create_constant_scalar(qb_compiler_context *cxt, qb_primitive_type element_type) {
 	qb_address *address = qb_allocate_address(cxt->pool);
 	address->mode = QB_ADDRESS_MODE_SCA;

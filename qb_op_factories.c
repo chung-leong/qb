@@ -967,6 +967,40 @@ qb_cast_op_factory factory_cast_F64 = {
 	QB_TYPE_F64,
 };
 
+qb_op_factory factory_array_cast = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_array_cast,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+};
+
+qb_op_factory factory_string_cast = {
+	qb_resolve_expression_type_string,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_string_cast,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+};
+
+void *factories_cast[] = { &factory_cast_S32, &factory_cast_S64, &factory_cast_F64, &factory_boolean_cast, &factory_array_cast, &factory_string_cast, };
+
 qb_arithmetic_op_factory factory_increment_pre = {
 	qb_resolve_expression_type_first_operand,
 	NULL,
@@ -2538,6 +2572,24 @@ qb_derived_op_factory factory_concat = {
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_concat,
+	NULL,
+	qb_select_opcode_derived,
+	NULL,
+	qb_transfer_operands_derived,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
+	&factory_add_variable,
+};
+
+qb_derived_op_factory factory_concat_assign = {
+	qb_resolve_expression_type_string,
+	NULL,
+	qb_coerce_operands_add_variable,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived,
 	NULL,

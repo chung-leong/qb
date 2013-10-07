@@ -463,6 +463,7 @@ qb_address * qb_obtain_on_demand_quotient(qb_compiler_context *cxt, qb_address *
 qb_address * qb_obtain_string_alias(qb_compiler_context *cxt, qb_address *address);
 qb_address * qb_obtain_boolean_alias(qb_compiler_context *cxt, qb_address *address);
 qb_address * qb_obtain_cast_alias(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type);
+qb_address * qb_obtain_array_alias(qb_compiler_context *cxt, qb_address *address);
 
 qb_address * qb_retrieve_temporary_copy(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type);
 qb_address * qb_retrieve_unary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address);

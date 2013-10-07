@@ -847,6 +847,26 @@ static void qb_translate_combo_op(qb_php_translater_context *cxt, void *op_facto
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
+static void qb_translate_cast_op(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	void **list = op_factories, *op_factory;
+	uint32_t zend_type = cxt->zend_op->extended_value;
+
+	switch(zend_type) {
+#if SIZEOF_LONG == 8
+		case IS_LONG:	op_factory = list[1]; break;
+#else
+		case IS_LONG:	op_factory = list[0]; break;
+#endif
+		case IS_DOUBLE:	op_factory = list[2]; break;
+		case IS_BOOL:	op_factory = list[3]; break;
+		case IS_ARRAY:	op_factory = list[4]; break;
+		case IS_STRING: op_factory = list[5]; break;
+		default:		
+			qb_abort("Illegal cast");
+	}
+	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
+}
+
 static void qb_translate_fetch_class(qb_php_translater_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	int32_t fetch_type = cxt->zend_op->extended_value & ZEND_FETCH_CLASS_MASK;
 	void **list = op_factories, *op_factory;
@@ -1175,7 +1195,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_not_equal							},	// ZEND_IS_NOT_EQUAL
 	{	qb_translate_basic_op,				&factory_less_than							},	// ZEND_IS_SMALLER
 	{	qb_translate_basic_op,				&factory_less_equal							},	// ZEND_IS_SMALLER_OR_EQUAL
-	{	qb_translate_basic_op,				NULL						},	// ZEND_CAST
+	{	qb_translate_cast_op,				factories_cast								},	// ZEND_CAST
 	{	qb_translate_basic_op,				NULL						},	// ZEND_QM_ASSIGN
 	{	qb_translate_combo_op,				factories_add_assign						},	// ZEND_ASSIGN_ADD
 	{	qb_translate_combo_op,				factories_subtract_assign					},	// ZEND_ASSIGN_SUB
@@ -1184,7 +1204,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_combo_op,				factories_modulo_assign						},	// ZEND_ASSIGN_MOD
 	{	qb_translate_combo_op,				factories_shift_left_assign					},	// ZEND_ASSIGN_SL
 	{	qb_translate_combo_op,				factories_shift_right_assign				},	// ZEND_ASSIGN_SR
-	{	qb_translate_basic_op,				NULL						},	// ZEND_ASSIGN_CONCAT
+	{	qb_translate_basic_op,				&factory_concat_assign						},	// ZEND_ASSIGN_CONCAT
 	{	qb_translate_combo_op,				factories_bitwise_or_assign					},	// ZEND_ASSIGN_BW_OR
 	{	qb_translate_combo_op,				factories_bitwise_and_assign				},	// ZEND_ASSIGN_BW_AND
 	{	qb_translate_combo_op,				factories_bitwise_xor_assign				},	// ZEND_ASSIGN_BW_XOR

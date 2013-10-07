@@ -274,6 +274,28 @@ static void qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_
 	}
 }
 
+static void qb_set_result_array_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	if(SCALAR(value->address)) {
+		result->address = qb_obtain_array_alias(cxt, value->address);
+	} else {
+		result->address = value->address;
+	}
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void qb_set_result_string_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	if(value->address->flags & QB_ADDRESS_STRING) {
+		result->address = value->address;
+	} else {
+		qb_operand av_operands[2] = { { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_ADDRESS, value->address } };
+		qb_operand av_result = { QB_OPERAND_EMPTY, NULL };
+		qb_produce_op(cxt, &factory_add_variable, av_operands, 2, &av_result, NULL, 0, NULL);
+		*result = av_result;
+	}
+}
+
 static void qb_set_result_foreach_reset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	cxt->foreach_index.address = qb_create_writable_scalar(cxt, QB_TYPE_U32);

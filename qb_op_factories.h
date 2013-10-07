@@ -255,6 +255,8 @@ extern qb_cast_op_factory factory_cast_U64;
 extern qb_cast_op_factory factory_cast_F32;
 extern qb_cast_op_factory factory_cast_F64;
 
+extern void *factories_cast[6];
+
 extern qb_arithmetic_op_factory factory_increment_pre;
 extern qb_arithmetic_op_factory factory_decrement_pre;
 extern qb_derived_op_factory factory_increment_post;
@@ -341,6 +343,7 @@ extern qb_simple_op_factory factory_empty_string;
 extern qb_string_op_factory factory_add_variable;
 extern qb_simple_op_factory factory_add_string;
 extern qb_derived_op_factory factory_concat;
+extern qb_derived_op_factory factory_concat_assign;
 extern qb_string_op_factory factory_print;
 extern qb_derived_op_factory factory_echo;
 
