@@ -1279,7 +1279,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_BEGIN
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_END
 	{	qb_translate_extension_op,			&factory_ext				},	// ZEND_EXT_NOP
-	{	NULL,								NULL										},	// ZEND_TICKS
+	{	qb_translate_basic_op,				&factory_nop								},	// ZEND_TICKS
 	{	qb_translate_basic_op,				&factory_send_argument						},	// ZEND_SEND_VAR_NO_REF
 	{	NULL,								NULL										},	// ZEND_CATCH
 	{	NULL,								NULL										},	// ZEND_THROW
