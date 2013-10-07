@@ -380,6 +380,20 @@ static void qb_set_result_send_argument(qb_compiler_context *cxt, qb_op_factory 
 	*stack_item = *argument;
 }
 
+static void qb_set_result_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_variable_dimensions dim;
+	if(expr_type != QB_TYPE_U32 && expr_type != QB_TYPE_U16) {
+		if(STORAGE_TYPE_MATCH(expr_type, QB_TYPE_U16)) {
+			expr_type = QB_TYPE_U16;
+		} else {
+			expr_type = QB_TYPE_U32;
+		}
+	}
+	f->set_dimensions(cxt, f, operands, operand_count, &dim);
+	result->type = QB_OPERAND_ADDRESS;
+	result->address = qb_obtain_write_target(cxt, expr_type, &dim, result_prototype);
+}
+
 static void qb_set_preliminary_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	f = func->intrinsic_function->extra;

@@ -1566,7 +1566,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"unpack_le",			1,		3,		&factory_unpack_le			},
 	{	0,	"pack_be",				1,		2,		&factory_pack_be			},
 	{	0,	"unpack_be",			1,		3,		&factory_unpack_be			},
+*/
 	{	0,	"utf8_decode",			1,		1,		&factory_utf8_decode		},
+/*
 	{	0,	"utf8_encode",			1,		1,		&factory_utf8_encode		},
 */
 	{	0,	"cabs",					1,		1,		&factory_complex_abs		},

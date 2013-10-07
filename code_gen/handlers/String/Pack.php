@@ -7,9 +7,8 @@ class Pack extends Handler {
 	protected $byteOrder;
 
 	public function getOperandType($i) {
-		list($type, $byteOrder) = explode('_', $this->operandType);
 		switch($i) {
-			case 1: return $type;
+			case 1: return $this->operandType;
 			case 2:	return "U08";
 		}
 	}
@@ -21,18 +20,12 @@ class Pack extends Handler {
 		}
 	}
 
-	public function getResultSizePossibilities() {
-		$type = $this->getOperandType(1);
-		$size = substr($type, 1) / 8;
-		return $size;
-	}
-
 	protected function getActionOnUnitData() {
-		list($type, $byteOrder) = explode('_', $this->operandType);
+		list($name, $byteOrder) = explode('_', $this->baseName);
 		$cType = $this->getOperandCType(1);
-		$width = intval(substr($type, 1));
+		$width = substr($this->operandType, 1);
 		$macro = "SWAP_{$byteOrder}_I{$width}";
-		if($type[0] == 'F') {
+		if($this->operandType[0] == 'F') {
 			// accommodate native compiler, for which op1 might be a macro defined as a literal
 			$lines = array();
 			$lines[] = "$cType v = op1;";

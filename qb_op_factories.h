@@ -43,6 +43,7 @@ typedef struct qb_matrix_op_factory				qb_matrix_op_factory;
 typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
 typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
 typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
+typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
 
 typedef qb_primitive_type (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
 
@@ -190,6 +191,12 @@ struct qb_pixel_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcodes[2][2];
 }; 
+
+struct qb_utf8_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	qb_opcode ucs16_opcode;
+	qb_opcode ucs32_opcode;
+};
 
 extern qb_op_factory factory_nop;
 
@@ -458,5 +465,8 @@ extern qb_basic_op_factory factory_array_unique_count;
 extern qb_basic_op_factory factory_rsort;
 extern qb_basic_op_factory factory_shuffle;
 extern qb_basic_op_factory factory_sort;
+
+extern qb_utf8_op_factory factory_utf8_decode;
+extern qb_utf8_op_factory factory_utf8_decode_count;
 
 #endif

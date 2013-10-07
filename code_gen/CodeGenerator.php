@@ -1188,8 +1188,12 @@ class CodeGenerator {
 			
 		}
 		if($elementType == "U16" || $elementType == "U32") {
-			//$this->handlers[] = new UTF8Decode("UTF8_DEC", $elementType);
-			//$this->handlers[] = new UTF8Encode("UTF8_ENC", $elementType);
+			if($elementType == "U16") {
+				$this->handlers[] = new UTF8DecodeCount("SZ_UTF8_DEC", $elementType);
+			}			
+			$this->handlers[] = new UTF8Decode("UTF8_DEC", $elementType);
+			$this->handlers[] = new UTF8EncodeCount("SZ_UTF8_ENC", $elementType);
+			$this->handlers[] = new UTF8Encode("UTF8_ENC", $elementType);
 		}
 		foreach($this->addressModes as $addressMode) {
 			$this->handlers[] = new PrintVariable("PRN", $elementType, $addressMode);
@@ -1201,20 +1205,18 @@ class CodeGenerator {
 		$this->handlers[] = new AppendMultidimensionalVariable("APP_VAR_DIM", $elementType);
 		
 		if(!$unsigned && $elementTypeNoSign != "I08") {
-			/*
 			foreach($this->scalarAddressModes as $addressMode) {		
-				$this->handlers[] = new Pack("PACK_LE", "{$elementTypeNoSign}_LE", $addressMode);
+				$this->handlers[] = new Pack("PACK_LE", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Pack("PACK_BE", "{$elementTypeNoSign}_BE", $addressMode, "BE");
+				$this->handlers[] = new Pack("PACK_BE", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Unpack("UNPACK_LE", "{$elementTypeNoSign}_LE", $addressMode, "LE");
+				$this->handlers[] = new Unpack("UNPACK_LE", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new Unpack("UNPACK_BE", "{$elementTypeNoSign}_BE", $addressMode, "BE");
+				$this->handlers[] = new Unpack("UNPACK_BE", $elementTypeNoSign, $addressMode);
 			}
-			*/
 		}
 	}
 	

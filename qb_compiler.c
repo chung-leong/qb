@@ -1409,7 +1409,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 			if(STORAGE_TYPE_MATCH(element_type, lvalue_type)) {
 				if(lvalue_size_address) {
 					// see if we're assigned to a variable length array
-					if(lvalue_size_address && !READ_ONLY(lvalue_size_address)) {
+					if(lvalue_size_address && !CONSTANT(lvalue_size_address)) {
 						// substitution always happens since the lvalue will can be resized to match
 						substitute = TRUE;
 					} else {

@@ -4119,530 +4119,6 @@ qb_matrix_op_factory_selector factory_transform = {
 };
 */
 
-/*
-qb_op * qb_append_utf8_decode(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_basic_op_factory *f = factory;
-	qb_address *address = result->address;
-	qb_opcode opcode = f->opcodes[QB_TYPE_F64 - address->type];
-	qb_op *qop = qb_append_op(cxt, opcode, 2);
-	qop->operands[0] = operands[0];
-	qop->operands[0].type = QB_OPERAND_ADDRESS_ARR;
-	qop->operands[1] = *result;
-	qop->operands[1].type = QB_OPERAND_ADDRESS_ARR;
-	return qop;
-}
-*/
-
-/*
-qb_basic_op_factory factory_utf8_decode = {
-	qb_append_utf8_decode,
-	NULL,
-	0,
-	qb_set_result_prototype,
-	0,
-	QB_ADDRESS_TEMPORARY,
-	{	0, 0, 0, 0, QB_UTF8_DEC_U08_U32,	QB_UTF8_DEC_U08_U32,	QB_UTF8_DEC_U08_U16,	QB_UTF8_DEC_U08_U16,	},
-};
-*/
-
-/*
-qb_basic_op_factory factory_utf8_encode = {
-	qb_append_utf8_encode,
-	NULL,
-	0,
-	qb_set_result_prototype,
-	0,
-	QB_ADDRESS_TEMPORARY,
-	{	0, 0, 0, 0, QB_UTF8_ENC_U32_U08,	QB_UTF8_ENC_U32_U08,	QB_UTF8_ENC_U16_U08,	QB_UTF8_ENC_U16_U08,	},
-};
-*/
-
-/*
-qb_basic_op_factory factory_pack_le = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	{	QB_PACK_LE_F64_U08,	QB_PACK_LE_F32_U08,	QB_PACK_LE_I64_U08,	QB_PACK_LE_I64_U08,	QB_PACK_LE_I32_U08,	QB_PACK_LE_I32_U08,	QB_PACK_LE_I16_U08,	QB_PACK_LE_I16_U08,	},
-};
-
-qb_basic_op_factory factory_pack_be = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	{	QB_PACK_BE_F64_U08 ,	QB_PACK_BE_F32_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I16_U08,	QB_PACK_BE_I16_U08,	},
-};
-*/
-
-/*
-qb_basic_op_factory factory_unpack_le = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	NULL,
-	qb_select_opcode_basic_result,
-	NULL,
-	qb_transfer_operands,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	{	QB_UNPACK_LE_U08_F64,	QB_UNPACK_LE_U08_F32,	QB_UNPACK_LE_U08_I64,	QB_UNPACK_LE_U08_I64,	QB_UNPACK_LE_U08_I32,	QB_UNPACK_LE_U08_I32,	QB_UNPACK_LE_U08_I16,	QB_UNPACK_LE_U08_I16	},
-};
-
-qb_basic_op_factory factory_unpack_be = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	NULL,
-	qb_select_opcode_basic_result,
-	NULL,
-	qb_transfer_operands,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	{	QB_UNPACK_BE_U08_F64,	QB_UNPACK_BE_U08_F32,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I16,	QB_UNPACK_BE_U08_I16	},
-};
-*/
-
-qb_basic_op_factory factory_array_column = {
-	qb_resolve_expression_type_first_operand,
-	NULL,
-	qb_coerce_operands_array_column,
-	qb_set_result_prototype,
-	qb_validate_operands_multidimensional_array,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_array_column,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_column,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_ACOL_F64_U32_U32_U32_F64,	QB_ACOL_F32_U32_U32_U32_F32,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I08_U32_U32_U32_I08,	QB_ACOL_I08_U32_U32_U32_I08	},
-};
-
-qb_basic_op_factory factory_array_diff = {
-	qb_resolve_expression_type_highest_rank,
-	qb_link_results_all_operands,
-	qb_coerce_operands_all,
-	qb_set_result_prototype,
-	qb_validate_operands_two_arrays,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_array_diff,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_diff,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_ADIFF_F64_F64_U32_F64,	QB_ADIFF_F32_F32_U32_F32,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I08_I08_U32_I08,	QB_ADIFF_I08_I08_U32_I08	},
-};
-
-qb_basic_op_factory factory_array_diff_count = {
-	qb_resolve_expression_type_index,
-	NULL,
-	NULL,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_non_reusable_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_diff,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_SZ_ADIFF_F64_F64_U32_U32,	QB_SZ_ADIFF_F32_F32_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32	},
-};
-
-qb_basic_op_factory factory_array_intersect = {
-	qb_resolve_expression_type_highest_rank,
-	qb_link_results_all_operands,
-	qb_coerce_operands_all,
-	qb_set_result_prototype,
-	qb_validate_operands_two_arrays,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_array_intersect,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_diff,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_AISECT_F64_F64_U32_F64,	QB_AISECT_F32_F32_U32_F32,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I08_I08_U32_I08,	QB_AISECT_I08_I08_U32_I08	},
-};
-
-qb_basic_op_factory factory_array_intersect_count = {
-	qb_resolve_expression_type_index,
-	NULL,
-	NULL,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_non_reusable_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_diff,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_SZ_AISECT_F64_F64_U32_U32,	QB_SZ_AISECT_F32_F32_U32_U32,	QB_SZ_AISECT_I64_I64_U32_U32,	QB_SZ_AISECT_I64_I64_U32_U32,	QB_SZ_AISECT_I32_I32_U32_U32,	QB_SZ_AISECT_I32_I32_U32_U32,	QB_SZ_AISECT_I16_I16_U32_U32,	QB_SZ_AISECT_I16_I16_U32_U32,	QB_SZ_AISECT_I08_I08_U32_U32,	QB_SZ_AISECT_I08_I08_U32_U32	},
-};
-
-qb_basic_op_factory factory_array_pos = {
-	qb_resolve_expression_type_search_index,
-	NULL,
-	qb_coerce_operands_array_pos,
-	qb_set_result_prototype,
-	qb_validate_operands_two_arrays,
-	qb_set_result_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_pos,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_APOS_F64_F64_I32_I32,	QB_APOS_F32_F32_I32_I32,	QB_APOS_I64_I64_I32_I32,	QB_APOS_I64_I64_I32_I32,	QB_APOS_I32_I32_I32_I32,	QB_APOS_I32_I32_I32_I32,	QB_APOS_I16_I16_I32_I32,	QB_APOS_I16_I16_I32_I32,	QB_APOS_I08_I08_I32_I32,	QB_APOS_I08_I08_I32_I32	},
-};
-
-qb_basic_op_factory factory_array_product = {
-	qb_resolve_expression_type_first_operand,
-	NULL,
-	qb_coerce_operands_all,
-	qb_set_result_prototype,
-	qb_validate_operands_one_array,
-	qb_set_result_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_all,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_APROD_F64_F64,	QB_APROD_F32_F32,	QB_APROD_U64_U64,	QB_APROD_S64_S64,	QB_APROD_U32_U32,	QB_APROD_S32_S32,	QB_APROD_U16_U16,	QB_APROD_S16_S16,	QB_APROD_U08_U08,	QB_APROD_S08_S08	},
-};
-
-qb_basic_op_factory factory_array_reverse = {
-	qb_resolve_expression_type_first_operand,
-	NULL,
-	qb_coerce_operands_all,
-	qb_set_result_prototype,
-	qb_validate_operands_one_array,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_reverse,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_AREV_F64_U32_F64,	QB_AREV_F32_U32_F32,	QB_AREV_I64_U32_I64,	QB_AREV_I64_U32_I64,	QB_AREV_I32_U32_I32,	QB_AREV_I32_U32_I32,	QB_AREV_I16_U32_I16,	QB_AREV_I16_U32_I16,	QB_AREV_I08_U32_I08,	QB_AREV_I08_U32_I08		},
-};
-
-qb_basic_op_factory factory_array_rpos = {
-	qb_resolve_expression_type_search_index,
-	NULL,
-	qb_coerce_operands_array_pos,
-	qb_set_result_prototype,
-	qb_validate_operands_two_arrays,
-	qb_set_result_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_pos,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_ARPOS_F64_F64_I32_I32,	QB_ARPOS_F32_F32_I32_I32,	QB_ARPOS_I64_I64_I32_I32,	QB_ARPOS_I64_I64_I32_I32,	QB_ARPOS_I32_I32_I32_I32,	QB_ARPOS_I32_I32_I32_I32,	QB_ARPOS_I16_I16_I32_I32,	QB_ARPOS_I16_I16_I32_I32,	QB_ARPOS_I08_I08_I32_I32,	QB_ARPOS_I08_I08_I32_I32	},
-};
-
-qb_basic_op_factory factory_array_search = {
-	qb_resolve_expression_type_search_index,
-	NULL,
-	qb_coerce_operands_all_to_first,
-	qb_set_result_prototype,
-	qb_validate_operands_one_array,
-	qb_set_result_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_all,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_AFIND_F64_F64_I32,	QB_AFIND_F32_F32_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I08_I08_I32,	QB_AFIND_I08_I08_I32	},
-};
-
-qb_basic_op_factory factory_array_sum = {
-	qb_resolve_expression_type_first_operand,
-	NULL,
-	qb_coerce_operands_all,
-	qb_set_result_prototype,
-	qb_validate_operands_one_array,
-	qb_set_result_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_all,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_ASUM_F64_F64,	QB_ASUM_F32_F32,	QB_ASUM_U64_U64,	QB_ASUM_S64_S64,	QB_ASUM_U32_U32,	QB_ASUM_S32_S32,	QB_ASUM_U16_U16,	QB_ASUM_S16_S16,	QB_ASUM_U08_U08,	QB_ASUM_S08_S08	},
-};
-
-qb_basic_op_factory factory_array_unique = {
-	qb_resolve_expression_type_first_operand,
-	NULL,
-	qb_coerce_operands_all,
-	qb_set_result_prototype,
-	qb_validate_operands_one_array,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_array_unique,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_reverse,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_AUNIQ_F64_U32_F64,	QB_AUNIQ_F32_U32_F32,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I08_U32_I08,	QB_AUNIQ_I08_U32_I08	},
-};
-
-qb_basic_op_factory factory_array_unique_count = {
-	qb_resolve_expression_type_index,
-	NULL,
-	NULL,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_non_reusable_temporary_value,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_array_reverse,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_SZ_AUNIQ_F64_U32_U32,	QB_SZ_AUNIQ_F32_U32_U32,	QB_SZ_AUNIQ_I64_U32_U32,	QB_SZ_AUNIQ_I64_U32_U32,	QB_SZ_AUNIQ_I32_U32_U32,	QB_SZ_AUNIQ_I32_U32_U32,	QB_SZ_AUNIQ_I16_U32_U32,	QB_SZ_AUNIQ_I16_U32_U32,	QB_SZ_AUNIQ_I08_U32_U32,	QB_SZ_AUNIQ_I08_U32_U32	},
-};
-
-qb_basic_op_factory factory_rsort = {
-	qb_resolve_expression_type_boolean,
-	NULL,
-	NULL,
-	qb_set_result_true,
-	qb_validate_operands_one_array_variable,
-	qb_set_result_true,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_sort,
-
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	QB_ADDRESS_BOOLEAN,
-	{	QB_RSORT_U32_F64,	QB_RSORT_U32_F32,	QB_RSORT_U32_U64,	QB_RSORT_U32_S64,	QB_RSORT_U32_U32,	QB_RSORT_U32_S32,	QB_RSORT_U32_U16,	QB_RSORT_U32_S16,	QB_RSORT_U32_U08,	QB_RSORT_U32_S08	},
-};
-
-qb_basic_op_factory factory_shuffle = {
-	qb_resolve_expression_type_boolean,
-	NULL,
-	NULL,
-	qb_set_result_true,
-	qb_validate_operands_one_array_variable,
-	qb_set_result_true,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_sort,
-
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	QB_ADDRESS_BOOLEAN,
-	{	QB_SHUFFLE_U32_F64,	QB_SHUFFLE_U32_F32,	QB_SHUFFLE_U32_I64,	QB_SHUFFLE_U32_I64,	QB_SHUFFLE_U32_I32,	QB_SHUFFLE_U32_I32,	QB_SHUFFLE_U32_I16,	QB_SHUFFLE_U32_I16,	QB_SHUFFLE_U32_I08,	QB_SHUFFLE_U32_I08	},
-};
-
-qb_basic_op_factory factory_sort = {
-	qb_resolve_expression_type_first_operand,
-	NULL,
-	NULL,
-	qb_set_result_true,
-	qb_validate_operands_one_array_variable,
-	qb_set_result_true,
-	NULL,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands_sort,
-
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	QB_ADDRESS_BOOLEAN,
-	{	QB_SORT_U32_F64 ,	QB_SORT_U32_F32,	QB_SORT_U32_U64,	QB_SORT_U32_S64,	QB_SORT_U32_U32,	QB_SORT_U32_S32,	QB_SORT_U32_U16,	QB_SORT_U32_S16,	QB_SORT_U32_U08,	QB_SORT_U32_S08	},
-};
-
-/*
-qb_basic_op_factory factory_array_insert = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_array_pad,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands,
-	0,
-	0,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_AINS_F64_U32_F64,	QB_AINS_F32_U32_F32,	QB_AINS_I64_U32_I64,	QB_AINS_I64_U32_I64,	QB_AINS_I32_U32_I32,	QB_AINS_I32_U32_I32,	QB_AINS_I16_U32_I16,	QB_AINS_I16_U32_I16,	QB_AINS_I08_U32_I08,	QB_AINS_I08_U32_I08,	},
-};
-*/
-
-/*
-qb_basic_op_factory factory_array_pad = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_array_pad,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands,
-
-	0,
-	0,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_APAD_F64_F64_S32_F64,	QB_APAD_F32_F32_S32_F32,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I08_I08_S32_I08,	QB_APAD_I08_I08_S32_I08,	},
-};
-*/
-
-/*
-qb_copy_op_factory factory_array_merge = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_array_merge,
-	qb_select_copy_opcode,
-	NULL,
-	qb_transfer_operands,
-
-	QB_COERCE_TO_HIGHEST_RANK,
-	QB_TYPE_OPERAND,
-};
-*/
-
-/*
-qb_copy_op_factory factory_array_fill = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_array_fill,
-	qb_select_copy_opcode,
-	NULL,
-	qb_transfer_operands,
-
-	0,
-	QB_TYPE_OPERAND,
-};
-
-*/
-
-/*
-qb_basic_op_factory factory_range = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_range,
-	qb_select_opcode_basic,
-	NULL,
-	qb_transfer_operands,
-
-	QB_COERCE_TO_LVALUE_TYPE,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_RANGE_F64_F64_F64_F64,	QB_RANGE_F32_F32_F32_F32,	QB_RANGE_U64_U64_S64_U64,	QB_RANGE_S64_S64_S64_S64,	QB_RANGE_U32_U32_S32_U32,	QB_RANGE_S32_S32_S32_S32,	QB_RANGE_U16_U16_S16_U16,	QB_RANGE_S16_S16_S16_S16,	QB_RANGE_U08_U08_S08_U08,	QB_RANGE_S08_S08_S08_S08	},
-};
-*/
-
-/*
-qb_simple_op_factory factory_array_rand = {
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_array_rand,
-	qb_select_opcode_simple,
-	NULL,
-	qb_transfer_operands,
-
-	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ARAND_U32_U32_U32,
-};
-
-/*
-qb_basic_op_factory factory_array_resize = {
-	qb_append_array_resize,
-	NULL,
-	0,
-	qb_set_result_prototype,
-	0,
-	QB_ADDRESS_TEMPORARY,
-	{	QB_ARESIZE_F64,	QB_ARESIZE_F32,	QB_ARESIZE_I64,	QB_ARESIZE_I64,	QB_ARESIZE_I32,	QB_ARESIZE_I32,	QB_ARESIZE_I16,	QB_ARESIZE_I16,	QB_ARESIZE_I08,	QB_ARESIZE_I08	},
-};
-*/
-
 qb_float_op_factory factory_complex_abs = {
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -5080,3 +4556,569 @@ qb_pixel_op_factory factory_hsl2rgb = {
 		{	QB_HSL2RGB_4X_F64_F64,		QB_HSL2RGB_4X_F32_F32	},
 	}
 };
+
+qb_basic_op_factory factory_array_column = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_array_column,
+	qb_set_result_prototype,
+	qb_validate_operands_multidimensional_array,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_array_column,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_column,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_ACOL_F64_U32_U32_U32_F64,	QB_ACOL_F32_U32_U32_U32_F32,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I08_U32_U32_U32_I08,	QB_ACOL_I08_U32_U32_U32_I08	},
+};
+
+qb_basic_op_factory factory_array_diff = {
+	qb_resolve_expression_type_highest_rank,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_two_arrays,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_array_diff,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_diff,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_ADIFF_F64_F64_U32_F64,	QB_ADIFF_F32_F32_U32_F32,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I64_I64_U32_I64,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I32_I32_U32_I32,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I16_I16_U32_I16,	QB_ADIFF_I08_I08_U32_I08,	QB_ADIFF_I08_I08_U32_I08	},
+};
+
+qb_basic_op_factory factory_array_diff_count = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_non_reusable_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_diff,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_SZ_ADIFF_F64_F64_U32_U32,	QB_SZ_ADIFF_F32_F32_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32	},
+};
+
+qb_basic_op_factory factory_array_intersect = {
+	qb_resolve_expression_type_highest_rank,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_two_arrays,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_array_intersect,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_diff,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_AISECT_F64_F64_U32_F64,	QB_AISECT_F32_F32_U32_F32,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I08_I08_U32_I08,	QB_AISECT_I08_I08_U32_I08	},
+};
+
+qb_basic_op_factory factory_array_intersect_count = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_non_reusable_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_diff,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_SZ_AISECT_F64_F64_U32_U32,	QB_SZ_AISECT_F32_F32_U32_U32,	QB_SZ_AISECT_I64_I64_U32_U32,	QB_SZ_AISECT_I64_I64_U32_U32,	QB_SZ_AISECT_I32_I32_U32_U32,	QB_SZ_AISECT_I32_I32_U32_U32,	QB_SZ_AISECT_I16_I16_U32_U32,	QB_SZ_AISECT_I16_I16_U32_U32,	QB_SZ_AISECT_I08_I08_U32_U32,	QB_SZ_AISECT_I08_I08_U32_U32	},
+};
+
+qb_basic_op_factory factory_array_pos = {
+	qb_resolve_expression_type_search_index,
+	NULL,
+	qb_coerce_operands_array_pos,
+	qb_set_result_prototype,
+	qb_validate_operands_two_arrays,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_pos,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_APOS_F64_F64_I32_I32,	QB_APOS_F32_F32_I32_I32,	QB_APOS_I64_I64_I32_I32,	QB_APOS_I64_I64_I32_I32,	QB_APOS_I32_I32_I32_I32,	QB_APOS_I32_I32_I32_I32,	QB_APOS_I16_I16_I32_I32,	QB_APOS_I16_I16_I32_I32,	QB_APOS_I08_I08_I32_I32,	QB_APOS_I08_I08_I32_I32	},
+};
+
+qb_basic_op_factory factory_array_product = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_one_array,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_APROD_F64_F64,	QB_APROD_F32_F32,	QB_APROD_U64_U64,	QB_APROD_S64_S64,	QB_APROD_U32_U32,	QB_APROD_S32_S32,	QB_APROD_U16_U16,	QB_APROD_S16_S16,	QB_APROD_U08_U08,	QB_APROD_S08_S08	},
+};
+
+qb_basic_op_factory factory_array_reverse = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_one_array,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_first_operand,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_reverse,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_AREV_F64_U32_F64,	QB_AREV_F32_U32_F32,	QB_AREV_I64_U32_I64,	QB_AREV_I64_U32_I64,	QB_AREV_I32_U32_I32,	QB_AREV_I32_U32_I32,	QB_AREV_I16_U32_I16,	QB_AREV_I16_U32_I16,	QB_AREV_I08_U32_I08,	QB_AREV_I08_U32_I08		},
+};
+
+qb_basic_op_factory factory_array_rpos = {
+	qb_resolve_expression_type_search_index,
+	NULL,
+	qb_coerce_operands_array_pos,
+	qb_set_result_prototype,
+	qb_validate_operands_two_arrays,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_pos,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_ARPOS_F64_F64_I32_I32,	QB_ARPOS_F32_F32_I32_I32,	QB_ARPOS_I64_I64_I32_I32,	QB_ARPOS_I64_I64_I32_I32,	QB_ARPOS_I32_I32_I32_I32,	QB_ARPOS_I32_I32_I32_I32,	QB_ARPOS_I16_I16_I32_I32,	QB_ARPOS_I16_I16_I32_I32,	QB_ARPOS_I08_I08_I32_I32,	QB_ARPOS_I08_I08_I32_I32	},
+};
+
+qb_basic_op_factory factory_array_search = {
+	qb_resolve_expression_type_search_index,
+	NULL,
+	qb_coerce_operands_all_to_first,
+	qb_set_result_prototype,
+	qb_validate_operands_one_array,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_AFIND_F64_F64_I32,	QB_AFIND_F32_F32_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I08_I08_I32,	QB_AFIND_I08_I08_I32	},
+};
+
+qb_basic_op_factory factory_array_sum = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_one_array,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_ASUM_F64_F64,	QB_ASUM_F32_F32,	QB_ASUM_U64_U64,	QB_ASUM_S64_S64,	QB_ASUM_U32_U32,	QB_ASUM_S32_S32,	QB_ASUM_U16_U16,	QB_ASUM_S16_S16,	QB_ASUM_U08_U08,	QB_ASUM_S08_S08	},
+};
+
+qb_basic_op_factory factory_array_unique = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	qb_validate_operands_one_array,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_array_unique,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_reverse,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_AUNIQ_F64_U32_F64,	QB_AUNIQ_F32_U32_F32,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I64_U32_I64,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I32_U32_I32,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I16_U32_I16,	QB_AUNIQ_I08_U32_I08,	QB_AUNIQ_I08_U32_I08	},
+};
+
+qb_basic_op_factory factory_array_unique_count = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_non_reusable_temporary_value,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_array_reverse,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_SZ_AUNIQ_F64_U32_U32,	QB_SZ_AUNIQ_F32_U32_U32,	QB_SZ_AUNIQ_I64_U32_U32,	QB_SZ_AUNIQ_I64_U32_U32,	QB_SZ_AUNIQ_I32_U32_U32,	QB_SZ_AUNIQ_I32_U32_U32,	QB_SZ_AUNIQ_I16_U32_U32,	QB_SZ_AUNIQ_I16_U32_U32,	QB_SZ_AUNIQ_I08_U32_U32,	QB_SZ_AUNIQ_I08_U32_U32	},
+};
+
+qb_basic_op_factory factory_rsort = {
+	qb_resolve_expression_type_boolean,
+	NULL,
+	NULL,
+	qb_set_result_true,
+	qb_validate_operands_one_array_variable,
+	qb_set_result_true,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_sort,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_BOOLEAN,
+	{	QB_RSORT_U32_F64,	QB_RSORT_U32_F32,	QB_RSORT_U32_U64,	QB_RSORT_U32_S64,	QB_RSORT_U32_U32,	QB_RSORT_U32_S32,	QB_RSORT_U32_U16,	QB_RSORT_U32_S16,	QB_RSORT_U32_U08,	QB_RSORT_U32_S08	},
+};
+
+qb_basic_op_factory factory_shuffle = {
+	qb_resolve_expression_type_boolean,
+	NULL,
+	NULL,
+	qb_set_result_true,
+	qb_validate_operands_one_array_variable,
+	qb_set_result_true,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_sort,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_BOOLEAN,
+	{	QB_SHUFFLE_U32_F64,	QB_SHUFFLE_U32_F32,	QB_SHUFFLE_U32_I64,	QB_SHUFFLE_U32_I64,	QB_SHUFFLE_U32_I32,	QB_SHUFFLE_U32_I32,	QB_SHUFFLE_U32_I16,	QB_SHUFFLE_U32_I16,	QB_SHUFFLE_U32_I08,	QB_SHUFFLE_U32_I08	},
+};
+
+qb_basic_op_factory factory_sort = {
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	qb_set_result_true,
+	qb_validate_operands_one_array_variable,
+	qb_set_result_true,
+	NULL,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands_sort,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_BOOLEAN,
+	{	QB_SORT_U32_F64 ,	QB_SORT_U32_F32,	QB_SORT_U32_U64,	QB_SORT_U32_S64,	QB_SORT_U32_U32,	QB_SORT_U32_S32,	QB_SORT_U32_U16,	QB_SORT_U32_S16,	QB_SORT_U32_U08,	QB_SORT_U32_S08	},
+};
+
+/*
+qb_basic_op_factory factory_array_insert = {
+	qb_resolve_expression_type,
+	qb_link_results_all_operands,
+	qb_coerce_operands,
+	qb_set_result_prototype,
+	qb_validate_operands,
+	qb_set_result,
+	qb_set_result_dimensions_array_pad,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_AINS_F64_U32_F64,	QB_AINS_F32_U32_F32,	QB_AINS_I64_U32_I64,	QB_AINS_I64_U32_I64,	QB_AINS_I32_U32_I32,	QB_AINS_I32_U32_I32,	QB_AINS_I16_U32_I16,	QB_AINS_I16_U32_I16,	QB_AINS_I08_U32_I08,	QB_AINS_I08_U32_I08,	},
+};
+*/
+
+/*
+qb_basic_op_factory factory_array_pad = {
+	qb_resolve_expression_type,
+	qb_link_results_all_operands,
+	qb_coerce_operands,
+	qb_set_result_prototype,
+	qb_validate_operands,
+	qb_set_result,
+	qb_set_result_dimensions_array_pad,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands,
+
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_APAD_F64_F64_S32_F64,	QB_APAD_F32_F32_S32_F32,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I08_I08_S32_I08,	QB_APAD_I08_I08_S32_I08,	},
+};
+*/
+
+/*
+qb_copy_op_factory factory_array_merge = {
+	qb_resolve_expression_type,
+	qb_link_results_all_operands,
+	qb_coerce_operands,
+	qb_set_result_prototype,
+	qb_validate_operands,
+	qb_set_result,
+	qb_set_result_dimensions_array_merge,
+	qb_select_copy_opcode,
+	NULL,
+	qb_transfer_operands,
+
+	QB_COERCE_TO_HIGHEST_RANK,
+	QB_TYPE_OPERAND,
+};
+*/
+
+/*
+qb_copy_op_factory factory_array_fill = {
+	qb_resolve_expression_type,
+	qb_link_results_all_operands,
+	qb_coerce_operands,
+	qb_set_result_prototype,
+	qb_validate_operands,
+	qb_set_result,
+	qb_set_result_dimensions_array_fill,
+	qb_select_copy_opcode,
+	NULL,
+	qb_transfer_operands,
+
+	0,
+	QB_TYPE_OPERAND,
+};
+
+*/
+
+/*
+qb_basic_op_factory factory_range = {
+	qb_resolve_expression_type,
+	qb_link_results_all_operands,
+	qb_coerce_operands,
+	qb_set_result_prototype,
+	qb_validate_operands,
+	qb_set_result,
+	qb_set_result_dimensions_range,
+	qb_select_opcode_basic,
+	NULL,
+	qb_transfer_operands,
+
+	QB_COERCE_TO_LVALUE_TYPE,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_RANGE_F64_F64_F64_F64,	QB_RANGE_F32_F32_F32_F32,	QB_RANGE_U64_U64_S64_U64,	QB_RANGE_S64_S64_S64_S64,	QB_RANGE_U32_U32_S32_U32,	QB_RANGE_S32_S32_S32_S32,	QB_RANGE_U16_U16_S16_U16,	QB_RANGE_S16_S16_S16_S16,	QB_RANGE_U08_U08_S08_U08,	QB_RANGE_S08_S08_S08_S08	},
+};
+*/
+
+/*
+qb_simple_op_factory factory_array_rand = {
+	qb_resolve_expression_type,
+	qb_link_results_all_operands,
+	qb_coerce_operands,
+	qb_set_result_prototype,
+	qb_validate_operands,
+	qb_set_result,
+	qb_set_result_dimensions_array_rand,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ARAND_U32_U32_U32,
+};
+
+/*
+qb_basic_op_factory factory_array_resize = {
+	qb_append_array_resize,
+	NULL,
+	0,
+	qb_set_result_prototype,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_ARESIZE_F64,	QB_ARESIZE_F32,	QB_ARESIZE_I64,	QB_ARESIZE_I64,	QB_ARESIZE_I32,	QB_ARESIZE_I32,	QB_ARESIZE_I16,	QB_ARESIZE_I16,	QB_ARESIZE_I08,	QB_ARESIZE_I08	},
+};
+*/
+
+qb_utf8_op_factory factory_utf8_decode = {
+	qb_resolve_expression_type_utf8_decode,
+	NULL,
+	qb_coerce_operands_utf8_decode,
+	qb_set_result_prototype,
+	qb_validate_operands_utf8_decode,
+	qb_set_result_utf8_decode,
+	qb_set_result_dimensions_utf8_decode,
+	qb_select_opcode_utf8_decode,
+	NULL,
+	qb_transfer_operands_all,
+
+	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_UTF8_DEC_U08_U16,
+	QB_UTF8_DEC_U08_U32,	
+};
+
+qb_utf8_op_factory factory_utf8_decode_count = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_non_reusable_temporary_value,
+	NULL,
+	qb_select_opcode_utf8_decode,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_SZ_UTF8_DEC_U08_U32,
+	QB_SZ_UTF8_DEC_U08_U32,	
+};
+
+/*
+qb_utf8_op_factory factory_utf8_encode = {
+	qb_resolve_expression_type_string,
+	NULL,
+	qb_coerce_operands_utf8_encode,
+	qb_set_result_prototype,
+	qb_validate_operands_utf8_encode,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_utf8_encode,
+	qb_select_opcode_utf8_encode,
+	NULL,
+	qb_transfer_operands_utf8_encode,
+	
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_UTF8_ENC_U16_U08,
+	QB_UTF8_ENC_U32_U08,
+};
+
+qb_utf8_op_factory factory_utf8_encode_count = {
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_dimensions_utf8_encode,
+	qb_select_opcode_utf8_encode,
+	NULL,
+	qb_transfer_operands_utf8_encode,
+	
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_SZ_UTF8_ENC_U16_U08,
+	QB_SZ_UTF8_ENC_U32_U08,
+};
+*/
+
+/*
+qb_basic_op_factory factory_pack_le = {
+	qb_resolve_expression_type_string,
+	qb_link_results_all_operands,
+	qb_coerce_operands_pack,
+	qb_set_result_prototype,
+	qb_validate_operands_pack,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_pack,
+	NULL,
+	qb_transfer_operands_pack,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
+	{	QB_PACK_LE_F64_U08,	QB_PACK_LE_F32_U08,	QB_PACK_LE_I64_U08,	QB_PACK_LE_I64_U08,	QB_PACK_LE_I32_U08,	QB_PACK_LE_I32_U08,	QB_PACK_LE_I16_U08,	QB_PACK_LE_I16_U08,	},
+};
+
+qb_basic_op_factory factory_pack_be = {
+	qb_resolve_expression_type_string,
+	qb_link_results_all_operands,
+	qb_coerce_operands_pack,
+	qb_set_result_prototype,
+	qb_validate_operands_pack,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_pack,
+	NULL,
+	qb_transfer_operands_pack,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
+	{	QB_PACK_BE_F64_U08 ,	QB_PACK_BE_F32_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I64_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I32_U08,	QB_PACK_BE_I16_U08,	QB_PACK_BE_I16_U08,	},
+};
+
+qb_basic_op_factory factory_unpack_le = {
+	qb_resolve_expression_type_unpack,
+	NULL,
+	qb_coerce_operands_unpack,
+	qb_set_result_prototype,
+	qb_validate_operands_unpack,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_basic_result,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_UNPACK_LE_U08_F64,	QB_UNPACK_LE_U08_F32,	QB_UNPACK_LE_U08_I64,	QB_UNPACK_LE_U08_I64,	QB_UNPACK_LE_U08_I32,	QB_UNPACK_LE_U08_I32,	QB_UNPACK_LE_U08_I16,	QB_UNPACK_LE_U08_I16	},
+};
+
+qb_basic_op_factory factory_unpack_be = {
+	qb_resolve_expression_type_unpack,
+	NULL,
+	qb_coerce_operands_unpack,
+	qb_set_result_prototype,
+	qb_validate_operands_unpack,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_basic_result,
+	NULL,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_UNPACK_BE_U08_F64,	QB_UNPACK_BE_U08_F32,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I16,	QB_UNPACK_BE_U08_I16	},
+};
+*/

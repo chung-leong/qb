@@ -449,6 +449,10 @@ static void qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, q
 	f->validate_operands(cxt, f, operands, operand_count);
 }
 
+static void qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_validate_operands_one_array(cxt, f, operands, operand_count);
+}
+
 static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_intrinsic_function *ifunc = func->intrinsic_function;

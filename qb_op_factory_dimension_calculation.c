@@ -636,3 +636,9 @@ static void qb_set_result_dimensions_array_unique(qb_compiler_context *cxt, qb_o
 	qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
 }
 
+static void qb_set_result_dimensions_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *string = &operands[0];
+	qb_address *decoded_length_address = qb_obtain_on_demand_value(cxt, &factory_utf8_decode_count, operands, operand_count);
+	dim->dimension_count = 1;
+	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = decoded_length_address;
+}
