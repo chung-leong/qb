@@ -439,8 +439,15 @@ extern qb_pixel_op_factory factory_sample_nearest;
 extern qb_pixel_op_factory factory_sample_bilinear;
 
 extern qb_basic_op_factory factory_array_column;
+extern qb_basic_op_factory factory_array_diff;
+extern qb_basic_op_factory factory_array_diff_count;
+extern qb_basic_op_factory factory_array_intersect;
+extern qb_basic_op_factory factory_array_intersect_count;
 extern qb_basic_op_factory factory_array_product;
+extern qb_basic_op_factory factory_array_reverse;
 extern qb_basic_op_factory factory_array_sum;
+extern qb_basic_op_factory factory_array_unique;
+extern qb_basic_op_factory factory_array_unique_count;
 extern qb_basic_op_factory factory_rsort;
 extern qb_basic_op_factory factory_shuffle;
 extern qb_basic_op_factory factory_sort;

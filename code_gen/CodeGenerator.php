@@ -1225,9 +1225,17 @@ class CodeGenerator {
 		$this->handlers[] = new ReverseSort("RSORT", $elementType);
 		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new ArrayMin("AMIN", $elementType, $addressMode);
+		}
+		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new ArrayMax("AMAX", $elementType, $addressMode);
+		}
+		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new ArrayProduct("APROD", $elementType, $addressMode);
+		}
+		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new ArraySum("ASUM", $elementType, $addressMode);
+		}
+		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new Range("RANGE", $elementType, $addressMode);
 		}
 		if(!$unsigned) {
@@ -1243,17 +1251,18 @@ class CodeGenerator {
 			$this->handlers[] = new ArrayReverse("AREV", $elementTypeNoSign);
 			//$this->handlers[] = new ArrayInsert("AINS", $elementTypeNoSign);
 			$this->handlers[] = new ArrayUnique("AUNIQ", $elementTypeNoSign);
+			$this->handlers[] = new ArrayUniqueCount("SZ_AUNIQ", $elementTypeNoSign);
 			$this->handlers[] = new ArrayColumn("ACOL", $elementTypeNoSign);
 			$this->handlers[] = new ArrayDifference("ADIFF", $elementTypeNoSign);
+			$this->handlers[] = new ArrayDifferenceCount("SZ_ADIFF", $elementTypeNoSign);
 			$this->handlers[] = new ArrayIntersect("AISECT", $elementTypeNoSign);
+			$this->handlers[] = new ArrayIntersectCount("SZ_AISECT", $elementTypeNoSign);
 			$this->handlers[] = new Shuffle("SHUFFLE", $elementTypeNoSign);
 			//$this->handlers[] = new ArrayResize("ARESIZE", $elementTypeNoSign);
 			$this->handlers[] = new ArrayPad("APAD", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {
-			foreach($this->scalarAddressModes as $addressMode) {
-				$this->handlers[] = new ArrayRandom("ARAND", $elementType, $addressMode);
-			}
+			$this->handlers[] = new ArrayRandom("ARAND", $elementType, $addressMode);
 		}
 	}
 	

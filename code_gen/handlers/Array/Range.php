@@ -2,7 +2,7 @@
 
 class Range extends Handler {
 
-	use MultipleAddressMode, TernaryOperator, ArrayResult;
+	use MultipleAddressMode, TernaryOperator;
 	
 	public function getOperandType($i) {
 		switch($i) {
@@ -15,6 +15,15 @@ class Range extends Handler {
 					return $this->operandType;
 				}
 			case 4: return $this->operandType;
+		}
+	}
+	
+	public function getOperandAddressMode($i) {
+		switch($i) {
+			case 1: return $this->addressMode;
+			case 2: return $this->addressMode;
+			case 3: return $this->addressMode;
+			case 4: return "ARR";
 		}
 	}
 	

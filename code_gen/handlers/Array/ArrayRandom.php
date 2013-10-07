@@ -2,12 +2,8 @@
 
 class ArrayRandom extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, ArrayResult;
+	use MultipleAddressMode, BinaryOperator;
 	
-	public function getInputOperandCount() {
-		return 2;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";

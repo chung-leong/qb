@@ -710,6 +710,23 @@ static void qb_transfer_operands_array_column(qb_compiler_context *cxt, qb_op_fa
 
 }
 
+static void qb_transfer_operands_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+	dest[0] = *operand1;
+	dest[1] = *operand2;
+	dest[2].address = (operand1->address->dimension_count > 1) ? operand1->address->array_size_addresses[1] : cxt->one_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *result;
+}
+
+static void qb_transfer_operands_array_reverse(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0];
+	dest[0] = *container;
+	dest[1].address = (container->address->dimension_count > 1) ? container->address->array_size_addresses[1] : cxt->one_address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2] = *result;
+}
+
 static void qb_transfer_operands_sort(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0];
 	dest[0].address = (container->address->dimension_count > 1) ? container->address->array_size_addresses[1] : cxt->one_address;
@@ -733,4 +750,3 @@ static uint32_t qb_get_operand_count_intrinsic(qb_compiler_context *cxt, qb_op_f
 	}
 	return 0;
 }
-

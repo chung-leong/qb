@@ -226,7 +226,7 @@ static void qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb
 	qb_validate_operands_one_array(cxt, f, operands, operand_count);
 }
 
-static void qb_validate_operands_two_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	if(SCALAR(operand1->address)) {
@@ -240,7 +240,7 @@ static void qb_validate_operands_two_array(qb_compiler_context *cxt, qb_op_facto
 static void qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
-	qb_validate_operands_two_array(cxt, f, operands, operand_count);
+	qb_validate_operands_two_arrays(cxt, f, operands, operand_count);
 
 	if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1)) {
 		uint32_t vector_width1 = DIMENSION(operand1->address, -1);

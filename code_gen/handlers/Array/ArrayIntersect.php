@@ -2,7 +2,7 @@
 
 class ArrayIntersect extends Handler {
 
-	use ArrayAddressMode, TernaryOperator, ArrayResult;
+	use ArrayAddressMode, TernaryOperator, ArrayComparison;
 	
 	public function getOperandType($i) {
 		switch($i) {
@@ -15,74 +15,13 @@ class ArrayIntersect extends Handler {
 	
 	public function getOperandAddressMode($i) {
 		switch($i) {
-			case 1: return $this->addressMode;
-			case 2: return $this->addressMode;
+			case 1: return "ARR";
+			case 2: return "ARR";
 			case 3: return "SCA";
-			case 4: return $this->addressMode;
+			case 4: return "ARR";
 		}
 	}
 		
-	public function getResultSizePossibilities() {
-		return "vector_count";
-	}
-	
-	public function getResultSizeCalculation() {
-		$type = $this->getOperandType(1);
-		$lines = array();
-		$lines[] = "vector_count = qb_get_intersect_count_{$type}(op1_ptr, op1_count, op2_ptr, op2_count, op3);";
-		return $lines;
-	}
-	
-	public function getHelperFunctions() {
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
-		if($type[0] == 'I') {
-			$signedType = 'S' . substr($type, 1);
-		} else {
-			$signedType = $type;
-		}
-		$functions = array(
-			array(
-				"uint32_t qb_get_intersect_count_{$type}($cType *op1_ptr, uint32_t op1_count, $cType *op2_ptr, uint32_t op2_count, uint32_t op3) {",
-					"$cType *op1_end = op1_ptr + op1_count;",
-					"$cType *op2_end = op2_ptr + op2_count, *op2_start = op2_ptr;",
-					"uint32_t count = 0;",
-					"if(op3 == 1) {",
-						"while(op1_ptr < op1_end) {",
-							"int32_t found = FALSE;",
-							"for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr++) {",							
-								"if(*op2_ptr == *op1_ptr) {",
-									"found = TRUE;",
-									"break;",
-								"}",
-							"}",
-							"if(found) {",
-								"count++;",
-							"}",
-							"op1_ptr++;",
-						"}",
-					"} else {",
-						"while(op1_ptr < op1_end) {",
-							"int32_t found = FALSE;",
-							"for(op2_ptr = op2_start; op2_ptr < op2_end; op2_ptr += op3) {",
-								"if(qb_compare_array_$signedType(op1_ptr, op3, op2_ptr, op3) == 0) {",
-									"found = TRUE;",
-									"break;",
-								"}",
-							"}",
-							"if(found) {",
-								"count += op3;",
-							"}",
-							"op1_ptr += op3;",
-						"}",
-					"}",
-					"return count;",
-				"}",
-			),
-		);
-		return $functions;
-	}
-	
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);

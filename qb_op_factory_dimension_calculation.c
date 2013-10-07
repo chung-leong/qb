@@ -285,6 +285,23 @@ static void qb_choose_dimensions_from_three_addresses(qb_compiler_context *cxt, 
 	}
 }
 
+static void qb_append_address_dimensions(qb_compiler_context *cxt, qb_address *first_dimension_address, qb_address *address, int32_t offset, qb_variable_dimensions *dim) {
+	uint32_t i;
+	dim->dimension_count = 1 + address->dimension_count - offset;
+	dim->dimension_addresses[0] = first_dimension_address;
+	for(i = 1; i < dim->dimension_count; i++) {
+		dim->dimension_addresses[i] = address->dimension_addresses[i + offset];
+	}
+	for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
+		if(i == dim->dimension_count - 1) {
+			dim->array_size_addresses[i] = dim->dimension_addresses[i];
+		} else {
+			dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+		}
+	}
+	dim->array_size_address = dim->array_size_addresses[0];
+}
+
 static void qb_set_result_dimensions_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	qb_copy_address_dimensions(cxt, first->address, 0, dim);
@@ -574,38 +591,7 @@ static void qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_o
 	qb_merge_address_dimensions(cxt, address, -((int32_t) address->dimension_count - 1), address, +2, dim);
 }
 
-uint32_t qb_get_range_length_F32(float32_t op1, float32_t op2, float32_t op3);
-uint32_t qb_get_range_length_F64(float64_t op1, float64_t op2, float64_t op3);
-uint32_t qb_get_range_length_S08(int8_t op1, int8_t op2, int8_t op3);
-uint32_t qb_get_range_length_S16(int16_t op1, int16_t op2, int16_t op3);
-uint32_t qb_get_range_length_S32(int32_t op1, int32_t op2, int32_t op3);
-uint32_t qb_get_range_length_S64(int64_t op1, int64_t op2, int64_t op3);
-uint32_t qb_get_range_length_U08(uint8_t op1, uint8_t op2, int8_t op3);
-uint32_t qb_get_range_length_U16(uint16_t op1, uint16_t op2, int16_t op3);
-uint32_t qb_get_range_length_U32(uint32_t op1, uint32_t op2, int32_t op3);
-uint32_t qb_get_range_length_U64(uint64_t op1, uint64_t op2, int64_t op3);
-
 static void qb_set_result_dimensions_range(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	// the result size is known only if the all operands are constant
-	qb_address *start_address = operands[0].address;
-	qb_address *end_address = operands[1].address;
-	qb_address *interval_address = (operand_count >= 3) ? operands[2].address : NULL;
-	uint32_t current_array_size = UINT32_MAX;
-	if(CONSTANT(start_address) && CONSTANT(end_address) && (!interval_address || CONSTANT(interval_address))) {
-		switch(start_address->type) {
-			case QB_TYPE_S08: current_array_size = qb_get_range_length_S08(VALUE(S08, start_address), VALUE(S08, end_address), (interval_address) ? VALUE(S08, interval_address) : 1); break;
-			case QB_TYPE_U08: current_array_size = qb_get_range_length_U08(VALUE(U08, start_address), VALUE(U08, end_address), (interval_address) ? VALUE(U08, interval_address) : 1); break;
-			case QB_TYPE_S16: current_array_size = qb_get_range_length_S16(VALUE(S16, start_address), VALUE(S16, end_address), (interval_address) ? VALUE(S16, interval_address) : 1); break;
-			case QB_TYPE_U16: current_array_size = qb_get_range_length_U16(VALUE(U16, start_address), VALUE(U16, end_address), (interval_address) ? VALUE(U16, interval_address) : 1); break;
-			case QB_TYPE_S32: current_array_size = qb_get_range_length_S32(VALUE(S32, start_address), VALUE(S32, end_address), (interval_address) ? VALUE(S32, interval_address) : 1); break;
-			case QB_TYPE_U32: current_array_size = qb_get_range_length_U32(VALUE(U32, start_address), VALUE(U32, end_address), (interval_address) ? VALUE(U32, interval_address) : 1); break;
-			case QB_TYPE_S64: current_array_size = qb_get_range_length_S64(VALUE(S64, start_address), VALUE(S64, end_address), (interval_address) ? VALUE(S64, interval_address) : 1); break;
-			case QB_TYPE_U64: current_array_size = qb_get_range_length_U64(VALUE(U64, start_address), VALUE(U64, end_address), (interval_address) ? VALUE(U64, interval_address) : 1); break;
-			case QB_TYPE_F32: current_array_size = qb_get_range_length_F32(VALUE(F32, start_address), VALUE(F32, end_address), (interval_address) ? VALUE(F32, interval_address) : 1); break;
-			case QB_TYPE_F64: current_array_size = qb_get_range_length_F64(VALUE(F64, start_address), VALUE(F64, end_address), (interval_address) ? VALUE(F64, interval_address) : 1); break;
-			default: break;
-		}
-	}
 	/*
 	dim->dimension_count = 1;
 	if(current_array_size != UINT32_MAX) {
@@ -631,3 +617,22 @@ static void qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_op_
 	}
 	*/
 }
+
+static void qb_set_result_dimensions_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0];
+	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_diff_count, operands, operand_count);
+	qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
+}
+
+static void qb_set_result_dimensions_array_intersect(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0];
+	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_intersect_count, operands, operand_count);
+	qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
+}
+
+static void qb_set_result_dimensions_array_unique(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0];
+	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_unique_count, operands, operand_count);
+	qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
+}
+

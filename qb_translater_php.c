@@ -1500,11 +1500,13 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"blend",				2,		2,		&factory_alpha_blend		},
 
 	{	0,	"array_column",			2,		2,		&factory_array_column		},
-/*
 	{	0,	"array_diff",			2,		-1,		&factory_array_diff			},
+/*
 	{	0,	"array_fill",			3,		3,		&factory_array_fill			},
 	{	0,	"array_filter",			1,		1,		&factory_array_diff			},
+*/
 	{	0,	"array_intersect",		2,		-1,		&factory_array_intersect	},
+/*
 	{	0,	"array_merge",			2,		-1,		&factory_array_merge		},
 	{	0,	"array_pad",			3,		3,		&factory_array_pad			},
 	{	0,	"array_pop",			1,		1,		NULL						},
@@ -1515,7 +1517,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_push",			2,		-1,		NULL						},
 	{	0,	"array_rand",			1,		2,		&factory_array_rand			},
 	{	0,	"array_resize",			2,		-1,		&factory_array_resize		},
+*/
 	{	0,	"array_reverse",		1,		1,		&factory_array_reverse		},
+/*
 	{	0,	"array_rpos",			2,		3,		&factory_subarray_rpos		},
 	{	0,	"array_search",			2,		2,		&factory_array_search		},
 	{	0,	"array_shift",			1,		1,		NULL						},
@@ -1523,8 +1527,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_splice",			2,		4,		NULL						},
 */
 	{	0,	"array_sum",			1,		1,		&factory_array_sum			},
-/*
 	{	0,	"array_unique",			1,		1,		&factory_array_unique		},
+/*
 	{	0,	"array_unshift",		2,		-1,		NULL						},
 	{	0,	"in_array",				2,		2,		&factory_in_array			},
 	{	0,	"range",				2,		3,		&factory_range				},

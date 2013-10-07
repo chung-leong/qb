@@ -2,7 +2,7 @@
 
 class AppendMultidimensionalVariable extends Handler {
 
-	use ArrayAddressMode, ArrayResult, TernaryOperator, UseSprintf, ResizeResult {
+	use ArrayAddressMode, TernaryOperator, UseSprintf, ResizeResult {
         ResizeResult::needsInterpreterContext insteadof UseSprintf;
 	}
 	
