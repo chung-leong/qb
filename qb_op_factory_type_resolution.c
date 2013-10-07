@@ -28,6 +28,11 @@ static qb_primitive_type qb_resolve_expression_type_index(qb_compiler_context *c
 	return QB_TYPE_U32;
 }
 
+// the expresion is always an signed index (int32_t currently)
+static qb_primitive_type qb_resolve_expression_type_search_index(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	return QB_TYPE_S32;
+}
+
 // the expression is always a U08
 static qb_primitive_type qb_resolve_expression_type_string(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return QB_TYPE_U08;

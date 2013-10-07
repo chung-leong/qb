@@ -68,6 +68,14 @@ static void qb_coerce_operands_no_cast(qb_compiler_context *cxt, qb_op_factory *
 	}
 }
 
+static void qb_coerce_operands_all_to_first(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_primitive_type operand_type = qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_perform_type_coercion(cxt, &operands[i], operand_type, f->coercion_flags);
+	}
+}
+
 static void qb_coerce_operands_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[1];
 	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assign) {
@@ -141,6 +149,16 @@ static void qb_coerce_operands_array_column(qb_compiler_context *cxt, qb_op_fact
 	qb_operand *container = &operands[0], *column_index = &operands[1];
 	qb_perform_type_coercion(cxt, container, QB_TYPE_ANY, f->coercion_flags);
 	qb_perform_type_coercion(cxt, column_index, QB_TYPE_U32, 0);
+}
+
+static void qb_coerce_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *subarray = &operands[1], *offset = &operands[2];
+	qb_primitive_type operand_type = qb_get_operand_type(cxt, container, f->coercion_flags);
+	qb_perform_type_coercion(cxt, container, operand_type, f->coercion_flags);
+	qb_perform_type_coercion(cxt, subarray, operand_type, f->coercion_flags);
+	if(offset->type != QB_OPERAND_NONE) {
+		qb_perform_type_coercion(cxt, offset, QB_TYPE_S32, 0);
+	}
 }
 
 static void qb_coerce_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {

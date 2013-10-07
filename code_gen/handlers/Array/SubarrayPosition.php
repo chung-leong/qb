@@ -2,7 +2,7 @@
 
 class SubarrayPosition extends Handler {
 
-	use MultipleAddressMode, TernaryOperator, IndexResult;
+	use MultipleAddressMode, TernaryOperator, NoUnsigned;
 	
 	public function getOperandAddressMode($i) {
 		switch($i) {

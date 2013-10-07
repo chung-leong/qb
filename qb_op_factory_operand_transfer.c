@@ -719,6 +719,15 @@ static void qb_transfer_operands_array_diff(qb_compiler_context *cxt, qb_op_fact
 	dest[3] = *result;
 }
 
+static void qb_transfer_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *subarray = &operands[1], *offset = &operands[2];
+	dest[0] = *container;
+	dest[1] = *subarray;
+	dest[2].address = (offset->type == QB_OPERAND_ADDRESS) ? offset->address : cxt->zero_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *result;
+}
+
 static void qb_transfer_operands_array_reverse(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0];
 	dest[0] = *container;

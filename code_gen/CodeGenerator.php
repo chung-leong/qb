@@ -1240,7 +1240,7 @@ class CodeGenerator {
 		}
 		if(!$unsigned) {
 			foreach($this->addressModes as $addressMode) {
-				//$this->handlers[] = new ArraySearch("AFIND", $elementTypeNoSign, $addressMode);
+				$this->handlers[] = new ArraySearch("AFIND", $elementTypeNoSign, $addressMode);
 			}
 			foreach($this->scalarAddressModes as $addressMode) {
 				$this->handlers[] = new SubarrayPosition("APOS", $elementTypeNoSign, $addressMode);
