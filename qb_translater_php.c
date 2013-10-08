@@ -761,27 +761,6 @@ static void qb_retire_operand(qb_php_translater_context *cxt, uint32_t zoperand_
 	}
 }
 
-static void qb_lock_temporary_variables(qb_php_translater_context *cxt) {
-	uint32_t i = 0;
-	for(i = 0; i < cxt->compiler_context->temp_variable_count; i++) {
-		qb_temporary_variable *temp_variable = &cxt->compiler_context->temp_variables[i];
-		if(temp_variable->operand.type == QB_OPERAND_ADDRESS) {
-			qb_address *address = temp_variable->operand.address;
-			if(address->source_address) {
-				qb_lock_address(cxt->compiler_context, address->source_address);
-			}
-			if(address->array_index_address) {
-				qb_lock_address(cxt->compiler_context, address->array_index_address);
-			}			
-		} else {
-			// lock temporary variables used to initialize an array as well
-			if(temp_variable->operand.type == QB_OPERAND_ARRAY_INITIALIZER) {
-				qb_lock_operand(cxt->compiler_context, &temp_variable->operand);
-			}
-		}
-	}
-}
-
 static qb_address * qb_obtain_write_target_size(qb_php_translater_context *cxt, qb_result_prototype *result_prototype) {
 	if(result_prototype->destination) {
 		qb_result_destination *destination = result_prototype->destination;
@@ -905,18 +884,41 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 	qb_intrinsic_function *ifunc;
 	qb_operand *arguments;
 	qb_operand func_operands[4];
-	uint32_t func_operand_count;
+	uint32_t func_operand_count, max_operand_count = argument_count;
 	uint32_t i;
 	void **list = op_factories, *op_factory;
 	ALLOCA_FLAG(use_heap);
 
-	// copy the arguments
-	arguments = do_alloca(sizeof(qb_operand *) * argument_count, use_heap);
-	for(i = 0; i < argument_count; i++) {
-		arguments[i] = *stack_pointer[i];
+	ifunc = (object->type == QB_OPERAND_NONE) ? qb_find_intrinsic_function(cxt, name->constant) : NULL;
+	if(ifunc) {
+		if(!(ifunc->argument_count_min <= argument_count && argument_count <= ifunc->argument_count_max)) {
+			if(ifunc->argument_count_max == (uint32_t) -1) {
+				qb_abort("%s() expects at least %d arguments but %d were passed", ifunc->name, ifunc->argument_count_min, argument_count);
+			} else if(ifunc->argument_count_min == ifunc->argument_count_max) {
+				qb_abort("%s() expects %d arguments but %d were passed", ifunc->name, ifunc->argument_count_min, argument_count);
+			} else {
+				qb_abort("%s() expects %d to %d arguments but %d were passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count);
+			}
+		}
+		if(ifunc->argument_count_max != (uint32_t) -1 &&  ifunc->argument_count_max > max_operand_count) {
+			max_operand_count = ifunc->argument_count_max;
+		}
+	} else {
+		qb_abort("Function call not yet implemented");
 	}
 
-	ifunc = (object->type == QB_OPERAND_NONE) ? qb_find_intrinsic_function(cxt, name->constant) : NULL;
+	// copy the arguments
+	arguments = do_alloca(sizeof(qb_operand *) * max_operand_count, use_heap);
+	for(i = 0; i < max_operand_count; i++) {
+		if(i < argument_count) {
+			arguments[i] = *stack_pointer[i];
+		} else {
+			// set unused arguments to none to simplify things
+			arguments[i].type = QB_OPERAND_NONE;
+			arguments[i].generic_pointer = NULL;
+		}
+	}
+
 	if(ifunc) {
 		func_operands[0].intrinsic_function = ifunc;
 		func_operands[0].type = QB_OPERAND_INTRINSIC_FUNCTION;
@@ -926,8 +928,6 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 		func_operands[2].type = QB_OPERAND_NUMBER;
 		func_operand_count = 3;
 		op_factory = list[0];
-	} else {
-		qb_abort("Function call not yet implemented");
 	}
 	qb_produce_op(cxt->compiler_context, op_factory, func_operands, func_operand_count, result, NULL, 0, result_prototype);
 	free_alloca(arguments, use_heap);
@@ -1405,7 +1405,7 @@ static void qb_translate_current_instruction(qb_php_translater_context *cxt) {
 			}
 
 			// lock operands kept as temporary variables
-			qb_lock_temporary_variables(cxt);
+			qb_lock_temporary_variables(cxt->compiler_context);
 		} else {
 			qb_abort("Unsupported language feature");
 		}
@@ -1533,8 +1533,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 */
 	{	0,	"array_pos",			2,		3,		&factory_array_pos			},
 	{	0,	"array_product",		1,		1,		&factory_array_product		},
+	{	0,	"array_push",			2,		-1,		&factory_array_push			},
 /*
-	{	0,	"array_push",			2,		-1,		NULL						},
 	{	0,	"array_rand",			1,		2,		&factory_array_rand			},
 	{	0,	"array_resize",			2,		-1,		&factory_array_resize		},
 */
@@ -1558,17 +1558,13 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"rsort",				1,		1,		&factory_rsort				},
 	{	0,	"shuffle",				1,		1,		&factory_shuffle			},
 	{	0,	"sort",					1,		1,		&factory_sort				},
-/*
-	{	0,	"substr",				2,		3,		NULL						},
-*/
+	{	0,	"substr",				2,		3,		&factory_array_slice		},
 	{	0,	"strpos",				2,		3,		&factory_array_pos			},
 	{	0,	"strrpos",				2,		3,		&factory_array_rpos			},
 	{	0,	"pack_le",				1,		2,		&factory_pack_le			},
 	{	0,	"pack_be",				1,		2,		&factory_pack_be			},
-/*
 	{	0,	"unpack_le",			1,		3,		&factory_unpack_le			},
 	{	0,	"unpack_be",			1,		3,		&factory_unpack_be			},
-*/
 	{	0,	"utf8_decode",			1,		1,		&factory_utf8_decode		},
 	{	0,	"utf8_encode",			1,		1,		&factory_utf8_encode		},
 	{	0,	"cabs",					1,		1,		&factory_complex_abs		},

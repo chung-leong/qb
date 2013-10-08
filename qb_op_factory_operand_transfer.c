@@ -799,6 +799,21 @@ static void qb_transfer_operands_sort(qb_compiler_context *cxt, qb_op_factory *f
 	dest[1] = *container;
 }
 
+static void qb_transfer_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *string = &operands[0], *index = &operands[1];
+	qb_address *substring_address;
+	if(index->type == QB_OPERAND_ADDRESS) {
+		uint32_t length = BYTE_COUNT(1, result->address->type);
+		qb_address *length_address = qb_obtain_constant_U32(cxt, length);
+		substring_address = qb_obtain_array_slice(cxt, string->address, index->address, length_address, QB_ARRAY_BOUND_CHECK_READ);
+	} else {
+		substring_address = string->address;
+	}
+	dest[0].address = substring_address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1] = *result;
+}
+
 static void qb_transfer_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	f = func->intrinsic_function->extra;

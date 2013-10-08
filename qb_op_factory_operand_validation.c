@@ -18,7 +18,7 @@
 
 /* $Id$ */
 
-static void qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
 
@@ -42,7 +42,7 @@ static void qb_validate_operands_array_element(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
-static void qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 	qb_operand *name = &operands[1];
 
@@ -70,7 +70,7 @@ static void qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op
 	}
 }
 
-static void qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	uint32_t i;
 	for(i = 1; i < operand_count; i++) {
 		if(operands[0].address->type != operands[i].address->type) {
@@ -79,7 +79,7 @@ static void qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
-static void qb_validate_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	if(!cxt->return_variable->address) {
 		qb_operand *value = &operands[0];
 		if(value->type != QB_OPERAND_NONE && !(value->type == QB_OPERAND_ZVAL && value->constant->type == IS_NULL)) {
@@ -87,13 +87,13 @@ static void qb_validate_operands_return(qb_compiler_context *cxt, qb_op_factory 
 		}
 	}
 }
-static void qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	if(operand_count != 0 && operand_count != 2) {
 		qb_abort("%s() expects either 0 or 2 arguments", cxt->intrinsic_function->name);
 	}
 }
 
-static void qb_validate_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0];
 
 	if(operand_count == 1) {
@@ -103,7 +103,7 @@ static void qb_validate_operands_minmax(qb_compiler_context *cxt, qb_op_factory 
 	}
 }
 
-static void qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[0], *index = &operands[1];
 
 	if(index->type == QB_OPERAND_ZVAL) {
@@ -118,9 +118,9 @@ static void qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f,
 	}
 }
 
-static void qb_validate_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_array_init(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	if(operand_count > 0) {
-		qb_validate_array_append(cxt, f, operands, operand_count);
+		qb_validate_array_append(cxt, f, expr_type, operands, operand_count);
 	}
 }
 
@@ -146,14 +146,14 @@ static zval * qb_get_special_constant(qb_compiler_context *cxt, const char *name
 	return NULL;
 }
 
-static void qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	if(!ce) {
 		qb_abort("Cannot access self:: when no class scope is active");
 	}
 }
 
-static void qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	if(!ce) {
 		qb_abort("Cannot access parent:: when no class scope is active");
@@ -163,14 +163,14 @@ static void qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb
 	}
 }
 
-static void qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	zend_class_entry *ce = cxt->zend_function->common.scope;
 	if(!ce) {
 		qb_abort("Cannot access static:: when no class scope is active");
 	}
 }
 
-static void qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	USE_TSRM
 	qb_operand *scope = &operands[0], *name = &operands[1];
 	if(scope->type == QB_OPERAND_ZEND_STATIC_CLASS) {
@@ -195,7 +195,7 @@ static void qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_
 	}
 }
 
-static void qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 	// global and static assign ref to bring variables into the local scope
 	if(variable->address != value->address) {
@@ -203,7 +203,7 @@ static void qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_fact
 	}
 }
 
-static void qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand = &operands[0];
 
 	if(SCALAR(operand->address)) {
@@ -211,7 +211,7 @@ static void qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_facto
 	}
 }
 
-static void qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand = &operands[0];
 
 	if(operand->type != QB_OPERAND_ADDRESS) {
@@ -219,14 +219,14 @@ static void qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
-static void qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand = &operands[0];
 
-	qb_validate_operands_referenceable(cxt, f, operands, operand_count);
-	qb_validate_operands_one_array(cxt, f, operands, operand_count);
+	qb_validate_operands_referenceable(cxt, f, expr_type, operands, operand_count);
+	qb_validate_operands_one_array(cxt, f, expr_type, operands, operand_count);
 }
 
-static void qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	if(SCALAR(operand1->address)) {
@@ -237,10 +237,10 @@ static void qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_fact
 	}
 }
 
-static void qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
-	qb_validate_operands_two_arrays(cxt, f, operands, operand_count);
+	qb_validate_operands_two_arrays(cxt, f, expr_type, operands, operand_count);
 
 	if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1)) {
 		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
@@ -251,20 +251,20 @@ static void qb_validate_operands_matching_vector_width(qb_compiler_context *cxt,
 	}
 }
 
-static void qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1], *operand3 = &operands[2];
 
-	qb_validate_operands_matching_vector_width(cxt, f, operands, operand_count);
+	qb_validate_operands_matching_vector_width(cxt, f, expr_type, operands, operand_count);
 
 	if(!SCALAR(operand3->address)) {
 		qb_abort("%s() expects the third parameter to be a scalar", cxt->intrinsic_function->name);
 	}
 }
 
-static void qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
-	qb_validate_operands_matching_vector_width(cxt, f, operands, operand_count);
+	qb_validate_operands_matching_vector_width(cxt, f, expr_type, operands, operand_count);
 
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
@@ -274,7 +274,7 @@ static void qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
-static void qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0];
 
 	if(operand1->address->dimension_count < 2) {
@@ -282,10 +282,10 @@ static void qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_fact
 	}
 }
 
-static void qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0];
 
-	qb_validate_operands_one_matrix(cxt, f, operands, operand_count);
+	qb_validate_operands_one_matrix(cxt, f, expr_type, operands, operand_count);
 
 	if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand1->address, -2)) {
 		uint32_t row = DIMENSION(operand1->address, -1);
@@ -296,7 +296,7 @@ static void qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
-static void qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
@@ -309,7 +309,7 @@ static void qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *
 	}
 }
 
-static void qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
@@ -322,7 +322,7 @@ static void qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f
 	}
 }
 
-static void qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *image = &operands[0];
 	uint32_t channel_count;
 
@@ -340,7 +340,7 @@ static void qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factor
 	}
 }
 
-static void qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *column_index = &operands[1];
 	if(container->address->dimension_count < 2) {
 		qb_abort("%s() expects a multidimensional array as the first parameter", cxt->intrinsic_function->name);
@@ -370,7 +370,7 @@ static qb_address *qb_obtain_matrix_column_address(qb_compiler_context *cxt, qb_
 	return address->dimension_addresses[address->dimension_count + col_offset];
 }
 
-static void qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 
 	if(matrix1->address->dimension_count < 2) {
@@ -393,7 +393,7 @@ static void qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory
 	}
 }
 
-static void qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 
 	if(matrix1->address->dimension_count < 2) {
@@ -416,7 +416,7 @@ static void qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory
 	}
 }
 
-static void qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 
 	if(matrix1->address->dimension_count < 1) {
@@ -439,17 +439,63 @@ static void qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory
 	}
 }
 
-static void qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
 	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
 		f = s->cm_factory;
 	} else {
 		f = s->rm_factory;
 	}
-	f->validate_operands(cxt, f, operands, operand_count);
+	f->validate_operands(cxt, f, expr_type, operands, operand_count);
 }
 
-static void qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *value;
+	qb_address *container_element_size_address;
+	uint32_t i, container_element_size = 0;
+
+	if(TEMPORARY(container->address)) {
+		qb_abort("%s() can only operate on variables", cxt->intrinsic_function->name);
+	}
+	if(SCALAR(container->address)) {
+		qb_abort("%s() expects the first parameter to be an array", cxt->intrinsic_function->name);
+	}
+	if(!RESIZABLE(container->address)) {
+		qb_abort("cannot insert elements into a fixed-length array");
+	}
+
+	if(container->address->dimension_count > 1) {
+		container_element_size_address = container->address->array_size_addresses[1];
+		if(CONSTANT(container_element_size_address)) {
+			container_element_size = VALUE(U32, container_element_size_address);
+		}
+	} else {
+		container_element_size = 1;
+	}
+
+	if(container_element_size != 0) {
+		// the size of the container's elements is known
+		// make sure the values pushed in aren'ttoo  big
+		for(i = 1; i < operand_count; i++) {
+			uint32_t value_size = 0;
+			value = &operands[i];
+			if(value->address->dimension_count > 0) {
+				if(FIXED_LENGTH(value->address)) {
+					value_size = ARRAY_SIZE(value->address);
+				}
+			} else {
+				value_size = 1;
+			}
+			if(value_size != 0) {
+				if(value_size > container_element_size) {
+					qb_abort("parameter %d is too big for the array", i + 1);
+				}
+			}
+		}
+	}
+}
+
+static void qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 
 	if(SCALAR(container->address)) {
@@ -465,30 +511,49 @@ static void qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_fac
 	}
 }
 
-static void qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	qb_validate_operands_one_array(cxt, f, operands, operand_count);
+static void qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_validate_operands_one_array(cxt, f, expr_type, operands, operand_count);
 }
 
-static void qb_validate_operands_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	// nothing
 }
 
-static void qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[0], *index = &operands[1];
+	if(value->type != QB_OPERAND_ADDRESS) {
+		// type coercion had failed earlier
+		if(index->type != QB_OPERAND_NONE) {
+			qb_abort("%s() expects the second parameter to be a constant indicating the type", cxt->intrinsic_function->name);
+		} else {
+			qb_abort("%s() requires the second parameter when the input type cannot be determined", cxt->intrinsic_function->name);
+		}
+	}
 	if(!SCALAR(value->address)) {
 		qb_abort("%s() expects the first parameter to be a scalar", cxt->intrinsic_function->name);
 	}
-	if(value->type != QB_OPERAND_ADDRESS) {
-		// type coercion had failed earlier
-		if(index->type == QB_OPERAND_NONE) {
-			qb_abort("%s() requires the second parameter when the input type cannot be determined", cxt->intrinsic_function->name);
+}
+
+static void qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *value = &operands[0], *index = &operands[1], *type = &operands[2];
+	if(SCALAR(value->address)) {
+		qb_abort("%s() expects the first parameter to be an array of bytes", cxt->intrinsic_function->name);
+	}
+	if(index->type == QB_OPERAND_ADDRESS) {
+		if(!SCALAR(index->address)) {
+			qb_abort("%s() expects the first parameter to be an index value", cxt->intrinsic_function->name);
+		}
+	}
+	if(expr_type == QB_TYPE_UNKNOWN || expr_type == QB_TYPE_ANY) {
+		if(type->type != QB_OPERAND_NONE) {
+			qb_abort("%s() expects the third parameter to be a constant indicating the type", cxt->intrinsic_function->name);
 		} else {
-			qb_abort("%s() expects the second parameter to be a constant indicating the type", cxt->intrinsic_function->name);
+			qb_abort("%s() requires the third parameter when the desired type cannot be determined from context", cxt->intrinsic_function->name);
 		}
 	}
 }
 
-static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_intrinsic_function *ifunc = func->intrinsic_function;
 	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
@@ -501,7 +566,7 @@ static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_facto
 	cxt->intrinsic_function = ifunc;
 	f = func->intrinsic_function->extra;
 	if(f->validate_operands) {
-		f->validate_operands(cxt, f, arguments->arguments, argument_count->number);
+		f->validate_operands(cxt, f, expr_type, arguments->arguments, argument_count->number);
 	}
 	cxt->intrinsic_function = NULL;
 }

@@ -384,9 +384,41 @@ static void qb_set_result_send_argument(qb_compiler_context *cxt, qb_op_factory 
 	*stack_item = *argument;
 }
 
+static void qb_set_result_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0];
+	qb_address *dimension_address = container->address->dimension_addresses[0];
+	qb_address *variable_address = qb_obtain_array_element(cxt, container->address, dimension_address, QB_ARRAY_BOUND_CHECK_WRITE);
+	uint32_t i;
+
+	for(i = 1; i < operand_count; i++) {
+		qb_operand assign_operands[2] = { { QB_OPERAND_ADDRESS, variable_address }, { QB_OPERAND_ADDRESS, operands[i].address } };
+		qb_operand assign_result = { QB_OPERAND_ADDRESS, variable_address };
+		qb_create_op(cxt, &factory_assign, assign_operands, 2, &assign_result, NULL, 0, FALSE);
+	}
+	result->address = dimension_address;
+	result->type = QB_OPERAND_ADDRESS;
+}
+
 static void qb_set_result_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 	result->address = qb_obtain_array_slice(cxt, container->address, offset->address, (length->type == QB_OPERAND_ADDRESS) ? length->address : NULL, QB_ARRAY_BOUND_CHECK_READ);
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void qb_set_result_array_unshift(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0];
+	qb_address *dimension_address = container->address->dimension_addresses[0];
+	qb_address *variable_address = qb_obtain_array_element(cxt, container->address, dimension_address, QB_ARRAY_BOUND_CHECK_WRITE);
+	uint32_t i;
+
+	/*
+	for(i = 1; i < operand_count; i++) {
+		qb_operand assign_operands[2] = { { QB_OPERAND_ADDRESS, variable_address }, { QB_OPERAND_ADDRESS, operands[i].address } };
+		qb_operand assign_result = { QB_OPERAND_ADDRESS, variable_address };
+		qb_create_op(cxt, &factory_array_insert, assign_operands, 2, &assign_result, NULL, 0, FALSE);
+	}
+	*/
+	result->address = dimension_address;
 	result->type = QB_OPERAND_ADDRESS;
 }
 
@@ -402,6 +434,14 @@ static void qb_set_result_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f
 	f->set_dimensions(cxt, f, operands, operand_count, &dim);
 	result->type = QB_OPERAND_ADDRESS;
 	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype);
+}
+
+static void qb_set_preliminary_result_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(result_prototype->preliminary_type != QB_TYPE_ANY) {
+		// if we have the type from parameter 3, then that's the final type
+		result_prototype->final_type = result_prototype->preliminary_type;
+	}
+	qb_set_result_prototype(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 }
 
 static void qb_set_preliminary_result_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {

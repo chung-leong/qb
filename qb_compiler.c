@@ -214,6 +214,31 @@ void qb_unlock_operand(qb_compiler_context *cxt, qb_operand *operand) {
 	}
 }
 
+void qb_lock_temporary_variables(qb_compiler_context *cxt) {
+	uint32_t i, j;
+	for(i = 0; i < cxt->temp_variable_count; i++) {
+		qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
+		if(temp_variable->operand.type == QB_OPERAND_ADDRESS) {
+			qb_address *address = temp_variable->operand.address;
+			if(address->source_address) {
+				qb_lock_address(cxt, address->source_address);
+			}
+			if(address->array_index_address) {
+				qb_lock_address(cxt, address->array_index_address);
+			}			
+		} else {
+			// lock temporary variables used to initialize an array as well
+			if(temp_variable->operand.type == QB_OPERAND_ARRAY_INITIALIZER) {
+				qb_lock_operand(cxt, &temp_variable->operand);
+			}
+		}
+	}
+	for(i = cxt->stack_item_offset, j = 0; j < cxt->stack_item_count; i++, j++) {
+		qb_operand *stack_item = cxt->stack_items[i];
+		qb_lock_operand(cxt, stack_item);
+	}
+}
+
 static void qb_mark_as_non_local(qb_compiler_context *cxt, qb_address *address) {
 	// TODO: need to consider whether this is still relevant
 	if(!(address->flags & QB_ADDRESS_NON_LOCAL)) {
@@ -2870,7 +2895,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		// do validation
 		if(f->validate_operands) {
-			f->validate_operands(cxt, f, operands, operand_count);
+			f->validate_operands(cxt, f, expr_type, operands, operand_count);
 		}
 	}
 

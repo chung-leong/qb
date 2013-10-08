@@ -21,7 +21,7 @@ class UnpackLittleEndian extends Handler {
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(2);
 		$width = substr($this->operandType, 1);
-		$macro = "SWAP_BE_I{$width}";
+		$macro = "SWAP_LE_I{$width}";
 		return "*((uint{$width}_t *) &res) = $macro(*((uint{$width}_t *) op1_ptr));";
 	}
 }

@@ -128,6 +128,18 @@ static qb_primitive_type qb_resolve_expression_type_utf8_decode(qb_compiler_cont
 	return QB_TYPE_U16;
 }
 
+static qb_primitive_type qb_resolve_expression_type_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *type = &operands[2];
+	qb_primitive_type expr_type = QB_TYPE_ANY;
+	if(type->type == QB_OPERAND_ZVAL && type->constant->type == IS_LONG) {
+		uint32_t value = Z_LVAL_P(type->constant);
+		if(value < QB_TYPE_COUNT) {
+			expr_type = value;
+		}
+	}
+	return expr_type;
+}
+
 static qb_primitive_type qb_resolve_expression_type_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_op_factory *ff = func->intrinsic_function->extra;

@@ -395,6 +395,7 @@ void qb_lock_address(qb_compiler_context *cxt, qb_address *address);
 void qb_unlock_address(qb_compiler_context *cxt, qb_address *address);
 void qb_lock_operand(qb_compiler_context *cxt, qb_operand *operand);
 void qb_unlock_operand(qb_compiler_context *cxt, qb_operand *operand);
+void qb_lock_temporary_variables(qb_compiler_context *cxt);
 
 qb_primitive_type qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand *operands, uint32_t count, uint32_t flags);
 qb_primitive_type qb_get_operand_type(qb_compiler_context *cxt, qb_operand *operand, uint32_t flags);

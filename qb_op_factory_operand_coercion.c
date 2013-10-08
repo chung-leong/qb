@@ -161,6 +161,18 @@ static void qb_coerce_operands_array_pos(qb_compiler_context *cxt, qb_op_factory
 	}
 }
 
+static void qb_coerce_operands_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_primitive_type operand_type = qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
+	uint32_t i;
+	for(i = 1; i < operand_count; i++) {
+		qb_operand *value = &operands[i];
+		// don't coerce addresses since cross-type copying is possible
+		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS) {
+			qb_perform_type_coercion(cxt, value, operand_type, f->coercion_flags);
+		}
+	}
+}
+
 static void qb_coerce_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 	qb_perform_type_coercion(cxt, container, expr_type, f->coercion_flags);
@@ -201,6 +213,15 @@ static void qb_coerce_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, 
 		if(operand_type != QB_TYPE_UNKNOWN) {
 			qb_perform_type_coercion(cxt, value, operand_type, 0);
 		}
+	}
+	// TODO: check the type
+}
+
+static void qb_coerce_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *string = &operands[0], *index = &operands[1], *type = &operands[2];
+	qb_perform_type_coercion(cxt, string, QB_TYPE_U08, 0);
+	if(index->type != QB_OPERAND_NONE) {
+		qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0);
 	}
 }
 

@@ -49,7 +49,7 @@ typedef qb_primitive_type (*qb_resolve_expression_type_proc)(qb_compiler_context
 
 typedef void (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
 
-typedef void (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
+typedef void (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
 
 typedef void (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
 
@@ -460,6 +460,7 @@ extern qb_basic_op_factory factory_array_intersect;
 extern qb_basic_op_factory factory_array_intersect_count;
 extern qb_basic_op_factory factory_array_pos;
 extern qb_basic_op_factory factory_array_product;
+extern qb_op_factory factory_array_push;
 extern qb_basic_op_factory factory_array_reverse;
 extern qb_basic_op_factory factory_array_rpos;
 extern qb_basic_op_factory factory_array_search;
@@ -478,5 +479,7 @@ extern qb_utf8_op_factory factory_utf8_encode_count;
 
 extern qb_basic_op_factory factory_pack_le;
 extern qb_basic_op_factory factory_pack_be;
+extern qb_basic_op_factory factory_unpack_le;
+extern qb_basic_op_factory factory_unpack_be;
 
 #endif
