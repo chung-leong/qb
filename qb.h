@@ -109,13 +109,16 @@
 #include "qb_opcodes.h"
 #include "qb_types.h"
 #include "qb_thread.h"
+#include "qb_parser.h"
 #include "qb_compiler.h"
 #include "qb_op_factories.h"
 #include "qb_translater_php.h"
 #include "qb_encoder.h"
 #include "qb_interpreter.h"
 #include "qb_native_compiler.h"
+#include "qb_printer.h"
 #include "qb_extractor.h"
+#include "qb_build.h"
 
 enum {
 	QB_SCAN_FILE				= 0,
@@ -176,6 +179,10 @@ int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 
 int qb_initialize_compiler(TSRMLS_D);
 int qb_initialize_interpreter(TSRMLS_D);
+
+void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array);
+qb_function * qb_get_compiled_function(zend_function *zfunc);
+int qb_is_compiled_function(zend_function *zfunc);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);

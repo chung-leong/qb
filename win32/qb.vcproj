@@ -537,6 +537,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_build.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_compat.c"
 				>
 			</File>
@@ -905,6 +909,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\qb_parser.c"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_printer.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_thread.c"
 				>
 			</File>
@@ -950,6 +962,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb.ini"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_build.h"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_compat.h"
 				>
 			</File>
@@ -991,6 +1011,14 @@
 			</File>
 			<File
 				RelativePath="..\qb_opcodes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_printer.h"
 				>
 			</File>
 			<File

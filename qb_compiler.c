@@ -26,11 +26,11 @@
 
 extern zend_module_entry qb_module_entry;
 
-static int32_t qb_find_function_declaration(qb_build_context *cxt, zend_function *zfunc) {
+static int32_t qb_find_function_declaration(qb_build_context *cxt, zend_op_array *zop_array) {
 	uint32_t i = 0;
 	for(i = 0; i < cxt->function_declaration_count; i++) {
 		qb_function_declaration *decl = cxt->function_declarations[i];
-		if(decl->zend_function == zfunc) {
+		if(decl->zend_op_array == zop_array) {
 			return i;
 		}
 	}
@@ -98,19 +98,6 @@ static int32_t qb_is_operand_write_target(qb_compiler_context *cxt, qb_opcode op
 			return TRUE;
 	}
 	return FALSE;
-}
-
-extern const char compressed_table_op_names[];
-
-static const char * qb_get_op_name(qb_compiler_context *cxt, uint32_t opcode) {
-	if(!cxt->pool->op_names) {
-		// decompress the opname table
-		qb_uncompress_table(compressed_table_op_names, (void ***) &cxt->pool->op_names, NULL, 0);
-		if(!cxt->pool->op_names) {
-			return "?";
-		}
-	}
-	return cxt->pool->op_names[opcode];
 }
 
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address) {
@@ -542,7 +529,7 @@ static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *addr
 }
 
 // assign storage space to variables
-static void qb_assign_storage_space(qb_compiler_context *cxt) {
+void qb_assign_storage_space(qb_compiler_context *cxt) {
 	uint32_t i;
 	// set current_allocation to the byte_count so we know how much real 
 	// data there's in each segment
@@ -1845,15 +1832,15 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 	}
 }
 
-static void qb_add_variables(qb_compiler_context *cxt) {
-	zend_compiled_variable *zvars = cxt->zend_function->op_array.vars;
-	zend_arg_info *zargs = cxt->zend_function->common.arg_info;
-	HashTable *static_variable_table = cxt->zend_function->op_array.static_variables;
-	uint32_t i, variable_count = (uint32_t) cxt->zend_function->op_array.last_var;
+void qb_add_variables(qb_compiler_context *cxt) {
+	zend_compiled_variable *zvars = cxt->zend_op_array->vars;
+	zend_arg_info *zargs = cxt->zend_op_array->arg_info;
+	HashTable *static_variable_table = cxt->zend_op_array->static_variables;
+	uint32_t i, variable_count = (uint32_t) cxt->zend_op_array->last_var;
 	qb_variable *qvar;
 
-	cxt->argument_count = cxt->zend_function->common.num_args;
-	cxt->required_argument_count = cxt->zend_function->common.required_num_args;
+	cxt->argument_count = cxt->zend_op_array->num_args;
+	cxt->required_argument_count = cxt->zend_op_array->required_num_args;
 
 	for(i = 0; i < variable_count; i++) {
 		zend_compiled_variable *zvar = &zvars[i];
@@ -2062,14 +2049,14 @@ qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *nam
 	return qvar->address;
 }
 
-static void qb_initialize_function_prototype(qb_compiler_context *cxt) {
+void qb_initialize_function_prototype(qb_compiler_context *cxt) {
 	cxt->function_prototype.argument_count = cxt->argument_count;
 	cxt->function_prototype.required_argument_count = cxt->required_argument_count;
 	cxt->function_prototype.variables = cxt->variables;
 	cxt->function_prototype.return_variable = cxt->return_variable;
-	cxt->function_prototype.zend_function = cxt->zend_function;
-	cxt->function_prototype.name = cxt->zend_function->common.function_name;
-	cxt->function_prototype.filename = cxt->zend_function->op_array.filename;
+	cxt->function_prototype.zend_op_array = cxt->zend_op_array;
+	cxt->function_prototype.name = cxt->zend_op_array->function_name;
+	cxt->function_prototype.filename = cxt->zend_op_array->filename;
 	cxt->function_prototype.local_storage = cxt->storage;
 }
 
@@ -2944,7 +2931,7 @@ static void qb_validate_op(qb_compiler_context *cxt, qb_op *qop, uint32_t qop_in
 	}
 }
 
-static void qb_resolve_jump_targets(qb_compiler_context *cxt) {
+void qb_resolve_jump_targets(qb_compiler_context *cxt) {
 	uint32_t i, j;
 
 	for(i = 0; i < cxt->op_count; i++) {
@@ -2969,7 +2956,7 @@ static qb_address * qb_promote_address_mode(qb_compiler_context *cxt, qb_address
 	return address;
 }
 
-static void qb_resolve_address_modes(qb_compiler_context *cxt) {
+void qb_resolve_address_modes(qb_compiler_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
@@ -3038,15 +3025,13 @@ static void qb_resolve_address_modes(qb_compiler_context *cxt) {
 
 			if(!operands_are_valid) {
 				// shouldn't happen at runtime but we'll leave the error check in here just in case
-				const char *op_name = qb_get_op_name(cxt, qop->opcode);
-				cxt->line_number = qop->line_number;
-				qb_abort("invalid operands for %s", op_name);
+				qb_abort("invalid operands");
 			}
 		}
 	}
 }
 
-static void qb_resolve_reference_counts(qb_compiler_context *cxt) {
+void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
@@ -3297,7 +3282,7 @@ static void qb_simplify_jump(qb_compiler_context *cxt, uint32_t index) {
 	}
 }
 
-static void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
+void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 	uint32_t i;
 	if(pass == 1) {
 		// opcodes are not address mode specific at this point
@@ -3375,79 +3360,7 @@ void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	*/
 }
 
-void qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool) {
-	memset(pool, 0, sizeof(qb_compiler_data_pool));
-
-	// have an array that keeps track of all other arrays
-	qb_create_array((void **) &pool->arrays, &pool->array_count, sizeof(void *), 64);
-	
-	qb_create_block_allocator(&pool->op_allocator, sizeof(qb_op), 256);
-	qb_create_block_allocator(&pool->address_allocator, sizeof(qb_address), 1024);
-	qb_create_block_allocator(&pool->expression_allocator, sizeof(qb_expression), 256);
-	qb_create_block_allocator(&pool->pointer_allocator, sizeof(void *), 256);
-	qb_create_block_allocator(&pool->operand_allocator, sizeof(qb_operand), 1024);
-	qb_create_block_allocator(&pool->index_alias_scheme_allocator, sizeof(qb_index_alias_scheme), 16);
-	qb_create_block_allocator(&pool->string_allocator, sizeof(char), 1024);
-	qb_create_block_allocator(&pool->uint32_allocator, sizeof(uint32_t), 64);
-	qb_create_block_allocator(&pool->type_declaration_allocator, sizeof(qb_type_declaration), 256);
-	qb_create_block_allocator(&pool->variable_allocator, sizeof(qb_variable), 256);
-	qb_create_block_allocator(&pool->function_declaration_allocator, sizeof(qb_function_declaration), 16);
-	qb_create_block_allocator(&pool->class_declaration_allocator, sizeof(qb_class_declaration), 16);
-
-	qb_create_block_allocator(&pool->result_destination_allocator, sizeof(qb_result_destination), 64);
-	qb_create_block_allocator(&pool->array_initializer_allocator, sizeof(qb_array_initializer), 64);
-}
-
-void qb_free_compiler_data_pool(qb_compiler_data_pool *pool) {
-	uint32_t i;
-	for(i = pool->array_count - 1; (int32_t) i >= 0; i--) {
-		void **array = pool->arrays[i];
-		qb_destroy_array(array);
-	}
-	qb_destroy_array((void **) &pool->arrays);
-
-	qb_destroy_block_allocator(&pool->op_allocator);
-	qb_destroy_block_allocator(&pool->address_allocator);
-	qb_destroy_block_allocator(&pool->expression_allocator);
-	qb_destroy_block_allocator(&pool->pointer_allocator);
-	qb_destroy_block_allocator(&pool->operand_allocator);
-	qb_destroy_block_allocator(&pool->array_initializer_allocator);
-	qb_destroy_block_allocator(&pool->index_alias_scheme_allocator);
-	qb_destroy_block_allocator(&pool->string_allocator);
-	qb_destroy_block_allocator(&pool->uint32_allocator);
-	qb_destroy_block_allocator(&pool->type_declaration_allocator);
-	qb_destroy_block_allocator(&pool->variable_allocator);
-	qb_destroy_block_allocator(&pool->function_declaration_allocator);
-	qb_destroy_block_allocator(&pool->class_declaration_allocator);
-	qb_destroy_block_allocator(&pool->result_destination_allocator);
-
-	if(pool->op_actions) {
-		efree((void *) pool->op_actions);
-	}
-	if(pool->op_function_usages) {
-		efree((void *) pool->op_function_usages);
-	}
-	if(pool->op_names) {
-		efree((void *) pool->op_names);
-	}
-	if(pool->op_result_size_codes) {
-		efree((void *) pool->op_result_size_codes);
-	}
-	if(pool->op_result_size_variables) {
-		efree((void *) pool->op_result_size_variables);
-	}
-	if(pool->function_prototypes) {
-		efree((void *) pool->function_prototypes);
-	}
-	if(pool->pbj_op_names) {
-		efree((void *) pool->pbj_op_names);
-	}
-	if(pool->zend_op_names) {
-		efree((void *) pool->zend_op_names);
-	}
-}
-
-void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_compiler_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC) {
+void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC) {
 	cxt->pool = pool;
 	if(function_decl) {
 		cxt->function_flags = function_decl->flags;
@@ -3458,7 +3371,7 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_compiler_data_p
 			cxt->function_flags |= QB_ENGINE_GO_THRU_ZEND;
 		}
 		cxt->function_declaration = function_decl;
-		cxt->zend_function = function_decl->zend_function;
+		cxt->zend_op_array = function_decl->zend_op_array;
 	}
 	SAVE_TSRMLS
 
@@ -3525,200 +3438,6 @@ void qb_free_compiler_context(qb_compiler_context *cxt) {
 	}
 }
 
-static void qb_initialize_build_context(qb_build_context *cxt TSRMLS_DC) {
-	cxt->deferral_count = 0;
-	cxt->pool = &cxt->_pool;
-	qb_initialize_compiler_data_pool(cxt->pool);
-	qb_attach_new_array(cxt->pool, (void **) &cxt->function_declarations, &cxt->function_declaration_count, sizeof(qb_function_declaration *), 16);
-	qb_attach_new_array(cxt->pool, (void **) &cxt->class_declarations, &cxt->class_declaration_count, sizeof(qb_class_declaration *), 16);
-	qb_attach_new_array(cxt->pool, (void **) &cxt->compiler_contexts, &cxt->compiler_context_count, sizeof(qb_compiler_context), 16);
-	SAVE_TSRMLS
-}
-
-void qb_free_build_context(qb_build_context *cxt) {
-	uint32_t i;
-	for(i = 0; i < cxt->compiler_context_count; i++) {
-		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		qb_free_compiler_context(compiler_cxt);
-	}
-	qb_free_compiler_data_pool(cxt->pool);
-}
-
-static void qb_print_value(qb_compiler_context *cxt, int8_t *bytes, uint32_t type) {
-	USE_TSRM
-	char buffer[64];
-	uint32_t len;
-	len = qb_element_to_string(buffer, sizeof(buffer), bytes, type);
-	php_write(buffer, len TSRMLS_CC);
-}
-
-static qb_variable * qb_find_variable_with_address(qb_compiler_context *cxt, qb_address *address) {
-	uint32_t i;
-	for(i = 0; i < cxt->variable_count; i++) {
-		qb_variable *qvar = cxt->variables[i];
-		if(qvar->address == address) {
-			return qvar;
-		}
-	}
-	return NULL;
-}
-
-static qb_variable * qb_find_variable_with_size_address(qb_compiler_context *cxt, qb_address *address, uint32_t *p_depth, int32_t *p_recursive) {
-	uint32_t i, j;
-	for(i = 0; i < cxt->variable_count; i++) {
-		qb_variable *qvar = cxt->variables[i];
-		if(qvar->address) {
-			for(j = 0; j < qvar->address->dimension_count; j++) {
-				if(qvar->address->dimension_addresses[j] == address) {
-					*p_depth = j + 1;
-					*p_recursive = FALSE;
-					return qvar;
-				} else if(qvar->address->array_size_addresses[j] == address) {
-					*p_depth = j + 1;
-					*p_recursive = TRUE;
-					return qvar;
-				}
-			}
-		}
-	}
-	return NULL;
-}
-
-static void qb_print_address(qb_compiler_context *cxt, qb_address *address, int32_t ignore_index) {
-	uint32_t i;
-	if(CONSTANT(address)) {
-		if(!SCALAR(address)) {
-			if(address->flags & QB_ADDRESS_STRING) {
-				uint32_t len = VALUE(U32, address->array_size_address);
-				char *string = (char *) ARRAY(U08, address);
-				php_printf("\"%.*s\"", len, string);
-			} else {
-				uint32_t count = ARRAY_SIZE(address);
-				int8_t *bytes = ARRAY(I08, address);
-				php_printf("[");
-				for(i = 0; i < count; i++) {
-					qb_print_value(cxt, bytes, address->type);
-					if(i < count - 1) {
-						php_printf(", ");
-					}
-					if(i == 3 && count > 5) {
-						php_printf("...(%d more)", count - 4);
-						break;
-					}
-					bytes += BYTE_COUNT(1, address->type);
-				}
-				php_printf("]");
-			}
-		} else {
-			if(address->flags & QB_ADDRESS_STRING) {
-				char *string = (char *) ARRAY(U08, address);
-				php_printf("\"%.*s\"", 1, string);
-			} else{
-				qb_print_value(cxt, ARRAY(I08, address), address->type);
-			}
-		}
-	} else if(address->source_address) {
-		if(address->source_address->dimension_count == address->dimension_count + 1) {
-			// array element
-			qb_print_address(cxt, address->source_address, TRUE);
-			if(!ignore_index) {
-				php_printf("[");
-				qb_print_address(cxt, address->array_index_address, FALSE);
-				php_printf("]");
-			}
-		} else {
-			qb_print_address(cxt, address->source_address, FALSE); 
-		}
-	} else {
-		qb_variable *qvar;
-		uint32_t depth;
-		int32_t recursive;
-		if((qvar = qb_find_variable_with_address(cxt, address))) {
-			if(qvar->name) {
-				if(qvar->flags & QB_VARIABLE_CLASS) {
-					if(qvar->zend_class) {
-						php_printf("self::$%s", qvar->name);
-					} else {
-						php_printf("static::$%s", qvar->name);
-					}
-				} else if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
-					php_printf("$this->%s", qvar->name);
-				} else if(qvar->flags & QB_VARIABLE_CLASS_CONSTANT) {
-						php_printf("static::%s", qvar->name);
-				} else {
-					php_printf("$%s", qvar->name);
-				}
-			} else {
-				php_printf("(retval)");
-			}
-		} else if((qvar = qb_find_variable_with_size_address(cxt, address, &depth, &recursive))) {
-			php_printf("count($%s", qvar->name);
-			while(--depth > 0) {
-				php_printf("[]");
-			}
-			php_printf((recursive) ? ", true)" : ")");
-		} else {
-			if(SCALAR(address)) {
-				if(address->flags & QB_ADDRESS_FOREACH_INDEX) {
-					php_printf("(fe:%u:%u)", address->segment_selector, address->segment_offset);
-				} else {
-					php_printf("(%u:%u)", address->segment_selector, address->segment_offset);
-				}
-			} else {
-				if(VARIABLE_LENGTH(address)) {
-					php_printf("(%u:%u...)", address->segment_selector, address->segment_offset);
-				} else {
-					php_printf("(%u:%u..%u:%u)", address->segment_selector, address->segment_offset, address->segment_selector, address->segment_offset + (ARRAY_SIZE(address) - 1));
-				}
-			}
-		}
-	}
-}
-
-static void qb_print_op(qb_compiler_context *cxt, qb_op *qop, uint32_t index) {
-	uint32_t i;
-	const char *name = qb_get_op_name(cxt, qop->opcode);
-	php_printf("%04d: %s ", index, name);
-	for(i = 0; i < qop->operand_count; i++) {
-		qb_operand *operand = &qop->operands[i];
-		switch(operand->type) {
-			case QB_OPERAND_ADDRESS: {
-				qb_print_address(cxt, operand->address, FALSE);
-			}	break;
-			case QB_OPERAND_EXTERNAL_SYMBOL: {
-				qb_external_symbol *symbol = &cxt->external_symbols[operand->symbol_index];
-				php_printf("[%s]", symbol->name);
-			}	break;
-			case QB_OPERAND_SEGMENT_SELECTOR: {
-				php_printf("@%d", operand->address->segment_selector);
-			}	break;
-			case QB_OPERAND_NUMBER: {
-				php_printf("'%d'", operand->number);
-			}	break;
-			default: {
-				php_printf("(ERROR)");
-				break;
-			}
-		}
-		php_printf(" ");
-	}
-	for(i = 0; i < qop->jump_target_count; i++) {
-		uint32_t jump_target_index = qop->jump_target_indices[i];
-		php_printf("<%04d> ", jump_target_index);
-	}
-	php_printf("\n");
-}
-
-static void qb_print_ops(qb_compiler_context *cxt) {
-	uint32_t i;
-	for(i = 0; i < cxt->op_count; i++) {
-		qb_op *qop = cxt->ops[i];
-		if(qop->opcode != QB_NOP) {
-			qb_print_op(cxt, qop, i);
-		}
-	}
-}
-
 void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 	USE_TSRM
 	php_stream *stream;
@@ -3726,7 +3445,7 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 	// set active op array to the function to whom the code belong, so that relative paths are resolved correctly
 	zend_op_array *active_op_array = EG(active_op_array);
 	if(cxt->function_declaration) {
-		EG(active_op_array) = &cxt->function_declaration->zend_function->op_array;
+		EG(active_op_array) = cxt->function_declaration->zend_op_array;
 	}
 	stream = php_stream_open_wrapper_ex((char *) import_path, "rb", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
 	EG(active_op_array) = active_op_array;
@@ -3742,8 +3461,8 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 		}
 	}
 	if(!cxt->external_code) {
-		QB_G(current_filename) = cxt->function_declaration->zend_function->op_array.filename;
-		QB_G(current_line_number) = cxt->function_declaration->zend_function->op_array.line_start;
+		QB_G(current_filename) = cxt->function_declaration->zend_op_array->filename;
+		QB_G(current_line_number) = cxt->function_declaration->zend_op_array->line_start;
 		qb_abort("unable to load file containing external code");
 	}
 }
@@ -3784,343 +3503,6 @@ static zend_function * qb_get_function(qb_build_context *cxt, zval *callable) {
 		}
 	}
 	return zfunc;
-}
-
-static void qb_replace_zend_function(zend_function *zfunc, qb_function *qfunc TSRMLS_DC) {
-	// save values that will get wiped by destroy_op_array()
-	zend_uint fn_flags = zfunc->common.fn_flags;
-	zend_class_entry *scope = zfunc->common.scope;
-
-	// copy argument info
-	zend_arg_info *arg_info = emalloc(sizeof(zend_arg_info) * zfunc->common.num_args);
-	uint32_t i;
-	for(i = 0; i < zfunc->common.num_args ; i++) {
-		arg_info[i].pass_by_reference = zfunc->common.arg_info[i].pass_by_reference;
-		arg_info[i].allow_null = zfunc->common.arg_info[i].allow_null;
-		arg_info[i].name = qfunc->variables[i]->name;
-		arg_info[i].name_len = qfunc->variables[i]->name_length;
-	}
-
-	// free the op array
-	destroy_op_array(&zfunc->op_array TSRMLS_CC);
-	memset(&zfunc->op_array, 0, sizeof(zend_op_array));
-
-	// make the function internal function
-	zfunc->type = ZEND_INTERNAL_FUNCTION;
-	zfunc->common.fn_flags = fn_flags;
-	zfunc->common.scope = scope;
-#ifdef ZEND_ACC_DONE_PASS_TWO
-	zfunc->common.fn_flags &= ~ZEND_ACC_DONE_PASS_TWO;
-#endif
-	zfunc->common.function_name = qfunc->name;
-	zfunc->common.arg_info = arg_info;
-	zfunc->internal_function.handler = PHP_FN(qb_execute);
-#if !ZEND_ENGINE_2_1
-	zfunc->internal_function.module = &qb_module_entry;
-#endif
-
-	qfunc->zend_function = zfunc;
-
-	// store the pointer to the qb function in space vacated by the op array
-	zfunc->op_array.reserved[0] = qfunc;
-}
-
-static void qb_replace_zend_functions(zend_function *zfunc, qb_function *qfunc TSRMLS_DC) {
-	zend_uint refcount = *zfunc->op_array.refcount - 1;
-	zend_op *opcodes = zfunc->op_array.opcodes;
-	zend_class_entry *scope = zfunc->common.scope;
-	uint32_t function_count = 1, function_buffer_size = 16;
-	qb_replace_zend_function(zfunc, qfunc TSRMLS_CC);	
-
-	// replace the function in descendant classes as well
-	if(scope && refcount > 0) {
-		Bucket *q;
-		const char *name = qfunc->name;
-		uint32_t name_length = strlen(qfunc->name);
-		ulong name_hash = zend_inline_hash_func(name, name_length + 1);
-		for(q = EG(class_table)->pListTail; q && refcount > 0; q = q->pListLast) {
-			zend_class_entry **p_ce = q->pData, *ce = *p_ce;
-			if(ce->type == ZEND_USER_CLASS) {
-				zend_class_entry *ancestor = ce->parent;
-				for(ancestor = ce->parent; ancestor; ancestor = ancestor->parent) {
-					if(ancestor == scope) {
-						if(zend_hash_quick_find(&ce->function_table, name, name_length + 1, name_hash, (void **) &zfunc) == SUCCESS) {
-							if(zfunc->common.scope == scope) {
-								if(zfunc->type == ZEND_USER_FUNCTION && zfunc->op_array.opcodes == opcodes) {
-									qb_replace_zend_function(zfunc, qfunc TSRMLS_CC);
-									refcount--;
-								}
-							}
-						}
-						break;
-					}
-				}
-			} else {
-				break;
-			}
-		}
-	}
-}
-
-void qb_compile_functions(qb_build_context *cxt) {
-	USE_TSRM
-	qb_compiler_context *compiler_cxt;
-	uint32_t i, native_compile = FALSE;
-
-	// create the compiler contexts for all functions to be compiled 
-	for(i = 0; i < cxt->function_declaration_count; i++) {
-		compiler_cxt = qb_enlarge_array((void **) &cxt->compiler_contexts, 1);
-		qb_initialize_compiler_context(compiler_cxt, cxt->pool, cxt->function_declarations[i] TSRMLS_CC);
-
-		QB_G(current_filename) = compiler_cxt->zend_function->op_array.filename;
-
-		// add variables used within function
-		qb_add_variables(compiler_cxt);
-
-		// set up function prototypes so the functions can resolved against each other
-		qb_initialize_function_prototype(compiler_cxt);
-	}
-
-	// translate the functions
-	for(i = 0; i < cxt->compiler_context_count; i++) {
-		compiler_cxt = &cxt->compiler_contexts[i];
-
-		if(!compiler_cxt->function_declaration->import_path) {
-			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
-			qb_initialize_php_translater_context(translater_cxt, compiler_cxt TSRMLS_CC);
-
-			// show the zend opcodes if turned on
-			if(QB_G(show_zend_opcodes)) {
-				qb_print_zend_ops(translater_cxt);
-			}
-
-			// translate the zend ops to intermediate qb ops
-			qb_translate_instructions(translater_cxt);
-		} else {
-			// load the code into memory
-			qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path);
-
-			// decode the pbj data
-			//qb_pbj_decode(compiler_cxt);
-
-			// show the pb opcodes if turned on
-			if(QB_G(show_pbj_opcodes)) {
-				//qb_pbj_print_ops(compiler_cxt);
-			}
-
-			// map function arguments to PB kernel parameters
-			//qb_pbj_map_arguments(compiler_cxt);
-
-			// create the main loop and translate the PB instructions
-			//qb_pbj_translate_instructions(compiler_cxt);
-
-			// free the binary
-			qb_free_external_code(compiler_cxt);
-		}
-
-		// make all jump target indices absolute
-		qb_resolve_jump_targets(compiler_cxt);
-
-		// fuse basic instructions into compound ones
-		qb_fuse_instructions(compiler_cxt, 1);
-
-		// assign storage space to variables
-		qb_assign_storage_space(compiler_cxt);
-
-		// make opcodes address-mode-specific
-		qb_resolve_address_modes(compiler_cxt);
-
-		// try to fuse more instructions
-		qb_fuse_instructions(compiler_cxt, 2);
-
-		// figure out how many references to relocatable segments there are
-		qb_resolve_reference_counts(compiler_cxt);
-
-		// show the qb opcodes if turned on
-		if(QB_G(show_opcodes)) {
-			qb_print_ops(compiler_cxt);
-		}
-
-		QB_G(current_filename) = NULL;
-		QB_G(current_line_number) = 0;
-	}
-
-	// generate the instruction streams
-	for(i = 0; i < cxt->compiler_context_count; i++) {
-		qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
-		qb_function *qfunc, **p_qfunc;
-
-		compiler_cxt = &cxt->compiler_contexts[i];
-		qb_initialize_encoder_context(encoder_cxt, compiler_cxt TSRMLS_CC);
-
-		// encode the instruction stream
-		qfunc = qb_encode_function(encoder_cxt);
-
-		// replace the zend function with the qb version
-		qb_replace_zend_functions(compiler_cxt->zend_function, qfunc TSRMLS_CC);
-
-		// add the function to the global table so we can free it afterward
-		if(!QB_G(compiled_functions)) {
-			qb_create_array((void **) &QB_G(compiled_functions), &QB_G(compiled_function_count), sizeof(qb_function *), 16);
-		}
-		p_qfunc = qb_enlarge_array((void **) &QB_G(compiled_functions), 1);
-		*p_qfunc = qfunc;
-
-		if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
-			native_compile = TRUE;
-		}
-	}
-
-#ifdef NATIVE_COMPILE_ENABLED
-	// compile all functions inside build in one go
-	if(native_compile) {
-		if(QB_G(allow_native_compilation)) {
-			qb_native_compile(cxt TSRMLS_C);
-		}
-	}
-	if(!QB_G(allow_bytecode_interpretation)) {
-		for(i = 0; i < cxt->compiler_context_count; i++) {
-			compiler_cxt = &cxt->compiler_contexts[i];
-			if(!compiler_cxt->native_proc) {
-				qb_abort("unable to compile to native code");
-			}
-		}
-	}
-#endif
-}
-
-int qb_compile(zval *arg1, zval *arg2 TSRMLS_DC) {
-	qb_build_context *cxt = QB_G(build_context);
-	Bucket *p, *q;
-	uint32_t action = QB_SCAN_FILE;
-	zend_function *specified_function = NULL;
-	const char *current_filename = EG(active_op_array)->filename;
-
-	if(!cxt) {
-		cxt = emalloc(sizeof(qb_build_context));
-		qb_initialize_build_context(cxt TSRMLS_CC);
-		QB_G(build_context) = cxt;
-	}
-
-	if(arg1 && Z_TYPE_P(arg1) != IS_NULL) {
-		if(Z_TYPE_P(arg1) == IS_LONG) {
-			action = Z_LVAL_P(arg1);
-		} else if(Z_TYPE_P(arg1) == IS_BOOL) {
-			action = Z_LVAL_P(arg1) ? QB_SCAN_FILE : QB_SCAN_ALL;
-		} else if(Z_TYPE_P(arg1) == IS_DOUBLE) {
-			action = (ulong) Z_DVAL_P(arg1);
-		} else {
-			// if it's a callable, then process it
-			specified_function = qb_get_function(cxt, arg1);
-		}
-	}
-
-	if(specified_function) {
-		HashTable *ht = (Z_TYPE_P(arg2) == IS_ARRAY) ? Z_ARRVAL_P(arg2) : NULL;
-		qb_function_declaration *function_decl = NULL;
-		zend_class_entry *ce = specified_function->common.scope;
-		int32_t fd_index = qb_find_function_declaration(cxt, specified_function);
-		if(ht) {
-			function_decl = qb_parse_function_declaration_table(cxt->pool, specified_function, ht);
-		} else {
-			// scan for declaration only if there wasn't one already
-			if(fd_index == -1) {
-				function_decl = qb_parse_function_doc_comment(cxt->pool, specified_function, NULL);
-				if(!function_decl) {
-					qb_abort("%s() does not have a Doc Comments block containing a valid declaration", specified_function->common.function_name);
-				}
-			} else {
-				return SUCCESS;
-			}
-		}
-		if(ce) {
-			qb_class_declaration *class_decl = qb_parse_class_doc_comment(cxt->pool, ce);
-			qb_add_class_declaration(cxt, class_decl);
-			function_decl->class_declaration = class_decl;
-		}
-		qb_add_function_declaration(cxt, function_decl);
-	} else {
-		if(action == QB_START_DEFERRAL) {
-			cxt->deferral_count++;
-			return SUCCESS;
-		} else if(action == QB_END_DEFERRAL){
-			if(cxt->deferral_count > 1) {
-				cxt->deferral_count--;
-				return SUCCESS;
-			} else {
-				cxt->deferral_count = 0;
-				// start compiling
-			}
-		} else if(action == QB_SCAN_FILE || action == QB_SCAN_ALL) {
-			// look for user functions that need to be compiled
-			for(p = EG(function_table)->pListTail; p; p = p->pListLast) {
-				zend_function *zfunc = p->pData;
-				if(zfunc->type == ZEND_USER_FUNCTION) {
-					if(action == QB_SCAN_ALL || strcmp(zfunc->op_array.filename, current_filename) == 0) {
-						int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
-						if(fd_index == -1) {
-							qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc, NULL);
-							if(function_decl) {
-								qb_add_function_declaration(cxt, function_decl);
-							}
-						}
-					}
-				} else {
-					if(!qb_is_compiled_function(zfunc)) {
-						break;
-					}
-				}
-			}
-
-			// look for class methods
-			for(q = EG(class_table)->pListTail; q; q = q->pListLast) {
-				zend_class_entry **p_ce = q->pData, *ce = *p_ce;
-				if(ce->type == ZEND_USER_CLASS) {
-					if(action == QB_SCAN_ALL || Z_CLASS_INFO(ce, filename)) {
-						int32_t cd_index = qb_find_class_declaration(cxt, ce);
-						if(cd_index == -1) {
-							qb_class_declaration *class_decl = NULL;
-							for(p = ce->function_table.pListHead; p; p = p->pListNext) {
-								zend_function *zfunc = p->pData;
-								// handle the function at the parent
-								if(zfunc->common.scope == ce) {
-									int32_t fd_index = qb_find_function_declaration(cxt, zfunc);
-									if(fd_index == -1) {
-										qb_function_declaration *function_decl = qb_parse_function_doc_comment(cxt->pool, zfunc, ce);
-										if(function_decl) {
-											if(!class_decl) {
-												// parse the class doc comment if there's a method that's going to be translated
-												class_decl = qb_parse_class_doc_comment(cxt->pool, ce);
-												qb_add_class_declaration(cxt, class_decl);
-											}
-											function_decl->class_declaration = class_decl;
-											qb_add_function_declaration(cxt, function_decl);
-										}
-									}
-								}
-							}
-						}
-					}
-				} else {
-					break;
-				}
-			}
-		}
-	}
-	if(cxt->deferral_count > 0) {
-		// perform compilation later
-		return SUCCESS;
-	}
-
-	if(cxt->function_declaration_count) {
-		qb_compile_functions(cxt);
-		qb_free_build_context(cxt);
-		efree(cxt);
-		QB_G(build_context) = NULL;
-	} else {
-		qb_abort("no qb functions found");
-	}
-	return SUCCESS;
 }
 
 void qb_open_diagnostic_loop(qb_compiler_context *cxt) {
@@ -4254,9 +3636,5 @@ int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 	}
 
 	qb_free_build_context(cxt);
-	return SUCCESS;
-}
-
-int qb_initialize_compiler(TSRMLS_D) {
 	return SUCCESS;
 }

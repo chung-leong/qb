@@ -25,11 +25,11 @@
 
 #include "qb.h"
 
-void qb_initialize_compiler_data_pool(qb_compiler_data_pool *pool);
-void qb_free_compiler_data_pool(qb_compiler_data_pool *pool);
+void qb_initialize_compiler_data_pool(qb_data_pool *pool);
+void qb_free_compiler_data_pool(qb_data_pool *pool);
 void qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
 void qb_free_external_code(qb_compiler_context *cxt);
-void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_compiler_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
+void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
 void qb_free_compiler_context(qb_compiler_context *cxt);
 void qb_pbj_decode(qb_compiler_context *cxt);
 

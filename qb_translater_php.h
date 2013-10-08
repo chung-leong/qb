@@ -36,11 +36,10 @@ struct qb_php_op_translator {
 
 struct qb_php_translater_context {
 	qb_compiler_context *compiler_context;
-	qb_compiler_data_pool *pool;
+	qb_data_pool *pool;
 
 	zval *zend_this_object;
 	zval *zend_class_name;
-	zend_class_entry *zend_class;
 	zend_op_array *zend_op_array;
 	zend_op *zend_op;
 	uint32_t zend_op_index;
@@ -81,7 +80,7 @@ enum {
 	#define Z_OPERAND_INFO(op, prop)		(op).u.prop
 	#define Z_OPERAND_TYPE(op)				op.op_type
 	#define Z_OPERAND_ZV(op)				&Z_OPERAND_INFO(op, constant)
-	#define Z_HASH_P(zv)					zend_inline_hash_func(Z_STRVAL_P(zv), Z_STRLEN_P(zv) + 1)
+	#define Z_HASH_P(zv)					zend_hash_func(Z_STRVAL_P(zv), Z_STRLEN_P(zv) + 1)
 	#define RETURN_VALUE_USED(opline)		(!((opline)->result.u.EA.type & EXT_TYPE_UNUSED))
 	#define FETCH_TYPE(opline)				(opline->op2.u.EA.type)
 #endif
@@ -94,12 +93,6 @@ enum {
 
 #define ZEND_OP_INDEX(zop)						(((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op)
 #define ZEND_OP(index)							&cxt->zend_op_array->opcodes[index]
-
-qb_function_declaration * qb_parse_function_doc_comment(qb_compiler_data_pool *pool, zend_function *zfunc, zend_class_entry *ce);
-qb_function_declaration * qb_parse_function_declaration_table(qb_compiler_data_pool *pool, zend_function *zfunc, HashTable *ht);
-qb_class_declaration * qb_parse_class_doc_comment(qb_compiler_data_pool *pool, zend_class_entry *ce);
-
-void qb_print_zend_ops(qb_php_translater_context *cxt);
 
 void qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void qb_free_php_translater_context(qb_php_translater_context *cxt);

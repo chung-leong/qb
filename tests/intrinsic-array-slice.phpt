@@ -32,8 +32,6 @@ function test_function() {
 	echo array_slice($d, $a[$b], $a[$b]), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

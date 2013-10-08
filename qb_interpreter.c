@@ -1328,7 +1328,6 @@ void qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict fun
 
 static void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
 	uint32_t i;
-
 	memset(cxt, 0, sizeof(qb_interpreter_context));
 
 	// use shadow variables for debugging purpose by default
@@ -1699,219 +1698,6 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #endif
 }
 
-extern zend_module_entry qb_module_entry;
-
-#include "zend_extensions.h"
-#include "zend_vm.h"
-
-void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
-	// see if a handler for the op exists before doing any of the hard work
-	USE_TSRM
-	int32_t handler_exists = FALSE;
-	if(!EG(no_extensions)) {
-		zend_llist_element *element;
-		for(element = zend_extensions.head; element; element = element->next) {
-			zend_extension *extension = (zend_extension *) element->data;
-			switch(zend_opcode) {
-				case ZEND_EXT_FCALL_BEGIN: {
-					if(extension->fcall_begin_handler != NULL) {
-						handler_exists = TRUE;
-					}
-				}	break;
-				case ZEND_EXT_FCALL_END: {
-					if(extension->fcall_end_handler != NULL) {
-						handler_exists = TRUE;
-					}
-				}	break;
-				case ZEND_EXT_STMT: {
-					if(extension->statement_handler != NULL) {
-						handler_exists = TRUE;
-					}
-				}	break;
-			}
-		}
-	}
-
-	if(handler_exists) {
-		USE_TSRM
-		zend_llist_element *element;
-		zend_function *zfunc = cxt->function->zend_function;
-		zend_op_array *op_array = EG(current_execute_data)->op_array;
-		zend_op *opline = EG(current_execute_data)->opline;
-		opline->opcode = zend_opcode;
-		opline->lineno = line_number;
-
-		zfunc->type = ZEND_USER_FUNCTION;
-		zfunc->op_array.opcodes = opline;
-		zfunc->op_array.last = 1;
-		zfunc->op_array.T = 0;
-
-		if(cxt->flags & QB_EMPLOY_SHADOW_VARIABLES) {
-			qb_sync_imported_variables(cxt);
-			qb_sync_shadow_variables(cxt);
-		}
-
-		for(element = zend_extensions.head; element; element = element->next) {
-			zend_extension *extension = (zend_extension *) element->data;
-			switch(zend_opcode) {
-				case ZEND_EXT_FCALL_BEGIN: {
-					if(extension->fcall_begin_handler != NULL) {
-						extension->fcall_begin_handler(op_array);
-					}
-				}	break;
-				case ZEND_EXT_FCALL_END: {
-					if(extension->fcall_end_handler != NULL) {
-						extension->fcall_end_handler(op_array);
-					}
-				}	break;
-				case ZEND_EXT_STMT: {
-					if(extension->statement_handler != NULL) {
-						extension->statement_handler(op_array);
-					}
-				}	break;
-			}
-		}
-
-		zfunc->type = ZEND_INTERNAL_FUNCTION;
-		zfunc->internal_function.handler = PHP_FN(qb_execute);
-#if !ZEND_ENGINE_2_1
-		zfunc->internal_function.module = &qb_module_entry;
-#endif
-	}
-}
-
-int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
-	zend_op *zop = execute_data->opline;
-	qb_interpreter_context *cxt = (qb_interpreter_context *) Z_OPERAND_INFO(zop->op2, jmp_addr);
-	zend_function *zfunc = cxt->function->zend_function;
-	zend_uchar original_opcode;
-
-	if(cxt->flags & QB_EMPLOY_SHADOW_VARIABLES) {
-		qb_create_shadow_variables(cxt);
-	}
-
-	// turn it back into internal function
-	zfunc->type = ZEND_INTERNAL_FUNCTION;
-	zfunc->internal_function.handler = PHP_FN(qb_execute);
-#if !ZEND_ENGINE_2_1
-	zfunc->internal_function.module = &qb_module_entry;
-#endif
-
-	// change the opcode so it's FCALL
-	original_opcode = zop->opcode;
-	zop->opcode = ZEND_DO_FCALL;
-	zop->lineno = cxt->function_call_line_number;
-
-	// enter the QB virtual machine
-	qb_enter_vm(cxt);
-
-	if(cxt->flags & QB_EMPLOY_SHADOW_VARIABLES) {
-		qb_destroy_shadow_variables(cxt);
-	}
-
-	// make it look like a user function before exiting, just in case
-	zfunc->type = ZEND_USER_FUNCTION;
-	zfunc->op_array.opcodes = zop;
-
-	zop->opcode = original_opcode;
-
-	return ZEND_USER_OPCODE_RETURN;
-}
-
-int32_t qb_user_opcode = -1;
-
-static void qb_enter_vm_thru_zend(qb_interpreter_context *cxt) {
-	USE_TSRM
-	qb_function *qfunc = cxt->function;
-	zend_function *zfunc = qfunc->zend_function;
-	zend_op user_op, **opline_ptr;
-	zval name;
-	if(qb_user_opcode == -1) {
-		// choose a user opcode that isn't in use
-		uint32_t i;
-		for(i = 255; i >= 200; i--) {
-			if(!zend_get_user_opcode_handler(i)) {
-				qb_user_opcode = i;
-				break;
-			}
-		}
-		// set the opcode handler
-		zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler);
-	}
-	if(qb_user_opcode != -1) {
-		zend_execute_data *original_execute_data;
-
-		memset(&user_op, 0, sizeof(zend_op));
-		user_op.opcode = qb_user_opcode;
-
-		// attach a name to the op so others can figure out what it is
-		Z_OPERAND_TYPE(user_op.op1) = Z_OPERAND_CONST;
-		Z_TYPE(name) = IS_STRING;
-		Z_STRVAL(name) = "QBVM";
-		Z_STRLEN(name) = 4;
-#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		Z_OPERAND_ZV(user_op.op1) = &name;
-#else
-		memcpy(Z_OPERAND_ZV(user_op.op1), &name, sizeof(zval));
-#endif
-
-		Z_OPERAND_TYPE(user_op.op2) = Z_OPERAND_UNUSED;
-		Z_OPERAND_INFO(user_op.op2, jmp_addr) = (zend_op *) cxt;
-		Z_OPERAND_TYPE(user_op.result) = Z_OPERAND_UNUSED;
-		zend_vm_set_opcode_handler(&user_op);
-
-		// make the funcion look like a user function temporarily
-		zfunc->type = ZEND_USER_FUNCTION;
-		zfunc->op_array.opcodes = &user_op;
-		zfunc->op_array.last = 1;
-		zfunc->op_array.T = 0;
-		zfunc->op_array.filename = cxt->function->filename;
-		if(qfunc->variable_count) {
-			uint32_t i, local_var_count = 0;
-			zfunc->op_array.vars = emalloc(sizeof(zend_compiled_variable) * qfunc->variable_count);
-			for(i = 0; i < qfunc->variable_count; i++) {
-				qb_variable *qvar = qfunc->variables[i];
-				if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-					zend_compiled_variable *zvar = &zfunc->op_array.vars[local_var_count++];
-					zvar->name = qvar->name;
-					zvar->name_len = qvar->name_length;
-					zvar->hash_value = qvar->hash_value;
-				}
-			}
-			zfunc->op_array.last_var = local_var_count;
-		}
-
-		if(cxt->call_stack_height == 0) {
-			original_execute_data = EG(current_execute_data);
-			EG(current_execute_data) = original_execute_data->prev_execute_data;
-			cxt->function_call_line_number = original_execute_data->opline->lineno;
-		}
-
-		// run it through zend_execute
-		opline_ptr = EG(opline_ptr);
-		zend_execute(&zfunc->op_array TSRMLS_CC);
-		EG(opline_ptr) = opline_ptr;
-
-		if(cxt->call_stack_height == 0) {
-			EG(current_execute_data) = original_execute_data;
-		}
-
-		// revert back to internal function
-		zfunc->type = ZEND_INTERNAL_FUNCTION;
-		zfunc->internal_function.handler = PHP_FN(qb_execute);
-#if !ZEND_ENGINE_2_1
-		zfunc->internal_function.module = &qb_module_entry;
-#endif
-		if(qfunc->variable_count) {
-			efree(zfunc->op_array.vars);
-			zfunc->op_array.vars = NULL;
-			zfunc->op_array.last_var = 0;
-		}
-	} else {
-		qb_enter_vm(cxt);
-	}
-}
-
 void qb_execute_function_call(qb_interpreter_context *cxt) {
 	if(cxt->function) {
 		int8_t *memory;
@@ -1960,13 +1746,8 @@ void qb_execute_function_call(qb_interpreter_context *cxt) {
 			}
 		}
 
-		if(cxt->function->flags & QB_ENGINE_GO_THRU_ZEND) {
-			// use a Zend op to activate the function, so a user-function environment is created
-			qb_enter_vm_thru_zend(cxt);
-		} else {
-			// run the function normally
-			qb_enter_vm(cxt);
-		}
+		// run the function normally
+		qb_enter_vm(cxt);
 
 		// copy values to imported variables and remove them
 		for(i = cxt->function->argument_count; i < cxt->function->variable_count; i++) {
@@ -2064,6 +1845,72 @@ void qb_finalize_function_call(qb_interpreter_context *cxt) {
 	}
 }
 
+#include "zend_extensions.h"
+
+void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
+	// see if a handler for the op exists before doing any of the hard work
+	USE_TSRM
+	int32_t handler_exists = FALSE;
+	if(!EG(no_extensions)) {
+		zend_llist_element *element;
+		for(element = zend_extensions.head; element; element = element->next) {
+			zend_extension *extension = (zend_extension *) element->data;
+			switch(zend_opcode) {
+				case ZEND_EXT_FCALL_BEGIN: {
+					if(extension->fcall_begin_handler != NULL) {
+						handler_exists = TRUE;
+					}
+				}	break;
+				case ZEND_EXT_FCALL_END: {
+					if(extension->fcall_end_handler != NULL) {
+						handler_exists = TRUE;
+					}
+				}	break;
+				case ZEND_EXT_STMT: {
+					if(extension->statement_handler != NULL) {
+						handler_exists = TRUE;
+					}
+				}	break;
+			}
+		}
+	}
+
+	if(handler_exists) {
+		USE_TSRM
+		zend_llist_element *element;
+		zend_op_array *op_array = EG(current_execute_data)->op_array;
+		zend_op *opline = EG(current_execute_data)->opline;
+		opline->opcode = zend_opcode;
+		opline->lineno = line_number;
+
+		if(cxt->flags & QB_EMPLOY_SHADOW_VARIABLES) {
+			qb_sync_imported_variables(cxt);
+			qb_sync_shadow_variables(cxt);
+		}
+
+		for(element = zend_extensions.head; element; element = element->next) {
+			zend_extension *extension = (zend_extension *) element->data;
+			switch(zend_opcode) {
+				case ZEND_EXT_FCALL_BEGIN: {
+					if(extension->fcall_begin_handler != NULL) {
+						extension->fcall_begin_handler(op_array);
+					}
+				}	break;
+				case ZEND_EXT_FCALL_END: {
+					if(extension->fcall_end_handler != NULL) {
+						extension->fcall_end_handler(op_array);
+					}
+				}	break;
+				case ZEND_EXT_STMT: {
+					if(extension->statement_handler != NULL) {
+						extension->statement_handler(op_array);
+					}
+				}	break;
+			}
+		}
+	}
+}
+
 void qb_copy_argument(qb_interpreter_context *cxt, uint32_t argument_index) {
 	if(cxt->function) {
 		if(argument_index < cxt->function->argument_count) {
@@ -2151,21 +1998,6 @@ void qb_execute_internal(qb_function *qfunc TSRMLS_DC) {
 	cxt->storage = qfunc->local_storage;
 	cxt->argument_count = 0;
 	qb_execute_function_call(cxt);
-}
-
-int qb_initialize_interpreter(TSRMLS_D) {
-#ifdef NATIVE_COMPILE_ENABLED
-	uint32_t i;
-	// calculate hash for faster lookup
-	for(i = 0; i < global_native_symbol_count; i++) {
-		qb_native_symbol *symbol = &global_native_symbols[i];
-		symbol->hash_value = zend_inline_hash_func(symbol->name, strlen(symbol->name) + 1);
-	}
-#endif
-#ifndef _MSC_VER
-	qb_main(NULL, NULL);
-#endif
-	return SUCCESS;
 }
 
 intptr_t qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size) {

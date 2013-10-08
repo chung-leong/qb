@@ -469,10 +469,6 @@ static uint32_t qb_get_function_structure_size(qb_encoder_context *cxt) {
 	for(i = 0; i < cxt->compiler_context->external_symbol_count; i++) {
 		size += qb_get_external_symbol_length(cxt, &cxt->compiler_context->external_symbols[i]);
 	}
-	if(cxt->compiler_context->zend_function) {
-		size += strlen(cxt->compiler_context->zend_function->common.function_name) + 1;
-		size += strlen(cxt->compiler_context->zend_function->op_array.filename) + 1;
-	}
 	size = ALIGN_TO(size, 16);
 	return size;
 }
@@ -505,25 +501,12 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 		p = qb_copy_external_symbol(cxt, &cxt->compiler_context->external_symbols[i], p);
 	}
 
-	if(cxt->compiler_context->zend_function) {
-		uint32_t func_name_len = strlen(cxt->compiler_context->zend_function->common.function_name);
-		uint32_t filename_len = strlen(cxt->compiler_context->zend_function->op_array.filename);
-
-		// copy function name
-		func_name = (char *) p; p += func_name_len + 1;
-		memcpy(func_name, cxt->compiler_context->zend_function->common.function_name, func_name_len + 1);
-
-		// copy script name
-		filename = (char *) p; p += filename_len + 1;
-		memcpy(filename, cxt->compiler_context->zend_function->op_array.filename, filename_len + 1);
-	}
-
 	qfunc->argument_count = cxt->compiler_context->argument_count;
 	qfunc->required_argument_count = cxt->compiler_context->required_argument_count;
-	qfunc->name = func_name;
-	qfunc->filename = filename;
+	qfunc->name = (cxt->compiler_context->zend_op_array) ? cxt->compiler_context->zend_op_array->function_name : NULL;
+	qfunc->filename = (cxt->compiler_context->zend_op_array) ? cxt->compiler_context->zend_op_array->filename : NULL;
 	qfunc->native_proc = NULL;
-	qfunc->zend_function = NULL;
+	qfunc->zend_op_array = cxt->compiler_context->zend_op_array;
 	qfunc->next_copy = NULL;
 	qfunc->flags = cxt->compiler_context->function_flags;
 
@@ -696,6 +679,14 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 }
 
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
+#ifndef _MSC_VER
+	static int handlers_initialized = FALSE;
+	if(!handlers_initialized) {
+		qb_main(NULL, NULL);
+		handlers_initialized = TRUE;
+	}
+#endif
+
 	memset(cxt, 0, sizeof(qb_encoder_context));
 
 	cxt->compiler_context = compiler_cxt;
@@ -708,18 +699,6 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 
 void qb_free_function(qb_function *qfunc) {
 	uint32_t i;
-
-	// set the type to a invalid value so clean_non_persistent_function() doesn't return ZEND_HASH_APPLY_STOP
-	// when user functions are removed at the end of the request
-	if(qfunc->zend_function) {
-		qfunc->zend_function->type = 255;
-
-		// free the arg_info array
-		efree(qfunc->zend_function->common.arg_info);
-		qfunc->zend_function->common.arg_info = NULL;
-		qfunc->zend_function->common.num_args = 0;
-		qfunc->zend_function->common.required_num_args = 0;
-	}
 
 	// free memory segments
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {

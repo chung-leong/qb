@@ -21,11 +21,7 @@
 #ifndef QB_COMPILER_H_
 #define QB_COMPILER_H_
 
-typedef struct qb_type_declaration			qb_type_declaration;
-typedef struct qb_function_declaration		qb_function_declaration;
-typedef struct qb_class_declaration			qb_class_declaration;
 typedef struct qb_op_info					qb_op_info;
-typedef struct qb_compiler_data_pool		qb_compiler_data_pool;
 typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_build_context				qb_build_context;
 typedef struct qb_diagnostics				qb_diagnostics;
@@ -37,18 +33,6 @@ typedef enum qb_diagnostic_type				qb_diagnostic_type;
 typedef enum qb_result_destination_type		qb_result_destination_type;
 typedef enum qb_matrix_order				qb_matrix_order;
 typedef enum qb_derived_variable_type		qb_derived_variable_type;
-
-struct qb_type_declaration {
-	pcre *regexp;
-	const char *name;
-	uint32_t name_length;
-	ulong hash_value;
-	uint32_t type;
-	uint32_t flags;
-	uint32_t *dimensions;
-	uint32_t dimension_count;
-	qb_index_alias_scheme **index_alias_schemes;
-};
 
 struct qb_result_prototype {
 	qb_primitive_type preliminary_type;
@@ -70,51 +54,6 @@ struct qb_op_info {
 	const char *instruction_format;
 };
 
-struct qb_class_declaration {
-	qb_type_declaration **declarations;
-	uint32_t declaration_count;
-	zend_class_entry *zend_class;
-};
-
-struct qb_function_declaration {
-	qb_type_declaration **declarations;
-	uint32_t declaration_count;
-	uint32_t flags;
-	const char *import_path;
-	uint32_t import_path_length;
-	qb_class_declaration *class_declaration;
-	zend_function *zend_function;
-};
-
-struct qb_compiler_data_pool {
-	void ***arrays;
-	uint32_t array_count;
-
-	qb_block_allocator *op_allocator;
-	qb_block_allocator *address_allocator;
-	qb_block_allocator *expression_allocator;
-	qb_block_allocator *pointer_allocator;
-	qb_block_allocator *operand_allocator;
-	qb_block_allocator *index_alias_scheme_allocator;
-	qb_block_allocator *string_allocator;
-	qb_block_allocator *uint32_allocator;
-	qb_block_allocator *type_declaration_allocator;
-	qb_block_allocator *variable_allocator;
-	qb_block_allocator *function_declaration_allocator;
-	qb_block_allocator *class_declaration_allocator;
-	qb_block_allocator *array_initializer_allocator;
-	qb_block_allocator *result_destination_allocator;
-
-	char * const *op_names;
-	char * const *op_actions;
-	char * const *op_result_size_codes;
-	char * const *op_result_size_variables;
-	int32_t * const *op_function_usages;
-	char * const *function_prototypes;
-	char * const *zend_op_names;
-	char * const *pbj_op_names;
-};
-
 enum qb_stage {
 	QB_STAGE_VARIABLE_INITIALIZATION,
 	QB_STAGE_RESULT_TYPE_RESOLUTION,
@@ -134,9 +73,9 @@ struct qb_compiler_context {
 	uint32_t initialization_op_count;
 
 	qb_stage stage;
-	qb_compiler_data_pool *pool;
+	qb_data_pool *pool;
 
-	zend_function *zend_function;
+	zend_op_array *zend_op_array;
 
 	qb_function function_prototype;
 	qb_function_declaration *function_declaration;
@@ -199,22 +138,6 @@ struct qb_compiler_context {
 	void ***tsrm_ls;
 };
 
-struct qb_build_context {
-	qb_compiler_context *compiler_contexts;
-	uint32_t compiler_context_count;
-	qb_function_declaration **function_declarations;
-	uint32_t function_declaration_count;
-	qb_class_declaration **class_declarations;
-	uint32_t class_declaration_count;
-
-	uint32_t deferral_count;
-
-	qb_compiler_data_pool *pool;
-	qb_compiler_data_pool _pool;
-
-	void ***tsrm_ls;
-};
-
 enum qb_diagnostic_type {
 	QB_DIAGNOSTIC_EMPTY,
 	QB_DIAGNOSTIC_INT_ADD,
@@ -259,17 +182,17 @@ enum {
 };
 
 // NOTE: never attach a stack variable
-static zend_always_inline void qb_attach_new_array(qb_compiler_data_pool *pool, void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initial_capacity) {
+static zend_always_inline void qb_attach_new_array(qb_data_pool *pool, void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t initial_capacity) {
 	void ***pp_array = (void ***) qb_enlarge_array((void **) &pool->arrays, 1);
 	qb_create_array(p_array, p_count, item_size, initial_capacity);
 	*pp_array = p_array;
 }
 
-static zend_always_inline void *qb_allocate_pointers(qb_compiler_data_pool *pool, uint32_t count) {
+static zend_always_inline void *qb_allocate_pointers(qb_data_pool *pool, uint32_t count) {
 	return qb_allocate_items(&pool->pointer_allocator, count);
 }
 
-static zend_always_inline char *qb_allocate_string(qb_compiler_data_pool *pool, const char *s, uint32_t len) {
+static zend_always_inline char *qb_allocate_string(qb_data_pool *pool, const char *s, uint32_t len) {
 	char *string = qb_allocate_items(&pool->string_allocator, len + 1);
 	if(s) {
 		memcpy(string, s, len);
@@ -277,54 +200,39 @@ static zend_always_inline char *qb_allocate_string(qb_compiler_data_pool *pool, 
 	return string;
 }
 
-static zend_always_inline uint32_t *qb_allocate_indices(qb_compiler_data_pool *pool, uint32_t count) {
+static zend_always_inline uint32_t *qb_allocate_indices(qb_data_pool *pool, uint32_t count) {
 	return qb_allocate_items(&pool->uint32_allocator, count);
 }
 
-static zend_always_inline qb_index_alias_scheme *qb_allocate_index_alias_scheme(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_index_alias_scheme *qb_allocate_index_alias_scheme(qb_data_pool *pool) {
 	return qb_allocate_items(&pool->index_alias_scheme_allocator, 1);
 }
 
-static zend_always_inline qb_type_declaration *qb_allocate_type_declaration(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_type_declaration *qb_allocate_type_declaration(qb_data_pool *pool) {
 	return qb_allocate_items(&pool->type_declaration_allocator, 1);
 }
 
-static zend_always_inline qb_function_declaration *qb_allocate_function_declaration(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_function_declaration *qb_allocate_function_declaration(qb_data_pool *pool) {
 	qb_function_declaration *f = qb_allocate_items(&pool->function_declaration_allocator, 1);
 	qb_attach_new_array(pool, (void **) &f->declarations, &f->declaration_count, sizeof(qb_type_declaration *), 16);
 	return f;
 }
 
-static zend_always_inline qb_class_declaration *qb_allocate_class_declaration(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_class_declaration *qb_allocate_class_declaration(qb_data_pool *pool) {
 	qb_class_declaration *c = qb_allocate_items(&pool->class_declaration_allocator, 1);
 	qb_attach_new_array(pool, (void **) &c->declarations, &c->declaration_count, sizeof(qb_type_declaration *), 16);
 	return c;
 }
 
-static zend_always_inline qb_result_destination *qb_allocate_result_destination(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_result_destination *qb_allocate_result_destination(qb_data_pool *pool) {
 	return qb_allocate_items(&pool->result_destination_allocator, 1);
 }
 
-static zend_always_inline void qb_add_function_declaration(qb_build_context *cxt, qb_function_declaration *function_decl) {
-	qb_function_declaration **p = qb_enlarge_array((void **) &cxt->function_declarations, 1);
-	*p = function_decl;
-}
-
-static zend_always_inline void qb_add_variable_declaration(qb_function_declaration *function_decl, qb_type_declaration *var_decl) {
-	qb_type_declaration **p = qb_enlarge_array((void **) &function_decl->declarations, 1);
-	*p = var_decl;
-}
-
-static zend_always_inline void qb_add_class_variable_declaration(qb_class_declaration *class_decl, qb_type_declaration *var_decl) {
-	qb_type_declaration **p = qb_enlarge_array((void **) &class_decl->declarations, 1);
-	*p = var_decl;
-}
-
-static zend_always_inline qb_op *qb_allocate_op(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_op *qb_allocate_op(qb_data_pool *pool) {
 	return qb_allocate_items(&pool->op_allocator, 1);
 }
 
-static zend_always_inline qb_operand *qb_allocate_operands(qb_compiler_data_pool *pool, uint32_t operand_count) {
+static zend_always_inline qb_operand *qb_allocate_operands(qb_data_pool *pool, uint32_t operand_count) {
 	return qb_allocate_items(&pool->operand_allocator, operand_count);
 }
 
@@ -333,22 +241,22 @@ static zend_always_inline void qb_add_op(qb_compiler_context *cxt, qb_op *op) {
 	*p = op;
 }
 
-static zend_always_inline qb_array_initializer *qb_allocate_array_initializer(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_array_initializer *qb_allocate_array_initializer(qb_data_pool *pool) {
 	qb_array_initializer *a = qb_allocate_items(&pool->array_initializer_allocator, 1);
 	qb_attach_new_array(pool, (void **) &a->elements, &a->element_count, sizeof(qb_operand), 16);
 	a->desired_type = QB_TYPE_ANY;
 	return a;
 }
 
-static zend_always_inline qb_address *qb_allocate_address(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_address *qb_allocate_address(qb_data_pool *pool) {
 	return qb_allocate_items(&pool->address_allocator, 1);
 }
 
-static zend_always_inline qb_address **qb_allocate_address_pointers(qb_compiler_data_pool *pool, uint32_t count) {
+static zend_always_inline qb_address **qb_allocate_address_pointers(qb_data_pool *pool, uint32_t count) {
 	return (qb_address **) qb_allocate_pointers(pool, count);
 }
 
-static zend_always_inline qb_expression *qb_allocate_expression(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_expression *qb_allocate_expression(qb_data_pool *pool) {
 	return qb_allocate_items(&pool->expression_allocator, 1);
 }
 
@@ -372,11 +280,11 @@ static zend_always_inline void qb_add_writable_array(qb_compiler_context *cxt, q
 	*p = address;
 }
 
-static zend_always_inline qb_variable *qb_allocate_variable(qb_compiler_data_pool *pool) {
+static zend_always_inline qb_variable *qb_allocate_variable(qb_data_pool *pool) {
 	return qb_allocate_items(&pool->variable_allocator, 1);
 }
 
-static zend_always_inline qb_variable *qb_allocate_variables(qb_compiler_data_pool *pool, uint32_t count) {
+static zend_always_inline qb_variable *qb_allocate_variables(qb_data_pool *pool, uint32_t count) {
 	return qb_allocate_items(&pool->variable_allocator, count);
 }
 
@@ -433,6 +341,7 @@ qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_ty
 qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index);
 
 int32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
+
 qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name, uint32_t type_mask);
 qb_variable * qb_get_local_variable(qb_compiler_context *cxt, zval *name);
 qb_variable * qb_get_global_variable(qb_compiler_context *cxt, zval *name);
@@ -479,5 +388,18 @@ qb_operand ** qb_pop_stack_items(qb_compiler_context *cxt, int32_t count);
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
 void qb_execute_op(qb_compiler_context *cxt, qb_op *op);
+
+void qb_add_variables(qb_compiler_context *cxt);
+void qb_initialize_function_prototype(qb_compiler_context *cxt);
+void qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
+void qb_free_external_code(qb_compiler_context *cxt);
+void qb_resolve_jump_targets(qb_compiler_context *cxt);
+void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass);
+void qb_assign_storage_space(qb_compiler_context *cxt);
+void qb_resolve_address_modes(qb_compiler_context *cxt);
+void qb_resolve_reference_counts(compiler_cxt);
+
+void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
+void qb_free_compiler_context(qb_compiler_context *cxt);
 
 #endif

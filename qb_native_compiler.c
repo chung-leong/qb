@@ -2223,6 +2223,17 @@ extern const char compressed_table_native_prototypes[];
 extern const char compressed_table_native_references[];
 
 static void qb_initialize_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC) {
+	static int hashes_initialized = FALSE;
+	if(!hashes_initialized) {
+		uint32_t i;
+		// calculate hash for faster lookup
+		for(i = 0; i < global_native_symbol_count; i++) {
+			qb_native_symbol *symbol = &global_native_symbols[i];
+			symbol->hash_value = zend_hash_func(symbol->name, strlen(symbol->name) + 1);
+		}
+		hashes_initialized = TRUE;
+	}
+
 	memset(cxt, 0, sizeof(qb_native_compiler_context));
 
 	cxt->pool = build_cxt->pool;

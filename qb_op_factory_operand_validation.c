@@ -147,14 +147,14 @@ static zval * qb_get_special_constant(qb_compiler_context *cxt, const char *name
 }
 
 static void qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	zend_class_entry *ce = cxt->zend_function->common.scope;
+	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
 		qb_abort("Cannot access self:: when no class scope is active");
 	}
 }
 
 static void qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	zend_class_entry *ce = cxt->zend_function->common.scope;
+	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
 		qb_abort("Cannot access parent:: when no class scope is active");
 	}
@@ -164,7 +164,7 @@ static void qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb
 }
 
 static void qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	zend_class_entry *ce = cxt->zend_function->common.scope;
+	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
 		qb_abort("Cannot access static:: when no class scope is active");
 	}

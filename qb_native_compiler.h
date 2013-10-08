@@ -62,7 +62,7 @@ struct qb_native_compiler_context {
 
 	qb_compiler_context *compiler_contexts;
 	uint32_t compiler_context_count;
-	qb_compiler_data_pool *pool;
+	qb_data_pool *pool;
 
 	char *cache_folder_path;
 	char *obj_file_path;

@@ -25,12 +25,15 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+#include "zend_extensions.h"
 #include "php_qb.h"
 #include "qb.h"
 
 ZEND_DECLARE_MODULE_GLOBALS(qb)
 
 /* True global resources - no need for thread safety here */
+int qb_user_opcode = 242;
+int qb_reserved_offset = -1;
 
 /* {{{ qb_functions[]
  *
@@ -122,6 +125,130 @@ static void php_qb_init_globals(zend_qb_globals *qb_globals)
 }
 /* }}} */
 
+
+qb_build_context * qb_get_current_build(TSRMLS_D) {
+	qb_build_context *cxt = QB_G(build_context);
+	if(!cxt) {
+		cxt = emalloc(sizeof(qb_build_context));
+		qb_initialize_build_context(cxt TSRMLS_CC);
+		QB_G(build_context) = cxt;
+	}
+	return cxt;
+}
+
+void qb_discard_current_build(TSRMLS_D) {
+	qb_build_context *cxt = QB_G(build_context);
+	qb_free_build_context(cxt);
+	efree(cxt);
+	QB_G(build_context) = NULL;
+}
+
+void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array) {
+	if(qb_reserved_offset != -1) {
+		zop_array->reserved[qb_reserved_offset] = qfunc;
+	}
+}
+
+qb_function * qb_get_compiled_function(zend_function *zfunc) {
+	if(qb_reserved_offset != -1 && zfunc->type == ZEND_USER_FUNCTION) {
+		return zfunc->op_array.reserved[qb_reserved_offset];
+	}
+	return NULL;
+}
+
+int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
+	zend_op_array *op_array = EG(active_op_array);
+	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
+	if(!qfunc) {
+		qb_build_context *cxt = qb_get_current_build(TSRMLS_C);
+		qb_build(cxt);
+		qfunc = op_array->reserved[qb_reserved_offset];
+		qb_discard_current_build(TSRMLS_C);
+	}
+	if(qfunc) {
+		zval *this = EG(This);
+		qb_execute(qfunc, this, NULL, 0, NULL TSRMLS_CC);
+	}
+	return ZEND_USER_OPCODE_RETURN;
+}
+
+void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
+	TSRMLS_FETCH();
+	if(CG(doc_comment)) {
+		zend_op *qb_op = &op_array->opcodes[op_array->last++];
+
+		qb_op->opcode = qb_user_opcode;
+		Z_OPERAND_TYPE(qb_op->op1) = IS_UNUSED;
+		Z_OPERAND_TYPE(qb_op->op2) = IS_UNUSED;
+		Z_OPERAND_TYPE(qb_op->result) = IS_UNUSED;
+	}
+}
+
+void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
+	TSRMLS_FETCH();
+	op_array->reserved[qb_reserved_offset] = NULL;
+}
+
+void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
+	TSRMLS_FETCH();
+	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
+	if(qfunc) {
+	}
+}
+
+zend_extension zend_extension_entry = {
+	"qb",
+	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION),
+	"Chung Leong",
+	"http://www.php-qb.net/",
+	"Copyright (c) 2013-2014",
+	NULL,
+	NULL,
+	NULL,           /* activate_func_t */
+	NULL,           /* deactivate_func_t */
+	NULL,           /* message_handler_func_t */
+	qb_zend_ext_op_array_handler,           /* op_array_handler_func_t */
+	NULL,			/* statement_handler_func_t */
+	NULL,           /* fcall_begin_handler_func_t */
+	NULL,           /* fcall_end_handler_func_t */
+	qb_zend_ext_op_array_ctor,			/* op_array_ctor_func_t */
+	qb_zend_ext_op_array_dtor,			/* op_array_dtor_func_t */
+	STANDARD_ZEND_EXTENSION_PROPERTIES
+};
+
+int qb_install_user_opcode_handler() {
+	if(zend_get_user_opcode_handler(qb_user_opcode)) {
+		// choose a user opcode that isn't in use
+		uint32_t i;
+		for(i = 255; i >= 200; i--) {
+			if(!zend_get_user_opcode_handler(i)) {
+				qb_user_opcode = i;
+				break;
+			}
+		}
+	}
+
+	// set the opcode handler
+	if(zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler) == FAILURE) {
+		qb_user_opcode = 0;
+		return FAILURE;
+	}
+
+	// get a reserved offset
+	qb_reserved_offset = zend_get_resource_handle(&zend_extension_entry);
+	if(qb_reserved_offset == -1) {
+		return FAILURE;
+	}
+
+	// register extension
+	zend_register_extension(&zend_extension_entry, NULL);
+	return SUCCESS;
+}
+
+int qb_is_compiled_function(zend_function *zfunc) {
+	return qb_get_compiled_function(zfunc) != NULL;
+}
+
 #if ZEND_ENGINE_2_1
 int zend_startup_strtod(void);
 int zend_shutdown_strtod(void);
@@ -148,9 +275,7 @@ PHP_MINIT_FUNCTION(qb)
 	}
 #endif
 
-	qb_initialize_compiler(TSRMLS_C);
-	qb_initialize_php_translater(TSRMLS_C);
-	qb_initialize_interpreter(TSRMLS_C);
+	qb_install_user_opcode_handler();
 
 #if ZEND_ENGINE_2_1
 	zend_startup_strtod();
@@ -304,7 +429,6 @@ PHP_FUNCTION(qb_compile)
 		return;
 	}
 
-	qb_compile(arg1, arg2 TSRMLS_CC);
 	RETURN_TRUE;
 }
 /* }}} */
@@ -323,48 +447,6 @@ PHP_FUNCTION(qb_extract)
 	//qb_extract(input, output_type, return_value TSRMLS_CC);
 }
 /* }}} */
-
-/* {{{ proto string qb_execute(string arg)
-    */
-PHP_FUNCTION(qb_execute)
-{
-	zend_function *zfunc = EG(current_execute_data)->function_state.function;
-	zval ***args = emalloc(ZEND_NUM_ARGS() * sizeof(zval **));
-	zval *this = EG(This);
-	double start_time, end_time, duration;
-
-	if(UNEXPECTED(QB_G(execution_log_path)[0])) {
-		start_time = qb_get_high_res_timestamp();
-	}
-
-	if (zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE) {
-		return;
-	}
-
-	qb_execute(zfunc, this, args, ZEND_NUM_ARGS(), return_value TSRMLS_CC);
-	efree(args);
-
-	if(UNEXPECTED(QB_G(execution_log_path)[0])) {
-		end_time = qb_get_high_res_timestamp();
-		duration = end_time - start_time;
-		if(duration > 0) {
-			qb_function *qfunc = zfunc->op_array.reserved[0];
-			if(qfunc->name[0] != '_') {
-				php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
-				if(stream) {
-					php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
-					php_stream_close(stream);
-				}
-			}
-		}
-	}
-}
-/* }}} */
-/* The previous line is meant for vim and emacs, so it can correctly fold and 
-   unfold functions in source code. See the corresponding marks just before 
-   function definition, where the functions purpose is also documented. Please 
-   follow this convention for the convenience of others editing your code.
-*/
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
 NO_RETURN void qb_abort(const char *format, ...) {

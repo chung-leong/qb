@@ -18,22 +18,22 @@
 
 /* $Id$ */
 
-enum {
-	QB_PBJ_DETAILS	= 1,
-	QB_PBJ_DECLARATION,
-};
+#ifndef QB_PRINTER_H_
+#define QB_PRINTER_H_
 
-typedef struct qb_extractor_context qb_extractor_context;
+typedef struct qb_printer_context		qb_printer_context;
 
-struct qb_extractor_context {
-	zval *input;
-	zval *return_value;
-
+struct qb_printer_context {
 	qb_data_pool *pool;
-	qb_data_pool _pool;
-
-	qb_compiler_context *compiler_cxt;
-	qb_compiler_context _compiler_cxt;
+	qb_compiler_context *compiler_context;
+	qb_storage *storage;
 
 	void ***tsrm_ls;
 };
+
+void qb_print_ops(qb_printer_context *cxt);
+void qb_print_zend_ops(qb_printer_context *cxt);
+
+void qb_initialize_printer_context(qb_printer_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+
+#endif

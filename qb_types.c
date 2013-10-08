@@ -471,6 +471,78 @@ void qb_destroy_array(void **p_array) {
 	}
 }
 
+void qb_initialize_data_pool(qb_data_pool *pool) {
+	memset(pool, 0, sizeof(qb_data_pool));
+
+	// have an array that keeps track of all other arrays
+	qb_create_array((void **) &pool->arrays, &pool->array_count, sizeof(void *), 64);
+	
+	qb_create_block_allocator(&pool->op_allocator, sizeof(qb_op), 256);
+	qb_create_block_allocator(&pool->address_allocator, sizeof(qb_address), 1024);
+	qb_create_block_allocator(&pool->expression_allocator, sizeof(qb_expression), 256);
+	qb_create_block_allocator(&pool->pointer_allocator, sizeof(void *), 256);
+	qb_create_block_allocator(&pool->operand_allocator, sizeof(qb_operand), 1024);
+	qb_create_block_allocator(&pool->index_alias_scheme_allocator, sizeof(qb_index_alias_scheme), 16);
+	qb_create_block_allocator(&pool->string_allocator, sizeof(char), 1024);
+	qb_create_block_allocator(&pool->uint32_allocator, sizeof(uint32_t), 64);
+	qb_create_block_allocator(&pool->type_declaration_allocator, sizeof(qb_type_declaration), 256);
+	qb_create_block_allocator(&pool->variable_allocator, sizeof(qb_variable), 256);
+	qb_create_block_allocator(&pool->function_declaration_allocator, sizeof(qb_function_declaration), 16);
+	qb_create_block_allocator(&pool->class_declaration_allocator, sizeof(qb_class_declaration), 16);
+
+	qb_create_block_allocator(&pool->result_destination_allocator, sizeof(qb_result_destination), 64);
+	qb_create_block_allocator(&pool->array_initializer_allocator, sizeof(qb_array_initializer), 64);
+}
+
+void qb_free_data_pool(qb_data_pool *pool) {
+	uint32_t i;
+	for(i = pool->array_count - 1; (int32_t) i >= 0; i--) {
+		void **array = pool->arrays[i];
+		qb_destroy_array(array);
+	}
+	qb_destroy_array((void **) &pool->arrays);
+
+	qb_destroy_block_allocator(&pool->op_allocator);
+	qb_destroy_block_allocator(&pool->address_allocator);
+	qb_destroy_block_allocator(&pool->expression_allocator);
+	qb_destroy_block_allocator(&pool->pointer_allocator);
+	qb_destroy_block_allocator(&pool->operand_allocator);
+	qb_destroy_block_allocator(&pool->array_initializer_allocator);
+	qb_destroy_block_allocator(&pool->index_alias_scheme_allocator);
+	qb_destroy_block_allocator(&pool->string_allocator);
+	qb_destroy_block_allocator(&pool->uint32_allocator);
+	qb_destroy_block_allocator(&pool->type_declaration_allocator);
+	qb_destroy_block_allocator(&pool->variable_allocator);
+	qb_destroy_block_allocator(&pool->function_declaration_allocator);
+	qb_destroy_block_allocator(&pool->class_declaration_allocator);
+	qb_destroy_block_allocator(&pool->result_destination_allocator);
+
+	if(pool->op_actions) {
+		efree((void *) pool->op_actions);
+	}
+	if(pool->op_function_usages) {
+		efree((void *) pool->op_function_usages);
+	}
+	if(pool->op_names) {
+		efree((void *) pool->op_names);
+	}
+	if(pool->op_result_size_codes) {
+		efree((void *) pool->op_result_size_codes);
+	}
+	if(pool->op_result_size_variables) {
+		efree((void *) pool->op_result_size_variables);
+	}
+	if(pool->function_prototypes) {
+		efree((void *) pool->function_prototypes);
+	}
+	if(pool->pbj_op_names) {
+		efree((void *) pool->pbj_op_names);
+	}
+	if(pool->zend_op_names) {
+		efree((void *) pool->zend_op_names);
+	}
+}
+
 #ifdef PHP_WIN32
 double qb_get_high_res_timestamp(void) {
 	double seconds;

@@ -39,6 +39,7 @@ typedef struct qb_array_initializer			qb_array_initializer;
 typedef struct qb_result_prototype			qb_result_prototype;
 typedef struct qb_result_destination		qb_result_destination;
 typedef struct qb_intrinsic_function		qb_intrinsic_function;
+typedef struct qb_data_pool					qb_data_pool;
 
 typedef struct qb_pointer_SCA				qb_pointer_SCA;
 typedef struct qb_pointer_ELE				qb_pointer_ELE;
@@ -513,7 +514,7 @@ struct qb_function {
 	const char *filename;
 	void *native_proc;
 
-	zend_function *zend_function;
+	zend_op_array *zend_op_array;
 	qb_function *next_copy;
 };
 
@@ -563,10 +564,6 @@ static zend_always_inline void qb_copy_element(uint32_t source_type, int8_t *res
 }
 
 PHP_FUNCTION(qb_execute);
-
-static zend_always_inline int32_t qb_is_compiled_function(zend_function *zfunc) {
-	return (zfunc->type == ZEND_INTERNAL_FUNCTION && zfunc->internal_function.handler == PHP_FN(qb_execute));
-}
 
 int64_t qb_zval_to_long(zval *zvalue);
 double qb_zval_to_double(zval *zvalue);
@@ -694,6 +691,35 @@ struct qb_native_code_bundle {
 	uint32_t size;
 };
 
+struct qb_data_pool {
+	void ***arrays;
+	uint32_t array_count;
+
+	qb_block_allocator *op_allocator;
+	qb_block_allocator *address_allocator;
+	qb_block_allocator *expression_allocator;
+	qb_block_allocator *pointer_allocator;
+	qb_block_allocator *operand_allocator;
+	qb_block_allocator *index_alias_scheme_allocator;
+	qb_block_allocator *string_allocator;
+	qb_block_allocator *uint32_allocator;
+	qb_block_allocator *type_declaration_allocator;
+	qb_block_allocator *variable_allocator;
+	qb_block_allocator *function_declaration_allocator;
+	qb_block_allocator *class_declaration_allocator;
+	qb_block_allocator *array_initializer_allocator;
+	qb_block_allocator *result_destination_allocator;
+
+	char * const *op_names;
+	char * const *op_actions;
+	char * const *op_result_size_codes;
+	char * const *op_result_size_variables;
+	int32_t * const *op_function_usages;
+	char * const *function_prototypes;
+	char * const *zend_op_names;
+	char * const *pbj_op_names;
+};
+
 void qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);
 void * qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count);
 void qb_destroy_block_allocator(qb_block_allocator **p_allocator);
@@ -709,6 +735,9 @@ double qb_fast_sqrt(double a);
 
 uint64_t qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc);
 double qb_get_high_res_timestamp(void);
+
+void qb_initialize_data_pool(qb_data_pool *pool);
+void qb_free_data_pool(qb_data_pool *pool);
 
 // Copyright (c) 2008-2010 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 // See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
