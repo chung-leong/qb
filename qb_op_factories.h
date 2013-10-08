@@ -235,6 +235,10 @@ extern qb_simple_op_factory factory_guard_array_index_add;
 extern qb_simple_op_factory factory_guard_array_index_multiply;
 extern qb_simple_op_factory factory_guard_array_index_multiply_add;
 extern qb_simple_op_factory factory_guard_array_size;
+extern qb_simple_op_factory factory_guard_array_extent;
+extern qb_simple_op_factory factory_guard_array_extent_multiply;
+extern qb_simple_op_factory factory_guard_array_extent_subtract;
+extern qb_simple_op_factory factory_guard_array_extent_subtract_multiply;
 
 extern qb_chained_op_factory factory_check_array_index_add;
 extern qb_chained_op_factory factory_check_array_index_multiply;
@@ -459,6 +463,7 @@ extern qb_basic_op_factory factory_array_product;
 extern qb_basic_op_factory factory_array_reverse;
 extern qb_basic_op_factory factory_array_rpos;
 extern qb_basic_op_factory factory_array_search;
+extern qb_op_factory factory_array_slice;
 extern qb_basic_op_factory factory_array_sum;
 extern qb_basic_op_factory factory_array_unique;
 extern qb_basic_op_factory factory_array_unique_count;

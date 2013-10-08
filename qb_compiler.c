@@ -2381,67 +2381,6 @@ qb_address * qb_obtain_scalar_value(qb_compiler_context *cxt, qb_address *addres
 	return address;
 }
 
-qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address) {
-	qb_address *slice_address, *element_size_address;
-
-	if(SCALAR(container_address)) {
-		return NULL;
-	}
-	if(!SCALAR(offset_address)) {
-		return NULL;
-	}
-	if(length_address && !SCALAR(length_address)) {
-		return NULL;
-	}
-
-	if(!length_address) {
-		// the length is the difference of the offset and the array size
-		qb_address *size_address = container_address->dimension_addresses[0];
-		length_address = qb_obtain_on_demand_difference(cxt, size_address, offset_address);
-	}
-	if(container_address->dimension_count > 1) {
-		element_size_address = container_address->dimension_addresses[1];
-	} else {
-		element_size_address = NULL;
-	}
-	slice_address = qb_allocate_address(cxt->pool);
-	slice_address->type = container_address->type;
-	slice_address->flags = QB_ADDRESS_NON_LOCAL | (container_address->flags & (QB_ADDRESS_STRING | QB_ADDRESS_TEMPORARY));
-	slice_address->mode = QB_ADDRESS_MODE_ARR;
-	slice_address->segment_selector = container_address->segment_selector;
-
-	if(element_size_address) {
-		// need to multiply the offset by the element size
-		offset_address = qb_obtain_on_demand_product(cxt, element_size_address, offset_address);
-	}
-	if(container_address->array_index_address) {
-		// need to add the offset of the array
-		offset_address = qb_obtain_on_demand_sum(cxt, container_address->array_index_address, offset_address);
-	}
-	slice_address->array_index_address = offset_address;
-	slice_address->dimension_count = container_address->dimension_count;
-	slice_address->source_address = container_address;
-	if(slice_address->dimension_count > 1) {
-		qb_address *sub_array_size_address = container_address->array_size_addresses[1];
-		qb_address *array_size_address = qb_obtain_on_demand_product(cxt, length_address, sub_array_size_address);
-		uint32_t i;
-
-		// copy the dimensions
-		slice_address->dimension_addresses = qb_allocate_address_pointers(cxt->pool, slice_address->dimension_count);
-		slice_address->array_size_addresses = qb_allocate_address_pointers(cxt->pool, slice_address->dimension_count);
-		for(i = 1; i < slice_address->dimension_count; i++) {
-			slice_address->dimension_addresses[i] = container_address->dimension_addresses[i];
-			slice_address->array_size_addresses[i] = container_address->array_size_addresses[i];
-		}
-		slice_address->dimension_addresses[0] = length_address;
-		slice_address->array_size_addresses[0] = slice_address->array_size_address = array_size_address;
-	} else {
-		slice_address->dimension_addresses = slice_address->array_size_addresses = &slice_address->array_size_address;
-		slice_address->array_size_address = length_address;
-	}
-	return slice_address;
-}
-
 qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
 	qb_address *index_limit_address = container_address->dimension_addresses[0];
 	qb_address *array_offset_address = container_address->array_index_address;
@@ -2517,9 +2456,100 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 	}
 }
 
+qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, qb_address *length_address, uint32_t bound_check_flags) {
+	qb_address *extent_limit_address = container_address->dimension_addresses[0];
+	qb_address *array_offset_address = container_address->array_index_address;
+	qb_address *sub_array_size_address = (container_address->dimension_count > 1) ? container_address->array_size_addresses[1] : NULL;
+
+	if(length_address) {
+		if(sub_array_size_address) {
+			// if everything is constant, perform the calculation now if it's within bounds
+			if(CONSTANT(index_address) && CONSTANT(sub_array_size_address) && CONSTANT(extent_limit_address) && CONSTANT(length_address)) {
+				uint32_t extent = VALUE(U32, index_address) + VALUE(U32, length_address);
+				uint32_t extent_limit = VALUE(U32, extent_limit_address);
+				if(extent <= extent_limit) {
+					uint32_t product = VALUE(U32, length_address) * VALUE(U32, sub_array_size_address);
+					return qb_obtain_constant_U32(cxt, product);
+				}
+			}
+			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
+				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, length_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_multiply, operands, 3);
+			} else {
+				// not implemented
+			}
+		} else {
+			if(CONSTANT(index_address) && CONSTANT(extent_limit_address) && CONSTANT(length_address)) {
+				uint32_t extent = VALUE(U32, index_address) + VALUE(U32, length_address);
+				uint32_t extent_limit = VALUE(U32, extent_limit_address);
+				if(extent <= extent_limit) {
+					return length_address;
+				}
+			}
+			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
+				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, length_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent, operands, 3);
+			} else {
+				// not implemented
+			}
+		}
+	} else {
+		// the length is the size minus the index
+		if(sub_array_size_address) {
+			if(CONSTANT(index_address) && CONSTANT(sub_array_size_address) && CONSTANT(extent_limit_address)) {
+				uint32_t length = CONSTANT(extent_limit_address) - VALUE(U32, index_address);
+				uint32_t extent_limit = VALUE(U32, extent_limit_address);
+				// check for integer overflow
+				if(length <= extent_limit) {
+					uint32_t product = length * VALUE(U32, sub_array_size_address);
+					return qb_obtain_constant_U32(cxt, product);
+				}
+			}
+			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_subtract_multiply, operands, 2);
+			} else {
+				// not implemented
+			}
+		} else {
+			if(CONSTANT(index_address) && CONSTANT(extent_limit_address)) {
+				uint32_t length = CONSTANT(extent_limit_address) - VALUE(U32, index_address);
+				uint32_t extent_limit = VALUE(U32, extent_limit_address);
+				if(length <= extent_limit) {
+					return qb_obtain_constant_U32(cxt, length);
+				}
+			}
+			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_subtract, operands, 2);
+			} else {
+				// not implemented
+			}
+		}
+	}
+	return NULL;
+}
+
+qb_address * qb_obtain_bound_checked_array_remainder_length(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
+	qb_address *extent_limit_address = container_address->dimension_addresses[0];
+	if(CONSTANT(index_address) && CONSTANT(extent_limit_address)) {
+		uint32_t length = CONSTANT(extent_limit_address) - VALUE(U32, index_address);
+		uint32_t extent_limit = VALUE(U32, extent_limit_address);
+		if(length <= extent_limit) {
+			return qb_obtain_constant_U32(cxt, length);
+		}
+	}
+	if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, container_address }, { QB_OPERAND_ADDRESS, index_address } };
+		return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_subtract, operands, 2);
+	} else {
+		// not implemented
+	}
+	return NULL;
+}
+
 qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
 	qb_address *result_address;
-	qb_primitive_type element_type = container_address->type;
 	uint32_t i;
 
 	// obtain the expanded index, multiplying it by the sub-array size and adding in the array offset
@@ -2560,6 +2590,50 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 		result_address->dimension_addresses = &result_address->array_size_address;
 		result_address->index_alias_schemes = NULL;
 	}
+	return result_address;
+}
+
+qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, qb_address *length_address, uint32_t bound_check_flags) {
+	qb_address *result_address, *extent_address;
+	uint32_t i;
+
+	// obtain the slice's extent (i.e. length * sub-array size)
+	extent_address = qb_obtain_bound_checked_array_extent(cxt, container_address, index_address, length_address, bound_check_flags);
+
+	index_address = qb_obtain_bound_checked_array_index(cxt, container_address, index_address, bound_check_flags);
+
+	// see if we have created the address earlier
+	for(i = 0; i < cxt->address_alias_count; i++) {
+		qb_address *alias = cxt->address_aliases[i];
+		if(alias->source_address == container_address) {
+			if(alias->array_index_address == index_address && alias->array_size_address == extent_address && alias->dimension_count == container_address->dimension_count) {
+				return alias;
+			}
+		}
+	}
+
+	result_address = qb_create_address_alias(cxt, container_address);
+	result_address->flags &= ~QB_ADDRESS_RESIZABLE;
+	result_address->array_index_address = index_address;
+	result_address->array_size_address = extent_address;
+	if(result_address->dimension_count > 1) {
+		if(!length_address) {
+			length_address = qb_obtain_bound_checked_array_remainder_length(cxt, container_address, index_address, bound_check_flags);
+		}
+		result_address->array_size_addresses = qb_allocate_address_pointers(cxt->pool, result_address->dimension_count);
+		result_address->dimension_addresses = qb_allocate_address_pointers(cxt->pool, result_address->dimension_count);
+		result_address->array_size_addresses[0] = extent_address;
+		result_address->dimension_addresses[0] = length_address;
+		for(i = 1; i < result_address->dimension_count; i++) {
+			result_address->array_size_addresses[i] = container_address->array_size_addresses[i];
+			result_address->dimension_addresses[i] = container_address->dimension_addresses[i];
+		}
+		result_address->array_size_address = result_address->array_size_addresses[0];
+	} else {
+		result_address->array_size_addresses =
+		result_address->dimension_addresses = &result_address->array_size_address;
+	}
+
 	return result_address;
 }
 

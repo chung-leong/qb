@@ -54,6 +54,10 @@ static void qb_set_result_second_operand(qb_compiler_context *cxt, qb_op_factory
 	*result = operands[1];
 }
 
+static void qb_set_result_third_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	*result = operands[2];
+}
+
 static void qb_set_result_true(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->type = QB_OPERAND_ADDRESS;
 	result->address = cxt->true_address;
@@ -378,6 +382,12 @@ static void qb_set_result_send_argument(qb_compiler_context *cxt, qb_op_factory 
 	qb_operand *argument = &operands[0];
 	qb_operand *stack_item = qb_push_stack_item(cxt);
 	*stack_item = *argument;
+}
+
+static void qb_set_result_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
+	result->address = qb_obtain_array_slice(cxt, container->address, offset->address, (length->type == QB_OPERAND_ADDRESS) ? length->address : NULL, QB_ARRAY_BOUND_CHECK_READ);
+	result->type = QB_OPERAND_ADDRESS;
 }
 
 static void qb_set_result_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {

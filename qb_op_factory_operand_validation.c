@@ -449,6 +449,22 @@ static void qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, q
 	f->validate_operands(cxt, f, operands, operand_count);
 }
 
+static void qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
+
+	if(SCALAR(container->address)) {
+		qb_abort("%s() expects the first parameter to be an array", cxt->intrinsic_function->name);
+	} 
+	if(!SCALAR(offset->address)) {
+		qb_abort("%s() expects the second parameter to be a scalar", cxt->intrinsic_function->name);
+	}
+	if(length->type == QB_OPERAND_ADDRESS) {
+		if(!SCALAR(length->address)) {
+			qb_abort("%s() expects the third parameter to be a scalar", cxt->intrinsic_function->name);
+		}
+	}
+}
+
 static void qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_validate_operands_one_array(cxt, f, operands, operand_count);
 }
@@ -489,4 +505,3 @@ static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_facto
 	}
 	cxt->intrinsic_function = NULL;
 }
-

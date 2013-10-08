@@ -106,6 +106,55 @@ static void qb_transfer_operands_guard_array_size(qb_compiler_context *cxt, qb_o
 	dest[1].type = QB_OPERAND_ADDRESS;
 }
 
+static void qb_transfer_operands_guard_array_extent(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *index = &operands[1], *length = &operands[2];
+	qb_address *dimension_address = container->address->dimension_addresses[0];
+	dest[0].address = index->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = length->address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = dimension_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+}
+
+static void qb_transfer_operands_guard_array_extent_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *index = &operands[1], *length = &operands[2];
+	qb_address *dimension_address = container->address->dimension_addresses[0];
+	qb_address *sub_array_size_address = container->address->array_size_addresses[1];
+	dest[0].address = index->address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = length->address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = dimension_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3].address = sub_array_size_address;
+	dest[3].type = QB_OPERAND_ADDRESS;
+	dest[4] = *result;
+}
+
+static void qb_transfer_operands_guard_array_extent_subtract(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *index = &operands[1];
+	qb_address *dimension_address = container->address->dimension_addresses[0];
+	dest[0].address = dimension_address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = index->address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2] = *result;
+}
+
+static void qb_transfer_operands_guard_array_extent_subtract_multiply(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *index = &operands[1];
+	qb_address *dimension_address = container->address->dimension_addresses[0];
+	qb_address *sub_array_size_address = container->address->array_size_addresses[1];
+	dest[0].address = dimension_address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = index->address;
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = sub_array_size_address;
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *result;
+}
+
 static void qb_transfer_operands_check_array_index_add(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *index = &operands[1], *predicate = &operands[2];
 	qb_address *index_limit_address = container->address->dimension_addresses[0];

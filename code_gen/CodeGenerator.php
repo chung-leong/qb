@@ -790,6 +790,11 @@ class CodeGenerator {
 			
 			$this->handlers[] = new GuardSize("SZ_GUARD", $elementType);
 			
+			$this->handlers[] = new GuardExtent("EXT_GUARD", $elementType);
+			$this->handlers[] = new GuardExtentMultiply("EXT_GUARD_MUL", $elementType);
+			$this->handlers[] = new GuardExtentSubtract("EXT_GUARD_SUB", $elementType);
+			$this->handlers[] = new GuardExtentSubtractMultiply("EXT_GUARD_SUB_MUL", $elementType);
+			
 			$this->handlers[] = new CheckIndexAdd("IDX_CHECK_ADD", $elementType);
 			$this->handlers[] = new CheckIndexAddInit("IDX_CHECK_ADD_INIT", $elementType);
 			$this->handlers[] = new CheckIndexMultiply("IDX_CHECK_MUL", $elementType);
