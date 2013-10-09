@@ -881,7 +881,7 @@ static void qb_copy_elements_to_storage(qb_storage *storage, qb_address *address
 	qb_copy_elements(address->type, ARRAY_IN(storage, I08, address), src_element_count, dst_address->type, ARRAY_IN(dst_storage, I08, dst_address), dst_element_count);
 }
 
-static void qb_free_segment(qb_storage *storage, qb_memory_segment *segment TSRMLS_DC) {
+void qb_free_segment(qb_storage *storage, qb_memory_segment *segment TSRMLS_DC) {
 	if(segment->flags & QB_SEGMENT_MAPPED) {
 		php_stream *stream = segment->stream;
 		qb_unmap_segment(storage, segment TSRMLS_CC);
@@ -906,7 +906,7 @@ static void qb_free_segment(qb_storage *storage, qb_memory_segment *segment TSRM
 	segment->current_allocation = 0;
 }
 
-static void qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count TSRMLS_DC) {
+void qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count TSRMLS_DC) {
 	if(segment->flags & QB_SEGMENT_MAPPED) {
 		php_stream *stream = segment->stream;
 		qb_unmap_segment(storage, segment TSRMLS_CC);

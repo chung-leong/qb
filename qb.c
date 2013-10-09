@@ -167,7 +167,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	}
 	if(qfunc) {
 		zval *this = EG(This);
-		//qb_execute(qfunc, this, NULL, 0, NULL TSRMLS_CC);
+		qb_execute(qfunc, this, NULL, 0, NULL TSRMLS_CC);
 	}
 	return ZEND_USER_OPCODE_RETURN;
 }
