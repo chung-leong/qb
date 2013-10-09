@@ -657,42 +657,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\qb_interpreter_gd_image.c"
-				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_TS_VC6|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS_VC6|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\qb_interpreter_loop_msvc.c"
 				>
 			</File>
@@ -917,6 +881,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_storage.c"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_storage_file.c"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_storage_gd_image.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_thread.c"
 				>
 			</File>
@@ -990,6 +966,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_function.h"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_interpreter.h"
 				>
 			</File>
@@ -999,6 +979,10 @@
 			</File>
 			<File
 				RelativePath="..\qb_native_compiler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_op.h"
 				>
 			</File>
 			<File
@@ -1015,6 +999,10 @@
 			</File>
 			<File
 				RelativePath="..\qb_printer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_storage.h"
 				>
 			</File>
 			<File

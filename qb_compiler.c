@@ -18,10 +18,6 @@
 
 /* $Id$ */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "qb.h"
 
 extern const qb_op_info global_op_info[];

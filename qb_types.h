@@ -24,20 +24,7 @@
 typedef float  float32_t;
 typedef double float64_t;
 
-typedef struct qb_op						qb_op;
-typedef struct qb_address					qb_address;
-typedef struct qb_expression				qb_expression;
-typedef struct qb_variable					qb_variable;
-typedef struct qb_function					qb_function;
-typedef struct qb_memory_segment			qb_memory_segment;
-typedef struct qb_storage					qb_storage;
-typedef struct qb_index_alias_scheme		qb_index_alias_scheme;
-typedef struct qb_external_symbol			qb_external_symbol;
-typedef struct qb_native_code_bundle		qb_native_code_bundle;
 typedef struct qb_block_allocator 			qb_block_allocator;
-typedef struct qb_array_initializer			qb_array_initializer;
-typedef struct qb_result_prototype			qb_result_prototype;
-typedef struct qb_result_destination		qb_result_destination;
 typedef struct qb_intrinsic_function		qb_intrinsic_function;
 typedef struct qb_data_pool					qb_data_pool;
 
@@ -48,13 +35,7 @@ typedef struct qb_pointer_adjustment		qb_pointer_adjustment;
 
 typedef struct qb_thread_parameters			qb_thread_parameters;
 
-typedef struct qb_operand					qb_operand;
-
 typedef enum qb_primitive_type				qb_primitive_type;
-typedef enum qb_address_mode				qb_address_mode;
-typedef enum qb_operand_type				qb_operand_type;
-typedef enum qb_opcode						qb_opcode;
-typedef enum qb_result_destination_type		qb_result_destination_type;
 
 #define MAKE_STRING(x)						#x
 #define STRING(x)							MAKE_STRING(x)
@@ -80,37 +61,7 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 
 #define CTYPE(type)							CTYPE_##type
 
-#define SCALAR(address)						(address->dimension_count == 0)
-#define CONSTANT(address)					(address->flags & QB_ADDRESS_CONSTANT)
-#define TEMPORARY(address)					(address->flags & QB_ADDRESS_TEMPORARY)
-#define STATIC(address)						(address->flags & QB_ADDRESS_STATIC)
-#define SHARED(address)						(address->flags & QB_ADDRESS_SHARED)
-#define IN_USE(address)						(address->flags & QB_ADDRESS_IN_USE)
-#define READ_ONLY(address)					(address->flags & QB_ADDRESS_READ_ONLY)
-#define ON_DEMAND(address)					(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)
-#define NON_REUSABLE(address)				(address->flags & QB_ADDRESS_NON_REUSABLE)
-#define RESIZABLE(address)					(address->flags & QB_ADDRESS_RESIZABLE)
-#define AUTO_EXPAND(address)				(address->flags & QB_ADDRESS_AUTO_EXPAND)
-#define FIXED_LENGTH(address)				CONSTANT(address->array_size_address)
-#define VARIABLE_LENGTH(address)			(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
-#define MULTIDIMENSIONAL(address)			(address->dimension_count > 1)
-
-// TODO: fix these
-#define ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
-#define CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
-
-#define ARRAY_IN(storage, type, address)	((CTYPE(type) *) (storage->segments[address->segment_selector].memory + address->segment_offset))
-#define VALUE_IN(storage, type, address)	*ARRAY_IN(storage, type, address)
-#define ARRAY_SIZE_IN(storage, address)		VALUE_IN(storage, U32, address->array_size_address)
-
 #define STORAGE_TYPE_MATCH(type1, type2)	((type1 == type2) || ((type1 & ~QB_TYPE_UNSIGNED) == (type2 & ~QB_TYPE_UNSIGNED) && (type1 < QB_TYPE_F32)))
-
-#define ARRAY(type, address)				ARRAY_IN(cxt->storage, type, address)
-#define VALUE(type, address)				VALUE_IN(cxt->storage, type, address)
-#define ARRAY_SIZE(address)					VALUE(U32, address->array_size_address)
-
-#define CONSTANT_DIMENSION(address, i)		CONSTANT(address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
-#define DIMENSION(address, i)				VALUE(U32, address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
 
 #define BYTE_COUNT(element_count, type)		((element_count) << type_size_shifts[type])
 #define ELEMENT_COUNT(byte_count, type)		((byte_count) >> type_size_shifts[type])
@@ -143,262 +94,12 @@ enum qb_primitive_type {
 	QB_TYPE_ANY,
 };
 
-enum qb_address_mode {
-	QB_ADDRESS_MODE_SCA				= 0,
-	QB_ADDRESS_MODE_ELE,
-	QB_ADDRESS_MODE_ARR,
-
-	QB_ADDRESS_MODE_UNKNOWN			= 100,
-};
-
-enum {
-	QB_ADDRESS_READ_ONLY			= 0x00000001,
-	QB_ADDRESS_CONSTANT				= 0x00000002,
-	QB_ADDRESS_STRING				= 0x00000004,
-	QB_ADDRESS_BOOLEAN				= 0x00000008,
-	QB_ADDRESS_STATIC				= 0x00000010,
-	QB_ADDRESS_SHARED				= 0x00000020,
-	QB_ADDRESS_TEMPORARY			= 0x00000040,
-	QB_ADDRESS_REUSED				= 0x00000080,
-	QB_ADDRESS_RESIZABLE			= 0x00000100,
-	QB_ADDRESS_ALWAYS_IN_BOUND		= 0x00000200,
-	QB_ADDRESS_AUTO_INCREMENT		= 0x00000400,
-	QB_ADDRESS_CAST					= 0x00000800,
-	QB_ADDRESS_NON_LOCAL			= 0x00001000,
-	QB_ADDRESS_NON_REUSABLE			= 0x00002000,
-	QB_ADDRESS_AUTO_EXPAND			= 0x00004000,
-	QB_ADDRESS_FOREACH_INDEX		= 0x01000000,
-	QB_ADDRESS_ON_DEMAND_VALUE		= 0x02000000,
-
-	QB_ADDRESS_IN_USE				= 0x80000000,
-
-
-	QB_ADDRESS_RUNTIME_FLAGS		= 0x0000FFFF,
-	QB_ADDRESS_COMPILE_TIME_FLAGS	= 0xFFFF0000,
-};
-
-enum {
-	// constant scalar (no separation on fork, no clearing on call)
-	QB_SELECTOR_CONSTANT_SCALAR		= 0,
-	// static scalars (no separation on fork, no clearing on call)
-	QB_SELECTOR_STATIC_SCALAR		= 1,
-	// shared scalars (no separation on fork, clearing on call) 
-	QB_SELECTOR_SHARED_SCALAR		= 2,
-	// local scalars (separation on fork, clearing on call)
-	QB_SELECTOR_LOCAL_SCALAR		= 3,
-	// temporary scalars (seperation on fork, no clearing on call)
-	QB_SELECTOR_TEMPORARY_SCALAR	= 4,
-
-	// constant arrays (no separation on fork, no clearing on call)
-	QB_SELECTOR_CONSTANT_ARRAY		= 9,
-	// static arrays (no separation on fork, no clearing on call)
-	QB_SELECTOR_STATIC_ARRAY		= 8,
-	// shared fixed-length arrays (no separation on fork, clearing on call) 
-	QB_SELECTOR_SHARED_ARRAY		= 7,
-	// local fixed-length arrays (separation on fork, clearing on call)
-	QB_SELECTOR_LOCAL_ARRAY			= 6,
-	// temporary fixed-length arrays (seperation on fork, no clearing on call)
-	QB_SELECTOR_TEMPORARY_ARRAY		= 5,
-
-	// note how the order is reverse for the array segments
-	// this is done so that the segments requiring separation are back-to-back,
-	// maing it easier to see if a given pointer requires relocation or not
-	//
-	// the arrangement also brings variables likely to be active closer together
-	//
-	// segments that need to be cleared when the function is called are also placed 
-	// back-to-back, so we only need two memset() to wipe all variables clean
-	//
-	// parameters are found in the shared segments
-
-	// variable length arrays are stored in segment 10 and above
-	QB_SELECTOR_ARRAY_START			= 10,
-
-	QB_SELECTOR_INVALID 			= 0xFFFFFFFF,
-};
-
-enum {
-	QB_OFFSET_INVALID 				= 0xFFFFFFFF,
-};
-
-struct qb_index_alias_scheme {
-	uint32_t dimension;
-	char **aliases;
-	uint32_t *alias_lengths;
-	const char *class_name;
-	uint32_t class_name_length;
-	zend_class_entry *zend_class;
-};
-
-struct qb_expression {
-	qb_operand *operands;
-	qb_operand *result;
-	uint32_t operand_count;
-	void *op_factory;
-};
-
-struct qb_address {
-	qb_address_mode mode;
-	qb_primitive_type type;
-	uint32_t flags;
-	uint32_t dimension_count;
-	uint32_t segment_selector;
-	uint32_t segment_offset;
-	qb_address *array_index_address;
-	qb_address *array_size_address;
-	qb_address **dimension_addresses;
-	qb_address **array_size_addresses;
-	qb_index_alias_scheme **index_alias_schemes;
-	qb_address *source_address;
-	qb_expression *expression;
-};
-
-enum qb_operand_type {
-	QB_OPERAND_NONE					= 0,
-	QB_OPERAND_ADDRESS,
-	QB_OPERAND_EXTERNAL_SYMBOL,
-	QB_OPERAND_ARRAY_INITIALIZER,
-	QB_OPERAND_ZEND_CLASS,
-	QB_OPERAND_ZEND_STATIC_CLASS,
-	QB_OPERAND_ZVAL,
-	QB_OPERAND_EMPTY,
-	QB_OPERAND_RESULT_PROTOTYPE,
-	QB_OPERAND_NUMBER,
-	QB_OPERAND_INTRINSIC_FUNCTION,
-	QB_OPERAND_ZEND_FUNCTION,
-	QB_OPERAND_ARGUMENTS,
-	QB_OPERAND_SEGMENT_SELECTOR,
-};
-
-enum {
-	QB_INSTRUCTION_OFFSET			= 0x40000000,
-	QB_INSTRUCTION_NEXT 			= 1 | QB_INSTRUCTION_OFFSET,
-	QB_INSTRUCTION_END				= 0xFFFFFFFF,
-};
-
-enum {
-	QB_OP_INDEX_NONE				= 0xFFFFFFFF,
-	QB_OP_INDEX_JUMP_TARGET			= 0xFFFFFFFE,
-};
-
-struct qb_operand {
-	qb_operand_type type;
-	union {
-		qb_address *address;
-		qb_function *function;
-		uint32_t symbol_index;
-		int32_t number;
-		zval *constant;
-		zend_class_entry *zend_class;
-		zend_function *zend_function;
-		qb_array_initializer *array_initializer;
-		qb_result_prototype *result_prototype;
-		qb_intrinsic_function *intrinsic_function;
-		qb_operand *arguments;
-		void *generic_pointer;
-	};
-};
-
-enum {
-	QB_ARRAY_INITIALIZER_CONSTANT_ELEMENTS	= 0x00000001,
-	QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS	= 0x00000002,
-};
-
-struct qb_array_initializer {
-	qb_operand *elements;
-	uint32_t element_count;
-	qb_primitive_type desired_type;
-	int32_t flags;
-};
-
 struct qb_intrinsic_function {
 	ulong hash_value;
 	const char *name;
 	uint32_t argument_count_min;
 	uint32_t argument_count_max;
 	void *extra;
-};
-
-struct qb_variable_dimensions {
-	qb_address *source_address;
-	uint32_t dimension_count;
-	qb_address *array_size_address;
-	qb_address *dimension_addresses[64];
-	qb_address *array_size_addresses[64];
-};
-
-enum qb_result_destination_type {
-	QB_RESULT_DESTINATION_TEMPORARY	= 0,
-	QB_RESULT_DESTINATION_VARIABLE,
-	QB_RESULT_DESTINATION_ELEMENT,
-	QB_RESULT_DESTINATION_PROPERTY,
-	QB_RESULT_DESTINATION_ARGUMENT,
-	QB_RESULT_DESTINATION_PRINT,
-	QB_RESULT_DESTINATION_FREE,
-	QB_RESULT_DESTINATION_RETURN,
-};
-
-struct qb_result_destination {
-	qb_result_destination_type type;
-	union {
-		struct {
-			qb_function *function;
-			uint32_t index;
-		} argument;
-		struct {
-			qb_operand container;
-			qb_operand index;
-		} element;
-		struct {
-			qb_operand container;
-			qb_operand name;
-		} property;
-		qb_operand variable;
-	};
-	qb_result_prototype *prototype;
-};
-
-enum {
-	// intrinsic properties of an op
-	QB_OP_VARIABLE_LENGTH			= 0x8000,
-	QB_OP_NEED_LINE_NUMBER			= 0x4000,
-	QB_OP_BRANCH					= 0x3000,
-	QB_OP_JUMP 						= 0x1000,
-	QB_OP_SIDE_EFFECT				= 0x0800,
-	QB_OP_PERFORM_WRAP_AROUND		= 0x0400,
-	QB_OP_VERSION_AVAILABLE_ELE		= 0x0200,
-	QB_OP_VERSION_AVAILABLE_MIO		= 0x0100,
-
-	// compile time properties
-	QB_OP_JUMP_TARGET 				= 0x80000000,
-	QB_OP_CANNOT_REMOVE				= 0x40000000,
-	QB_OP_COMPILE_TIME_FLAGS		= 0xFFFF0000,
-};
-
-struct qb_op {
-	uint32_t flags;
-	qb_opcode opcode;
-	uint32_t operand_count;
-	qb_operand *operands;
-	uint32_t jump_target_count;
-	uint32_t *jump_target_indices;
-	uint32_t instruction_offset;
-	uint32_t line_number;
-};
-
-struct qb_pointer_SCA {
-	void *data_pointer;
-};
-
-struct qb_pointer_ELE {
-	void *data_pointer;
-	uint32_t *index_pointer;
-};
-
-struct qb_pointer_ARR {
-	void *data_pointer;
-	uint32_t *index_pointer;
-	uint32_t *count_pointer;
 };
 
 struct qb_pointer_adjustment {
@@ -409,113 +110,6 @@ struct qb_pointer_adjustment {
 struct qb_thread_parameters {
 	void *pointer1;
 	void *pointer2;
-};
-
-enum {
-	QB_TYPE_DECL_STRING				= 0x00010000,
-	QB_TYPE_DECL_EXPANDABLE			= 0x00020000,
-	QB_TYPE_DECL_HAS_ALIAS_SCHEMES	= 0x00040000,
-};
-
-enum {
-	QB_VARIABLE_LOCAL				= 0x00000001,
-	QB_VARIABLE_ARGUMENT			= 0x00000002,
-	QB_VARIABLE_STATIC				= 0x00000004,
-	QB_VARIABLE_GLOBAL				= 0x00000008,
-	QB_VARIABLE_CLASS				= 0x00000010,
-	QB_VARIABLE_CLASS_INSTANCE		= 0x00000020,
-	QB_VARIABLE_CLASS_CONSTANT		= 0x00000100,
-	QB_VARIABLE_RETURN_VALUE		= 0x00000040,
-	QB_VARIABLE_SHARED				= 0x00000080,
-	QB_VARIABLE_TYPES				= 0x0000FFFF,
-
-	QB_VARIABLE_PASSED_BY_REF		= 0x00010000,
-};
-
-struct qb_variable {
-	uint32_t flags;
-	qb_address *address;
-	qb_address *default_value_address;
-	const char *name;
-	uint32_t name_length;
-	ulong hash_value;
-	zend_class_entry *zend_class;
-};
-
-enum {
-	QB_STORAGE_IN_USE				= 0x0001,
-	QB_STORAGE_STATIC_INITIALIZED	= 0x0002,
-};
-
-enum {
-	QB_SEGMENT_PREALLOCATED			= 0x00000001,
-	QB_SEGMENT_SEPARATE_ON_FORK		= 0x00000002,
-	QB_SEGMENT_CLEAR_ON_CALL		= 0x00000004,
-	QB_SEGMENT_FREE_ON_RETURN		= 0x00000008,
-	QB_SEGMENT_EMPTY_ON_RETURN		= 0x00000010,
-
-	QB_SEGMENT_BORROWED				= 0x00000100,
-	QB_SEGMENT_MAPPED				= 0x00000200,
-};
-
-struct qb_memory_segment {
-	int8_t *memory;
-	uint32_t flags;
-	uint32_t byte_count;						// number of bytes in this segment
-	uint32_t current_allocation;				// number of bytes allocated
-	php_stream *stream;							// memory-mapped file
-	uintptr_t **references;
-	uint32_t reference_count;
-};
-
-struct qb_storage {
-	qb_memory_segment *segments;
-	uint32_t segment_count;
-	uint32_t flags;
-};
-
-enum {
-	QB_EXT_SYM_ZEND_FUNCTION			= 1,
-	QB_EXT_SYM_ZEND_CLASS				= 2,
-	QB_EXT_SYM_PCRE						= 3,
-};
-
-struct qb_external_symbol {
-	uint32_t type;
-	const char *name;
-	uint32_t name_length;
-	void *pointer;
-};
-
-enum {
-	QB_ENGINE_COMPILE_IF_POSSIBLE	= 0x00000001,
-	QB_ENGINE_NEVER_COMPILE			= 0x00000002,
-	QB_ENGINE_GO_THRU_ZEND			= 0x00000004,
-};
-
-struct qb_function {
-	int8_t *instructions;
-	int8_t *instruction_start;
-	int8_t *instruction_non_static_start;
-	uint64_t instruction_crc64;
-	uint16_t *instruction_opcodes;
-	uint32_t instruction_opcode_count;
-	uint32_t size;
-	uint32_t flags;
-	qb_variable *return_variable;
-	qb_variable **variables;
-	uint32_t variable_count;
-	uint32_t argument_count;
-	uint32_t required_argument_count;
-	qb_external_symbol **external_symbols;
-	uint32_t external_symbol_count;
-	qb_storage *local_storage;
-	const char *name;
-	const char *filename;
-	void *native_proc;
-
-	zend_op_array *zend_op_array;
-	qb_function *next_copy;
 };
 
 #ifdef _MSC_VER
@@ -562,8 +156,6 @@ void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint
 static zend_always_inline void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint32_t dest_type, int8_t *restrict dest_memory) {
 	qb_copy_elements(source_type, source_memory, 1, dest_type, dest_memory, 1);
 }
-
-PHP_FUNCTION(qb_execute);
 
 int64_t qb_zval_to_long(zval *zvalue);
 double qb_zval_to_double(zval *zvalue);
@@ -684,11 +276,6 @@ struct qb_block_allocator {
 	qb_block_allocator *previous_block;
 	char *top;
 	char data[4];
-};
-
-struct qb_native_code_bundle {
-	void *memory;
-	uint32_t size;
 };
 
 struct qb_data_pool {

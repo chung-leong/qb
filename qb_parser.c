@@ -18,10 +18,6 @@
 
 /* $Id$ */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "qb.h"
 
 #define FOUND_GROUP(group)		(offsets[group * 2] != offsets[group * 2 + 1])

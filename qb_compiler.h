@@ -21,9 +21,7 @@
 #ifndef QB_COMPILER_H_
 #define QB_COMPILER_H_
 
-typedef struct qb_op_info					qb_op_info;
 typedef struct qb_compiler_context			qb_compiler_context;
-typedef struct qb_build_context				qb_build_context;
 typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_variable_dimensions		qb_variable_dimensions;
 typedef struct qb_temporary_variable		qb_temporary_variable;
@@ -34,24 +32,17 @@ typedef enum qb_result_destination_type		qb_result_destination_type;
 typedef enum qb_matrix_order				qb_matrix_order;
 typedef enum qb_derived_variable_type		qb_derived_variable_type;
 
-struct qb_result_prototype {
-	qb_primitive_type preliminary_type;
-	qb_primitive_type final_type;
-	uint32_t coercion_flags;
-	uint32_t address_flags;
-	qb_result_prototype *parent;
-	qb_result_destination *destination;
+struct qb_variable_dimensions {
+	qb_address *source_address;
+	uint32_t dimension_count;
+	qb_address *array_size_address;
+	qb_address *dimension_addresses[64];
+	qb_address *array_size_addresses[64];
 };
 
 struct qb_temporary_variable {
 	qb_operand operand;
 	uint32_t last_access_op_index;
-};
-
-struct qb_op_info {
-	uint16_t flags;
-	uint16_t instruction_length;
-	const char *instruction_format;
 };
 
 enum qb_stage {

@@ -45,8 +45,6 @@ enum {
 };
 
 struct qb_interpreter_context {
-	qb_storage *storage;
-	qb_function *function;
 	uint32_t flags;
 
 	qb_call_stack_item *call_stack;
@@ -62,19 +60,7 @@ struct qb_interpreter_context {
 	int floating_point_precision;
 	void ***tsrm_ls;
 
-	zend_function *zend_function;
-	uint32_t argument_count;
-	zval **zend_arguments;
-	zval ***zend_argument_pointers;
-	uint32_t zend_argument_buffer_size;
 	zval *this_object;
-	qb_address *argument_address;
-	qb_address value_address;
-	qb_address array_address;
-	qb_address *dimension_addresse_pointers[MAX_DIMENSION];
-	qb_address *array_size_address_pointers[MAX_DIMENSION];
-	qb_address dimension_addresses[MAX_DIMENSION];
-	qb_address array_size_addresses[MAX_DIMENSION];
 
 	qb_thread_pool *thread_pool;
 	uint32_t thread_count_for_next_op;
@@ -94,6 +80,7 @@ struct qb_native_proc_record {
 	void *proc;
 };
 
+void qb_execute(qb_function *qfunc, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
 void qb_execute_internal(qb_function *qfunc TSRMLS_DC);
 
 #if ZEND_DEBUG

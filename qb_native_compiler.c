@@ -18,10 +18,6 @@
 
 /* $Id$ */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "qb.h"
 
 #if NATIVE_COMPILE_ENABLED
@@ -2222,7 +2218,7 @@ extern const char compressed_table_native_result_size_calculations[];
 extern const char compressed_table_native_prototypes[];
 extern const char compressed_table_native_references[];
 
-static void qb_initialize_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC) {
+void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_data_pool *pool, qb_compiler_context *compiler_cxts, uint32_t compiler_cxt_count TSRMLS_DC) {
 	static int hashes_initialized = FALSE;
 	if(!hashes_initialized) {
 		uint32_t i;
@@ -2236,17 +2232,17 @@ static void qb_initialize_context(qb_native_compiler_context *cxt, qb_build_cont
 
 	memset(cxt, 0, sizeof(qb_native_compiler_context));
 
-	cxt->pool = build_cxt->pool;
+	cxt->pool = pool;
 	cxt->print_errors = QB_G(show_compiler_errors);
 	cxt->print_source = QB_G(show_native_source);
-	cxt->compiler_contexts = build_cxt->compiler_contexts;
-	cxt->compiler_context_count = build_cxt->compiler_context_count;
+	cxt->compiler_contexts = compiler_cxts;
+	cxt->compiler_context_count = compiler_cxt_count;
 	SAVE_TSRMLS
 
 	cxt->cache_folder_path = QB_G(native_code_cache_path);
 }
 
-static void qb_free_context(qb_native_compiler_context *cxt) {
+void qb_free_native_compiler_context(qb_native_compiler_context *cxt) {
 	USE_TSRM
 	if(cxt->write_stream) {
 		fclose(cxt->write_stream);
@@ -2377,8 +2373,6 @@ int qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 	uint32_t i, attempt;
 	qb_native_compiler_context _cxt, *cxt = &_cxt;
 
-	qb_initialize_context(cxt, build_cxt TSRMLS_CC);
-
 #if ZEND_DEBUG
 	if(native_proc_table) {
 		// link the functions to code in qb_native_proc_debug.c instead of compiling them live
@@ -2480,12 +2474,5 @@ int qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 }
 
 #else
-
-int qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
-	return FAILURE;
-}
-
-void qb_free_native_code(qb_native_code_bundle *bundle) {
-}
 
 #endif	// NATIVE_COMPILE_ENABLED

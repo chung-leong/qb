@@ -21,6 +21,8 @@
 #ifndef QB_BUILD_H_
 #define QB_BUILD_H_
 
+typedef struct qb_build_context				qb_build_context;
+
 struct qb_build_context {
 	qb_compiler_context *compiler_contexts;
 	uint32_t compiler_context_count;

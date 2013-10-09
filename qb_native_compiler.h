@@ -94,8 +94,4 @@ extern uint32_t global_native_symbol_count;
 
 #endif
 
-int qb_native_compile(qb_build_context *build_cxt TSRMLS_DC);
-
-void qb_free_native_code(qb_native_code_bundle *bundle);
-
 #endif

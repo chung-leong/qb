@@ -104,10 +104,17 @@
 
 #define QB_EXTNAME	"qb"
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "qb_version.h"
 #include "qb_compat.h"
 #include "qb_opcodes.h"
 #include "qb_types.h"
+#include "qb_op.h"
+#include "qb_storage.h"
+#include "qb_function.h"
 #include "qb_thread.h"
 #include "qb_parser.h"
 #include "qb_compiler.h"
@@ -172,8 +179,6 @@ ZEND_END_MODULE_GLOBALS(qb)
 # define QB_G(v) (qb_globals.v)
 #endif
 
-int qb_compile(zval *arg1, zval *arg2 TSRMLS_DC);
-int qb_execute(zend_function *function, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
 int qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC);
 int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 

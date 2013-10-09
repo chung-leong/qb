@@ -19,10 +19,6 @@
 /* $Id$ */
 #ifdef __DISABLED__
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "qb.h"
 
 void qb_initialize_compiler_data_pool(qb_data_pool *pool);
