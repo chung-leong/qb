@@ -921,7 +921,7 @@ static void qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, u
 	}
 }
 
-static void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags) {
+void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags) {
 	qb_memory_segment *segment = &storage->segments[address->segment_selector];
 	uint32_t element_start_index = address->segment_offset;
 
@@ -1003,7 +1003,7 @@ static void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address
 	}
 }
 
-static void qb_transfer_value_from_storage_location(qb_interpreter_context *cxt, qb_storage *src_storage, qb_address *src_address, qb_address *address, uint32_t transfer_flags) {
+void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address, uint32_t transfer_flags) {
 	/* TODO
 	// make sure the address is in bound in the caller segment
 	if(src_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
@@ -1066,7 +1066,7 @@ static void qb_transfer_value_from_storage_location(qb_interpreter_context *cxt,
 	*/
 }
 
-static void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
+void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
 	if(SCALAR(address)) {
 		qb_copy_element_to_zval(storage, address, zvalue);
 	} else {
@@ -1085,7 +1085,7 @@ static void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, 
 	}
 }
 
-static void qb_transfer_value_to_storage_location(qb_interpreter_context *cxt, qb_address *address, qb_storage *dst_storage, qb_address *src_address) {
+void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *src_address) {
 	/* TODO
 	if(src_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
 		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
@@ -1125,6 +1125,6 @@ static void qb_transfer_value_to_storage_location(qb_interpreter_context *cxt, q
 			}
 		}
 	}
-	qb_copy_elements_to_src_address(cxt, address, dst_storage, src_address);
+	qb_copy_elements_to_src_address(stprage, address, dst_storage, src_address);
 	*/
 }

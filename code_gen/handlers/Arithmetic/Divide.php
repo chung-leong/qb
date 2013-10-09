@@ -25,7 +25,6 @@ class Divide extends Handler {
 			array(
 				"NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number) {",
 					"USE_TSRM",
-					"QB_G(current_filename) = cxt->function->filename;",
 					"QB_G(current_line_number) = line_number;",
 					"qb_abort(\"Division by zero\");",
 				"}",

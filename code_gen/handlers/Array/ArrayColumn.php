@@ -29,7 +29,6 @@ class ArrayColumn extends Handler {
 			array(
 				"NO_RETURN void qb_abort_missing_column(qb_interpreter_context *restrict cxt, uint32_t column_offset, uint32_t line_number) {",
 					"USE_TSRM",
-					"QB_G(current_filename) = cxt->function->filename;",
 					"QB_G(current_line_number) = line_number;",
 					"qb_abort(\"Accessing non-existing column at index %d\", column_offset);",
 				"}",

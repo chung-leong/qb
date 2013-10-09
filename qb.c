@@ -377,6 +377,7 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 		}
 		qb_destroy_array((void **) &QB_G(compiled_functions));
 	}
+#ifdef NATIVE_COMPILE_ENABLED
 	if(QB_G(native_code_bundles)) {
 		for(i = 0; i < QB_G(native_code_bundle_count); i++) {
 			qb_native_code_bundle *bundle = &QB_G(native_code_bundles)[i];
@@ -384,6 +385,7 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 		}
 		qb_destroy_array((void **) &QB_G(native_code_bundles));
 	}
+#endif
 	return SUCCESS;
 }
 /* }}} */
