@@ -887,14 +887,10 @@ static void qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue,
 		int32_t highest_index = -1;
 		uint32_t dimension;
 		for(p = ht->pListHead; p; p = p->pListNext) {
-			if(p->nKeyLength > 0) {
-				qb_abort("String key encountered (%s)", p->arKey);
-			}
-			if((long) p->h < 0) {
-				qb_abort("Negative index encountered (%lu)", p->h);
-			}
-			if((long) p->h > highest_index) {
-				highest_index = p->h;
+			if(!p->arKey) {
+				if((long) p->h > highest_index) {
+					highest_index = p->h;
+				}
 			}
 		}
 		dimension = highest_index + 1;

@@ -23,18 +23,17 @@
 #include "zend_variables.h"
 
 static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
-	USE_TSRM
-
 	if(import->previous_copy_index != -1) {
 		// copy value from qb caller
 		qb_variable_import *previous_copy = &cxt->variable_imports[import->previous_copy_index];
-		qb_transfer_value_from_storage(cxt, previous_copy->storage, previous_copy->variable->address, import->storage, import->variable->address, QB_TRANSFER_CAN_BORROW_MEMORY);
+		qb_transfer_value_from_storage_location(cxt, previous_copy->storage, previous_copy->variable->address, import->storage, import->variable->address, QB_TRANSFER_CAN_BORROW_MEMORY);
 	} else {
 		zval *zvalue = NULL, **p_zvalue = NULL;
 		if(import->value_pointer) {
 			zvalue = *import->value_pointer;
 			p_zvalue = import->value_pointer;
 		} else {
+			USE_TSRM
 			// look for it
 			if(import->variable->flags & QB_VARIABLE_GLOBAL) {
 				// copy value from global symbol table
@@ -154,8 +153,6 @@ static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt, zval *th
 }
 
 static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable_import *import) {
-	USE_TSRM
-	qb_variable *qvar = import->variable;
 
 	// do the transfer only if it the variable could have been changed
 	if(!READ_ONLY(qvar->address)) {
@@ -181,6 +178,7 @@ static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_v
 			qb_transfer_value_to_zval(cxt, qvar->address, zvalue);
 
 			if(!import->value_pointer) {
+				USE_TSRM
 				if(qvar->flags & QB_VARIABLE_GLOBAL) {
 					zend_hash_quick_update(&EG(symbol_table), qvar->name, qvar->name_length + 1, qvar->hash_value, (void **) &zvalue, sizeof(zval *), NULL);
 				} else if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {

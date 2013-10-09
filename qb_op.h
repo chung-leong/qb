@@ -71,50 +71,6 @@ enum {
 	QB_ADDRESS_COMPILE_TIME_FLAGS	= 0xFFFF0000,
 };
 
-enum {
-	// constant scalar (no separation on fork, no clearing on call)
-	QB_SELECTOR_CONSTANT_SCALAR		= 0,
-	// static scalars (no separation on fork, no clearing on call)
-	QB_SELECTOR_STATIC_SCALAR		= 1,
-	// shared scalars (no separation on fork, clearing on call) 
-	QB_SELECTOR_SHARED_SCALAR		= 2,
-	// local scalars (separation on fork, clearing on call)
-	QB_SELECTOR_LOCAL_SCALAR		= 3,
-	// temporary scalars (seperation on fork, no clearing on call)
-	QB_SELECTOR_TEMPORARY_SCALAR	= 4,
-
-	// constant arrays (no separation on fork, no clearing on call)
-	QB_SELECTOR_CONSTANT_ARRAY		= 9,
-	// static arrays (no separation on fork, no clearing on call)
-	QB_SELECTOR_STATIC_ARRAY		= 8,
-	// shared fixed-length arrays (no separation on fork, clearing on call) 
-	QB_SELECTOR_SHARED_ARRAY		= 7,
-	// local fixed-length arrays (separation on fork, clearing on call)
-	QB_SELECTOR_LOCAL_ARRAY			= 6,
-	// temporary fixed-length arrays (seperation on fork, no clearing on call)
-	QB_SELECTOR_TEMPORARY_ARRAY		= 5,
-
-	// note how the order is reverse for the array segments
-	// this is done so that the segments requiring separation are back-to-back,
-	// maing it easier to see if a given pointer requires relocation or not
-	//
-	// the arrangement also brings variables likely to be active closer together
-	//
-	// segments that need to be cleared when the function is called are also placed 
-	// back-to-back, so we only need two memset() to wipe all variables clean
-	//
-	// parameters are found in the shared segments
-
-	// variable length arrays are stored in segment 10 and above
-	QB_SELECTOR_ARRAY_START			= 10,
-
-	QB_SELECTOR_INVALID 			= 0xFFFFFFFF,
-};
-
-enum {
-	QB_OFFSET_INVALID 				= 0xFFFFFFFF,
-};
-
 struct qb_index_alias_scheme {
 	uint32_t dimension;
 	char **aliases;
