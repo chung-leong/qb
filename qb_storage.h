@@ -115,6 +115,11 @@ enum {
 	QB_TRANSFER_CAN_ENLARGE_SEGMENT	= 0x0004,
 };
 
+#define gdTrueColorAlpha(r, g, b, a) (((a) << 24) + \
+	((r) << 16) + \
+	((g) << 8) + \
+	(b))
+
 #define gdMaxColors 256
 
 #define gdAlphaMax 127

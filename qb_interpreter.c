@@ -48,10 +48,7 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt, qb_functio
 
 	// copy value into return variable
 	if(qfunc->return_variable->address) {
-		if(!SCALAR(qfunc->return_variable->address)) {
-			qb_initialize_zval_array(cxt, qfunc->return_variable->address, NULL, retval);
-		}
-		qb_transfer_value_to_zval(cxt, qfunc->return_variable->address, retval);
+		qb_transfer_value_to_zval(qfunc->local_storage, qfunc->return_variable->address, retval);
 	}
 
 	// copy values into arguments passed by reference and return variable
@@ -60,13 +57,12 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt, qb_functio
 
 		if(qvar->flags & QB_VARIABLE_ARGUMENT && qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
 			zval *zarg = *p_args[i];
-			qb_transfer_value_to_zval(qfunc->local_storage, qvar->address, zarg, zarg);
+			qb_transfer_value_to_zval(qfunc->local_storage, qvar->address, zarg);
 		}
 	}
 }
 
 static void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
-	uint32_t i;
 	memset(cxt, 0, sizeof(qb_interpreter_context));
 
 	// use shadow variables for debugging purpose by default
@@ -145,28 +141,11 @@ void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, u
 			} else {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			}
-			// copying from the function's own storage, actually
-			qb_transfer_value_from_caller_storage(cxt, qfunc->local_storage, qvar->default_value_address, qvar->address, transfer_flags);
-		}
-	}
-
-	// import external variables
-	for(i = qfunc->argument_count; i < qfunc->variable_count; i++) {
-		qb_variable *qvar = qfunc->variables[i];
-		if(qvar->flags & (QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_CONSTANT)) {
-			qb_import_variable(cxt, qvar);
+			qb_transfer_value_from_storage_location(qfunc->local_storage, qvar->address, qfunc->local_storage, qvar->default_value_address, transfer_flags);
 		}
 	}
 
 	qb_enter_vm(cxt, qfunc);
-
-	// copy values to imported variables and remove them
-	for(i = qfunc->argument_count; i < qfunc->variable_count; i++) {
-		qb_variable *qvar = qfunc->variables[i];
-		if(qvar->flags & (QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE)) {
-			qb_retire_imported_variable(cxt, qvar);
-		}
-	}
 
 	// clean up segments
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
@@ -189,7 +168,7 @@ void qb_execute(qb_function *qfunc, zval *this, zval ***arguments, int argument_
 	qb_initialize_interpreter_context(cxt TSRMLS_CC);
 
 	// copy values from arguments and global symbol table
-	qb_transfer_arguments_from_php(cxt, qfunc, this, return_value, arguments, argument_count, qfunc);
+	qb_transfer_arguments_from_php(cxt, qfunc, this, return_value, arguments, argument_count);
 
 	// execute the call
 	qb_execute_function_call(cxt, qfunc, argument_count);
@@ -198,7 +177,6 @@ void qb_execute(qb_function *qfunc, zval *this, zval ***arguments, int argument_
 	qb_transfer_arguments_to_php(cxt, qfunc, return_value, arguments, argument_count);
 
 	qb_free_interpreter_context(cxt);
-	return result;
 }
 
 void qb_execute_internal(qb_function *qfunc TSRMLS_DC) {
