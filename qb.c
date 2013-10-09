@@ -167,32 +167,68 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	}
 	if(qfunc) {
 		zval *this = EG(This);
-		qb_execute(qfunc, this, NULL, 0, NULL TSRMLS_CC);
+		//qb_execute(qfunc, this, NULL, 0, NULL TSRMLS_CC);
 	}
 	return ZEND_USER_OPCODE_RETURN;
 }
 
 void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 	TSRMLS_FETCH();
-	if(CG(doc_comment)) {
-		zend_op *qb_op = &op_array->opcodes[op_array->last++];
+	const char *doc_comment = CG(doc_comment);
+	uint32_t doc_comment_len = CG(doc_comment_len);
+	zend_compiler_globals *cg = ((zend_compiler_globals *) (*((void ***) tsrm_ls))[TSRM_UNSHUFFLE_RSRC_ID(compiler_globals_id)]);
+	if(doc_comment && strstr(doc_comment, "@engine")) {
+		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
+		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+		qb_function_declaration *func_decl;
+		zend_class_entry *zend_class = CG(active_class_entry);
+		const char *filename = CG(compiled_filename);
+		uint32_t line_number = CG(zend_lineno);
 
-		qb_op->opcode = qb_user_opcode;
-		Z_OPERAND_TYPE(qb_op->op1) = IS_UNUSED;
-		Z_OPERAND_TYPE(qb_op->op2) = IS_UNUSED;
-		Z_OPERAND_TYPE(qb_op->result) = IS_UNUSED;
+		qb_initialize_parser_context(parser_cxt, build_cxt->pool, zend_class, filename, line_number TSRMLS_CC);
+		func_decl = qb_parse_function_doc_comment(parser_cxt, doc_comment, doc_comment_len);
+		if(func_decl) {
+			// add QB instruction
+			zend_op *qb_op = &op_array->opcodes[op_array->last++];
+			qb_op->opcode = qb_user_opcode;
+			Z_OPERAND_TYPE(qb_op->op1) = IS_UNUSED;
+			Z_OPERAND_TYPE(qb_op->op2) = IS_UNUSED;
+			Z_OPERAND_TYPE(qb_op->result) = IS_UNUSED;
+
+			// add the declaration to the build
+			qb_add_function_declaration(build_cxt, func_decl);
+
+			// store the declaration in the reserved slot for the time being
+			op_array->reserved[qb_reserved_offset] = func_decl;
+
+			if(zend_class) {
+				qb_class_declaration *class_decl = qb_get_class_declaration(build_cxt, zend_class);
+				if(!class_decl) {
+					class_decl = qb_parse_class_doc_comment(parser_cxt, zend_class);
+				}
+				func_decl->class_declaration = class_decl;
+			}
+		}
 	}
 }
 
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
-	TSRMLS_FETCH();
-	op_array->reserved[qb_reserved_offset] = NULL;
+	qb_function_declaration *func_decl = op_array->reserved[qb_reserved_offset];
+	if(func_decl) {
+		TSRMLS_FETCH();
+		// set the pointer now--it's going to be different from the one we got in qb_zend_ext_op_array_ctor()
+		func_decl->zend_op_array = op_array;
+
+		// set slot to null again
+		op_array->reserved[qb_reserved_offset] = NULL;
+	}
 }
 
 void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
 	TSRMLS_FETCH();
 	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
 	if(qfunc) {
+		qb_free_function(qfunc);
 	}
 }
 

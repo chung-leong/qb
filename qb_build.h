@@ -42,15 +42,13 @@ static zend_always_inline void qb_add_function_declaration(qb_build_context *cxt
 	*p = function_decl;
 }
 
-static zend_always_inline void qb_add_variable_declaration(qb_function_declaration *function_decl, qb_type_declaration *var_decl) {
-	qb_type_declaration **p = qb_enlarge_array((void **) &function_decl->declarations, 1);
-	*p = var_decl;
+static zend_always_inline void qb_add_class_declaration(qb_build_context *cxt, qb_class_declaration *class_decl) {
+	qb_class_declaration **p = qb_enlarge_array((void **) &cxt->class_declarations, 1);
+	*p = class_decl;
 }
 
-static zend_always_inline void qb_add_class_variable_declaration(qb_class_declaration *class_decl, qb_type_declaration *var_decl) {
-	qb_type_declaration **p = qb_enlarge_array((void **) &class_decl->declarations, 1);
-	*p = var_decl;
-}
+qb_function_declaration * qb_get_function_declaration(qb_build_context *cxt, zend_op_array *zop_array);
+qb_class_declaration * qb_get_class_declaration(qb_build_context *cxt, zend_class_entry *ce);
 
 void qb_build(qb_build_context *cxt);
 

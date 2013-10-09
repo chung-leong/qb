@@ -99,6 +99,23 @@ pcre *type_dim_regexp;
 pcre *type_dim_alias_regexp;
 pcre *identifier_regexp;
 
+static void qb_notice_doc_comment_issue(qb_parser_context *cxt, const char *format, ... ) {
+	va_list args;
+	va_start(args, format);
+	zend_error_cb(E_NOTICE, cxt->file_path, cxt->line_number, format, args);
+	va_end(args);
+}
+
+static zend_always_inline void qb_add_variable_declaration(qb_function_declaration *function_decl, qb_type_declaration *var_decl) {
+	qb_type_declaration **p = qb_enlarge_array((void **) &function_decl->declarations, 1);
+	*p = var_decl;
+}
+
+static zend_always_inline void qb_add_class_variable_declaration(qb_class_declaration *class_decl, qb_type_declaration *var_decl) {
+	qb_type_declaration **p = qb_enlarge_array((void **) &class_decl->declarations, 1);
+	*p = var_decl;
+}
+
 static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, uint32_t len, qb_type_declaration *decl, uint32_t dimension_index) {
 	int offsets[64], matches;
 	uint32_t dimension = 0;
@@ -130,7 +147,8 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 				if(Z_TYPE_P(constant) == IS_LONG) {
 					long const_value = Z_LVAL_P(constant);
 					if(const_value <= 0) {
-						qb_abort("constant '%s' is not a positive integer", name);
+						qb_notice_doc_comment_issue(cxt, "Constant '%s' is not a positive integer", name);
+						return -1;
 					}
 					dimension = const_value;
 				} else if(Z_TYPE_P(constant) == IS_STRING) {
@@ -144,7 +162,8 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 					decl = NULL;
 				}
 			} else {
-				qb_abort("undefined constant '%s'", name);
+				qb_notice_doc_comment_issue(cxt, "Undefined constant '%s'", name);
+				return -1;
 			}
 			free_alloca(name, use_heap);
 		} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
@@ -347,12 +366,13 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 	return decl;
 }
 
-static uint32_t qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
+static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *comment, uint32_t comment_length, uint32_t offset) {
 	// load the file
+	uint32_t line_number_max = cxt->line_number;
 	uint32_t line_number = 0;
 	TSRMLS_FETCH();
-	if(filepath) {
-		php_stream *stream = php_stream_open_wrapper_ex((char *) filepath, "rb", 0, NULL, NULL);
+	if(cxt->file_path) {
+		php_stream *stream = php_stream_open_wrapper_ex((char *) cxt->file_path, "rb", 0, NULL, NULL);
 		if(stream) {
 			char *data = NULL;
 			size_t data_len = php_stream_copy_to_mem(stream, &data, PHP_STREAM_COPY_ALL, FALSE);
@@ -398,39 +418,33 @@ static uint32_t qb_find_doc_comment_line_number(qb_parser_context *cxt, const ch
 			p--;
 		}
 	}
-	return line_number;
+	cxt->line_number = line_number;
 }
 
-static void qb_abort_doc_comment_unexpected_error(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int matches, int *offsets, const char *filepath, uint32_t line_number_max) {
+static void qb_notice_doc_comment_unexpected_tag(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int matches, int *offsets) {
 	int i;
 	TSRMLS_FETCH();
 	for(i = 1; i < matches; i++) {
 		if(FOUND_GROUP(i)) {
 			uint32_t tag_len = GROUP_LENGTH(i);
 			uint32_t start_index = GROUP_OFFSET(i);
-			uint32_t line_number = qb_find_doc_comment_line_number(cxt, comment, comment_length, start_index, filepath, line_number_max);
 			const char *tag = comment + start_index;
 
-			QB_G(current_filename) = filepath;
-			QB_G(current_line_number) = line_number;
-			qb_abort("Unexpected use of @%.*s", tag_len, tag);
+			qb_find_doc_comment_line_number(cxt, comment, comment_length, start_index);
+			qb_notice_doc_comment_issue(cxt, "Unexpected use of @%.*s", tag_len, tag);
+			break;
 		}
 	}
 }
 
-static void qb_abort_doc_comment_syntax_error(qb_parser_context *cxt, const char *comment, uint32_t comment_length, uint32_t offset, const char *filepath, uint32_t line_number_max) {
-	uint32_t line_number = qb_find_doc_comment_line_number(cxt, comment, comment_length, offset, filepath, line_number_max);
-	TSRMLS_FETCH();
-	QB_G(current_filename) = filepath;
-	QB_G(current_line_number) = line_number;
-	qb_abort("Syntax error encountered while parsing Doc Comments for type information");
+static void qb_notice_doc_comment_syntax_issue(qb_parser_context *cxt, const char *comment, uint32_t comment_length, uint32_t offset) {
+	qb_find_doc_comment_line_number(cxt, comment, comment_length, offset);
+	qb_notice_doc_comment_issue(cxt, "Syntax error encountered while parsing Doc Comments for type information");
 }
 
-qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context *cxt, zend_op_array *zop_array, HashTable *ht) {
+qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context *cxt, HashTable *ht) {
 	qb_function_declaration *function_decl = qb_allocate_function_declaration(cxt->pool);
 	Bucket *p;
-
-	function_decl->zend_op_array = zop_array;
 
 	for(p = ht->pListHead; p; p = p->pListNext) {
 		if(p->nKeyLength) {
@@ -508,139 +522,139 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 				}
 				if(error_zval) {
 					if(Z_TYPE_P(error_zval) == IS_STRING) {
-						qb_abort("Error encountered while processing type information: '%s'", Z_STRVAL_P(error_zval));
+						qb_notice_doc_comment_issue(cxt, "Error encountered while processing type information: '%s'", Z_STRVAL_P(error_zval));
 					} else {
-						qb_abort("Unexpected %s encountered while processing type information", zend_get_type_by_const(Z_TYPE_P(error_zval)));
+						qb_notice_doc_comment_issue(cxt, "Unexpected %s encountered while processing type information", zend_get_type_by_const(Z_TYPE_P(error_zval)));
 					}
 				}
 			} else {
-				qb_abort("Unknown keyword '%s' encountered while processing type information", p->arKey);
+				qb_notice_doc_comment_issue(cxt, "Unknown keyword '%s' encountered while processing type information", p->arKey);
 			}
 		} else {
-			qb_abort("Numeric key encountered where a string is expected");
+			qb_notice_doc_comment_issue(cxt, "Numeric key encountered where a string is expected");
 		}
 	}
 	return function_decl;
 }
 
-qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, zend_op_array *zop_array) {
+qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, const char *doc_comment, size_t doc_comment_len) {
 	qb_function_declaration *function_decl = NULL;
-	const char *s = zop_array->doc_comment;
-	size_t len = zop_array->doc_comment_len;
+	int offsets[48], matches;
+	uint32_t start_index = 0;
+	int32_t use_qb = FALSE;
 
-	if(s && strstr(s, "@engine")) {
-		int offsets[48], matches;
-		uint32_t start_index = 0;
-		int32_t use_qb = FALSE;
+	function_decl = qb_allocate_function_declaration(cxt->pool);
 
-		function_decl = qb_allocate_function_declaration(cxt->pool);
-		function_decl->zend_op_array = zop_array;
+	for(start_index = 0; start_index < doc_comment_len; start_index = offsets[1]) {
+		matches = pcre_exec(doc_comment_function_regexp, NULL, doc_comment, doc_comment_len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
+		if(matches > 0) {
+			uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
+			const char *data = doc_comment + data_offset;
+			qb_type_declaration *decl;
 
-		for(start_index = 0; start_index < len; start_index = offsets[1]) {
-			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
-			if(matches > 0) {
-				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
-				const char *data = s + data_offset;
-				qb_type_declaration *decl;
-
-				if(FOUND_GROUP(FUNC_DECL_ENGINE)) {
-					if(data_len == 2 && strncmp(data, "qb", 2) == 0) {
-						use_qb = TRUE;
-					} else if(data_len == 11 && strncmp(data, "qb-bytecode", 11) == 0) {
-						use_qb = TRUE;
-						function_decl->flags |= QB_ENGINE_NEVER_COMPILE;
-					} else if(data_len == 9 && strncmp(data, "qb-native", 9) == 0) {
-						use_qb = TRUE;
-						function_decl->flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
-					}
-				} else if(FOUND_GROUP(FUNC_DECL_IMPORT)) {
-					function_decl->import_path = qb_allocate_string(cxt->pool, data, data_len);
-					function_decl->import_path_length = data_len;
+			if(FOUND_GROUP(FUNC_DECL_ENGINE)) {
+				if(data_len == 2 && strncmp(data, "qb", 2) == 0) {
+					use_qb = TRUE;
+				} else if(data_len == 11 && strncmp(data, "qb-bytecode", 11) == 0) {
+					use_qb = TRUE;
+					function_decl->flags |= QB_ENGINE_NEVER_COMPILE;
+				} else if(data_len == 9 && strncmp(data, "qb-native", 9) == 0) {
+					use_qb = TRUE;
+					function_decl->flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
+				}
+			} else if(FOUND_GROUP(FUNC_DECL_IMPORT)) {
+				function_decl->import_path = qb_allocate_string(cxt->pool, data, data_len);
+				function_decl->import_path_length = data_len;
+			} else {
+				if(FOUND_GROUP(FUNC_DECL_GLOBAL)) {
+					var_type = QB_VARIABLE_GLOBAL;
+				} else if(FOUND_GROUP(FUNC_DECL_LOCAL)) {
+					var_type = QB_VARIABLE_LOCAL;
+				} else if(FOUND_GROUP(FUNC_DECL_PARAM)) {
+					var_type = QB_VARIABLE_ARGUMENT;
+				} else if(FOUND_GROUP(FUNC_DECL_STATIC)) {
+					var_type = QB_VARIABLE_STATIC | QB_VARIABLE_CLASS;
+				} else if(FOUND_GROUP(FUNC_DECL_PROPERTY)) {
+					var_type = FUNC_DECL_PROPERTY;
+				} else if(FOUND_GROUP(FUNC_DECL_RETURN)) {
+					var_type = QB_VARIABLE_RETURN_VALUE;
 				} else {
-					if(FOUND_GROUP(FUNC_DECL_GLOBAL)) {
-						var_type = QB_VARIABLE_GLOBAL;
-					} else if(FOUND_GROUP(FUNC_DECL_LOCAL)) {
-						var_type = QB_VARIABLE_LOCAL;
-					} else if(FOUND_GROUP(FUNC_DECL_PARAM)) {
-						var_type = QB_VARIABLE_ARGUMENT;
-					} else if(FOUND_GROUP(FUNC_DECL_STATIC)) {
-						var_type = QB_VARIABLE_STATIC | QB_VARIABLE_CLASS;
-					} else if(FOUND_GROUP(FUNC_DECL_PROPERTY)) {
-						var_type = FUNC_DECL_PROPERTY;
-					} else if(FOUND_GROUP(FUNC_DECL_RETURN)) {
-						var_type = QB_VARIABLE_RETURN_VALUE;
-					} else {
-						qb_abort_doc_comment_unexpected_error(cxt, s, len, matches, offsets, zop_array->filename, zop_array->line_start);
-					}
-					decl = qb_parse_type_declaration(cxt, data, data_len, var_type);
-					if(decl) {
-						qb_add_variable_declaration(function_decl, decl);
-					} else {
-						qb_abort_doc_comment_syntax_error(cxt, s, len, data_offset, zop_array->filename, zop_array->line_start);
+					if(use_qb) {
+						qb_notice_doc_comment_unexpected_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
 					}
 				}
-			} else {
-				break;
+				decl = qb_parse_type_declaration(cxt, data, data_len, var_type);
+				if(decl) {
+					qb_add_variable_declaration(function_decl, decl);
+				} else {
+					if(use_qb) {
+						qb_notice_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
+					}
+				}
 			}
+		} else {
+			break;
 		}
-		if(!use_qb) {
-			function_decl = NULL;
-		}
+	}
+	if(!use_qb) {
+		function_decl = NULL;
 	}
 	return function_decl;
 }
 
 qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_class_entry *ce) {
 	qb_class_declaration *class_decl;
-	const char *s = Z_CLASS_INFO(ce, doc_comment);
-	size_t len = Z_CLASS_INFO(ce, doc_comment_len);
+	const char *doc_comment = Z_CLASS_INFO(ce, doc_comment);
+	size_t doc_comment_len = Z_CLASS_INFO(ce, doc_comment_len);
 	int offsets[48], matches;
 	uint32_t start_index = 0;
 	Bucket *p;
 
+	cxt->file_path = Z_CLASS_INFO(ce, filename);
+	cxt->line_number = Z_CLASS_INFO(ce, line_start);
 	class_decl = qb_allocate_class_declaration(cxt->pool);
 	class_decl->zend_class = ce;
 
-	if(s) {
-		for(start_index = 0; start_index < len; start_index = offsets[1]) {
-			matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
-			if(matches > 0) {
-				uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type;
-				const char *data = s + data_offset;
-				qb_type_declaration *decl;
+	for(start_index = 0; start_index < doc_comment_len; start_index = offsets[1]) {
+		matches = pcre_exec(doc_comment_function_regexp, NULL, doc_comment, doc_comment_len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
+		if(matches > 0) {
+			uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA), var_type = 0;
+			const char *data = doc_comment + data_offset;
+			qb_type_declaration *decl;
 
-				if(FOUND_GROUP(FUNC_DECL_PROPERTY)) {
-					var_type = QB_VARIABLE_CLASS_INSTANCE;
-				} else if(FOUND_GROUP(FUNC_DECL_STATIC)) {
-					var_type = QB_VARIABLE_CLASS;
-				} else {
-					qb_abort_doc_comment_unexpected_error(cxt, s, len, matches, offsets, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_start));
-				} 
+			if(FOUND_GROUP(FUNC_DECL_PROPERTY)) {
+				var_type = QB_VARIABLE_CLASS_INSTANCE;
+			} else if(FOUND_GROUP(FUNC_DECL_STATIC)) {
+				var_type = QB_VARIABLE_CLASS;
+			} else {
+				qb_notice_doc_comment_unexpected_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
+			} 
+			if(var_type) {
 				decl = qb_parse_type_declaration(cxt, data, data_len, var_type);
 				if(decl) {
 					qb_add_class_variable_declaration(class_decl, decl);
 				} else {
-					qb_abort_doc_comment_syntax_error(cxt, s, len, data_offset, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_start));
+					qb_notice_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
 				}
-			} else {
-				break;
 			}
+		} else {
+			break;
 		}
 	}
 
 	for(p = ce->properties_info.pListHead; p; p = p->pListNext) {
 		zend_property_info *prop = p->pData;
-		const char *s = prop->doc_comment;
-		size_t len = prop->doc_comment_len;
+		const char *doc_comment = prop->doc_comment;
+		size_t doc_comment_len = prop->doc_comment_len;
 		int offsets[48], matches;
 		uint32_t start_index = 0;
 
-		if(s) {
-			for(start_index = 0; start_index < len; start_index = offsets[1]) {
-				matches = pcre_exec(doc_comment_function_regexp, NULL, s, len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
+		if(doc_comment) {
+			for(start_index = 0; start_index < doc_comment_len; start_index = offsets[1]) {
+				matches = pcre_exec(doc_comment_function_regexp, NULL, doc_comment, doc_comment_len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));
 				if(matches > 0) {
 					uint32_t data_offset = GROUP_OFFSET(FUNC_DECL_DATA), data_len = GROUP_LENGTH(FUNC_DECL_DATA);
-					const char *data = s + data_offset;
+					const char *data = doc_comment + data_offset;
 					qb_type_declaration *decl;
 
 					if(FOUND_GROUP(FUNC_DECL_VAR)) {
@@ -655,12 +669,11 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 								decl->flags |= QB_VARIABLE_CLASS_INSTANCE;
 							}
 							qb_add_class_variable_declaration(class_decl, decl);
-
 						} else {
-							qb_abort_doc_comment_syntax_error(cxt, s, len, data_offset, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
+							qb_notice_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
 						}
 					} else {
-						qb_abort_doc_comment_unexpected_error(cxt, s, len, matches, offsets, Z_CLASS_INFO(ce, filename), Z_CLASS_INFO(ce, line_end));
+						qb_notice_doc_comment_unexpected_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
 					}
 				} else {
 					break;
@@ -672,7 +685,7 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 	return class_decl;
 }
 
-void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool TSRMLS_DC) {
+void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, zend_class_entry *ce, const char *filename, uint32_t line_number TSRMLS_DC) {
 	static int regexp_created = FALSE;
 	if(!regexp_created) {
 		const char *pcre_error = NULL;
@@ -701,6 +714,8 @@ void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool TSR
 
 	cxt->pool = pool;
 	cxt->zend_class = NULL;
+	cxt->file_path = filename;
+	cxt->line_number = line_number;
 }
 
 void qb_free_parser_context(qb_parser_context *cxt TSRMLS_DC) {

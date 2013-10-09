@@ -187,7 +187,8 @@ int qb_is_compiled_function(zend_function *zfunc);
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);
 
-void qb_free_function(qb_function *qfunc);
+extern int qb_user_opcode;
+extern int qb_reserved_offset;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

@@ -24,7 +24,6 @@
 typedef struct qb_encoder_context			qb_encoder_context;
 
 struct qb_encoder_context {
-
 	qb_compiler_context *compiler_context;
 
 	qb_op **ops;
@@ -45,5 +44,7 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 
 qb_function * qb_encode_function(qb_encoder_context *cxt);
 int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory);
+
+void qb_free_function(qb_function *qfunc);
 
 #endif

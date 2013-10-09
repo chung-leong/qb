@@ -148,6 +148,28 @@ void qb_build(qb_build_context *cxt) {
 #endif
 }
 
+qb_function_declaration * qb_get_function_declaration(qb_build_context *cxt, zend_op_array *zop_array) {
+	uint32_t i = 0;
+	for(i = 0; i < cxt->function_declaration_count; i++) {
+		qb_function_declaration *decl = cxt->function_declarations[i];
+		if(decl->zend_op_array == zop_array) {
+			return decl;
+		}
+	}
+	return NULL;
+}
+
+qb_class_declaration * qb_get_class_declaration(qb_build_context *cxt, zend_class_entry *ce) {
+	uint32_t i = 0;
+	for(i = 0; i < cxt->class_declaration_count; i++) {
+		qb_class_declaration *decl = cxt->class_declarations[i];
+		if(decl->zend_class == ce) {
+			return decl;
+		}
+	}
+	return NULL;
+}
+
 void qb_initialize_build_context(qb_build_context *cxt TSRMLS_DC) {
 	cxt->deferral_count = 0;
 	cxt->pool = &cxt->_pool;

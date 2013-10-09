@@ -57,13 +57,15 @@ struct qb_function_declaration {
 struct qb_parser_context {
 	qb_data_pool *pool;
 	zend_class_entry *zend_class;
+	const char *file_path;
+	uint32_t line_number;
 };
 
-qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, zend_op_array *zop_array);
-qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context *cxt, zend_op_array *zop_array, HashTable *ht);
+qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, const char *doc_comment, size_t doc_comment_len);
+qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context *cxt, HashTable *ht);
 qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_class_entry *ce);
 
-void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool TSRMLS_DC);
+void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, zend_class_entry *ce, const char *filename, uint32_t line_number TSRMLS_DC);
 void qb_free_parser_context(qb_parser_context *cxt TSRMLS_DC);
 
 #endif

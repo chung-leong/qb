@@ -228,14 +228,17 @@ void qb_print_zend_ops(qb_printer_context *cxt) {
 	uint32_t i = 0;
 	for(i = 0; i < cxt->compiler_context->zend_op_array->last; i++) {
 		zend_op *zop = &cxt->compiler_context->zend_op_array->opcodes[i];
-		const char *opname = qb_get_zend_op_name(cxt, zop->opcode);
-		php_printf("[%04d] %s (line number: %d)\n", i, opname, zop->lineno);
+		if(zop->opcode != qb_user_opcode) {
+			const char *opname = qb_get_zend_op_name(cxt, zop->opcode);
+			php_printf("[%04d] %s (line number: %d)\n", i, opname, zop->lineno);
+		}
 	}
 }
 
 void qb_initialize_printer_context(qb_printer_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 	cxt->compiler_context = compiler_cxt;
 	cxt->pool = compiler_cxt->pool;
+	cxt->storage = compiler_cxt->storage;
 
 	SAVE_TSRMLS
 }

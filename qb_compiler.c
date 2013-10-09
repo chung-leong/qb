@@ -24,35 +24,6 @@
 
 #include "qb.h"
 
-extern zend_module_entry qb_module_entry;
-
-static int32_t qb_find_function_declaration(qb_build_context *cxt, zend_op_array *zop_array) {
-	uint32_t i = 0;
-	for(i = 0; i < cxt->function_declaration_count; i++) {
-		qb_function_declaration *decl = cxt->function_declarations[i];
-		if(decl->zend_op_array == zop_array) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-static zend_always_inline void qb_add_class_declaration(qb_build_context *cxt, qb_class_declaration *class_decl) {
-	qb_class_declaration **p = qb_enlarge_array((void **) &cxt->class_declarations, 1);
-	*p = class_decl;
-}
-
-static int32_t qb_find_class_declaration(qb_build_context *cxt, zend_class_entry *ce) {
-	uint32_t i = 0;
-	for(i = 0; i < cxt->class_declaration_count; i++) {
-		qb_class_declaration *decl = cxt->class_declarations[i];
-		if(decl->zend_class == ce) {
-			return i;
-		}
-	}
-	return -1;
-}
-
 extern const qb_op_info global_op_info[];
 extern const char *global_operand_codes[];
 

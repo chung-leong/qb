@@ -962,10 +962,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\qb.ini"
-				>
-			</File>
-			<File
 				RelativePath="..\qb_build.h"
 				>
 			</File>

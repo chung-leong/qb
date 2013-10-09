@@ -472,11 +472,10 @@ static zend_function * qb_find_function(qb_php_translater_context *cxt, zend_cla
 	return cxt->previous_function;
 }
 
-static qb_function * qb_get_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
+static qb_function * qb_find_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
 	uint32_t i;
-	if(qb_is_compiled_function(zfunc)) {
-		return zfunc->op_array.reserved[0];
-	} else {
+	qb_function *qfunc = qb_get_compiled_function(zfunc);
+	if(!qfunc) {
 		// see if the function in question in also in the middle of being compiled
 		USE_TSRM
 		qb_build_context *build_context = QB_G(build_context);
@@ -667,7 +666,7 @@ static qb_php_op_translator op_translators[] = {
 };
 
 static void qb_translate_current_instruction(qb_php_translater_context *cxt) {
-	if(cxt->zend_op->opcode != ZEND_OP_DATA) {
+	if(cxt->zend_op->opcode != ZEND_OP_DATA && cxt->zend_op->opcode != qb_user_opcode) {
 		USE_TSRM
 		qb_operand operands[3], results[2];
 		qb_result_prototype *result_prototype = &cxt->compiler_context->result_prototypes[cxt->zend_op_index];
