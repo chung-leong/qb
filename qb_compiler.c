@@ -2014,7 +2014,6 @@ qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *nam
 
 void qb_initialize_function_prototype(qb_compiler_context *cxt) {
 	cxt->function_prototype.argument_count = cxt->argument_count;
-	cxt->function_prototype.required_argument_count = cxt->required_argument_count;
 	cxt->function_prototype.variables = cxt->variables;
 	cxt->function_prototype.return_variable = cxt->return_variable;
 	cxt->function_prototype.zend_op_array = cxt->zend_op_array;

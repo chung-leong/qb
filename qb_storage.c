@@ -20,6 +20,128 @@
 
 #include "qb.h"
 
+static intptr_t qb_set_segment_memory(qb_memory_segment *segment, int8_t *memory) {
+	if(segment->memory != memory) {
+		// adjust references in code
+		uint32_t i;
+		intptr_t diff = memory - segment->memory;
+		for(i = 0; i < segment->reference_count; i++) {
+			intptr_t *p_ref = segment->references[i];
+			*p_ref += diff;
+		}
+		segment->memory = memory;
+
+		// return the shift in location
+		return diff;
+	}
+	return 0;
+}
+
+void qb_allocate_segment_memory(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count) {
+	segment->byte_count = byte_count;
+	if(byte_count > segment->current_allocation) {
+		uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
+		uint32_t extra = new_allocation - byte_count;
+		int8_t *memory = emalloc(new_allocation);
+		int8_t *data_end = memory + byte_count;
+		segment->current_allocation = new_allocation;
+		memset(data_end, 0, extra);
+		qb_set_segment_memory(segment, memory);
+	}
+}
+
+static int32_t qb_connect_segment_to_memory(qb_storage *storage, qb_memory_segment *segment, int8_t *memory, uint32_t byte_count, uint32_t bytes_available, int32_t ownership) {	
+	if(byte_count < bytes_available) {
+		segment->byte_count = byte_count;
+		segment->current_allocation = bytes_available;
+		if(!ownership) {
+			segment->flags |= QB_SEGMENT_BORROWED;
+		}
+		if(segment->current_allocation) {
+			qb_set_segment_memory(segment, memory);
+		}
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+static void * qb_map_file_to_memory(php_stream *stream, uint32_t byte_count, int32_t write_access TSRMLS_DC);
+static void qb_unmap_file_from_memory(php_stream *stream TSRMLS_DC);
+
+static int32_t qb_connect_segment_to_file(qb_storage *storage, qb_memory_segment *segment, php_stream *stream, uint32_t byte_count, int32_t write_access) {
+	TSRMLS_FETCH();
+	uint32_t bytes_available = byte_count;
+	int8_t *memory;
+	if(!bytes_available) {
+		bytes_available = 1024;
+		// TODO: enlarge the file
+	}
+	memory = qb_map_file_to_memory(stream, bytes_available, write_access TSRMLS_CC);
+	if(memory) {
+		qb_connect_segment_to_memory(storage, segment, memory, byte_count, bytes_available, FALSE);
+		segment->flags |= QB_SEGMENT_MAPPED;
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+void qb_release_segment(qb_storage *storage, qb_memory_segment *segment) {
+	if(segment->flags & QB_SEGMENT_MAPPED) {
+		TSRMLS_FETCH();
+		qb_unmap_file_from_memory(segment->stream TSRMLS_CC);
+
+		// set the file to the actual size if more bytes were allocated than needed
+		if(segment->current_allocation != segment->byte_count) {
+			php_stream_truncate_set_size(segment->stream, segment->byte_count);
+		}
+		segment->flags &= ~(QB_SEGMENT_BORROWED | QB_SEGMENT_MAPPED);
+		segment->stream = NULL;
+	} else if(segment->flags & QB_SEGMENT_BORROWED) {
+		// the memory was borrowed--nothing needs to be done
+		segment->flags &= ~QB_SEGMENT_BORROWED;
+	} else {
+		if(segment->memory) {
+			efree(segment->memory);
+		}
+	}
+	segment->current_allocation = 0;
+}
+
+intptr_t qb_resize_segment(qb_storage *__restrict storage, qb_memory_segment *segment, uint32_t new_size) {
+	if(new_size > segment->current_allocation) {
+		int8_t *current_data_end;
+		int8_t *memory;
+		uint32_t new_allocation = ALIGN_TO(new_size, 4);
+		uint32_t addition = new_allocation - segment->current_allocation;
+
+		if(segment->flags & QB_SEGMENT_MAPPED) {
+			// unmap the file, enlarge it, then map it again
+			TSRMLS_FETCH();
+			qb_unmap_file_from_memory(segment->stream TSRMLS_CC);
+			php_stream_truncate_set_size(segment->stream, new_allocation);
+			memory = qb_map_file_to_memory(segment->stream, new_allocation, TRUE TSRMLS_CC);
+			if(!memory) {
+				// shouldn't really happen--we had managed to map it successfully after all
+				qb_abort("Cannot map '%s' into memory", segment->stream->orig_path);
+			}
+		} else {
+			memory = erealloc(segment->memory, new_allocation);
+		}
+
+		// clear the newly allcoated bytes
+		current_data_end = memory + segment->byte_count;
+		memset(current_data_end, 0, addition);
+		segment->byte_count = new_size;
+		segment->current_allocation = new_allocation;
+
+		return qb_set_segment_memory(segment, memory);
+	} else {
+		segment->byte_count = new_size;
+	}
+	return 0;
+}
 
 static uint32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_address *address, uint32_t byte_count) {
 	uint32_t element_count = ELEMENT_COUNT(byte_count, address->type);
@@ -93,7 +215,7 @@ static int32_t qb_is_linear_zval_array(zval *zvalue) {
 
 static void qb_initialize_element_address(qb_address *address, qb_address *container_address) {
 	*address = *container_address;
-	if(--address->dimension_count > 1) {
+	if(--address->dimension_count > 0) {
 		address->dimension_addresses++;
 		address->array_size_addresses++;
 		address->array_size_address = address->array_size_addresses[0];
@@ -121,8 +243,12 @@ static uint32_t qb_set_array_dimensions_from_scalar(qb_storage *storage, qb_addr
 		VALUE_IN(storage, U32, dimension_address) = dimension;
 	}
 
-	qb_initialize_element_address(element_address, address);
-	element_size = qb_set_array_dimensions_from_scalar(storage, element_address, zvalue);
+	if(address->dimension_count > 1) {
+		qb_initialize_element_address(element_address, address);
+		element_size = qb_set_array_dimensions_from_scalar(storage, element_address, zvalue);
+	} else {
+		element_size = 1;
+	}
 	return dimension * element_size;
 }
 
@@ -162,6 +288,7 @@ static uint32_t qb_set_array_dimensions_from_array(qb_storage *storage, qb_addre
 
 		qb_initialize_element_address(element_address, address);
 		element_size = (element_address->dimension_count > 0) ? ARRAY_SIZE_IN(storage, element_address) : 1;
+		element_dimension_address = address->dimension_addresses[1];
 
 		// set the dimension to zero first
 		if(!CONSTANT(element_dimension_address)) {
@@ -881,189 +1008,42 @@ static void qb_copy_elements_to_storage(qb_storage *storage, qb_address *address
 	qb_copy_elements(address->type, ARRAY_IN(storage, I08, address), src_element_count, dst_address->type, ARRAY_IN(dst_storage, I08, dst_address), dst_element_count);
 }
 
-void qb_free_segment(qb_storage *storage, qb_memory_segment *segment TSRMLS_DC) {
-	if(segment->flags & QB_SEGMENT_MAPPED) {
-		php_stream *stream = segment->stream;
-		qb_unmap_segment(storage, segment TSRMLS_CC);
-
-		// set the file to the actual size if more bytes were allocated than needed
-		if(segment->current_allocation != segment->byte_count) {
-			php_stream_truncate_set_size(stream, segment->byte_count);
-		}
-		if(!(segment->flags & QB_SEGMENT_BORROWED)) {
-			php_stream_close(stream);
-			segment->flags &= ~QB_SEGMENT_BORROWED;
-		}
-	} else if(segment->flags & QB_SEGMENT_BORROWED) {
-		segment->memory = NULL;
-		segment->flags &= ~QB_SEGMENT_BORROWED;
-	} else if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
-		if(segment->memory) {
-			efree(segment->memory);
-			segment->memory = NULL;
-		}
-	}
-	segment->current_allocation = 0;
-}
-
-void qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count TSRMLS_DC) {
-	if(segment->flags & QB_SEGMENT_MAPPED) {
-		php_stream *stream = segment->stream;
-		qb_unmap_segment(storage, segment TSRMLS_CC);
-		php_stream_truncate_set_size(stream, byte_count);
-		if(!qb_map_segment_to_file(storage, segment, stream, TRUE, byte_count TSRMLS_CC)) {
-			qb_abort("Cannot map '%s' into memory", stream->orig_path);
-		}
-	} else if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-		qb_abort("Cannot resize preallocated memory");
-	} else {
-		segment->memory = erealloc(segment->memory, byte_count);
-	}
-}
-
 void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags) {
-	qb_memory_segment *segment = &storage->segments[address->segment_selector];
-	uint32_t element_start_index = address->segment_offset;
-
 	if(SCALAR(address)) {
-		// make sure the address is valid
-		/* TODO:
-		if(address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {			
-			if(element_start_index + 1 > segment->current_allocation) {
-				if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-					qb_resize_segment(cxt, segment, element_start_index + 1);
-					segment->current_allocation = element_start_index + 1;
-				} else {
-					qb_abort_range_error(cxt, segment, element_start_index, 1, 0);
-				}
-			} 
-		}
-		*/
-
-		// assign scalar value
 		qb_copy_element_from_zval(storage, address, zvalue);
 	} else {
 		// determine the array's dimensions and check for out-of-bound condition
-		/* TODO
-		uint32_t element_count = qb_set_array_dimensions_from_zval(cxt, zvalue, address);
-		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+		uint32_t element_count = qb_set_array_dimensions_from_zval(storage, address, zvalue);
 
-		if(address->flags & QB_ADDRESS_SEGMENT) {
-			segment->byte_count = byte_count;
-			// if the segment doesn't have preallocated memory, see if it can borrow it from the zval
-			if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && (transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY))) {
-				php_stream *stream;
+		if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
+			qb_memory_segment *segment = &storage->segments[address->segment_selector];
+			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+			if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
-					// use memory from the string if it's long enough
-					if((uint32_t) Z_STRLEN_P(zvalue) >= byte_count) {
-						qb_free_segment(cxt, segment);
-						segment->memory = (int8_t *) Z_STRVAL_P(zvalue);
-						segment->current_allocation = byte_count;
-						if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
-							segment->flags |= QB_SEGMENT_BORROWED;
-						} else {
-							Z_TYPE_P(zvalue) = IS_NULL;
-						}
+					int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
+					uint32_t bytes_available = Z_STRLEN_P(zvalue);
+					if(qb_connect_segment_to_memory(storage, segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 						return;
 					}
-				}
-				if((stream = qb_get_file_stream(cxt, zvalue))) {
-					// use memory mapped file if possible
-					int32_t write_access = !READ_ONLY(address);
-					uint32_t allocation = byte_count;
-					if(allocation == 0) {
-						// can't have a mapping that's zero
-						if(write_access) {
-							allocation = 1024;
+				} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
+					php_stream *stream = qb_get_file_stream(zvalue);
+					if(stream) {
+						if(qb_connect_segment_to_file(storage, segment, stream, byte_count, READ_ONLY(address))) {
+							return;
 						}
-					}
-					qb_free_segment(cxt, segment);
-					if(qb_map_segment_to_file(cxt, segment, stream, write_access, allocation)) {
-						segment->current_allocation = allocation;
-						if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
-							segment->flags |= QB_SEGMENT_BORROWED;
-						} else if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
-							// the stream was taken from the zval
-							Z_TYPE_P(zvalue) = IS_NULL;
-						}
-						return;
 					}
 				}
 			}
+			
+			// make sure there's enough bytes in the segment
+			qb_allocate_segment_memory(storage, segment, byte_count);
 		}
-		
-		if(element_start_index + byte_count > segment->current_allocation) {
-			qb_resize_segment(cxt, segment, element_start_index + byte_count);
-			segment->current_allocation = element_start_index + byte_count;
-		}
-
-		// copy values over
-		qb_copy_elements_from_zval(cxt, zvalue, address);
-		*/
+		qb_copy_elements_from_zval(storage, address, zvalue);
 	}
 }
 
 void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address, uint32_t transfer_flags) {
-	/* TODO
-	// make sure the address is in bound in the caller segment
-	if(src_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
-		qb_memory_segment *caller_segment = &src_storage->segments[src_address->segment_selector];
-		uint32_t caller_element_start_index = src_address->segment_offset;
-		uint32_t caller_element_count = SCALAR(src_address) ? 1 : ARRAY_SIZE_IN(src_storage, src_address);
-		uint32_t caller_byte_count = BYTE_COUNT(caller_element_count, src_address->type);
-
-		if(caller_element_start_index + caller_byte_count > caller_segment->byte_count) {
-			if((caller_segment->flags & QB_SEGMENT_EXPANDABLE) && (transfer_flags & QB_TRANSFER_CAN_ENLARGE_SEGMENT)) {
-				qb_enlarge_segment(cxt, caller_segment, caller_element_start_index + caller_byte_count);
-			} else {
-				qb_abort_range_error(cxt, caller_segment, caller_element_start_index, caller_element_count, cxt->function_call_line_number);
-			}
-		}
-	}
-
-	// set up the destination segment, if necessary
-	if(address->flags & QB_ADDRESS_SEGMENT) {
-		// set the dimensions of the destination address (or error out)
-		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-		uint32_t element_count = qb_set_array_dimensions_from_src_address(cxt, src_storage, src_address, address); 
-		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
-
-		// see if we can just point to the memory in the caller storage
-		if(!(segment->flags & QB_SEGMENT_PREALLOCATED) && transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
-			if(STORAGE_TYPE_MATCH(address->type, src_address->type)) {
-				// use memory from the caller if it's larger enough
-				if(ARRAY_SIZE_IN(src_storage, src_address) >= ARRAY_SIZE(address)) {
-					if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-						if(EXPANDABLE_ARRAY(src_address)) {
-							qb_memory_segment *caller_segment = &src_storage->segments[src_address->segment_selector];
-							segment->memory = caller_segment->memory;
-							segment->stream = caller_segment->stream;
-							segment->current_allocation = caller_segment->current_allocation;
-							segment->byte_count = byte_count;
-							segment->flags |= (caller_segment->flags & QB_SEGMENT_MAPPED) | QB_SEGMENT_BORROWED;
-							return;
-						}
-					} else {
-						segment->memory = ARRAY_IN(src_storage, I08, src_address);
-						segment->current_allocation = byte_count;
-						segment->byte_count = byte_count;
-						segment->flags |= QB_SEGMENT_BORROWED;
-						return;
-					}
-				}
-			}
-		}
-
-		// allocate memory for the segment
-		if(segment->byte_count != byte_count) {
-			qb_resize_segment(cxt, segment, byte_count);
-		}
-
-		// update the segment length and allocation count
-		segment->byte_count = segment->current_allocation = byte_count; 
-	}
-	qb_copy_elements_from_src_address(cxt, src_storage, src_address, address);
-	*/
+	/* TODO */
 }
 
 void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
@@ -1086,45 +1066,5 @@ void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *z
 }
 
 void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *src_address) {
-	/* TODO
-	if(src_address->segment_selector >= QB_SELECTOR_DYNAMIC_ARRAY_START) {
-		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-		qb_memory_segment *caller_segment = &dst_storage->segments[src_address->segment_selector];
-
-		if(segment->flags & QB_SEGMENT_BORROWED) {
-			// as memory was borrowed from the caller, content changes are there already
-			if(segment->flags & QB_SEGMENT_EXPANDABLE) {
-				// see if the size needs to be updated
-				if(caller_segment->byte_count != segment->byte_count) {
-					caller_segment->byte_count = segment->byte_count;
-					if(src_address->dimension_count > 1) {
-						// TODO: update the dimension as well
-					}
-				}
-				if(caller_segment->memory != segment->memory) {
-					// update the memory pointer as well in case it has changed
-					caller_segment->memory = segment->memory;
-				}
-			}
-			segment->flags &= ~QB_SEGMENT_BORROWED;
-			segment->memory = NULL;
-			segment->stream = NULL;
-			return;
-		} else {
-			uint32_t element_start_index = src_address->segment_offset;
-			uint32_t element_count = SCALAR(address) ? 1 : ARRAY_SIZE(address);
-			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
-
-			if(element_start_index + byte_count > caller_segment->byte_count) {
-				if(caller_segment->flags & QB_SEGMENT_EXPANDABLE) {
-					// expand the caller segment to accommodate
-					qb_enlarge_segment(cxt, caller_segment, element_start_index + element_count);
-				} else {
-					qb_abort_range_error(cxt, caller_segment, element_start_index, element_count, cxt->function_call_line_number);
-				}
-			}
-		}
-	}
-	qb_copy_elements_to_src_address(stprage, address, dst_storage, src_address);
-	*/
+	/* TODO */
 }

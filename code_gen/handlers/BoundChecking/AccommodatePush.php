@@ -39,7 +39,7 @@ class AccommodatePush extends Handler {
 		$lines[] = "uint32_t new_dim = op1 + 1;";
 		$lines[] = "res = op1;";
 		$lines[] = "op1 = new_dim;";
-		$lines[] = "qb_resize_array(cxt, local_storage, op2, new_dim * op3);";
+		$lines[] = "qb_adjust_memory_segment(cxt, local_storage, op2, new_dim * op3);";
 		return $lines;
 	}
 }

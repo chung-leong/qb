@@ -374,7 +374,7 @@ static void qb_set_result_receive_argument(qb_compiler_context *cxt, qb_op_facto
 	qb_operand *argument = &operands[0], *default_value = &operands[1];
 	if(default_value->type == QB_OPERAND_ZVAL) {
 		qb_variable *qvar = cxt->variables[argument->number - 1];
-		qvar->default_value_address = qb_obtain_constant_zval(cxt, default_value->constant, qvar->address->type);
+		qvar->default_value = default_value->constant;
 	}
 }
 

@@ -53,7 +53,7 @@ class AccommodateSizeUpdateDimension extends Handler {
 		$lines[] =		"}";
 		$lines[] =		"op2 = new_size;";
 		$lines[] =		"op3 = new_dim;";
-		$lines[] = 		"qb_resize_array(cxt, local_storage, op5, new_size * op6);";
+		$lines[] = 		"qb_adjust_memory_segment(cxt, local_storage, op5, new_size * op6);";
 		$lines[] = "}";
 		return $lines;
 	}

@@ -37,7 +37,7 @@ class ClearArrayResize extends Handler {
 		$lines[] =		"res_ptr[i] = 0;";
 		$lines[] = "}";
 		$lines[] = "res_count = 0;";
-		$lines[] = "qb_resize_array(cxt, local_storage, op1, 0);";
+		$lines[] = "qb_adjust_memory_segment(cxt, local_storage, op1, 0);";
 		return $lines;
 	}
 }

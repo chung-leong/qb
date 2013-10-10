@@ -49,7 +49,7 @@ class AppendMultidimensionalVariable extends Handler {
 		$lines[] = "if(total == 0) {";
 		$lines[] = 		"total = 2;";
 		$lines[] = "}";
-		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op3, res_count + total);";
+		$lines[] = "res_ptr += qb_adjust_memory_segment(cxt, local_storage, op3, res_count + total);";
 		$lines[] = "memset(counts, 0, sizeof(uint32_t) * op2_count);";
 		$lines[] = "res_ptr[pos++] = '[';";
 		$lines[] = "op1_ptr = op1_start;";

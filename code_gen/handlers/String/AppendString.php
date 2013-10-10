@@ -21,7 +21,7 @@ class AppendString extends Handler {
 	}
 	
 	public function getActionOnUnitData() {
-		$lines[] = "res_ptr += qb_resize_array(cxt, local_storage, op2, res_count + op1_count);";
+		$lines[] = "res_ptr += qb_adjust_memory_segment(cxt, local_storage, op2, res_count + op1_count);";
 		$lines[] = "memcpy(res_ptr + res_count, op1_ptr, op1_count);";
 		$lines[] = "res_count += op1_count;";
 		return $lines;

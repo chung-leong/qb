@@ -48,7 +48,7 @@ class AccommodateIndexMultiply extends Handler {
 		$lines[] =		"uint32_t new_size = new_dim * op3;";
 		$lines[] =		"op4 = new_size;";
 		$lines[] =		"op2 = new_dim;";
-		$lines[] = 		"qb_resize_array(cxt, local_storage, op5, new_size * op6);";
+		$lines[] = 		"qb_adjust_memory_segment(cxt, local_storage, op5, new_size * op6);";
 		$lines[] = "}";
 		return $lines;
 	}

@@ -63,7 +63,7 @@ static void qb_copy_elements_from_file(qb_storage *storage, qb_address *address,
 	php_stream_seek(stream, position, SEEK_SET);
 }
 
-static int32_t qb_map_segment_to_file(qb_storage *storage, qb_memory_segment *segment, php_stream *stream, int32_t write_access, uint32_t byte_count TSRMLS_DC) {
+static void * qb_map_file_to_memory(php_stream *stream, uint32_t byte_count, int32_t write_access TSRMLS_DC) {
 	if(QB_G(allow_memory_map)) {
 		php_stream_mmap_range range;
 		size_t file_size;
@@ -84,19 +84,12 @@ static int32_t qb_map_segment_to_file(qb_storage *storage, qb_memory_segment *se
 		range.mapped = NULL;
 
 		if(php_stream_set_option(stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_MAP_RANGE, &range) == PHP_STREAM_OPTION_RETURN_OK) {
-			// range.mapped is the end of the 
-			segment->memory = (int8_t *) range.mapped;
-			segment->stream = stream;
-			segment->flags |= QB_SEGMENT_MAPPED;
-			return TRUE;
+			return (int8_t *) range.mapped;
 		}
 	}
-	return FALSE;
+	return NULL;
 }
 
-static void qb_unmap_segment(qb_storage *storage, qb_memory_segment *segment TSRMLS_DC) {
-	php_stream_set_option(segment->stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_UNMAP, NULL);
-	segment->memory = NULL;
-	segment->stream = NULL;
-	segment->flags &= ~QB_SEGMENT_MAPPED;
+static void qb_unmap_file_from_memory(php_stream *stream TSRMLS_DC) {
+	php_stream_set_option(stream, PHP_STREAM_OPTION_MMAP_API, PHP_STREAM_MMAP_UNMAP, NULL);
 }

@@ -372,9 +372,6 @@ static uint32_t qb_get_variable_length(qb_encoder_context *cxt, qb_variable *qva
 	}
 	if(qvar->address) {
 		length += qb_get_address_length(cxt, qvar->address);
-		if(qvar->default_value_address) {
-			length += qb_get_address_length(cxt, qvar->default_value_address);
-		}
 	}
 	return length;
 }
@@ -387,6 +384,7 @@ static uint8_t * qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, in
 	qb_variable *src = qvar;
 	qb_variable *dst = (qb_variable *) p; p += sizeof(qb_variable);
 	dst->flags = src->flags;
+	dst->default_value = src->default_value;
 	dst->zend_class = src->zend_class;
 	if(src->name) {
 		dst->name = (char *) p; p += src->name_length + 1;
@@ -405,15 +403,8 @@ static uint8_t * qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, in
 	if(src->address) {
 		dst->address = (qb_address *) p;
 		p = qb_copy_address(cxt, src->address, p);
-		if(src->default_value_address) {
-			dst->default_value_address = (qb_address *) p;
-			p = qb_copy_address(cxt, src->default_value_address, p);
-		} else {
-			dst->default_value_address = NULL;
-		}
 	} else {
 		dst->address = NULL;
-		dst->default_value_address = NULL;
 	}
 
 #if ZEND_DEBUG
@@ -498,7 +489,6 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	}
 
 	qfunc->argument_count = cxt->compiler_context->argument_count;
-	qfunc->required_argument_count = cxt->compiler_context->required_argument_count;
 	qfunc->name = (cxt->compiler_context->zend_op_array) ? cxt->compiler_context->zend_op_array->function_name : NULL;
 	qfunc->filename = (cxt->compiler_context->zend_op_array) ? cxt->compiler_context->zend_op_array->filename : NULL;
 	qfunc->native_proc = NULL;

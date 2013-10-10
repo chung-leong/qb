@@ -49,7 +49,7 @@ enum {
 struct qb_variable {
 	uint32_t flags;
 	qb_address *address;
-	qb_address *default_value_address;
+	zval *default_value;
 	const char *name;
 	uint32_t name_length;
 	ulong hash_value;
@@ -88,7 +88,6 @@ struct qb_function {
 	qb_variable **variables;
 	uint32_t variable_count;
 	uint32_t argument_count;
-	uint32_t required_argument_count;
 	qb_external_symbol **external_symbols;
 	uint32_t external_symbol_count;
 	qb_storage *local_storage;

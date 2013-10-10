@@ -138,9 +138,30 @@ qb_build_context * qb_get_current_build(TSRMLS_D) {
 
 void qb_discard_current_build(TSRMLS_D) {
 	qb_build_context *cxt = QB_G(build_context);
-	qb_free_build_context(cxt);
-	efree(cxt);
-	QB_G(build_context) = NULL;
+	if(cxt) {
+		qb_free_build_context(cxt);
+		efree(cxt);
+		QB_G(build_context) = NULL;
+	}
+}
+
+qb_interpreter_context * qb_get_interpreter_context(TSRMLS_D) {
+	qb_interpreter_context *cxt = QB_G(interpreter_context);
+	if(!cxt) {
+		cxt = emalloc(sizeof(qb_interpreter_context));
+		qb_initialize_interpreter_context(cxt TSRMLS_CC);
+		QB_G(interpreter_context) = cxt;
+	}
+	return cxt;
+}
+
+void qb_discard_interpreter_context(TSRMLS_D) {
+	qb_interpreter_context *cxt = QB_G(interpreter_context);
+	if(cxt) {
+		qb_free_interpreter_context(cxt);
+		efree(cxt);
+		QB_G(interpreter_context) = NULL;
+	}
 }
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array) {
@@ -160,14 +181,14 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
 	if(!qfunc) {
-		qb_build_context *cxt = qb_get_current_build(TSRMLS_C);
-		qb_build(cxt);
+		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+		qb_build(build_cxt);
 		qfunc = op_array->reserved[qb_reserved_offset];
 		qb_discard_current_build(TSRMLS_C);
 	}
 	if(qfunc) {
-		zval *this = EG(This);
-		qb_execute(qfunc, this, NULL, 0, NULL TSRMLS_CC);
+		qb_interpreter_context *interpreter_cxt = qb_get_interpreter_context(TSRMLS_C);
+		qb_execute(interpreter_cxt, qfunc);
 	}
 	return ZEND_USER_OPCODE_RETURN;
 }
@@ -354,13 +375,11 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(current_line_number) = 0;
 	QB_G(build_context) = NULL;
 	QB_G(interpreter_context) = NULL;
+	QB_G(thread_pool) = NULL;
 
-	QB_G(compiled_functions) = NULL;
-	QB_G(compiled_function_count) = 0;
 	QB_G(native_code_bundles) = NULL;
 	QB_G(native_code_bundle_count) = 0;
 
-	memset(&QB_G(thread_pool), 0, sizeof(qb_thread_pool));
 	return SUCCESS;
 }
 /* }}} */
@@ -369,16 +388,13 @@ PHP_RINIT_FUNCTION(qb)
  */
 PHP_RSHUTDOWN_FUNCTION(qb)
 {
-	uint32_t i;
-	if(QB_G(compiled_functions)) {
-		for(i = 0; i < QB_G(compiled_function_count); i++) {
-			qb_function *qfunc = QB_G(compiled_functions)[i];
-			qb_free_function(qfunc);
-		}
-		qb_destroy_array((void **) &QB_G(compiled_functions));
-	}
+
+	qb_discard_current_build(TSRMLS_C);
+	qb_discard_interpreter_context(TSRMLS_C);
+
 #ifdef NATIVE_COMPILE_ENABLED
 	if(QB_G(native_code_bundles)) {
+		uint32_t i;
 		for(i = 0; i < QB_G(native_code_bundle_count); i++) {
 			qb_native_code_bundle *bundle = &QB_G(native_code_bundles)[i];
 			qb_free_native_code(bundle);

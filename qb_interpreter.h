@@ -47,12 +47,6 @@ enum {
 struct qb_interpreter_context {
 	uint32_t flags;
 
-	qb_call_stack_item *call_stack;
-	uint32_t call_stack_height;
-
-	qb_variable_import *variable_imports;
-	uint32_t variable_import_count;
-
 	int32_t exception_encountered;
 	uint32_t function_call_line_number;
 	uint32_t *line_number_pointer;
@@ -60,13 +54,8 @@ struct qb_interpreter_context {
 	int floating_point_precision;
 	void ***tsrm_ls;
 
-	zval *this_object;
-
-	qb_thread_pool *thread_pool;
 	uint32_t thread_count_for_next_op;
 	qb_pointer_adjustment adjustments_for_next_op[MAX_THREAD_COUNT][8];
-
-	zval **debug_fcall_arguments;
 };
 
 struct qb_native_symbol {
@@ -80,9 +69,6 @@ struct qb_native_proc_record {
 	void *proc;
 };
 
-void qb_execute(qb_function *qfunc, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
-void qb_execute_internal(qb_function *qfunc TSRMLS_DC);
-
 #if ZEND_DEBUG
 extern qb_native_proc_record *native_proc_table;
 extern uint32_t native_proc_table_size;
@@ -94,13 +80,17 @@ extern void *op_handlers[];
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers);
 
-void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, uint32_t argument_count);
+void qb_execute(qb_interpreter_context *cxt, qb_function *qfunc);
+void qb_execute_internal(qb_function *qfunc TSRMLS_DC);
 
 void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 3) NO_RETURN
 void qb_abort_at(const char *format, uint32_t line_number, ...);
 
-intptr_t qb_resize_array(qb_interpreter_context *__restrict cxt, qb_storage *__restrict storage, uint32_t segment_selector, uint32_t new_size);
+intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *storage, uint32_t segment_selector, uint32_t new_size);
+
+void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
+void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
 #endif

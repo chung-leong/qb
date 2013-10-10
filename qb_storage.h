@@ -240,4 +240,8 @@ void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *ad
 void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue);
 void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *src_address);
 
+void qb_allocate_segment_memory(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count);
+void qb_release_segment(qb_storage *storage, qb_memory_segment *segment);
+intptr_t qb_resize_segment(qb_storage *__restrict storage, qb_memory_segment *segment, uint32_t new_size);
+
 #endif

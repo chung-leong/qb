@@ -164,13 +164,10 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	zval static_zvals[8];
 	uint32_t static_zval_index;
 
-	qb_function **compiled_functions;
-	uint32_t compiled_function_count;
-
 	qb_native_code_bundle *native_code_bundles;
 	uint32_t native_code_bundle_count;
 
-	qb_thread_pool thread_pool;
+	qb_thread_pool *thread_pool;
 ZEND_END_MODULE_GLOBALS(qb)
 
 #ifdef ZTS
