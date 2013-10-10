@@ -1,11 +1,15 @@
 <?php
 
-class ClearElementResize extends Handler {
+class ClearElementResizeUpdateDimension extends Handler {
 
-	use ArrayAddressMode, TernaryOperator;
+	use ArrayAddressMode, QuaternaryOperator;
 	
 	public function changesOperandSize($i) {
-		return ($i == 4);
+		return ($i == 5);
+	}
+	
+	public function changesOperand($i) {
+		return ($i == 3 || $i == 5);
 	}
 	
 	public function needsInterpreterContext() {
@@ -20,8 +24,9 @@ class ClearElementResize extends Handler {
 		switch($i) {
 			case 1: return "U32";				// element index
 			case 2: return "U32";				// element count
-			case 3: return "U32";				// segment offset
-			case 4: return $this->operandType;	// array containing element
+			case 3: return "U32";				// container dimension
+			case 4: return "U32";				// segment selector
+			case 5: return $this->operandType;	// array containing element
 		}
 	}
 	
@@ -29,8 +34,9 @@ class ClearElementResize extends Handler {
 		switch($i) {
 			case 1: return "SCA";
 			case 2: return "SCA";
-			case 3: return "CON";
-			case 4: return "ARR";
+			case 3: return "SCA";
+			case 4: return "CON";
+			case 5: return "ARR";
 		}
 	}
 	
@@ -46,7 +52,8 @@ class ClearElementResize extends Handler {
 		$lines[] =			"res_ptr[i] = 0;";
 		$lines[] = 		"}";
 		$lines[] = 		"res_count = end;";
-		$lines[] = 		"qb_adjust_memory_segment(cxt, local_storage, op3, end * sizeof($cType));";
+		$lines[] = 		"op3--;";
+		$lines[] = 		"qb_adjust_memory_segment(cxt, local_storage, op4, end * sizeof($cType));";
 		$lines[] = "}";
 		return $lines;
 	}

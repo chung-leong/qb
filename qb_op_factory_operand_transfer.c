@@ -366,9 +366,17 @@ static void qb_transfer_operands_unset_array_element(qb_compiler_context *cxt, q
 	dest[1].address = (container->address->dimension_count > 1) ? container->address->array_size_addresses[1] : cxt->one_address;
 	dest[1].type = QB_OPERAND_ADDRESS;
 	if(RESIZABLE(container->address)) {
-		dest[2].address = container->address;
-		dest[2].type = QB_OPERAND_SEGMENT_SELECTOR;
-		dest[3] = *container;
+		if(MULTIDIMENSIONAL(container->address)) {
+			dest[2].address = container->address->dimension_addresses[0];
+			dest[2].type = QB_OPERAND_ADDRESS;
+			dest[3].address = container->address;
+			dest[3].type = QB_OPERAND_SEGMENT_SELECTOR;
+			dest[4] = *container;
+		} else {
+			dest[2].address = container->address;
+			dest[2].type = QB_OPERAND_SEGMENT_SELECTOR;
+			dest[3] = *container;
+		}
 	} else {
 		// need a predicate, since the unset() might performed on a sub-array (whose existence is not guaranteed)
 		qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);

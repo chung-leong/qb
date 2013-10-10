@@ -125,6 +125,7 @@ struct qb_unset_element_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode no_resizing_opcodes[10];
 	qb_opcode resizing_opcodes[10];
+	qb_opcode resizing_dim_opcodes[10];
 };
 
 struct qb_copy_op_factory {

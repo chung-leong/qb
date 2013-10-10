@@ -873,6 +873,7 @@ class CodeGenerator {
 			$this->handlers[] = new ClearArrayResize("CLR_ARR_RSZ", $elementTypeNoSign);
 			$this->handlers[] = new ClearArrayResizeUpdateDimension("CLR_ARR_RSZ_DIM", $elementTypeNoSign);
 			$this->handlers[] = new ClearElementResize("CLR_ELE_RSZ", $elementTypeNoSign);
+			$this->handlers[] = new ClearElementResizeUpdateDimension("CLR_ELE_RSZ_DIM", $elementTypeNoSign);
 
 			$this->handlers[] = new PredicateClearArray("CCLR_ARR", $elementTypeNoSign);
 			$this->handlers[] = new PredicateClearElement("CCLR_ELE", $elementTypeNoSign);

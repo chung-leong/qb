@@ -300,13 +300,15 @@ static uint8_t * qb_copy_address(qb_encoder_context *cxt, qb_address *address, i
 	dst->segment_offset = src->segment_offset;
 	dst->dimension_count = src->dimension_count;
 	dst->array_index_address = NULL;
+	dst->source_address = NULL;
+	dst->expression = NULL;
 
 	if(SCALAR(src)) {
 		dst->mode = QB_ADDRESS_MODE_SCA;
 		dst->array_size_address = NULL;
 		dst->array_size_addresses = NULL;
 		dst->dimension_addresses = NULL;
-		dst->index_alias_schemes = NULL;
+		dst->index_alias_schemes = NULL;		
 	} else {
 		uint32_t i, j;
 		dst->mode = QB_ADDRESS_MODE_ARR;
@@ -349,6 +351,9 @@ static uint8_t * qb_copy_address(qb_encoder_context *cxt, qb_address *address, i
 						dst_scheme->class_name = (char *) p; p+= src_scheme->class_name_length + 1;
 						memcpy((char *) dst_scheme->class_name, src_scheme->class_name, src_scheme->class_name_length + 1);
 						dst_scheme->class_name_length = src_scheme->class_name_length;
+					} else {
+						dst_scheme->class_name = NULL;
+						dst_scheme->class_name_length = 0;
 					}
 					dst->index_alias_schemes[i] = dst_scheme;
 				}

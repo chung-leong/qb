@@ -26,7 +26,7 @@ class PredicateClearElement extends Handler {
 		$lines = array();
 		$lines[] = "if(op3) {";
 		$lines[] = 		"uint32_t i, shift = op2, start = op1 * op2, end = res_count - shift;";
-		$lines[] =		"if(start < end) {";
+		$lines[] =		"if(start <= end) {";
 		$lines[] = 			"for(i = start; i < end; i++) {";
 		$lines[] =				"res_ptr[i] = res_ptr[i + shift];";
 		$lines[] = 			"}";

@@ -119,7 +119,11 @@ static qb_opcode qb_select_opcode_unset_array_element(qb_compiler_context *cxt, 
 	qb_unset_element_op_factory *uf = (qb_unset_element_op_factory *) f;
 	qb_operand *container = &operands[0];
 	if(RESIZABLE(container->address)) {
-		return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, container);
+		if(MULTIDIMENSIONAL(container->address)) {
+			return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, container);
+		} else {
+			return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, container);
+		}
 	} else {
 		return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, container);
 	}

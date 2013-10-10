@@ -228,6 +228,11 @@ void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *contr
 
 intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *storage, uint32_t segment_selector, uint32_t new_size) {
 	qb_memory_segment *segment = &storage->segments[segment_selector];
+#ifdef ZEND_DEBUG
+	if(segment->flags & QB_SEGMENT_PREALLOCATED) {
+		qb_abort("Invalid segment selector");
+	}
+#endif
 	// TODO: this needs to happen in the main thread
 	return qb_resize_segment(storage, segment, new_size);
 }
