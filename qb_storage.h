@@ -52,35 +52,23 @@ enum {
 	QB_SELECTOR_CONSTANT_SCALAR		= 0,
 	// static scalars (no separation on fork, no clearing on call)
 	QB_SELECTOR_STATIC_SCALAR		= 1,
-	// global/class scalars (no separation on fork, no clearing on call, requires relocation)
-	QB_SELECTOR_GLOBAL_SCALAR		= 2,
-	// object scalars (no separation on fork, no clearing on call, requires relocation)
-	QB_SELECTOR_OBJECT_SCALAR		= 3,
 	// shared scalars (no separation on fork, clearing on call) 
-	QB_SELECTOR_SHARED_SCALAR		= 4,
+	QB_SELECTOR_SHARED_SCALAR		= 2,
 	// local scalars (separation on fork, clearing on call)
-	QB_SELECTOR_LOCAL_SCALAR		= 5,
+	QB_SELECTOR_LOCAL_SCALAR		= 3,
 	// temporary scalars (seperation on fork, no clearing on call)
-	QB_SELECTOR_TEMPORARY_SCALAR	= 6,
-
-	QB_SELECTOR_SCALAR_LAST				= QB_SELECTOR_TEMPORARY_SCALAR,
+	QB_SELECTOR_TEMPORARY_SCALAR	= 4,
 
 	// constant arrays (no separation on fork, no clearing on call)
-	QB_SELECTOR_CONSTANT_ARRAY		= 13,
+	QB_SELECTOR_CONSTANT_ARRAY		= 9,
 	// static arrays (no separation on fork, no clearing on call)
-	QB_SELECTOR_STATIC_ARRAY		= 12,
-	// global/class arrays (no separation on fork, no clearing on call, requires relocation)
-	QB_SELECTOR_GLOBAL_ARRAY		= 11,
-	// object arrays (no separation on fork, no clearing on call, requires relocation)
-	QB_SELECTOR_OBJECT_ARRAY		= 10,
+	QB_SELECTOR_STATIC_ARRAY		= 8,
 	// shared fixed-length arrays (no separation on fork, clearing on call) 
-	QB_SELECTOR_SHARED_ARRAY		= 9,
+	QB_SELECTOR_SHARED_ARRAY		= 7,
 	// local fixed-length arrays (separation on fork, clearing on call)
-	QB_SELECTOR_LOCAL_ARRAY			= 8,
+	QB_SELECTOR_LOCAL_ARRAY			= 6,
 	// temporary fixed-length arrays (seperation on fork, no clearing on call)
-	QB_SELECTOR_TEMPORARY_ARRAY		= 7,
-
-	QB_SELECTOR_FIXED_LENGTH_ARRAY_LAST	= QB_SELECTOR_CONSTANT_ARRAY,
+	QB_SELECTOR_TEMPORARY_ARRAY		= 5,
 
 	// note how the order is reverse for the array segments
 	// this is done so that the segments requiring separation are back-to-back,
@@ -93,8 +81,20 @@ enum {
 	//
 	// parameters are found in the shared segments
 
-	// variable length arrays are stored in segment 14 and above
-	QB_SELECTOR_ARRAY_START			= 14,
+	// global variables
+	QB_SELECTOR_GLOBAL_SCALAR		= 10,
+	QB_SELECTOR_GLOBAL_ARRAY		= 11,
+
+	// class (static) variables
+	QB_SELECTOR_CLASS_SCALAR		= 12,
+	QB_SELECTOR_CLASS_ARRAY			= 13,
+
+	// object instance variables 
+	QB_SELECTOR_OBJECT_SCALAR		= 14,
+	QB_SELECTOR_OBJECT_ARRAY		= 15,
+
+	// variable length arrays are stored in segment 16 and above
+	QB_SELECTOR_ARRAY_START			= 16,
 
 	QB_SELECTOR_INVALID 			= 0xFFFFFFFF,
 };

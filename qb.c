@@ -136,7 +136,7 @@ qb_build_context * qb_get_current_build(TSRMLS_D) {
 	return cxt;
 }
 
-void qb_discard_current_build(TSRMLS_D) {
+static void qb_discard_current_build(TSRMLS_D) {
 	qb_build_context *cxt = QB_G(build_context);
 	if(cxt) {
 		qb_free_build_context(cxt);
@@ -155,7 +155,7 @@ qb_interpreter_context * qb_get_interpreter_context(TSRMLS_D) {
 	return cxt;
 }
 
-void qb_discard_interpreter_context(TSRMLS_D) {
+static void qb_discard_interpreter_context(TSRMLS_D) {
 	qb_interpreter_context *cxt = QB_G(interpreter_context);
 	if(cxt) {
 		qb_free_interpreter_context(cxt);

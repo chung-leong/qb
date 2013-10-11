@@ -21,23 +21,33 @@
 #ifndef QB_INTERPRETER_H_
 #define QB_INTERPRETER_H_
 
-typedef struct qb_variable_import		qb_variable_import;
-typedef struct qb_call_stack_item		qb_call_stack_item;
+typedef struct qb_import_scope			qb_import_scope;
 typedef struct qb_interpreter_context	qb_interpreter_context;
 typedef struct qb_native_symbol			qb_native_symbol;
 typedef struct qb_native_proc_record	qb_native_proc_record;
+typedef struct qb_import_scope			qb_import_scope;
 
-struct qb_variable_import {
-	qb_variable *variable;
-	qb_storage *storage;
-	uint32_t previous_copy_index;
-	zval **value_pointer;
+typedef enum qb_import_scope_type		qb_import_scope_type;
+
+enum qb_import_scope_type {
+	QB_IMPORT_SCOPE_GLOBAL				= 1,
+	QB_IMPORT_SCOPE_CLASS				= 2,
+	QB_IMPORT_SCOPE_OBJECT				= 3,
+	QB_IMPORT_SCOPE_ABSTRACT_OBJECT		= 4,
 };
 
-struct qb_call_stack_item {
+struct qb_import_scope {
+	qb_import_scope_type type;
+	qb_import_scope *parent;
+	qb_variable **variables;
+	uint32_t variable_count;
 	qb_storage *storage;
-	qb_function *function;
-	uint32_t function_call_line_number;
+
+	union {
+		zend_class_entry *zend_class;
+		zval *zend_object;
+		void *associated_object;
+	};
 };
 
 enum {
@@ -56,6 +66,9 @@ struct qb_interpreter_context {
 
 	uint32_t thread_count_for_next_op;
 	qb_pointer_adjustment adjustments_for_next_op[MAX_THREAD_COUNT][8];
+
+	qb_import_scope **scopes;
+	uint32_t scope_count;
 };
 
 struct qb_native_symbol {
@@ -92,5 +105,7 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *stora
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);
+
+qb_variable * qb_get_imported_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object);
 
 #endif

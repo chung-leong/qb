@@ -1833,7 +1833,7 @@ static qb_variable * qb_pbj_find_input(qb_pbj_translater_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context->argument_count; i++) {
 		qb_variable *qvar = cxt->compiler_context->variables[i];
-		if(!(qvar->flags & QB_VARIABLE_PASSED_BY_REF)) {
+		if(!(qvar->flags & QB_VARIABLE_BY_REF)) {
 			if(qb_pbj_is_image(cxt, qvar->address, 4) || qb_pbj_is_image(cxt, qvar->address, 3)) {
 				if(!input_var) {
 					input_var = qvar;
@@ -1850,7 +1850,7 @@ static qb_variable * qb_pbj_find_output(qb_pbj_translater_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context->argument_count; i++) {
 		qb_variable *qvar = cxt->compiler_context->variables[i];
-		if(qvar->flags & QB_VARIABLE_PASSED_BY_REF) {
+		if(qvar->flags & QB_VARIABLE_BY_REF) {
 			if(qb_pbj_is_image(cxt, qvar->address, 4) || qb_pbj_is_image(cxt, qvar->address, 3)) {
 				return qvar;
 			}

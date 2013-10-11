@@ -470,6 +470,7 @@ static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *addr
 		cxt->storage->segments = erealloc(cxt->storage->segments, sizeof(qb_memory_segment) * cxt->storage->segment_count);
 		segment = &cxt->storage->segments[selector];
 		memset(segment, 0, sizeof(qb_memory_segment));
+		segment->flags = new_segment_flags;
 	} else {
 		segment = &cxt->storage->segments[selector];
 	}
@@ -495,15 +496,59 @@ static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *addr
 	address->segment_offset = start_offset;
 }
 
+void qb_allocate_external_storage_space(qb_compiler_context *cxt, qb_variable *var) {
+	USE_TSRM
+	qb_interpreter_context *interpreter_cxt = qb_get_interpreter_context(TSRMLS_C);
+	qb_variable *ivar = qb_get_imported_variable(interpreter_cxt, cxt->storage, var, NULL);
+	uint32_t selector, start_offset;
+
+	if(ivar->address->segment_selector >= QB_SELECTOR_ARRAY_START) {
+		selector = cxt->storage->segment_count;
+		start_offset = ivar->address->segment_offset;
+	} else {
+		selector = ivar->address->segment_selector;
+		start_offset = ivar->address->segment_offset;
+	}
+
+	if(selector >= cxt->storage->segment_count) {
+		qb_memory_segment *segment;
+		cxt->storage->segment_count = selector + 1;
+		cxt->storage->segments = erealloc(cxt->storage->segments, sizeof(qb_memory_segment) * cxt->storage->segment_count);
+		segment = &cxt->storage->segments[selector];
+		memset(segment, 0, sizeof(qb_memory_segment));
+	}
+
+	var->address->segment_selector = selector;
+	var->address->segment_offset = start_offset;
+}
+
 // assign storage space to variables
 void qb_assign_storage_space(qb_compiler_context *cxt) {
 	uint32_t i;
+
 	// set current_allocation to the byte_count so we know how much real 
 	// data there's in each segment
 	for(i = 0; i < cxt->storage->segment_count; i++) {
 		qb_memory_segment *segment = &cxt->storage->segments[i];
 		segment->current_allocation = segment->byte_count;
 	}
+
+	// deal with external variables first
+	for(i = 0; i < cxt->variable_count; i++) {
+		qb_variable *qvar = cxt->variables[i];
+		if(qvar->flags & QB_VARIABLE_GLOBAL) {
+		} else if((qvar->flags & QB_VARIABLE_CLASS) || (qvar->flags & QB_VARIABLE_CLASS_INSTANCE) || (qvar->flags & QB_VARIABLE_CLASS_CONSTANT)) {
+			if(!qvar->zend_class) {
+				// static:: qualifier--give it a scope temporarily
+				qvar->zend_class = cxt->zend_op_array->scope;
+				qb_allocate_external_storage_space(cxt, qvar);
+				qvar->zend_class = NULL;
+			} else {
+				qb_allocate_external_storage_space(cxt, qvar);
+			}
+		}
+	}
+
 	for(i = 0; i < cxt->writable_scalar_count; i++) {
 		qb_address *address = cxt->writable_scalars[i];
 		if(address->segment_selector == QB_SELECTOR_INVALID) {
@@ -1779,7 +1824,7 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 				// no adjustment of array size when the source of the variable is external
 				//address->flags |= QB_ADDRESS_INITIALIZED;
 			}
-			if(qvar->flags & (QB_VARIABLE_PASSED_BY_REF | QB_VARIABLE_RETURN_VALUE | QB_VARIABLE_STATIC | QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE)) {
+			if(qvar->flags & (QB_VARIABLE_BY_REF | QB_VARIABLE_RETURN_VALUE | QB_VARIABLE_STATIC | QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE)) {
 				// indicate that the value of the variable can be read outside the function 
 				// (for optimization purpose during generation of C source code)
 				qb_mark_as_non_local(cxt, address);
@@ -1818,7 +1863,7 @@ void qb_add_variables(qb_compiler_context *cxt) {
 			zend_arg_info *zarg = (i < cxt->argument_count) ? &zargs[i] : NULL;
 			qvar->flags = QB_VARIABLE_ARGUMENT;
 			if(zarg->pass_by_reference) {
-				qvar->flags |= QB_VARIABLE_PASSED_BY_REF;
+				qvar->flags |= QB_VARIABLE_BY_REF;
 			}
 			qb_apply_type_declaration(cxt, qvar);
 		} else {

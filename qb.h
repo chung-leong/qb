@@ -176,15 +176,14 @@ ZEND_END_MODULE_GLOBALS(qb)
 # define QB_G(v) (qb_globals.v)
 #endif
 
-int qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC);
 int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
-
-int qb_initialize_compiler(TSRMLS_D);
-int qb_initialize_interpreter(TSRMLS_D);
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array);
 qb_function * qb_get_compiled_function(zend_function *zfunc);
 int qb_is_compiled_function(zend_function *zfunc);
+
+qb_build_context * qb_get_current_build(TSRMLS_D);
+qb_interpreter_context * qb_get_interpreter_context(TSRMLS_D);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);

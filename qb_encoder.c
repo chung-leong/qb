@@ -255,7 +255,7 @@ int8_t * qb_copy_instruction_opcodes(qb_encoder_context *cxt, int8_t *memory) {
 	return (int8_t *) cp;
 }
 
-static uint32_t qb_get_address_length(qb_encoder_context *cxt, qb_address *address) {
+static uint32_t qb_get_address_length(qb_address *address) {
 	uint32_t i, j;
 	uint32_t length = sizeof(qb_address);	// the address itself
 	if(!SCALAR(address)) {
@@ -287,9 +287,9 @@ static uint32_t qb_get_address_length(qb_encoder_context *cxt, qb_address *addre
 	return length;
 }
 
-static uint8_t * qb_copy_address(qb_encoder_context *cxt, qb_address *address, int8_t *memory) {
+static uint8_t * qb_copy_address(qb_address *address, int8_t *memory) {
 #if ZEND_DEBUG
-	uint32_t length = qb_get_address_length(cxt, address);
+	uint32_t length = qb_get_address_length(address);
 #endif
 	int8_t *p = memory;
 	qb_address *src = address;
@@ -370,20 +370,20 @@ static uint8_t * qb_copy_address(qb_encoder_context *cxt, qb_address *address, i
 	return p;
 }
 
-static uint32_t qb_get_variable_length(qb_encoder_context *cxt, qb_variable *qvar) {
+uint32_t qb_get_variable_length(qb_variable *qvar) {
 	uint32_t length = sizeof(qb_variable);
 	if(qvar->name) {
 		length += qvar->name_length + 1;
 	}
 	if(qvar->address) {
-		length += qb_get_address_length(cxt, qvar->address);
+		length += qb_get_address_length(qvar->address);
 	}
 	return length;
 }
 
-static uint8_t * qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, int8_t *memory) {
+uint8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory) {
 #if ZEND_DEBUG
-	uint32_t length = qb_get_variable_length(cxt, qvar);
+	uint32_t length = qb_get_variable_length(qvar);
 #endif
 	int8_t *p = memory;
 	qb_variable *src = qvar;
@@ -407,7 +407,7 @@ static uint8_t * qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, in
 	}
 	if(src->address) {
 		dst->address = (qb_address *) p;
-		p = qb_copy_address(cxt, src->address, p);
+		p = qb_copy_address(src->address, p);
 	} else {
 		dst->address = NULL;
 	}
@@ -420,15 +420,15 @@ static uint8_t * qb_copy_variable(qb_encoder_context *cxt, qb_variable *qvar, in
 	return p;
 }
 
-static uint32_t qb_get_external_symbol_length(qb_encoder_context *cxt, qb_external_symbol *symbol) {
+static uint32_t qb_get_external_symbol_length(qb_external_symbol *symbol) {
 	uint32_t length = sizeof(qb_external_symbol);
 	length += symbol->name_length + 1;
 	return length;
 }
 
-static uint8_t * qb_copy_external_symbol(qb_encoder_context *cxt, qb_external_symbol *symbol, uint8_t *memory) {
+static uint8_t * qb_copy_external_symbol(qb_external_symbol *symbol, uint8_t *memory) {
 #if ZEND_DEBUG
-	uint32_t length = qb_get_external_symbol_length(cxt, symbol);
+	uint32_t length = qb_get_external_symbol_length(symbol);
 #endif
 	uint8_t *p = memory;
 	qb_external_symbol *src = symbol;
@@ -455,11 +455,11 @@ static uint32_t qb_get_function_structure_size(qb_encoder_context *cxt) {
 
 	size += sizeof(qb_variable *) * cxt->compiler_context->variable_count;
 	for(i = 0; i < cxt->compiler_context->variable_count; i++) {
-		size += qb_get_variable_length(cxt, cxt->compiler_context->variables[i]);
+		size += qb_get_variable_length(cxt->compiler_context->variables[i]);
 	}
 	size += sizeof(qb_external_symbol *) * cxt->compiler_context->external_symbol_count;
 	for(i = 0; i < cxt->compiler_context->external_symbol_count; i++) {
-		size += qb_get_external_symbol_length(cxt, &cxt->compiler_context->external_symbols[i]);
+		size += qb_get_external_symbol_length(&cxt->compiler_context->external_symbols[i]);
 	}
 	size = ALIGN_TO(size, 16);
 	return size;
@@ -478,7 +478,7 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->variable_count = cxt->compiler_context->variable_count;
 	for(i = 0; i < cxt->compiler_context->variable_count; i++) {
 		qfunc->variables[i] = (qb_variable *) p;
-		p = qb_copy_variable(cxt, cxt->compiler_context->variables[i], p);
+		p = qb_copy_variable(cxt->compiler_context->variables[i], p);
 
 		if(qfunc->variables[i]->flags & QB_VARIABLE_RETURN_VALUE) {
 			qfunc->return_variable = qfunc->variables[i];
@@ -490,7 +490,7 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->external_symbol_count = cxt->compiler_context->external_symbol_count;
 	for(i = 0; i < cxt->compiler_context->external_symbol_count; i++) {
 		qfunc->external_symbols[i] = (qb_external_symbol *) p;
-		p = qb_copy_external_symbol(cxt, &cxt->compiler_context->external_symbols[i], p);
+		p = qb_copy_external_symbol(&cxt->compiler_context->external_symbols[i], p);
 	}
 
 	qfunc->argument_count = cxt->compiler_context->argument_count;
