@@ -22,7 +22,7 @@
 #include <math.h>
 #include "zend_variables.h"
 
-static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
+static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
 	if(!(ivar->flags & QB_VARIABLE_IMPORTED)) {
 		USE_TSRM
 		zval *zvalue = NULL, **p_zvalue = NULL;
@@ -84,6 +84,37 @@ static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_co
 	}
 }
 
+static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
+	if(ivar->flags & QB_VARIABLE_IMPORTED) {
+		USE_TSRM
+		if(!READ_ONLY(ivar->address)) {
+			zval *zvalue = NULL;
+			if(ivar->value_pointer) {
+				zvalue = *ivar->value_pointer;
+			}
+			if(!zvalue) {
+				ALLOC_INIT_ZVAL(zvalue);
+				if(ivar->value_pointer) {
+					*ivar->value_pointer = zvalue;
+				}
+			}
+			qb_transfer_value_to_zval(scope->storage, ivar->address, zvalue);
+
+			if(!ivar->value_pointer) {
+				if(ivar->flags & QB_VARIABLE_GLOBAL) {
+					zend_hash_quick_update(&EG(symbol_table), ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &zvalue, sizeof(zval *), NULL);
+				} else if(ivar->flags & QB_VARIABLE_CLASS_INSTANCE) {
+					zval *container = EG(This);
+					zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
+					Z_OBJ_WRITE_PROP(container, name, zvalue);
+					zval_ptr_dtor(&zvalue);
+				}
+			}
+		}
+		ivar->flags &= ~QB_VARIABLE_IMPORTED;
+	}
+}
+
 static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_function *qfunc) {
 	USE_TSRM
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
@@ -139,10 +170,26 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 			qb_import_scope *scope = qb_get_import_scope(cxt, qfunc->local_storage, qvar, zobject);
 			qb_variable *ivar = qb_get_import_variable(cxt, qfunc->local_storage, qvar, scope);
 
-			qb_import_segments(scope->storage, ivar->address, qfunc->local_storage, qvar->address);
+			// import the segment constaining the variable
+			qb_memory_segment *local_segment = &qfunc->local_storage->segments[qvar->address->segment_selector];
+			qb_memory_segment *scope_segment = &scope->storage->segments[ivar->address->segment_selector];
+			if(local_segment->imported_segment != scope_segment) {
+				qb_import_segment(local_segment, scope_segment);
+
+				// import the scalar segment holding the size and dimensions as well
+				if(ivar->address->dimension_count > 0 && !CONSTANT(ivar->address->array_size_address)) {
+					local_segment = &qfunc->local_storage->segments[qvar->address->array_size_address->segment_selector];
+					scope_segment = &scope->storage->segments[ivar->address->array_size_address->segment_selector];
+					if(local_segment->imported_segment != scope_segment) {
+						qb_import_segment(local_segment, scope_segment);
+					}
+				}
+			}
+
+			// transfer the value from PHP
 			qb_transfer_value_from_import_source(cxt, ivar, scope);
-			if(!(qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
-				ivar->address->flags &= QB_ADDRESS_READ_ONLY;
+			if(!READ_ONLY(qvar->address)) {
+				ivar->address->flags &= ~QB_ADDRESS_READ_ONLY;
 			}
 		}
 	}
@@ -152,19 +199,20 @@ static void qb_transfer_variables_to_php(qb_interpreter_context *cxt, qb_functio
 	USE_TSRM
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
-	uint32_t i;
+	uint32_t i, j;
 
+	// copy value into return variable
 	if(EG(return_value_ptr_ptr)) {
 		zval *ret;
 		ALLOC_INIT_ZVAL(ret);
 		*EG(return_value_ptr_ptr) = ret;
 
-		// copy value into return variable
 		if(qfunc->return_variable->address) {
 			qb_transfer_value_to_zval(qfunc->local_storage, qfunc->return_variable->address, ret);
 		} 
 	}
 
+	// copy changes to by-ref arguments
 	for(i = 0; i < qfunc->argument_count; i++) {
 		qb_variable *qvar = qfunc->variables[i];
 
@@ -174,6 +222,15 @@ static void qb_transfer_variables_to_php(qb_interpreter_context *cxt, qb_functio
 				zval *zarg = *p_zarg;
 				qb_transfer_value_to_zval(qfunc->local_storage, qvar->address, zarg);
 			}
+		}
+	}
+
+	// transfer imported values back to PHP
+	for(i = 0; i < cxt->scope_count; i++) {
+		qb_import_scope *scope = cxt->scopes[i];
+		for(j = 0; j < scope->variable_count; j++) {
+			qb_variable *ivar = scope->variables[j];
+			qb_transfer_value_to_import_source(cxt, ivar, scope);
 		}
 	}
 }

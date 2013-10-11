@@ -30,11 +30,16 @@ static intptr_t qb_set_segment_memory(qb_memory_segment *segment, int8_t *memory
 			*p_ref += diff;
 		}
 		segment->memory = memory;
-
 		// return the shift in location
 		return diff;
 	}
 	return 0;
+}
+
+void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segment) {
+	segment->flags |= QB_SEGMENT_IMPORTED;
+	segment->imported_segment = other_segment;
+	qb_set_segment_memory(segment, other_segment->memory);
 }
 
 void qb_allocate_segment_memory(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count) {
@@ -88,7 +93,10 @@ static int32_t qb_connect_segment_to_file(qb_storage *storage, qb_memory_segment
 }
 
 void qb_release_segment(qb_storage *storage, qb_memory_segment *segment) {
-	if(segment->flags & QB_SEGMENT_MAPPED) {
+	if(segment->flags & QB_SEGMENT_IMPORTED) {
+		segment->flags &= ~QB_SEGMENT_IMPORTED;
+		segment->imported_segment = NULL;
+	} else if(segment->flags & QB_SEGMENT_MAPPED) {
 		TSRMLS_FETCH();
 		qb_unmap_file_from_memory(segment->stream TSRMLS_CC);
 
@@ -110,6 +118,9 @@ void qb_release_segment(qb_storage *storage, qb_memory_segment *segment) {
 }
 
 intptr_t qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t new_size) {
+	if(segment->flags & QB_SEGMENT_IMPORTED) {
+		return qb_resize_segment(storage, segment->imported_segment, new_size);
+	}
 	if(new_size > segment->current_allocation) {
 		int8_t *current_data_end;
 		int8_t *memory;
@@ -135,7 +146,6 @@ intptr_t qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint
 		memset(current_data_end, 0, addition);
 		segment->byte_count = new_size;
 		segment->current_allocation = new_allocation;
-
 		return qb_set_segment_memory(segment, memory);
 	} else {
 		segment->byte_count = new_size;
@@ -1106,11 +1116,3 @@ void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *addr
 	/* TODO */
 }
 
-void qb_import_segments(qb_storage *src_storage, qb_address *src_address, qb_storage *dst_storage, qb_address *dst_address) {
-	qb_memory_segment *src_segment = &src_storage->segments[src_address->segment_selector];
-	qb_memory_segment *dst_segment = &dst_storage->segments[dst_address->segment_selector];
-	qb_connect_segment_to_memory(dst_storage, dst_segment, src_segment->memory, src_segment->byte_count, src_segment->current_allocation, FALSE);
-	if(!SCALAR(src_address) && !CONSTANT(src_address->array_size_address)) {
-		qb_import_segments(src_storage, src_address->array_size_address, dst_storage, dst_address->array_size_address);
-	}
-}

@@ -1281,7 +1281,7 @@ qb_derived_op_factory factory_shift_left_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1299,7 +1299,7 @@ qb_derived_op_factory factory_shift_left_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1317,7 +1317,7 @@ qb_derived_op_factory factory_shift_left_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1337,7 +1337,7 @@ qb_derived_op_factory factory_shift_right_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1355,7 +1355,7 @@ qb_derived_op_factory factory_shift_right_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1373,7 +1373,7 @@ qb_derived_op_factory factory_shift_right_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1465,7 +1465,7 @@ qb_derived_op_factory factory_bitwise_and_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1483,7 +1483,7 @@ qb_derived_op_factory factory_bitwise_and_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1501,7 +1501,7 @@ qb_derived_op_factory factory_bitwise_and_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1521,7 +1521,7 @@ qb_derived_op_factory factory_bitwise_or_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1539,7 +1539,7 @@ qb_derived_op_factory factory_bitwise_or_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1557,7 +1557,7 @@ qb_derived_op_factory factory_bitwise_or_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1577,7 +1577,7 @@ qb_derived_op_factory factory_bitwise_xor_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1595,7 +1595,7 @@ qb_derived_op_factory factory_bitwise_xor_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1613,7 +1613,7 @@ qb_derived_op_factory factory_bitwise_xor_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1856,7 +1856,7 @@ qb_derived_op_factory factory_add_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1874,7 +1874,7 @@ qb_derived_op_factory factory_add_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1892,7 +1892,7 @@ qb_derived_op_factory factory_add_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1912,7 +1912,7 @@ qb_derived_op_factory factory_subtract_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1930,7 +1930,7 @@ qb_derived_op_factory factory_subtract_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1948,7 +1948,7 @@ qb_derived_op_factory factory_subtract_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1968,7 +1968,7 @@ qb_derived_op_factory factory_multiply_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -1986,7 +1986,7 @@ qb_derived_op_factory factory_multiply_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -2004,7 +2004,7 @@ qb_derived_op_factory factory_multiply_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -2024,7 +2024,7 @@ qb_derived_op_factory factory_divide_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -2042,7 +2042,7 @@ qb_derived_op_factory factory_divide_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -2060,7 +2060,7 @@ qb_derived_op_factory factory_divide_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -2080,7 +2080,7 @@ qb_derived_op_factory factory_modulo_assign = {
 	NULL,
 	qb_set_result_first_operand,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -2098,7 +2098,7 @@ qb_derived_op_factory factory_modulo_assign_element = {
 	NULL,
 	qb_set_result_assign_array_element,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 
@@ -2116,7 +2116,7 @@ qb_derived_op_factory factory_modulo_assign_object_property = {
 	NULL,
 	qb_set_result_assign_object_property,
 	NULL,
-	qb_select_opcode_derived,
+	qb_select_opcode_derived_modify_assign,
 	NULL,
 	qb_transfer_operands_modify_assign,
 

@@ -50,6 +50,13 @@ static qb_opcode qb_select_opcode_derived(qb_compiler_context *cxt, qb_op_factor
 	return f->select_opcode(cxt, f, operands, operand_count, result);
 }
 
+static qb_opcode qb_select_opcode_derived_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_operand *value = &operands[operand_count - 1];
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	f = df->parent;
+	return f->select_opcode(cxt, f, value, 1, result);
+}
+
 static qb_opcode qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *variable = &operands[0];

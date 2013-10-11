@@ -35,6 +35,7 @@ enum {
 
 	QB_SEGMENT_BORROWED				= 0x00000100,
 	QB_SEGMENT_MAPPED				= 0x00000200,
+	QB_SEGMENT_IMPORTED				= 0x00000400,
 };
 
 struct qb_memory_segment {
@@ -42,7 +43,10 @@ struct qb_memory_segment {
 	uint32_t flags;
 	uint32_t byte_count;						// number of bytes in this segment
 	uint32_t current_allocation;				// number of bytes allocated
-	php_stream *stream;							// memory-mapped file
+	union {
+		php_stream *stream;						// memory-mapped file
+		qb_memory_segment *imported_segment;	// imported segment
+	};
 	uintptr_t **references;
 	uint32_t reference_count;
 };
@@ -244,6 +248,6 @@ void qb_allocate_segment_memory(qb_storage *storage, qb_memory_segment *segment,
 void qb_release_segment(qb_storage *storage, qb_memory_segment *segment);
 intptr_t qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t new_size);
 
-void qb_import_segments(qb_storage *src_storage, qb_address *src_address, qb_storage *dst_storage, qb_address *dst_address);
+void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segment);
 
 #endif

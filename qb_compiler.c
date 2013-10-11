@@ -1927,14 +1927,14 @@ void qb_add_variables(qb_compiler_context *cxt) {
 	cxt->return_variable = qvar;
 }
 
-qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name, uint32_t type_mask) {
+qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name, uint32_t type_mask) {
 	uint32_t i;
 	ulong hash_value = Z_HASH_P(name);
 	for(i = 0; i < cxt->variable_count; i++) {
 		qb_variable *qvar = cxt->variables[i];
 		if(qvar->hash_value == hash_value && qvar->name_length == Z_STRLEN_P(name)) {
 			if(strncmp(qvar->name, Z_STRVAL_P(name), Z_STRLEN_P(name)) == 0) {
-				if(qvar->zend_class == class) {
+				if(qvar->zend_class == ce) {
 					if((qvar->flags & type_mask) || !type_mask && !(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS_CONSTANT))) {
 						return qvar;
 					}
@@ -1988,14 +1988,15 @@ qb_variable * qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *
 }
 
 qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name) {
-	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_CLASS_INSTANCE);
+	zend_class_entry *ce = cxt->zend_op_array->scope;
+	qb_variable *qvar = qb_find_variable(cxt, ce, name, QB_VARIABLE_CLASS_INSTANCE);
 	if(!qvar) {
 		qvar = qb_allocate_variable(cxt->pool);
 		qvar->flags = QB_VARIABLE_CLASS_INSTANCE;
 		qvar->name = Z_STRVAL_P(name);
 		qvar->name_length = Z_STRLEN_P(name);
 		qvar->hash_value = Z_HASH_P(name);
-		qvar->zend_class = cxt->zend_op_array->scope;
+		qvar->zend_class = ce;
 		qb_apply_type_declaration(cxt, qvar);
 		qb_add_variable(cxt, qvar);
 	}
