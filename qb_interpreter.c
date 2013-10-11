@@ -37,13 +37,12 @@ static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb
 			case QB_IMPORT_SCOPE_CLASS: {
 				if(ivar->flags & QB_VARIABLE_CLASS_CONSTANT) {
 					// static:: constants are treated like variables
-					zend_class_entry *ce = EG(called_scope);
+					zend_class_entry *ce = scope->zend_class;
 					zval **p_value;
 					zend_hash_quick_find(&ce->constants_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_value);
 					zvalue = *p_value;
 				} else {
-					// copy value from class, using the called scope if the class wasn't known beforehand (i.e. static::)
-					zend_class_entry *ce = (ivar->zend_class) ? ivar->zend_class : EG(called_scope);
+					zend_class_entry *ce = scope->zend_class;
 					zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
 					p_zvalue = Z_CLASS_GET_PROP(ce, ivar->name, ivar->name_length);
 					if(p_zvalue) {
@@ -55,7 +54,7 @@ static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb
 			case QB_IMPORT_SCOPE_OBJECT: {
 				// copy value from class instance
 				zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
-				zval *container = EG(This);
+				zval *container = scope->zend_object;
 				p_zvalue = Z_OBJ_GET_PROP_PTR_PTR(container, name);
 				if(p_zvalue) {
 					SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
@@ -104,7 +103,7 @@ static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_v
 				if(ivar->flags & QB_VARIABLE_GLOBAL) {
 					zend_hash_quick_update(&EG(symbol_table), ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &zvalue, sizeof(zval *), NULL);
 				} else if(ivar->flags & QB_VARIABLE_CLASS_INSTANCE) {
-					zval *container = EG(This);
+					zval *container = scope->zend_object;
 					zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
 					Z_OBJ_WRITE_PROP(container, name, zvalue);
 					zval_ptr_dtor(&zvalue);
@@ -169,10 +168,17 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 			zval *zobject = !(qvar->flags & QB_VARIABLE_GLOBAL) ? EG(This) : NULL;
 			qb_import_scope *scope = qb_get_import_scope(cxt, qfunc->local_storage, qvar, zobject);
 			qb_variable *ivar = qb_get_import_variable(cxt, qfunc->local_storage, qvar, scope);
+			qb_memory_segment *local_segment, *scope_segment;
+
+			// transfer the value from PHP
+			qb_transfer_value_from_import_source(cxt, ivar, scope);
+			if(!READ_ONLY(qvar->address)) {
+				ivar->address->flags &= ~QB_ADDRESS_READ_ONLY;
+			}
 
 			// import the segment constaining the variable
-			qb_memory_segment *local_segment = &qfunc->local_storage->segments[qvar->address->segment_selector];
-			qb_memory_segment *scope_segment = &scope->storage->segments[ivar->address->segment_selector];
+			local_segment = &qfunc->local_storage->segments[qvar->address->segment_selector];
+			scope_segment = &scope->storage->segments[ivar->address->segment_selector];
 			if(local_segment->imported_segment != scope_segment) {
 				qb_import_segment(local_segment, scope_segment);
 
@@ -184,12 +190,6 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 						qb_import_segment(local_segment, scope_segment);
 					}
 				}
-			}
-
-			// transfer the value from PHP
-			qb_transfer_value_from_import_source(cxt, ivar, scope);
-			if(!READ_ONLY(qvar->address)) {
-				ivar->address->flags &= ~QB_ADDRESS_READ_ONLY;
 			}
 		}
 	}
@@ -228,9 +228,11 @@ static void qb_transfer_variables_to_php(qb_interpreter_context *cxt, qb_functio
 	// transfer imported values back to PHP
 	for(i = 0; i < cxt->scope_count; i++) {
 		qb_import_scope *scope = cxt->scopes[i];
-		for(j = 0; j < scope->variable_count; j++) {
-			qb_variable *ivar = scope->variables[j];
-			qb_transfer_value_to_import_source(cxt, ivar, scope);
+		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
+			for(j = 0; j < scope->variable_count; j++) {
+				qb_variable *ivar = scope->variables[j];
+				qb_transfer_value_to_import_source(cxt, ivar, scope);
+			}
 		}
 	}
 }
@@ -293,7 +295,7 @@ static void qb_initialize_dynamically_allocated_segments(qb_interpreter_context 
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
 		if(!segment->memory && segment->byte_count > 0) {
-			qb_allocate_segment_memory(qfunc->local_storage, segment, segment->byte_count);
+			qb_allocate_segment_memory(segment, segment->byte_count);
 			if(segment->flags & QB_SEGMENT_CLEAR_ON_CALL) {
 				memset(segment->memory, 0, segment->current_allocation);
 			}
@@ -306,7 +308,7 @@ static void qb_free_dynamically_allocated_segments(qb_interpreter_context *cxt, 
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
 		if(segment->flags & QB_SEGMENT_FREE_ON_RETURN) {
-			qb_release_segment(qfunc->local_storage, segment);
+			qb_release_segment(segment);
 			if(segment->flags & QB_SEGMENT_EMPTY_ON_RETURN) {
 				segment->byte_count = 0;
 			}
@@ -669,5 +671,5 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *stora
 	}
 #endif
 	// TODO: this needs to happen in the main thread
-	return qb_resize_segment(storage, segment, new_size);
+	return qb_resize_segment(segment, new_size);
 }

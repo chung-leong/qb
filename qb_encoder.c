@@ -87,6 +87,7 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 			*p_ip += sizeof(qb_pointer_ELE);
 
 			qb_add_segment_reference(cxt, address, &p->data_pointer);
+			qb_add_segment_reference(cxt, address->array_index_address, &p->index_pointer);
 		}	break;
 		case QB_ADDRESS_MODE_ARR: {
 			qb_pointer_ARR *p = ((qb_pointer_ARR *) *p_ip);
@@ -96,6 +97,8 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 			*p_ip += sizeof(qb_pointer_ARR);
 
 			qb_add_segment_reference(cxt, address, &p->data_pointer);
+			qb_add_segment_reference(cxt, address->array_index_address, &p->index_pointer);
+			qb_add_segment_reference(cxt, address->array_size_address, &p->count_pointer);
 		}	break;
 		default:
 			qb_abort("invalid address type");

@@ -504,11 +504,29 @@ void qb_allocate_external_storage_space(qb_compiler_context *cxt, qb_variable *v
 	uint32_t selector, start_offset;
 
 	if(ivar->address->segment_selector >= QB_SELECTOR_ARRAY_START) {
+		// use a new segment
 		selector = cxt->storage->segment_count;
 		start_offset = ivar->address->segment_offset;
 	} else {
+		// use the same segment as in the scope
 		selector = ivar->address->segment_selector;
 		start_offset = ivar->address->segment_offset;
+	}
+
+	if(var->address->dimension_count > 0) {
+		// set the locations of the dimensional variables as well
+		if(var->address->dimension_count == 1) {
+			var->address->array_size_address->segment_selector = ivar->address->array_size_address->segment_selector;
+			var->address->array_size_address->segment_offset = ivar->address->array_size_address->segment_offset;
+		} else {
+			uint32_t i;
+			for(i = 0; i < var->address->dimension_count; i++) {
+				var->address->array_size_addresses[i]->segment_selector = ivar->address->array_size_addresses[i]->segment_selector;
+				var->address->array_size_addresses[i]->segment_offset = ivar->address->array_size_addresses[i]->segment_offset;
+				var->address->dimension_addresses[i]->segment_selector = ivar->address->dimension_addresses[i]->segment_selector;
+				var->address->dimension_addresses[i]->segment_offset = ivar->address->dimension_addresses[i]->segment_offset;
+			}
+		}
 	}
 
 	if(selector >= cxt->storage->segment_count) {
@@ -3053,6 +3071,18 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 					qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
 					if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
 						segment->reference_count++;
+					}
+					if(address->mode == QB_ADDRESS_MODE_ELE || address->mode == QB_ADDRESS_MODE_ARR) {
+						qb_memory_segment *index_segment = &cxt->storage->segments[address->array_index_address->segment_selector];
+						if(!(index_segment->flags & QB_SEGMENT_PREALLOCATED)) {
+							index_segment->reference_count++;
+						}
+						if(address->mode == QB_ADDRESS_MODE_ARR) {
+							qb_memory_segment *size_segment = &cxt->storage->segments[address->array_size_address->segment_selector]; 
+							if(!(size_segment->flags & QB_SEGMENT_PREALLOCATED)) {
+								size_segment->reference_count++;
+							}
+						}
 					}
 				}
 			}

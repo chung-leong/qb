@@ -42,57 +42,71 @@ void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segm
 	qb_set_segment_memory(segment, other_segment->memory);
 }
 
-void qb_allocate_segment_memory(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count) {
-	segment->byte_count = byte_count;
-	if(byte_count > segment->current_allocation) {
-		uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
-		uint32_t extra = new_allocation - byte_count;
-		int8_t *memory = emalloc(new_allocation);
-		int8_t *data_end = memory + byte_count;
-		segment->current_allocation = new_allocation;
-		memset(data_end, 0, extra);
-		qb_set_segment_memory(segment, memory);
+void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count) {
+	if(segment->flags & QB_SEGMENT_IMPORTED) {
+		qb_allocate_segment_memory(segment->imported_segment, byte_count);
+		segment->flags &= ~QB_SEGMENT_IMPORTED;
+		segment->imported_segment = NULL;
+	} else {
+		segment->byte_count = byte_count;
+		if(byte_count > segment->current_allocation) {
+			uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
+			uint32_t extra = new_allocation - byte_count;
+			int8_t *memory = emalloc(new_allocation);
+			int8_t *data_end = memory + byte_count;
+			segment->current_allocation = new_allocation;
+			memset(data_end, 0, extra);
+			qb_set_segment_memory(segment, memory);
+		}
 	}
 }
 
-static int32_t qb_connect_segment_to_memory(qb_storage *storage, qb_memory_segment *segment, int8_t *memory, uint32_t byte_count, uint32_t bytes_available, int32_t ownership) {	
-	if(byte_count < bytes_available) {
-		segment->byte_count = byte_count;
-		segment->current_allocation = bytes_available;
-		if(!ownership) {
-			segment->flags |= QB_SEGMENT_BORROWED;
-		}
-		if(segment->current_allocation) {
-			qb_set_segment_memory(segment, memory);
-		}
-		return TRUE;
+static int32_t qb_connect_segment_to_memory(qb_memory_segment *segment, int8_t *memory, uint32_t byte_count, uint32_t bytes_available, int32_t ownership) {	
+	if(segment->flags & QB_SEGMENT_IMPORTED) {
+		return qb_connect_segment_to_memory(segment->imported_segment, memory, byte_count, bytes_available, ownership);
 	} else {
-		return FALSE;
+		if(byte_count < bytes_available) {
+			segment->byte_count = byte_count;
+			segment->current_allocation = bytes_available;
+			if(!ownership) {
+				segment->flags |= QB_SEGMENT_BORROWED;
+			}
+			if(segment->current_allocation) {
+				qb_set_segment_memory(segment, memory);
+			}
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 }
 
 static void * qb_map_file_to_memory(php_stream *stream, uint32_t byte_count, int32_t write_access TSRMLS_DC);
 static void qb_unmap_file_from_memory(php_stream *stream TSRMLS_DC);
 
-static int32_t qb_connect_segment_to_file(qb_storage *storage, qb_memory_segment *segment, php_stream *stream, uint32_t byte_count, int32_t write_access) {
-	TSRMLS_FETCH();
-	uint32_t bytes_available = byte_count;
-	int8_t *memory;
-	if(!bytes_available) {
-		bytes_available = 1024;
-		// TODO: enlarge the file
-	}
-	memory = qb_map_file_to_memory(stream, bytes_available, write_access TSRMLS_CC);
-	if(memory) {
-		qb_connect_segment_to_memory(storage, segment, memory, byte_count, bytes_available, FALSE);
-		segment->flags |= QB_SEGMENT_MAPPED;
-		return TRUE;
+static int32_t qb_connect_segment_to_file(qb_memory_segment *segment, php_stream *stream, uint32_t byte_count, int32_t write_access) {
+	if(segment->flags & QB_SEGMENT_IMPORTED) {
+		return qb_connect_segment_to_file(segment->imported_segment, stream, byte_count, write_access);
 	} else {
-		return FALSE;
+		TSRMLS_FETCH();
+		uint32_t bytes_available = byte_count;
+		int8_t *memory;
+		if(!bytes_available) {
+			bytes_available = 1024;
+			// TODO: enlarge the file
+		}
+		memory = qb_map_file_to_memory(stream, bytes_available, write_access TSRMLS_CC);
+		if(memory) {
+			qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, FALSE);
+			segment->flags |= QB_SEGMENT_MAPPED;
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 }
 
-void qb_release_segment(qb_storage *storage, qb_memory_segment *segment) {
+void qb_release_segment(qb_memory_segment *segment) {
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
 		segment->flags &= ~QB_SEGMENT_IMPORTED;
 		segment->imported_segment = NULL;
@@ -117,9 +131,9 @@ void qb_release_segment(qb_storage *storage, qb_memory_segment *segment) {
 	segment->current_allocation = 0;
 }
 
-intptr_t qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t new_size) {
+intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
-		return qb_resize_segment(storage, segment->imported_segment, new_size);
+		return qb_resize_segment(segment->imported_segment, new_size);
 	}
 	if(new_size > segment->current_allocation) {
 		int8_t *current_data_end;
@@ -1057,13 +1071,13 @@ void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval 
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
 					int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
 					uint32_t bytes_available = Z_STRLEN_P(zvalue);
-					if(qb_connect_segment_to_memory(storage, segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
+					if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 						return;
 					}
 				} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
 					php_stream *stream = qb_get_file_stream(zvalue);
 					if(stream) {
-						if(qb_connect_segment_to_file(storage, segment, stream, byte_count, READ_ONLY(address))) {
+						if(qb_connect_segment_to_file(segment, stream, byte_count, READ_ONLY(address))) {
 							return;
 						}
 					}
@@ -1071,7 +1085,7 @@ void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval 
 			}
 			
 			// make sure there's enough bytes in the segment
-			qb_allocate_segment_memory(storage, segment, byte_count);
+			qb_allocate_segment_memory(segment, byte_count);
 		}
 		qb_copy_elements_from_zval(storage, address, zvalue);
 	}
