@@ -109,7 +109,7 @@ void qb_release_segment(qb_storage *storage, qb_memory_segment *segment) {
 	segment->current_allocation = 0;
 }
 
-intptr_t qb_resize_segment(qb_storage *__restrict storage, qb_memory_segment *segment, uint32_t new_size) {
+intptr_t qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t new_size) {
 	if(new_size > segment->current_allocation) {
 		int8_t *current_data_end;
 		int8_t *memory;
@@ -1104,4 +1104,13 @@ void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *z
 
 void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *src_address) {
 	/* TODO */
+}
+
+void qb_import_segments(qb_storage *src_storage, qb_address *src_address, qb_storage *dst_storage, qb_address *dst_address) {
+	qb_memory_segment *src_segment = &src_storage->segments[src_address->segment_selector];
+	qb_memory_segment *dst_segment = &dst_storage->segments[dst_address->segment_selector];
+	qb_connect_segment_to_memory(dst_storage, dst_segment, src_segment->memory, src_segment->byte_count, src_segment->current_allocation, FALSE);
+	if(!SCALAR(src_address) && !CONSTANT(src_address->array_size_address)) {
+		qb_import_segments(src_storage, src_address->array_size_address, dst_storage, dst_address->array_size_address);
+	}
 }

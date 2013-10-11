@@ -242,6 +242,8 @@ void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *addr
 
 void qb_allocate_segment_memory(qb_storage *storage, qb_memory_segment *segment, uint32_t byte_count);
 void qb_release_segment(qb_storage *storage, qb_memory_segment *segment);
-intptr_t qb_resize_segment(qb_storage *__restrict storage, qb_memory_segment *segment, uint32_t new_size);
+intptr_t qb_resize_segment(qb_storage *storage, qb_memory_segment *segment, uint32_t new_size);
+
+void qb_import_segments(qb_storage *src_storage, qb_address *src_address, qb_storage *dst_storage, qb_address *dst_address);
 
 #endif

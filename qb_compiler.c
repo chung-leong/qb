@@ -499,7 +499,8 @@ static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *addr
 void qb_allocate_external_storage_space(qb_compiler_context *cxt, qb_variable *var) {
 	USE_TSRM
 	qb_interpreter_context *interpreter_cxt = qb_get_interpreter_context(TSRMLS_C);
-	qb_variable *ivar = qb_get_imported_variable(interpreter_cxt, cxt->storage, var, NULL);
+	qb_import_scope *scope = qb_get_import_scope(interpreter_cxt, cxt->storage, var, NULL);
+	qb_variable *ivar = qb_get_import_variable(interpreter_cxt, cxt->storage, var, scope);
 	uint32_t selector, start_offset;
 
 	if(ivar->address->segment_selector >= QB_SELECTOR_ARRAY_START) {
@@ -537,6 +538,7 @@ void qb_assign_storage_space(qb_compiler_context *cxt) {
 	for(i = 0; i < cxt->variable_count; i++) {
 		qb_variable *qvar = cxt->variables[i];
 		if(qvar->flags & QB_VARIABLE_GLOBAL) {
+			qb_allocate_external_storage_space(cxt, qvar);
 		} else if((qvar->flags & QB_VARIABLE_CLASS) || (qvar->flags & QB_VARIABLE_CLASS_INSTANCE) || (qvar->flags & QB_VARIABLE_CLASS_CONSTANT)) {
 			if(!qvar->zend_class) {
 				// static:: qualifier--give it a scope temporarily
@@ -1993,7 +1995,7 @@ qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name) {
 		qvar->name = Z_STRVAL_P(name);
 		qvar->name_length = Z_STRLEN_P(name);
 		qvar->hash_value = Z_HASH_P(name);
-		qvar->zend_class = NULL;
+		qvar->zend_class = cxt->zend_op_array->scope;
 		qb_apply_type_declaration(cxt, qvar);
 		qb_add_variable(cxt, qvar);
 	}

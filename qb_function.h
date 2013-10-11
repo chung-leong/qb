@@ -50,11 +50,14 @@ enum {
 struct qb_variable {
 	uint32_t flags;
 	qb_address *address;
-	zval *default_value;
 	const char *name;
 	uint32_t name_length;
 	ulong hash_value;
 	zend_class_entry *zend_class;
+	union {
+		zval *default_value;
+		zval **value_pointer;
+	};
 };
 
 enum {

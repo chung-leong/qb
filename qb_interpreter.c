@@ -22,12 +22,75 @@
 #include <math.h>
 #include "zend_variables.h"
 
+static void ZEND_FASTCALL qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
+	if(!(ivar->flags & QB_VARIABLE_IMPORTED)) {
+		USE_TSRM
+		zval *zvalue = NULL, **p_zvalue = NULL;
+		switch(scope->type) {
+			case QB_IMPORT_SCOPE_GLOBAL: {
+				// copy value from global symbol table
+				if(zend_hash_quick_find(&EG(symbol_table), ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_zvalue) == SUCCESS) {
+					SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
+					zvalue = *p_zvalue;
+				}
+			}	break;
+			case QB_IMPORT_SCOPE_CLASS: {
+				if(ivar->flags & QB_VARIABLE_CLASS_CONSTANT) {
+					// static:: constants are treated like variables
+					zend_class_entry *ce = EG(called_scope);
+					zval **p_value;
+					zend_hash_quick_find(&ce->constants_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_value);
+					zvalue = *p_value;
+				} else {
+					// copy value from class, using the called scope if the class wasn't known beforehand (i.e. static::)
+					zend_class_entry *ce = (ivar->zend_class) ? ivar->zend_class : EG(called_scope);
+					zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
+					p_zvalue = Z_CLASS_GET_PROP(ce, ivar->name, ivar->name_length);
+					if(p_zvalue) {
+						SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
+						zvalue = *p_zvalue;
+					}
+				}
+			}	break;
+			case QB_IMPORT_SCOPE_OBJECT: {
+				// copy value from class instance
+				zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
+				zval *container = EG(This);
+				p_zvalue = Z_OBJ_GET_PROP_PTR_PTR(container, name);
+				if(p_zvalue) {
+					SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
+					zvalue = *p_zvalue;
+				} else if(Z_OBJ_HT_P(container)->read_property) {
+					zvalue = Z_OBJ_READ_PROP(container, name);
+				}
+			}	break;
+			default: {
+			}	break;
+		}
+		if(zvalue) {
+			qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY);
+			if(!p_zvalue) {
+				if(Z_REFCOUNT_P(zvalue) == 0) {
+					Z_ADDREF_P(zvalue);
+					zval_ptr_dtor(&zvalue);
+				}
+			}
+		} else {
+			qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY);
+		}
+		ivar->value_pointer = p_zvalue;
+		ivar->flags |= QB_VARIABLE_IMPORTED;
+		ivar->address->flags |= QB_ADDRESS_READ_ONLY;
+	}
+}
+
 static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_function *qfunc) {
 	USE_TSRM
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
 
+	// transfer arguments
 	for(i = 0; i < qfunc->argument_count; i++) {
 		qb_variable *qvar = qfunc->variables[i];
 		zval *zarg;
@@ -65,6 +128,23 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 		}
 		qb_transfer_value_from_zval(qfunc->local_storage, qvar->address, zarg, transfer_flags);
+	}
+
+	// transfer external variables
+	for(i = qfunc->argument_count; i < qfunc->variable_count; i++) {
+		qb_variable *qvar = qfunc->variables[i];
+
+		if((qvar->flags & QB_VARIABLE_CLASS) || (qvar->flags & QB_VARIABLE_CLASS_INSTANCE) || (qvar->flags & QB_VARIABLE_CLASS_CONSTANT) || (qvar->flags & QB_VARIABLE_GLOBAL)) {
+			zval *zobject = !(qvar->flags & QB_VARIABLE_GLOBAL) ? EG(This) : NULL;
+			qb_import_scope *scope = qb_get_import_scope(cxt, qfunc->local_storage, qvar, zobject);
+			qb_variable *ivar = qb_get_import_variable(cxt, qfunc->local_storage, qvar, scope);
+
+			qb_import_segments(scope->storage, ivar->address, qfunc->local_storage, qvar->address);
+			qb_transfer_value_from_import_source(cxt, ivar, scope);
+			if(!(qvar->address->flags & QB_ADDRESS_READ_ONLY)) {
+				ivar->address->flags &= QB_ADDRESS_READ_ONLY;
+			}
+		}
 	}
 }
 
@@ -238,24 +318,20 @@ qb_import_scope * qb_find_import_scope(qb_interpreter_context *cxt, qb_import_sc
 	return NULL;
 }
 
-qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_import_scope_type type, void *associated_object) {
+qb_import_scope * qb_create_import_scope(qb_interpreter_context *cxt, qb_import_scope_type type, void *associated_object) {
 	USE_TSRM
-	qb_import_scope *scope = qb_find_import_scope(cxt, type, associated_object);
-	if(scope) {
-		return scope;
-	}
-
-	cxt->scopes = erealloc(cxt->scopes, (cxt->scope_count + 1) * sizeof(qb_import_scope));
-	scope = cxt->scopes[cxt->scope_count++];
-	memset(cxt->scopes, 0, sizeof(qb_import_scope));
+	qb_import_scope *scope = emalloc(sizeof(qb_import_scope));
+	memset(scope, 0, sizeof(qb_import_scope));
 	scope->type = type;
 	scope->associated_object = associated_object;
+	cxt->scopes = erealloc(cxt->scopes, sizeof(qb_import_scope *) * (cxt->scope_count + 1));
+	cxt->scopes[cxt->scope_count++] = scope;
 
 	if(type == QB_IMPORT_SCOPE_OBJECT) {
 		// create the scope based on the scope of the abstract object
 		zval *object = associated_object;
 		zend_class_entry *ce = Z_OBJCE_P(object);
-		qb_import_scope *abstract_scope = qb_get_import_scope(cxt, QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce);
+		qb_import_scope *abstract_scope = qb_find_import_scope(cxt, QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce);
 
 		if(abstract_scope) {
 			scope->variables = abstract_scope->variables;
@@ -264,7 +340,7 @@ qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_import_sco
 			scope->storage->flags = abstract_scope->storage->flags;
 			scope->storage->segment_count = abstract_scope->storage->segment_count;
 			scope->storage->segments = emalloc(sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
-			memcpy(scope->storage->segments, 0, sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
+			memcpy(scope->storage->segments, abstract_scope->storage->segments, sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
 		}
 	} else if(type == QB_IMPORT_SCOPE_CLASS || type == QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
 		zend_class_entry *ce = associated_object;
@@ -279,15 +355,11 @@ qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_import_sco
 				scope->variables = emalloc(sizeof(qb_variable *) * ancestor_scope->variable_count);
 				memcpy(scope->variables, ancestor_scope->variables, sizeof(qb_variable *) * ancestor_scope->variable_count);
 
-				scope->storage = emalloc(sizeof(qb_storage));
-				scope->storage->flags = ancestor_scope->storage->flags;
-				scope->storage->segment_count = ancestor_scope->storage->segment_count;
-				scope->storage->segments = emalloc(sizeof(qb_memory_segment) * ancestor_scope->storage->segment_count);
-				memcpy(scope->storage->segments, ancestor_scope->storage->segments, sizeof(qb_memory_segment) * ancestor_scope->storage->segment_count);
+				// use the same storage
+				scope->storage = ancestor_scope->storage;
 			}
 		}
 	}
-
 	return scope;
 }
 
@@ -303,7 +375,7 @@ static int32_t qb_check_address_compatibility(qb_storage *storage1, qb_address *
 			qb_address *dim_address2 = address2->array_size_addresses[j];
 			if(CONSTANT(dim_address1) && CONSTANT(dim_address2)) {
 				uint32_t dim1 = VALUE_IN(storage1, U32, dim_address1);
-				uint32_t dim2 = VALUE_IN(storage2, U32, dim_address1);
+				uint32_t dim2 = VALUE_IN(storage2, U32, dim_address2);
 				if(dim1 != dim2) {
 					return FALSE;
 				}
@@ -449,6 +521,8 @@ qb_variable * qb_import_variable(qb_interpreter_context *cxt, qb_storage *storag
 		scope->storage->segments = erealloc(scope->storage->segments, sizeof(qb_memory_segment) * scope->storage->segment_count);
 		segment = &scope->storage->segments[selector];
 		memset(segment, 0, sizeof(qb_memory_segment));
+	} else {
+		segment = &scope->storage->segments[selector];
 	}
 
 	start_offset = ALIGN_TO(segment->byte_count, alignment);
@@ -467,13 +541,11 @@ qb_variable * qb_import_variable(qb_interpreter_context *cxt, qb_storage *storag
 	return ivar;
 }
 
-qb_variable * qb_get_imported_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object) {
+qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object) {
 	USE_TSRM
+	qb_import_scope *scope;
 	qb_import_scope_type scope_type;
 	void *associated_object;
-	qb_import_scope *scope;
-	qb_variable *ivar;
-	uint32_t i;
 
 	if(var->flags & QB_VARIABLE_GLOBAL) {
 		scope_type = QB_IMPORT_SCOPE_GLOBAL;
@@ -483,6 +555,7 @@ qb_variable * qb_get_imported_variable(qb_interpreter_context *cxt, qb_storage *
 		if(var->zend_class) {
 			associated_object = var->zend_class;
 		} else {
+			USE_TSRM
 			// it's a variable qualifed with static::
 			associated_object = Z_OBJCE_P(object);
 		}
@@ -495,9 +568,16 @@ qb_variable * qb_get_imported_variable(qb_interpreter_context *cxt, qb_storage *
 			associated_object = var->zend_class;
 		}
 	}
-	
-	scope = qb_get_import_scope(cxt, scope_type, associated_object);
+	scope = qb_find_import_scope(cxt, scope_type, associated_object);
+	if(!scope) {
+		scope = qb_create_import_scope(cxt, scope_type, associated_object);
+	}
+	return scope;
+}
 
+qb_variable * qb_get_import_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_import_scope *scope) {
+	uint32_t i;
+	qb_variable *ivar;
 	// look for the variable
 	for(i = 0; i < scope->variable_count; i++) {
 		ivar = scope->variables[i];
@@ -506,6 +586,9 @@ qb_variable * qb_get_imported_variable(qb_interpreter_context *cxt, qb_storage *
 				int32_t match = TRUE;
 				
 				if(qb_check_address_compatibility(scope->storage, ivar->address, storage, var->address)) {
+					if(!(var->flags & QB_ADDRESS_READ_ONLY)) {
+						ivar->flags &= ~QB_ADDRESS_READ_ONLY;
+					}
 					return ivar;
 				} else {
 					if(READ_ONLY(ivar->address) && READ_ONLY(var->address)) {
@@ -517,7 +600,6 @@ qb_variable * qb_get_imported_variable(qb_interpreter_context *cxt, qb_storage *
 			}
 		}
 	}
-
 	ivar = qb_import_variable(cxt, storage, var, scope);
 	return ivar;
 }

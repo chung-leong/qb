@@ -106,6 +106,9 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *stora
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
-qb_variable * qb_get_imported_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object);
+
+qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object);
+qb_variable * qb_get_import_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_import_scope *scope);
+
 
 #endif
