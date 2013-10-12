@@ -202,8 +202,81 @@ static void qb_translate_fetch(qb_php_translater_context *cxt, void *op_factorie
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
+static zend_function * qb_find_zend_function(qb_php_translater_context *cxt, zend_class_entry *ce, zval *name) {
+	USE_TSRM
+	char *error = NULL;
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	int error_reporting_before;
+#endif
+	zend_fcall_info_cache fcc;
+
+	if(ce) {
+		// no good way to get the class entry to zend_is_callable_ex() except by creating an array
+		HashTable ht;
+		zval _callable, *callable = &_callable;
+		zval *class_name;
+
+		zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
+		Z_ARRVAL_P(callable) = &ht;
+		Z_TYPE_P(callable) = IS_ARRAY;
+
+		class_name = qb_string_to_zval(ce->name, ce->name_length TSRMLS_CC);
+		zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
+		zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
+
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			qb_abort("%s", error);
+		}
+#else
+		// suppress the non-static function being called as static warning message
+		error_reporting_before = EG(error_reporting);
+		EG(error_reporting) = 0;
+		if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		}
+		EG(error_reporting) = error_reporting_before;
+#endif
+		zend_hash_destroy(&ht);
+	} else {
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			qb_abort("%s", error);
+		}
+#else
+		if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		}
+#endif
+	}
+	if(error) {
+		efree(error);
+	}
+	return fcc.function_handler;
+}
+
+static qb_function * qb_find_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
+	uint32_t i;
+	qb_function *qfunc = qb_get_compiled_function(zfunc);
+	if(!qfunc) {
+		// see if the function in question in also in the middle of being compiled
+		USE_TSRM
+		qb_build_context *build_context = QB_G(build_context);
+		for(i = 0; i < build_context->compiler_context_count; i++) {
+			qb_compiler_context *compiler_cxt = &build_context->compiler_contexts[i];
+			if(compiler_cxt->function_prototype.zend_op_array == &zfunc->op_array) {
+				return &compiler_cxt->function_prototype;
+			}
+		}
+	}
+	return NULL;
+}
+
 static void qb_do_function_call_translation(qb_php_translater_context *cxt, void *op_factories, qb_operand *name, qb_operand *object, qb_operand **stack_pointer, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_intrinsic_function *ifunc;
+	qb_intrinsic_function *ifunc = NULL;
+	zend_function *zfunc = NULL;
+	qb_function *qfunc = NULL;
+
 	qb_operand *arguments;
 	qb_operand func_operands[4];
 	uint32_t func_operand_count, max_operand_count = argument_count;
@@ -211,7 +284,9 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 	void **list = op_factories, *op_factory;
 	ALLOCA_FLAG(use_heap);
 
-	ifunc = (object->type == QB_OPERAND_NONE) ? qb_find_intrinsic_function(cxt, name->constant) : NULL;
+	if(object->type == QB_OPERAND_NONE) {
+		ifunc = qb_find_intrinsic_function(cxt, name->constant);
+	}
 	if(ifunc) {
 		if(!(ifunc->argument_count_min <= argument_count && argument_count <= ifunc->argument_count_max)) {
 			if(ifunc->argument_count_max == (uint32_t) -1) {
@@ -226,7 +301,12 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 			max_operand_count = ifunc->argument_count_max;
 		}
 	} else {
-		qb_abort("Function call not yet implemented");
+		zfunc = qb_find_zend_function(cxt, NULL, name->constant);
+		if(zfunc) {
+			qfunc = qb_find_compiled_function(cxt, zfunc);
+		} else {
+			qb_abort("Missing function");
+		}
 	}
 
 	// copy the arguments
@@ -244,13 +324,24 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 	if(ifunc) {
 		func_operands[0].intrinsic_function = ifunc;
 		func_operands[0].type = QB_OPERAND_INTRINSIC_FUNCTION;
-		func_operands[1].arguments = arguments;
-		func_operands[1].type = QB_OPERAND_ARGUMENTS;
-		func_operands[2].number = argument_count;
-		func_operands[2].type = QB_OPERAND_NUMBER;
 		func_operand_count = 3;
 		op_factory = list[0];
+	} else if(qfunc) {
+		func_operands[0].function = qfunc;
+		func_operands[0].type = QB_OPERAND_FUNCTION;
+		func_operand_count = 3;
+		op_factory = list[1];
+	} else {
+		func_operands[0].zend_function = zfunc;
+		func_operands[0].type = QB_OPERAND_ZEND_FUNCTION;
+		func_operand_count = 3;
+		op_factory = list[2];
 	}
+	func_operands[1].arguments = arguments;
+	func_operands[1].type = QB_OPERAND_ARGUMENTS;
+	func_operands[2].number = argument_count;
+	func_operands[2].type = QB_OPERAND_NUMBER;
+
 	qb_produce_op(cxt->compiler_context, op_factory, func_operands, func_operand_count, result, NULL, 0, result_prototype);
 	free_alloca(arguments, use_heap);
 }
@@ -407,91 +498,10 @@ static void qb_translate_foreach_fetch(qb_php_translater_context *cxt, void *op_
 	cxt->jump_target_index2 = target_indices[1];
 }
 
-static zend_function * qb_find_function(qb_php_translater_context *cxt, zend_class_entry *ce, zval *name) {
-	USE_TSRM
-
-	// check to see if we've found the function already (this function is called whenever an argument is pushed)
-	if(cxt->previous_class != ce || cxt->previous_function_name != name) {
-		char *error = NULL;
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-		int error_reporting_before;
-#endif
-		zend_fcall_info_cache fcc;
-
-		if(ce) {
-			// no good way to get the class entry to zend_is_callable_ex() except by creating an array
-			HashTable ht;
-			zval _callable, *callable = &_callable;
-			zval *class_name;
-
-			zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
-			Z_ARRVAL_P(callable) = &ht;
-			Z_TYPE_P(callable) = IS_ARRAY;
-
-			class_name = qb_string_to_zval(ce->name, ce->name_length TSRMLS_CC);
-			zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
-			zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
-
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-			if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-				qb_abort("%s", error);
-			}
-#else
-			// suppress the non-static function being called as static warning message
-			error_reporting_before = EG(error_reporting);
-			EG(error_reporting) = 0;
-			if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-				qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
-			}
-			EG(error_reporting) = error_reporting_before;
-#endif
-			zend_hash_destroy(&ht);
-		} else {
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-			if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-				qb_abort("%s", error);
-			}
-#else
-			if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-				qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
-			}
-#endif
-		}
-		
-		cxt->previous_class = ce;
-		cxt->previous_function_name = name;
-		cxt->previous_function = fcc.function_handler;
-		if(error) {
-			efree(error);
-		}
-	}
-	return cxt->previous_function;
-}
-
-static qb_function * qb_find_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
-	uint32_t i;
-	qb_function *qfunc = qb_get_compiled_function(zfunc);
-	if(!qfunc) {
-		// see if the function in question in also in the middle of being compiled
-		USE_TSRM
-		qb_build_context *build_context = QB_G(build_context);
-		for(i = 0; i < build_context->compiler_context_count; i++) {
-			qb_compiler_context *compiler_cxt = &build_context->compiler_contexts[i];
-			if(compiler_cxt->function_prototype.zend_op_array == &zfunc->op_array) {
-				return &compiler_cxt->function_prototype;
-			}
-		}
-	}
-	return NULL;
-}
-
 static void qb_translate_user_opcode(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
 static void qb_translate_extension_op(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-}
-
-static void qb_translate_nop(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
 static qb_php_op_translator op_translators[] = {

@@ -392,7 +392,7 @@ static void qb_transfer_operands_unset_array_element(qb_compiler_context *cxt, q
 
 static void qb_transfer_operands_unset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_address *address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_ISSET);
 	if(SCALAR(address)) {
 		dest[0].address = address;
 		dest[0].type = QB_OPERAND_ADDRESS;
@@ -426,7 +426,7 @@ static void qb_transfer_operands_unset_object_property(qb_compiler_context *cxt,
 
 static void qb_transfer_operands_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_address *address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_ISSET);
 	qb_address *predicate_address = qb_find_predicate_address(cxt, container->address);
 	if(!predicate_address) {
 		predicate_address = cxt->true_address;
@@ -546,7 +546,7 @@ static void qb_transfer_operands_increment(qb_compiler_context *cxt, qb_op_facto
 
 static void qb_transfer_operands_increment_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_address *variable_address = qb_obtain_object_property(cxt, container, name);
+	qb_address *variable_address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_WRITE);
 	if(result->type == QB_OPERAND_ADDRESS) {
 		if(result->address != variable_address) {
 			qb_operand assigment_operands[2];
@@ -837,4 +837,27 @@ static uint32_t qb_get_operand_count_intrinsic(qb_compiler_context *cxt, qb_op_f
 		return f->get_operand_count(cxt, f, operands, operand_count);
 	}
 	return 0;
+}
+
+static void qb_transfer_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	const char *func_name = func->zend_function->common.function_name;
+	uint32_t func_name_len = strlen(func_name);
+	uint32_t func_index = qb_import_external_symbol(cxt, QB_EXT_SYM_ZEND_FUNCTION, func_name, func_name_len, func->zend_function);
+	uint32_t ret_index = (uint32_t) -1;
+	uint32_t i;
+
+	dest[0].number = func_index;
+	dest[0].type = QB_OPERAND_NUMBER;
+	dest[1].number = ret_index;
+	dest[1].type = QB_OPERAND_NUMBER;
+
+	for(i = 0; i < (uint32_t) argument_count->number; i++) {
+		qb_operand *arg = &arguments->arguments[i];
+		uint32_t var_index = qb_get_variable_index(cxt, arg->address);
+		qb_operand var;
+		var.type = QB_OPERAND_NUMBER;
+		var.number = var_index;
+		qb_create_op(cxt, &factory_send_zend_argument, &var, 1, NULL, NULL, 0, FALSE);
+	}
 }

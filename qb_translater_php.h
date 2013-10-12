@@ -50,11 +50,6 @@ struct qb_php_translater_context {
 
 	int32_t silence;
 
-	zend_function *previous_function;
-	zend_class_entry *previous_class;
-	zval *previous_object;
-	zval *previous_function_name;
-
 	qb_operand fcall_by_name_operands[2];
 
 	void ***tsrm_ls;

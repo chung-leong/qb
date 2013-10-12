@@ -25,6 +25,8 @@ typedef struct qb_variable					qb_variable;
 typedef struct qb_function					qb_function;
 typedef struct qb_native_code_bundle		qb_native_code_bundle;
 
+typedef enum qb_external_symbol_type		qb_external_symbol_type;
+
 enum {
 	QB_TYPE_DECL_STRING				= 0x00010000,
 	QB_TYPE_DECL_EXPANDABLE			= 0x00020000,
@@ -60,7 +62,7 @@ struct qb_variable {
 	};
 };
 
-enum {
+enum qb_external_symbol_type {
 	QB_EXT_SYM_ZEND_FUNCTION			= 1,
 	QB_EXT_SYM_ZEND_CLASS				= 2,
 	QB_EXT_SYM_PCRE						= 3,

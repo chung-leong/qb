@@ -1084,6 +1084,9 @@ void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval 
 					int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
 					uint32_t bytes_available = Z_STRLEN_P(zvalue);
 					if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
+						if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
+							ZVAL_NULL(zvalue);
+						}
 						return;
 					}
 				} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {

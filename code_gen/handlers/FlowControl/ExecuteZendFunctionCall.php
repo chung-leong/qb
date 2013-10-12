@@ -11,7 +11,7 @@ class ExecuteZendFunctionCall extends Handler {
 	}
 
 	public function getInputOperandCount() {
-		return 1;
+		return 2;
 	}
 	
 	public function needsInterpreterContext() {
@@ -34,16 +34,9 @@ class ExecuteZendFunctionCall extends Handler {
 		$lines = array();
 		$lines[] = "qb_external_symbol *symbol = function->external_symbols[op1];";
 		$lines[] = "zend_function *zfunc = symbol->pointer;";
-		$lines[] = "zval *retval = qb_execute_zend_function_call(cxt, zfunc, zend_argument_pointers, zend_argument_count);";
-		$lines[] = "uint32_t i;";
-		$lines[] = "for(i = 0; i < zend_argument_count; i++) {";
-		$lines[] =		"zval *zarg = zend_arguments[i];";
-		$lines[] =		"zval_dtor(zarg);";
-		$lines[] = "}";
-		$lines[] = "zend_argument_count = 0;";
-		$lines[] = "zend_argument_pointer_count = 0;";
+		$lines[] = "qb_variable *retvar = (op2 != (uint32_t) -1) ? function->variables[op2] : NULL;";
+		$lines[] = "qb_execute_zend_function_call(cxt, local_storage, retvar, zfunc, &zend_argument_stack);";
 		return $lines;
-;
 	}
 	
 }

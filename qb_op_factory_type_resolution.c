@@ -64,19 +64,9 @@ static qb_primitive_type qb_resolve_expression_type_cast(qb_compiler_context *cx
 	return cf->type;
 }
 
-static qb_address * qb_obtain_object_property(qb_compiler_context *cxt, qb_operand *container, qb_operand *name) {
-	qb_address *address;
-	if(container->type == QB_OPERAND_NONE) {
-		address = qb_obtain_instance_variable(cxt, name->constant);
-	} else if(container->type == QB_OPERAND_ADDRESS) {
-		address = qb_obtain_named_element(cxt, container->address, name->constant, QB_ARRAY_BOUND_CHECK_WRITE);
-	}
-	return address;
-}
-
 static qb_primitive_type qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
 	qb_primitive_type expr_type;
 
 	if(address) {
@@ -151,4 +141,8 @@ static qb_primitive_type qb_resolve_expression_type_intrinsic(qb_compiler_contex
 		return f->resolve_type(cxt, f, arguments->arguments, argument_count->number);
 	}
 	return QB_TYPE_VOID;
+}
+
+static qb_primitive_type qb_resolve_expression_type_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	return QB_TYPE_ANY;
 }

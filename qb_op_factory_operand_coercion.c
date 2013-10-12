@@ -232,3 +232,12 @@ static void qb_coerce_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory
 		f->coerce_operands(cxt, f, expr_type, arguments->arguments, argument_count->number);
 	}
 }
+
+static void qb_coerce_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	uint32_t i;
+	for(i = 0; i < (uint32_t) argument_count->number; i++) {
+		qb_operand *argument = &arguments->arguments[i];
+		qb_perform_type_coercion(cxt, argument, QB_TYPE_ANY, 0);
+	}
+}

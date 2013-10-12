@@ -700,11 +700,33 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *stora
 	return qb_resize_segment(segment, new_size);
 }
 
-zval * qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count) {
+void qb_push_zend_argument(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_zend_argument_stack *stack) {
+	zval ***pp_zarg, **p_zarg, *zarg;
+	if(!stack->arguments) {
+		qb_create_array((void **) &stack->arguments, &stack->argument_count, sizeof(zval *), 4);
+		qb_create_array((void **) &stack->argument_pointers, &stack->argument_pointer_count, sizeof(zval **), 4);
+	}
+	ALLOC_INIT_ZVAL(zarg);
+	qb_transfer_value_to_zval(storage, var->address, zarg);
+	p_zarg = qb_enlarge_array((void **) &stack->arguments, 1);
+	pp_zarg = qb_enlarge_array((void **) &stack->argument_pointers, 1);
+	*pp_zarg = p_zarg;
+	*p_zarg = zarg;
+}
+
+void qb_free_zend_argument_stack(qb_interpreter_context *cxt, qb_zend_argument_stack *stack) {
+	if(stack->arguments) {
+		qb_destroy_array((void **) &stack->arguments);
+		qb_destroy_array((void **) &stack->argument_pointers);
+	}
+}
+
+void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, zend_function *zfunc, qb_zend_argument_stack *stack) {
 	USE_TSRM
 	zval *retval;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcc;
+	uint32_t i;
 
 	// copy global and class variables back to PHP first
 	// TODO
@@ -741,9 +763,9 @@ zval * qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function 
 #endif
 	fci.function_name = qb_cstring_to_zval(zfunc->common.function_name TSRMLS_CC);
 	fci.retval_ptr_ptr = &retval;
-	fci.param_count = argument_count;
-	fci.params = argument_pointers;
-	fci.no_separation = 0;
+	fci.param_count = stack->argument_count;
+	fci.params = stack->argument_pointers;
+	fci.no_separation = 1;
 	fci.symbol_table = NULL;
 
 	if(zend_call_function(&fci, &fcc TSRMLS_CC) == SUCCESS) {
@@ -757,5 +779,14 @@ zval * qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function 
 	// copy values of global and class variables from PHP again
 	// TODO
 
-	return retval;
+	if(retvar) {
+		qb_transfer_value_from_zval(storage, retvar->address, retval, QB_TRANSFER_CAN_SEIZE_MEMORY);
+	}
+	for(i = 0; i < stack->argument_count; i++) {
+		zval *zarg = stack->arguments[i];
+		zval_ptr_dtor(&zarg);
+	}
+	stack->argument_count = 0;
+	stack->argument_pointer_count = 0;
+	zval_ptr_dtor(&retval);
 }

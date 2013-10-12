@@ -857,7 +857,41 @@ qb_op_factory factory_intrinsic = {
 	0,
 };
 
-void *factories_fcall[] = { &factory_intrinsic, NULL, NULL };
+qb_simple_op_factory factory_zend_function_call = {
+	qb_resolve_expression_type_zend_function_call,
+	NULL,
+	qb_coerce_operands_zend_function_call,
+	qb_set_result_prototype,
+	qb_validate_operands_zend_function_call,
+	qb_set_result_zend_function_call,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_zend_function_call,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_FCALL_ZE_U32_U32,
+};
+
+qb_simple_op_factory factory_send_zend_argument = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	qb_transfer_operands_first,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_ARG_VAR_ZE_U32,
+};
+
+void *factories_fcall[] = { &factory_intrinsic, NULL, &factory_zend_function_call };
 
 qb_cast_op_factory factory_cast_S08 = {
 	qb_resolve_expression_type_cast,

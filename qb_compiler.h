@@ -324,6 +324,8 @@ qb_address * qb_obtain_instance_variable(qb_compiler_context *cxt, zval *name);
 qb_address * qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name);
 qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *name, qb_primitive_type type);
 qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim, uint32_t address_flags, qb_result_prototype *result_prototype);
+qb_address * qb_obtain_object_property(qb_compiler_context *cxt, qb_operand *container, qb_operand *name, uint32_t bound_check_flags);
+qb_address * qb_obtain_result_destination_address(qb_compiler_context *cxt, qb_result_destination *destination);
 
 qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
 qb_address * qb_create_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim);
@@ -333,12 +335,15 @@ qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_init
 
 int32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
 
+uint32_t qb_import_external_symbol(qb_compiler_context *cxt, qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer);
+
 qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name, uint32_t type_mask);
 qb_variable * qb_get_local_variable(qb_compiler_context *cxt, zval *name);
 qb_variable * qb_get_global_variable(qb_compiler_context *cxt, zval *name);
 qb_variable * qb_get_static_variable(qb_compiler_context *cxt, zval *name);
 qb_variable * qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name);
 qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name);
+uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address);
 
 void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar);
 

@@ -49,7 +49,7 @@ typedef qb_primitive_type (*qb_resolve_expression_type_proc)(qb_compiler_context
 
 typedef void (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
 
-typedef void (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
+typedef void (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination);
 
 typedef void (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
 
@@ -340,6 +340,10 @@ extern qb_basic_op_factory factory_branch_on_equal;
 extern qb_basic_op_factory factory_branch_on_not_equal;
 extern qb_basic_op_factory factory_branch_on_less_than;
 extern qb_basic_op_factory factory_branch_on_less_equal;
+
+extern qb_op_factory factory_intrinsic;
+extern qb_simple_op_factory factory_zend_function_call;
+extern qb_simple_op_factory factory_send_zend_argument;
 
 extern qb_simple_op_factory factory_return;
 extern qb_simple_op_factory factory_exit;

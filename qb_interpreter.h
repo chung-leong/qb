@@ -26,6 +26,7 @@ typedef struct qb_interpreter_context	qb_interpreter_context;
 typedef struct qb_native_symbol			qb_native_symbol;
 typedef struct qb_native_proc_record	qb_native_proc_record;
 typedef struct qb_import_scope			qb_import_scope;
+typedef struct qb_zend_argument_stack	qb_zend_argument_stack;
 
 typedef enum qb_import_scope_type		qb_import_scope_type;
 
@@ -48,6 +49,13 @@ struct qb_import_scope {
 		zval *zend_object;
 		void *associated_object;
 	};
+};
+
+struct qb_zend_argument_stack {
+	zval **arguments;
+	uint32_t argument_count;
+	zval ***argument_pointers;
+	uint32_t argument_pointer_count;
 };
 
 enum {
@@ -106,7 +114,9 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *stora
 qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object);
 qb_variable * qb_get_import_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_import_scope *scope);
 
-zval * qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count);
+void qb_push_zend_argument(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_zend_argument_stack *stack);
+void qb_free_zend_argument_stack(qb_interpreter_context *cxt, qb_zend_argument_stack *stack);
+void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, zend_function *zfunc, qb_zend_argument_stack *stack);
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);

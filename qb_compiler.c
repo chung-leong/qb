@@ -1770,6 +1770,26 @@ static qb_type_declaration * qb_find_variable_declaration_in_list(qb_compiler_co
 	return NULL;
 }
 
+uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address) {
+	uint32_t i;	
+	qb_variable *qvar;
+	while(address->source_address) {
+		if(address->source_address->dimension_count == address->dimension_count) {
+			address = address->source_address;
+		}
+	}
+	for(i = 0; i < cxt->variable_count; i++) {
+		qvar = cxt->variables[i];
+		if(qvar->address == address) {
+			return i;
+		}
+	}
+	qvar = qb_allocate_variable(cxt->pool);
+	qvar->address = address;
+	qb_add_variable(cxt, qvar);
+	return i;
+}
+
 static qb_type_declaration * qb_find_variable_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 	qb_type_declaration *decl = NULL;
 	qb_function_declaration *f_decl = cxt->function_declaration;
@@ -2091,13 +2111,13 @@ void qb_initialize_function_prototype(qb_compiler_context *cxt) {
 	cxt->function_prototype.local_storage = cxt->storage;
 }
 
-static uint32_t qb_import_external_symbol(qb_compiler_context *cxt, uint32_t type, const char *name, uint32_t name_len, void *pointer) {
+uint32_t qb_import_external_symbol(qb_compiler_context *cxt, qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer) {
 	uint32_t i;
 	qb_external_symbol *symbol;
 	if(cxt->external_symbols) {
 		for(i = 0; i < cxt->external_symbol_count; i++) {
 			symbol = &cxt->external_symbols[i];
-			if(symbol->pointer == pointer) {
+			if(symbol->pointer == pointer && symbol->type == type) {
 				return i;
 			}
 		}
@@ -2218,6 +2238,38 @@ qb_primitive_type qb_get_result_destination_type(qb_compiler_context *cxt, qb_re
 		}
 	}
 	return QB_TYPE_UNKNOWN;
+}
+
+qb_address * qb_obtain_object_property(qb_compiler_context *cxt, qb_operand *container, qb_operand *name, uint32_t bound_check_flags) {
+	qb_address *address;
+	if(container->type == QB_OPERAND_NONE) {
+		address = qb_obtain_instance_variable(cxt, name->constant);
+	} else if(container->type == QB_OPERAND_ADDRESS) {
+		address = qb_obtain_named_element(cxt, container->address, name->constant, bound_check_flags);
+	}
+	return address;
+}
+
+qb_address * qb_obtain_result_destination_address(qb_compiler_context *cxt, qb_result_destination *destination) {
+	if(destination) {
+		switch(destination->type) {
+			case QB_RESULT_DESTINATION_VARIABLE: {
+				return destination->variable.address;
+			}
+			case QB_RESULT_DESTINATION_ELEMENT: {
+				return qb_obtain_array_element(cxt, destination->element.container.address, destination->element.index.address, QB_ARRAY_BOUND_CHECK_WRITE);
+			}
+			case QB_RESULT_DESTINATION_PROPERTY: {
+				return qb_obtain_object_property(cxt, &destination->property.container, &destination->property.name, QB_ARRAY_BOUND_CHECK_WRITE);
+			}
+			case QB_RESULT_DESTINATION_RETURN: {
+				if(cxt->return_variable->address) {
+					return cxt->return_variable->address;
+				}
+			}
+		}
+	}
+	return NULL;
 }
 
 qb_primitive_type qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand *operands, uint32_t count, uint32_t flags) {
@@ -2923,7 +2975,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		// do validation
 		if(f->validate_operands) {
-			f->validate_operands(cxt, f, expr_type, operands, operand_count);
+			f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype->destination) ? result_prototype->destination : NULL);
 		}
 	}
 

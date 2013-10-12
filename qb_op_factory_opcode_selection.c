@@ -94,7 +94,7 @@ static qb_opcode qb_select_opcode_array_element_isset(qb_compiler_context *cxt, 
 static qb_opcode qb_select_opcode_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
 
 	if(SCALAR(address)) {
 		qb_operand operand = { QB_OPERAND_ADDRESS, address };
@@ -139,7 +139,7 @@ static qb_opcode qb_select_opcode_unset_array_element(qb_compiler_context *cxt, 
 static qb_opcode qb_select_opcode_unset_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
 	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
 	qb_operand operand = { QB_OPERAND_ADDRESS, address };
 	if(SCALAR(address)) {
 		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, &operand);

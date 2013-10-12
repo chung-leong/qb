@@ -164,7 +164,7 @@ static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op
 	qb_operand *container = &operands[0], *name = &operands[1], *value = &operands[2];
 
 	if(expr_type != QB_TYPE_VOID) {
-		qb_address *result_address = qb_obtain_object_property(cxt, container, name);
+		qb_address *result_address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_WRITE);
 		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address, FALSE);
 		result->type = QB_OPERAND_ADDRESS;
 	}
@@ -455,5 +455,28 @@ static void qb_set_final_result_intrinsic(qb_compiler_context *cxt, qb_op_factor
 	f = func->intrinsic_function->extra;
 	if(f->set_final_result) {
 		f->set_final_result(cxt, f, expr_type, arguments->arguments, argument_count->number, result, result_prototype);
+	}
+}
+
+static void qb_set_result_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(result_prototype->destination) {
+		qb_address *destination_address = qb_obtain_result_destination_address(cxt, result_prototype->destination);
+		int32_t direct_assignment = FALSE;
+		if(destination_address->mode == QB_ADDRESS_MODE_SCA) {
+			direct_assignment = TRUE;
+		} else if(destination_address->mode == QB_ADDRESS_MODE_ARR && !destination_address->source_address) {
+			direct_assignment = TRUE;
+		}
+		if(direct_assignment) {
+			if(destination_address) {
+				result->address = destination_address;
+			}
+		} else {
+			// use a temporary variable
+			qb_variable_dimensions dim;
+			qb_copy_address_dimensions(cxt, destination_address, 0, &dim);
+			result->address = qb_obtain_temporary_variable(cxt, expr_type, &dim);
+		}
+		result->type = QB_OPERAND_ADDRESS;
 	}
 }

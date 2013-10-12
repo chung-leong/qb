@@ -314,7 +314,7 @@ static void qb_set_result_dimensions_second_operand(qb_compiler_context *cxt, qb
 
 static void qb_set_result_dimensions_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_address *address = qb_obtain_object_property(cxt, container, name);
+	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
 	qb_copy_address_dimensions(cxt, address, 0, dim);
 }
 
@@ -657,3 +657,5 @@ static void qb_set_result_dimensions_pack(qb_compiler_context *cxt, qb_op_factor
 	dim->dimension_count = 1;
 	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = byte_count_address;
 }
+
+
