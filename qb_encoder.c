@@ -697,11 +697,14 @@ void qb_free_function(qb_function *qfunc) {
 	// free memory segments
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
-		if(segment->memory) {
-			if(segment->flags & QB_SEGMENT_MAPPED) {
-				// PHP should have clean it already
-			} else if(!(segment->flags & QB_SEGMENT_BORROWED)) {
-				efree(segment->memory);
+		if(segment->flags & QB_SEGMENT_IMPORTED) {
+		} else {
+			if(segment->memory) {
+				if(segment->flags & QB_SEGMENT_MAPPED) {
+					// PHP should have clean it already
+				} else if(!(segment->flags & QB_SEGMENT_BORROWED)) {
+					efree(segment->memory);
+				}
 			}
 		}
 	}

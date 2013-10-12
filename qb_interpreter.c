@@ -170,12 +170,6 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 			qb_variable *ivar = qb_get_import_variable(cxt, qfunc->local_storage, qvar, scope);
 			qb_memory_segment *local_segment, *scope_segment;
 
-			// transfer the value from PHP
-			qb_transfer_value_from_import_source(cxt, ivar, scope);
-			if(!READ_ONLY(qvar->address)) {
-				ivar->address->flags &= ~QB_ADDRESS_READ_ONLY;
-			}
-
 			// import the segment constaining the variable
 			local_segment = &qfunc->local_storage->segments[qvar->address->segment_selector];
 			scope_segment = &scope->storage->segments[ivar->address->segment_selector];
@@ -190,6 +184,12 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 						qb_import_segment(local_segment, scope_segment);
 					}
 				}
+			}
+
+			// transfer the value from PHP
+			qb_transfer_value_from_import_source(cxt, ivar, scope);
+			if(!READ_ONLY(qvar->address)) {
+				ivar->address->flags &= ~QB_ADDRESS_READ_ONLY;
 			}
 		}
 	}
@@ -252,6 +252,32 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
 }
 
 void qb_free_interpreter_context(qb_interpreter_context *cxt) {
+	uint32_t i, j;
+	for(i = 0; i < cxt->scope_count; i++) {
+		qb_import_scope *scope = cxt->scopes[i];
+		if(scope->type != QB_IMPORT_SCOPE_OBJECT) {
+			for(j = (scope->parent) ? scope->parent->variable_count : 0; j < scope->variable_count; j++) {
+				qb_variable *var = scope->variables[j];
+				efree(var);
+			}
+			efree(scope->variables);
+		}
+		
+		if(!scope->parent) {
+			for(j = 0; j < scope->storage->segment_count; j++) {
+				qb_memory_segment *segment = &scope->storage->segments[j];
+				if(segment->memory) {
+					efree(segment->memory);
+				}
+			}
+			efree(scope->storage->segments);
+			efree(scope->storage);
+		}
+		efree(scope);
+	}
+	if(cxt->scopes) {
+		efree(cxt->scopes);
+	}
 }
 
 void qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function);
