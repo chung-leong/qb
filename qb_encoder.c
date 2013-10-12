@@ -541,6 +541,8 @@ static int8_t * qb_copy_storage_structure(qb_encoder_context *cxt, int8_t * memo
 		dst->current_allocation = 0;
 		dst->stream = NULL;
 		dst->memory = NULL;
+		dst->imported_segment = NULL;
+		dst->next_dependent = NULL;
 		dst->reference_count = 0;
 
 		if(src->reference_count > 0) {

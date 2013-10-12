@@ -364,9 +364,12 @@ static qb_address * qb_obtain_on_demand_greater_than(qb_compiler_context *cxt, q
 	return qb_obtain_on_demand_value(cxt, &factory_less_than, operands, 2);
 }
 
-qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_address *src_size_address, qb_address *address) {
+qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_address *src_size_address, qb_address *address, int32_t resizing) {
 	if(address->array_size_address == src_size_address) {
 		// size match: no bound-checking needed
+		return address;
+	} else if(cxt->one_address == src_size_address) {
+		// a scalar will not cause overrun
 		return address;
 	} else {
 		if(CONSTANT(address->array_size_address) && CONSTANT(src_size_address)) {
@@ -377,7 +380,7 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 				return address;
 			}
 		}
-		if(RESIZABLE(address)) {
+		if(resizing && RESIZABLE(address)) {
 			// accommodate the input by resizing the array
 			// if it's multidimensional, the dimension has to be updated as well
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address }, { QB_OPERAND_ADDRESS, src_size_address } };
@@ -1530,7 +1533,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 
 	if(RESIZABLE(target_address)) {
 		// put a wrapper around it to make it expand/contract
-		target_address = qb_obtain_bound_checked_address(cxt, dim->array_size_address, target_address);
+		target_address = qb_obtain_bound_checked_address(cxt, dim->array_size_address, target_address, TRUE);
 	}
 	if(TEMPORARY(target_address)) {
 		if(dim->dimension_count > 1) {
@@ -2759,7 +2762,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 	qb_opcode opcode = QB_NOP;
 	qb_op *qop;
 	uint32_t op_flags, op_index;
-	uint32_t i;
+	uint32_t i, j;
 
 	// get the opcode for the operands 
 	// at this point, the operands should have the correct type
@@ -2769,7 +2772,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 	op_flags = qb_get_op_flags(cxt, opcode);
 
 	// make it a NOP if the result isn't used and the op has no side effect
-	if(!result_used && !(op_flags & QB_OP_JUMP) && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT)) {
+	if(!(result_used || (op_flags & QB_OP_JUMP) || (f->result_flags & QB_RESULT_HAS_SIDE_EFFECT))) {
 		opcode = QB_NOP;
 	}
 
@@ -2780,22 +2783,32 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 	qop->opcode = opcode;
 	qop->line_number = cxt->line_number;
 
-	// figure out how many operands there will be 
-	if(!(op_flags & QB_OP_VARIABLE_LENGTH)) {
-		qop->operand_count = qb_get_operand_count(cxt, opcode);
-	} else {
-		qop->operand_count = f->get_operand_count(cxt, f, operands, operand_count);
-	}
+	if(opcode != QB_NOP) {
+		// figure out how many operands there will be 
+		if(!(op_flags & QB_OP_VARIABLE_LENGTH)) {
+			qop->operand_count = qb_get_operand_count(cxt, opcode);
+		} else {
+			qop->operand_count = f->get_operand_count(cxt, f, operands, operand_count);
+		}
 
-	// move the operands into the op
-	qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
-	if(f->transfer_operands) {
-		f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands, qop->operand_count);
-	}
+		// move the operands into the op
+		qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
+		if(f->transfer_operands) {
+			f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands, qop->operand_count);
+		}
 
-	// add the ops for calculating on-demand values 
-	for(i = 0; i < qop->operand_count; i++) {
-		qb_create_on_demand_op(cxt, &qop->operands[i]);
+		// add the ops for calculating on-demand values 
+		for(i = 0; i < qop->operand_count; i++) {
+			int32_t duplicate = FALSE;
+			for(j = 0; j < i; j++) {
+				if(qop->operands[i].type == qop->operands[j].type && qop->operands[i].address == qop->operands[j].address) {
+					duplicate = TRUE;
+				}
+			}
+			if(!duplicate) {
+				qb_create_on_demand_op(cxt, &qop->operands[i]);
+			}
+		}
 	}
 
 	/*

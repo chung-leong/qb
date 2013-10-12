@@ -1081,7 +1081,7 @@ qb_arithmetic_op_factory factory_increment_pre = {
 	NULL,
 	qb_set_result_first_operand,
 	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_increment,
+	qb_select_opcode_nullary_arithmetic,
 	NULL,
 	qb_transfer_operands_result_only,
 
@@ -1104,7 +1104,7 @@ qb_arithmetic_op_factory factory_decrement_pre = {
 	NULL,
 	qb_set_result_first_operand,
 	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_increment,
+	qb_select_opcode_nullary_arithmetic,
 	NULL,
 	qb_transfer_operands_result_only,
 
@@ -1163,7 +1163,7 @@ qb_arithmetic_op_factory factory_increment_object_property_pre = {
 	qb_validate_operands_object_property,
 	qb_set_result_fetch_object_property,
 	qb_set_result_dimensions_object_property,
-	qb_select_opcode_increment_object_property,
+	qb_select_opcode_nullary_arithmetic,
 	NULL,
 	qb_transfer_operands_increment_object_property,
 
@@ -1186,7 +1186,7 @@ qb_arithmetic_op_factory factory_decrement_object_property_pre = {
 	qb_validate_operands_object_property,
 	qb_set_result_fetch_object_property,
 	qb_set_result_dimensions_object_property,
-	qb_select_opcode_increment_object_property,
+	qb_select_opcode_nullary_arithmetic,
 	NULL,
 	qb_transfer_operands_increment_object_property,
 
@@ -1723,7 +1723,7 @@ qb_arithmetic_op_factory factory_add = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_arithmetic,
+	qb_select_opcode_binary_arithmetic,
 	NULL,
 	qb_transfer_operands_all,
 
@@ -1746,7 +1746,7 @@ qb_arithmetic_op_factory factory_subtract = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_arithmetic,
+	qb_select_opcode_binary_arithmetic,
 	NULL,
 	qb_transfer_operands_all,
 
@@ -1769,7 +1769,7 @@ qb_arithmetic_op_factory factory_multiply = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_arithmetic,
+	qb_select_opcode_binary_arithmetic,
 	NULL,
 	qb_transfer_operands_all,
 
@@ -1792,7 +1792,7 @@ qb_arithmetic_op_factory factory_divide = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_arithmetic,
+	qb_select_opcode_binary_arithmetic,
 	NULL,
 	qb_transfer_operands_all,
 
@@ -1815,7 +1815,7 @@ qb_arithmetic_op_factory factory_modulo = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_arithmetic,
+	qb_select_opcode_binary_arithmetic,
 	NULL,
 	qb_transfer_operands_all,
 
@@ -1838,7 +1838,7 @@ qb_float_op_factory factory_floor_modulo = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_arithmetic,
+	qb_select_opcode_basic,
 	NULL,
 	qb_transfer_operands_all,
 

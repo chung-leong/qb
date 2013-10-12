@@ -181,87 +181,135 @@ static uint32_t qb_get_minimum_width(qb_compiler_context *cxt, qb_operand *opera
 	return width;
 }
 
-static qb_opcode qb_select_vectorized_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_address *address = operands[0].address;
-	if(address->type >= QB_TYPE_F32) {
-		uint32_t i, j, result_count = (result->type == QB_OPERAND_ADDRESS ? 1 : 0);
+static qb_opcode qb_select_vectorized_nullary_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *result) {
+	if(result->address->type >= QB_TYPE_F32) {
+		uint32_t width1 = qb_get_minimum_width(cxt, result);
+		uint32_t denominator;
+		qb_opcode opcode;
 
-		// see if the operands are divisible by 2, 3, or 4
-		int32_t divisible[5] = { FALSE, TRUE, TRUE, TRUE, TRUE };
-		for(i = 0; i < operand_count + result_count; i++) {
-			uint32_t width = qb_get_minimum_width(cxt, (i < operand_count) ? &operands[i] : result);
-			if(width) {
-				divisible[2] = divisible[2] && !(width & 0x0001);
-				divisible[3] = divisible[3] && !(width % 3);
-				divisible[4] = divisible[4] && !(width & 0x0003);
-			} else {
-				return QB_NOP;
-			}
+		if((width1 % 4) == 0) {
+			denominator = 4;
+		} else if((width1 % 3) == 0) {
+			denominator = 3;
+		} else if((width1 % 2) == 0) {
+			denominator = 2;
+		} else {
+			return QB_NOP;
 		}
-		for(j = 4; j >= 2; j--) {
-			if(divisible[j]) {
-				qb_opcode opcode = opcodes[j - 2][QB_TYPE_F64 - address->type];
-
-				// see if the multiple-input-output version of the op is needed
-				int32_t multiple_data = FALSE;
-				for(i = 0; i < operand_count + result_count; i++) {
-					qb_address *address = (i < operand_count) ? operands[i].address : result->address;
-					if(VARIABLE_LENGTH(address) || ARRAY_SIZE(address) > j) {
-						// the MIO version is right behind the regular one
-						opcode++;
-						break;
-					}
-				}
-				return opcode;
-			}
+		opcode = opcodes[denominator - 2][QB_TYPE_F64 - result->address->type];
+		if(width1 > denominator) {
+			opcode = qb_select_multidata_opcode(cxt, opcode);
 		}
+		return opcode;
+	} else {
+		return QB_NOP;
 	}
-	return QB_NOP;
+}
+
+static qb_opcode qb_select_opcode_nullary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
+	qb_opcode opcode = qb_select_vectorized_nullary_opcode(cxt, af->vector_opcodes, result);
+	if(opcode == QB_NOP) {
+		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operands[0]);
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_vectorized_unary_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *operand1, qb_operand *result) {
+	if(operand1->address->type >= QB_TYPE_F32) {
+		uint32_t width1 = qb_get_minimum_width(cxt, operand1);
+		uint32_t width2 = qb_get_minimum_width(cxt, result);
+		uint32_t denominator;
+		qb_opcode opcode;
+
+		if((width1 % 4) == 0 && (width2 % 4) == 0) {
+			denominator = 4;
+		} else if((width1 % 3) == 0 && (width2 % 3) == 0) {
+			denominator = 3;
+		} else if((width1 % 2) == 0 && (width2 % 2) == 0) {
+			denominator = 2;
+		} else {
+			return QB_NOP;
+		}
+		opcode = opcodes[denominator - 2][QB_TYPE_F64 - operand1->address->type];
+		if(width1 > denominator || width2 > denominator) {
+			opcode = qb_select_multidata_opcode(cxt, opcode);
+		}
+		return opcode;
+	} else {
+		return QB_NOP;
+	}
+}
+
+static qb_opcode qb_select_opcode_unary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
+	qb_opcode opcode = qb_select_vectorized_unary_opcode(cxt, af->vector_opcodes, &operands[0], result);
+	if(opcode == QB_NOP) {
+		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operands[0]);
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_opcode_unary_arithmetic_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
+	qb_opcode opcode = qb_select_vectorized_unary_opcode(cxt, af->vector_opcodes, &operands[2], result);
+	if(opcode == QB_NOP) {
+		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operands[2]);
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_vectorized_binary_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *operand1, qb_operand *operand2, qb_operand *result) {
+	if(operand1->address->type >= QB_TYPE_F32) {
+		uint32_t width1 = qb_get_minimum_width(cxt, operand1);
+		uint32_t width2 = qb_get_minimum_width(cxt, operand2);
+		uint32_t width3 = qb_get_minimum_width(cxt, result);
+		uint32_t denominator;
+		qb_opcode opcode;
+
+		if((width1 % 4) == 0 && (width2 % 4) == 0 && (width3 % 4) == 0) {
+			denominator = 4;
+		} else if((width1 % 3) == 0 && (width2 % 3) == 0 && (width3 % 3) == 0) {
+			denominator = 3;
+		} else if((width1 % 2) == 0 && (width2 % 2) == 0 && (width3 % 2) == 0) {
+			denominator = 2;
+		} else {
+			return QB_NOP;
+		}
+		opcode = opcodes[denominator - 2][QB_TYPE_F64 - operand1->address->type];
+		if(width1 > denominator || width2 > denominator || width3 > denominator) {
+			opcode = qb_select_multidata_opcode(cxt, opcode);
+		}
+		return opcode;
+	} else {
+		return QB_NOP;
+	}
+}
+
+static qb_opcode qb_select_opcode_binary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
+	qb_opcode opcode = qb_select_vectorized_binary_opcode(cxt, af->vector_opcodes, &operands[0], &operands[1], result);
+	if(opcode == QB_NOP) {
+		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operands[0]);
+	}
+	return opcode;
 }
 
 static qb_opcode qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_operand *value = &operands[operand_count - 1];
 	qb_copy_op_factory *cf = (qb_copy_op_factory *) f;
-	qb_address *src_address = operands[operand_count - 1].address;
+	qb_address *src_address = value->address;
 	qb_address *dst_address = result->address;	
 	qb_opcode opcode = QB_NOP;
 	if(result->type != QB_OPERAND_NONE) {
 		if(src_address->type == dst_address->type) {
 			// vectorized instructions are available only for copying between variables of the same type
-			opcode = qb_select_vectorized_opcode(cxt, cf->vector_opcodes, &operands[operand_count - 1], 1, result);
+			opcode = qb_select_vectorized_unary_opcode(cxt, cf->vector_opcodes, value, result);
 		}
 		if(opcode == QB_NOP) {
 			opcode = cf->opcodes[QB_TYPE_F64 - src_address->type][QB_TYPE_F64 - dst_address->type];
 		}
-	}
-	return opcode;
-}
-
-static qb_opcode qb_select_opcode_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
-	qb_opcode opcode = qb_select_vectorized_opcode(cxt, af->vector_opcodes, operands, operand_count, result);
-	if(opcode == QB_NOP) {
-		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, (operand_count > 0) ? &operands[0] : result);
-	}
-	return opcode;
-}
-
-static qb_opcode qb_select_opcode_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
-	qb_operand operand = operands[0];
-	qb_opcode opcode = qb_select_vectorized_opcode(cxt, af->vector_opcodes, &operand, 1, result);
-	if(opcode == QB_NOP) {
-		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operand);
-	}
-	return opcode;
-}
-
-static qb_opcode qb_select_opcode_increment_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_operand *container = &operands[0], *name = &operands[1];
-	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
-	qb_operand operand = { QB_OPERAND_ADDRESS, qb_obtain_object_property(cxt, container, name) };
-	qb_opcode opcode = qb_select_vectorized_opcode(cxt, af->vector_opcodes, &operand, 1, result);
-	if(opcode == QB_NOP) {
-		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operand);
 	}
 	return opcode;
 }

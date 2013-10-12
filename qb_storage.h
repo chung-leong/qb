@@ -43,10 +43,9 @@ struct qb_memory_segment {
 	uint32_t flags;
 	uint32_t byte_count;						// number of bytes in this segment
 	uint32_t current_allocation;				// number of bytes allocated
-	union {
-		php_stream *stream;						// memory-mapped file
-		qb_memory_segment *imported_segment;	// imported segment
-	};
+	php_stream *stream;							// memory-mapped file
+	qb_memory_segment *imported_segment;		// imported segment
+	qb_memory_segment *next_dependent;
 	uintptr_t **references;
 	uint32_t reference_count;
 };

@@ -20,16 +20,22 @@
 
 #include "qb.h"
 
-static intptr_t qb_set_segment_memory(qb_memory_segment *segment, int8_t *memory) {
-	if(segment->memory != memory) {
+static intptr_t qb_relocate_segment_memory(qb_memory_segment *segment, int8_t *new_location) {
+	if(segment->memory != new_location) {
 		// adjust references in code
 		uint32_t i;
-		intptr_t diff = memory - segment->memory;
+		intptr_t diff = new_location - segment->memory;
 		for(i = 0; i < segment->reference_count; i++) {
 			intptr_t *p_ref = segment->references[i];
 			*p_ref += diff;
 		}
-		segment->memory = memory;
+		segment->memory = new_location;
+
+		// relocate other segments that point to the same location
+		if(segment->next_dependent) {
+			qb_relocate_segment_memory(segment->next_dependent, new_location);
+		}
+
 		// return the shift in location
 		return diff;
 	}
@@ -37,9 +43,12 @@ static intptr_t qb_set_segment_memory(qb_memory_segment *segment, int8_t *memory
 }
 
 void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segment) {
+	qb_relocate_segment_memory(segment, other_segment->memory);
+
 	segment->flags |= QB_SEGMENT_IMPORTED;
 	segment->imported_segment = other_segment;
-	qb_set_segment_memory(segment, other_segment->memory);
+	segment->next_dependent = other_segment->next_dependent;
+	other_segment->next_dependent = segment;
 }
 
 void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count) {
@@ -56,7 +65,7 @@ void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count)
 			int8_t *data_end = memory + byte_count;
 			segment->current_allocation = new_allocation;
 			memset(data_end, 0, extra);
-			qb_set_segment_memory(segment, memory);
+			qb_relocate_segment_memory(segment, memory);
 		}
 	}
 }
@@ -72,7 +81,7 @@ static int32_t qb_connect_segment_to_memory(qb_memory_segment *segment, int8_t *
 				segment->flags |= QB_SEGMENT_BORROWED;
 			}
 			if(segment->current_allocation) {
-				qb_set_segment_memory(segment, memory);
+				qb_relocate_segment_memory(segment, memory);
 			}
 			return TRUE;
 		} else {
@@ -108,7 +117,10 @@ static int32_t qb_connect_segment_to_file(qb_memory_segment *segment, php_stream
 
 void qb_release_segment(qb_memory_segment *segment) {
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
+		qb_memory_segment *other_segment = segment->imported_segment;
 		segment->flags &= ~QB_SEGMENT_IMPORTED;
+		other_segment->next_dependent = segment->next_dependent;
+		segment->next_dependent = NULL;
 		segment->imported_segment = NULL;
 	} else if(segment->flags & QB_SEGMENT_MAPPED) {
 		TSRMLS_FETCH();
@@ -160,7 +172,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 		memset(current_data_end, 0, addition);
 		segment->byte_count = new_size;
 		segment->current_allocation = new_allocation;
-		return qb_set_segment_memory(segment, memory);
+		return qb_relocate_segment_memory(segment, memory);
 	} else {
 		segment->byte_count = new_size;
 	}
