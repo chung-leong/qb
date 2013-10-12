@@ -210,11 +210,12 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 		func_decl = qb_parse_function_doc_comment(parser_cxt, doc_comment, doc_comment_len);
 		if(func_decl) {
 			// add QB instruction
-			zend_op *qb_op = &op_array->opcodes[op_array->last++];
-			qb_op->opcode = qb_user_opcode;
-			Z_OPERAND_TYPE(qb_op->op1) = IS_UNUSED;
-			Z_OPERAND_TYPE(qb_op->op2) = IS_UNUSED;
-			Z_OPERAND_TYPE(qb_op->result) = IS_UNUSED;
+			zend_op *user_op = &op_array->opcodes[op_array->last++];
+			user_op->opcode = qb_user_opcode;
+			Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
+			Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
+			Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
+			user_op->lineno = 0;
 
 			// add the declaration to the build
 			qb_add_function_declaration(build_cxt, func_decl);

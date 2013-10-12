@@ -18,6 +18,10 @@ class ExecuteZendFunctionCall extends Handler {
 		return true;
 	}
 	
+	public function needsLineNumber() {
+		return true;
+	}
+	
 	public function needsLocalStorage() {
 		return true;
 	}
@@ -35,7 +39,7 @@ class ExecuteZendFunctionCall extends Handler {
 		$lines[] = "qb_external_symbol *symbol = function->external_symbols[op1];";
 		$lines[] = "zend_function *zfunc = symbol->pointer;";
 		$lines[] = "qb_variable *retvar = (op2 != (uint32_t) -1) ? function->variables[op2] : NULL;";
-		$lines[] = "qb_execute_zend_function_call(cxt, local_storage, retvar, zfunc, &zend_argument_stack);";
+		$lines[] = "qb_execute_zend_function_call(cxt, local_storage, retvar, zfunc, &zend_argument_stack, line_number);";
 		return $lines;
 	}
 	

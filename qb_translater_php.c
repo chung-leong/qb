@@ -598,8 +598,11 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_fetch_array_element_isset			},	// ZEND_FETCH_DIM_IS
 	{	qb_translate_basic_op,				&factory_fetch_object_property_isset		},	// ZEND_FETCH_OBJ_IS
 	{	qb_translate_fetch,					factories_fetch_variable					},	// ZEND_FETCH_FUNC_ARG
-	{	qb_translate_basic_op,				NULL										},	// ZEND_FETCH_DIM_FUNC_ARG
-	{	qb_translate_basic_op,				NULL										},	// ZEND_FETCH_OBJ_FUNC_ARG
+
+	// TODO: fix this so the correct factory is used when the function accepts reference
+	{	qb_translate_basic_op,				&factory_fetch_array_element_read			},	// ZEND_FETCH_DIM_FUNC_ARG
+	{	qb_translate_basic_op,				&factory_fetch_object_property_read			},	// ZEND_FETCH_OBJ_FUNC_ARG
+
 	{	qb_translate_fetch,					factories_fetch_variable					},	// ZEND_FETCH_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_array_element_isset			},	// ZEND_FETCH_DIM_UNSET
 	{	qb_translate_basic_op,				&factory_fetch_object_property_isset		},	// ZEND_FETCH_OBJ_UNSET

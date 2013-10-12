@@ -721,12 +721,14 @@ void qb_free_zend_argument_stack(qb_interpreter_context *cxt, qb_zend_argument_s
 	}
 }
 
-void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, zend_function *zfunc, qb_zend_argument_stack *stack) {
+void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, zend_function *zfunc, qb_zend_argument_stack *stack, uint32_t line_number) {
 	USE_TSRM
 	zval *retval;
+	zend_op **p_user_op = EG(opline_ptr);
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcc;
 	uint32_t i;
+	int call_result;
 
 	// copy global and class variables back to PHP first
 	// TODO
@@ -768,7 +770,13 @@ void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *stor
 	fci.no_separation = 1;
 	fci.symbol_table = NULL;
 
-	if(zend_call_function(&fci, &fcc TSRMLS_CC) == SUCCESS) {
+	// set the qb user op's line number to the line number where the call occurs
+	// so that debug_backtrace() will get the right number
+	(*p_user_op)->lineno = line_number;
+	call_result = zend_call_function(&fci, &fcc TSRMLS_CC);
+	(*p_user_op)->lineno = 0;
+
+	if(call_result == SUCCESS) {
 		if(EG(exception)) {
 			cxt->exception_encountered = TRUE;
 		}
