@@ -95,6 +95,8 @@ class CodeGenerator {
 		$lines[] = 			"register void *__restrict handler;";
 		$lines[] = 			"register int8_t *__restrict ip;";
 		$lines[] =			"qb_storage *local_storage = function->local_storage;";
+		$lines[] =			"zval **zend_arguments = NULL, ***zend_argument_pointers;";
+		$lines[] =			"uint32_t zend_argument_count, zend_argument_pointer_count;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
@@ -131,6 +133,11 @@ class CodeGenerator {
 			$lines[] = 			"}";
 			$lines[] = 		"} while(1);";
 		}
+		$lines[] = 			"exit_label:";
+		$lines[] = 			"if(UNEXPECTED(zend_arguments)) {";
+		$lines[] =				"qb_destroy_array((void **) &zend_arguments);";
+		$lines[] =				"qb_destroy_array((void **) &zend_argument_pointers);";
+		$lines[] =			"}";
 		if($compiler == "GCC") {
 			$lines[] = 	"} else {";
 			foreach($this->handlers as $handler) {
@@ -1154,6 +1161,8 @@ class CodeGenerator {
 			$this->handlers[] = new Terminate("EXIT", "I32");
 			//$this->handlers[] = new FunctionCall("FCALL", "SCA");
 			//$this->handlers[] = new FunctionCall("FCALL", "MIX");
+			$this->handlers[] = new ExecuteZendFunctionCall("FCALL_ZE");
+			$this->handlers[] = new SendVariableToZend("ARG_VAR_ZE");
 			$this->handlers[] = new StaticInitializationEnd("END_STATIC");
 		}
 		$branchHandlers = array();

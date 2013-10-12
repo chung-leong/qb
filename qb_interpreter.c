@@ -699,3 +699,63 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *stora
 	// TODO: this needs to happen in the main thread
 	return qb_resize_segment(segment, new_size);
 }
+
+zval * qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count) {
+	USE_TSRM
+	zval *retval;
+	zend_fcall_info fci;
+	zend_fcall_info_cache fcc;
+
+	// copy global and class variables back to PHP first
+	// TODO
+
+	fcc.calling_scope = EG(called_scope);
+	fcc.function_handler = zfunc;
+	fcc.initialized = 1;
+	fci.size = sizeof(zend_fcall_info);
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	if(zfunc->common.scope) {
+		fci.function_table = &zfunc->common.scope->function_table;
+		if((zfunc->common.fn_flags & ZEND_ACC_STATIC)) {
+			fci.object_ptr = fcc.object_ptr = NULL;
+		} else {
+			fci.object_ptr = fcc.object_ptr = EG(This);
+		}
+		fcc.called_scope = zfunc->common.scope;
+	} else {
+		fci.function_table = EG(function_table);
+		fci.object_ptr = fcc.object_ptr = NULL;
+	}
+#else 
+	if(zfunc->common.scope) {
+		fci.function_table = &zfunc->common.scope->function_table;
+		if((zfunc->common.fn_flags & ZEND_ACC_STATIC)) {
+			fci.object_pp = fcc.object_pp = NULL;
+		} else {
+			fci.object_pp = fcc.object_pp = EG(This);
+		}
+	} else {
+		fci.function_table = EG(function_table);
+		fci.object_pp = fcc.object_pp = NULL;
+	}
+#endif
+	fci.function_name = qb_cstring_to_zval(zfunc->common.function_name TSRMLS_CC);
+	fci.retval_ptr_ptr = &retval;
+	fci.param_count = argument_count;
+	fci.params = argument_pointers;
+	fci.no_separation = 0;
+	fci.symbol_table = NULL;
+
+	if(zend_call_function(&fci, &fcc TSRMLS_CC) == SUCCESS) {
+		if(EG(exception)) {
+			cxt->exception_encountered = TRUE;
+		}
+	} else {
+		qb_abort("Internal error");
+	}
+
+	// copy values of global and class variables from PHP again
+	// TODO
+
+	return retval;
+}

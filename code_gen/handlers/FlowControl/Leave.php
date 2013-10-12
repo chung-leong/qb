@@ -5,7 +5,7 @@ class Leave extends Handler {
 	use NoOperands, ExitFunction;
 	
 	public function getAction() {
-		return "return;";
+		return "goto exit_label;";
 	}
 }
 

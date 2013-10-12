@@ -317,6 +317,10 @@ class Handler {
 		return false;
 	}
 	
+	public function needsFunctionObject() {
+		return false;
+	}
+	
 	public function needsLocalStorage() {
 		return false;
 	}
@@ -530,6 +534,13 @@ class Handler {
 				$params[] = "local_storage";
 			}
 		}
+		if($this->needsFunctionObject()) {
+			if($forDeclaration) {
+				$params[] = "qb_function *__restrict function";
+			} else {
+				$params[] = "function";
+			}
+		}
 		if($this->needsCondition()) {
 			if($forDeclaration) {
 				$params[] = "int32_t *condition_ptr";
@@ -713,7 +724,11 @@ class Handler {
 			return "$function($parameterList);";
 		} else {
 			// just insert the code, expanding the operands
-			return $this->getActionExpressions();
+			$lines = array();
+			$lines[] = "{";
+			$lines[] = 		$this->getActionExpressions();
+			$lines[] = "}";
+			return $lines;
 		}
 	}	
 	

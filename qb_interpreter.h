@@ -103,12 +103,12 @@ void qb_abort_at(const char *format, uint32_t line_number, ...);
 
 intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *storage, uint32_t segment_selector, uint32_t new_size);
 
-void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
-void qb_free_interpreter_context(qb_interpreter_context *cxt);
-
-
 qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object);
 qb_variable * qb_get_import_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_import_scope *scope);
 
+zval * qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count);
+
+void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
+void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
 #endif
