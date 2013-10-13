@@ -289,26 +289,21 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 		func_operands[0].intrinsic_function = ifunc;
 		func_operands[0].type = QB_OPERAND_INTRINSIC_FUNCTION;
 		op_factory = list[0];
-		func_operand_count = 3;
 	} else if(qfunc) {
 		func_operands[0].function = qfunc;
-		func_operands[0].type = QB_OPERAND_FUNCTION;
-		func_operands[3] = *object;
+		func_operands[0].type = (object->type == QB_OPERAND_ZEND_STATIC_CLASS) ? QB_OPERAND_STATIC_FUNCTION : QB_OPERAND_FUNCTION;
 		op_factory = list[1];
-		func_operand_count = 4;
 	} else {
 		func_operands[0].zend_function = zfunc;
-		func_operands[0].type = QB_OPERAND_ZEND_FUNCTION;
-		func_operands[3] = *object;
+		func_operands[0].type = (object->type == QB_OPERAND_ZEND_STATIC_CLASS) ? QB_OPERAND_STATIC_ZEND_FUNCTION : QB_OPERAND_ZEND_FUNCTION;
 		op_factory = list[2];
-		func_operand_count = 4;
 	}
 	func_operands[1].arguments = arguments;
 	func_operands[1].type = QB_OPERAND_ARGUMENTS;
 	func_operands[2].number = argument_count;
 	func_operands[2].type = QB_OPERAND_NUMBER;
 
-	qb_produce_op(cxt->compiler_context, op_factory, func_operands, func_operand_count, result, NULL, 0, result_prototype);
+	qb_produce_op(cxt->compiler_context, op_factory, func_operands, 3, result, NULL, 0, result_prototype);
 	free_alloca(arguments, use_heap);
 }
 

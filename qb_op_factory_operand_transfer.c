@@ -842,8 +842,9 @@ static uint32_t qb_get_operand_count_intrinsic(qb_compiler_context *cxt, qb_op_f
 static void qb_transfer_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	const char *func_name = func->zend_function->common.function_name;
+	qb_external_symbol_type symbol_type = (func->type == QB_OPERAND_STATIC_ZEND_FUNCTION) ? QB_EXT_SYM_STATIC_ZEND_FUNCTION : QB_EXT_SYM_STATIC_FUNCTION;
 	uint32_t func_name_len = strlen(func_name);
-	uint32_t func_index = qb_import_external_symbol(cxt, QB_EXT_SYM_ZEND_FUNCTION, func_name, func_name_len, func->zend_function);
+	uint32_t func_index = qb_import_external_symbol(cxt, symbol_type, func_name, func_name_len, func->zend_function);
 	uint32_t ret_index = (uint32_t) -1;
 	uint32_t i;
 

@@ -721,14 +721,22 @@ void qb_free_zend_argument_stack(qb_interpreter_context *cxt, qb_zend_argument_s
 	}
 }
 
-void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, zend_function *zfunc, qb_zend_argument_stack *stack, uint32_t line_number) {
+void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, qb_external_symbol *symbol, qb_zend_argument_stack *stack, uint32_t line_number) {
 	USE_TSRM
 	zval *retval;
 	zend_op **p_user_op = EG(opline_ptr);
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcc;
 	uint32_t i;
+	zend_function *zfunc = symbol->pointer;
 	int call_result;
+
+	if(symbol->type == QB_EXT_SYM_STATIC_ZEND_FUNCTION) {
+		if(zfunc->common.scope != EG(called_scope)) {
+			// it isn't the right function--look up the correct one
+			zend_hash_find(&EG(called_scope)->function_table, zfunc->common.function_name, strlen(zfunc->common.function_name) + 1, (void **) &zfunc);
+		}
+	}
 
 	// copy global and class variables back to PHP first
 	// TODO

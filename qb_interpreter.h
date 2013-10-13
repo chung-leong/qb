@@ -116,7 +116,7 @@ qb_variable * qb_get_import_variable(qb_interpreter_context *cxt, qb_storage *st
 
 void qb_push_zend_argument(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_zend_argument_stack *stack);
 void qb_free_zend_argument_stack(qb_interpreter_context *cxt, qb_zend_argument_stack *stack);
-void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, zend_function *zfunc, qb_zend_argument_stack *stack, uint32_t line_number);
+void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, qb_external_symbol *symbol, qb_zend_argument_stack *stack, uint32_t line_number);
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);

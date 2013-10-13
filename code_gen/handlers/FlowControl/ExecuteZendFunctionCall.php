@@ -37,9 +37,8 @@ class ExecuteZendFunctionCall extends Handler {
 	public function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "qb_external_symbol *symbol = function->external_symbols[op1];";
-		$lines[] = "zend_function *zfunc = symbol->pointer;";
 		$lines[] = "qb_variable *retvar = (op2 != (uint32_t) -1) ? function->variables[op2] : NULL;";
-		$lines[] = "qb_execute_zend_function_call(cxt, local_storage, retvar, zfunc, &zend_argument_stack, line_number);";
+		$lines[] = "qb_execute_zend_function_call(cxt, local_storage, retvar, symbol, &zend_argument_stack, line_number);";
 		return $lines;
 	}
 	

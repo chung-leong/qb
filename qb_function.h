@@ -63,13 +63,16 @@ struct qb_variable {
 };
 
 enum qb_external_symbol_type {
-	QB_EXT_SYM_ZEND_FUNCTION			= 1,
-	QB_EXT_SYM_ZEND_CLASS				= 2,
-	QB_EXT_SYM_PCRE						= 3,
+	QB_EXT_SYM_FUNCTION					= 1,
+	QB_EXT_SYM_STATIC_FUNCTION,
+	QB_EXT_SYM_ZEND_FUNCTION,
+	QB_EXT_SYM_STATIC_ZEND_FUNCTION,
+	QB_EXT_SYM_ZEND_CLASS,
+	QB_EXT_SYM_PCRE,
 };
 
 struct qb_external_symbol {
-	uint32_t type;
+	qb_external_symbol_type type;
 	const char *name;
 	uint32_t name_length;
 	void *pointer;
