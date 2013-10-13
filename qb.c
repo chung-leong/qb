@@ -33,6 +33,7 @@ ZEND_DECLARE_MODULE_GLOBALS(qb)
 
 /* True global resources - no need for thread safety here */
 int qb_user_opcode = 242;
+int qb_reserved_offset = -1;
 
 /* {{{ qb_functions[]
  *
@@ -169,6 +170,9 @@ static void qb_discard_interpreter_context(TSRMLS_D) {
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array) {
 	SET_QB_POINTER(op_array, qfunc);
+
+	// save the pointer in the reserved array so we can find it again in the destructor
+	op_array->reserved[qb_reserved_offset] = qfunc;
 }
 
 qb_function * qb_get_compiled_function(zend_function *zfunc) {
@@ -249,11 +253,10 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 }
 
 void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
-	if(HAS_QB_USER_OP(op_array)) {
-		qb_function *qfunc = GET_QB_POINTER(op_array);
-		if(qfunc) {
-			qb_free_function(qfunc);
-		}
+	TSRMLS_FETCH();
+	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
+	if(qfunc) {
+		qb_free_function(qfunc);
 	}
 }
 
@@ -292,6 +295,12 @@ int qb_install_user_opcode_handler() {
 	// set the opcode handler
 	if(zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler) == FAILURE) {
 		qb_user_opcode = 0;
+		return FAILURE;
+	}
+
+	// get a reserved offset
+	qb_reserved_offset = zend_get_resource_handle(&zend_extension_entry);
+	if(qb_reserved_offset == -1) {
 		return FAILURE;
 	}
 

@@ -417,15 +417,28 @@ qb_import_scope * qb_create_import_scope(qb_interpreter_context *cxt, qb_import_
 		zval *object = associated_object;
 		zend_class_entry *ce = Z_OBJCE_P(object);
 		qb_import_scope *abstract_scope = qb_find_import_scope(cxt, QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce);
+		uint32_t i;
 
-		if(abstract_scope) {
-			scope->variables = abstract_scope->variables;
-			scope->variable_count = abstract_scope->variable_count;
-			scope->storage = emalloc(sizeof(qb_storage));
-			scope->storage->flags = abstract_scope->storage->flags;
-			scope->storage->segment_count = abstract_scope->storage->segment_count;
-			scope->storage->segments = emalloc(sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
-			memcpy(scope->storage->segments, abstract_scope->storage->segments, sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
+		if(!abstract_scope) {
+			// create it--should inherit variables from parent class
+			abstract_scope = qb_create_import_scope(cxt, QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce);
+		}
+
+		scope->variables = abstract_scope->variables;
+		scope->variable_count = abstract_scope->variable_count;
+		scope->storage = emalloc(sizeof(qb_storage));
+		scope->storage->flags = abstract_scope->storage->flags;
+		scope->storage->segment_count = abstract_scope->storage->segment_count;
+		scope->storage->segments = emalloc(sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
+		memcpy(scope->storage->segments, abstract_scope->storage->segments, sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
+		for(i = 0; i < scope->storage->segment_count; i++) {
+			qb_memory_segment *src_segment = &abstract_scope->storage->segments[i];
+			qb_memory_segment *dst_segment = &scope->storage->segments[i];
+			if(src_segment->memory) {
+				dst_segment->memory = emalloc(src_segment->byte_count);
+				memcpy(dst_segment->memory, src_segment->memory, src_segment->byte_count);
+				dst_segment->current_allocation = src_segment->byte_count;
+			}
 		}
 	} else if(type == QB_IMPORT_SCOPE_CLASS || type == QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
 		zend_class_entry *ce = associated_object;

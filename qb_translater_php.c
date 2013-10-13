@@ -226,7 +226,7 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 
 	qb_operand *arguments;
 	qb_operand func_operands[4];
-	uint32_t func_operand_count, max_operand_count = argument_count;
+	uint32_t max_operand_count = argument_count;
 	uint32_t i;
 	void **list = op_factories, *op_factory;
 	ALLOCA_FLAG(use_heap);

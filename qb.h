@@ -191,6 +191,7 @@ ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN
 void qb_abort(const char *format, ...);
 
 extern int qb_user_opcode;
+extern int qb_reserved_offset;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 
