@@ -38,8 +38,6 @@ struct qb_php_translater_context {
 	qb_compiler_context *compiler_context;
 	qb_data_pool *pool;
 
-	zval *zend_this_object;
-	zval *zend_class_name;
 	zend_op_array *zend_op_array;
 	zend_op *zend_op;
 	uint32_t zend_op_index;
@@ -69,6 +67,7 @@ enum {
 	#define Z_OPERAND_TYPE(op)				op##_type
 	#define Z_OPERAND_ZV(op)				Z_OPERAND_INFO(op, zv)
 	#define RETURN_VALUE_USED(opline)		(!((opline)->result_type & EXT_TYPE_UNUSED))
+	#define IGNORE_RETURN_VALUE(opline)		(opline)->result_type |= EXT_TYPE_UNUSED
 	#define FETCH_TYPE(opline)				(opline->extended_value & ZEND_FETCH_TYPE_MASK)
 #else
 	#define Z_CLASS_INFO(ce, prop)			ce->prop
@@ -77,6 +76,7 @@ enum {
 	#define Z_OPERAND_ZV(op)				&Z_OPERAND_INFO(op, constant)
 	#define Z_HASH_P(zv)					zend_hash_func(Z_STRVAL_P(zv), Z_STRLEN_P(zv) + 1)
 	#define RETURN_VALUE_USED(opline)		(!((opline)->result.u.EA.type & EXT_TYPE_UNUSED))
+	#define IGNORE_RETURN_VALUE(opline)		(opline)->result.u.EA.type |= EXT_TYPE_UNUSED
 	#define FETCH_TYPE(opline)				(opline->op2.u.EA.type)
 #endif
 

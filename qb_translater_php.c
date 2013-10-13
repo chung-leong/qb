@@ -202,59 +202,6 @@ static void qb_translate_fetch(qb_php_translater_context *cxt, void *op_factorie
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static zend_function * qb_find_zend_function(qb_php_translater_context *cxt, zend_class_entry *ce, zval *name) {
-	USE_TSRM
-	char *error = NULL;
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	int error_reporting_before;
-#endif
-	zend_fcall_info_cache fcc;
-
-	if(ce) {
-		// no good way to get the class entry to zend_is_callable_ex() except by creating an array
-		HashTable ht;
-		zval _callable, *callable = &_callable;
-		zval *class_name;
-
-		zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
-		Z_ARRVAL_P(callable) = &ht;
-		Z_TYPE_P(callable) = IS_ARRAY;
-
-		class_name = qb_string_to_zval(ce->name, ce->name_length TSRMLS_CC);
-		zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
-		zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
-
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-			qb_abort("%s", error);
-		}
-#else
-		// suppress the non-static function being called as static warning message
-		error_reporting_before = EG(error_reporting);
-		EG(error_reporting) = 0;
-		if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
-		}
-		EG(error_reporting) = error_reporting_before;
-#endif
-		zend_hash_destroy(&ht);
-	} else {
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-			qb_abort("%s", error);
-		}
-#else
-		if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
-		}
-#endif
-	}
-	if(error) {
-		efree(error);
-	}
-	return fcc.function_handler;
-}
-
 static qb_function * qb_find_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
 	uint32_t i;
 	qb_function *qfunc = qb_get_compiled_function(zfunc);
@@ -301,7 +248,24 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 			max_operand_count = ifunc->argument_count_max;
 		}
 	} else {
-		zfunc = qb_find_zend_function(cxt, NULL, name->constant);
+		USE_TSRM
+		zval *class_name = NULL;
+		if(object->type == QB_OPERAND_ZEND_CLASS || object->type == QB_OPERAND_ZEND_STATIC_CLASS) {
+			zend_class_entry *ce;
+			if(object->type == QB_OPERAND_ZEND_STATIC_CLASS) {
+				// static:: qualifier--use the base class for now 
+				// since we need to know whether it's going to be a zend call or not
+				ce = cxt->zend_op_array->scope;
+			} else {
+				ce = object->zend_class;
+			}
+			if(ce) {
+				class_name = qb_string_to_zval(ce->name, ce->name_length TSRMLS_CC);
+			}
+		} else if(object->type == QB_OPERAND_ZVAL) {
+			class_name = object->constant;
+		}
+		zfunc = qb_find_zend_function(class_name, name->constant TSRMLS_CC);
 		if(zfunc) {
 			qfunc = qb_find_compiled_function(cxt, zfunc);
 		} else {
@@ -324,18 +288,20 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 	if(ifunc) {
 		func_operands[0].intrinsic_function = ifunc;
 		func_operands[0].type = QB_OPERAND_INTRINSIC_FUNCTION;
-		func_operand_count = 3;
 		op_factory = list[0];
+		func_operand_count = 3;
 	} else if(qfunc) {
 		func_operands[0].function = qfunc;
 		func_operands[0].type = QB_OPERAND_FUNCTION;
-		func_operand_count = 3;
+		func_operands[3] = *object;
 		op_factory = list[1];
+		func_operand_count = 4;
 	} else {
 		func_operands[0].zend_function = zfunc;
 		func_operands[0].type = QB_OPERAND_ZEND_FUNCTION;
-		func_operand_count = 3;
+		func_operands[3] = *object;
 		op_factory = list[2];
+		func_operand_count = 4;
 	}
 	func_operands[1].arguments = arguments;
 	func_operands[1].type = QB_OPERAND_ARGUMENTS;
@@ -351,6 +317,25 @@ static void qb_translate_function_call(qb_php_translater_context *cxt, void *op_
 	uint32_t argument_count = cxt->zend_op->extended_value;
 	qb_operand **stack_pointer = qb_pop_stack_items(cxt->compiler_context, argument_count);
 	qb_do_function_call_translation(cxt, op_factories, name, object, stack_pointer, argument_count, result, result_prototype);
+}
+
+static void qb_translate_init_method_call(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *object = &operands[0], *name = &operands[1], *stack_item;
+	stack_item = qb_push_stack_item(cxt->compiler_context);	// function name
+	*stack_item = *name;
+
+	stack_item = qb_push_stack_item(cxt->compiler_context);	// object
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	if(object->type == QB_OPERAND_ZVAL) {
+		qb_retrieve_operand(cxt, Z_OPERAND_TMP_VAR, &cxt->zend_op->op1, object);
+	}
+#endif
+	if(object->type == QB_OPERAND_NONE) {
+		stack_item->zend_class = cxt->zend_op_array->scope;
+		stack_item->type = QB_OPERAND_ZEND_CLASS;
+	} else {
+		*stack_item = *object;
+	}
 }
 
 static void qb_translate_init_function_call(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -620,8 +605,8 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_fetch_class,			factories_fetch_class						},	// ZEND_FETCH_CLASS
 	{	NULL,								NULL										},	// ZEND_CLONE
 	{	NULL,								NULL										},	// ZEND_RETURN_BY_REF
-	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_METHOD_CALL
-	{	qb_translate_basic_op,				NULL						},	// ZEND_INIT_STATIC_METHOD_CALL
+	{	qb_translate_init_method_call,		NULL										},	// ZEND_INIT_METHOD_CALL
+	{	qb_translate_init_method_call,		NULL										},	// ZEND_INIT_STATIC_METHOD_CALL
 	{	qb_translate_basic_op,				&factory_boolean_cast						},	// ZEND_ISSET_ISEMPTY_VAR
 	{	qb_translate_basic_op,				&factory_array_element_isset				},	// ZEND_ISSET_ISEMPTY_DIM_OBJ
 	{	NULL,								NULL										},	// 116

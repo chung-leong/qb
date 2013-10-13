@@ -33,7 +33,6 @@ ZEND_DECLARE_MODULE_GLOBALS(qb)
 
 /* True global resources - no need for thread safety here */
 int qb_user_opcode = 242;
-int qb_reserved_offset = -1;
 
 /* {{{ qb_functions[]
  *
@@ -164,31 +163,36 @@ static void qb_discard_interpreter_context(TSRMLS_D) {
 	}
 }
 
-void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array) {
-	if(qb_reserved_offset != -1) {
-		zop_array->reserved[qb_reserved_offset] = qfunc;
-	}
+#define HAS_QB_USER_OP(op_array)		((op_array)->opcodes->opcode == qb_user_opcode)
+#define SET_QB_POINTER(op_array, p)		Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr) = (void *) p
+#define GET_QB_POINTER(op_array)		((void *) Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr))
+
+void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array) {
+	SET_QB_POINTER(op_array, qfunc);
 }
 
 qb_function * qb_get_compiled_function(zend_function *zfunc) {
-	if(qb_reserved_offset != -1 && zfunc->type == ZEND_USER_FUNCTION) {
-		return zfunc->op_array.reserved[qb_reserved_offset];
+	zend_op_array *op_array = &zfunc->op_array;
+	if(zfunc->type == ZEND_USER_FUNCTION && HAS_QB_USER_OP(op_array)) {
+		return GET_QB_POINTER(op_array);
 	}
 	return NULL;
 }
 
 int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
-	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
+	qb_function *qfunc = GET_QB_POINTER(op_array);
 	if(!qfunc) {
 		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
 		qb_build(build_cxt);
-		qfunc = op_array->reserved[qb_reserved_offset];
+		qfunc = GET_QB_POINTER(op_array);
 		qb_discard_current_build(TSRMLS_C);
 	}
 	if(qfunc) {
 		qb_interpreter_context *interpreter_cxt = qb_get_interpreter_context(TSRMLS_C);
 		qb_execute(interpreter_cxt, qfunc);
+	} else {
+		qb_abort("Internal error");
 	}
 	return ZEND_USER_OPCODE_RETURN;
 }
@@ -215,13 +219,12 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 			Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
 			Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
 			Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
-			user_op->lineno = 0;
 
 			// add the declaration to the build
 			qb_add_function_declaration(build_cxt, func_decl);
 
-			// store the declaration in the reserved slot for the time being
-			op_array->reserved[qb_reserved_offset] = func_decl;
+			// stash the declaration in the node until the compilation is done
+			SET_QB_POINTER(op_array, func_decl);
 
 			if(zend_class) {
 				qb_class_declaration *class_decl = qb_get_class_declaration(build_cxt, zend_class);
@@ -235,22 +238,22 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 }
 
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
-	qb_function_declaration *func_decl = op_array->reserved[qb_reserved_offset];
-	if(func_decl) {
-		TSRMLS_FETCH();
+	if(HAS_QB_USER_OP(op_array)) {
+		qb_function_declaration *func_decl = GET_QB_POINTER(op_array);
+
 		// set the pointer now--it's going to be different from the one we got in qb_zend_ext_op_array_ctor()
 		func_decl->zend_op_array = op_array;
 
-		// set slot to null again
-		op_array->reserved[qb_reserved_offset] = NULL;
+		SET_QB_POINTER(op_array, NULL);
 	}
 }
 
 void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
-	TSRMLS_FETCH();
-	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
-	if(qfunc) {
-		qb_free_function(qfunc);
+	if(HAS_QB_USER_OP(op_array)) {
+		qb_function *qfunc = GET_QB_POINTER(op_array);
+		if(qfunc) {
+			qb_free_function(qfunc);
+		}
 	}
 }
 
@@ -289,12 +292,6 @@ int qb_install_user_opcode_handler() {
 	// set the opcode handler
 	if(zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler) == FAILURE) {
 		qb_user_opcode = 0;
-		return FAILURE;
-	}
-
-	// get a reserved offset
-	qb_reserved_offset = zend_get_resource_handle(&zend_extension_entry);
-	if(qb_reserved_offset == -1) {
 		return FAILURE;
 	}
 
@@ -502,6 +499,57 @@ PHP_FUNCTION(qb_extract)
 	//qb_extract(input, output_type, return_value TSRMLS_CC);
 }
 /* }}} */
+
+zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
+	char *error = NULL;
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	int error_reporting_before;
+#endif
+	zend_fcall_info_cache fcc;
+
+	if(class_name) {
+		HashTable ht;
+		zval _callable, *callable = &_callable;
+
+		zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
+		Z_ARRVAL_P(callable) = &ht;
+		Z_TYPE_P(callable) = IS_ARRAY;
+
+		Z_ADDREF_P(class_name);
+		Z_ADDREF_P(name);
+		zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
+		zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
+
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			qb_abort("%s", error);
+		}
+#else
+		// suppress the non-static function being called as static warning message
+		error_reporting_before = EG(error_reporting);
+		EG(error_reporting) = 0;
+		if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		}
+		EG(error_reporting) = error_reporting_before;
+#endif
+		zend_hash_destroy(&ht);
+	} else {
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			qb_abort("%s", error);
+		}
+#else
+		if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		}
+#endif
+	}
+	if(error) {
+		efree(error);
+	}
+	return fcc.function_handler;
+}
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
 NO_RETURN void qb_abort(const char *format, ...) {

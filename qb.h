@@ -182,6 +182,8 @@ void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array);
 qb_function * qb_get_compiled_function(zend_function *zfunc);
 int qb_is_compiled_function(zend_function *zfunc);
 
+zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC);
+
 qb_build_context * qb_get_current_build(TSRMLS_D);
 qb_interpreter_context * qb_get_interpreter_context(TSRMLS_D);
 
@@ -189,7 +191,6 @@ ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN
 void qb_abort(const char *format, ...);
 
 extern int qb_user_opcode;
-extern int qb_reserved_offset;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 
