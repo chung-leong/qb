@@ -44,7 +44,7 @@ class ClearArrayResizeUpdateDimension extends Handler {
 		$lines[] = "}";
 		$lines[] = "op1 = 0;";
 		$lines[] = "res_count = 0;";
-		$lines[] = "qb_adjust_memory_segment(cxt, local_storage, op2, 0);";
+		$lines[] = "qb_adjust_memory_segment(cxt, op2, 0);";
 		return $lines;
 	}
 }

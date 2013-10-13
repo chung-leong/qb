@@ -423,35 +423,6 @@ uint8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory) {
 	return p;
 }
 
-static uint32_t qb_get_external_symbol_length(qb_external_symbol *symbol) {
-	uint32_t length = sizeof(qb_external_symbol);
-	length += symbol->name_length + 1;
-	return length;
-}
-
-static uint8_t * qb_copy_external_symbol(qb_external_symbol *symbol, uint8_t *memory) {
-#if ZEND_DEBUG
-	uint32_t length = qb_get_external_symbol_length(symbol);
-#endif
-	uint8_t *p = memory;
-	qb_external_symbol *src = symbol;
-	qb_external_symbol *dst = (qb_external_symbol *) p; p += sizeof(qb_external_symbol);
-	dst->type = src->type;
-	dst->name = (char *) p; p += src->name_length + 1;
-	memcpy((char *) dst->name, src->name, src->name_length + 1);
-	dst->name_length = src->name_length;
-	dst->pointer = src->pointer;
-
-	// in case the function name disappears when the op_array is freed
-	src->name = dst->name;
-#if ZEND_DEBUG
-	if(memory + length != p) {
-		qb_abort("length mismatch");
-	}
-#endif
-	return p;
-}
-
 static uint32_t qb_get_function_structure_size(qb_encoder_context *cxt) {
 	uint32_t size = sizeof(qb_function);
 	uint32_t i;
@@ -459,10 +430,6 @@ static uint32_t qb_get_function_structure_size(qb_encoder_context *cxt) {
 	size += sizeof(qb_variable *) * cxt->compiler_context->variable_count;
 	for(i = 0; i < cxt->compiler_context->variable_count; i++) {
 		size += qb_get_variable_length(cxt->compiler_context->variables[i]);
-	}
-	size += sizeof(qb_external_symbol *) * cxt->compiler_context->external_symbol_count;
-	for(i = 0; i < cxt->compiler_context->external_symbol_count; i++) {
-		size += qb_get_external_symbol_length(&cxt->compiler_context->external_symbols[i]);
 	}
 	size = ALIGN_TO(size, 16);
 	return size;
@@ -486,14 +453,6 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 		if(qfunc->variables[i]->flags & QB_VARIABLE_RETURN_VALUE) {
 			qfunc->return_variable = qfunc->variables[i];
 		}
-	}
-
-	// copy external symbols
-	qfunc->external_symbols = (qb_external_symbol **) p; p += sizeof(qb_external_symbol *) * cxt->compiler_context->external_symbol_count;
-	qfunc->external_symbol_count = cxt->compiler_context->external_symbol_count;
-	for(i = 0; i < cxt->compiler_context->external_symbol_count; i++) {
-		qfunc->external_symbols[i] = (qb_external_symbol *) p;
-		p = qb_copy_external_symbol(&cxt->compiler_context->external_symbols[i], p);
 	}
 
 	qfunc->argument_count = cxt->compiler_context->argument_count;
@@ -659,7 +618,6 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	// encode the instructions
 	qfunc->instructions = p;
 	qfunc->instruction_start = qfunc->instructions;
-	qfunc->instruction_non_static_start = qfunc->instructions + cxt->ops[cxt->initialization_op_count]->instruction_offset;
 	cxt->instructions = qfunc->instructions;
 	p = qb_encode_instruction_stream(cxt, p);
 
@@ -693,20 +651,20 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 	SAVE_TSRMLS
 }
 
+void qb_free_encoder_context(qb_encoder_context *cxt) {
+}
+
 void qb_free_function(qb_function *qfunc) {
 	uint32_t i;
 
 	// free memory segments
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
-		if(segment->flags & QB_SEGMENT_IMPORTED) {
-		} else {
-			if(segment->memory) {
-				if(segment->flags & QB_SEGMENT_MAPPED) {
-					// PHP should have clean it already
-				} else if(!(segment->flags & QB_SEGMENT_BORROWED)) {
-					efree(segment->memory);
-				}
+		if(segment->current_allocation) {
+			if(segment->flags & QB_SEGMENT_MAPPED) {
+				// PHP should have clean it already
+			} else if(!(segment->flags & QB_SEGMENT_BORROWED)) {
+				efree(segment->memory);
 			}
 		}
 	}

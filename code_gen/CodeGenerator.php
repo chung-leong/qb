@@ -87,15 +87,14 @@ class CodeGenerator {
 		
 		$lines = array();
 		$lines[] = "";			
-		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function) {";
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
 		// cxt is null when we initialize the handler array
 		if($compiler == "GCC") {
 			$lines[] = 	"if(cxt) {";
 		}
 		$lines[] = 			"register void *__restrict handler;";
 		$lines[] = 			"register int8_t *__restrict ip;";
-		$lines[] =			"qb_storage *local_storage = function->local_storage;";
-		$lines[] =			"qb_zend_argument_stack zend_argument_stack = { NULL, 0, NULL, 0 };";
+		$lines[] =			"qb_storage *local_storage = cxt->active_function->local_storage;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
@@ -104,9 +103,8 @@ class CodeGenerator {
 		$lines[] =			"USE_TSRM";
 		$lines[] = 			"";
 		$lines[] = 			"{";
-		$lines[] = 				"ip = function->instruction_start;";
-		$lines[] = 				"handler = *((void **) ip);";
-		$lines[] = 				"ip += sizeof(void *);";
+		$lines[] = 				"ip = cxt->instruction_pointer;";
+		$lines[] = 				"handler = cxt->next_handler;";
 		if($compiler == "GCC") {
 			$lines[] = 			"goto *handler;";
 		}
@@ -132,8 +130,9 @@ class CodeGenerator {
 			$lines[] = 			"}";
 			$lines[] = 		"} while(1);";
 		}
-		$lines[] = 			"exit_label:";
-		$lines[] =				"qb_free_zend_argument_stack(cxt, &zend_argument_stack);";
+		$lines[] = 			"exit_label: {";
+		$lines[] =				"return;";
+		$lines[] =			"}";
 		if($compiler == "GCC") {
 			$lines[] = 	"} else {";
 			foreach($this->handlers as $handler) {
@@ -145,7 +144,6 @@ class CodeGenerator {
 		$this->writeCode($handle, $lines);
 
 		$lines = array();
-		$lines[] =		"";
 		$lines[] = 	"}";
 		$lines[] = 	"";
 		if($compiler == "GCC") {
@@ -217,21 +215,13 @@ class CodeGenerator {
 				// the line number needs to be packed into the instruction (for error reporting)
 				$flags[] = "QB_OP_NEED_LINE_NUMBER";
 			}
-			if($handler->isVariableLength()) {
-				$flags[] = "QB_OP_VARIABLE_LENGTH";
-			}
 			if($handler->performsWrapAround()) {
 				$flags[] = "QB_OP_PERFORM_WRAP_AROUND";
 			}
 			$combined = ($flags) ? implode(" | ", $flags) : "0";
 			
 			$instr = $handler->getInstructionStructure();
-			if($instr && !$handler->isVariableLength()) {
-				$length = "sizeof($instr)";
-			} else {
-				$length = 0;
-			}
-
+			$length = ($instr) ? "sizeof($instr)" : 0;
 			$format = $handler->getInstructionFormat();
 
 			$name = $handler->getName();
@@ -1155,10 +1145,7 @@ class CodeGenerator {
 			$this->handlers[] = new Jump("JMP");
 			$this->handlers[] = new Leave("RET");
 			$this->handlers[] = new Terminate("EXIT", "I32");
-			//$this->handlers[] = new FunctionCall("FCALL", "SCA");
-			//$this->handlers[] = new FunctionCall("FCALL", "MIX");
-			$this->handlers[] = new ExecuteZendFunctionCall("FCALL_ZE");
-			$this->handlers[] = new SendVariableToZend("ARG_VAR_ZE");
+			$this->handlers[] = new FunctionCall("FCALL");
 			$this->handlers[] = new StaticInitializationEnd("END_STATIC");
 		}
 		$branchHandlers = array();

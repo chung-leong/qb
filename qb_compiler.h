@@ -97,9 +97,6 @@ struct qb_compiler_context {
 	qb_address **writable_arrays;
 	uint32_t writable_array_count;
 
-	qb_external_symbol *external_symbols;
-	uint32_t external_symbol_count;
-
 	qb_result_prototype *result_prototypes;
 	uint32_t result_prototype_count;
 
@@ -315,6 +312,7 @@ qb_address * qb_obtain_constant_integer(qb_compiler_context *cxt, int64_t value,
 qb_address * qb_obtain_constant_float(qb_compiler_context *cxt, float64_t value, qb_primitive_type desired_type);
 qb_address * qb_obtain_constant_boolean(qb_compiler_context *cxt, int32_t value);
 qb_address * qb_obtain_constant(qb_compiler_context *cxt, int64_t value, qb_primitive_type desired_type);
+qb_address * qb_obtain_constant_indices(qb_compiler_context *cxt, uint32_t *indices, uint32_t index_count);
 
 qb_address * qb_obtain_local_variable(qb_compiler_context *cxt, zval *name);
 qb_address * qb_obtain_global_variable(qb_compiler_context *cxt, zval *name);
@@ -334,8 +332,6 @@ qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_ty
 qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index);
 
 int32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
-
-uint32_t qb_import_external_symbol(qb_compiler_context *cxt, qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer);
 
 qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name, uint32_t type_mask);
 qb_variable * qb_get_local_variable(qb_compiler_context *cxt, zval *name);

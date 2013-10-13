@@ -53,7 +53,7 @@ class ClearElementResizeUpdateDimension extends Handler {
 		$lines[] = 		"}";
 		$lines[] = 		"res_count = end;";
 		$lines[] = 		"op3--;";
-		$lines[] = 		"qb_adjust_memory_segment(cxt, local_storage, op4, end * sizeof($cType));";
+		$lines[] = 		"qb_adjust_memory_segment(cxt, op4, end * sizeof($cType));";
 		$lines[] = "}";
 		return $lines;
 	}

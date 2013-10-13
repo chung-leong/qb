@@ -63,8 +63,6 @@ struct qb_variable {
 };
 
 enum qb_external_symbol_type {
-	QB_EXT_SYM_FUNCTION					= 1,
-	QB_EXT_SYM_STATIC_FUNCTION,
 	QB_EXT_SYM_ZEND_FUNCTION,
 	QB_EXT_SYM_STATIC_ZEND_FUNCTION,
 	QB_EXT_SYM_ZEND_CLASS,
@@ -87,7 +85,6 @@ enum {
 struct qb_function {
 	int8_t *instructions;
 	int8_t *instruction_start;
-	int8_t *instruction_non_static_start;
 	uint64_t instruction_crc64;
 	uint16_t *instruction_opcodes;
 	uint32_t instruction_opcode_count;
@@ -97,8 +94,6 @@ struct qb_function {
 	qb_variable **variables;
 	uint32_t variable_count;
 	uint32_t argument_count;
-	qb_external_symbol **external_symbols;
-	uint32_t external_symbol_count;
 	qb_storage *local_storage;
 	const char *name;
 	const char *filename;

@@ -27,7 +27,7 @@ class AppendVariable extends Handler {
 		$lines = array();
 		$lines[] = "char sprintf_buffer[64];";
 		$lines[] = "uint32_t len = $sprintf;";
-		$lines[] = "res_ptr += qb_adjust_memory_segment(cxt, local_storage, op2, res_count + len);";
+		$lines[] = "res_ptr += qb_adjust_memory_segment(cxt, op2, res_count + len);";
 		$lines[] = "memcpy(res_ptr + res_count, sprintf_buffer, len);";
 		$lines[] = "res_count += len;";
 		return $lines;	
@@ -52,7 +52,7 @@ class AppendVariable extends Handler {
 		$lines[] = "} else {";
 		$lines[] = 		"total = 2;";
 		$lines[] = "}";
-		$lines[] = "res_ptr += qb_adjust_memory_segment(cxt, local_storage, op2, res_count + total);";
+		$lines[] = "res_ptr += qb_adjust_memory_segment(cxt, op2, res_count + total);";
 		$lines[] = "res_ptr[pos++] = '[';";
 		$lines[] = "op1_ptr = op1_start;";
 		$lines[] = "while(op1_ptr < op1_end) {";

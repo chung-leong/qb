@@ -187,7 +187,8 @@ static void qb_print_op(qb_printer_context *cxt, qb_op *qop, uint32_t index) {
 				qb_print_address(cxt, operand->address, FALSE);
 			}	break;
 			case QB_OPERAND_EXTERNAL_SYMBOL: {
-				qb_external_symbol *symbol = &cxt->compiler_context->external_symbols[operand->symbol_index];
+				USE_TSRM
+				qb_external_symbol *symbol = &QB_G(external_symbols)[operand->symbol_index];
 				php_printf("[%s]", symbol->name);
 			}	break;
 			case QB_OPERAND_SEGMENT_SELECTOR: {

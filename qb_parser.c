@@ -714,5 +714,5 @@ void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, ze
 	cxt->line_number = line_number;
 }
 
-void qb_free_parser_context(qb_parser_context *cxt TSRMLS_DC) {
+void qb_free_parser_context(qb_parser_context *cxt) {
 }

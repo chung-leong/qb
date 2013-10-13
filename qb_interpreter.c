@@ -114,8 +114,9 @@ static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_v
 	}
 }
 
-static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_function *qfunc) {
+static void qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
 	USE_TSRM
+	qb_function *qfunc = cxt->active_function;
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
@@ -166,8 +167,8 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 
 		if((qvar->flags & QB_VARIABLE_CLASS) || (qvar->flags & QB_VARIABLE_CLASS_INSTANCE) || (qvar->flags & QB_VARIABLE_CLASS_CONSTANT) || (qvar->flags & QB_VARIABLE_GLOBAL)) {
 			zval *zobject = !(qvar->flags & QB_VARIABLE_GLOBAL) ? EG(This) : NULL;
-			qb_import_scope *scope = qb_get_import_scope(cxt, qfunc->local_storage, qvar, zobject);
-			qb_variable *ivar = qb_get_import_variable(cxt, qfunc->local_storage, qvar, scope);
+			qb_import_scope *scope = qb_get_import_scope(qfunc->local_storage, qvar, zobject TSRMLS_CC);
+			qb_variable *ivar = qb_get_import_variable(qfunc->local_storage, qvar, scope TSRMLS_CC);
 			qb_memory_segment *local_segment, *scope_segment;
 
 			// import the segment constaining the variable
@@ -195,8 +196,9 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt, qb_funct
 	}
 }
 
-static void qb_transfer_variables_to_php(qb_interpreter_context *cxt, qb_function *qfunc) {
+static void qb_transfer_variables_to_php(qb_interpreter_context *cxt) {
 	USE_TSRM
+	qb_function *qfunc = cxt->active_function;
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i, j;
@@ -226,8 +228,8 @@ static void qb_transfer_variables_to_php(qb_interpreter_context *cxt, qb_functio
 	}
 
 	// transfer imported values back to PHP
-	for(i = 0; i < cxt->scope_count; i++) {
-		qb_import_scope *scope = cxt->scopes[i];
+	for(i = 0; i < QB_G(scope_count); i++) {
+		qb_import_scope *scope = QB_G(scopes)[i];
 		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
 			for(j = 0; j < scope->variable_count; j++) {
 				qb_variable *ivar = scope->variables[j];
@@ -237,8 +239,12 @@ static void qb_transfer_variables_to_php(qb_interpreter_context *cxt, qb_functio
 	}
 }
 
-void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
+void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_interpreter_context));
+
+	cxt->active_function = qfunc;
+	cxt->next_handler = *((void **) qfunc->instruction_start);
+	cxt->instruction_pointer = qfunc->instruction_start + sizeof(void *);
 
 	// use shadow variables for debugging purpose by default
 	cxt->flags = QB_EMPLOY_SHADOW_VARIABLES;
@@ -252,57 +258,32 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC) {
 }
 
 void qb_free_interpreter_context(qb_interpreter_context *cxt) {
-	uint32_t i, j;
-	for(i = 0; i < cxt->scope_count; i++) {
-		qb_import_scope *scope = cxt->scopes[i];
-		if(scope->type != QB_IMPORT_SCOPE_OBJECT) {
-			for(j = (scope->parent) ? scope->parent->variable_count : 0; j < scope->variable_count; j++) {
-				qb_variable *var = scope->variables[j];
-				efree(var);
-			}
-			efree(scope->variables);
-		}
-		
-		if(!scope->parent) {
-			for(j = 0; j < scope->storage->segment_count; j++) {
-				qb_memory_segment *segment = &scope->storage->segments[j];
-				if(segment->memory) {
-					efree(segment->memory);
-				}
-			}
-			efree(scope->storage->segments);
-			efree(scope->storage);
-		}
-		efree(scope);
-	}
-	if(cxt->scopes) {
-		efree(cxt->scopes);
-	}
 }
 
-void qb_main(qb_interpreter_context *__restrict cxt, qb_function *__restrict function);
+void qb_main(qb_interpreter_context *__restrict cxt);
 
-static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt, qb_function *qfunc) {
+static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #ifdef NATIVE_COMPILE_ENABLED
 	if(qfunc->native_proc) {
 		qb_native_proc proc = qfunc->native_proc;
 		if(proc(cxt) == FAILURE) {
 			USE_TSRM
 			if(QB_G(allow_bytecode_interpretation)) {
-				qb_main(cxt, qfunc);
+				qb_main(cxt);
 			} else {
 				qb_abort("Unable to run compiled procedure");
 			}
 		}
 	} else {
-		qb_main(cxt, qfunc);
+		qb_main(cxt);
 	}
 #else
-	qb_main(cxt, qfunc);
+	qb_main(cxt);
 #endif
 }
 
-static void qb_initialize_static_segments(qb_interpreter_context *cxt, qb_function *qfunc) {
+static void qb_initialize_static_segments(qb_interpreter_context *cxt) {
+	qb_function *qfunc = cxt->active_function;
 	int8_t *memory;
 	uint32_t combined_byte_count;
 
@@ -316,7 +297,8 @@ static void qb_initialize_static_segments(qb_interpreter_context *cxt, qb_functi
 	memset(memory, 0, combined_byte_count);
 }
 
-static void qb_initialize_dynamically_allocated_segments(qb_interpreter_context *cxt, qb_function *qfunc) {
+static void qb_initialize_dynamically_allocated_segments(qb_interpreter_context *cxt) {
+	qb_function *qfunc = cxt->active_function;
 	uint32_t i;
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
@@ -329,7 +311,8 @@ static void qb_initialize_dynamically_allocated_segments(qb_interpreter_context 
 	}
 }
 
-static void qb_free_dynamically_allocated_segments(qb_interpreter_context *cxt, qb_function *qfunc) {
+static void qb_free_dynamically_allocated_segments(qb_interpreter_context *cxt) {
+	qb_function *qfunc = cxt->active_function;
 	uint32_t i;
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
@@ -345,34 +328,30 @@ static void qb_free_dynamically_allocated_segments(qb_interpreter_context *cxt, 
 void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
 }
 
-void qb_execute(qb_interpreter_context *cxt, qb_function *qfunc) {
+void qb_execute(qb_interpreter_context *cxt) {
 	int result = SUCCESS;
 
 	// clear static memory segments
-	qb_initialize_static_segments(cxt, qfunc);
+	qb_initialize_static_segments(cxt);
 
 	// copy values from arguments, class variables, object variables, and global variables
-	qb_transfer_variables_from_php(cxt, qfunc);
+	qb_transfer_variables_from_php(cxt);
 
 	// initialize local dynamically allocated local variables 
-	qb_initialize_dynamically_allocated_segments(cxt, qfunc);
+	qb_initialize_dynamically_allocated_segments(cxt);
 
 	// enter the vm
-	qb_enter_vm(cxt, qfunc);
+	qb_enter_vm(cxt);
 
 	// move values back into PHP space
-	qb_transfer_variables_to_php(cxt, qfunc);
+	qb_transfer_variables_to_php(cxt);
 
 	// release dynamically allocated segments
-	qb_free_dynamically_allocated_segments(cxt, qfunc);
+	qb_free_dynamically_allocated_segments(cxt);
 }
 
-void qb_execute_internal(qb_function *qfunc TSRMLS_DC) {
-	qb_interpreter_context _cxt, *cxt = &_cxt;
-	unsigned char windows_time_out = 0;
-	SAVE_TSRMLS
-	cxt->windows_timed_out_pointer = &windows_time_out;
-	qb_enter_vm(cxt, qfunc);
+void qb_execute_internal(qb_interpreter_context *cxt) {
+	qb_enter_vm(cxt);
 }
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
@@ -391,319 +370,8 @@ void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *contr
 	//qb_run_tasks(cxt->thread_pool);
 }
 
-qb_import_scope * qb_find_import_scope(qb_interpreter_context *cxt, qb_import_scope_type type, void *associated_object) {
-	uint32_t i;
-	qb_import_scope *scope;
-	for(i = 0; i < cxt->scope_count; i++) {
-		scope = cxt->scopes[i];
-		if(scope->type == type && scope->associated_object == associated_object) {
-			return scope;
-		}
-	}
-	return NULL;
-}
-
-qb_import_scope * qb_create_import_scope(qb_interpreter_context *cxt, qb_import_scope_type type, void *associated_object) {
-	USE_TSRM
-	qb_import_scope *scope = emalloc(sizeof(qb_import_scope));
-	memset(scope, 0, sizeof(qb_import_scope));
-	scope->type = type;
-	scope->associated_object = associated_object;
-	cxt->scopes = erealloc(cxt->scopes, sizeof(qb_import_scope *) * (cxt->scope_count + 1));
-	cxt->scopes[cxt->scope_count++] = scope;
-
-	if(type == QB_IMPORT_SCOPE_OBJECT) {
-		// create the scope based on the scope of the abstract object
-		zval *object = associated_object;
-		zend_class_entry *ce = Z_OBJCE_P(object);
-		qb_import_scope *abstract_scope = qb_find_import_scope(cxt, QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce);
-		uint32_t i;
-
-		if(!abstract_scope) {
-			// create it--should inherit variables from parent class
-			abstract_scope = qb_create_import_scope(cxt, QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce);
-		}
-
-		scope->variables = abstract_scope->variables;
-		scope->variable_count = abstract_scope->variable_count;
-		scope->storage = emalloc(sizeof(qb_storage));
-		scope->storage->flags = abstract_scope->storage->flags;
-		scope->storage->segment_count = abstract_scope->storage->segment_count;
-		scope->storage->segments = emalloc(sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
-		memcpy(scope->storage->segments, abstract_scope->storage->segments, sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
-		for(i = 0; i < scope->storage->segment_count; i++) {
-			qb_memory_segment *src_segment = &abstract_scope->storage->segments[i];
-			qb_memory_segment *dst_segment = &scope->storage->segments[i];
-			if(src_segment->memory) {
-				dst_segment->memory = emalloc(src_segment->byte_count);
-				memcpy(dst_segment->memory, src_segment->memory, src_segment->byte_count);
-				dst_segment->current_allocation = src_segment->byte_count;
-			}
-		}
-	} else if(type == QB_IMPORT_SCOPE_CLASS || type == QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
-		zend_class_entry *ce = associated_object;
-		zend_class_entry *ancestor_ce;
-		for(ancestor_ce = ce->parent; ancestor_ce; ancestor_ce = ancestor_ce->parent) {
-			qb_import_scope *ancestor_scope = qb_find_import_scope(cxt, type, ancestor_ce);
-
-			if(ancestor_scope) {
-				// inherit the properties
-				scope->parent = ancestor_scope;
-				scope->variable_count = ancestor_scope->variable_count;
-				scope->variables = emalloc(sizeof(qb_variable *) * ancestor_scope->variable_count);
-				memcpy(scope->variables, ancestor_scope->variables, sizeof(qb_variable *) * ancestor_scope->variable_count);
-
-				// use the same storage
-				scope->storage = ancestor_scope->storage;
-			}
-		}
-	}
-	return scope;
-}
-
-static int32_t qb_check_address_compatibility(qb_storage *storage1, qb_address *address1, qb_storage *storage2, qb_address *address2) {
-	if(!STORAGE_TYPE_MATCH(address1->type, address2->type)) {
-		return FALSE;
-	} else if(address1->dimension_count != address2->dimension_count) {
-		return FALSE;
-	} else {
-		uint32_t j;
-		for(j = 0; j < address1->dimension_count; j++) {
-			qb_address *dim_address1 = address1->array_size_addresses[j];
-			qb_address *dim_address2 = address2->array_size_addresses[j];
-			if(CONSTANT(dim_address1) && CONSTANT(dim_address2)) {
-				uint32_t dim1 = VALUE_IN(storage1, U32, dim_address1);
-				uint32_t dim2 = VALUE_IN(storage2, U32, dim_address2);
-				if(dim1 != dim2) {
-					return FALSE;
-				}
-			} else if(CONSTANT(dim_address1)) {
-				return FALSE;
-			} else if(CONSTANT(dim_address2)) {
-				return FALSE;
-			}
-		}
-		if(address1->index_alias_schemes && address2->index_alias_schemes) {
-			for(j = 0; j < address1->dimension_count; j++) {
-				qb_index_alias_scheme *scheme1 = address1->index_alias_schemes[j];
-				qb_index_alias_scheme *scheme2 = address2->index_alias_schemes[j];
-				if(scheme1 && scheme2) {
-					uint32_t dimension = VALUE_IN(storage1, U32, address1->dimension_addresses[j]);
-					uint32_t k;
-					for(k = 0; k < dimension; k++) {
-						const char *alias1 = scheme1->aliases[k];
-						const char *alias2 = scheme2->aliases[k];
-						if(strcmp(alias1, alias2) != 0) {
-							return FALSE;
-						}
-					}
-				} else if(address1->index_alias_schemes[j]) {
-					return FALSE;
-				} else if(address2->index_alias_schemes[j]) {
-					return FALSE;
-				}
-			}
-		} else if(address1->index_alias_schemes) {
-			return FALSE;
-		} else if(address2->index_alias_schemes) {
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-
-static void qb_transfer_dimension(qb_storage *src_storage, qb_address *src_address, qb_storage *dst_storage, qb_address *dst_address, uint32_t variable_selector) {
-	qb_memory_segment *segment;
-	uint32_t index, *indices, index_count, i;
-	if(CONSTANT(src_address)) {
-		index = VALUE_IN(src_storage, U32, src_address);
-		dst_address->segment_selector = QB_SELECTOR_CONSTANT_SCALAR;
-		segment = &dst_storage->segments[QB_SELECTOR_CONSTANT_SCALAR];
-		indices = (uint32_t *) segment->memory;
-		index_count = segment->byte_count / sizeof(uint32_t), i;
-		for(i = 0; i < index_count; i++) {
-			if(indices[i] == index) {
-				dst_address->segment_offset = i * sizeof(uint32_t);
-				return;
-			}
-		}
-	} else {
-		segment = &dst_storage->segments[variable_selector];
-		dst_address->segment_selector = variable_selector;
-		index = (uint32_t) -1;
-	}
-	dst_address->segment_offset = segment->byte_count;
-	segment->byte_count += sizeof(uint32_t);
-	if(segment->byte_count > segment->current_allocation) {
-		segment->current_allocation = ALIGN_TO(segment->byte_count, 1024);
-		segment->memory = erealloc(segment->memory, segment->current_allocation);
-	}
-	VALUE_IN(dst_storage, U32, dst_address) = index;
-}
-
-qb_variable * qb_import_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_import_scope *scope) {
-	qb_memory_segment *segment;
-	uint32_t selector, start_offset, alignment, element_count, byte_count;
-	uint32_t scalar_selector, array_selector;
-	uint32_t i, variable_length;
-	qb_variable *ivar;
-
-	// create a copy of the variable
-	variable_length = qb_get_variable_length(var);
-	ivar = emalloc(variable_length);
-	qb_copy_variable(var, (int8_t *) ivar);
-	scope->variables = erealloc(scope->variables, sizeof(qb_variable *) * (scope->variable_count + 1));
-	scope->variables[scope->variable_count++] = ivar;
-
-	if(!scope->storage) {
-		// create the storage 
-		scope->storage = emalloc(sizeof(qb_storage));
-		scope->storage->segment_count = QB_SELECTOR_ARRAY_START;
-		scope->storage->segments = emalloc(sizeof(qb_memory_segment) * scope->storage->segment_count);
-		memset(scope->storage->segments, 0, sizeof(qb_memory_segment) * scope->storage->segment_count);
-	}
-
-	// see where fixed-length variables should be placed
-	switch(scope->type) {
-		case QB_IMPORT_SCOPE_GLOBAL: {
-			scalar_selector = QB_SELECTOR_GLOBAL_SCALAR;
-			array_selector = QB_SELECTOR_GLOBAL_ARRAY;
-		}	break;
-		case QB_IMPORT_SCOPE_CLASS: {
-			scalar_selector = QB_SELECTOR_CLASS_SCALAR;
-			array_selector = QB_SELECTOR_CLASS_ARRAY;
-		}	break;
-		case QB_IMPORT_SCOPE_ABSTRACT_OBJECT:
-		case QB_IMPORT_SCOPE_OBJECT: {
-			scalar_selector = QB_SELECTOR_OBJECT_SCALAR;
-			array_selector = QB_SELECTOR_OBJECT_ARRAY;
-		}	break;
-	}
-
-	if(var->address->dimension_count > 0) {
-		// put dimensional values into the correct location in the scope storage
-		if(var->address->dimension_count == 1) {
-			qb_transfer_dimension(storage, var->address->array_size_address, scope->storage, ivar->address->array_size_address, scalar_selector);
-		} else {
-			for(i = 0; i < var->address->dimension_count; i++) {
-				qb_transfer_dimension(storage, var->address->dimension_addresses[i], scope->storage, ivar->address->dimension_addresses[i], scalar_selector);
-				qb_transfer_dimension(storage, var->address->array_size_addresses[i], scope->storage, ivar->address->array_size_addresses[i], scalar_selector);
-			}
-		}
-	}
-
-	// assign space to the variable
-	if(SCALAR(ivar->address)) {
-		byte_count = BYTE_COUNT(1, ivar->address->type);
-		alignment = max(byte_count, 4);
-		selector = scalar_selector;
-	} else {
-		alignment = 16;
-		if(FIXED_LENGTH(ivar->address)) {
-			element_count = ARRAY_SIZE_IN(scope->storage, ivar->address);
-			byte_count = BYTE_COUNT(element_count, ivar->address->type);
-			if(byte_count < 10240) {
-				selector = array_selector;
-			} else {
-				selector = scope->storage->segment_count;
-			}
-		} else {
-			element_count = 0;
-			byte_count = 0;
-			selector = scope->storage->segment_count;
-		}
-	}
-
-	if(selector >= scope->storage->segment_count) {
-		scope->storage->segment_count = selector + 1;
-		scope->storage->segments = erealloc(scope->storage->segments, sizeof(qb_memory_segment) * scope->storage->segment_count);
-		segment = &scope->storage->segments[selector];
-		memset(segment, 0, sizeof(qb_memory_segment));
-	} else {
-		segment = &scope->storage->segments[selector];
-	}
-
-	start_offset = ALIGN_TO(segment->byte_count, alignment);
-	segment->byte_count = start_offset + byte_count;
-
-	if(selector < QB_SELECTOR_ARRAY_START) {
-		if(segment->byte_count > segment->current_allocation) {
-			// allocate actual memory
-			segment->current_allocation = ALIGN_TO(segment->byte_count, 1024);
-			segment->memory = erealloc(segment->memory, segment->current_allocation);
-		}
-	}
-
-	ivar->address->segment_selector = selector;
-	ivar->address->segment_offset = start_offset;
-	return ivar;
-}
-
-qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object) {
-	USE_TSRM
-	qb_import_scope *scope;
-	qb_import_scope_type scope_type;
-	void *associated_object;
-
-	if(var->flags & QB_VARIABLE_GLOBAL) {
-		scope_type = QB_IMPORT_SCOPE_GLOBAL;
-		associated_object = NULL;
-	} else if(var->flags & QB_VARIABLE_CLASS || var->flags & QB_VARIABLE_CLASS_CONSTANT) {
-		scope_type = QB_IMPORT_SCOPE_CLASS;
-		if(var->zend_class) {
-			associated_object = var->zend_class;
-		} else {
-			USE_TSRM
-			// it's a variable qualifed with static::
-			associated_object = Z_OBJCE_P(object);
-		}
-	} else if(var->flags & QB_VARIABLE_CLASS_INSTANCE) {
-		if(object) {
-			scope_type = QB_IMPORT_SCOPE_OBJECT;
-			associated_object = object;
-		} else {
-			scope_type = QB_IMPORT_SCOPE_ABSTRACT_OBJECT;
-			associated_object = var->zend_class;
-		}
-	}
-	scope = qb_find_import_scope(cxt, scope_type, associated_object);
-	if(!scope) {
-		scope = qb_create_import_scope(cxt, scope_type, associated_object);
-	}
-	return scope;
-}
-
-qb_variable * qb_get_import_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_import_scope *scope) {
-	uint32_t i;
-	qb_variable *ivar;
-	// look for the variable
-	for(i = 0; i < scope->variable_count; i++) {
-		ivar = scope->variables[i];
-		if(ivar->hash_value == var->hash_value && ivar->name_length == var->name_length) {
-			if(strcmp(ivar->name, var->name) == 0) {
-				int32_t match = TRUE;
-				
-				if(qb_check_address_compatibility(scope->storage, ivar->address, storage, var->address)) {
-					if(!(var->flags & QB_ADDRESS_READ_ONLY)) {
-						ivar->flags &= ~QB_ADDRESS_READ_ONLY;
-					}
-					return ivar;
-				} else {
-					if(READ_ONLY(ivar->address) && READ_ONLY(var->address)) {
-						// permit a variable to be imported differently if it's not modified 
-					} else {
-						qb_abort("Error message");
-					}
-				}
-			}
-		}
-	}
-	ivar = qb_import_variable(cxt, storage, var, scope);
-	return ivar;
-}
-
-intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *storage, uint32_t segment_selector, uint32_t new_size) {
-	qb_memory_segment *segment = &storage->segments[segment_selector];
+intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, uint32_t segment_selector, uint32_t new_size) {
+	qb_memory_segment *segment = &cxt->active_function->local_storage->segments[segment_selector];
 #ifdef ZEND_DEBUG
 	if(segment->flags & QB_SEGMENT_PREALLOCATED) {
 		qb_abort("Invalid segment selector");
@@ -713,46 +381,14 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *stora
 	return qb_resize_segment(segment, new_size);
 }
 
-void qb_push_zend_argument(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_zend_argument_stack *stack) {
-	zval ***pp_zarg, **p_zarg, *zarg;
-	if(!stack->arguments) {
-		qb_create_array((void **) &stack->arguments, &stack->argument_count, sizeof(zval *), 4);
-		qb_create_array((void **) &stack->argument_pointers, &stack->argument_pointer_count, sizeof(zval **), 4);
-	}
-	ALLOC_INIT_ZVAL(zarg);
-	qb_transfer_value_to_zval(storage, var->address, zarg);
-	p_zarg = qb_enlarge_array((void **) &stack->arguments, 1);
-	pp_zarg = qb_enlarge_array((void **) &stack->argument_pointers, 1);
-	*pp_zarg = p_zarg;
-	*p_zarg = zarg;
-}
-
-void qb_free_zend_argument_stack(qb_interpreter_context *cxt, qb_zend_argument_stack *stack) {
-	if(stack->arguments) {
-		qb_destroy_array((void **) &stack->arguments);
-		qb_destroy_array((void **) &stack->argument_pointers);
-	}
-}
-
-void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, qb_external_symbol *symbol, qb_zend_argument_stack *stack, uint32_t line_number) {
+static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_number) {
 	USE_TSRM
 	zval *retval;
 	zend_op **p_user_op = EG(opline_ptr);
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcc;
 	uint32_t i;
-	zend_function *zfunc = symbol->pointer;
 	int call_result;
-
-	if(symbol->type == QB_EXT_SYM_STATIC_ZEND_FUNCTION) {
-		if(zfunc->common.scope != EG(called_scope)) {
-			// it isn't the right function--look up the correct one
-			zend_hash_find(&EG(called_scope)->function_table, zfunc->common.function_name, strlen(zfunc->common.function_name) + 1, (void **) &zfunc);
-		}
-	}
-
-	// copy global and class variables back to PHP first
-	// TODO
 
 	fcc.calling_scope = EG(called_scope);
 	fcc.function_handler = zfunc;
@@ -786,8 +422,8 @@ void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *stor
 #endif
 	fci.function_name = qb_cstring_to_zval(zfunc->common.function_name TSRMLS_CC);
 	fci.retval_ptr_ptr = &retval;
-	fci.param_count = stack->argument_count;
-	fci.params = stack->argument_pointers;
+	fci.param_count = argument_count;
+	fci.params = argument_pointers;
 	fci.no_separation = 1;
 	fci.symbol_table = NULL;
 
@@ -804,18 +440,68 @@ void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *stor
 	} else {
 		qb_abort("Internal error");
 	}
+	return retval;
+}
+
+static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+	zval **arguments, ***argument_pointers, *retval;
+	uint32_t i;
+	ALLOCA_FLAG(use_heap1)
+	ALLOCA_FLAG(use_heap2)
+
+	arguments = do_alloca(sizeof(zval *) * argument_count, use_heap1);
+	argument_pointers = do_alloca(sizeof(zval **) * argument_count, use_heap2);
+
+	for(i = 0; i < argument_count; i++) {
+		uint32_t var_index = variable_indices[i];
+		qb_variable *var = cxt->active_function->variables[var_index];
+		ALLOC_INIT_ZVAL(arguments[i]);
+		qb_transfer_value_to_zval(cxt->active_function->local_storage, var->address, arguments[i]);
+		argument_pointers[i] = &arguments[i];
+	}
+
+	// copy values of global and class variables back to PHP
+	// TODO
+
+	retval = qb_invoke_zend_function(cxt, zfunc, argument_pointers, argument_count, line_number);
 
 	// copy values of global and class variables from PHP again
 	// TODO
 
-	if(retvar) {
-		qb_transfer_value_from_zval(storage, retvar->address, retval, QB_TRANSFER_CAN_SEIZE_MEMORY);
+	if(result_index != -1) {
+		qb_variable *retvar = cxt->active_function->variables[result_index];
+		qb_transfer_value_from_zval(cxt->active_function->local_storage, retvar->address, retval, QB_TRANSFER_CAN_SEIZE_MEMORY);
 	}
-	for(i = 0; i < stack->argument_count; i++) {
-		zval *zarg = stack->arguments[i];
-		zval_ptr_dtor(&zarg);
+	for(i = 0; i < argument_count; i++) {
+		zval_ptr_dtor(&arguments[i]);
 	}
-	stack->argument_count = 0;
-	stack->argument_pointer_count = 0;
 	zval_ptr_dtor(&retval);
+
+	free_alloca(arguments, use_heap1);
+	free_alloca(argument_pointers, use_heap2);
+}
+
+static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+
+}
+
+void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+	USE_TSRM
+	qb_external_symbol *symbol = &QB_G(external_symbols)[symbol_index];
+	zend_function *zfunc = symbol->pointer;
+	qb_function *qfunc;
+
+	if(symbol->type == QB_EXT_SYM_STATIC_ZEND_FUNCTION) {
+		zend_class_entry *called_scope = EG(called_scope);
+		if(zfunc->common.scope != called_scope) {
+			zend_hash_find(&called_scope->function_table, zfunc->common.function_name, strlen(zfunc->common.function_name) + 1, (void **) &zfunc);
+		}
+	}
+
+	qfunc = qb_get_compiled_function(zfunc);
+	if(qfunc) {
+		qb_execute_function_call(cxt, qfunc, variable_indices, argument_count, result_index, line_number);
+	} else {
+		qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, result_index, line_number);
+	}
 }

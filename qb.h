@@ -159,13 +159,20 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	char *execution_log_path;
 
 	qb_build_context *build_context;
-	qb_interpreter_context *interpreter_context;
+
+	qb_import_scope **scopes;
+	uint32_t scope_count;
+
+	qb_external_symbol *external_symbols;
+	uint32_t external_symbol_count;
 
 	zval static_zvals[8];
 	uint32_t static_zval_index;
 
+#ifdef NATIVE_COMPILE_ENABLED
 	qb_native_code_bundle *native_code_bundles;
 	uint32_t native_code_bundle_count;
+#endif
 
 	qb_thread_pool *thread_pool;
 ZEND_END_MODULE_GLOBALS(qb)
@@ -184,8 +191,12 @@ int qb_is_compiled_function(zend_function *zfunc);
 
 zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC);
 
+qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zval *object TSRMLS_DC);
+qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_import_scope *scope  TSRMLS_DC);
+
+uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer TSRMLS_DC);
+
 qb_build_context * qb_get_current_build(TSRMLS_D);
-qb_interpreter_context * qb_get_interpreter_context(TSRMLS_D);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);

@@ -57,8 +57,6 @@ typedef void (*qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, q
 
 typedef void (*qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
 
-typedef uint32_t (*qb_get_operand_count_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
-
 typedef qb_opcode (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
 typedef void (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
@@ -72,7 +70,6 @@ typedef void (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factor
 	qb_set_result_proc set_final_result;	\
 	qb_set_dimensions_proc set_dimensions;	\
 	qb_select_opcode_proc select_opcode;	\
-	qb_get_operand_count_proc get_operand_count;	\
 	qb_transfer_operands_proc transfer_operands;	\
 	uint32_t coercion_flags;	\
 	uint32_t result_flags;	\

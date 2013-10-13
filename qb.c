@@ -29,6 +29,543 @@
 #include "php_qb.h"
 #include "qb.h"
 
+zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
+	char *error = NULL;
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+	int error_reporting_before;
+#endif
+	zend_fcall_info_cache fcc;
+
+	if(class_name) {
+		HashTable ht;
+		zval _callable, *callable = &_callable;
+
+		zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
+		Z_ARRVAL_P(callable) = &ht;
+		Z_TYPE_P(callable) = IS_ARRAY;
+
+		Z_ADDREF_P(class_name);
+		Z_ADDREF_P(name);
+		zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
+		zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
+
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			qb_abort("%s", error);
+		}
+#else
+		// suppress the non-static function being called as static warning message
+		error_reporting_before = EG(error_reporting);
+		EG(error_reporting) = 0;
+		if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		}
+		EG(error_reporting) = error_reporting_before;
+#endif
+		zend_hash_destroy(&ht);
+	} else {
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			qb_abort("%s", error);
+		}
+#else
+		if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		}
+#endif
+	}
+	if(error) {
+		efree(error);
+	}
+	return fcc.function_handler;
+}
+
+qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC) {
+	uint32_t i;
+	qb_import_scope *scope;
+	for(i = 0; i < QB_G(scope_count); i++) {
+		scope = QB_G(scopes)[i];
+		if(scope->type == type && scope->associated_object == associated_object) {
+			return scope;
+		}
+	}
+	return NULL;
+}
+
+qb_import_scope * qb_create_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC) {
+	qb_import_scope *scope = emalloc(sizeof(qb_import_scope)), **p_scope;
+	memset(scope, 0, sizeof(qb_import_scope));
+	scope->type = type;
+	scope->associated_object = associated_object;
+
+	if(!QB_G(scopes)) {
+		qb_create_array((void **) &QB_G(scopes), &QB_G(scope_count), sizeof(qb_import_scope *), 4);
+	}
+	p_scope = qb_enlarge_array((void **) &QB_G(scopes), 1);
+	*p_scope = scope;
+
+	if(type == QB_IMPORT_SCOPE_OBJECT) {
+		// create the scope based on the scope of the abstract object
+		zval *object = associated_object;
+		zend_class_entry *ce = Z_OBJCE_P(object);
+		qb_import_scope *abstract_scope = qb_find_import_scope(QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce TSRMLS_CC);
+		uint32_t i;
+
+		if(!abstract_scope) {
+			// create it--should inherit variables from parent class
+			abstract_scope = qb_create_import_scope(QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce TSRMLS_CC);
+		}
+
+		scope->variables = abstract_scope->variables;
+		scope->variable_count = abstract_scope->variable_count;
+		scope->storage = emalloc(sizeof(qb_storage));
+		scope->storage->flags = abstract_scope->storage->flags;
+		scope->storage->segment_count = abstract_scope->storage->segment_count;
+		scope->storage->segments = emalloc(sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
+		memcpy(scope->storage->segments, abstract_scope->storage->segments, sizeof(qb_memory_segment) * abstract_scope->storage->segment_count);
+		for(i = 0; i < scope->storage->segment_count; i++) {
+			qb_memory_segment *src_segment = &abstract_scope->storage->segments[i];
+			qb_memory_segment *dst_segment = &scope->storage->segments[i];
+			if(src_segment->memory) {
+				dst_segment->memory = emalloc(src_segment->byte_count);
+				memcpy(dst_segment->memory, src_segment->memory, src_segment->byte_count);
+				dst_segment->current_allocation = src_segment->byte_count;
+			}
+		}
+	} else if(type == QB_IMPORT_SCOPE_CLASS || type == QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
+		zend_class_entry *ce = associated_object;
+		zend_class_entry *ancestor_ce;
+		for(ancestor_ce = ce->parent; ancestor_ce; ancestor_ce = ancestor_ce->parent) {
+			qb_import_scope *ancestor_scope = qb_find_import_scope(type, ancestor_ce TSRMLS_CC);
+
+			if(ancestor_scope) {
+				// inherit the properties
+				scope->parent = ancestor_scope;
+				scope->variable_count = ancestor_scope->variable_count;
+				scope->variables = emalloc(sizeof(qb_variable *) * ancestor_scope->variable_count);
+				memcpy(scope->variables, ancestor_scope->variables, sizeof(qb_variable *) * ancestor_scope->variable_count);
+
+				// use the same storage
+				scope->storage = ancestor_scope->storage;
+			}
+		}
+	}
+	return scope;
+}
+
+static int32_t qb_check_address_compatibility(qb_storage *storage1, qb_address *address1, qb_storage *storage2, qb_address *address2) {
+	if(!STORAGE_TYPE_MATCH(address1->type, address2->type)) {
+		return FALSE;
+	} else if(address1->dimension_count != address2->dimension_count) {
+		return FALSE;
+	} else {
+		uint32_t j;
+		for(j = 0; j < address1->dimension_count; j++) {
+			qb_address *dim_address1 = address1->array_size_addresses[j];
+			qb_address *dim_address2 = address2->array_size_addresses[j];
+			if(CONSTANT(dim_address1) && CONSTANT(dim_address2)) {
+				uint32_t dim1 = VALUE_IN(storage1, U32, dim_address1);
+				uint32_t dim2 = VALUE_IN(storage2, U32, dim_address2);
+				if(dim1 != dim2) {
+					return FALSE;
+				}
+			} else if(CONSTANT(dim_address1)) {
+				return FALSE;
+			} else if(CONSTANT(dim_address2)) {
+				return FALSE;
+			}
+		}
+		if(address1->index_alias_schemes && address2->index_alias_schemes) {
+			for(j = 0; j < address1->dimension_count; j++) {
+				qb_index_alias_scheme *scheme1 = address1->index_alias_schemes[j];
+				qb_index_alias_scheme *scheme2 = address2->index_alias_schemes[j];
+				if(scheme1 && scheme2) {
+					uint32_t dimension = VALUE_IN(storage1, U32, address1->dimension_addresses[j]);
+					uint32_t k;
+					for(k = 0; k < dimension; k++) {
+						const char *alias1 = scheme1->aliases[k];
+						const char *alias2 = scheme2->aliases[k];
+						if(strcmp(alias1, alias2) != 0) {
+							return FALSE;
+						}
+					}
+				} else if(address1->index_alias_schemes[j]) {
+					return FALSE;
+				} else if(address2->index_alias_schemes[j]) {
+					return FALSE;
+				}
+			}
+		} else if(address1->index_alias_schemes) {
+			return FALSE;
+		} else if(address2->index_alias_schemes) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+static void qb_transfer_dimension(qb_storage *src_storage, qb_address *src_address, qb_storage *dst_storage, qb_address *dst_address, uint32_t variable_selector) {
+	qb_memory_segment *segment;
+	uint32_t index, *indices, index_count, i;
+	if(CONSTANT(src_address)) {
+		index = VALUE_IN(src_storage, U32, src_address);
+		dst_address->segment_selector = QB_SELECTOR_CONSTANT_SCALAR;
+		segment = &dst_storage->segments[QB_SELECTOR_CONSTANT_SCALAR];
+		indices = (uint32_t *) segment->memory;
+		index_count = segment->byte_count / sizeof(uint32_t), i;
+		for(i = 0; i < index_count; i++) {
+			if(indices[i] == index) {
+				dst_address->segment_offset = i * sizeof(uint32_t);
+				return;
+			}
+		}
+	} else {
+		segment = &dst_storage->segments[variable_selector];
+		dst_address->segment_selector = variable_selector;
+		index = (uint32_t) -1;
+	}
+	dst_address->segment_offset = segment->byte_count;
+	segment->byte_count += sizeof(uint32_t);
+	if(segment->byte_count > segment->current_allocation) {
+		segment->current_allocation = ALIGN_TO(segment->byte_count, 1024);
+		segment->memory = erealloc(segment->memory, segment->current_allocation);
+	}
+	VALUE_IN(dst_storage, U32, dst_address) = index;
+}
+
+qb_variable * qb_import_variable(qb_storage *storage, qb_variable *var, qb_import_scope *scope TSRMLS_DC) {
+	qb_memory_segment *segment;
+	uint32_t selector, start_offset, alignment, element_count, byte_count;
+	uint32_t scalar_selector, array_selector;
+	uint32_t i, variable_length;
+	qb_variable *ivar;
+
+	// create a copy of the variable
+	variable_length = qb_get_variable_length(var);
+	ivar = emalloc(variable_length);
+	qb_copy_variable(var, (int8_t *) ivar);
+	scope->variables = erealloc(scope->variables, sizeof(qb_variable *) * (scope->variable_count + 1));
+	scope->variables[scope->variable_count++] = ivar;
+
+	if(!scope->storage) {
+		// create the storage 
+		scope->storage = emalloc(sizeof(qb_storage));
+		scope->storage->segment_count = QB_SELECTOR_ARRAY_START;
+		scope->storage->segments = emalloc(sizeof(qb_memory_segment) * scope->storage->segment_count);
+		memset(scope->storage->segments, 0, sizeof(qb_memory_segment) * scope->storage->segment_count);
+	}
+
+	// see where fixed-length variables should be placed
+	switch(scope->type) {
+		case QB_IMPORT_SCOPE_GLOBAL: {
+			scalar_selector = QB_SELECTOR_GLOBAL_SCALAR;
+			array_selector = QB_SELECTOR_GLOBAL_ARRAY;
+		}	break;
+		case QB_IMPORT_SCOPE_CLASS: {
+			scalar_selector = QB_SELECTOR_CLASS_SCALAR;
+			array_selector = QB_SELECTOR_CLASS_ARRAY;
+		}	break;
+		case QB_IMPORT_SCOPE_ABSTRACT_OBJECT:
+		case QB_IMPORT_SCOPE_OBJECT: {
+			scalar_selector = QB_SELECTOR_OBJECT_SCALAR;
+			array_selector = QB_SELECTOR_OBJECT_ARRAY;
+		}	break;
+	}
+
+	if(var->address->dimension_count > 0) {
+		// put dimensional values into the correct location in the scope storage
+		if(var->address->dimension_count == 1) {
+			qb_transfer_dimension(storage, var->address->array_size_address, scope->storage, ivar->address->array_size_address, scalar_selector);
+		} else {
+			for(i = 0; i < var->address->dimension_count; i++) {
+				qb_transfer_dimension(storage, var->address->dimension_addresses[i], scope->storage, ivar->address->dimension_addresses[i], scalar_selector);
+				qb_transfer_dimension(storage, var->address->array_size_addresses[i], scope->storage, ivar->address->array_size_addresses[i], scalar_selector);
+			}
+		}
+	}
+
+	// assign space to the variable
+	if(SCALAR(ivar->address)) {
+		byte_count = BYTE_COUNT(1, ivar->address->type);
+		alignment = max(byte_count, 4);
+		selector = scalar_selector;
+	} else {
+		alignment = 16;
+		if(FIXED_LENGTH(ivar->address)) {
+			element_count = ARRAY_SIZE_IN(scope->storage, ivar->address);
+			byte_count = BYTE_COUNT(element_count, ivar->address->type);
+			if(byte_count < 10240) {
+				selector = array_selector;
+			} else {
+				selector = scope->storage->segment_count;
+			}
+		} else {
+			element_count = 0;
+			byte_count = 0;
+			selector = scope->storage->segment_count;
+		}
+	}
+
+	if(selector >= scope->storage->segment_count) {
+		scope->storage->segment_count = selector + 1;
+		scope->storage->segments = erealloc(scope->storage->segments, sizeof(qb_memory_segment) * scope->storage->segment_count);
+		segment = &scope->storage->segments[selector];
+		memset(segment, 0, sizeof(qb_memory_segment));
+	} else {
+		segment = &scope->storage->segments[selector];
+	}
+
+	start_offset = ALIGN_TO(segment->byte_count, alignment);
+	segment->byte_count = start_offset + byte_count;
+
+	if(selector < QB_SELECTOR_ARRAY_START) {
+		if(segment->byte_count > segment->current_allocation) {
+			// allocate actual memory
+			segment->current_allocation = ALIGN_TO(segment->byte_count, 1024);
+			segment->memory = erealloc(segment->memory, segment->current_allocation);
+		}
+	}
+
+	ivar->address->segment_selector = selector;
+	ivar->address->segment_offset = start_offset;
+	return ivar;
+}
+
+qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zval *object TSRMLS_DC) {
+	qb_import_scope *scope;
+	qb_import_scope_type scope_type;
+	void *associated_object;
+
+	if(var->flags & QB_VARIABLE_GLOBAL) {
+		scope_type = QB_IMPORT_SCOPE_GLOBAL;
+		associated_object = NULL;
+	} else if(var->flags & QB_VARIABLE_CLASS || var->flags & QB_VARIABLE_CLASS_CONSTANT) {
+		scope_type = QB_IMPORT_SCOPE_CLASS;
+		if(var->zend_class) {
+			associated_object = var->zend_class;
+		} else {
+			// it's a variable qualifed with static::
+			associated_object = Z_OBJCE_P(object);
+		}
+	} else if(var->flags & QB_VARIABLE_CLASS_INSTANCE) {
+		if(object) {
+			scope_type = QB_IMPORT_SCOPE_OBJECT;
+			associated_object = object;
+		} else {
+			scope_type = QB_IMPORT_SCOPE_ABSTRACT_OBJECT;
+			associated_object = var->zend_class;
+		}
+	}
+	scope = qb_find_import_scope(scope_type, associated_object TSRMLS_CC);
+	if(!scope) {
+		scope = qb_create_import_scope(scope_type, associated_object TSRMLS_CC);
+	}
+	return scope;
+}
+
+qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_import_scope *scope TSRMLS_DC) {
+	uint32_t i;
+	qb_variable *ivar;
+	// look for the variable
+	for(i = 0; i < scope->variable_count; i++) {
+		ivar = scope->variables[i];
+		if(ivar->hash_value == var->hash_value && ivar->name_length == var->name_length) {
+			if(strcmp(ivar->name, var->name) == 0) {
+				int32_t match = TRUE;
+				
+				if(qb_check_address_compatibility(scope->storage, ivar->address, storage, var->address)) {
+					if(!(var->flags & QB_ADDRESS_READ_ONLY)) {
+						ivar->flags &= ~QB_ADDRESS_READ_ONLY;
+					}
+					return ivar;
+				} else {
+					if(READ_ONLY(ivar->address) && READ_ONLY(var->address)) {
+						// permit a variable to be imported differently if it's not modified 
+					} else {
+						qb_abort("Error message");
+					}
+				}
+			}
+		}
+	}
+	ivar = qb_import_variable(storage, var, scope TSRMLS_CC);
+	return ivar;
+}
+
+uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer TSRMLS_DC) {
+	uint32_t i;
+	qb_external_symbol *symbol;
+	for(i = 0; i < QB_G(external_symbol_count); i++) {
+		symbol = &QB_G(external_symbols)[i];
+		if(symbol->pointer == pointer && symbol->type == type) {
+			return i;
+		}
+	}
+	if(!QB_G(external_symbols)) {
+		qb_create_array((void **) &QB_G(external_symbols), &QB_G(external_symbol_count), sizeof(qb_external_symbol), 4);
+	}
+	i = QB_G(external_symbol_count);
+	symbol = qb_enlarge_array((void **) &QB_G(external_symbols), 1);
+	symbol->type = type;
+	symbol->name = name;
+	symbol->name_length = name_len;
+	symbol->pointer = pointer;
+	return i;
+}
+
+qb_build_context * qb_get_current_build(TSRMLS_D) {
+	qb_build_context *cxt = QB_G(build_context);
+	if(!cxt) {
+		cxt = emalloc(sizeof(qb_build_context));
+		qb_initialize_build_context(cxt TSRMLS_CC);
+		QB_G(build_context) = cxt;
+	}
+	return cxt;
+}
+
+static void qb_discard_current_build(TSRMLS_D) {
+	qb_build_context *cxt = QB_G(build_context);
+	if(cxt) {
+		qb_free_build_context(cxt);
+		efree(cxt);
+		QB_G(build_context) = NULL;
+	}
+}
+
+#define HAS_QB_USER_OP(op_array)		((op_array)->opcodes->opcode == qb_user_opcode)
+#define SET_QB_POINTER(op_array, p)		Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr) = (void *) p
+#define GET_QB_POINTER(op_array)		((void *) Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr))
+
+void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array) {
+	SET_QB_POINTER(op_array, qfunc);
+
+	// save the pointer in the reserved array so we can find it again in the destructor
+	op_array->reserved[qb_reserved_offset] = qfunc;
+}
+
+qb_function * qb_get_compiled_function(zend_function *zfunc) {
+	zend_op_array *op_array = &zfunc->op_array;
+	if(zfunc->type == ZEND_USER_FUNCTION && HAS_QB_USER_OP(op_array)) {
+		return GET_QB_POINTER(op_array);
+	}
+	return NULL;
+}
+
+int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
+	zend_op_array *op_array = EG(active_op_array);
+	qb_function *qfunc = GET_QB_POINTER(op_array);
+	if(!qfunc) {
+		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+		qb_build(build_cxt);
+		qfunc = GET_QB_POINTER(op_array);
+		qb_discard_current_build(TSRMLS_C);
+	}
+	if(qfunc) {
+		qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
+		qb_initialize_interpreter_context(interpreter_cxt, qfunc TSRMLS_CC);
+		qb_execute(interpreter_cxt);
+		qb_free_interpreter_context(interpreter_cxt);
+	} else {
+		qb_abort("Internal error");
+	}
+	return ZEND_USER_OPCODE_RETURN;
+}
+
+void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
+	TSRMLS_FETCH();
+	const char *doc_comment = CG(doc_comment);
+	uint32_t doc_comment_len = CG(doc_comment_len);
+	zend_compiler_globals *cg = ((zend_compiler_globals *) (*((void ***) tsrm_ls))[TSRM_UNSHUFFLE_RSRC_ID(compiler_globals_id)]);
+	if(doc_comment && strstr(doc_comment, "@engine")) {
+		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
+		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+		qb_function_declaration *func_decl;
+		zend_class_entry *zend_class = CG(active_class_entry);
+		const char *filename = CG(compiled_filename);
+		uint32_t line_number = CG(zend_lineno);
+
+		qb_initialize_parser_context(parser_cxt, build_cxt->pool, zend_class, filename, line_number TSRMLS_CC);
+		func_decl = qb_parse_function_doc_comment(parser_cxt, doc_comment, doc_comment_len);
+		if(func_decl) {
+			// add QB instruction
+			zend_op *user_op = &op_array->opcodes[op_array->last++];
+			user_op->opcode = qb_user_opcode;
+			Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
+			Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
+			Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
+
+			// add the declaration to the build
+			qb_add_function_declaration(build_cxt, func_decl);
+
+			// stash the declaration in the node until the compilation is done
+			SET_QB_POINTER(op_array, func_decl);
+
+			if(zend_class) {
+				qb_class_declaration *class_decl = qb_get_class_declaration(build_cxt, zend_class);
+				if(!class_decl) {
+					class_decl = qb_parse_class_doc_comment(parser_cxt, zend_class);
+				}
+				func_decl->class_declaration = class_decl;
+			}
+		}
+		qb_free_parser_context(parser_cxt);
+	}
+}
+
+void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
+	if(HAS_QB_USER_OP(op_array)) {
+		qb_function_declaration *func_decl = GET_QB_POINTER(op_array);
+
+		// set the pointer now--it's going to be different from the one we got in qb_zend_ext_op_array_ctor()
+		func_decl->zend_op_array = op_array;
+
+		SET_QB_POINTER(op_array, NULL);
+	}
+}
+
+void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
+	TSRMLS_FETCH();
+	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
+	if(qfunc) {
+		qb_free_function(qfunc);
+	}
+}
+
+extern zend_extension zend_extension_entry;
+
+int qb_install_user_opcode_handler() {
+	if(zend_get_user_opcode_handler(qb_user_opcode)) {
+		// choose a user opcode that isn't in use
+		uint32_t i;
+		for(i = 255; i >= 200; i--) {
+			if(!zend_get_user_opcode_handler(i)) {
+				qb_user_opcode = i;
+				break;
+			}
+		}
+	}
+
+	// set the opcode handler
+	if(zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler) == FAILURE) {
+		qb_user_opcode = 0;
+		return FAILURE;
+	}
+
+	// get a reserved offset
+	qb_reserved_offset = zend_get_resource_handle(&zend_extension_entry);
+	if(qb_reserved_offset == -1) {
+		return FAILURE;
+	}
+
+	// register extension
+	zend_register_extension(&zend_extension_entry, NULL);
+	return SUCCESS;
+}
+
+int qb_is_compiled_function(zend_function *zfunc) {
+	return qb_get_compiled_function(zfunc) != NULL;
+}
+
 ZEND_DECLARE_MODULE_GLOBALS(qb)
 
 /* True global resources - no need for thread safety here */
@@ -69,6 +606,26 @@ zend_module_entry qb_module_entry = {
 	STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
+
+zend_extension zend_extension_entry = {
+	"qb",
+	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION),
+	"Chung Leong",
+	"http://www.php-qb.net/",
+	"Copyright (c) 2013-2014",
+	NULL,
+	NULL,
+	NULL,           /* activate_func_t */
+	NULL,           /* deactivate_func_t */
+	NULL,           /* message_handler_func_t */
+	qb_zend_ext_op_array_handler,           /* op_array_handler_func_t */
+	NULL,			/* statement_handler_func_t */
+	NULL,           /* fcall_begin_handler_func_t */
+	NULL,           /* fcall_end_handler_func_t */
+	qb_zend_ext_op_array_ctor,			/* op_array_ctor_func_t */
+	qb_zend_ext_op_array_dtor,			/* op_array_dtor_func_t */
+	STANDARD_ZEND_EXTENSION_PROPERTIES
+};
 
 #ifdef COMPILE_DL_QB
 ZEND_GET_MODULE(qb)
@@ -124,194 +681,6 @@ static void php_qb_init_globals(zend_qb_globals *qb_globals)
 {
 }
 /* }}} */
-
-
-qb_build_context * qb_get_current_build(TSRMLS_D) {
-	qb_build_context *cxt = QB_G(build_context);
-	if(!cxt) {
-		cxt = emalloc(sizeof(qb_build_context));
-		qb_initialize_build_context(cxt TSRMLS_CC);
-		QB_G(build_context) = cxt;
-	}
-	return cxt;
-}
-
-static void qb_discard_current_build(TSRMLS_D) {
-	qb_build_context *cxt = QB_G(build_context);
-	if(cxt) {
-		qb_free_build_context(cxt);
-		efree(cxt);
-		QB_G(build_context) = NULL;
-	}
-}
-
-qb_interpreter_context * qb_get_interpreter_context(TSRMLS_D) {
-	qb_interpreter_context *cxt = QB_G(interpreter_context);
-	if(!cxt) {
-		cxt = emalloc(sizeof(qb_interpreter_context));
-		qb_initialize_interpreter_context(cxt TSRMLS_CC);
-		QB_G(interpreter_context) = cxt;
-	}
-	return cxt;
-}
-
-static void qb_discard_interpreter_context(TSRMLS_D) {
-	qb_interpreter_context *cxt = QB_G(interpreter_context);
-	if(cxt) {
-		qb_free_interpreter_context(cxt);
-		efree(cxt);
-		QB_G(interpreter_context) = NULL;
-	}
-}
-
-#define HAS_QB_USER_OP(op_array)		((op_array)->opcodes->opcode == qb_user_opcode)
-#define SET_QB_POINTER(op_array, p)		Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr) = (void *) p
-#define GET_QB_POINTER(op_array)		((void *) Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr))
-
-void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array) {
-	SET_QB_POINTER(op_array, qfunc);
-
-	// save the pointer in the reserved array so we can find it again in the destructor
-	op_array->reserved[qb_reserved_offset] = qfunc;
-}
-
-qb_function * qb_get_compiled_function(zend_function *zfunc) {
-	zend_op_array *op_array = &zfunc->op_array;
-	if(zfunc->type == ZEND_USER_FUNCTION && HAS_QB_USER_OP(op_array)) {
-		return GET_QB_POINTER(op_array);
-	}
-	return NULL;
-}
-
-int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
-	zend_op_array *op_array = EG(active_op_array);
-	qb_function *qfunc = GET_QB_POINTER(op_array);
-	if(!qfunc) {
-		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
-		qb_build(build_cxt);
-		qfunc = GET_QB_POINTER(op_array);
-		qb_discard_current_build(TSRMLS_C);
-	}
-	if(qfunc) {
-		qb_interpreter_context *interpreter_cxt = qb_get_interpreter_context(TSRMLS_C);
-		qb_execute(interpreter_cxt, qfunc);
-	} else {
-		qb_abort("Internal error");
-	}
-	return ZEND_USER_OPCODE_RETURN;
-}
-
-void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
-	TSRMLS_FETCH();
-	const char *doc_comment = CG(doc_comment);
-	uint32_t doc_comment_len = CG(doc_comment_len);
-	zend_compiler_globals *cg = ((zend_compiler_globals *) (*((void ***) tsrm_ls))[TSRM_UNSHUFFLE_RSRC_ID(compiler_globals_id)]);
-	if(doc_comment && strstr(doc_comment, "@engine")) {
-		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
-		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
-		qb_function_declaration *func_decl;
-		zend_class_entry *zend_class = CG(active_class_entry);
-		const char *filename = CG(compiled_filename);
-		uint32_t line_number = CG(zend_lineno);
-
-		qb_initialize_parser_context(parser_cxt, build_cxt->pool, zend_class, filename, line_number TSRMLS_CC);
-		func_decl = qb_parse_function_doc_comment(parser_cxt, doc_comment, doc_comment_len);
-		if(func_decl) {
-			// add QB instruction
-			zend_op *user_op = &op_array->opcodes[op_array->last++];
-			user_op->opcode = qb_user_opcode;
-			Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
-			Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
-			Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
-
-			// add the declaration to the build
-			qb_add_function_declaration(build_cxt, func_decl);
-
-			// stash the declaration in the node until the compilation is done
-			SET_QB_POINTER(op_array, func_decl);
-
-			if(zend_class) {
-				qb_class_declaration *class_decl = qb_get_class_declaration(build_cxt, zend_class);
-				if(!class_decl) {
-					class_decl = qb_parse_class_doc_comment(parser_cxt, zend_class);
-				}
-				func_decl->class_declaration = class_decl;
-			}
-		}
-	}
-}
-
-void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
-	if(HAS_QB_USER_OP(op_array)) {
-		qb_function_declaration *func_decl = GET_QB_POINTER(op_array);
-
-		// set the pointer now--it's going to be different from the one we got in qb_zend_ext_op_array_ctor()
-		func_decl->zend_op_array = op_array;
-
-		SET_QB_POINTER(op_array, NULL);
-	}
-}
-
-void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
-	TSRMLS_FETCH();
-	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
-	if(qfunc) {
-		qb_free_function(qfunc);
-	}
-}
-
-zend_extension zend_extension_entry = {
-	"qb",
-	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION),
-	"Chung Leong",
-	"http://www.php-qb.net/",
-	"Copyright (c) 2013-2014",
-	NULL,
-	NULL,
-	NULL,           /* activate_func_t */
-	NULL,           /* deactivate_func_t */
-	NULL,           /* message_handler_func_t */
-	qb_zend_ext_op_array_handler,           /* op_array_handler_func_t */
-	NULL,			/* statement_handler_func_t */
-	NULL,           /* fcall_begin_handler_func_t */
-	NULL,           /* fcall_end_handler_func_t */
-	qb_zend_ext_op_array_ctor,			/* op_array_ctor_func_t */
-	qb_zend_ext_op_array_dtor,			/* op_array_dtor_func_t */
-	STANDARD_ZEND_EXTENSION_PROPERTIES
-};
-
-int qb_install_user_opcode_handler() {
-	if(zend_get_user_opcode_handler(qb_user_opcode)) {
-		// choose a user opcode that isn't in use
-		uint32_t i;
-		for(i = 255; i >= 200; i--) {
-			if(!zend_get_user_opcode_handler(i)) {
-				qb_user_opcode = i;
-				break;
-			}
-		}
-	}
-
-	// set the opcode handler
-	if(zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler) == FAILURE) {
-		qb_user_opcode = 0;
-		return FAILURE;
-	}
-
-	// get a reserved offset
-	qb_reserved_offset = zend_get_resource_handle(&zend_extension_entry);
-	if(qb_reserved_offset == -1) {
-		return FAILURE;
-	}
-
-	// register extension
-	zend_register_extension(&zend_extension_entry, NULL);
-	return SUCCESS;
-}
-
-int qb_is_compiled_function(zend_function *zfunc) {
-	return qb_get_compiled_function(zfunc) != NULL;
-}
 
 #if ZEND_ENGINE_2_1
 int zend_startup_strtod(void);
@@ -381,12 +750,15 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(current_filename) = NULL;
 	QB_G(current_line_number) = 0;
 	QB_G(build_context) = NULL;
-	QB_G(interpreter_context) = NULL;
 	QB_G(thread_pool) = NULL;
-
+	QB_G(scopes) = NULL;
+	QB_G(scope_count) = 0;
+	QB_G(external_symbols) = NULL;
+	QB_G(external_symbol_count) = 0;
+#ifdef NATIVE_COMPILE_ENABLED
 	QB_G(native_code_bundles) = NULL;
 	QB_G(native_code_bundle_count) = 0;
-
+#endif
 	return SUCCESS;
 }
 /* }}} */
@@ -395,19 +767,40 @@ PHP_RINIT_FUNCTION(qb)
  */
 PHP_RSHUTDOWN_FUNCTION(qb)
 {
-
+	uint32_t i, j;
 	qb_discard_current_build(TSRMLS_C);
-	qb_discard_interpreter_context(TSRMLS_C);
+
+	for(i = 0; i < QB_G(scope_count); i++) {
+		qb_import_scope *scope = QB_G(scopes)[i];
+		if(scope->type != QB_IMPORT_SCOPE_OBJECT) {
+			for(j = (scope->parent) ? scope->parent->variable_count : 0; j < scope->variable_count; j++) {
+				qb_variable *var = scope->variables[j];
+				efree(var);
+			}
+			efree(scope->variables);
+		}
+		
+		if(!scope->parent) {
+			for(j = 0; j < scope->storage->segment_count; j++) {
+				qb_memory_segment *segment = &scope->storage->segments[j];
+				if(segment->memory) {
+					efree(segment->memory);
+				}
+			}
+			efree(scope->storage->segments);
+			efree(scope->storage);
+		}
+		efree(scope);
+	}
+	qb_destroy_array((void **) &QB_G(scopes));
+	qb_destroy_array((void **) &QB_G(external_symbols));
 
 #ifdef NATIVE_COMPILE_ENABLED
-	if(QB_G(native_code_bundles)) {
-		uint32_t i;
-		for(i = 0; i < QB_G(native_code_bundle_count); i++) {
-			qb_native_code_bundle *bundle = &QB_G(native_code_bundles)[i];
-			qb_free_native_code(bundle);
-		}
-		qb_destroy_array((void **) &QB_G(native_code_bundles));
+	for(i = 0; i < QB_G(native_code_bundle_count); i++) {
+		qb_native_code_bundle *bundle = &QB_G(native_code_bundles)[i];
+		qb_free_native_code(bundle);
 	}
+	qb_destroy_array((void **) &QB_G(native_code_bundles));
 #endif
 	return SUCCESS;
 }
@@ -508,57 +901,6 @@ PHP_FUNCTION(qb_extract)
 	//qb_extract(input, output_type, return_value TSRMLS_CC);
 }
 /* }}} */
-
-zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
-	char *error = NULL;
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	int error_reporting_before;
-#endif
-	zend_fcall_info_cache fcc;
-
-	if(class_name) {
-		HashTable ht;
-		zval _callable, *callable = &_callable;
-
-		zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
-		Z_ARRVAL_P(callable) = &ht;
-		Z_TYPE_P(callable) = IS_ARRAY;
-
-		Z_ADDREF_P(class_name);
-		Z_ADDREF_P(name);
-		zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
-		zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
-
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-			qb_abort("%s", error);
-		}
-#else
-		// suppress the non-static function being called as static warning message
-		error_reporting_before = EG(error_reporting);
-		EG(error_reporting) = 0;
-		if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
-		}
-		EG(error_reporting) = error_reporting_before;
-#endif
-		zend_hash_destroy(&ht);
-	} else {
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-			qb_abort("%s", error);
-		}
-#else
-		if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
-		}
-#endif
-	}
-	if(error) {
-		efree(error);
-	}
-	return fcc.function_handler;
-}
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
 NO_RETURN void qb_abort(const char *format, ...) {

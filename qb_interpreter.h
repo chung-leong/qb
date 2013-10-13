@@ -63,6 +63,11 @@ enum {
 };
 
 struct qb_interpreter_context {
+	
+	qb_function *active_function;
+	void *next_handler;
+	int8_t *instruction_pointer;
+	
 	uint32_t flags;
 
 	int32_t exception_encountered;
@@ -74,9 +79,6 @@ struct qb_interpreter_context {
 
 	uint32_t thread_count_for_next_op;
 	qb_pointer_adjustment adjustments_for_next_op[MAX_THREAD_COUNT][8];
-
-	qb_import_scope **scopes;
-	uint32_t scope_count;
 };
 
 struct qb_native_symbol {
@@ -101,24 +103,19 @@ extern void *op_handlers[];
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers);
 
-void qb_execute(qb_interpreter_context *cxt, qb_function *qfunc);
-void qb_execute_internal(qb_function *qfunc TSRMLS_DC);
+void qb_execute(qb_interpreter_context *cxt);
+void qb_execute_internal(qb_interpreter_context *cxt);
 
 void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 3) NO_RETURN
 void qb_abort_at(const char *format, uint32_t line_number, ...);
 
-intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, qb_storage *storage, uint32_t segment_selector, uint32_t new_size);
+intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, uint32_t segment_selector, uint32_t new_size);
 
-qb_import_scope * qb_get_import_scope(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, zval *object);
-qb_variable * qb_get_import_variable(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_import_scope *scope);
+void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number);
 
-void qb_push_zend_argument(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *var, qb_zend_argument_stack *stack);
-void qb_free_zend_argument_stack(qb_interpreter_context *cxt, qb_zend_argument_stack *stack);
-void qb_execute_zend_function_call(qb_interpreter_context *cxt, qb_storage *storage, qb_variable *retvar, qb_external_symbol *symbol, qb_zend_argument_stack *stack, uint32_t line_number);
-
-void qb_initialize_interpreter_context(qb_interpreter_context *cxt TSRMLS_DC);
+void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
 #endif

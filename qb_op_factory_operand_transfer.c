@@ -830,35 +830,33 @@ static void qb_transfer_operands_intrinsic(qb_compiler_context *cxt, qb_op_facto
 	}
 }
 
-static uint32_t qb_get_operand_count_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	f = func->intrinsic_function->extra;
-	if(f->get_operand_count) {
-		return f->get_operand_count(cxt, f, operands, operand_count);
-	}
-	return 0;
-}
-
 static void qb_transfer_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	const char *func_name = func->zend_function->common.function_name;
-	qb_external_symbol_type symbol_type = (func->type == QB_OPERAND_STATIC_ZEND_FUNCTION) ? QB_EXT_SYM_STATIC_ZEND_FUNCTION : QB_EXT_SYM_STATIC_FUNCTION;
+	qb_external_symbol_type symbol_type = (func->type == QB_OPERAND_STATIC_ZEND_FUNCTION) ? QB_EXT_SYM_STATIC_ZEND_FUNCTION : QB_EXT_SYM_ZEND_FUNCTION;
 	uint32_t func_name_len = strlen(func_name);
-	uint32_t func_index = qb_import_external_symbol(cxt, symbol_type, func_name, func_name_len, func->zend_function);
-	uint32_t ret_index = (uint32_t) -1;
+	uint32_t func_index = qb_import_external_symbol(symbol_type, func_name, func_name_len, func->zend_function TSRMLS_CC);
+	uint32_t *var_indices, ret_index = (uint32_t) -1;
 	uint32_t i;
+	ALLOCA_FLAG(use_heap);
 
-	dest[0].number = func_index;
-	dest[0].type = QB_OPERAND_NUMBER;
-	dest[1].number = ret_index;
-	dest[1].type = QB_OPERAND_NUMBER;
-
+	var_indices = do_alloca(sizeof(uint32_t *) * argument_count->number, use_heap);
 	for(i = 0; i < (uint32_t) argument_count->number; i++) {
 		qb_operand *arg = &arguments->arguments[i];
-		uint32_t var_index = qb_get_variable_index(cxt, arg->address);
-		qb_operand var;
-		var.type = QB_OPERAND_NUMBER;
-		var.number = var_index;
-		qb_create_op(cxt, &factory_send_zend_argument, &var, 1, NULL, NULL, 0, FALSE);
+		var_indices[i] = qb_get_variable_index(cxt, arg->address);
 	}
+
+	if(result->type == QB_OPERAND_ADDRESS) {
+		ret_index = qb_get_variable_index(cxt, result->address);
+	}
+
+	dest[0].address = qb_obtain_constant_U32(cxt, func_index);
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1].address = qb_obtain_constant_indices(cxt, var_indices, argument_count->number);
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = qb_obtain_constant_U32(cxt, ret_index);
+	dest[2].type = QB_OPERAND_ADDRESS;
+
+	free_alloca(var_indices, use_heap);
 }

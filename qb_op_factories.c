@@ -39,7 +39,6 @@ qb_op_factory factory_nop = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -54,7 +53,6 @@ qb_copy_op_factory factory_assign = {
 	qb_set_result_assign,
 	NULL,
 	qb_select_opcode_assign,
-	NULL,
 	qb_transfer_operands_assign,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -87,7 +85,6 @@ qb_derived_op_factory factory_assign_array_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_assign,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -104,7 +101,6 @@ qb_derived_op_factory factory_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_assign,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -118,7 +114,6 @@ qb_op_factory factory_assign_ref = {
 	NULL,
 	NULL,
 	qb_validate_operands_assign_ref,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -138,7 +133,6 @@ qb_op_factory factory_fetch_local = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -151,7 +145,6 @@ qb_op_factory factory_fetch_global = {
 	qb_set_result_fetch_global,
 	NULL,
 	qb_set_result_fetch_global,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -170,7 +163,6 @@ qb_op_factory factory_fetch_static = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -183,7 +175,6 @@ qb_op_factory factory_fetch_class = {
 	qb_set_result_fetch_class,
 	NULL,
 	qb_set_result_fetch_class,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -204,7 +195,6 @@ qb_op_factory factory_fetch_array_size = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -217,7 +207,6 @@ qb_fetch_op_factory factory_fetch_array_element_read = {
 	qb_set_result_prototype,
 	qb_validate_operands_array_element,
 	qb_set_result_fetch_array_element,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -237,7 +226,6 @@ qb_fetch_op_factory factory_fetch_array_element_write = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -251,7 +239,6 @@ qb_fetch_op_factory factory_fetch_array_element_isset = {
 	qb_set_result_prototype,
 	qb_validate_operands_array_element,
 	qb_set_result_fetch_array_element,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -271,7 +258,6 @@ qb_fetch_op_factory factory_fetch_object_property_read = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -285,7 +271,6 @@ qb_fetch_op_factory factory_fetch_object_property_write = {
 	qb_set_result_prototype,
 	qb_validate_operands_object_property,
 	qb_set_result_fetch_object_property,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -305,7 +290,6 @@ qb_fetch_op_factory factory_fetch_object_property_isset = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -319,7 +303,6 @@ qb_op_factory factory_fetch_class_self = {
 	qb_set_result_fetch_class_self,
 	qb_validate_operands_fetch_class_self,
 	qb_set_result_fetch_class_self,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -338,7 +321,6 @@ qb_op_factory factory_fetch_class_parent = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -351,7 +333,6 @@ qb_op_factory factory_fetch_class_static = {
 	qb_set_result_fetch_class_static,
 	qb_validate_operands_fetch_class_static,
 	qb_set_result_fetch_class_static,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -372,7 +353,6 @@ qb_op_factory factory_fetch_constant = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -385,7 +365,6 @@ qb_op_factory factory_array_init = {
 	qb_set_result_prototype,
 	qb_validate_array_init,
 	qb_set_result_array_init,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -404,7 +383,6 @@ qb_op_factory factory_array_append = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -415,7 +393,6 @@ qb_op_factory factory_free = {
 	qb_link_results_free,
 	NULL,
 	qb_set_result_prototype,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -435,7 +412,6 @@ qb_simple_op_factory factory_guard_array_index = {
 	qb_set_result_second_operand,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_index,
 
 	0,
@@ -453,7 +429,6 @@ qb_simple_op_factory factory_guard_array_index_add = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_index_add,
 
 	0,
@@ -471,7 +446,6 @@ qb_simple_op_factory factory_guard_array_index_multiply = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_index_multiply,
 
 	0,
@@ -489,7 +463,6 @@ qb_simple_op_factory factory_guard_array_index_multiply_add = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_index_multiply_add,
 
 	0,
@@ -507,7 +480,6 @@ qb_simple_op_factory factory_guard_array_size = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_size,
 
 	0,
@@ -525,7 +497,6 @@ qb_simple_op_factory factory_guard_array_extent = {
 	qb_set_result_third_operand,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_extent,
 
 	0,
@@ -543,7 +514,6 @@ qb_simple_op_factory factory_guard_array_extent_multiply = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_extent_multiply,
 
 	0,
@@ -561,7 +531,6 @@ qb_simple_op_factory factory_guard_array_extent_subtract = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_extent_subtract,
 
 	0,
@@ -579,7 +548,6 @@ qb_simple_op_factory factory_guard_array_extent_subtract_multiply = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_guard_array_extent_subtract_multiply,
 
 	0,
@@ -597,7 +565,6 @@ qb_chained_op_factory factory_check_array_index_add = {
 	qb_set_result_check_array_index,
 	NULL,
 	qb_select_opcode_check_array_index,
-	NULL,
 	qb_transfer_operands_check_array_index_add,
 
 	0,
@@ -616,7 +583,6 @@ qb_chained_op_factory factory_check_array_index_multiply = {
 	qb_set_result_check_array_index,
 	NULL,
 	qb_select_opcode_check_array_index,
-	NULL,
 	qb_transfer_operands_check_array_index_multiply,
 
 	0,
@@ -635,7 +601,6 @@ qb_chained_op_factory factory_check_array_index_multiply_add = {
 	qb_set_result_check_array_index,
 	NULL,
 	qb_select_opcode_check_array_index,
-	NULL,
 	qb_transfer_operands_check_array_index_multiply_add,
 
 	0,
@@ -654,7 +619,6 @@ qb_simple_op_factory factory_accommodate_array_index = {
 	qb_set_result_second_operand,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_accommodate_array_index,
 
 	0,
@@ -672,7 +636,6 @@ qb_simple_op_factory factory_accommodate_array_index_multiply = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_accommodate_array_index_multiply,
 
 	0,
@@ -690,7 +653,6 @@ qb_simple_op_factory factory_accommodate_array_push = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_accommodate_array_push,
 
 	0,
@@ -708,7 +670,6 @@ qb_simple_op_factory factory_accommodate_array_size = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_accommodate_array_size,
 
 	0,
@@ -726,7 +687,6 @@ qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_accommodate_array_size_update_dimension,
 
 	0,
@@ -744,7 +704,6 @@ qb_simple_op_factory factory_choose_size_of_larger_array = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_choose_size_of_larger_array,
 
 	0,
@@ -762,7 +721,6 @@ qb_simple_op_factory factory_choose_size_of_larger_array_top_level = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_choose_size_of_larger_array_top_level,
 
 	0,
@@ -780,7 +738,6 @@ qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_choose_size_of_larger_array,
 
 	0,
@@ -798,7 +755,6 @@ qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays_top_level = 
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_choose_size_of_larger_array_top_level,
 
 	0,
@@ -819,7 +775,6 @@ qb_op_factory factory_receive_argument = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	0,
@@ -832,7 +787,6 @@ qb_op_factory factory_send_argument = {
 	qb_set_result_send_argument,
 	NULL,
 	qb_set_result_send_argument,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -850,7 +804,6 @@ qb_op_factory factory_intrinsic = {
 	qb_set_final_result_intrinsic,
 	NULL,
 	qb_select_opcode_intrinsic,
-	NULL,
 	qb_transfer_operands_intrinsic,
 	0,
 	0,
@@ -866,29 +819,11 @@ qb_simple_op_factory factory_zend_function_call = {
 	qb_set_result_zend_function_call,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_zend_function_call,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	QB_FCALL_ZE_U32_U32,
-};
-
-qb_simple_op_factory factory_send_zend_argument = {
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	qb_select_opcode_simple,
-	NULL,
-	qb_transfer_operands_first,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	QB_ARG_VAR_ZE_U32,
+	QB_FCALL_U32_U32_U32,
 };
 
 void *factories_fcall[] = { &factory_intrinsic, NULL, &factory_zend_function_call };
@@ -902,7 +837,6 @@ qb_cast_op_factory factory_cast_S08 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -920,7 +854,6 @@ qb_cast_op_factory factory_cast_U08 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -938,7 +871,6 @@ qb_cast_op_factory factory_cast_S16 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -956,7 +888,6 @@ qb_cast_op_factory factory_cast_U16 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -974,7 +905,6 @@ qb_cast_op_factory factory_cast_S32 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -992,7 +922,6 @@ qb_cast_op_factory factory_cast_U32 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -1010,7 +939,6 @@ qb_cast_op_factory factory_cast_S64 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -1028,7 +956,6 @@ qb_cast_op_factory factory_cast_U64 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -1046,7 +973,6 @@ qb_cast_op_factory factory_cast_F32 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -1064,7 +990,6 @@ qb_cast_op_factory factory_cast_F64 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 	0,
 	0,
@@ -1083,7 +1008,6 @@ qb_op_factory factory_array_cast = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -1096,7 +1020,6 @@ qb_op_factory factory_string_cast = {
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_string_cast,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -1116,7 +1039,6 @@ qb_arithmetic_op_factory factory_increment_pre = {
 	qb_set_result_first_operand,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_nullary_arithmetic,
-	NULL,
 	qb_transfer_operands_result_only,
 
 	0,
@@ -1139,7 +1061,6 @@ qb_arithmetic_op_factory factory_decrement_pre = {
 	qb_set_result_first_operand,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_nullary_arithmetic,
-	NULL,
 	qb_transfer_operands_result_only,
 
 	0,
@@ -1162,7 +1083,6 @@ qb_derived_op_factory factory_increment_post = {
 	qb_set_result_increment_post,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_increment,
 
 	0,
@@ -1180,7 +1100,6 @@ qb_derived_op_factory factory_decrement_post = {
 	qb_set_result_increment_post,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_increment,
 
 	0,
@@ -1198,7 +1117,6 @@ qb_arithmetic_op_factory factory_increment_object_property_pre = {
 	qb_set_result_fetch_object_property,
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_nullary_arithmetic,
-	NULL,
 	qb_transfer_operands_increment_object_property,
 
 	0,
@@ -1221,7 +1139,6 @@ qb_arithmetic_op_factory factory_decrement_object_property_pre = {
 	qb_set_result_fetch_object_property,
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_nullary_arithmetic,
-	NULL,
 	qb_transfer_operands_increment_object_property,
 
 	0,
@@ -1244,7 +1161,6 @@ qb_derived_op_factory factory_increment_object_property_post = {
 	qb_set_result_increment_post,
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_increment_object_property,
 
 	0,
@@ -1262,7 +1178,6 @@ qb_derived_op_factory factory_decrement_object_property_post = {
 	qb_set_result_increment_post,
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_increment_object_property,
 
 	0,
@@ -1280,7 +1195,6 @@ qb_basic_op_factory factory_shift_left = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
@@ -1298,7 +1212,6 @@ qb_basic_op_factory factory_shift_right = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
@@ -1316,7 +1229,6 @@ qb_derived_op_factory factory_shift_left_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1334,7 +1246,6 @@ qb_derived_op_factory factory_shift_left_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1352,7 +1263,6 @@ qb_derived_op_factory factory_shift_left_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1372,7 +1282,6 @@ qb_derived_op_factory factory_shift_right_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1390,7 +1299,6 @@ qb_derived_op_factory factory_shift_right_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1408,7 +1316,6 @@ qb_derived_op_factory factory_shift_right_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1428,7 +1335,6 @@ qb_basic_op_factory factory_bitwise_not = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_INTEGER,
@@ -1446,7 +1352,6 @@ qb_basic_op_factory factory_bitwise_and = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
@@ -1464,7 +1369,6 @@ qb_basic_op_factory factory_bitwise_or = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
@@ -1482,7 +1386,6 @@ qb_basic_op_factory factory_bitwise_xor = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
@@ -1500,7 +1403,6 @@ qb_derived_op_factory factory_bitwise_and_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1518,7 +1420,6 @@ qb_derived_op_factory factory_bitwise_and_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1536,7 +1437,6 @@ qb_derived_op_factory factory_bitwise_and_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1556,7 +1456,6 @@ qb_derived_op_factory factory_bitwise_or_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1574,7 +1473,6 @@ qb_derived_op_factory factory_bitwise_or_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1592,7 +1490,6 @@ qb_derived_op_factory factory_bitwise_or_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1612,7 +1509,6 @@ qb_derived_op_factory factory_bitwise_xor_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1630,7 +1526,6 @@ qb_derived_op_factory factory_bitwise_xor_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1648,7 +1543,6 @@ qb_derived_op_factory factory_bitwise_xor_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1668,7 +1562,6 @@ qb_basic_op_factory factory_boolean_cast = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_boolean_cast,
-	NULL,
 	qb_transfer_operands_boolean_cast,
 
 	0,
@@ -1686,7 +1579,6 @@ qb_basic_op_factory factory_logical_not = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -1704,7 +1596,6 @@ qb_basic_op_factory factory_logical_and = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -1722,7 +1613,6 @@ qb_basic_op_factory factory_logical_or = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -1740,7 +1630,6 @@ qb_basic_op_factory factory_logical_xor = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -1758,7 +1647,6 @@ qb_arithmetic_op_factory factory_add = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -1781,7 +1669,6 @@ qb_arithmetic_op_factory factory_subtract = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -1804,7 +1691,6 @@ qb_arithmetic_op_factory factory_multiply = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -1827,7 +1713,6 @@ qb_arithmetic_op_factory factory_divide = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -1850,7 +1735,6 @@ qb_arithmetic_op_factory factory_modulo = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -1873,7 +1757,6 @@ qb_float_op_factory factory_floor_modulo = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -1891,7 +1774,6 @@ qb_derived_op_factory factory_add_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1909,7 +1791,6 @@ qb_derived_op_factory factory_add_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1927,7 +1808,6 @@ qb_derived_op_factory factory_add_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1947,7 +1827,6 @@ qb_derived_op_factory factory_subtract_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1965,7 +1844,6 @@ qb_derived_op_factory factory_subtract_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -1983,7 +1861,6 @@ qb_derived_op_factory factory_subtract_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2003,7 +1880,6 @@ qb_derived_op_factory factory_multiply_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2021,7 +1897,6 @@ qb_derived_op_factory factory_multiply_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2039,7 +1914,6 @@ qb_derived_op_factory factory_multiply_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2059,7 +1933,6 @@ qb_derived_op_factory factory_divide_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2077,7 +1950,6 @@ qb_derived_op_factory factory_divide_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2095,7 +1967,6 @@ qb_derived_op_factory factory_divide_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2115,7 +1986,6 @@ qb_derived_op_factory factory_modulo_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2133,7 +2003,6 @@ qb_derived_op_factory factory_modulo_assign_element = {
 	qb_set_result_assign_array_element,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2151,7 +2020,6 @@ qb_derived_op_factory factory_modulo_assign_object_property = {
 	qb_set_result_assign_object_property,
 	NULL,
 	qb_select_opcode_derived_modify_assign,
-	NULL,
 	qb_transfer_operands_modify_assign,
 
 	0,
@@ -2171,7 +2039,6 @@ qb_basic_op_factory factory_equal = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2189,7 +2056,6 @@ qb_basic_op_factory factory_not_equal = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2207,7 +2073,6 @@ qb_basic_op_factory factory_less_than = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2225,7 +2090,6 @@ qb_basic_op_factory factory_less_equal = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2243,7 +2107,6 @@ qb_derived_op_factory factory_identical = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2261,7 +2124,6 @@ qb_derived_op_factory factory_not_identical = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2279,7 +2141,6 @@ qb_derived_op_factory factory_case = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2298,7 +2159,6 @@ qb_basic_op_factory factory_array_element_isset = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_array_element_isset,
-	NULL,
 	qb_transfer_operands_array_element_isset,
 	0,
 	0,
@@ -2315,7 +2175,6 @@ qb_basic_op_factory factory_object_property_isset = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_object_property_isset,
-	NULL,
 	qb_transfer_operands_object_property_isset,
 	0,
 	0,
@@ -2332,7 +2191,6 @@ qb_unset_op_factory factory_unset = {
 	NULL,
 	NULL,
 	qb_select_opcode_unset,
-	NULL,
 	qb_transfer_operands_unset,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -2352,7 +2210,6 @@ qb_unset_element_op_factory factory_unset_array_element = {
 	NULL,
 	NULL,
 	qb_select_opcode_unset_array_element,
-	NULL,
 	qb_transfer_operands_unset_array_element,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -2371,7 +2228,6 @@ qb_unset_op_factory factory_unset_object_property = {
 	NULL,
 	NULL,
 	qb_select_opcode_unset_object_property,
-	NULL,
 	qb_transfer_operands_unset_object_property,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
@@ -2391,7 +2247,6 @@ qb_basic_op_factory factory_branch_on_equal = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2409,7 +2264,6 @@ qb_basic_op_factory factory_branch_on_not_equal = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2427,7 +2281,6 @@ qb_basic_op_factory factory_branch_on_less_than = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2445,7 +2298,6 @@ qb_basic_op_factory factory_branch_on_less_equal = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2463,7 +2315,6 @@ qb_basic_op_factory factory_set_equal = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2481,7 +2332,6 @@ qb_basic_op_factory factory_set_not_equal = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2499,7 +2349,6 @@ qb_basic_op_factory factory_set_less_than = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2517,7 +2366,6 @@ qb_basic_op_factory factory_set_less_equal = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2535,7 +2383,6 @@ qb_derived_op_factory factory_set_greater_equal = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_reverse_binary,
 
 	0,
@@ -2553,7 +2400,6 @@ qb_derived_op_factory factory_set_greater_than = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_reverse_binary,
 
 	0,
@@ -2571,7 +2417,6 @@ qb_simple_op_factory factory_set_not = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -2589,7 +2434,6 @@ qb_simple_op_factory factory_all = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -2607,7 +2451,6 @@ qb_simple_op_factory factory_any = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -2625,7 +2468,6 @@ qb_simple_op_factory factory_empty_string = {
 	qb_set_result_empty_string,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_empty_string,
 
 	0,
@@ -2643,7 +2485,6 @@ qb_string_op_factory factory_add_variable = {
 	qb_set_result_add_string,
 	NULL,
 	qb_select_opcode_add_variable,
-	NULL,
 	qb_transfer_operands_add_string,
 
 	0,
@@ -2663,7 +2504,6 @@ qb_simple_op_factory factory_add_string = {
 	qb_set_result_add_string,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_add_string,
 
 	0,
@@ -2681,7 +2521,6 @@ qb_derived_op_factory factory_concat = {
 	qb_set_result_concat,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_derived,
 
 	0,
@@ -2699,7 +2538,6 @@ qb_derived_op_factory factory_concat_assign = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_derived,
 
 	0,
@@ -2717,7 +2555,6 @@ qb_string_op_factory factory_print = {
 	qb_set_result_true,
 	NULL,
 	qb_select_opcode_print,
-	NULL,
 	qb_transfer_operands_print,
 
 	0,
@@ -2737,7 +2574,6 @@ qb_derived_op_factory factory_echo = {
 	NULL,
 	NULL,
 	qb_select_opcode_derived,
-	NULL,
 	qb_transfer_operands_print,
 
 	0,
@@ -2755,7 +2591,6 @@ qb_simple_op_factory factory_return = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_return,
 
 	0,
@@ -2773,7 +2608,6 @@ qb_simple_op_factory factory_exit = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2791,7 +2625,6 @@ qb_simple_op_factory factory_ext = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -2810,7 +2643,6 @@ qb_simple_op_factory factory_jump = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-	NULL,
 
 	0,
 	0,
@@ -2827,7 +2659,6 @@ qb_simple_op_factory factory_branch_on_true = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -2845,7 +2676,6 @@ qb_simple_op_factory factory_branch_on_false = {
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_BOOLEAN,
@@ -2863,7 +2693,6 @@ qb_simple_op_factory factory_foreach_reset = {
 	qb_set_result_foreach_reset,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_foreach_reset,
 
 	0,
@@ -2881,7 +2710,6 @@ qb_simple_op_factory factory_foreach_fetch = {
 	qb_set_result_foreach_fetch,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_foreach_fetch,
 
 	0,
@@ -2899,7 +2727,6 @@ qb_simple_op_factory factory_loop = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands_assign,
 
 	0,
@@ -2929,7 +2756,6 @@ qb_float_op_factory factory_sin = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -2947,7 +2773,6 @@ qb_float_op_factory factory_asin = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -2965,7 +2790,6 @@ qb_float_op_factory factory_cos = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -2983,7 +2807,6 @@ qb_float_op_factory factory_acos = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3001,7 +2824,6 @@ qb_float_op_factory factory_tan = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3019,7 +2841,6 @@ qb_float_op_factory factory_atan = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3037,7 +2858,6 @@ qb_float_op_factory factory_atan2 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3055,7 +2875,6 @@ qb_float_op_factory factory_sinh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3073,7 +2892,6 @@ qb_float_op_factory factory_asinh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3091,7 +2909,6 @@ qb_float_op_factory factory_cosh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3109,7 +2926,6 @@ qb_float_op_factory factory_acosh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3127,7 +2943,6 @@ qb_float_op_factory factory_tanh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3145,7 +2960,6 @@ qb_float_op_factory factory_atanh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3163,7 +2977,6 @@ qb_float_op_factory factory_ceil = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3181,7 +2994,6 @@ qb_float_op_factory factory_floor = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3199,7 +3011,6 @@ qb_float_op_factory factory_fract = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3217,7 +3028,6 @@ qb_float_op_factory factory_round = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3235,7 +3045,6 @@ qb_float_op_factory factory_log = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3253,7 +3062,6 @@ qb_float_op_factory factory_log1p = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3271,7 +3079,6 @@ qb_float_op_factory factory_log10 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3289,7 +3096,6 @@ qb_float_op_factory factory_log2 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3307,7 +3113,6 @@ qb_float_op_factory factory_exp = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3325,7 +3130,6 @@ qb_float_op_factory factory_exp2 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3343,7 +3147,6 @@ qb_float_op_factory factory_expm1 = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3361,7 +3164,6 @@ qb_float_op_factory factory_sqrt = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3379,7 +3181,6 @@ qb_float_op_factory factory_rsqrt = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3397,7 +3198,6 @@ qb_float_op_factory factory_pow = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3415,7 +3215,6 @@ qb_float_op_factory factory_hypot = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3433,7 +3232,6 @@ qb_float_op_factory factory_sign = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3451,7 +3249,6 @@ qb_float_op_factory factory_step = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3469,7 +3266,6 @@ qb_float_op_factory factory_clamp = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3487,7 +3283,6 @@ qb_float_op_factory factory_mix = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3505,7 +3300,6 @@ qb_float_op_factory factory_smooth_step = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3523,7 +3317,6 @@ qb_float_op_factory factory_deg2rad = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3541,7 +3334,6 @@ qb_float_op_factory factory_rad2deg = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3559,7 +3351,6 @@ qb_float_op_factory factory_is_finite = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3577,7 +3368,6 @@ qb_float_op_factory factory_is_infinite = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3595,7 +3385,6 @@ qb_float_op_factory factory_is_nan = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3613,7 +3402,6 @@ qb_basic_op_factory factory_abs = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_SIGNED,
@@ -3631,7 +3419,6 @@ qb_minmax_op_factory factory_min = {
 	NULL,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_minmax,
 
 	0,
@@ -3650,7 +3437,6 @@ qb_minmax_op_factory factory_max = {
 	NULL,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_minmax,
 
 	0,
@@ -3669,7 +3455,6 @@ qb_basic_op_factory factory_rand = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -3687,7 +3472,6 @@ qb_basic_op_factory factory_mt_rand = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -3705,7 +3489,6 @@ qb_float_op_factory factory_lcg = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_result_only,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -3723,7 +3506,6 @@ qb_vector_op_factory factory_cross_product = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_two_vectors,
-	NULL,
 	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3746,7 +3528,6 @@ qb_vector_op_factory factory_distance = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_dot_product,
 	qb_select_opcode_one_vector,
-	NULL,
 	qb_transfer_operands_one_vector,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3769,7 +3550,6 @@ qb_vector_op_factory factory_dot_product = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_dot_product,
 	qb_select_opcode_two_vectors,
-	NULL,
 	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3792,7 +3572,6 @@ qb_vector_op_factory factory_faceforward = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_two_vectors,
-	NULL,
 	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3815,7 +3594,6 @@ qb_vector_op_factory factory_length = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_length,
 	qb_select_opcode_one_vector,
-	NULL,
 	qb_transfer_operands_one_vector,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3838,7 +3616,6 @@ qb_vector_op_factory factory_normalize = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_one_vector,
-	NULL,
 	qb_transfer_operands_one_vector,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3862,7 +3639,6 @@ qb_vector_op_factory factory_reflect = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_two_vectors,
-	NULL,
 	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3885,7 +3661,6 @@ qb_vector_op_factory factory_refract = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_two_vectors,
-	NULL,
 	qb_transfer_operands_refract,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3908,7 +3683,6 @@ qb_matrix_op_factory factory_mm_mult_cm = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_mm_mult,
 	qb_select_opcode_mm_mult_cm,
-	NULL,
 	qb_transfer_operands_mm_mult_cm,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3932,7 +3706,6 @@ qb_matrix_op_factory factory_mv_mult_cm = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_mv_mult_cm,
-	NULL,
 	qb_transfer_operands_mv_mult_cm,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3956,7 +3729,6 @@ qb_matrix_op_factory factory_vm_mult_cm = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_vm_mult,
 	qb_select_opcode_vm_mult_cm,
-	NULL,
 	qb_transfer_operands_vm_mult_cm,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3980,7 +3752,6 @@ qb_derived_op_factory factory_mm_mult_rm = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_transpose_equivalent,
 	qb_select_opcode_transpose_equivalent,
-	NULL,
 	qb_transfer_operands_transpose_equivalent,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3998,7 +3769,6 @@ qb_derived_op_factory factory_mv_mult_rm = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_transpose_equivalent,
 	qb_select_opcode_transpose_equivalent,
-	NULL,
 	qb_transfer_operands_transpose_equivalent,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4016,7 +3786,6 @@ qb_derived_op_factory factory_vm_mult_rm = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_transpose_equivalent,
 	qb_select_opcode_transpose_equivalent,
-	NULL,
 	qb_transfer_operands_transpose_equivalent,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4034,7 +3803,6 @@ qb_matrix_op_factory_selector factory_mm_mult = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
-	NULL,
 	qb_transfer_operands_matrix_current_mode,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4053,7 +3821,6 @@ qb_matrix_op_factory_selector factory_mv_mult = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
-	NULL,
 	qb_transfer_operands_matrix_current_mode,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4072,7 +3839,6 @@ qb_matrix_op_factory_selector factory_vm_mult = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
-	NULL,
 	qb_transfer_operands_matrix_current_mode,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4091,7 +3857,6 @@ qb_matrix_op_factory factory_transpose = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_transpose,
 	qb_select_opcode_matrix_unary,
-	NULL,
 	qb_transfer_operands_tranpose,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4115,7 +3880,6 @@ qb_matrix_op_factory factory_inverse = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_matrix_unary,
-	NULL,
 	qb_transfer_operands_square_matrix,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4139,7 +3903,6 @@ qb_matrix_op_factory factory_determinant = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_determinant,
 	qb_select_opcode_matrix_unary,
-	NULL,
 	qb_transfer_operands_square_matrix,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4164,7 +3927,6 @@ qb_matrix_op_factory factory_transform_cm = {
 	qb_set_result,
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_transform_cm,
-	NULL,
 	qb_transfer_operands,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4190,7 +3952,6 @@ qb_matrix_op_factory factory_transform_rm = {
 	qb_set_result,
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_transform_rm,
-	NULL,
 	qb_transfer_operands,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4215,7 +3976,6 @@ qb_matrix_op_factory_selector factory_transform = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
-	NULL,
 	qb_transfer_operands_matrix_current_mode,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4235,7 +3995,6 @@ qb_float_op_factory factory_complex_abs = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_length,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4253,7 +4012,6 @@ qb_float_op_factory factory_complex_arg = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_length,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4271,7 +4029,6 @@ qb_float_op_factory factory_complex_multiply = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4289,7 +4046,6 @@ qb_float_op_factory factory_complex_divide = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4307,7 +4063,6 @@ qb_float_op_factory factory_complex_exp = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4325,7 +4080,6 @@ qb_float_op_factory factory_complex_log = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4343,7 +4097,6 @@ qb_float_op_factory factory_complex_sqrt = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4361,7 +4114,6 @@ qb_float_op_factory factory_complex_pow = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4379,7 +4131,6 @@ qb_float_op_factory factory_complex_sin = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4397,7 +4148,6 @@ qb_float_op_factory factory_complex_cos = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4415,7 +4165,6 @@ qb_float_op_factory factory_complex_tan = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4433,7 +4182,6 @@ qb_float_op_factory factory_complex_sinh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4451,7 +4199,6 @@ qb_float_op_factory factory_complex_cosh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4469,7 +4216,6 @@ qb_float_op_factory factory_complex_tanh = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4487,7 +4233,6 @@ qb_pixel_op_factory factory_sample_nearest = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_sampling,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_sampling,
 
 	0,
@@ -4508,7 +4253,6 @@ qb_pixel_op_factory factory_sample_bilinear = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_sampling,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_sampling,
 
 	0,
@@ -4529,7 +4273,6 @@ qb_float_op_factory factory_alpha_blend = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
@@ -4547,7 +4290,6 @@ qb_pixel_op_factory factory_apply_premult = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
@@ -4568,7 +4310,6 @@ qb_pixel_op_factory factory_remove_premult = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
@@ -4589,7 +4330,6 @@ qb_pixel_op_factory factory_rgb2hsv = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
@@ -4610,7 +4350,6 @@ qb_pixel_op_factory factory_hsv2rgb = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
@@ -4631,7 +4370,6 @@ qb_pixel_op_factory factory_rgb2hsl = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
@@ -4652,7 +4390,6 @@ qb_pixel_op_factory factory_hsl2rgb = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT,
@@ -4673,7 +4410,6 @@ qb_basic_op_factory factory_array_column = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_array_column,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_column,
 
 	0,
@@ -4691,7 +4427,6 @@ qb_basic_op_factory factory_array_diff = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_array_diff,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_diff,
 
 	0,
@@ -4709,7 +4444,6 @@ qb_basic_op_factory factory_array_diff_count = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_diff,
 
 	0,
@@ -4727,7 +4461,6 @@ qb_basic_op_factory factory_array_intersect = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_array_intersect,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_diff,
 
 	0,
@@ -4745,7 +4478,6 @@ qb_basic_op_factory factory_array_intersect_count = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_diff,
 
 	0,
@@ -4763,7 +4495,6 @@ qb_basic_op_factory factory_array_pos = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_pos,
 
 	0,
@@ -4781,7 +4512,6 @@ qb_basic_op_factory factory_array_product = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -4799,8 +4529,6 @@ qb_op_factory factory_array_push = {
 	qb_set_result_array_push,
 	NULL,
 	NULL,
-	NULL,
-	NULL,
 
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4816,7 +4544,6 @@ qb_basic_op_factory factory_array_reverse = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_reverse,
 
 	0,
@@ -4834,7 +4561,6 @@ qb_basic_op_factory factory_array_rpos = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_pos,
 
 	0,
@@ -4852,7 +4578,6 @@ qb_basic_op_factory factory_array_search = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -4869,9 +4594,6 @@ qb_op_factory factory_array_slice = {
 	qb_validate_operands_array_slice,
 	qb_set_result_array_slice,
 	NULL,
-	NULL,
-	NULL,
-	NULL,
 
 	0,
 	0,
@@ -4887,7 +4609,6 @@ qb_basic_op_factory factory_array_sum = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_all,
 
 	0,
@@ -4905,7 +4626,6 @@ qb_basic_op_factory factory_array_unique = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_array_unique,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_reverse,
 
 	0,
@@ -4923,8 +4643,6 @@ qb_op_factory factory_array_unshift = {
 	qb_set_result_array_unshift,
 	NULL,
 	NULL,
-	NULL,
-	NULL,
 
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -4940,7 +4658,6 @@ qb_basic_op_factory factory_array_unique_count = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_array_reverse,
 
 	0,
@@ -4958,7 +4675,6 @@ qb_basic_op_factory factory_rsort = {
 	qb_set_result_true,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_sort,
 
 	0,
@@ -4976,7 +4692,6 @@ qb_basic_op_factory factory_shuffle = {
 	qb_set_result_true,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_sort,
 
 	0,
@@ -4994,7 +4709,6 @@ qb_basic_op_factory factory_sort = {
 	qb_set_result_true,
 	NULL,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_sort,
 
 	0,
@@ -5013,7 +4727,6 @@ qb_basic_op_factory factory_array_insert = {
 	qb_set_result,
 	qb_set_result_dimensions_array_pad,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands,
 	0,
 	0,
@@ -5032,7 +4745,6 @@ qb_basic_op_factory factory_array_pad = {
 	qb_set_result,
 	qb_set_result_dimensions_array_pad,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands,
 
 	0,
@@ -5052,7 +4764,6 @@ qb_copy_op_factory factory_array_merge = {
 	qb_set_result,
 	qb_set_result_dimensions_array_merge,
 	qb_select_copy_opcode,
-	NULL,
 	qb_transfer_operands,
 
 	QB_COERCE_TO_HIGHEST_RANK,
@@ -5070,7 +4781,6 @@ qb_copy_op_factory factory_array_fill = {
 	qb_set_result,
 	qb_set_result_dimensions_array_fill,
 	qb_select_copy_opcode,
-	NULL,
 	qb_transfer_operands,
 
 	0,
@@ -5089,7 +4799,6 @@ qb_basic_op_factory factory_range = {
 	qb_set_result,
 	qb_set_result_dimensions_range,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands,
 
 	QB_COERCE_TO_LVALUE_TYPE,
@@ -5109,7 +4818,6 @@ qb_simple_op_factory factory_array_rand = {
 	qb_set_result,
 	qb_set_result_dimensions_array_rand,
 	qb_select_opcode_simple,
-	NULL,
 	qb_transfer_operands,
 
 	0,
@@ -5138,7 +4846,6 @@ qb_utf8_op_factory factory_utf8_decode = {
 	qb_set_result_utf8_decode,
 	qb_set_result_dimensions_utf8_decode,
 	qb_select_opcode_utf8_decode,
-	NULL,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
@@ -5157,7 +4864,6 @@ qb_utf8_op_factory factory_utf8_decode_count = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_utf8_decode,
-	NULL,
 	qb_transfer_operands_first,
 
 	0,
@@ -5176,7 +4882,6 @@ qb_utf8_op_factory factory_utf8_encode = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_utf8_encode,
 	qb_select_opcode_utf8_encode,
-	NULL,
 	qb_transfer_operands_first,
 	
 	0,
@@ -5195,7 +4900,6 @@ qb_utf8_op_factory factory_utf8_encode_count = {
 	qb_set_result_non_reusable_temporary_value,
 	NULL,
 	qb_select_opcode_utf8_encode,
-	NULL,
 	qb_transfer_operands_first,
 	
 	0,
@@ -5214,7 +4918,6 @@ qb_basic_op_factory factory_pack_le = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_pack,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_first,
 
 	0,
@@ -5232,7 +4935,6 @@ qb_basic_op_factory factory_pack_be = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_pack,
 	qb_select_opcode_basic,
-	NULL,
 	qb_transfer_operands_first,
 
 	0,
@@ -5250,7 +4952,6 @@ qb_basic_op_factory factory_unpack_le = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_unpack,
-	NULL,
 	qb_transfer_operands_unpack,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
@@ -5268,7 +4969,6 @@ qb_basic_op_factory factory_unpack_be = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_unpack,
-	NULL,
 	qb_transfer_operands_unpack,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,

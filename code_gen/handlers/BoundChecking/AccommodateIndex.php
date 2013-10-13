@@ -43,7 +43,7 @@ class AccommodateIndex extends Handler {
 		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
 		$lines[] =		"uint32_t new_size = op1 + 1;";
 		$lines[] =		"op2 = new_size;";
-		$lines[] = 		"qb_adjust_memory_segment(cxt, local_storage, op3, new_size * op4);";
+		$lines[] = 		"qb_adjust_memory_segment(cxt, op3, new_size * op4);";
 		$lines[] = "}";
 		return $lines;
 	}

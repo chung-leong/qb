@@ -40,13 +40,14 @@ struct qb_encoder_context {
 	void ***tsrm_ls;
 };
 
-void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
-
 qb_function * qb_encode_function(qb_encoder_context *cxt);
 int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory);
 
 uint32_t qb_get_variable_length(qb_variable *qvar);
 uint8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory);
+
+void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+void qb_free_encoder_context(qb_encoder_context *cxt);
 
 void qb_free_function(qb_function *qfunc);
 

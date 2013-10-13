@@ -208,7 +208,6 @@ struct qb_result_destination {
 
 enum {
 	// intrinsic properties of an op
-	QB_OP_VARIABLE_LENGTH			= 0x8000,
 	QB_OP_NEED_LINE_NUMBER			= 0x4000,
 	QB_OP_BRANCH					= 0x3000,
 	QB_OP_JUMP 						= 0x1000,
@@ -253,6 +252,11 @@ struct qb_pointer_ARR {
 	void *data_pointer;
 	uint32_t *index_pointer;
 	uint32_t *count_pointer;
+};
+
+struct qb_pointer_PAR {
+	uint32_t segment_selector;
+	uint32_t segment_offset;
 };
 
 #define SCALAR(address)						(address->dimension_count == 0)

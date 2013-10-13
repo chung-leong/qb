@@ -501,9 +501,8 @@ static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *addr
 
 void qb_allocate_external_storage_space(qb_compiler_context *cxt, qb_variable *var) {
 	USE_TSRM
-	qb_interpreter_context *interpreter_cxt = qb_get_interpreter_context(TSRMLS_C);
-	qb_import_scope *scope = qb_get_import_scope(interpreter_cxt, cxt->storage, var, NULL);
-	qb_variable *ivar = qb_get_import_variable(interpreter_cxt, cxt->storage, var, scope);
+	qb_import_scope *scope = qb_get_import_scope(cxt->storage, var, NULL TSRMLS_CC);
+	qb_variable *ivar = qb_get_import_variable(cxt->storage, var, scope TSRMLS_CC);
 	uint32_t selector, start_offset;
 
 	if(ivar->address->segment_selector >= QB_SELECTOR_ARRAY_START) {
@@ -918,6 +917,34 @@ qb_address * qb_create_constant_array(qb_compiler_context *cxt, qb_primitive_typ
 	qb_attach_dimensions(cxt, dimensions, dimension_count, address);
 	qb_allocate_storage_space(cxt, address, TRUE);
 	qb_add_constant_array(cxt, address);
+	return address;
+}
+
+qb_address * qb_obtain_constant_indices(qb_compiler_context *cxt, uint32_t *indices, uint32_t index_count) {
+	qb_address *address;
+	uint32_t i, j, *values;
+	for(i = 0; i < cxt->constant_array_count; i++) {
+		address = cxt->constant_arrays[i];
+		if(address->dimension_count == 1 && address->type == QB_TYPE_U32) {
+			if(ARRAY_SIZE(address) == index_count) {
+				int32_t match = TRUE;
+				values = ARRAY(U32, address);
+				for(j = 0; j < index_count; j++) {
+					if(values[j] != indices[j]) {
+						match = FALSE;
+					}
+				}
+				if(match) {
+					return address;
+				}
+			}
+		}
+	}
+	address = qb_create_constant_array(cxt, QB_TYPE_U32, &index_count, 1);
+	values = ARRAY(U32, address);
+	for(j = 0; j < index_count; j++) {
+		values[j] = indices[j];
+	}
 	return address;
 }
 
@@ -2111,28 +2138,6 @@ void qb_initialize_function_prototype(qb_compiler_context *cxt) {
 	cxt->function_prototype.local_storage = cxt->storage;
 }
 
-uint32_t qb_import_external_symbol(qb_compiler_context *cxt, qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer) {
-	uint32_t i;
-	qb_external_symbol *symbol;
-	if(cxt->external_symbols) {
-		for(i = 0; i < cxt->external_symbol_count; i++) {
-			symbol = &cxt->external_symbols[i];
-			if(symbol->pointer == pointer && symbol->type == type) {
-				return i;
-			}
-		}
-	} else {
-		qb_attach_new_array(cxt->pool, (void **) &cxt->external_symbols, &cxt->external_symbol_count, sizeof(qb_external_symbol), 4);
-	}
-	i = cxt->external_symbol_count;
-	symbol = qb_enlarge_array((void **) &cxt->external_symbols, 1);
-	symbol->type = type;
-	symbol->name = name;
-	symbol->name_length = name_len;
-	symbol->pointer = pointer;
-	return i;
-}
-
 static qb_primitive_type qb_get_array_initializer_type(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t flags) {
 	uint32_t i;
 	qb_primitive_type highest_rank_type = 0;
@@ -2837,11 +2842,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 
 	if(opcode != QB_NOP) {
 		// figure out how many operands there will be 
-		if(!(op_flags & QB_OP_VARIABLE_LENGTH)) {
-			qop->operand_count = qb_get_operand_count(cxt, opcode);
-		} else {
-			qop->operand_count = f->get_operand_count(cxt, f, operands, operand_count);
-		}
+		qop->operand_count = qb_get_operand_count(cxt, opcode);
 
 		// move the operands into the op
 		qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
@@ -3702,6 +3703,7 @@ void qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 	USE_TSRM
 	qb_function *qfunc;
 	qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
+	qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
 
 	qb_resolve_jump_targets(cxt);
 	qb_fuse_instructions(cxt, 1);
@@ -3711,7 +3713,12 @@ void qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 
 	qb_initialize_encoder_context(encoder_cxt, cxt TSRMLS_CC);
 	qfunc = qb_encode_function(encoder_cxt);
-	qb_execute_internal(qfunc TSRMLS_CC);
+	qb_free_encoder_context(encoder_cxt);
+
+	qb_initialize_interpreter_context(interpreter_cxt, qfunc TSRMLS_CC);
+	qb_execute_internal(interpreter_cxt);
+	qb_free_interpreter_context(interpreter_cxt);
+
 	qb_free_function(qfunc);
 }
 

@@ -99,9 +99,8 @@ class Handler {
 		$lines[] = $this->getAction();
 
 		if($targetCount == 0) {
-			// move the instruction pointer cover this one
-			$instrLength = $this->isVariableLength() ?  "INSTR->length" : "sizeof($instr)";
-			$lines[] = "ip += $instrLength;";
+			// move the instruction pointer over this one
+			$lines[] = "ip += sizeof($instr);";
 		} else if($targetCount == 1) {
 			// go to the jump target
 			$lines[] = "ip = INSTR->instruction_pointer;";
@@ -309,19 +308,7 @@ class Handler {
 		return false;
 	}	
 	
-	public function isVariableLength() {
-		return false;
-	}
-	
 	public function needsInterpreterContext() {
-		return false;
-	}
-	
-	public function needsFunctionObject() {
-		return false;
-	}
-	
-	public function needsLocalStorage() {
 		return false;
 	}
 	
@@ -527,20 +514,6 @@ class Handler {
 				$params[] = "cxt";
 			}
 		} 
-		if($this->needsLocalStorage()) {
-			if($forDeclaration) {
-				$params[] = "qb_storage *__restrict local_storage";
-			} else {
-				$params[] = "local_storage";
-			}
-		}
-		if($this->needsFunctionObject()) {
-			if($forDeclaration) {
-				$params[] = "qb_function *__restrict function";
-			} else {
-				$params[] = "function";
-			}
-		}
 		if($this->needsCondition()) {
 			if($forDeclaration) {
 				$params[] = "int32_t *condition_ptr";
