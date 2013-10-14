@@ -119,23 +119,25 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->function->argument_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
-		uint32_t transfer_flags = 0;
-
-		if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
-			// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
-			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
-		}
 
 		if(i < received_argument_count) {
 			uint32_t argument_index = cxt->caller_context->argument_indices[i];
 			qb_variable *caller_qvar = cxt->caller_context->function->variables[i];
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
+			uint32_t transfer_flags = 0;
+			if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
+				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+			}
 			qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags);
 		} else {
 			USE_TSRM
-			zval *zarg;
 			if(qvar->default_value) {
-				zarg = qvar->default_value;
+				zval *zarg = qvar->default_value;
+				uint32_t transfer_flags = 0;
+				if(READ_ONLY(qvar->address)) {
+					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+				}
+				qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 			} else {
 				const char *space;
 				const char *class_name;
@@ -149,10 +151,7 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				}
 
 				zend_error(E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %d and defined", i + 1, class_name, space, cxt->function->name, cxt->caller_context->function->filename, cxt->caller_context->line_number);
-				zarg = &zval_used_for_init;
 			}
-			transfer_flags &= ~QB_TRANSFER_CAN_BORROW_MEMORY;
-			qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 		}
 	}
 }
@@ -165,20 +164,24 @@ static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 
 	for(i = 0; i < cxt->function->argument_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
-		zval *zarg;
-		uint32_t transfer_flags = 0;
-
-		if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
-			// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
-			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
-		}
 
 		if(i < received_argument_count) {
 			zval **p_zarg = (zval**) p - received_argument_count + i;
-			zarg = *p_zarg;
+			zval *zarg = *p_zarg;
+			uint32_t transfer_flags = 0;
+			if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
+				// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
+				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+			}
+			qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 		} else {
 			if(qvar->default_value) {
-				zarg = qvar->default_value;
+				zval *zarg = qvar->default_value;
+				uint32_t transfer_flags = 0;
+				if(READ_ONLY(qvar->address)) {
+					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+				}
+				qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 			} else {
 				const char *space;
 				const char *class_name;
@@ -196,11 +199,8 @@ static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 				} else {
 					zend_error(E_WARNING, "Missing argument %u for %s%s%s()", i + 1, class_name, space, cxt->function->name);
 				}
-				zarg = &zval_used_for_init;
 			}
-			transfer_flags &= ~QB_TRANSFER_CAN_BORROW_MEMORY;
 		}
-		qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 	}
 }
 

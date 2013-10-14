@@ -85,6 +85,7 @@ enum {
 	// parameters are found in the shared segments; separation is needed when 
 	// we reenter the function
 
+	QB_SELECTOR_FIRST_PREALLOCATED	= QB_SELECTOR_CONSTANT_SCALAR,
 	QB_SELECTOR_LAST_PREALLOCATED	= QB_SELECTOR_CONSTANT_ARRAY,
 
 	// global variables

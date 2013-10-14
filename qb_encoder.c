@@ -618,26 +618,47 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	qfunc->instruction_crc64 = qb_calculate_crc64((uint8_t *) qfunc->instructions, cxt->instruction_stream_length, 0);
 	qfunc->instruction_length = cxt->instruction_stream_length;
 
-	qb_relocate_function(qfunc);
+	qb_relocate_function(qfunc, TRUE);
 	return qfunc;
 }
 
-static void qb_adjust_pointer(void *p, uintptr_t start, uintptr_t end, intptr_t shift) {
+static void qb_adjust_pointer(void **p, uintptr_t start, uintptr_t end, intptr_t shift) {
 	uintptr_t address = *((uintptr_t *) p);
 	if(start <= address && address < end) {
-		*((uintptr_t *) p) += shift;
+		SHIFT_POINTER(*p, shift);
 	}
 }
 
-intptr_t qb_relocate_function(qb_function *qfunc) {
+intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 	intptr_t instruction_shift = ((uintptr_t) qfunc->instructions) - qfunc->instruction_base_address;
 	intptr_t storage_shift = ((uintptr_t) qfunc->local_storage) - qfunc->local_storage_base_address;
 	if(instruction_shift || storage_shift) {
-		uintptr_t storage_start = qfunc->local_storage_base_address, storage_end = storage_start + qfunc->local_storage->size;
 		int8_t *ip = qfunc->instructions;
 		uint32_t i, j;
-		int32_t set_handler = !(qfunc->flags & QB_FUNCTION_HANDLERS_SET);
-		if(set_handler) {
+		int32_t initializing = !(qfunc->flags & QB_FUNCTION_INITIALIZED);
+		uintptr_t range_start, range_end;
+		qb_memory_segment *segment_start, *segment_end;
+
+		if(initializing) {
+			// all pointers to preallocated segments need to be relocated
+			segment_start = &qfunc->local_storage->segments[QB_SELECTOR_FIRST_PREALLOCATED];
+			segment_end = &qfunc->local_storage->segments[QB_SELECTOR_LAST_PREALLOCATED];
+		} else {
+			if(reentrance) {
+				// the pointers to shared segments need to be relocated as well
+				// since they're only shared between forked copies of the function
+				segment_start = &qfunc->local_storage->segments[QB_SELECTOR_SHARED_SCALAR];
+				segment_end = &qfunc->local_storage->segments[QB_SELECTOR_SHARED_ARRAY];
+			} else {
+				// only pointers to local segments need to be relocated
+				segment_start = &qfunc->local_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
+				segment_end = &qfunc->local_storage->segments[QB_SELECTOR_LOCAL_ARRAY];
+			}
+		}
+		range_start = qfunc->local_storage_base_address + ((uintptr_t) segment_start->memory - (uintptr_t) qfunc->local_storage);
+		range_end = qfunc->local_storage_base_address + ((uintptr_t) segment_end->memory - (uintptr_t) qfunc->local_storage) + segment_end->byte_count;
+
+		if(initializing) {
 			// update the first next handler
 			void **p_handler = (void **) ip;
 			qb_opcode next_opcode = (qb_opcode) *p_handler;
@@ -651,7 +672,7 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 			uint32_t op_flags = qb_get_op_flags(opcode);
 			const char *format = qb_get_op_format(opcode), *s;
 
-			if(set_handler) {
+			if(initializing) {
 				// update next handler
 				void **p_handler = (void **) ip;
 				qb_opcode next_opcode = (qb_opcode) *p_handler;
@@ -664,10 +685,10 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 			} else if(op_flags & QB_OP_BRANCH) {
 				// update instruction pointer
 				int8_t **p_ip = (int8_t **) ip;
-				*p_ip += instruction_shift;
+				SHIFT_POINTER(*p_ip, instruction_shift);
 				ip += sizeof(int8_t *);
 
-				if(set_handler) {
+				if(initializing) {
 					// update second next handler
 					void **p_handler = (void **) ip;
 					qb_opcode next_opcode = (qb_opcode) *p_handler;
@@ -677,11 +698,12 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 
 				// update second instruction pointer
 				p_ip = (int8_t **) ip;
-				*p_ip += instruction_shift;
+				SHIFT_POINTER(*p_ip, instruction_shift);
 				ip += sizeof(int8_t *);
 			} else if(op_flags & QB_OP_JUMP) {
 				int8_t **p_ip = (int8_t **) ip;
-				*p_ip += instruction_shift;
+				SHIFT_POINTER(*p_ip, instruction_shift);
+
 				ip += sizeof(int8_t *);
 			}
 			
@@ -690,22 +712,22 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 					case 'S':
 					case 's': {
 						qb_pointer_SCA *p = (qb_pointer_SCA *) ip;
-						qb_adjust_pointer(&p->data_pointer, storage_start, storage_end, storage_shift);
+						qb_adjust_pointer(&p->data_pointer, range_start, range_end, storage_shift);
 						ip += sizeof(qb_pointer_SCA);
 					}	break;
 					case 'E':
 					case 'e': {
 						qb_pointer_ELE *p = (qb_pointer_ELE *) ip;
-						qb_adjust_pointer(&p->data_pointer, storage_start, storage_end, storage_shift);
-						qb_adjust_pointer(&p->index_pointer, storage_start, storage_end, storage_shift);
+						qb_adjust_pointer(&p->data_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer(&p->index_pointer, range_start, range_end, storage_shift);
 						ip += sizeof(qb_pointer_ELE);
 					}	break;	
 					case 'A':
 					case 'a': {
 						qb_pointer_ARR *p = (qb_pointer_ARR *) ip;
-						qb_adjust_pointer(&p->data_pointer, storage_start, storage_end, storage_shift);
-						qb_adjust_pointer(&p->index_pointer, storage_start, storage_end, storage_shift);
-						qb_adjust_pointer(&p->count_pointer, storage_start, storage_end, storage_shift);
+						qb_adjust_pointer(&p->data_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer(&p->index_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer(&p->count_pointer, range_start, range_end, storage_shift);
 						ip += sizeof(qb_pointer_ARR);
 					}	break;
 					case 'c': {
@@ -723,14 +745,13 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 		for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < qfunc->local_storage->segment_count; i++) {
 			qb_memory_segment *segment = &qfunc->local_storage->segments[i];
 			for(j = 0; j < segment->reference_count; j++) {
-				uintptr_t *p_ref = (uintptr_t *) &segment->references[j];
-				*p_ref += instruction_shift;
+				SHIFT_POINTER(segment->references[j], instruction_shift);
 			}
 		}
 	}
 	qfunc->instruction_base_address = (uintptr_t) qfunc->instructions;
 	qfunc->local_storage_base_address = (uintptr_t) qfunc->local_storage;
-	qfunc->flags |= QB_FUNCTION_RELOACTED | QB_FUNCTION_HANDLERS_SET;
+	qfunc->flags |= QB_FUNCTION_RELOCATED | QB_FUNCTION_INITIALIZED;
 	return instruction_shift;
 }
 

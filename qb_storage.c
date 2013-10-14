@@ -189,7 +189,7 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 
 	// adjust pointers
 	shift = (uintptr_t) storage - (uintptr_t) base;
-	storage->segments += shift;
+	SHIFT_POINTER(storage->segments, shift);
 	for(i = 0; i < storage->segment_count; i++) {
 		qb_memory_segment *src = &base->segments[i];
 		qb_memory_segment *dst = &storage->segments[i];
@@ -205,15 +205,14 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 
 		if(dst->flags & QB_SEGMENT_PREALLOCATED) {
 			if(separation) {
-				dst->memory += shift;
+				SHIFT_POINTER(dst->memory, shift);
 			}
 		} else {
 			// fixed the references first
 			if(dst->references) {
 				dst->references += shift;
 				for(j = 0; j < dst->reference_count; j++) {
-					uintptr_t *p_ref = (uintptr_t *) &dst->references[j];
-					*p_ref += instruction_shift;
+					SHIFT_POINTER(dst->references[j], instruction_shift);
 				}
 			}
 
@@ -1133,16 +1132,24 @@ void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint
 	}
 }
 
-static void qb_copy_elements_from_storage(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
+static void qb_copy_elements_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
 	uint32_t src_element_count = SCALAR(src_address) ? 1 : ARRAY_SIZE_IN(src_storage, src_address);
 	uint32_t dst_element_count = SCALAR(address) ? 1 : ARRAY_SIZE_IN(storage, address);
 	qb_copy_elements(src_address->type, ARRAY_IN(src_storage, I08, src_address), src_element_count, address->type, ARRAY_IN(storage, I08, address), dst_element_count);
 }
 
-static void qb_copy_elements_to_storage(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
+static void qb_copy_element_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
+	qb_copy_element(src_address->type, ARRAY_IN(src_storage, I08, src_address), address->type, ARRAY_IN(storage, I08, address));
+}
+
+static void qb_copy_elements_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
 	uint32_t src_element_count = SCALAR(address) ? 1 : ARRAY_SIZE_IN(storage, address);
 	uint32_t dst_element_count = SCALAR(dst_address) ? 1 : ARRAY_SIZE_IN(dst_storage, dst_address);
 	qb_copy_elements(address->type, ARRAY_IN(storage, I08, address), src_element_count, dst_address->type, ARRAY_IN(dst_storage, I08, dst_address), dst_element_count);
+}
+
+static void qb_copy_element_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
+	qb_copy_element(address->type, ARRAY_IN(storage, I08, address), dst_address->type, ARRAY_IN(dst_storage, I08, dst_address));
 }
 
 void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags) {
@@ -1183,7 +1190,14 @@ void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval 
 }
 
 void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address, uint32_t transfer_flags) {
-	/* TODO */
+	if(SCALAR(address)) {
+		qb_copy_element_from_storage_location(storage, address, src_storage, src_address);
+	} else {
+		if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
+		
+		}
+		qb_copy_elements_from_storage_location(storage, address, src_storage, src_address);
+	}
 }
 
 void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue) {

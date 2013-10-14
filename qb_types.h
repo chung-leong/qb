@@ -66,6 +66,9 @@ typedef enum qb_primitive_type				qb_primitive_type;
 #define BYTE_COUNT(element_count, type)		((element_count) << type_size_shifts[type])
 #define ELEMENT_COUNT(byte_count, type)		((byte_count) >> type_size_shifts[type])
 
+#define SHIFT_POINTER(p, shift)				*((uintptr_t *) &(p)) += shift
+
+
 enum qb_primitive_type {
 	QB_TYPE_I08						= 0,
 	QB_TYPE_I16						= 2,

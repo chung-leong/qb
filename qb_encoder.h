@@ -52,7 +52,7 @@ uint8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory);
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void qb_free_encoder_context(qb_encoder_context *cxt);
 
-intptr_t qb_relocate_function(qb_function *qfunc);
+intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance);
 qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance);
 void qb_free_function(qb_function *qfunc);
 
