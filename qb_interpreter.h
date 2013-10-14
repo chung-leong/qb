@@ -66,7 +66,6 @@ enum {
 struct qb_interpreter_context {
 	uint32_t flags;
 	qb_function *function;
-	void *next_handler;
 	int8_t *instruction_pointer;
 	qb_interpreter_context *caller_context;
 
@@ -74,6 +73,7 @@ struct qb_interpreter_context {
 	uint32_t argument_count;
 	uint32_t result_index;
 	uint32_t line_number;
+	uint32_t call_depth;
 
 	int32_t exception_encountered;
 

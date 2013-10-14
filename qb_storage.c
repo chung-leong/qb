@@ -210,7 +210,7 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 		} else {
 			// fixed the references first
 			if(dst->references) {
-				dst->references += shift;
+				SHIFT_POINTER(dst->references, shift);
 				for(j = 0; j < dst->reference_count; j++) {
 					SHIFT_POINTER(dst->references[j], instruction_shift);
 				}

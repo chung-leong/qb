@@ -448,6 +448,7 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->zend_op_array = cxt->compiler_context->zend_op_array;
 	qfunc->flags = cxt->compiler_context->function_flags;
 	qfunc->instruction_base_address = cxt->instruction_base_address;
+	qfunc->instruction_start = cxt->instruction_base_address;
 	qfunc->local_storage_base_address = cxt->storage_base_address;
 	qfunc->next_reentrance_copy = NULL;
 	qfunc->next_forked_copy = NULL;
@@ -605,7 +606,6 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 
 	// encode the instructions
 	qfunc->instructions = p;
-	qfunc->instruction_start = qfunc->instructions;
 	cxt->instructions = qfunc->instructions;
 	p = qb_encode_instruction_stream(cxt, p);
 
@@ -618,7 +618,6 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	qfunc->instruction_crc64 = qb_calculate_crc64((uint8_t *) qfunc->instructions, cxt->instruction_stream_length, 0);
 	qfunc->instruction_length = cxt->instruction_stream_length;
 
-	qb_relocate_function(qfunc, TRUE);
 	return qfunc;
 }
 
@@ -741,6 +740,9 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 			}
 		}
 
+		// update the instruction start pointer
+		SHIFT_POINTER(qfunc->instruction_start, instruction_shift);
+
 		// update the reallocation pointers
 		for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < qfunc->local_storage->segment_count; i++) {
 			qb_memory_segment *segment = &qfunc->local_storage->segments[i];
@@ -761,7 +763,6 @@ qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance) {
 
 	qfunc = emalloc(sizeof(qb_function));
 	memcpy(qfunc, base, sizeof(qb_function));
-
 	if(base->instructions) {
 		qfunc->instructions = emalloc(base->instruction_length);
 		memcpy(qfunc->instructions, base->instructions, base->instruction_length);
@@ -769,6 +770,9 @@ qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance) {
 	}
 	qfunc->in_use = 0;
 	qfunc->local_storage = qb_create_storage_copy(base->local_storage, instruction_shift, reentrance);
+	qfunc->next_reentrance_copy = NULL;
+	qfunc->next_forked_copy = NULL;
+	qfunc->flags &= ~QB_FUNCTION_RELOCATED;
 	return qfunc;
 }
 

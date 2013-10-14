@@ -44,7 +44,7 @@ static qb_variable * qb_find_variable_with_address(qb_printer_context *cxt, qb_a
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context->variable_count; i++) {
 		qb_variable *qvar = cxt->compiler_context->variables[i];
-		if(qvar->address == address) {
+		if(qvar->address == address && (qvar->name || qvar == cxt->compiler_context->return_variable)) {
 			return qvar;
 		}
 	}

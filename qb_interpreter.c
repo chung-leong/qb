@@ -122,7 +122,7 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 
 		if(i < received_argument_count) {
 			uint32_t argument_index = cxt->caller_context->argument_indices[i];
-			qb_variable *caller_qvar = cxt->caller_context->function->variables[i];
+			qb_variable *caller_qvar = cxt->caller_context->function->variables[argument_index];
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			uint32_t transfer_flags = 0;
 			if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
@@ -348,7 +348,7 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 	if(cxt && cxt->flags & QB_INTERPRETER_INSIDE_THREAD) {
 		// TODO: switch to main thread
 	} else {
-		f = qb_create_function_copy(base, reentrance);
+		f = qb_create_function_copy(last, reentrance);
 		if(reentrance) {
 			last->next_reentrance_copy = f;
 		} else {
@@ -360,9 +360,14 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC) {
 	cxt->function = qb_acquire_function(caller_cxt, qfunc, TRUE);
-	cxt->next_handler = *((void **) cxt->function->instruction_start);
-	cxt->instruction_pointer = cxt->function->instruction_start + sizeof(void *);
+	cxt->instruction_pointer = cxt->function->instruction_start;
 	cxt->caller_context = caller_cxt;
+
+	if(caller_cxt) {
+		cxt->call_depth = caller_cxt->call_depth + 1;
+	} else {
+		cxt->call_depth = 1;
+	}
 
 	// use shadow variables for debugging purpose by default
 	cxt->flags = QB_INTERPRETER_EMPLOY_SHADOW_VARIABLES;
@@ -381,23 +386,25 @@ void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 
 void qb_main(qb_interpreter_context *__restrict cxt);
 
-static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
+void qb_enter_interpreter(qb_interpreter_context *cxt, int32_t reentrance) {
+	if(UNEXPECTED(!(cxt->function->flags & QB_FUNCTION_RELOCATED))) {
+		cxt->instruction_pointer += qb_relocate_function(cxt->function, reentrance);
+	}
+	qb_main(cxt);
+}
+
+static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt, int32_t reentrance) {
 #ifdef NATIVE_COMPILE_ENABLED
 	if(cxt->function->native_proc) {
 		qb_native_proc proc = cxt->function->native_proc;
 		if(proc(cxt) == FAILURE) {
-			USE_TSRM
-			if(QB_G(allow_bytecode_interpretation)) {
-				qb_main(cxt);
-			} else {
-				qb_abort("Unable to run compiled procedure");
-			}
+			qb_abort("Unable to run compiled procedure");
 		}
 	} else {
-		qb_main(cxt);
+		qb_enter_interpreter(cxt, reentrance);
 	}
 #else
-	qb_main(cxt);
+	qb_enter_interpreter(cxt, reentrance);
 #endif
 }
 
@@ -457,7 +464,7 @@ void qb_execute(qb_interpreter_context *cxt) {
 	qb_transfer_variables_from_external_sources(cxt);
 
 	// enter the vm
-	qb_enter_vm(cxt);
+	qb_enter_vm(cxt, TRUE);
 
 	// move values back into caller space
 	qb_transfer_variables_to_external_sources(cxt);
@@ -467,7 +474,7 @@ void qb_execute(qb_interpreter_context *cxt) {
 }
 
 void qb_execute_internal(qb_interpreter_context *cxt) {
-	qb_enter_vm(cxt);
+	qb_enter_vm(cxt, TRUE);
 }
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
@@ -597,17 +604,21 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 }
 
 static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
-	USE_TSRM
-	qb_interpreter_context _new_cxt, *new_cxt = &_new_cxt;
+	if(cxt->call_depth < 1024) {
+		USE_TSRM
+		qb_interpreter_context _new_cxt, *new_cxt = &_new_cxt;
 
-	cxt->argument_indices = variable_indices;
-	cxt->argument_count = argument_count;
-	cxt->result_index = result_index;
-	cxt->line_number = line_number;
+		cxt->argument_indices = variable_indices;
+		cxt->argument_count = argument_count;
+		cxt->result_index = result_index;
+		cxt->line_number = line_number;
 
-	qb_initialize_interpreter_context(new_cxt, qfunc, cxt TSRMLS_CC);
-	qb_execute(new_cxt);
-	qb_free_interpreter_context(new_cxt);
+		qb_initialize_interpreter_context(new_cxt, qfunc, cxt TSRMLS_CC);
+		qb_execute(new_cxt);
+		qb_free_interpreter_context(new_cxt);
+	} else {
+		qb_abort("Too much recursion");
+	}
 }
 
 void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {

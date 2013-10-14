@@ -103,8 +103,8 @@ class CodeGenerator {
 		$lines[] =			"USE_TSRM";
 		$lines[] = 			"";
 		$lines[] = 			"{";
-		$lines[] = 				"ip = cxt->instruction_pointer;";
-		$lines[] = 				"handler = cxt->next_handler;";
+		$lines[] = 				"handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 				"ip = cxt->instruction_pointer + sizeof(qb_instruction);";
 		if($compiler == "GCC") {
 			$lines[] = 			"goto *handler;";
 		}
@@ -113,7 +113,7 @@ class CodeGenerator {
 		if($compiler == "MSVC") {
 			// Visual C doesn't support computed goto so we have to use a giant switch() statement instead
 			$lines[] = 		"do {";
-			$lines[] = 			"switch((int) handler) {";
+			$lines[] = 			"switch((intptr_t) handler) {";
 		}
 		$this->writeCode($handle, $lines);
 		
