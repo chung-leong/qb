@@ -49,8 +49,7 @@ static zend_always_inline void qb_add_class_declaration(qb_build_context *cxt, q
 	*p = class_decl;
 }
 
-qb_function_declaration * qb_get_function_declaration(qb_build_context *cxt, zend_op_array *zop_array);
-qb_class_declaration * qb_get_class_declaration(qb_build_context *cxt, zend_class_entry *ce);
+qb_class_declaration * qb_find_class_declaration(qb_build_context *cxt, zend_class_entry *ce);
 
 void qb_build(qb_build_context *cxt);
 

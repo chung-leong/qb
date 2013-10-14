@@ -450,6 +450,8 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->flags = cxt->compiler_context->function_flags;
 	qfunc->instruction_base_address = cxt->instruction_base_address;
 	qfunc->local_storage_base_address = cxt->storage_base_address;
+	qfunc->next_copy = NULL;
+	qfunc->in_use = 0;
 
 #if ZEND_DEBUG
 	if(memory + length != p) {
@@ -768,6 +770,9 @@ void qb_free_encoder_context(qb_encoder_context *cxt) {
 void qb_free_function(qb_function *qfunc) {
 	uint32_t i;
 
+	if(qfunc->next_copy) {
+		qb_free_function(qfunc->next_copy);
+	}
 	// free memory segments
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &qfunc->local_storage->segments[i];
@@ -779,6 +784,7 @@ void qb_free_function(qb_function *qfunc) {
 			}
 		}
 	}
-
+	efree(qfunc->instructions);
+	efree(qfunc->local_storage);
 	efree(qfunc);
 }

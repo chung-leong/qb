@@ -3435,6 +3435,20 @@ void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	*/
 }
 
+static zend_op_array *qb_find_zend_op_array(qb_function_declaration *decl TSRMLS_DC) {
+	HashTable *ft;
+	zend_function *zfunc;
+	if(decl->class_declaration) {
+		ft = &decl->class_declaration->zend_class->function_table;
+	} else {
+		ft = EG(function_table);
+	}
+	if(zend_hash_find(ft, decl->function_name, strlen(decl->function_name) + 1, &zfunc) == SUCCESS) {
+		return &zfunc->op_array;
+	}
+	return NULL;
+}
+
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC) {
 	cxt->pool = pool;
 	if(function_decl) {
@@ -3445,8 +3459,9 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 		if(QB_G(allow_debug_backtrace)) {
 			cxt->function_flags |= QB_FUNCTION_GO_THRU_ZEND;
 		}
+
 		cxt->function_declaration = function_decl;
-		cxt->zend_op_array = function_decl->zend_op_array;
+		cxt->zend_op_array = qb_find_zend_op_array(function_decl TSRMLS_CC);
 	}
 	SAVE_TSRMLS
 
@@ -3519,8 +3534,9 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 
 	// set active op array to the function to whom the code belong, so that relative paths are resolved correctly
 	zend_op_array *active_op_array = EG(active_op_array);
-	if(cxt->function_declaration) {
-		EG(active_op_array) = cxt->function_declaration->zend_op_array;
+	zend_op_array *target_op_array = (cxt->function_declaration) ? qb_find_zend_op_array(cxt->function_declaration TSRMLS_CC) : NULL;
+	if(target_op_array) {
+		EG(active_op_array) = target_op_array;
 	}
 	stream = php_stream_open_wrapper_ex((char *) import_path, "rb", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
 	EG(active_op_array) = active_op_array;
@@ -3535,9 +3551,9 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 			cxt->external_code_length = len;
 		}
 	}
-	if(!cxt->external_code) {
-		QB_G(current_filename) = cxt->function_declaration->zend_op_array->filename;
-		QB_G(current_line_number) = cxt->function_declaration->zend_op_array->line_start;
+	if(!cxt->external_code && target_op_array) {
+		QB_G(current_filename) = target_op_array->filename;
+		QB_G(current_line_number) = target_op_array->line_start;
 		qb_abort("unable to load file containing external code");
 	}
 }

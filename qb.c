@@ -519,7 +519,7 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 			SET_QB_POINTER(op_array, func_decl);
 
 			if(zend_class) {
-				qb_class_declaration *class_decl = qb_get_class_declaration(build_cxt, zend_class);
+				qb_class_declaration *class_decl = qb_find_class_declaration(build_cxt, zend_class);
 				if(!class_decl) {
 					class_decl = qb_parse_class_doc_comment(parser_cxt, zend_class);
 				}
@@ -534,8 +534,9 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	if(HAS_QB_USER_OP(op_array)) {
 		qb_function_declaration *func_decl = GET_QB_POINTER(op_array);
 
-		// set the pointer now--it's going to be different from the one we got in qb_zend_ext_op_array_ctor()
-		func_decl->zend_op_array = op_array;
+		// save the function name so we can find the function later
+		// this op_array might be temporary so we can't use the pointer
+		func_decl->function_name = op_array->function_name;
 
 		SET_QB_POINTER(op_array, NULL);
 	}

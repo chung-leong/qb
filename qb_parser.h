@@ -50,8 +50,8 @@ struct qb_function_declaration {
 	uint32_t flags;
 	const char *import_path;
 	uint32_t import_path_length;
+	const char *function_name;
 	qb_class_declaration *class_declaration;
-	zend_op_array *zend_op_array;
 };
 
 struct qb_parser_context {
