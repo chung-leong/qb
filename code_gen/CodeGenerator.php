@@ -94,7 +94,7 @@ class CodeGenerator {
 		}
 		$lines[] = 			"register void *__restrict handler;";
 		$lines[] = 			"register int8_t *__restrict ip;";
-		$lines[] =			"qb_storage *local_storage = cxt->active_function->local_storage;";
+		$lines[] =			"qb_storage *local_storage = cxt->function->local_storage;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
@@ -205,10 +205,10 @@ class CodeGenerator {
 
 			if($handler->getJumpTargetCount() != 0) {
 				// op will redirect execution to another location 
-				if($handler->getJumpTargetCount() == 2) {
-					$flags[] = "QB_OP_BRANCH";
-				} else {
-					$flags[] = "QB_OP_JUMP";
+				switch($handler->getJumpTargetCount()) {
+					case 2:	$flags[] = "QB_OP_BRANCH"; break;
+					case 1: $flags[] = "QB_OP_JUMP"; break;
+					default: $flags[] = "QB_OP_EXIT"; break;
 				}
 			}
 			if($handler->needsLineNumber()) {

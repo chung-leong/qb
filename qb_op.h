@@ -208,8 +208,9 @@ struct qb_result_destination {
 
 enum {
 	// intrinsic properties of an op
-	QB_OP_NEED_LINE_NUMBER			= 0x4000,
-	QB_OP_BRANCH					= 0x3000,
+	QB_OP_NEED_LINE_NUMBER			= 0x8000,
+	QB_OP_BRANCH					= 0x4000,
+	QB_OP_EXIT 						= 0x2000,
 	QB_OP_JUMP 						= 0x1000,
 	QB_OP_SIDE_EFFECT				= 0x0800,
 	QB_OP_PERFORM_WRAP_AROUND		= 0x0400,
@@ -280,5 +281,12 @@ struct qb_pointer_PAR {
 
 #define CONSTANT_DIMENSION(address, i)		CONSTANT(address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
 #define DIMENSION(address, i)				VALUE(U32, address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
+
+uint32_t qb_get_op_flags(qb_opcode opcode);
+uint32_t qb_get_operand_count(qb_opcode opcode);
+uint32_t qb_get_instruction_length(qb_opcode opcode);
+qb_address_mode qb_get_operand_address_mode(uint32_t opcode, uint32_t operand_index);
+int32_t qb_is_operand_write_target(qb_opcode opcode, uint32_t operand_index);
+const char *qb_get_op_format(uint32_t opcode);
 
 #endif

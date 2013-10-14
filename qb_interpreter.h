@@ -59,20 +59,19 @@ struct qb_zend_argument_stack {
 };
 
 enum {
-	QB_EMPLOY_SHADOW_VARIABLES = 0x00000001,
+	QB_INTERPRETER_EMPLOY_SHADOW_VARIABLES	= 0x00000001,
+	QB_INTERPRETER_INSIDE_THREAD			= 0x00000002,
 };
 
 struct qb_interpreter_context {
-	
-	qb_function *active_function;
+	uint32_t flags;
+	qb_function *function;
 	void *next_handler;
 	int8_t *instruction_pointer;
-	
-	uint32_t flags;
+	qb_interpreter_context *caller_context;
 
 	int32_t exception_encountered;
-	uint32_t function_call_line_number;
-	uint32_t *line_number_pointer;
+
 	volatile unsigned char *windows_timed_out_pointer;
 	int floating_point_precision;
 	void ***tsrm_ls;
@@ -115,7 +114,7 @@ intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, uint32_t segment_
 
 void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number);
 
-void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc TSRMLS_DC);
+void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
 #endif

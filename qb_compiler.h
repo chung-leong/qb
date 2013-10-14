@@ -281,9 +281,6 @@ static zend_always_inline void qb_add_variable(qb_compiler_context *cxt, qb_vari
 	*p = variable;
 }
 
-uint32_t qb_get_op_flags(qb_compiler_context *cxt, uint32_t opcode);
-uint32_t qb_get_operand_count(qb_compiler_context *cxt, uint32_t opcode);
-
 void qb_mark_jump_target(qb_compiler_context *cxt, uint32_t current_qop_index, uint32_t target_index);
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address);
 

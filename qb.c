@@ -462,7 +462,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	}
 	if(qfunc) {
 		qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
-		qb_initialize_interpreter_context(interpreter_cxt, qfunc TSRMLS_CC);
+		qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
 		qb_execute(interpreter_cxt);
 		qb_free_interpreter_context(interpreter_cxt);
 	} else {

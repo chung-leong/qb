@@ -464,9 +464,9 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 						case FUNC_DECL_ENGINE: {
 							if(data_len == 2 && strncmp(data, "qb", 2) == 0) {
 							} else if(data_len == 11 && strncmp(data, "qb-bytecode", 11) == 0) {
-								function_decl->flags |= QB_ENGINE_NEVER_COMPILE;
+								function_decl->flags |= QB_FUNCTION_NEVER_NATIVE;
 							} else if(data_len == 9 && strncmp(data, "qb-native", 9) == 0) {
-								function_decl->flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
+								function_decl->flags |= QB_FUNCTION_NATIVE_IF_POSSIBLE;
 							} else {
 								error_zval = element;
 							}
@@ -553,10 +553,10 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 					use_qb = TRUE;
 				} else if(data_len == 11 && strncmp(data, "qb-bytecode", 11) == 0) {
 					use_qb = TRUE;
-					function_decl->flags |= QB_ENGINE_NEVER_COMPILE;
+					function_decl->flags |= QB_FUNCTION_NEVER_NATIVE;
 				} else if(data_len == 9 && strncmp(data, "qb-native", 9) == 0) {
 					use_qb = TRUE;
-					function_decl->flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
+					function_decl->flags |= QB_FUNCTION_NATIVE_IF_POSSIBLE;
 				}
 			} else if(FOUND_GROUP(FUNC_DECL_IMPORT)) {
 				function_decl->import_path = qb_allocate_string(cxt->pool, data, data_len);

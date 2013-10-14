@@ -709,6 +709,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\qb_op.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_op_factories.c"
 				>
 			</File>

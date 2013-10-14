@@ -29,9 +29,8 @@ enum {
 	QB_SEGMENT_SEPARATE_ON_FORK		= 0x00000002,
 	QB_SEGMENT_CLEAR_ON_CALL		= 0x00000004,
 	QB_SEGMENT_FREE_ON_RETURN		= 0x00000008,
-	QB_SEGMENT_EMPTY_ON_RETURN		= 0x00000010,
-	QB_SEGMENT_GLOBAL				= 0x00000020,
-	QB_SEGMENT_OBJECT_INSTANCE		= 0x00000040,
+	QB_SEGMENT_REALLOCATE_ON_CALL	= 0x00000010,
+	QB_SEGMENT_EMPTY_ON_RETURN		= 0x00000020,
 
 	QB_SEGMENT_BORROWED				= 0x00000100,
 	QB_SEGMENT_MAPPED				= 0x00000200,
@@ -84,6 +83,8 @@ enum {
 	//
 	// parameters are found in the shared segments
 
+	QB_SELECTOR_LAST_PREALLOCATED	= QB_SELECTOR_CONSTANT_ARRAY,
+
 	// global variables
 	QB_SELECTOR_GLOBAL_SCALAR		= 10,
 	QB_SELECTOR_GLOBAL_ARRAY		= 11,
@@ -107,6 +108,7 @@ enum {
 };
 
 struct qb_storage {
+	uint32_t size;
 	qb_memory_segment *segments;
 	uint32_t segment_count;
 	uint32_t flags;

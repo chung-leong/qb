@@ -77,18 +77,20 @@ struct qb_external_symbol {
 };
 
 enum {
-	QB_ENGINE_COMPILE_IF_POSSIBLE	= 0x00000001,
-	QB_ENGINE_NEVER_COMPILE			= 0x00000002,
-	QB_ENGINE_GO_THRU_ZEND			= 0x00000004,
+	QB_FUNCTION_NATIVE_IF_POSSIBLE	= 0x00000001,
+	QB_FUNCTION_NEVER_NATIVE		= 0x00000002,
+	QB_FUNCTION_GO_THRU_ZEND		= 0x00000004,
+	QB_FUNCTION_HANDLERS_SET		= 0x00000008,
+	QB_FUNCTION_RELOACTED			= 0x00000010,
 };
 
 struct qb_function {
 	int8_t *instructions;
 	int8_t *instruction_start;
 	uint64_t instruction_crc64;
+	uint32_t instruction_length;
 	uint16_t *instruction_opcodes;
 	uint32_t instruction_opcode_count;
-	uint32_t size;
 	uint32_t flags;
 	qb_variable *return_variable;
 	qb_variable **variables;
@@ -98,9 +100,11 @@ struct qb_function {
 	const char *name;
 	const char *filename;
 	void *native_proc;
-
+	uintptr_t instruction_base_address;
+	uintptr_t local_storage_base_address;
 	zend_op_array *zend_op_array;
 	qb_function *next_copy;
+	volatile int32_t in_use;
 };
 
 struct qb_native_code_bundle {

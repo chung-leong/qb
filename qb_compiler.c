@@ -20,53 +20,6 @@
 
 #include "qb.h"
 
-extern const qb_op_info global_op_info[];
-extern const char *global_operand_codes[];
-
-uint32_t qb_get_op_flags(qb_compiler_context *cxt, qb_opcode opcode) {
-	const qb_op_info *op = &global_op_info[opcode];
-	return op->flags;
-}
-
-uint32_t qb_get_operand_count(qb_compiler_context *cxt, qb_opcode opcode) {
-	const qb_op_info *op = &global_op_info[opcode];
-	const char *codes = op->instruction_format;
-	return strlen(codes);
-}
-
-static qb_address_mode qb_get_operand_address_mode(qb_compiler_context *cxt, uint32_t opcode, uint32_t operand_index) {
-	const qb_op_info *op = &global_op_info[opcode];
-	const char *codes = op->instruction_format;
-	char code = codes[operand_index];
-	switch(code) {
-		case 'S':
-		case 's':
-			return QB_ADDRESS_MODE_SCA;
-		case 'E':
-		case 'e':
-			return QB_ADDRESS_MODE_ELE;
-		case 'A':
-		case 'a':
-			return QB_ADDRESS_MODE_ARR;
-		case 'c':
-			return QB_ADDRESS_MODE_SCA;
-	}
-	return -1;
-}
-
-static int32_t qb_is_operand_write_target(qb_compiler_context *cxt, qb_opcode opcode, uint32_t operand_index) {
-	const qb_op_info *op = &global_op_info[opcode];
-	const char *codes = op->instruction_format;
-	char code = codes[operand_index];
-	switch(code) {
-		case 'S':
-		case 'E':
-		case 'A':
-			return TRUE;
-	}
-	return FALSE;
-}
-
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address) {
 	address->flags &= ~QB_ADDRESS_READ_ONLY;
 	if(address->source_address) {
@@ -457,6 +410,9 @@ static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *addr
 			new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL;
 		} else {
 			new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_FORK;
+			if(byte_count > 0) {
+				new_segment_flags |= QB_SEGMENT_REALLOCATE_ON_CALL;
+			}
 		}
 		if(byte_count == 0) {
 			if(new_segment_flags & QB_SEGMENT_FREE_ON_RETURN) {
@@ -2826,10 +2782,10 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 	if(f->select_opcode) {
 		opcode = f->select_opcode(cxt, f, operands, operand_count, result);
 	}
-	op_flags = qb_get_op_flags(cxt, opcode);
+	op_flags = qb_get_op_flags(opcode);
 
 	// make it a NOP if the result isn't used and the op has no side effect
-	if(!(result_used || (op_flags & QB_OP_JUMP) || (f->result_flags & QB_RESULT_HAS_SIDE_EFFECT))) {
+	if(!(result_used || (op_flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT)) || (f->result_flags & QB_RESULT_HAS_SIDE_EFFECT))) {
 		opcode = QB_NOP;
 	}
 
@@ -2842,7 +2798,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 
 	if(opcode != QB_NOP) {
 		// figure out how many operands there will be 
-		qop->operand_count = qb_get_operand_count(cxt, opcode);
+		qop->operand_count = qb_get_operand_count(opcode);
 
 		// move the operands into the op
 		qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
@@ -2904,7 +2860,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 		} else {
 			for(i = 0; i < qop->operand_count; i++) {
 				// mark result address as writable
-				if(qb_is_operand_write_target(cxt, qop->opcode, i)) {
+				if(qb_is_operand_write_target(qop->opcode, i)) {
 					qb_mark_as_writable(cxt, qop->operands[i].address);
 				}
 			}
@@ -3057,13 +3013,13 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 
 		if(qop->opcode != QB_NOP) {
 			int32_t operands_are_valid = TRUE;
-			uint32_t op_flags = qb_get_op_flags(cxt, qop->opcode);
+			uint32_t op_flags = qb_get_op_flags(qop->opcode);
 			if(op_flags & (QB_OP_VERSION_AVAILABLE_ELE | QB_OP_VERSION_AVAILABLE_MIO)) {
 				qb_address_mode required_address_mode = QB_ADDRESS_MODE_SCA;
 				for(j = 0; j < qop->operand_count; j++) {
 					qb_operand *operand = &qop->operands[j];
 					if(operand->type == QB_OPERAND_ADDRESS) {
-						qb_address_mode operand_address_mode = qb_get_operand_address_mode(cxt, qop->opcode, j);
+						qb_address_mode operand_address_mode = qb_get_operand_address_mode(qop->opcode, j);
 						if(operand->address->mode > operand_address_mode) {
 							// need use to a higher address mode
 							required_address_mode = operand->address->mode;
@@ -3089,7 +3045,7 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 						}
 					}
 					// get new set of flags
-					op_flags = qb_get_op_flags(cxt, qop->opcode);
+					op_flags = qb_get_op_flags(qop->opcode);
 					qop->flags = op_flags | (qop->flags & QB_OP_COMPILE_TIME_FLAGS);
 				}
 			}
@@ -3098,7 +3054,7 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 			for(j = 0; j < qop->operand_count; j++) {
 				qb_operand *operand = &qop->operands[j];
 				if(operand->type == QB_OPERAND_ADDRESS) {
-					qb_address_mode operand_address_mode = qb_get_operand_address_mode(cxt, qop->opcode, j);
+					qb_address_mode operand_address_mode = qb_get_operand_address_mode(qop->opcode, j);
 					qb_address *address = operand->address;
 					if(operand_address_mode != QB_ADDRESS_MODE_UNKNOWN) {
 						if(address->mode != operand_address_mode) {
@@ -3279,7 +3235,7 @@ static int32_t qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t in
 	if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && (TEMPORARY(qop->operands[2].address))) {
 		qb_op *next_qop = qb_get_next_op(cxt, index);
 
-		if(next_qop && next_qop->operand_count == 3 && !(next_qop->flags & QB_OP_JUMP)) {
+		if(next_qop && next_qop->operand_count == 3 && !(next_qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT))) {
 			if(next_qop->operands[0].address == qop->operands[2].address || next_qop->operands[1].address == qop->operands[2].address) {
 				qb_opcode new_opcode = 0;
 				if((qop->opcode == QB_MUL_S32_S32_S32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {
@@ -3294,7 +3250,7 @@ static int32_t qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t in
 					for(k = index + 2, qop_checked = 0; k < cxt->op_count - 1 && qop_checked <= 3; k++) {
 						qb_op *qop_ahead = cxt->ops[k];
 						if(qop_ahead->opcode != QB_NOP) {
-							if(!(qop_ahead->flags & QB_OP_JUMP)) {
+							if(!(qop_ahead->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT))) {
 								if(qop_ahead->operand_count == 3 && qop_ahead->operands[1].address == qop->operands[2].address) {
 									// an add
 									reused = TRUE;
@@ -3470,11 +3426,11 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	cxt->pool = pool;
 	if(function_decl) {
 		cxt->function_flags = function_decl->flags;
-		if(QB_G(compile_to_native) && !(function_decl->flags & QB_ENGINE_NEVER_COMPILE)) {
-			cxt->function_flags |= QB_ENGINE_COMPILE_IF_POSSIBLE;
+		if(QB_G(compile_to_native) && !(function_decl->flags & QB_FUNCTION_NEVER_NATIVE)) {
+			cxt->function_flags |= QB_FUNCTION_NATIVE_IF_POSSIBLE;
 		}
 		if(QB_G(allow_debug_backtrace)) {
-			cxt->function_flags |= QB_ENGINE_GO_THRU_ZEND;
+			cxt->function_flags |= QB_FUNCTION_GO_THRU_ZEND;
 		}
 		cxt->function_declaration = function_decl;
 		cxt->zend_op_array = function_decl->zend_op_array;
@@ -3715,7 +3671,7 @@ void qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 	qfunc = qb_encode_function(encoder_cxt);
 	qb_free_encoder_context(encoder_cxt);
 
-	qb_initialize_interpreter_context(interpreter_cxt, qfunc TSRMLS_CC);
+	qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
 	qb_execute_internal(interpreter_cxt);
 	qb_free_interpreter_context(interpreter_cxt);
 

@@ -52,9 +52,12 @@ static qb_opcode qb_select_opcode_derived(qb_compiler_context *cxt, qb_op_factor
 
 static qb_opcode qb_select_opcode_derived_modify_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_operand *value = &operands[operand_count - 1];
+	qb_operand binary_operands[2];
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	binary_operands[0] = *result;
+	binary_operands[1] = *value;
 	f = df->parent;
-	return f->select_opcode(cxt, f, value, 1, result);
+	return f->select_opcode(cxt, f, binary_operands, 2, result);
 }
 
 static qb_opcode qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
@@ -157,7 +160,7 @@ static qb_opcode qb_select_opcode_unset_object_property(qb_compiler_context *cxt
 }
 
 static qb_opcode qb_select_multidata_opcode(qb_compiler_context *cxt, qb_opcode opcode) {
-	uint32_t op_flags = qb_get_op_flags(cxt, opcode);
+	uint32_t op_flags = qb_get_op_flags(opcode);
 	if(op_flags & QB_OP_VERSION_AVAILABLE_MIO) {
 		if(op_flags & QB_OP_VERSION_AVAILABLE_ELE) {
 			opcode += 2;
@@ -208,7 +211,7 @@ static qb_opcode qb_select_vectorized_nullary_opcode(qb_compiler_context *cxt, q
 
 static qb_opcode qb_select_opcode_nullary_arithmetic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) f;
-	qb_opcode opcode = qb_select_vectorized_nullary_opcode(cxt, af->vector_opcodes, result);
+	qb_opcode opcode = qb_select_vectorized_nullary_opcode(cxt, af->vector_opcodes, &operands[0]);
 	if(opcode == QB_NOP) {
 		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operands[0]);
 	}

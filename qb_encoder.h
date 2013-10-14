@@ -37,6 +37,9 @@ struct qb_encoder_context {
 	uint64_t instruction_crc64;
 	int8_t *instructions;
 
+	uintptr_t instruction_base_address;
+	uintptr_t storage_base_address;
+
 	void ***tsrm_ls;
 };
 
@@ -49,6 +52,7 @@ uint8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory);
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void qb_free_encoder_context(qb_encoder_context *cxt);
 
+intptr_t qb_relocate_function(qb_function *qfunc);
 void qb_free_function(qb_function *qfunc);
 
 #endif

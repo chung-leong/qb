@@ -474,7 +474,7 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	memset(required, 0, sizeof(required));
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
+		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE)) {
 			// go through all ops and see what functions they use
 			for(j = 0; j < compiler_cxt->op_count; j++) {
 				qop = compiler_cxt->ops[j];
@@ -1337,7 +1337,7 @@ static void qb_print_functions(qb_native_compiler_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
+		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE)) {
 			// check if an earlier function has the same crc64
 			int32_t duplicate = FALSE;
 			for(j = 0; j < i; j++) {
@@ -1377,7 +1377,7 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "qb_native_proc_record native_proc_records[] = {\n");
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
+		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE)) {
 			qb_printf(cxt, "	{ 0x%" PRIX64 "ULL, QBN_%" PRIX64 " },\n", compiler_cxt->instruction_crc64, compiler_cxt->instruction_crc64);
 		}
 	}
@@ -2388,7 +2388,7 @@ int qb_native_compile(qb_build_context *build_cxt TSRMLS_DC) {
 	cxt->file_id = 0;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE)) {
+		if(!compiler_cxt->native_proc && (compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE)) {
 			cxt->file_id ^= compiler_cxt->instruction_crc64;
 		}
 	}

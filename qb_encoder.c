@@ -20,23 +20,6 @@
 
 #include "qb.h"
 
-extern const qb_op_info global_op_info[];
-extern const uint32_t global_instruction_lengths[];
-
-static uint32_t qb_get_instruction_length(qb_encoder_context *cxt, uint32_t opcode) {
-	const qb_op_info *op = &global_op_info[opcode];
-	uint32_t length = op->instruction_length;
-	return length;
-}
-
-static uint32_t qb_get_op_encoded_length(qb_encoder_context *cxt, qb_op *qop) {
-	uint32_t length = qb_get_instruction_length(cxt, qop->opcode);
-	if(!length) {
-		// variable-length instruction
-	}
-	return length;
-}
-
 static void qb_set_instruction_offsets(qb_encoder_context *cxt) {
 	uint32_t instruction_offset, i;
 	uint32_t count = 0;
@@ -47,7 +30,7 @@ static void qb_set_instruction_offsets(qb_encoder_context *cxt) {
 		qb_op *qop = cxt->ops[i];
 		qop->instruction_offset = instruction_offset;
 		if(qop->opcode != QB_NOP) {
-			uint32_t instruction_length = qb_get_op_encoded_length(cxt, qop);
+			uint32_t instruction_length = qb_get_instruction_length(qop->opcode);
 			instruction_offset += instruction_length;
 			count++;
 		}
@@ -60,15 +43,22 @@ static void qb_set_instruction_offsets(qb_encoder_context *cxt) {
 
 static void qb_add_segment_reference(qb_encoder_context *cxt, qb_address *address, void **p_pointer) {
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+	// don't add relocation pointers for those pointing to preallocated segments 
 	if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
 		uintptr_t **p_reference = &segment->references[segment->reference_count++];
-		*p_reference = (uintptr_t *) p_pointer;
+		*p_reference = (uintptr_t *) ((void *) (cxt->instruction_base_address + ((uintptr_t) p_pointer - (uintptr_t) cxt->instructions)));
 	}
 }
 
-static void * qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
+static zend_always_inline void * qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-	return (void *) (segment->memory + address->segment_offset);
+	//return (void *) (segment->memory + address->segment_offset);
+	if(segment->flags & QB_SEGMENT_PREALLOCATED) {
+		// add the base address so we know it's pointing to a preallocated segment
+		return (void *) (cxt->storage_base_address + address->segment_offset + ((uintptr_t) segment->memory - (uintptr_t) cxt->storage));
+	} else {
+		return (void *) (0 + address->segment_offset);
+	}
 }
 
 static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
@@ -106,18 +96,12 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 }
 
 static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *qop) {
-	void *handler_address;
 #ifdef ZEND_DEBUG
 	if(qop->opcode >= QB_OPCODE_COUNT) {
 		qb_abort("illegal opcode");
 	}
 #endif
-#ifdef __GNUC__
-		handler_address = op_handlers[qop->opcode];
-#else
-		handler_address = (void *) ((uintptr_t) qop->opcode);
-#endif
-	return handler_address;
+	return (void *) ((uintptr_t) qop->opcode);
 }
 
 static void qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
@@ -138,7 +122,7 @@ static void qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, in
 }
 
 static zend_always_inline int8_t *qb_get_instruction_pointer(qb_encoder_context *cxt, qb_op *qop) {
-	int8_t *p = cxt->instructions + qop->instruction_offset;
+	int8_t *p = (void *) (cxt->instruction_base_address + qop->instruction_offset);
 	return p;
 }
 
@@ -200,7 +184,7 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 				qb_abort("the previous op was not correctly encoded");
 			}
 
-			if(qop->flags & QB_OP_JUMP) {
+			if(qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT)) {
 				// put in the jump targets
 				for(j = 0; j < qop->jump_target_count; j++) {
 					qb_encode_jump_target(cxt, qop->jump_target_indices[j], &ip);
@@ -431,7 +415,6 @@ static uint32_t qb_get_function_structure_size(qb_encoder_context *cxt) {
 	for(i = 0; i < cxt->compiler_context->variable_count; i++) {
 		size += qb_get_variable_length(cxt->compiler_context->variables[i]);
 	}
-	size = ALIGN_TO(size, 16);
 	return size;
 }
 
@@ -440,6 +423,9 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qb_function *qfunc;
 	char *func_name = NULL, *filename = NULL;
 	uint32_t i;
+#if ZEND_DEBUG
+	uint32_t length = qb_get_function_structure_size(cxt);
+#endif
 
 	qfunc = (qb_function *) p; p += sizeof(qb_function);
 
@@ -462,8 +448,14 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->zend_op_array = cxt->compiler_context->zend_op_array;
 	qfunc->next_copy = NULL;
 	qfunc->flags = cxt->compiler_context->function_flags;
+	qfunc->instruction_base_address = cxt->instruction_base_address;
+	qfunc->local_storage_base_address = cxt->storage_base_address;
 
-	p = (int8_t *) ALIGN_TO((uintptr_t) p, 16);
+#if ZEND_DEBUG
+	if(memory + length != p) {
+		qb_abort("length mismatch");
+	}
+#endif
 	return p;
 }
 
@@ -475,7 +467,6 @@ static uint32_t qb_get_storage_structure_size(qb_encoder_context *cxt) {
 		qb_memory_segment *src = &cxt->compiler_context->storage->segments[i];
 		size += src->reference_count * sizeof(uintptr_t *);
 	}
-	size = ALIGN_TO(size, 16);
 	return size;
 }
 
@@ -502,8 +493,9 @@ static int8_t * qb_copy_storage_structure(qb_encoder_context *cxt, int8_t * memo
 		dst->memory = NULL;
 		dst->imported_segment = NULL;
 		dst->next_dependent = NULL;
-		dst->reference_count = 0;
 
+		// increment the reference count as references are added
+		dst->reference_count = 0;
 		if(src->reference_count > 0) {
 			p = (int8_t *) ALIGN_TO((uintptr_t) p, sizeof(uintptr_t));
 			dst->references = (uintptr_t **) p;
@@ -513,7 +505,6 @@ static int8_t * qb_copy_storage_structure(qb_encoder_context *cxt, int8_t * memo
 		}
 	}
 
-	p = (int8_t *) ALIGN_TO((uintptr_t) p, 16);
 #if ZEND_DEBUG
 	if(memory + length != p) {
 		qb_abort("length mismatch");
@@ -536,10 +527,7 @@ static uint32_t qb_get_preallocated_segment_size(qb_encoder_context *cxt) {
 }
 
 static int8_t * qb_preallocate_segments(qb_encoder_context *cxt, int8_t *memory, qb_storage *storage) {
-#if ZEND_DEBUG
-	uint32_t length = qb_get_preallocated_segment_size(cxt);
-#endif
-	int8_t *p = memory;
+	int8_t *p = (int8_t *) ALIGN_TO((uintptr_t) memory, 16);
 	uint32_t i;
 
 	// set up memory segments 
@@ -572,20 +560,13 @@ static int8_t * qb_preallocate_segments(qb_encoder_context *cxt, int8_t *memory,
 			p += segment_length;
 		}
 	}
-
-#if ZEND_DEBUG
-	if(memory + length != p) {
-		qb_abort("length mismatch");
-	}
-#endif
 	return p;
 }
 
 qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	qb_function *qfunc;
-	int8_t *memory, *p;
+	int8_t *p;
 	uint32_t function_struct_size, storage_struct_size, preallocated_segment_size, instruction_length, opcode_length;
-	uint32_t total_size;
 
 	// set the offset of the op
 	qb_set_instruction_offsets(cxt);
@@ -597,23 +578,28 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	instruction_length = cxt->instruction_stream_length;
 	opcode_length = sizeof(uint16_t) * cxt->instruction_op_count;
 
-	total_size = function_struct_size + storage_struct_size + preallocated_segment_size + instruction_length + opcode_length;
-
-	// allocate memory and copy everything into a continuous block of memory
-	// add a bit of padding in case the memory pointer returned isn't aligned
-	p = memory = emalloc(total_size + 16);
+	// allocate memory for the function structure
+	p = emalloc(function_struct_size + 16);
 
 	// copy stuff into the function structure 
 	qfunc = (qb_function *) p;
 	p = qb_copy_function_structure(cxt, p);
 
+	// allocate memory for the storage structure and preallocatd segments
+	// add a bit of padding in case the pointer returned isn't aligned
+	p = emalloc(storage_struct_size + preallocated_segment_size + 16);
+
 	// copy stuff into the storage structure 
 	qfunc->local_storage = (qb_storage *) p;
+	qfunc->local_storage->size = storage_struct_size + preallocated_segment_size + 16;
 	cxt->storage = qfunc->local_storage;
 	p = qb_copy_storage_structure(cxt, p);
 	
 	// assign memory to preallocated segments
 	p = qb_preallocate_segments(cxt, p, qfunc->local_storage);
+
+	// allocate memory for the instruction stream and opcode array
+	p = emalloc(instruction_length + opcode_length);
 
 	// encode the instructions
 	qfunc->instructions = p;
@@ -628,8 +614,116 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 
 	// calculate the CRC64 signature
 	qfunc->instruction_crc64 = qb_calculate_crc64((uint8_t *) qfunc->instructions, cxt->instruction_stream_length, 0);
-	qfunc->size = total_size;
+	qfunc->instruction_length = cxt->instruction_stream_length;
+
+	qb_relocate_function(qfunc);
 	return qfunc;
+}
+
+static void qb_adjust_pointer(void *p, uintptr_t start, uintptr_t end, intptr_t shift) {
+	uintptr_t address = *((uintptr_t *) p);
+	if(start <= address && address < end) {
+		*((uintptr_t *) p) += shift;
+	}
+}
+
+intptr_t qb_relocate_function(qb_function *qfunc) {
+	intptr_t instruction_shift = ((uintptr_t) qfunc->instructions) - qfunc->instruction_base_address;
+	intptr_t storage_shift = ((uintptr_t) qfunc->local_storage) - qfunc->local_storage_base_address;
+	if(instruction_shift || storage_shift) {
+		uintptr_t storage_start = qfunc->local_storage_base_address, storage_end = storage_start + qfunc->local_storage->size;
+		int8_t *ip = qfunc->instructions;
+		uint32_t i, j;
+		int32_t set_handler = !(qfunc->flags & QB_FUNCTION_HANDLERS_SET);
+		if(set_handler) {
+			// update the first next handler
+			void **p_handler = (void **) ip;
+			qb_opcode next_opcode = (qb_opcode) *p_handler;
+			*p_handler = (void *) next_opcode; //op_handlers[next_opcode];
+		}
+		ip += sizeof(void *);
+
+		// go through the instructions and fix up pointers to preallocated segments
+		for(i = 0; i < qfunc->instruction_opcode_count; i++) {
+			qb_opcode opcode = qfunc->instruction_opcodes[i];
+			uint32_t op_flags = qb_get_op_flags(opcode);
+			const char *format = qb_get_op_format(opcode), *s;
+
+			if(set_handler) {
+				// update next handler
+				void **p_handler = (void **) ip;
+				qb_opcode next_opcode = (qb_opcode) *p_handler;
+				*p_handler = (void *) next_opcode; // op_handlers[next_opcode];
+			}
+			ip += sizeof(void *);
+
+			if(op_flags & QB_OP_EXIT) {
+				// nothing
+			} else if(op_flags & QB_OP_BRANCH) {
+				// update instruction pointer
+				int8_t **p_ip = (int8_t **) ip;
+				*p_ip += instruction_shift;
+				ip += sizeof(int8_t *);
+
+				if(set_handler) {
+					// update second next handler
+					void **p_handler = (void **) ip;
+					qb_opcode next_opcode = (qb_opcode) *p_handler;
+					*p_handler = (void *) next_opcode; // op_handlers[next_opcode];
+				}
+				ip += sizeof(void *);
+
+				// update second instruction pointer
+				p_ip = (int8_t **) ip;
+				*p_ip += instruction_shift;
+				ip += sizeof(int8_t *);
+			} else if(op_flags & QB_OP_JUMP) {
+				int8_t **p_ip = (int8_t **) ip;
+				*p_ip += instruction_shift;
+				ip += sizeof(int8_t *);
+			}
+			
+			for(s = format; *s != '\0'; s++) {
+				switch(*s) {
+					case 'S':
+					case 's': {
+						qb_pointer_SCA *p = (qb_pointer_SCA *) ip;
+						qb_adjust_pointer(&p->data_pointer, storage_start, storage_end, storage_shift);
+						ip += sizeof(qb_pointer_SCA);
+					}	break;
+					case 'E':
+					case 'e': {
+						qb_pointer_ELE *p = (qb_pointer_ELE *) ip;
+						qb_adjust_pointer(&p->data_pointer, storage_start, storage_end, storage_shift);
+						qb_adjust_pointer(&p->index_pointer, storage_start, storage_end, storage_shift);
+						ip += sizeof(qb_pointer_ELE);
+					}	break;	
+					case 'A':
+					case 'a': {
+						qb_pointer_ARR *p = (qb_pointer_ARR *) ip;
+						qb_adjust_pointer(&p->data_pointer, storage_start, storage_end, storage_shift);
+						qb_adjust_pointer(&p->index_pointer, storage_start, storage_end, storage_shift);
+						qb_adjust_pointer(&p->count_pointer, storage_start, storage_end, storage_shift);
+						ip += sizeof(qb_pointer_ARR);
+					}	break;
+					case 'c': {
+						ip += sizeof(uint32_t);
+					}	break;
+				}
+			}
+		}
+
+		// update the reallocation pointers
+		for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < qfunc->local_storage->segment_count; i++) {
+			qb_memory_segment *segment = &qfunc->local_storage->segments[i];
+			for(j = 0; j < segment->reference_count; j++) {
+				uintptr_t *p_ref = (uintptr_t *) &segment->references[j];
+				*p_ref += instruction_shift;
+			}
+		}
+	}
+	qfunc->flags |= QB_FUNCTION_RELOACTED | QB_FUNCTION_HANDLERS_SET;
+	return instruction_shift;
 }
 
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
@@ -647,6 +741,10 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 	cxt->ops = compiler_cxt->ops;
 	cxt->op_count = compiler_cxt->op_count;
 	cxt->initialization_op_count = compiler_cxt->initialization_op_count;
+
+	// map stuff half way up the entire address space initially
+	cxt->instruction_base_address = ((uintptr_t) -1) / 2;
+	cxt->storage_base_address = ((uintptr_t) -1) / 2;
 
 	SAVE_TSRMLS
 }

@@ -121,7 +121,7 @@ void qb_build(qb_build_context *cxt) {
 		// 
 		qb_attach_compiled_function(qfunc, compiler_cxt->zend_op_array);
 
-		if(compiler_cxt->function_flags & QB_ENGINE_COMPILE_IF_POSSIBLE) {
+		if(compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE) {
 			native_compile = TRUE;
 		}
 	}
