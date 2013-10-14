@@ -49,21 +49,19 @@ void qb_mark_as_static(qb_compiler_context *cxt, qb_address *address) {
 }
 
 void qb_mark_as_shared(qb_compiler_context *cxt, qb_address *address) {
-	if(READ_ONLY(address)) {
-		address->flags |= QB_ADDRESS_SHARED;
+	address->flags |= QB_ADDRESS_SHARED;
 
-		if(VARIABLE_LENGTH(address)) {
-			// dimensions that aren't constant must become shared as well 
-			uint32_t i;
-			for(i = 0; i < address->dimension_count; i++) {
-				qb_address *dimension_address = address->dimension_addresses[i];
-				qb_address *array_size_address = address->dimension_addresses[i];
-				if(!CONSTANT(dimension_address)) {
-					dimension_address->flags |= QB_ADDRESS_SHARED;
-				}
-				if(!CONSTANT(array_size_address)) {
-					array_size_address->flags |= QB_ADDRESS_SHARED;
-				}
+	if(VARIABLE_LENGTH(address)) {
+		// dimensions that aren't constant must become shared as well 
+		uint32_t i;
+		for(i = 0; i < address->dimension_count; i++) {
+			qb_address *dimension_address = address->dimension_addresses[i];
+			qb_address *array_size_address = address->dimension_addresses[i];
+			if(!CONSTANT(dimension_address)) {
+				dimension_address->flags |= QB_ADDRESS_SHARED;
+			}
+			if(!CONSTANT(array_size_address)) {
+				array_size_address->flags |= QB_ADDRESS_SHARED;
 			}
 		}
 	}
@@ -1859,15 +1857,6 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 			if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
 				address->index_alias_schemes = decl->index_alias_schemes;
 			}
-			if(qvar->flags & (QB_VARIABLE_ARGUMENT | QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE)) {
-				// no adjustment of array size when the source of the variable is external
-				//address->flags |= QB_ADDRESS_INITIALIZED;
-			}
-			if(qvar->flags & (QB_VARIABLE_BY_REF | QB_VARIABLE_RETURN_VALUE | QB_VARIABLE_STATIC | QB_VARIABLE_GLOBAL | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE)) {
-				// indicate that the value of the variable can be read outside the function 
-				// (for optimization purpose during generation of C source code)
-				qb_mark_as_non_local(cxt, address);
-			}
 			qvar->address = address;
 		}
 	} else {
@@ -1905,6 +1894,9 @@ void qb_add_variables(qb_compiler_context *cxt) {
 				qvar->flags |= QB_VARIABLE_BY_REF;
 			}
 			qb_apply_type_declaration(cxt, qvar);
+
+			// parameters are shared between forked copies of the function
+			qb_mark_as_shared(cxt, qvar->address);
 		} else {
 			// see if it's static variable
 			qb_address *static_initializer = NULL;

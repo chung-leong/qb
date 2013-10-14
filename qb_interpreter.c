@@ -386,14 +386,7 @@ void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 
 void qb_main(qb_interpreter_context *__restrict cxt);
 
-void qb_enter_interpreter(qb_interpreter_context *cxt, int32_t reentrance) {
-	if(UNEXPECTED(!(cxt->function->flags & QB_FUNCTION_RELOCATED))) {
-		cxt->instruction_pointer += qb_relocate_function(cxt->function, reentrance);
-	}
-	qb_main(cxt);
-}
-
-static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt, int32_t reentrance) {
+static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #ifdef NATIVE_COMPILE_ENABLED
 	if(cxt->function->native_proc) {
 		qb_native_proc proc = cxt->function->native_proc;
@@ -401,30 +394,37 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt, int32_t 
 			qb_abort("Unable to run compiled procedure");
 		}
 	} else {
-		qb_enter_interpreter(cxt, reentrance);
+		qb_main(cxt);
 	}
 #else
-	qb_enter_interpreter(cxt, reentrance);
+	qb_main(cxt);
 #endif
 }
 
 static void qb_initialize_local_variables(qb_interpreter_context *cxt) {
-	qb_memory_segment *shared_scalar_segment = &cxt->function->local_storage->segments[QB_SELECTOR_SHARED_SCALAR];
-	qb_memory_segment *local_scalar_segment = &cxt->function->local_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
-	qb_memory_segment *local_array_segment = &cxt->function->local_storage->segments[QB_SELECTOR_LOCAL_ARRAY];
-	qb_memory_segment *shared_array_segment = &cxt->function->local_storage->segments[QB_SELECTOR_SHARED_ARRAY];
-	int8_t *memory;
-	uint32_t combined_byte_count;
+	qb_memory_segment *shared_scalar_segment, *local_scalar_segment, *local_array_segment, *shared_array_segment;
+	int8_t *memory_start, *memory_end;
 	uint32_t i;
 
-	// the following optimization depends very much on how the segments are laid out
-	memory = shared_scalar_segment->memory;
-	combined_byte_count = shared_scalar_segment->byte_count + local_scalar_segment->byte_count;
-	memset(memory, 0, combined_byte_count);
+	// make sure the function is relocated first
+	if(UNEXPECTED(!(cxt->function->flags & QB_FUNCTION_RELOCATED))) {
+		cxt->instruction_pointer += qb_relocate_function(cxt->function, TRUE);
+	}
 
-	memory = local_array_segment->memory;
-	combined_byte_count = local_array_segment->byte_count + shared_array_segment->byte_count;
-	memset(memory, 0, combined_byte_count);
+	shared_scalar_segment = &cxt->function->local_storage->segments[QB_SELECTOR_SHARED_SCALAR];
+	local_scalar_segment = &cxt->function->local_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
+	local_array_segment = &cxt->function->local_storage->segments[QB_SELECTOR_LOCAL_ARRAY];
+	shared_array_segment = &cxt->function->local_storage->segments[QB_SELECTOR_SHARED_ARRAY];
+
+	// clear the segments that require it
+	// the following optimization depends very much on how the segments are laid out
+	memory_start = shared_scalar_segment->memory;
+	memory_end = local_scalar_segment->memory + local_scalar_segment->byte_count;
+	memset(memory_start, 0, memory_end - memory_start);
+
+	memory_start = local_array_segment->memory;
+	memory_end = shared_array_segment->memory + shared_array_segment->byte_count;
+	memset(memory_start, 0, memory_end - memory_start);
 
 	// relocate large fixed-length local arrays
 	for(i = QB_SELECTOR_ARRAY_START; i < cxt->function->local_storage->segment_count; i++) {
@@ -455,8 +455,6 @@ void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode,
 }
 
 void qb_execute(qb_interpreter_context *cxt) {
-	int result = SUCCESS;
-
 	// clear local memory segments
 	qb_initialize_local_variables(cxt);
 
@@ -464,7 +462,7 @@ void qb_execute(qb_interpreter_context *cxt) {
 	qb_transfer_variables_from_external_sources(cxt);
 
 	// enter the vm
-	qb_enter_vm(cxt, TRUE);
+	qb_enter_vm(cxt);
 
 	// move values back into caller space
 	qb_transfer_variables_to_external_sources(cxt);
@@ -474,7 +472,9 @@ void qb_execute(qb_interpreter_context *cxt) {
 }
 
 void qb_execute_internal(qb_interpreter_context *cxt) {
-	qb_enter_vm(cxt, TRUE);
+	qb_initialize_local_variables(cxt);
+	qb_enter_vm(cxt);
+	qb_finalize_variables(cxt);
 }
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
