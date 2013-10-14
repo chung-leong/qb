@@ -255,13 +255,15 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
-	zval *ret;
 
-	// copy value into return variable
-	ALLOC_INIT_ZVAL(ret);
-	*EG(return_value_ptr_ptr) = ret;
-	if(cxt->function->return_variable->address) {
-		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
+	if(EG(return_value_ptr_ptr)) {
+		// copy value into return variable
+		zval *ret;
+		ALLOC_INIT_ZVAL(ret);
+		*EG(return_value_ptr_ptr) = ret;
+		if(cxt->function->return_variable->address) {
+			qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
+		}
 	}
 
 	// copy changes to by-ref arguments
@@ -306,15 +308,6 @@ static void qb_transfer_variables_to_external_sources(qb_interpreter_context *cx
 	}
 }
 
-
-qb_function * qb_create_function_copy(qb_function *base, uint32_t forking, qb_function **p_func) {
-	qb_function *f = emalloc(sizeof(qb_function));
-	memcpy(f, base, sizeof(qb_function));
-
-	*p_func = f;
-	return f;
-}
-
 int32_t qb_lock_function(qb_function *f) {
 #if defined(_WIN32)
 	if(InterlockedIncrement(&f->in_use) == 1) {
@@ -332,7 +325,6 @@ int32_t qb_lock_function(qb_function *f) {
 void qb_unlock_function(qb_function *f) {
 	f->in_use = 0;
 }
-
 
 qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_function *base) {
 	qb_function *f, *last;

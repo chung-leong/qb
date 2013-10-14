@@ -730,6 +730,15 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 	return instruction_shift;
 }
 
+
+qb_function * qb_create_function_copy(qb_function *base, uint32_t forking, qb_function **p_func) {
+	qb_function *f = emalloc(sizeof(qb_function));
+	memcpy(f, base, sizeof(qb_function));
+
+	*p_func = f;
+	return f;
+}
+
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 #ifndef _MSC_VER
 	static int handlers_initialized = FALSE;

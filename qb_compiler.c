@@ -896,10 +896,23 @@ qb_address * qb_obtain_constant_indices(qb_compiler_context *cxt, uint32_t *indi
 			}
 		}
 	}
-	address = qb_create_constant_array(cxt, QB_TYPE_U32, &index_count, 1);
-	values = ARRAY(U32, address);
-	for(j = 0; j < index_count; j++) {
-		values[j] = indices[j];
+	if(index_count == 0) {
+		// it's an empty array
+		address = qb_allocate_address(cxt->pool);
+		address->mode = QB_ADDRESS_MODE_ARR;
+		address->type = QB_TYPE_U32;
+		address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT | QB_ADDRESS_ALWAYS_IN_BOUND;	
+		address->array_index_address = cxt->zero_address;
+		address->array_size_address = cxt->zero_address;
+		address->dimension_addresses = address->array_size_addresses = &address->array_size_address;
+		address->dimension_count = 1;
+		qb_add_constant_array(cxt, address);
+	} else {
+		address = qb_create_constant_array(cxt, QB_TYPE_U32, &index_count, 1);
+		values = ARRAY(U32, address);
+		for(j = 0; j < index_count; j++) {
+			values[j] = indices[j];
+		}
 	}
 	return address;
 }
