@@ -53,7 +53,7 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 void qb_free_encoder_context(qb_encoder_context *cxt);
 
 intptr_t qb_relocate_function(qb_function *qfunc);
-qb_function * qb_create_function_copy(qb_function *base, uint32_t forking, qb_function **p_func);
+qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance);
 void qb_free_function(qb_function *qfunc);
 
 #endif

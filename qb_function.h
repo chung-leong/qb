@@ -82,6 +82,8 @@ enum {
 	QB_FUNCTION_GO_THRU_ZEND		= 0x00000004,
 	QB_FUNCTION_HANDLERS_SET		= 0x00000008,
 	QB_FUNCTION_RELOACTED			= 0x00000010,
+	QB_FUNCTION_REENTRANCE_COPY		= 0x00000020,
+	QB_FUNCTION_FORKED_COPY			= 0x00000040,
 };
 
 struct qb_function {
@@ -103,7 +105,8 @@ struct qb_function {
 	uintptr_t instruction_base_address;
 	uintptr_t local_storage_base_address;
 	zend_op_array *zend_op_array;
-	qb_function *next_copy;
+	qb_function *next_reentrance_copy;
+	qb_function *next_forked_copy;
 	volatile int32_t in_use;
 };
 

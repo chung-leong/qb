@@ -179,6 +179,82 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 	return 0;
 }
 
+qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift, int32_t reentrance) {
+	qb_storage *storage;
+	intptr_t shift;
+	uint32_t i, j;
+
+	storage = emalloc(base->size);
+	memcpy(storage, base, base->size);
+
+	// adjust pointers
+	shift = (uintptr_t) storage - (uintptr_t) base;
+	storage->segments += shift;
+	for(i = 0; i < storage->segment_count; i++) {
+		qb_memory_segment *src = &base->segments[i];
+		qb_memory_segment *dst = &storage->segments[i];
+		int separation;
+
+		if(dst->flags & QB_SEGMENT_SEPARATE_ON_FORK) {
+			separation = TRUE;
+		} else if((dst->flags & QB_SEGMENT_SEPARATE_ON_REENTRY) && reentrance) {
+			separation = TRUE;
+		} else {
+			separation = FALSE;
+		}
+
+		if(dst->flags & QB_SEGMENT_PREALLOCATED) {
+			if(separation) {
+				dst->memory += shift;
+			}
+		} else {
+			// fixed the references first
+			if(dst->references) {
+				dst->references += shift;
+				for(j = 0; j < dst->reference_count; j++) {
+					uintptr_t *p_ref = (uintptr_t *) &dst->references[j];
+					*p_ref += instruction_shift;
+				}
+			}
+
+			if(separation) {
+				if(dst->flags & QB_SEGMENT_IMPORTED) {
+					// unattach it
+					dst->flags &= ~QB_SEGMENT_IMPORTED;
+					dst->imported_segment = NULL;
+					dst->next_dependent = NULL;
+				} else {
+					if((dst->flags & QB_SEGMENT_EMPTY_ON_RETURN) && reentrance) {
+						dst->byte_count = 0;
+					}
+					if((dst->flags & QB_SEGMENT_REALLOCATE_ON_CALL) && reentrance) {
+						// the memory will be alloc'ed when the copy is called
+						dst->current_allocation = 0;
+					} else {
+						if(dst->byte_count) {
+							// allocate new memory for the segment
+							int8_t *new_memory = emalloc(dst->byte_count);
+							if(!reentrance) {
+								// forking--need to copy the contents over
+								memcpy(new_memory, dst->memory, dst->byte_count);
+							}
+							qb_relocate_segment_memory(dst, new_memory);
+						}
+						dst->current_allocation = dst->byte_count;
+					}
+				}
+			} else {
+				if(!(dst->flags & QB_SEGMENT_IMPORTED)) {
+					dst->byte_count = 0;
+					dst->current_allocation = 0;
+					qb_import_segment(dst, src);
+				}
+			}
+		}
+	}
+	return storage;
+}
+
 static uint32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_address *address, uint32_t byte_count) {
 	uint32_t element_count = ELEMENT_COUNT(byte_count, address->type);
 	uint32_t item_element_count, element_byte_count, dimension, dimension_expected;

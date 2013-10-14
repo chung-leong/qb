@@ -446,11 +446,11 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->filename = (cxt->compiler_context->zend_op_array) ? cxt->compiler_context->zend_op_array->filename : NULL;
 	qfunc->native_proc = NULL;
 	qfunc->zend_op_array = cxt->compiler_context->zend_op_array;
-	qfunc->next_copy = NULL;
 	qfunc->flags = cxt->compiler_context->function_flags;
 	qfunc->instruction_base_address = cxt->instruction_base_address;
 	qfunc->local_storage_base_address = cxt->storage_base_address;
-	qfunc->next_copy = NULL;
+	qfunc->next_reentrance_copy = NULL;
+	qfunc->next_forked_copy = NULL;
 	qfunc->in_use = 0;
 
 #if ZEND_DEBUG
@@ -728,17 +728,27 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 			}
 		}
 	}
+	qfunc->instruction_base_address = (uintptr_t) qfunc->instructions;
+	qfunc->local_storage_base_address = (uintptr_t) qfunc->local_storage;
 	qfunc->flags |= QB_FUNCTION_RELOACTED | QB_FUNCTION_HANDLERS_SET;
 	return instruction_shift;
 }
 
+qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance) {
+	qb_function *qfunc;
+	intptr_t instruction_shift = 0;
 
-qb_function * qb_create_function_copy(qb_function *base, uint32_t forking, qb_function **p_func) {
-	qb_function *f = emalloc(sizeof(qb_function));
-	memcpy(f, base, sizeof(qb_function));
+	qfunc = emalloc(sizeof(qb_function));
+	memcpy(qfunc, base, sizeof(qb_function));
 
-	*p_func = f;
-	return f;
+	if(base->instructions) {
+		qfunc->instructions = emalloc(base->instruction_length);
+		memcpy(qfunc->instructions, base->instructions, base->instruction_length);
+		instruction_shift = (uintptr_t) qfunc->instructions - (uintptr_t) base->instructions;
+	}
+	qfunc->in_use = 0;
+	qfunc->local_storage = qb_create_storage_copy(base->local_storage, instruction_shift, reentrance);
+	return qfunc;
 }
 
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
@@ -770,8 +780,11 @@ void qb_free_encoder_context(qb_encoder_context *cxt) {
 void qb_free_function(qb_function *qfunc) {
 	uint32_t i;
 
-	if(qfunc->next_copy) {
-		qb_free_function(qfunc->next_copy);
+	if(qfunc->next_reentrance_copy) {
+		qb_free_function(qfunc->next_reentrance_copy);
+	}
+	if(qfunc->next_forked_copy) {
+		qb_free_function(qfunc->next_reentrance_copy);
 	}
 	// free memory segments
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {

@@ -27,10 +27,11 @@ typedef struct qb_storage					qb_storage;
 enum {
 	QB_SEGMENT_PREALLOCATED			= 0x00000001,
 	QB_SEGMENT_SEPARATE_ON_FORK		= 0x00000002,
-	QB_SEGMENT_CLEAR_ON_CALL		= 0x00000004,
-	QB_SEGMENT_FREE_ON_RETURN		= 0x00000008,
+	QB_SEGMENT_SEPARATE_ON_REENTRY	= 0x00000004,
+	QB_SEGMENT_CLEAR_ON_CALL		= 0x00000008,
 	QB_SEGMENT_REALLOCATE_ON_CALL	= 0x00000010,
-	QB_SEGMENT_EMPTY_ON_RETURN		= 0x00000020,
+	QB_SEGMENT_FREE_ON_RETURN		= 0x00000020,
+	QB_SEGMENT_EMPTY_ON_RETURN		= 0x00000040,
 
 	QB_SEGMENT_BORROWED				= 0x00000100,
 	QB_SEGMENT_MAPPED				= 0x00000200,
@@ -50,26 +51,26 @@ struct qb_memory_segment {
 };
 
 enum {
-	// constant scalar (no separation on fork, no clearing on call)
+	// constant scalar (no separation on fork, no separation on reentry, no clearing on call)
 	QB_SELECTOR_CONSTANT_SCALAR		= 0,
-	// static scalars (no separation on fork, no clearing on call)
+	// static scalars (no separation on fork, no separation on reentry, no clearing on call)
 	QB_SELECTOR_STATIC_SCALAR		= 1,
-	// shared scalars (no separation on fork, clearing on call) 
+	// shared scalars (no separation on fork, separation on reentry, clearing on call) 
 	QB_SELECTOR_SHARED_SCALAR		= 2,
-	// local scalars (separation on fork, clearing on call)
+	// local scalars (separation on fork, separation on reentry, clearing on call)
 	QB_SELECTOR_LOCAL_SCALAR		= 3,
-	// temporary scalars (seperation on fork, no clearing on call)
+	// temporary scalars (seperation on fork, separation on reentry, no clearing on call)
 	QB_SELECTOR_TEMPORARY_SCALAR	= 4,
 
-	// constant arrays (no separation on fork, no clearing on call)
+	// constant arrays (no separation on fork, no separation on reentry, no clearing on call)
 	QB_SELECTOR_CONSTANT_ARRAY		= 9,
-	// static arrays (no separation on fork, no clearing on call)
+	// static arrays (no separation on fork, no separation on reentry, no clearing on call)
 	QB_SELECTOR_STATIC_ARRAY		= 8,
-	// shared fixed-length arrays (no separation on fork, clearing on call) 
+	// shared fixed-length arrays (no separation on fork, separation on reentry, clearing on call) 
 	QB_SELECTOR_SHARED_ARRAY		= 7,
-	// local fixed-length arrays (separation on fork, clearing on call)
+	// local fixed-length arrays (separation on fork, separation on reentry, clearing on call)
 	QB_SELECTOR_LOCAL_ARRAY			= 6,
-	// temporary fixed-length arrays (seperation on fork, no clearing on call)
+	// temporary fixed-length arrays (seperation on fork, separation on reentry, no clearing on call)
 	QB_SELECTOR_TEMPORARY_ARRAY		= 5,
 
 	// note how the order is reverse for the array segments
@@ -81,7 +82,8 @@ enum {
 	// segments that need to be cleared when the function is called are also placed 
 	// back-to-back, so we only need two memset() to wipe all variables clean
 	//
-	// parameters are found in the shared segments
+	// parameters are found in the shared segments; separation is needed when 
+	// we reenter the function
 
 	QB_SELECTOR_LAST_PREALLOCATED	= QB_SELECTOR_CONSTANT_ARRAY,
 
@@ -250,5 +252,7 @@ void qb_release_segment(qb_memory_segment *segment);
 intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size);
 
 void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segment);
+
+qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift, int32_t reentrance);
 
 #endif

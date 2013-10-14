@@ -308,7 +308,7 @@ static void qb_transfer_variables_to_external_sources(qb_interpreter_context *cx
 	}
 }
 
-int32_t qb_lock_function(qb_function *f) {
+static int32_t qb_lock_function(qb_function *f) {
 #if defined(_WIN32)
 	if(InterlockedIncrement(&f->in_use) == 1) {
 		return TRUE;
@@ -322,30 +322,44 @@ int32_t qb_lock_function(qb_function *f) {
 	return FALSE;
 }
 
-void qb_unlock_function(qb_function *f) {
+static void qb_unlock_function(qb_function *f) {
 	f->in_use = 0;
 }
 
-qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_function *base) {
+static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_function *base, int32_t reentrance) {
 	qb_function *f, *last;
-	for(f = base; f; f = f->next_copy) {
-		if(!f->in_use && qb_lock_function(f)) {
-			return f;
+	if(reentrance) {
+		for(f = base; f; f = f->next_reentrance_copy) {
+			if(!f->in_use && qb_lock_function(f)) {
+				return f;
+			}
+			last = f;
 		}
-		last = f;
+	} else {
+		for(f = base; f; f = f->next_forked_copy) {
+			if(!f->in_use && qb_lock_function(f)) {
+				return f;
+			}
+			last = f;
+		}
 	}
 
 	// need to create a copy
 	if(cxt && cxt->flags & QB_INTERPRETER_INSIDE_THREAD) {
 		// TODO: switch to main thread
 	} else {
-		f = qb_create_function_copy(base, FALSE, &last->next_copy);
+		f = qb_create_function_copy(base, reentrance);
+		if(reentrance) {
+			last->next_reentrance_copy = f;
+		} else {
+			last->next_forked_copy = f;
+		}
 	}
 	return f;
 }
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC) {
-	cxt->function = qb_acquire_function(caller_cxt, qfunc);
+	cxt->function = qb_acquire_function(caller_cxt, qfunc, TRUE);
 	cxt->next_handler = *((void **) cxt->function->instruction_start);
 	cxt->instruction_pointer = cxt->function->instruction_start + sizeof(void *);
 	cxt->caller_context = caller_cxt;
