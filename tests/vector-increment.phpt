@@ -24,8 +24,6 @@ function test_function() {
 	echo "$a1 $b1 $c1 $d1\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

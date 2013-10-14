@@ -26,8 +26,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
  */
 function filter(&$dst, $center, $spin, $plunge, $cellDensity, $radius) {}
 
-qb_compile();
-
 filter($output, array(240, 190), array(0.6, 1, 0.2), 1, 0.03, 180);
 
 ob_start();

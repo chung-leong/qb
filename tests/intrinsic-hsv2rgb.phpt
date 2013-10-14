@@ -24,8 +24,6 @@ function test_function() {
 	echo hsv2rgb($c), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

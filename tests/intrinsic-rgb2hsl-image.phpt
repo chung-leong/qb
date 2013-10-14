@@ -21,8 +21,6 @@ function test_function(&$image) {
 	$image = hsl2rgb($image);
 }
 
-qb_compile();
-
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/malgorzata_socha.png");
 $correct_path = "$folder/output/image-rgb2hsl.correct.png";

@@ -18,8 +18,6 @@ function test_function($s) {
 	echo $cp;
 }
 
-qb_compile();
-
 test_function("Cześć, jak się masz?");
 
 ?>

@@ -17,8 +17,6 @@ function test_function() {
 	$a = 4321;
 }
 
-qb_compile();
-
 $a = array(1, 2, 3, 4);
 $b = $a;
 

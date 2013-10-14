@@ -18,8 +18,6 @@ function test_function() {
 
 define('LENGTH', 4);
 
-qb_compile();
-
 test_function();
 
 ?>

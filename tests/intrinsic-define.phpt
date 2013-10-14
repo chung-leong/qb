@@ -27,8 +27,6 @@ function test_function() {
 	}
 }
 
-qb_compile();
-
 echo GOOD, "\n";
 echo BAD, "\n";
 echo @UGLY, "\n";

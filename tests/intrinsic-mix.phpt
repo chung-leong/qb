@@ -15,8 +15,6 @@ function test_function() {
 	echo mix(50, 100, 0.9), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

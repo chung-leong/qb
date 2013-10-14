@@ -24,8 +24,6 @@ function test_function() {
 	echo in_array($a, 127.1), "\n";	// cast to int
 }
 
-qb_compile();
-
 test_function();
 
 ?>

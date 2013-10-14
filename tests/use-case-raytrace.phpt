@@ -257,8 +257,6 @@ class RayTracer {
 // so the script wouldn't slow to a grind if xdebug is active
 ini_set("qb.allow_debugger_inspection", 0);
 
-qb_compile();
-
 $folder = dirname(__FILE__);
 $output = imagecreatetruecolor(512, 512);
 $correct_path = "$folder/output/raytrace.correct.png";

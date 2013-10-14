@@ -18,8 +18,6 @@ Error reporting test (syntax error in type declaration)
 function test_function() {
 }
 
-qb_compile();
-
 ?>
 --EXPECTREGEX--
 .*line 7.*

@@ -19,8 +19,6 @@ function test_function($a) {
 	}
 }
 
-qb_compile();
-
 test_function(0);
 
 ?>

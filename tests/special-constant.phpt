@@ -22,8 +22,6 @@ function test_function() {
 // prior to compilation
 //test_function();
 
-qb_compile();
-
 // after compilation
 test_function();
 

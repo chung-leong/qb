@@ -25,8 +25,6 @@ class TestClass {
 
 $a = array();
 
-qb_compile();
-
 $obj = new TestClass;
 $obj->test($a);
 

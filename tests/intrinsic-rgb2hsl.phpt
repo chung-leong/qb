@@ -24,8 +24,6 @@ function test_function() {
 	echo rgb2hsl($c), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

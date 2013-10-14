@@ -28,8 +28,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
 function filter(&$dst, $src, $text, $size, $charCount) {
 }
 
-qb_compile();
-
 filter($output, $image, $text, 8, 58);
 
 ob_start();

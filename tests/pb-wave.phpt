@@ -27,8 +27,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
 function filter(&$dst, $src, $center, $amplitude, $frequency) {
 }
 
-qb_compile();
-
 filter($output, $image, array(125, 220), 5, 2);
 
 ob_start();

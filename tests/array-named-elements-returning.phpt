@@ -18,8 +18,6 @@ function test_function() {
 	return $a;
 }
 
-qb_compile();
-
 $point = test_function();
 
 print_r($point);

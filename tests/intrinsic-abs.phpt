@@ -27,8 +27,6 @@ function test_function() {
 	echo abs($d), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

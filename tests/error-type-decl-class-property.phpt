@@ -13,8 +13,6 @@ class TestClass {
 	}
 }
 
-qb_compile();
-
 ?>
 --EXPECTREGEX--
 .*line 5.*

@@ -21,7 +21,6 @@ function test_function() {
 	echo "$b $d\n";
 }
 
-qb_compile();
 ini_set('precision', 10);
 test_function();
 

@@ -47,8 +47,6 @@ function test_function() {
 	echo "$a $b $c $d $e $f $g $h\n";
 }
 
-qb_compile();
-
 srand(0);
 mt_srand(0);
 

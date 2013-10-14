@@ -22,8 +22,6 @@ function test_function() {
 	echo isset($a[$b + 8]), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

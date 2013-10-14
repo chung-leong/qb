@@ -19,8 +19,6 @@ class TestClass {
 	}
 }
 
-qb_compile();
-
 $obj = new TestClass;
 $obj->test();
 echo "$obj->a\n";

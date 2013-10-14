@@ -23,8 +23,6 @@ function test_function(&$a) {
 }
 
 
-qb_compile();
-
 $path = __FILE__ . ".dat";
 $handle = fopen($path, "w+");
 

@@ -24,8 +24,6 @@ function test_function() {
 	echo substr($a, $b, $c), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -20,8 +20,6 @@ function test_function() {
 	echo other_function();
 }
 
-qb_compile();
-
 test_function();
 
 ?>

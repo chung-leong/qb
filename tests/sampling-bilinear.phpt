@@ -26,7 +26,6 @@ function test_function($image) {
 	echo "$pixels\n";
 }
 
-qb_compile();
 ini_set('precision', 10);
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/malgorzata_socha.png");

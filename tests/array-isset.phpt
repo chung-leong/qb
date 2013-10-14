@@ -20,8 +20,6 @@ function test_function() {
 	echo isset($b), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

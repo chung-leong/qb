@@ -97,8 +97,6 @@ function calc() {
    return sqrt($vBv/$vv);
 }
 
-qb_compile();
-
 printf("%0.9f\n", calc());
 
 ?>

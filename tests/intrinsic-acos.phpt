@@ -20,8 +20,6 @@ function test_function($a, $b, $c, $d) {
 	echo acos($d), "\n";
 }
 
-qb_compile();
-
 $a = 0;
 $b = 1;
 $c = 0.5;

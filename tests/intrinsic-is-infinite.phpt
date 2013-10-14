@@ -29,8 +29,6 @@ function test_function() {
 	echo "is_infinite($d) = ", is_infinite($d), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -43,8 +43,6 @@ function _image_diff($img1, $img2) {
 	return sqrt(array_sum($img2));
 }
 
-qb_compile();
-
 for($i = 1; $i <= 2; $i++) {
 	$correct_path = preg_replace('/#/', $i, $correct_path_templ);
 	$incorrect_path = preg_replace('/#/', $i, $incorrect_path_templ);

@@ -321,8 +321,6 @@ class Droste {
 // so the script wouldn't slow to a grind if xdebug is active
 ini_set("qb.allow_debugger_inspection", 0);
 
-qb_compile();
-
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/ipad.png");
 $output = imagecreatetruecolor(680, 680);

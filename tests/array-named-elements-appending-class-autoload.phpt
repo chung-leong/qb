@@ -22,8 +22,6 @@ function test_function(&$a) {
 	}
 }
 
-qb_compile();
-
 function autoload($class) {
 	echo "Autoloading $class\n";
 	eval('class Point {	public $x;	public $y; }');

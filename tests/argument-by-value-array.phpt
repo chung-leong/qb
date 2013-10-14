@@ -17,8 +17,6 @@ function test_function($a, $b) {
 	echo "$a $b";
 }
 
-qb_compile();
-
 $b = array(M_PI, M_PI / 2);
 
 test_function(array(333, 444, 555, 666), $b);

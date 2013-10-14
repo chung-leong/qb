@@ -21,8 +21,6 @@ function test_function($a, $b) {
 	echo "$a $b\n";
 }
 
-qb_compile();
-
 test_function(array(0xFFFFFFFFF, 0xFFFFFFFF), array(0x00FFFFFF, 0x00FFFFFF));
 
 ?>

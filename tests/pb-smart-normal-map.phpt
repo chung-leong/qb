@@ -23,8 +23,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
  */
 function filter(&$dst, $src) {}
 
-qb_compile();
-
 filter($output, $image);
 
 ob_start();

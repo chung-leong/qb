@@ -23,8 +23,6 @@ class test_class {
 
 $object = new test_class;
 
-qb_compile();
-
 $object->test();
 
 print_r($object->a);

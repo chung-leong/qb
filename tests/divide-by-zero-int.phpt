@@ -13,8 +13,6 @@ function test_function() {
 	echo $b;
 }
 
-qb_compile();
-
 test_function();
 
 ?>

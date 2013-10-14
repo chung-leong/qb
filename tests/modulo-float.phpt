@@ -31,8 +31,6 @@ function test_function() {
 	echo "mod($a, 2) = $b\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

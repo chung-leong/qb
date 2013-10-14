@@ -48,8 +48,6 @@ function test_function() {
 	echo "$r5\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

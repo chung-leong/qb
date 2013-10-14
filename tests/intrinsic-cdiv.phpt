@@ -26,8 +26,6 @@ function test_function() {
 	echo "$c\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

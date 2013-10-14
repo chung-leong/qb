@@ -29,8 +29,6 @@ function test_function($a, $b, $c, $d, $e, $f, $g, $h, $i, $j) {
 	echo "$a $b $c $d $e $f $g $h $i $j";
 }
 
-qb_compile();
-
 test_function(0xFF, 0xFF, 0xFFFF, 0xFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x000FFFFFFFFFFFFF, 0x000FFFFFFFFFFFFF, 1.2e10, 1.1e20);
 
 ?>

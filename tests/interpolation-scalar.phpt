@@ -27,8 +27,6 @@ function test_function() {
 	echo "Numbers: $a, $b, $c, $d, $e, $f";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

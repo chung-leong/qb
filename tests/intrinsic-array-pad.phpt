@@ -27,8 +27,6 @@ function test_function() {
 	echo array_pad($c, -4, $d), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

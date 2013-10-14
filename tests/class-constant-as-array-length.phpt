@@ -24,8 +24,6 @@ class Test extends Bobo {
 
 define('length', 7);
 
-qb_compile();
-
 $obj = new Test();
 $obj->show();
 

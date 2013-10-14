@@ -66,8 +66,6 @@ function calc($h, $w) {
    }
 }
 
-qb_compile();
-
 ob_start();
 
 $h = 200;

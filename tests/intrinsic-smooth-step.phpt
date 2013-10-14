@@ -29,8 +29,6 @@ function test_function() {
 	echo smooth_step(10, 12, $b), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

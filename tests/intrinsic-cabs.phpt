@@ -23,8 +23,6 @@ function test_function() {
 	echo cabs($c), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

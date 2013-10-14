@@ -24,8 +24,6 @@ function test_function(&$a, &$b) {
 $a = array(1, 2, 3, 4);
 $b = array();
 
-qb_compile();
-
 test_function($a, $b);
 
 print_r($a);

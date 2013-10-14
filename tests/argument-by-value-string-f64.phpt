@@ -16,8 +16,6 @@ function test_function($a) {
 	echo "Numbers: $a";
 }
 
-qb_compile();
-
 $data = pack('d*', M_PI, 1.5e20, 1/3);
 
 test_function($data);

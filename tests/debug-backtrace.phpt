@@ -34,8 +34,6 @@ function test_function3($a) {
 
 ini_set("qb.allow_debug_backtrace", true);
 
-qb_compile();
-
 test_function1(1, 2);
 
 ?>

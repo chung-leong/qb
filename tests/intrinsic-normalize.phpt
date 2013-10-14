@@ -37,7 +37,6 @@ function test_function() {
 	}
 }
 
-qb_compile();
 ini_set('precision', 10);
 test_function();
 

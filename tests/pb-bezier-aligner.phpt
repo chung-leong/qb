@@ -32,8 +32,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
 function filter(&$dst, $background, $texture, $startpoint, $control1, $control2, $endpoint, $scale, $imagewidth) {
 }
 
-qb_compile();
-
 filter($output, $image, $texture, array(12, 72), array(240, 228), array(336, 300), array(600, 200), array(0.5, 0.5), imagesx($texture));
 
 ob_start();

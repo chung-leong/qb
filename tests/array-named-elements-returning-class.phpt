@@ -18,8 +18,6 @@ function test_function() {
 	return $a;
 }
 
-qb_compile();
-
 class Point {
 	public $x;
 	public $y;

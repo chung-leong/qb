@@ -19,8 +19,6 @@ function test_function($k, $m) {
 	$b = 6;
 }
 
-qb_compile();
-
 test_function();
 
 ?>

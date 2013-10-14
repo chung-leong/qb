@@ -21,8 +21,6 @@ test_class::$b = test_class::$a;
 
 $object = new test_class;
 
-qb_compile();
-
 $object->test();
 
 print_r(test_class::$a);

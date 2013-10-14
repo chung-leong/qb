@@ -25,8 +25,6 @@ function test_function() {
 	echo "$b\n";
 }
 
-qb_compile();
-
 srand(0);
 mt_srand(0);
 

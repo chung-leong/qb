@@ -17,8 +17,6 @@ function test_function() {
 	return $a + 10;
 }
 
-qb_compile();
-
 echo implode(test_function(), ', ');
 
 ?>

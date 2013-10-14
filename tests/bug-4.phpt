@@ -17,8 +17,6 @@ function test_function() {
 	echo $matrix;
 }
 
-qb_compile();
-
 test_function();
 
 ?>

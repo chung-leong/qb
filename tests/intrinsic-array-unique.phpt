@@ -40,7 +40,6 @@ function test_function() {
 	echo array_unique($f), "\n";
 }
 
-qb_compile();
 test_function();
 
 ?>

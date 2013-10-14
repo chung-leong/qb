@@ -42,8 +42,6 @@ function test_function() {
 	echo "$r4\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

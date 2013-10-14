@@ -105,8 +105,6 @@ function test_function() {
 	}	
 }
 
-qb_compile();
-
 test_function();
 
 ?>

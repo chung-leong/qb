@@ -17,8 +17,6 @@ function test_function() {
 	echo array_product($a), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

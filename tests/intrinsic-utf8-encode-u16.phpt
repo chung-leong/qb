@@ -17,8 +17,6 @@ function test_function() {
 	echo utf8_encode($cp);
 }
 
-qb_compile();
-
 test_function();
 
 ?>

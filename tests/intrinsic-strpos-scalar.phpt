@@ -23,8 +23,6 @@ function test_function() {
 	echo strpos($a, 100), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -20,8 +20,6 @@ class TestClass extends ParentClass {
 	}
 }
 
-qb_compile();
-
 $obj = new TestClass;
 $obj->test();
 

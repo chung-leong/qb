@@ -18,8 +18,6 @@ function test_function($a) {
 	echo "$b\n";
 }
 
-qb_compile();
-
 test_function(M_PI * 10.5);
 test_function(M_PI * 1);
 

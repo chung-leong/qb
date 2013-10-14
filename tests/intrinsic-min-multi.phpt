@@ -27,8 +27,6 @@ function test_function() {
 	echo min($a, $b, $c, $d, $e, $f), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

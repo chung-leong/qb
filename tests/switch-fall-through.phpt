@@ -23,8 +23,6 @@ function test_function($a) {
 	}
 }
 
-qb_compile();
-
 test_function(1);
 test_function(2);
 test_function(3);

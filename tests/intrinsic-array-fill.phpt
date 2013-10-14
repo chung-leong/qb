@@ -26,8 +26,6 @@ function test_function() {
 	echo array_fill(1, $a, array(1, 2, 3)), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

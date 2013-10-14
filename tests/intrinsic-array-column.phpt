@@ -35,8 +35,6 @@ function test_function() {
 	echo array_column($b, 1), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

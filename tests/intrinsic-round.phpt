@@ -39,8 +39,6 @@ function test_function() {
 	echo round($b, 1, PHP_ROUND_HALF_EVEN), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

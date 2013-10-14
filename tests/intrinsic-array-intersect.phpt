@@ -43,8 +43,6 @@ function test_function() {
 	echo array_intersect($d, $e), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -25,8 +25,6 @@ function test_function() {
 	echo hsl2rgb(rgb2hsl(array(0.25, 0.38, 0.78))), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

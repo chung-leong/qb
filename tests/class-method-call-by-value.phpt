@@ -29,8 +29,6 @@ class TestClass {
 	}
 }
 
-qb_compile();
-
 $obj = new TestClass;
 $obj->test();
 

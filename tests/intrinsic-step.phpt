@@ -21,8 +21,6 @@ function test_function() {
 	echo step(10, $b), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

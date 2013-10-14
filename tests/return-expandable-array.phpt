@@ -28,8 +28,6 @@ function test_function() {
 	return $a * 2;
 }
 
-qb_compile();
-
 echo implode(test_function(), ', ');
 
 ?>

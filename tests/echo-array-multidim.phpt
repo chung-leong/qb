@@ -32,8 +32,6 @@ function test_function() {
 	echo $b, "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

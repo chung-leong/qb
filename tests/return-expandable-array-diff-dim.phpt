@@ -28,8 +28,6 @@ function test_function() {
 	return $a * 2;
 }
 
-qb_compile();
-
 print_r(test_function());
 
 ?>

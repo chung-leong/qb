@@ -13,8 +13,6 @@ function test_function() {
 	echo "Not reachable";
 }
 
-qb_compile();
-
 try {
 	test_function();
 } catch(Exception $e) {

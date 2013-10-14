@@ -20,8 +20,6 @@ class TestClass {
 
 $obj = new TestClass;
 
-qb_compile();
-
 $obj->test();
 
 echo "Outside qb: $obj->a\n";

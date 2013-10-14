@@ -34,8 +34,6 @@ function test_function() {
 	echo floor($e), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -18,8 +18,6 @@ function test_function() {
 	echo $a . " " . $b;
 }
 
-qb_compile();
-
 test_function();
 
 ?>

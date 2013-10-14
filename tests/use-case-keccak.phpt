@@ -311,8 +311,6 @@ function Keccak(&$state, $blocks) {
 	}
 }
 
-qb_compile();
-
 function calc($data) {
 	$len = strlen($data);
 	$extra = $len % 144;
