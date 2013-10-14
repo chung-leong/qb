@@ -1898,44 +1898,22 @@ void qb_add_variables(qb_compiler_context *cxt) {
 			// parameters are shared between forked copies of the function
 			qb_mark_as_shared(cxt, qvar->address);
 		} else {
-			// see if it's static variable
-			qb_address *static_initializer = NULL;
-			zval **p_static_value, *static_value;
+			// see if it's a static variable
+			zval **p_static_value;
 			if(static_variable_table && zend_hash_quick_find(static_variable_table, zvar->name, zvar->name_len + 1, zvar->hash_value, (void **) &p_static_value) == SUCCESS) {
-				static_value = *p_static_value;
+				qb_operand assignment_operands[2];
+				qb_operand assignment_result = { QB_OPERAND_EMPTY, NULL };
+
 				qvar->flags = QB_VARIABLE_STATIC;
 				qb_apply_type_declaration(cxt, qvar);
+				qb_mark_as_static(cxt, qvar->address);
 
-				/*
-				if(qvar->address->type == QB_TYPE_S64 || qvar->address->type == QB_TYPE_U64) {
-					// initializing 64-bit integer might require special handling
-					qb_primitive_type desired_type = qvar->address->type;
-					uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, static_value, desired_type);
-					if(qvar->address->dimension_count + 1 == dimension_count) {
-						uint32_t dimensions[MAX_DIMENSION];
-						dimensions[0] = 0;
-						qb_get_zend_array_dimensions(cxt, static_value, desired_type, dimensions, dimension_count);
-						if(dimensions[dimension_count - 1] == 2) {
-							// treat the last level as scalars
-							dimension_count--;
-							if(dimension_count > 0) {
-								static_initializer = qb_create_fixed_size_multidimensional_array(cxt, desired_type, dimensions, dimension_count, FALSE);
-								qb_copy_elements_from_zend_array(cxt, static_value, static_initializer);
-							} else {
-								static_initializer = qb_create_scalar(cxt, desired_type);
-								qb_copy_element_from_zval(cxt, static_value, static_initializer);
-							}
-							static_initializer->flags |= QB_ADDRESS_CONSTANT | QB_ADDRESS_INITIALIZED;
-						}
-					}
-				}
-				*/
-				if(!static_initializer) {
-					// handle it in the regular manner
-					static_initializer = qb_obtain_constant_zval(cxt, *p_static_value, qvar->address->type);
-				}
-
-				//qb_do_static_init(cxt, static_initializer, qvar->address);
+				assignment_operands[0].address = qvar->address;
+				assignment_operands[0].type = QB_OPERAND_ADDRESS;
+				assignment_operands[1].constant = *p_static_value;
+				assignment_operands[1].type = QB_OPERAND_ZVAL;
+				assignment_result.type = QB_OPERAND_EMPTY;
+				qb_produce_op(cxt, &factory_assign, assignment_operands, 2, &assignment_result, NULL, 0, NULL);
 			} else {
 				// we don't know whether it is a local or a global variable at this point
 				qvar->flags = 0;
@@ -1954,6 +1932,12 @@ void qb_add_variables(qb_compiler_context *cxt) {
 	qb_apply_type_declaration(cxt, qvar);
 	qb_add_variable(cxt, qvar);
 	cxt->return_variable = qvar;
+
+	if(cxt->op_count > 0) {
+		// there're static assignment--need to add the end static op
+		qb_operand end_static_result = { QB_OPERAND_EMPTY, NULL };
+		qb_produce_op(cxt, &factory_end_static, NULL, 0, &end_static_result, NULL, 0, NULL);
+	}
 }
 
 qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name, uint32_t type_mask) {
@@ -2926,6 +2910,10 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 				expr_type = f->resolve_type(cxt, f, operands, operand_count);
 			}
 		}
+	} else if(cxt->stage == QB_STAGE_VARIABLE_INITIALIZATION) {
+		if(f->resolve_type) {
+			expr_type = f->resolve_type(cxt, f, operands, operand_count);
+		}
 	}
 
 	// perform type coercion on operand
@@ -2960,6 +2948,10 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 			}
 			f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 		}
+	} else if(cxt->stage == QB_STAGE_VARIABLE_INITIALIZATION) {
+		if(f->set_final_result) {
+			f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+		}
 	}
 
 	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
@@ -2976,6 +2968,8 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 		if(result && result->type == QB_OPERAND_ADDRESS) {
 			qb_unlock_address(cxt, result->address);
 		}
+	} else if(cxt->stage == QB_STAGE_VARIABLE_INITIALIZATION) {
+		qb_create_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
 	}
 }
 

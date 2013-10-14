@@ -2632,6 +2632,23 @@ qb_simple_op_factory factory_exit = {
 	QB_EXIT_I32,
 };
 
+qb_simple_op_factory factory_end_static = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_END_STATIC,
+};
+
 qb_simple_op_factory factory_ext = {
 	NULL,
 	NULL,
@@ -2644,7 +2661,7 @@ qb_simple_op_factory factory_ext = {
 	qb_transfer_operands_all,
 
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_EXT_U32,
 };
