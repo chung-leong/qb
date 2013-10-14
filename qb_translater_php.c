@@ -202,23 +202,6 @@ static void qb_translate_fetch(qb_php_translater_context *cxt, void *op_factorie
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static qb_function * qb_find_compiled_function(qb_php_translater_context *cxt, zend_function *zfunc) {
-	uint32_t i;
-	qb_function *qfunc = qb_get_compiled_function(zfunc);
-	if(!qfunc) {
-		// see if the function in question in also in the middle of being compiled
-		USE_TSRM
-		qb_build_context *build_context = QB_G(build_context);
-		for(i = 0; i < build_context->compiler_context_count; i++) {
-			qb_compiler_context *compiler_cxt = &build_context->compiler_contexts[i];
-			if(compiler_cxt->function_prototype.zend_op_array == &zfunc->op_array) {
-				return &compiler_cxt->function_prototype;
-			}
-		}
-	}
-	return NULL;
-}
-
 static void qb_do_function_call_translation(qb_php_translater_context *cxt, void *op_factories, qb_operand *name, qb_operand *object, qb_operand **stack_pointer, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_intrinsic_function *ifunc = NULL;
 	zend_function *zfunc = NULL;
@@ -267,7 +250,7 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 		}
 		zfunc = qb_find_zend_function(class_name, name->constant TSRMLS_CC);
 		if(zfunc) {
-			qfunc = qb_find_compiled_function(cxt, zfunc);
+			qfunc = qb_find_compiled_function(zfunc);
 		} else {
 			qb_abort("Missing function");
 		}
@@ -286,17 +269,17 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 	}
 
 	if(ifunc) {
+		op_factory = list[0];
 		func_operands[0].intrinsic_function = ifunc;
 		func_operands[0].type = QB_OPERAND_INTRINSIC_FUNCTION;
-		op_factory = list[0];
-	} else if(qfunc) {
-		func_operands[0].function = qfunc;
-		func_operands[0].type = (object->type == QB_OPERAND_ZEND_STATIC_CLASS) ? QB_OPERAND_STATIC_FUNCTION : QB_OPERAND_FUNCTION;
-		op_factory = list[1];
 	} else {
+		if(qfunc) {
+			op_factory = list[1];
+		} else {
+			op_factory = list[2];
+		}
 		func_operands[0].zend_function = zfunc;
 		func_operands[0].type = (object->type == QB_OPERAND_ZEND_STATIC_CLASS) ? QB_OPERAND_STATIC_ZEND_FUNCTION : QB_OPERAND_ZEND_FUNCTION;
-		op_factory = list[2];
 	}
 	func_operands[1].arguments = arguments;
 	func_operands[1].type = QB_OPERAND_ARGUMENTS;

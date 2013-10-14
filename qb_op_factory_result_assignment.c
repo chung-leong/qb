@@ -458,7 +458,7 @@ static void qb_set_final_result_intrinsic(qb_compiler_context *cxt, qb_op_factor
 	}
 }
 
-static void qb_set_result_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result_prototype->destination) {
 		qb_address *destination_address = qb_obtain_result_destination_address(cxt, result_prototype->destination);
 		int32_t direct_assignment = FALSE;

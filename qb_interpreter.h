@@ -70,6 +70,11 @@ struct qb_interpreter_context {
 	int8_t *instruction_pointer;
 	qb_interpreter_context *caller_context;
 
+	uint32_t *argument_indices;
+	uint32_t argument_count;
+	uint32_t result_index;
+	uint32_t line_number;
+
 	int32_t exception_encountered;
 
 	volatile unsigned char *windows_timed_out_pointer;

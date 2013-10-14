@@ -810,23 +810,39 @@ qb_op_factory factory_intrinsic = {
 	0,
 };
 
-qb_simple_op_factory factory_zend_function_call = {
-	qb_resolve_expression_type_zend_function_call,
+qb_simple_op_factory factory_function_call = {
+	qb_resolve_expression_type_function_call,
 	NULL,
-	qb_coerce_operands_zend_function_call,
+	qb_coerce_operands_function_call,
 	qb_set_result_prototype,
-	qb_validate_operands_zend_function_call,
-	qb_set_result_zend_function_call,
+	qb_validate_operands_function_call,
+	qb_set_result_function_call,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_zend_function_call,
+	qb_transfer_operands_function_call,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_FCALL_U32_U32_U32,
 };
 
-void *factories_fcall[] = { &factory_intrinsic, NULL, &factory_zend_function_call };
+qb_simple_op_factory factory_zend_function_call = {
+	qb_resolve_expression_type_zend_function_call,
+	NULL,
+	qb_coerce_operands_zend_function_call,
+	qb_set_result_prototype,
+	qb_validate_operands_zend_function_call,
+	qb_set_result_function_call,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_function_call,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_FCALL_U32_U32_U32,
+};
+
+void *factories_fcall[] = { &factory_intrinsic, &factory_function_call, &factory_zend_function_call };
 
 qb_cast_op_factory factory_cast_S08 = {
 	qb_resolve_expression_type_cast,
@@ -2734,18 +2750,6 @@ qb_simple_op_factory factory_loop = {
 	0,
 	QB_INC_IF_GT_U32_U32,
 };
-
-/*
-qb_fcall_op_factory factory_fcall = {
-	qb_append_fcall,
-	NULL,
-	0,
-	qb_set_result_prototype,
-	0,
-	QB_ADDRESS_TEMPORARY,
-	QB_FCALL,
-};
-*/
 
 qb_float_op_factory factory_sin = {
 	qb_resolve_expression_type_first_operand,

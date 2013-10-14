@@ -830,7 +830,7 @@ static void qb_transfer_operands_intrinsic(qb_compiler_context *cxt, qb_op_facto
 	}
 }
 
-static void qb_transfer_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+static void qb_transfer_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	const char *func_name = func->zend_function->common.function_name;

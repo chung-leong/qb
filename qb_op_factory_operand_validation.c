@@ -571,7 +571,48 @@ static void qb_validate_operands_intrinsic(qb_compiler_context *cxt, qb_op_facto
 	cxt->intrinsic_function = NULL;
 }
 
+static void qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	uint32_t i;
+
+	for(i = 0; i < (uint32_t) argument_count->number; i++) {
+		if(i < qfunc->argument_count) {
+			qb_variable *arg = qfunc->variables[i];
+			qb_operand *val = &arguments->arguments[i];
+			if(arg->flags & QB_VARIABLE_BY_REF) {
+				// TODO: check size
+				if(val->type != QB_OPERAND_ADDRESS || TEMPORARY(val->address)) {
+					qb_abort("%s expects parameter %d to be a variable", qfunc->name, i + 1);
+				}
+				if(!STORAGE_TYPE_MATCH(val->address->type, arg->address->type)) {
+					qb_abort("%s expects parameter %d to be %s and a variable of the type %s is given", type_names[arg->address->type], type_names[val->address->type]);
+				}
+			}
+			if(SCALAR(arg->address) && !SCALAR(val->address)) {
+				qb_abort("%s expects parameter %d to be scalar", qfunc->name, i + 1);
+			}
+		}
+	}
+
+	if(!qfunc->return_variable->address) {
+		if(result_destination) {
+			switch(result_destination->type) {
+				case QB_RESULT_DESTINATION_RETURN:
+				case QB_RESULT_DESTINATION_VARIABLE:
+				case QB_RESULT_DESTINATION_ELEMENT:
+				case QB_RESULT_DESTINATION_PROPERTY:
+					break;
+				default:
+					qb_abort("The return value from a PHP function must be either saved to a variable or ignored");
+					break;
+			}
+		}
+	}
+}
+
 static void qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	// TODO: check for by-ref argument
 	if(result_destination) {
 		switch(result_destination->type) {
 			case QB_RESULT_DESTINATION_RETURN:

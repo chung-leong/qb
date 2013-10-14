@@ -711,6 +711,10 @@ intptr_t qb_relocate_function(qb_function *qfunc) {
 					}	break;
 				}
 			}
+
+			if(op_flags & QB_OP_NEED_LINE_NUMBER) {
+				ip += sizeof(uint32_t);
+			}
 		}
 
 		// update the reallocation pointers

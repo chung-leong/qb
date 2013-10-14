@@ -432,6 +432,24 @@ static void qb_discard_current_build(TSRMLS_D) {
 	}
 }
 
+qb_function * qb_find_compiled_function(zend_function *zfunc) {
+	uint32_t i;
+	qb_function *qfunc = qb_get_compiled_function(zfunc);
+	if(!qfunc) {
+		// see if the function in question in also in the middle of being compiled
+		qb_build_context *build_context;
+		TSRMLS_FETCH();
+		build_context = QB_G(build_context);
+		for(i = 0; i < build_context->compiler_context_count; i++) {
+			qb_compiler_context *compiler_cxt = &build_context->compiler_contexts[i];
+			if(compiler_cxt->function_prototype.zend_op_array == &zfunc->op_array) {
+				return &compiler_cxt->function_prototype;
+			}
+		}
+	}
+	return NULL;
+}
+
 #define HAS_QB_USER_OP(op_array)		((op_array)->opcodes->opcode == qb_user_opcode)
 #define SET_QB_POINTER(op_array, p)		Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr) = (void *) p
 #define GET_QB_POINTER(op_array)		((void *) Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr))

@@ -187,6 +187,7 @@ int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array);
 qb_function * qb_get_compiled_function(zend_function *zfunc);
+qb_function * qb_find_compiled_function(zend_function *zfunc);
 int qb_is_compiled_function(zend_function *zfunc);
 
 zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC);

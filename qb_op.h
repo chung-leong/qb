@@ -115,8 +115,6 @@ enum qb_operand_type {
 	QB_OPERAND_RESULT_PROTOTYPE,
 	QB_OPERAND_NUMBER,
 	QB_OPERAND_INTRINSIC_FUNCTION,
-	QB_OPERAND_FUNCTION,
-	QB_OPERAND_STATIC_FUNCTION,
 	QB_OPERAND_ZEND_FUNCTION,
 	QB_OPERAND_STATIC_ZEND_FUNCTION,
 	QB_OPERAND_ARGUMENTS,
@@ -140,7 +138,6 @@ struct qb_operand {
 	qb_operand_type type;
 	union {
 		qb_address *address;
-		qb_function *function;
 		uint32_t symbol_index;
 		int32_t number;
 		zval *constant;

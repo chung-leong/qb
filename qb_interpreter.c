@@ -115,7 +115,46 @@ static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_v
 }
 
 static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
+	uint32_t received_argument_count = cxt->caller_context->argument_count;
+	uint32_t i;
+	for(i = 0; i < cxt->function->argument_count; i++) {
+		qb_variable *qvar = cxt->function->variables[i];
+		uint32_t transfer_flags = 0;
 
+		if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
+			// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
+			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+		}
+
+		if(i < received_argument_count) {
+			uint32_t argument_index = cxt->caller_context->argument_indices[i];
+			qb_variable *caller_qvar = cxt->caller_context->function->variables[i];
+			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
+			qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags);
+		} else {
+			USE_TSRM
+			zval *zarg;
+			if(qvar->default_value) {
+				zarg = qvar->default_value;
+			} else {
+				const char *space;
+				const char *class_name;
+				zend_execute_data *ptr = EG(current_execute_data)->prev_execute_data;
+
+				if (EG(active_op_array)->scope) {
+					class_name = EG(active_op_array)->scope->name;
+					space = "::";
+				} else {
+					class_name = space = "";
+				}
+
+				zend_error(E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %d and defined", i + 1, class_name, space, cxt->function->name, cxt->caller_context->function->filename, cxt->caller_context->line_number);
+				zarg = &zval_used_for_init;
+			}
+			transfer_flags &= ~QB_TRANSFER_CAN_BORROW_MEMORY;
+			qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
+		}
+	}
 }
 
 static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
@@ -124,11 +163,15 @@ static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
 
-	// transfer arguments
 	for(i = 0; i < cxt->function->argument_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 		zval *zarg;
 		uint32_t transfer_flags = 0;
+
+		if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
+			// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
+			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+		}
 
 		if(i < received_argument_count) {
 			zval **p_zarg = (zval**) p - received_argument_count + i;
@@ -155,11 +198,7 @@ static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 				}
 				zarg = &zval_used_for_init;
 			}
-		}
-
-		if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
-			// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
-			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+			transfer_flags &= ~QB_TRANSFER_CAN_BORROW_MEMORY;
 		}
 		qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 	}
@@ -552,7 +591,17 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 }
 
 static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+	USE_TSRM
+	qb_interpreter_context _new_cxt, *new_cxt = &_new_cxt;
 
+	cxt->argument_indices = variable_indices;
+	cxt->argument_count = argument_count;
+	cxt->result_index = result_index;
+	cxt->line_number = line_number;
+
+	qb_initialize_interpreter_context(new_cxt, qfunc, cxt TSRMLS_CC);
+	qb_execute(new_cxt);
+	qb_free_interpreter_context(new_cxt);
 }
 
 void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {

@@ -143,6 +143,12 @@ static qb_primitive_type qb_resolve_expression_type_intrinsic(qb_compiler_contex
 	return QB_TYPE_VOID;
 }
 
+static qb_primitive_type qb_resolve_expression_type_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *func = &operands[0];
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	return (qfunc->return_variable->address) ? qfunc->return_variable->address->type : QB_TYPE_VOID;
+}
+
 static qb_primitive_type qb_resolve_expression_type_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return QB_TYPE_ANY;
 }
