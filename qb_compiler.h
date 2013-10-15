@@ -386,7 +386,7 @@ void qb_resolve_jump_targets(qb_compiler_context *cxt);
 void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass);
 void qb_assign_storage_space(qb_compiler_context *cxt);
 void qb_resolve_address_modes(qb_compiler_context *cxt);
-void qb_resolve_reference_counts(compiler_cxt);
+void qb_resolve_reference_counts(qb_compiler_context *compiler_cxt);
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
 void qb_free_compiler_context(qb_compiler_context *cxt);

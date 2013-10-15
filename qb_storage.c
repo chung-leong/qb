@@ -1219,7 +1219,7 @@ void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *z
 					// unused space are always zeroed out so the string is terminated already
 					memory = segment->memory;
 				}
-				if(Z_STRVAL_P(zvalue) != memory) {
+				if(Z_STRVAL_P(zvalue) != (char *) memory) {
 					efree(Z_STRVAL_P(zvalue));
 					Z_STRVAL_P(zvalue) = memory;
 				}
