@@ -832,7 +832,7 @@ qb_simple_op_factory factory_zend_function_call = {
 	qb_coerce_operands_zend_function_call,
 	qb_set_result_prototype,
 	qb_validate_operands_zend_function_call,
-	qb_set_result_function_call,
+	qb_set_result_zend_function_call,
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_function_call,

@@ -1398,7 +1398,7 @@ qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive
 	return usable_address;
 }
 
-qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim, uint32_t address_flags, qb_result_prototype *result_prototype) {
+qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim, uint32_t address_flags, qb_result_prototype *result_prototype, int32_t resizing) {
 	qb_address *target_address = NULL;
 
 	if(result_prototype && result_prototype->destination) {
@@ -1522,7 +1522,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 		target_address = qb_obtain_temporary_variable(cxt, element_type, dim);
 	}
 
-	if(RESIZABLE(target_address)) {
+	if(RESIZABLE(target_address) && resizing) {
 		// put a wrapper around it to make it expand/contract
 		target_address = qb_obtain_bound_checked_address(cxt, dim->array_size_address, target_address, TRUE);
 	}

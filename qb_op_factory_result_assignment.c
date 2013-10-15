@@ -31,7 +31,7 @@ static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factor
 		f->set_dimensions(cxt, f, operands, operand_count, &dim);
 	}
 	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype);
+	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype, TRUE);
 }
 
 static void qb_set_result_non_reusable_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -433,7 +433,7 @@ static void qb_set_result_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f
 	}
 	f->set_dimensions(cxt, f, operands, operand_count, &dim);
 	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype);
+	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype, TRUE);
 }
 
 static void qb_set_preliminary_result_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -459,6 +459,48 @@ static void qb_set_final_result_intrinsic(qb_compiler_context *cxt, qb_op_factor
 }
 
 static void qb_set_result_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *func = &operands[0];
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	if(qfunc->return_variable->address) {
+		qb_address *src_address = qfunc->return_variable->address;
+		qb_variable_dimensions _dim, *dim = &_dim;
+
+		// address of qfunc->return_variable is in a different storage object
+		// so we can't use qb_copy_address_dimensions() here
+		dim->dimension_count = src_address->dimension_count;	
+		if(dim->dimension_count > 0) {
+			qb_storage *src_storage = qfunc->local_storage;
+			uint32_t i;
+			for(i = 0; i < src_address->dimension_count; i++) {
+				qb_address *dimension_address = src_address->dimension_addresses[i];
+				if(CONSTANT(dimension_address)) {
+					uint32_t dimension = VALUE_IN(src_storage, U32, dimension_address);
+					dim->dimension_addresses[i] = qb_obtain_constant_U32(cxt, dimension);
+				} else {
+					dim->dimension_addresses[i] = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+				}
+			}
+			for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
+				if(i == dim->dimension_count - 1) {
+					dim->array_size_addresses[i] = dim->dimension_addresses[i];
+				} else {
+					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+				}
+			}
+		} else {
+			dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
+		}
+		dim->array_size_address = dim->array_size_addresses[0];
+		
+		// no resizing here--the callee will perform that if necessary
+		result->address = qb_obtain_write_target(cxt, expr_type, dim, f->address_flags, result_prototype, FALSE);
+	} else {
+		result->address = cxt->zero_address;
+	}
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void qb_set_result_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result_prototype->destination) {
 		qb_address *destination_address = qb_obtain_result_destination_address(cxt, result_prototype->destination);
 		int32_t direct_assignment = FALSE;

@@ -318,7 +318,7 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 qb_address * qb_obtain_instance_variable(qb_compiler_context *cxt, zval *name);
 qb_address * qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name);
 qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *name, qb_primitive_type type);
-qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim, uint32_t address_flags, qb_result_prototype *result_prototype);
+qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type desired_type, qb_variable_dimensions *dim, uint32_t address_flags, qb_result_prototype *result_prototype, int32_t resizing);
 qb_address * qb_obtain_object_property(qb_compiler_context *cxt, qb_operand *container, qb_operand *name, uint32_t bound_check_flags);
 qb_address * qb_obtain_result_destination_address(qb_compiler_context *cxt, qb_result_destination *destination);
 

@@ -35,11 +35,11 @@ static void qb_link_results_variable(qb_compiler_context *cxt, qb_op_factory *f,
 	qb_operand *value = &operands[1];
 
 	if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		// indicate that the destination of the r-value is 
+		// indicate that the destination is the r-value
 		qb_result_destination *destination = qb_allocate_result_destination(cxt->pool);
 		destination->type = QB_RESULT_DESTINATION_VARIABLE;
 		destination->variable = *variable;
-		destination->prototype = value->result_prototype->parent = result_prototype;
+		destination->prototype = result_prototype;
 		value->result_prototype->destination = destination;
 	}
 }
@@ -55,7 +55,7 @@ static void qb_link_results_array_element(qb_compiler_context *cxt, qb_op_factor
 		destination->type = QB_RESULT_DESTINATION_ELEMENT;
 		destination->element.container = *container;
 		destination->element.index = *index;
-		destination->prototype = value->result_prototype->parent = result_prototype;
+		destination->prototype = result_prototype;
 		value->result_prototype->destination = destination;
 	}
 }
@@ -71,7 +71,7 @@ static void qb_link_results_object_property(qb_compiler_context *cxt, qb_op_fact
 		destination->type = QB_RESULT_DESTINATION_PROPERTY;
 		destination->property.container = *container;
 		destination->property.name = *name;
-		destination->prototype = value->result_prototype->parent = result_prototype;
+		destination->prototype = result_prototype;
 		value->result_prototype->destination = destination;
 	}
 }

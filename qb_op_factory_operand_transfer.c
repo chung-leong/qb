@@ -501,12 +501,13 @@ static void qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory 
 	if(cxt->return_variable && cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS && cxt->return_variable->address != value->address) {
 		qb_operand assigment_operands[2];
 		qb_operand assignment_result;
+		qb_address *retval_address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, cxt->return_variable->address, TRUE);
 		assigment_operands[0].type = QB_OPERAND_ADDRESS;
-		assigment_operands[0].address = cxt->return_variable->address;
+		assigment_operands[0].address = retval_address;
 		assigment_operands[1].type = QB_OPERAND_ADDRESS;
 		assigment_operands[1].address = value->address;
 		assignment_result.type = QB_OPERAND_ADDRESS;
-		assignment_result.address = cxt->return_variable->address;
+		assignment_result.address = retval_address;
 		qb_create_op(cxt, &factory_assign, assigment_operands, 2, &assignment_result, NULL, 0, TRUE);
 	}
 }
@@ -844,8 +845,9 @@ static void qb_transfer_operands_function_call(qb_compiler_context *cxt, qb_op_f
 		var_indices[i] = qb_get_variable_index(cxt, arg->address);
 	}
 
-	if(result->type == QB_OPERAND_ADDRESS) {
+	if(result->type == QB_OPERAND_ADDRESS && result->address != cxt->zero_address) {
 		ret_index = qb_get_variable_index(cxt, result->address);
+		qb_mark_as_writable(cxt, result->address);
 	}
 
 	dest[0].address = qb_obtain_constant_U32(cxt, func_index);

@@ -602,9 +602,8 @@ static void qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_f
 				case QB_RESULT_DESTINATION_VARIABLE:
 				case QB_RESULT_DESTINATION_ELEMENT:
 				case QB_RESULT_DESTINATION_PROPERTY:
-					break;
-				default:
-					qb_abort("The return value from a PHP function must be either saved to a variable or ignored");
+				case QB_RESULT_DESTINATION_PRINT:
+					// TODO: warn about void
 					break;
 			}
 		}

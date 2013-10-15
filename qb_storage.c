@@ -1273,12 +1273,13 @@ void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *addr
 
 		if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
 			qb_memory_segment *segment = &storage->segments[address->segment_selector];
+			
+			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 			if(segment->flags & QB_SEGMENT_BORROWED) {
 				// nothing needs to happen
 				return;
 			} else if(segment->flags & QB_SEGMENT_IMPORTED) {
 				qb_memory_segment *dst_segment = &dst_storage->segments[dst_address->segment_selector];
-				uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 				int8_t *memory = ARRAY_IN(dst_storage, I08, dst_address);
 
 				// make sure the segment is large enough
@@ -1287,6 +1288,11 @@ void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *addr
 					// TODO: wrap-around
 				}
 				return;
+			}
+
+			if(dst_address->segment_selector >= QB_SELECTOR_ARRAY_START) {
+				qb_memory_segment *dst_segment = &dst_storage->segments[dst_address->segment_selector];
+				qb_allocate_segment_memory(dst_segment, byte_count);
 			}
 		}
 		qb_copy_elements_to_storage_location(storage, address, dst_storage, dst_address);

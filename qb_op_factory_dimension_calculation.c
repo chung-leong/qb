@@ -702,5 +702,3 @@ static void qb_set_result_dimensions_pack(qb_compiler_context *cxt, qb_op_factor
 	dim->dimension_count = 1;
 	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = byte_count_address;
 }
-
-
