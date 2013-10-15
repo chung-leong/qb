@@ -54,14 +54,12 @@ void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segm
 void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count) {
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
 		qb_allocate_segment_memory(segment->imported_segment, byte_count);
-		segment->flags &= ~QB_SEGMENT_IMPORTED;
-		segment->imported_segment = NULL;
 	} else {
 		segment->byte_count = byte_count;
 		if(byte_count > segment->current_allocation) {
 			uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
 			uint32_t extra = new_allocation - byte_count;
-			int8_t *memory = emalloc(new_allocation);
+			int8_t *memory = (segment->current_allocation) ? erealloc(segment->memory, new_allocation): emalloc(new_allocation);
 			int8_t *data_end = memory + byte_count;
 			segment->current_allocation = new_allocation;
 			memset(data_end, 0, extra);
@@ -80,7 +78,7 @@ static int32_t qb_connect_segment_to_memory(qb_memory_segment *segment, int8_t *
 			if(!ownership) {
 				segment->flags |= QB_SEGMENT_BORROWED;
 			}
-			if(segment->current_allocation) {
+			if(bytes_available) {
 				qb_relocate_segment_memory(segment, memory);
 			}
 			return TRUE;
@@ -136,7 +134,7 @@ void qb_release_segment(qb_memory_segment *segment) {
 		// the memory was borrowed--nothing needs to be done
 		segment->flags &= ~QB_SEGMENT_BORROWED;
 	} else {
-		if(segment->memory) {
+		if(segment->current_allocation) {
 			efree(segment->memory);
 		}
 	}
@@ -976,6 +974,10 @@ static uint32_t qb_set_array_dimensions_from_storage_location(qb_storage *storag
 	}
 }
 
+static uint32_t qb_set_array_dimensions_at_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
+	return qb_set_array_dimensions_from_storage_location(src_storage, src_address, storage, address);
+}
+
 void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count) {
 	uint32_t i, count = min(source_count, dest_count);
 	switch(dest_type) {
@@ -1213,6 +1215,7 @@ void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *ad
 						}
 						if(segment->imported_segment->byte_count != byte_count) {
 							qb_resize_segment(segment->imported_segment, byte_count);
+							// TODO: wrap-around
 						}
 						return;
 					} else if(FIXED_LENGTH(address) && ARRAY_SIZE_IN(src_storage, src_address) >= byte_count)  {
@@ -1265,8 +1268,25 @@ void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *addr
 	if(SCALAR(address)) {
 		qb_copy_element_to_storage_location(storage, address, dst_storage, dst_address);
 	} else {
+		uint32_t element_count = qb_set_array_dimensions_at_storage_location(storage, address, dst_storage, dst_address);
+
 		if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
-		
+			qb_memory_segment *segment = &storage->segments[address->segment_selector];
+			if(segment->flags & QB_SEGMENT_BORROWED) {
+				// nothing needs to happen
+				return;
+			} else if(segment->flags & QB_SEGMENT_IMPORTED) {
+				qb_memory_segment *dst_segment = &dst_storage->segments[dst_address->segment_selector];
+				uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+				int8_t *memory = ARRAY_IN(dst_storage, I08, dst_address);
+
+				// make sure the segment is large enough
+				if(((dst_segment->flags & QB_SEGMENT_IMPORTED) && dst_segment->imported_segment->byte_count != byte_count) || dst_segment->byte_count != byte_count) {
+					qb_resize_segment(dst_segment, byte_count);
+					// TODO: wrap-around
+				}
+				return;
+			}
 		}
 		qb_copy_elements_to_storage_location(storage, address, dst_storage, dst_address);
 	}

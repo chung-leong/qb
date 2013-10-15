@@ -261,16 +261,6 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
 
-	if(EG(return_value_ptr_ptr)) {
-		// copy value into return variable
-		zval *ret;
-		ALLOC_INIT_ZVAL(ret);
-		*EG(return_value_ptr_ptr) = ret;
-		if(cxt->function->return_variable->address) {
-			qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
-		}
-	}
-
 	// copy changes to by-ref arguments
 	for(i = 0; i < cxt->function->argument_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
@@ -281,6 +271,16 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 				zval *zarg = *p_zarg;
 				qb_transfer_value_to_zval(cxt->function->local_storage, qvar->address, zarg);
 			}
+		}
+	}
+
+	if(EG(return_value_ptr_ptr)) {
+		// copy value into return variable
+		zval *ret;
+		ALLOC_INIT_ZVAL(ret);
+		*EG(return_value_ptr_ptr) = ret;
+		if(cxt->function->return_variable->address) {
+			qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
 		}
 	}
 }
@@ -319,6 +319,7 @@ static void qb_transfer_variables_to_php(qb_interpreter_context *cxt) {
 
 static void qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 	uint32_t received_argument_count = cxt->caller_context->argument_count;
+	uint32_t retval_index = cxt->caller_context->result_index;
 	uint32_t i;
 	for(i = 0; i < cxt->function->argument_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
@@ -330,6 +331,15 @@ static void qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			if(qvar->flags & QB_VARIABLE_BY_REF) {
 				qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address);
 			}
+		}
+	}
+
+	if(retval_index != (uint32_t) -1) {
+		if(cxt->function->return_variable->address) {
+			qb_variable *qvar = cxt->function->return_variable;
+			qb_variable *caller_qvar = cxt->caller_context->function->variables[retval_index];
+			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
+			qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address);
 		}
 	}
 }
