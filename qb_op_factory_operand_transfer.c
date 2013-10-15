@@ -567,6 +567,16 @@ static void qb_transfer_operands_modify_assign(qb_compiler_context *cxt, qb_op_f
 	dest[2] = *result;
 }
 
+static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *value = &operands[0], *precision = &operands[1], *mode = &operands[2];
+	dest[0] = *value;
+	dest[1].address = (precision->type == QB_OPERAND_ADDRESS) ? precision->address : qb_obtain_constant_S32(cxt, 0);
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = (mode->type == QB_OPERAND_ADDRESS) ? mode->address : qb_obtain_constant_S32(cxt, 1);		// PHP_ROUND_HALF_UP
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3] = *result;
+}
+
 static void qb_transfer_operands_one_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *vector = &operands[0];
 	dest[0] = *vector;

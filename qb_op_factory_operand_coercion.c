@@ -138,6 +138,13 @@ static void qb_coerce_operands_fetch_array_element(qb_compiler_context *cxt, qb_
 	qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0);
 }
 
+static void qb_coerce_operands_round(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *value = &operands[0], *precision = &operands[1], *mode = &operands[2];
+	qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags);
+	qb_perform_type_coercion(cxt, precision, QB_TYPE_I32, 0);
+	qb_perform_type_coercion(cxt, mode, QB_TYPE_I32, 0);
+}
+
 static void qb_coerce_operands_fetch_array_size(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *recusive = &operands[1];
 	if(recusive->type != QB_OPERAND_NONE) {

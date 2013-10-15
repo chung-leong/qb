@@ -298,16 +298,8 @@ static uint32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_
 }
 
 static uint32_t qb_get_zval_array_size(zval *zvalue) {
-	if(Z_TYPE_P(zvalue) == IS_ARRAY) {
-		HashTable *ht = Z_ARRVAL_P(zvalue);
-		return ht->nNextFreeElement;
-	} else {
-		if(Z_TYPE_P(zvalue) == IS_NULL) {
-			return 0;
-		} else {
-			return 1;
-		}
-	}
+	HashTable *ht = Z_ARRVAL_P(zvalue);
+	return ht->nNextFreeElement;
 }
 
 static int32_t qb_is_linear_zval_array(zval *zvalue) {
@@ -445,6 +437,7 @@ static uint32_t qb_set_array_dimensions_from_zval(qb_storage *storage, qb_addres
 	php_stream *stream;
 
 	switch(Z_TYPE_P(zvalue)) {
+		case IS_CONSTANT_ARRAY:
 		case IS_ARRAY: {
 			return qb_set_array_dimensions_from_array(storage, address, zvalue);
 		}

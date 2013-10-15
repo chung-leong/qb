@@ -328,6 +328,14 @@ static void qb_set_result_dimensions_largest_of_three(qb_compiler_context *cxt, 
 	qb_choose_dimensions_from_three_addresses(cxt, first->address, 0, second->address, 0, third->address, 0, dim);
 }
 
+static void qb_set_result_dimensions_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	switch(operand_count) {
+		case 1: qb_set_result_dimensions_first_operand(cxt, f, operands, operand_count, dim); break;
+		case 2: qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim); break;
+		case 3: qb_set_result_dimensions_largest_of_three(cxt, f, operands, operand_count, dim); break;
+	}
+}
+
 static void qb_set_result_dimensions_length(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *vector_address = operands[0].address;
 	qb_copy_address_dimensions(cxt, vector_address, -1, dim);

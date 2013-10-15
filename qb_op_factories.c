@@ -3043,13 +3043,13 @@ qb_float_op_factory factory_fract = {
 qb_float_op_factory factory_round = {
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands_all,
+	qb_coerce_operands_round,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_temporary_value,
-	qb_set_result_dimensions_largest_of_three,
+	qb_set_result_dimensions_round,
 	qb_select_opcode_basic,
-	qb_transfer_operands_all,
+	qb_transfer_operands_round,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,

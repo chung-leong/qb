@@ -2103,44 +2103,51 @@ static qb_primitive_type qb_get_array_initializer_type(qb_compiler_context *cxt,
 }
 
 qb_primitive_type qb_get_operand_type(qb_compiler_context *cxt, qb_operand *operand, uint32_t flags) {
+	qb_primitive_type type = QB_TYPE_ANY;
 	if(operand->type == QB_OPERAND_ADDRESS) {
-		if(flags & QB_COERCE_TO_INTEGER && operand->address->type >= QB_TYPE_F32) {
-			if(flags & QB_COERCE_TO_UNSIGNED) {
-				return QB_TYPE_U64;
-			} else {
-				return QB_TYPE_I64;
-			}
-		} else if(flags & QB_COERCE_TO_FLOATING_POINT && operand->address->type < QB_TYPE_F32) {
-			if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
-				return QB_TYPE_F64;
-			} else if(operand->address->type >= QB_TYPE_S64) {
-				return QB_TYPE_F64;
-			} else {
-				return QB_TYPE_F32;
-			}
-		} else if(flags & QB_COERCE_TO_SIGNED) {
-			return operand->address->type & ~QB_TYPE_UNSIGNED;
-		} else if(flags & QB_COERCE_TO_UNSIGNED) {
-			return operand->address->type | QB_TYPE_UNSIGNED;
-		}
-		return operand->address->type;
+		type = operand->address->type;
 	} else if(operand->type == QB_OPERAND_ZVAL) {
 		if(!(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
-			return qb_get_zval_type(cxt, operand->constant, flags);
+			type = qb_get_zval_type(cxt, operand->constant, flags);
 		}
 	} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
-		return qb_get_array_initializer_type(cxt, operand->array_initializer, flags);
+		type = qb_get_array_initializer_type(cxt, operand->array_initializer, flags);
 	} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		if(operand->result_prototype->final_type != QB_TYPE_UNKNOWN) {
-			return operand->result_prototype->final_type;
+			type = operand->result_prototype->final_type;
 		} 
 		if(!(flags & QB_RETRIEVE_DEFINITE_TYPE_ONLY)) {
 			if(operand->result_prototype->preliminary_type != QB_TYPE_UNKNOWN) {
-				return operand->result_prototype->preliminary_type;
+				type = operand->result_prototype->preliminary_type;
 			}
 		}
 	}
-	return QB_TYPE_ANY;
+	if(type != QB_TYPE_ANY) {
+		if(flags & QB_COERCE_TO_INTEGER) {
+			if(type >= QB_TYPE_F32) {
+				if(flags & QB_COERCE_TO_UNSIGNED) {
+					type = QB_TYPE_U64;
+				} else {
+					type = QB_TYPE_I64;
+				}
+			} else if(flags & QB_COERCE_TO_SIGNED) {
+				type &= ~QB_TYPE_UNSIGNED;
+			} else if(flags & QB_COERCE_TO_UNSIGNED) {
+				type |= ~QB_TYPE_UNSIGNED;
+			}
+		} else if(flags & QB_COERCE_TO_FLOATING_POINT) {
+			if(type < QB_TYPE_F32) {
+				if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
+					type = QB_TYPE_F64;
+				} else if(type >= QB_TYPE_S64) {
+					type = QB_TYPE_F64;
+				} else {
+					type = QB_TYPE_F32;
+				}
+			}
+		}
+	}
+	return type;
 }
 
 qb_primitive_type qb_get_property_type(qb_compiler_context *cxt, qb_operand *container, qb_operand *name) {
