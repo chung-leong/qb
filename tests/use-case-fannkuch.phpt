@@ -66,7 +66,7 @@ function Fannkuch($n){
 $n = 10;
 
 list($checksum,$pf) = Fannkuch($n);
-printf("Checksum = %d\nPfannkuchen(%d) = %d", $checksum, $n, $pf);
+printf("Checksum = %d\nPfannkuchen(%d) = %d\n", $checksum, $n, $pf);
 
 ?>
 --EXPECT--

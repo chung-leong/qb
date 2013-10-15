@@ -546,8 +546,12 @@ void qb_assign_storage_space(qb_compiler_context *cxt) {
 	// update the address aliases
 	for(i = 0; i < cxt->address_alias_count; i++) {
 		qb_address *address = cxt->address_aliases[i];
-		address->segment_selector = address->source_address->segment_selector;
-		address->segment_offset = address->source_address->segment_offset;
+		if(address->segment_selector == QB_SELECTOR_INVALID) {
+			address->segment_selector = address->source_address->segment_selector;
+		}
+		if(address->segment_offset == QB_OFFSET_INVALID) {
+			address->segment_offset = address->source_address->segment_offset;
+		}
 		if(address->mode == QB_ADDRESS_MODE_SCA && address->array_index_address != cxt->zero_address) {
 			// add the offset
 			uint32_t index = VALUE(U32, address->array_index_address);
@@ -819,9 +823,9 @@ qb_address * qb_obtain_constant_boolean(qb_compiler_context *cxt, int32_t value)
 
 qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 
-static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions, uint32_t dimension_count, qb_address *address) {
+static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions, uint32_t dimension_count, qb_address *address, int32_t zero_means_unknown) {
 	if(dimension_count == 1) {
-		if(dimensions[0] == 0) {
+		if(dimensions[0] == 0 && zero_means_unknown) {
 			// if it's zero, it's unknown at compile time
 			address->array_size_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
 			address->flags |= QB_ADDRESS_RESIZABLE;
@@ -841,7 +845,7 @@ static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions,
 		for(i = dimension_count - 1; (int32_t) i >= 0; i--) {
 			uint32_t dimension = dimensions[i];
 			array_size *= dimension;
-			if(dimension == 0) {
+			if(dimension == 0 && zero_means_unknown) {
 				dimension_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
 				address->flags |= QB_ADDRESS_RESIZABLE;
 			} else {
@@ -849,7 +853,7 @@ static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions,
 			}
 			if(i == dimension_count - 1) {
 				array_size_address = dimension_address;
-			} else if(dimension == 0) {
+			} else if(dimension == 0 && zero_means_unknown) {
 				array_size_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
 			} else {
 				array_size_address = qb_obtain_constant_U32(cxt, array_size);
@@ -868,7 +872,7 @@ qb_address * qb_create_constant_array(qb_compiler_context *cxt, qb_primitive_typ
 	address->type = element_type;
 	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT | QB_ADDRESS_ALWAYS_IN_BOUND;	
 	address->array_index_address = cxt->zero_address;
-	qb_attach_dimensions(cxt, dimensions, dimension_count, address);
+	qb_attach_dimensions(cxt, dimensions, dimension_count, address, FALSE);
 	qb_allocate_storage_space(cxt, address, TRUE);
 	qb_add_constant_array(cxt, address);
 	return address;
@@ -894,23 +898,10 @@ qb_address * qb_obtain_constant_indices(qb_compiler_context *cxt, uint32_t *indi
 			}
 		}
 	}
-	if(index_count == 0) {
-		// it's an empty array
-		address = qb_allocate_address(cxt->pool);
-		address->mode = QB_ADDRESS_MODE_ARR;
-		address->type = QB_TYPE_U32;
-		address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT | QB_ADDRESS_ALWAYS_IN_BOUND;	
-		address->array_index_address = cxt->zero_address;
-		address->array_size_address = cxt->zero_address;
-		address->dimension_addresses = address->array_size_addresses = &address->array_size_address;
-		address->dimension_count = 1;
-		qb_add_constant_array(cxt, address);
-	} else {
-		address = qb_create_constant_array(cxt, QB_TYPE_U32, &index_count, 1);
-		values = ARRAY(U32, address);
-		for(j = 0; j < index_count; j++) {
-			values[j] = indices[j];
-		}
+	address = qb_create_constant_array(cxt, QB_TYPE_U32, &index_count, 1);
+	values = ARRAY(U32, address);
+	for(j = 0; j < index_count; j++) {
+		values[j] = indices[j];
 	}
 	return address;
 }
@@ -1304,7 +1295,7 @@ qb_address * qb_create_writable_array(qb_compiler_context *cxt, qb_primitive_typ
 	address->segment_selector = QB_SELECTOR_INVALID;
 	address->segment_offset = QB_OFFSET_INVALID;
 	address->array_index_address = cxt->zero_address;
-	qb_attach_dimensions(cxt, dimensions, dimension_count, address);
+	qb_attach_dimensions(cxt, dimensions, dimension_count, address, TRUE);
 	qb_add_writable_array(cxt, address);
 	return address;
 }
@@ -2735,7 +2726,7 @@ static void qb_finalize_result_prototype(qb_compiler_context *cxt, qb_result_pro
 					parent_type = result_prototype->parent->final_type;
 
 					// see what the result is--promote the expression to it if it's higher
-					if(parent_type != QB_TYPE_ANY) {
+					if(parent_type != QB_TYPE_ANY && parent_type != QB_TYPE_UNKNOWN) {
 						if(parent_type > expr_type || expr_type == QB_TYPE_ANY) {
 							if(!(parent_type >= QB_TYPE_F32 && (result_prototype->coercion_flags & QB_COERCE_TO_INTEGER))) { 
 								expr_type = parent_type;
@@ -3423,16 +3414,22 @@ void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 
 static zend_op_array *qb_find_zend_op_array(qb_function_declaration *decl TSRMLS_DC) {
 	HashTable *ft;
-	zend_function *zfunc;
+	zend_function *zfunc = NULL;
+	uint32_t name_len = strlen(decl->function_name);
+	char *name;
+	ALLOCA_FLAG(use_heap)
+
 	if(decl->class_declaration) {
 		ft = &decl->class_declaration->zend_class->function_table;
 	} else {
 		ft = EG(function_table);
 	}
-	if(zend_hash_find(ft, decl->function_name, strlen(decl->function_name) + 1, &zfunc) == SUCCESS) {
-		return &zfunc->op_array;
-	}
-	return NULL;
+	name = do_alloca(name_len + 1, use_heap);
+	zend_str_tolower_copy(name, decl->function_name, name_len);
+	zend_hash_find(ft, name, name_len + 1, &zfunc);
+	free_alloca(name, use_heap);
+
+	return (zfunc) ? &zfunc->op_array : NULL;
 }
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC) {

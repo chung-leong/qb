@@ -111,7 +111,12 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address, int32
 			qb_print_address(cxt, address->source_address, TRUE);
 			if(!ignore_index) {
 				php_printf("[");
-				qb_print_address(cxt, address->array_index_address, FALSE);
+				if(address->segment_offset != QB_OFFSET_INVALID) {
+					uint32_t index = ELEMENT_COUNT(address->segment_offset, address->type);
+					php_printf("%d", index);
+				} else {
+					qb_print_address(cxt, address->array_index_address, FALSE);
+				}
 				php_printf("]");
 			}
 		} else {

@@ -671,39 +671,41 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 			uint32_t op_flags = qb_get_op_flags(opcode);
 			const char *format = qb_get_op_format(opcode), *s;
 
-			if(initializing) {
-				// update next handler
-				void **p_handler = (void **) ip;
-				qb_opcode next_opcode = (qb_opcode) *p_handler;
-				*p_handler = (void *) next_opcode; // op_handlers[next_opcode];
-			}
-			ip += sizeof(void *);
-
 			if(op_flags & QB_OP_EXIT) {
 				// nothing
-			} else if(op_flags & QB_OP_BRANCH) {
-				// update instruction pointer
-				int8_t **p_ip = (int8_t **) ip;
-				SHIFT_POINTER(*p_ip, instruction_shift);
-				ip += sizeof(int8_t *);
-
+			} else {
 				if(initializing) {
-					// update second next handler
+					// update next handler
 					void **p_handler = (void **) ip;
 					qb_opcode next_opcode = (qb_opcode) *p_handler;
 					*p_handler = (void *) next_opcode; // op_handlers[next_opcode];
 				}
 				ip += sizeof(void *);
 
-				// update second instruction pointer
-				p_ip = (int8_t **) ip;
-				SHIFT_POINTER(*p_ip, instruction_shift);
-				ip += sizeof(int8_t *);
-			} else if(op_flags & QB_OP_JUMP) {
-				int8_t **p_ip = (int8_t **) ip;
-				SHIFT_POINTER(*p_ip, instruction_shift);
+				if(op_flags & QB_OP_BRANCH) {
+					// update instruction pointer
+					int8_t **p_ip = (int8_t **) ip;
+					SHIFT_POINTER(*p_ip, instruction_shift);
+					ip += sizeof(int8_t *);
 
-				ip += sizeof(int8_t *);
+					if(initializing) {
+						// update second next handler
+						void **p_handler = (void **) ip;
+						qb_opcode next_opcode = (qb_opcode) *p_handler;
+						*p_handler = (void *) next_opcode; // op_handlers[next_opcode];
+					}
+					ip += sizeof(void *);
+
+					// update second instruction pointer
+					p_ip = (int8_t **) ip;
+					SHIFT_POINTER(*p_ip, instruction_shift);
+					ip += sizeof(int8_t *);
+				} else if(op_flags & QB_OP_JUMP) {
+					int8_t **p_ip = (int8_t **) ip;
+					SHIFT_POINTER(*p_ip, instruction_shift);
+
+					ip += sizeof(int8_t *);
+				}
 			}
 			
 			for(s = format; *s != '\0'; s++) {
@@ -792,8 +794,8 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 	cxt->op_count = compiler_cxt->op_count;
 	cxt->initialization_op_count = compiler_cxt->initialization_op_count;
 
-	// map stuff half way up the entire address space initially
-	cxt->instruction_base_address = ((uintptr_t) -1) / 2;
+	// map stuff half and a quarter way up the entire address space initially
+	cxt->instruction_base_address = ((uintptr_t) -1) / 4;
 	cxt->storage_base_address = ((uintptr_t) -1) / 2;
 
 	SAVE_TSRMLS
