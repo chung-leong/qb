@@ -318,7 +318,20 @@ static void qb_transfer_variables_to_php(qb_interpreter_context *cxt) {
 }
 
 static void qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
-	// TODO
+	uint32_t received_argument_count = cxt->caller_context->argument_count;
+	uint32_t i;
+	for(i = 0; i < cxt->function->argument_count; i++) {
+		qb_variable *qvar = cxt->function->variables[i];
+
+		if(i < received_argument_count) {
+			uint32_t argument_index = cxt->caller_context->argument_indices[i];
+			qb_variable *caller_qvar = cxt->caller_context->function->variables[argument_index];
+			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
+			if(qvar->flags & QB_VARIABLE_BY_REF) {
+				qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address);
+			}
+		}
+	}
 }
 
 static void qb_transfer_variables_to_external_sources(qb_interpreter_context *cxt) {

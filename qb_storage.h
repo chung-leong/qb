@@ -246,7 +246,7 @@ typedef gdImage * gdImagePtr;
 void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags);
 void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address, uint32_t transfer_flags);
 void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue);
-void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *src_address);
+void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address);
 
 void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count);
 void qb_release_segment(qb_memory_segment *segment);

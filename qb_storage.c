@@ -1186,8 +1186,45 @@ void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *ad
 	if(SCALAR(address)) {
 		qb_copy_element_from_storage_location(storage, address, src_storage, src_address);
 	} else {
+		uint32_t element_count = qb_set_array_dimensions_from_storage_location(storage, address, src_storage, src_address);
+
 		if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
-		
+			qb_memory_segment *segment = &storage->segments[address->segment_selector];
+			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+			if(transfer_flags & QB_TRANSFER_CAN_BORROW_MEMORY) {
+				if(src_address->segment_selector < QB_SELECTOR_ARRAY_START) {
+					// the incoming value is a fixed length array or scalar
+					// use the memory there unless the function resizes the argument
+					if(READ_ONLY(address->array_size_address)) {
+						int8_t *memory = ARRAY_IN(src_storage, I08, src_address);
+						uint32_t bytes_available = ARRAY_SIZE_IN(src_storage, src_address);
+						if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, FALSE)) {
+							return;
+						}
+					}
+				} else {
+					if(VARIABLE_LENGTH(src_address)) {
+						qb_memory_segment *src_segment = &src_storage->segments[src_address->segment_selector];
+						if(src_segment->flags & QB_SEGMENT_IMPORTED) {
+							// the incoming value is an imported segment--import it 
+							qb_import_segment(segment, src_segment->imported_segment);
+						} else {
+							qb_import_segment(segment, src_segment);
+						}
+						if(segment->imported_segment->byte_count != byte_count) {
+							qb_resize_segment(segment->imported_segment, byte_count);
+						}
+						return;
+					} else if(FIXED_LENGTH(address) && ARRAY_SIZE_IN(src_storage, src_address) >= byte_count)  {
+						int8_t *memory = ARRAY_IN(src_storage, I08, src_address);
+						uint32_t bytes_available = ARRAY_SIZE_IN(src_storage, src_address);
+						if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, FALSE)) {
+							return;
+						}
+					}
+				}
+			}
+			qb_allocate_segment_memory(segment, byte_count);
 		}
 		qb_copy_elements_from_storage_location(storage, address, src_storage, src_address);
 	}
@@ -1224,7 +1261,14 @@ void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *z
 	}
 }
 
-void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *src_address) {
-	/* TODO */
+void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
+	if(SCALAR(address)) {
+		qb_copy_element_to_storage_location(storage, address, dst_storage, dst_address);
+	} else {
+		if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
+		
+		}
+		qb_copy_elements_to_storage_location(storage, address, dst_storage, dst_address);
+	}
 }
 
