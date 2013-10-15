@@ -274,23 +274,24 @@ static uint32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_
 
 	// make sure the number of bytes is a multiple of the entry size
 	if(byte_count != dimension * element_byte_count) {
+		// TODO: change this to a warning
 		qb_abort("Number of bytes in string (%d) is not divisible by the size of each array entry (%d)", byte_count, element_byte_count);
 	}
 
 	dimension_address = address->dimension_addresses[0];
-	dimension_expected = VALUE_IN(storage, U32, dimension_address);
-	if(dimension > dimension_expected) {
-		if(CONSTANT(dimension_address)) {
-			// dimension is defined
+	if(CONSTANT(dimension_address)) {
+		// dimension is defined
+		dimension_expected = VALUE_IN(storage, U32, dimension_address);
+		if(dimension > dimension_expected) {
 			qb_abort("Number of entries (%d) exceeds the declared size of the array (%d)", dimension, dimension_expected);
 		}
+		element_count = ARRAY_SIZE_IN(storage, address);
+	} else {
 		VALUE_IN(storage, U32, dimension_address) = dimension;
 		if(address->dimension_count > 1) {
 			// set the array size as well (since it's not the same as the dimension)
-			VALUE_IN(storage, U32, address->array_size_address) = element_count;
+			ARRAY_SIZE_IN(storage, address) = element_count;
 		}
-	} else if(dimension < dimension_expected) {
-		element_count = VALUE_IN(storage, U32, address->array_size_address);
 	}
 	return element_count;
 }

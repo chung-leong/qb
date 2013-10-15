@@ -319,9 +319,6 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 	if(address->array_size_address == src_size_address) {
 		// size match: no bound-checking needed
 		return address;
-	} else if(cxt->one_address == src_size_address) {
-		// a scalar will not cause overrun
-		return address;
 	} else {
 		if(CONSTANT(address->array_size_address) && CONSTANT(src_size_address)) {
 			uint32_t dst_size = VALUE(U32, address->array_size_address);
@@ -338,9 +335,14 @@ qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_addres
 			void *factory = (address->dimension_count > 1) ? &factory_accommodate_array_size_update_dimension : &factory_accommodate_array_size;
 			return qb_obtain_on_demand_value(cxt, factory, operands, 2);
 		} else {
-			// need to guard against overrun
-			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address }, { QB_OPERAND_ADDRESS, src_size_address } };
-			return qb_obtain_on_demand_value(cxt, &factory_guard_array_size, operands, 2);
+			if(cxt->one_address == src_size_address) {
+				// a scalar will not cause overrun
+				return address;
+			} else {
+				// need to guard against overrun
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, address }, { QB_OPERAND_ADDRESS, src_size_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_size, operands, 2);
+			}
 		}
 	}
 }

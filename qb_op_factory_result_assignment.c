@@ -165,7 +165,7 @@ static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op
 
 	if(expr_type != QB_TYPE_VOID) {
 		qb_address *result_address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_WRITE);
-		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address, FALSE);
+		result->address = qb_obtain_bound_checked_address(cxt, value->address->array_size_address, result_address, TRUE);
 		result->type = QB_OPERAND_ADDRESS;
 	}
 }

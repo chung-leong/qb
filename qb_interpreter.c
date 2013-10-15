@@ -635,6 +635,16 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 
 	qb_refresh_imported_variables(cxt);
 
+	for(i = 0; i < argument_count; i++) {
+		// if argument info is missing, then assume it's by ref
+		int32_t by_ref = (zfunc->common.arg_info) ? zfunc->common.arg_info[i].pass_by_reference : TRUE;
+		if(by_ref) {
+			uint32_t var_index = variable_indices[i];
+			qb_variable *var = cxt->function->variables[var_index];
+			qb_transfer_value_from_zval(cxt->function->local_storage, var->address, arguments[i], QB_TRANSFER_CAN_SEIZE_MEMORY);
+		}
+	}
+
 	if(result_index != -1) {
 		qb_variable *retvar = cxt->function->variables[result_index];
 		qb_transfer_value_from_zval(cxt->function->local_storage, retvar->address, retval, QB_TRANSFER_CAN_SEIZE_MEMORY);
