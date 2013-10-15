@@ -578,24 +578,11 @@ static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *
 }
 
 static void qb_transfer_operands_one_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_operand *vector = &operands[0];
-	dest[0] = *vector;
-	if(dest_count == 3) {
-		dest[1].type = QB_OPERAND_ADDRESS;
-		dest[1].address = vector->address;
-		dest[2] = *result;
-	} else {
-		dest[1] = *result;
-	}
-}
-
-static void qb_transfer_operands_two_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[0];
 	if(dest_count == 3) {
-		// need the dimension
-		qb_address *address = operands[0].address;
+		qb_address *address1 = operands[0].address;		
 		dest[1].type = QB_OPERAND_ADDRESS;
-		dest[1].address = address->dimension_addresses[address->dimension_count - 1];
+		dest[1].address = address1->dimension_addresses[address1->dimension_count - 1];
 		dest[2] = *result;
 	} else {
 		dest[1] = *result;
@@ -724,9 +711,9 @@ static void qb_transfer_operands_vm_mult_cm(qb_compiler_context *cxt, qb_op_fact
 	if(dest_count == 5) {
 		qb_address *m1_address = operands[0].address;
 		qb_address *m2_address = operands[1].address;
-		qb_address *m1_col_address = m2_address->dimension_addresses[m2_address->dimension_count - 1];
-		qb_address *m2_row_address = m1_address->dimension_addresses[m1_address->dimension_count - 1];
-		qb_address *m2_col_address = m1_address->dimension_addresses[m1_address->dimension_count - 2];
+		qb_address *m1_col_address = m1_address->dimension_addresses[m1_address->dimension_count - 1];
+		qb_address *m2_row_address = m2_address->dimension_addresses[m2_address->dimension_count - 1];
+		qb_address *m2_col_address = m2_address->dimension_addresses[m2_address->dimension_count - 2];
 		dest[2].address = m2_row_address;
 		dest[2].type = QB_OPERAND_ADDRESS;
 		dest[3].address = m2_col_address;

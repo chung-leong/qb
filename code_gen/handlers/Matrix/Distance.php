@@ -2,7 +2,7 @@
 
 class Distance extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, UnitResult, FloatingPointOnly;
+	use MultipleAddressMode, BinaryOperator, FloatingPointOnly;
 
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {
@@ -41,7 +41,7 @@ class Distance extends Handler {
 			switch($i) {
 				case 1: return $this->operandSize;
 				case 2: return $this->operandSize;
-				case 3: return $this->operandSize;
+				case 3: return 1;
 			}
 		}
 	}

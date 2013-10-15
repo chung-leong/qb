@@ -2,7 +2,7 @@
 
 class DotProduct extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, UnitResult, FloatingPointOnly;
+	use MultipleAddressMode, BinaryOperator, FloatingPointOnly;
 	
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {

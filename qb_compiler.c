@@ -2130,11 +2130,7 @@ qb_primitive_type qb_get_operand_type(qb_compiler_context *cxt, qb_operand *oper
 				} else {
 					type = QB_TYPE_I64;
 				}
-			} else if(flags & QB_COERCE_TO_SIGNED) {
-				type &= ~QB_TYPE_UNSIGNED;
-			} else if(flags & QB_COERCE_TO_UNSIGNED) {
-				type |= ~QB_TYPE_UNSIGNED;
-			}
+			} 
 		} else if(flags & QB_COERCE_TO_FLOATING_POINT) {
 			if(type < QB_TYPE_F32) {
 				if(flags & QB_COERCE_TO_INTEGER_TO_DOUBLE) {
@@ -2144,6 +2140,13 @@ qb_primitive_type qb_get_operand_type(qb_compiler_context *cxt, qb_operand *oper
 				} else {
 					type = QB_TYPE_F32;
 				}
+			}
+		}
+		if(type <= QB_TYPE_S64) {
+			if(flags & QB_COERCE_TO_SIGNED) {
+				type &= ~QB_TYPE_UNSIGNED;
+			} else if(flags & QB_COERCE_TO_UNSIGNED) {
+				type |= ~QB_TYPE_UNSIGNED;
 			}
 		}
 	}

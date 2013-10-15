@@ -3428,7 +3428,7 @@ qb_basic_op_factory factory_abs = {
 	QB_COERCE_TO_SIGNED,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
-	{	QB_ABS_F64_F64,	QB_ABS_F32_F32,	0,	QB_ABS_S64_S64,	0,	QB_ABS_S32_S32,	0,	QB_ABS_S16_S16,	0,	QB_ABS_S08_S08,	},
+	{	QB_ABS_F64_F64,	QB_ABS_F32_F32,	QB_NOP,	QB_ABS_S64_S64,	QB_NOP,	QB_ABS_S32_S32,	QB_NOP,	QB_ABS_S16_S16,	QB_NOP,	QB_ABS_S08_S08,	},
 };
 
 qb_minmax_op_factory factory_min = {
@@ -3549,7 +3549,7 @@ qb_vector_op_factory factory_distance = {
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_dot_product,
 	qb_select_opcode_one_vector,
-	qb_transfer_operands_one_vector,
+	qb_transfer_operands_two_vectors,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,

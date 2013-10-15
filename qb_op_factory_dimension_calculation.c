@@ -125,6 +125,17 @@ static qb_address * qb_obtain_larger_of_two(qb_compiler_context *cxt, qb_address
 	}
 }
 
+static uint32_t qb_get_minimum_size_address(qb_compiler_context *cxt, qb_variable_dimensions *dim) {
+	uint32_t i;
+	for(i = 0; i < dim->dimension_count; i++) {
+		qb_address *size_address = dim->array_size_addresses[i];
+		if(CONSTANT(size_address)) {
+			return VALUE(U32, size_address);
+		}
+	}
+	return 1;
+}
+
 static void qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variable_dimensions *dim1, qb_variable_dimensions *dim2, qb_variable_dimensions *dim) {
 	qb_variable_dimensions *dim_chosen = NULL;
 	if(SCALAR(dim1)) {
@@ -147,7 +158,18 @@ static void qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variable_
 			// use the first otherwise
 			dim_chosen = dim1;
 		}
-	} 
+	} else if(FIXED_LENGTH(dim1)) {
+		uint32_t min_width2 = qb_get_minimum_size_address(cxt, dim2);
+		if(min_width2 >= ARRAY_SIZE(dim1)) {
+			// two is either zero-length (which results in a zero-length result) or it's bigger than one
+			dim_chosen = dim2;
+		}
+	} else if(FIXED_LENGTH(dim2)) {
+		uint32_t min_width1 = qb_get_minimum_size_address(cxt, dim1);
+		if(min_width1 >= ARRAY_SIZE(dim2)) {
+			dim_chosen = dim1;
+		}
+	}
 	if(dim_chosen) {
 		// we can figure one which to use now
 		uint32_t i;
@@ -227,6 +249,21 @@ static void qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_variabl
 			dim_chosen = dim2;
 		} else {
 			// use the first otherwise
+			dim_chosen = dim1;
+		}
+	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2)) {
+		uint32_t min_width3 = qb_get_minimum_size_address(cxt, dim3);
+		if(min_width3 >= ARRAY_SIZE(dim1) && min_width3 >= ARRAY_SIZE(dim2)) {
+			dim_chosen = dim3;
+		}
+	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim3)) {
+		uint32_t min_width2 = qb_get_minimum_size_address(cxt, dim2);
+		if(min_width2 >= ARRAY_SIZE(dim1) && min_width2 >= ARRAY_SIZE(dim3)) {
+			dim_chosen = dim2;
+		}
+	} else if(FIXED_LENGTH(dim2) && FIXED_LENGTH(dim3)) {
+		uint32_t min_width1 = qb_get_minimum_size_address(cxt, dim1);
+		if(min_width1 >= ARRAY_SIZE(dim2) && min_width1 >= ARRAY_SIZE(dim3)) {
 			dim_chosen = dim1;
 		}
 	}
