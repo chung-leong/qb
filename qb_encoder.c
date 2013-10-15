@@ -57,7 +57,7 @@ static zend_always_inline void * qb_get_pointer(qb_encoder_context *cxt, qb_addr
 		// add the base address so we know it's pointing to a preallocated segment
 		return (void *) (cxt->storage_base_address + address->segment_offset + ((uintptr_t) segment->memory - (uintptr_t) cxt->storage));
 	} else {
-		return (void *) (0 + address->segment_offset);
+		return (void *) (uintptr_t) (0 + address->segment_offset);
 	}
 }
 
@@ -77,7 +77,7 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 			*p_ip += sizeof(qb_pointer_ELE);
 
 			qb_add_segment_reference(cxt, address, &p->data_pointer);
-			qb_add_segment_reference(cxt, address->array_index_address, &p->index_pointer);
+			qb_add_segment_reference(cxt, address->array_index_address, (void **) &p->index_pointer);
 		}	break;
 		case QB_ADDRESS_MODE_ARR: {
 			qb_pointer_ARR *p = ((qb_pointer_ARR *) *p_ip);
@@ -87,8 +87,8 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 			*p_ip += sizeof(qb_pointer_ARR);
 
 			qb_add_segment_reference(cxt, address, &p->data_pointer);
-			qb_add_segment_reference(cxt, address->array_index_address, &p->index_pointer);
-			qb_add_segment_reference(cxt, address->array_size_address, &p->count_pointer);
+			qb_add_segment_reference(cxt, address->array_index_address, (void **) &p->index_pointer);
+			qb_add_segment_reference(cxt, address->array_size_address, (void **) &p->count_pointer);
 		}	break;
 		default:
 			qb_abort("invalid address type");
@@ -448,7 +448,7 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->zend_op_array = cxt->compiler_context->zend_op_array;
 	qfunc->flags = cxt->compiler_context->function_flags;
 	qfunc->instruction_base_address = cxt->instruction_base_address;
-	qfunc->instruction_start = cxt->instruction_base_address;
+	qfunc->instruction_start = (int8_t *) cxt->instruction_base_address;
 	qfunc->local_storage_base_address = cxt->storage_base_address;
 	qfunc->next_reentrance_copy = NULL;
 	qfunc->next_forked_copy = NULL;
@@ -713,22 +713,22 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 					case 'S':
 					case 's': {
 						qb_pointer_SCA *p = (qb_pointer_SCA *) ip;
-						qb_adjust_pointer(&p->data_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer((void **) &p->data_pointer, range_start, range_end, storage_shift);
 						ip += sizeof(qb_pointer_SCA);
 					}	break;
 					case 'E':
 					case 'e': {
 						qb_pointer_ELE *p = (qb_pointer_ELE *) ip;
-						qb_adjust_pointer(&p->data_pointer, range_start, range_end, storage_shift);
-						qb_adjust_pointer(&p->index_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer((void **) &p->data_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer((void **) &p->index_pointer, range_start, range_end, storage_shift);
 						ip += sizeof(qb_pointer_ELE);
 					}	break;	
 					case 'A':
 					case 'a': {
 						qb_pointer_ARR *p = (qb_pointer_ARR *) ip;
-						qb_adjust_pointer(&p->data_pointer, range_start, range_end, storage_shift);
-						qb_adjust_pointer(&p->index_pointer, range_start, range_end, storage_shift);
-						qb_adjust_pointer(&p->count_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer((void **) &p->data_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer((void **) &p->index_pointer, range_start, range_end, storage_shift);
+						qb_adjust_pointer((void **) &p->count_pointer, range_start, range_end, storage_shift);
 						ip += sizeof(qb_pointer_ARR);
 					}	break;
 					case 'c': {

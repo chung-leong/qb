@@ -493,7 +493,6 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 	TSRMLS_FETCH();
 	const char *doc_comment = CG(doc_comment);
 	uint32_t doc_comment_len = CG(doc_comment_len);
-	zend_compiler_globals *cg = ((zend_compiler_globals *) (*((void ***) tsrm_ls))[TSRM_UNSHUFFLE_RSRC_ID(compiler_globals_id)]);
 	if(doc_comment && strstr(doc_comment, "@engine")) {
 		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
 		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);

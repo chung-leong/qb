@@ -3433,7 +3433,7 @@ static zend_op_array *qb_find_zend_op_array(qb_function_declaration *decl TSRMLS
 	}
 	name = do_alloca(name_len + 1, use_heap);
 	zend_str_tolower_copy(name, decl->function_name, name_len);
-	zend_hash_find(ft, name, name_len + 1, &zfunc);
+	zend_hash_find(ft, name, name_len + 1, (void **) &zfunc);
 	free_alloca(name, use_heap);
 
 	return (zfunc) ? &zfunc->op_array : NULL;

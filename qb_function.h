@@ -115,4 +115,4 @@ struct qb_native_code_bundle {
 	uint32_t size;
 };
 
-#endif QB_FUNCTION_H_
+#endif

@@ -78,8 +78,7 @@ if test "$PHP_QB" != "no"; then
     PHP_ADD_LIBRARY(rt,, QB_SHARED_LIBADD)
     ;;
   esac
-  
-  extra_sources="qb_compat.c qb_compiler.c qb_crc64.c qb_data_tables_gcc.c qb_encoder.c qb_extractor.c qb_interpreter.c qb_interpreter_functions_gcc.c qb_interpreter_loop_gcc.c qb_native_compiler.c qb_op_factories.c qb_thread.c qb_translater_pbj.c qb_translater_php.c qb_types.c"
-
+  extra_sources="qb_build.c qb_compat.c qb_crc64.c qb_compiler.c qb_data_tables_gcc.c qb_encoder.c qb_extractor.c qb_interpreter.c qb_interpreter_functions_gcc.c qb_interpreter_loop_gcc.c qb_op.c qb_op_factories.c qb_parser.c qb_printer.c qb_storage.c qb_translater_php.c qb_types.c" 
+ 
   PHP_NEW_EXTENSION(qb, qb.c $extra_sources, $ext_shared, , $qb_cflags)
 fi
