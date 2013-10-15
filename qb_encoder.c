@@ -274,7 +274,7 @@ static uint32_t qb_get_address_length(qb_address *address) {
 	return length;
 }
 
-static uint8_t * qb_copy_address(qb_address *address, int8_t *memory) {
+static int8_t * qb_copy_address(qb_address *address, int8_t *memory) {
 #if ZEND_DEBUG
 	uint32_t length = qb_get_address_length(address);
 #endif
@@ -368,7 +368,7 @@ uint32_t qb_get_variable_length(qb_variable *qvar) {
 	return length;
 }
 
-uint8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory) {
+int8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory) {
 #if ZEND_DEBUG
 	uint32_t length = qb_get_variable_length(qvar);
 #endif
@@ -421,7 +421,6 @@ static uint32_t qb_get_function_structure_size(qb_encoder_context *cxt) {
 static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memory) {
 	int8_t *p = memory;
 	qb_function *qfunc;
-	char *func_name = NULL, *filename = NULL;
 	uint32_t i;
 #if ZEND_DEBUG
 	uint32_t length = qb_get_function_structure_size(cxt);
@@ -657,12 +656,14 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 		range_start = qfunc->local_storage_base_address + ((uintptr_t) segment_start->memory - (uintptr_t) qfunc->local_storage);
 		range_end = qfunc->local_storage_base_address + ((uintptr_t) segment_end->memory - (uintptr_t) qfunc->local_storage) + segment_end->byte_count;
 
+#ifndef _MSC_VER
 		if(initializing) {
 			// update the first next handler
 			void **p_handler = (void **) ip;
 			qb_opcode next_opcode = (qb_opcode) *p_handler;
-			*p_handler = (void *) next_opcode; //op_handlers[next_opcode];
+			*p_handler = op_handlers[next_opcode];
 		}
+#endif
 		ip += sizeof(void *);
 
 		// go through the instructions and fix up pointers to preallocated segments
@@ -674,12 +675,14 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 			if(op_flags & QB_OP_EXIT) {
 				// nothing
 			} else {
+#ifndef _MSC_VER
 				if(initializing) {
 					// update next handler
 					void **p_handler = (void **) ip;
 					qb_opcode next_opcode = (qb_opcode) *p_handler;
-					*p_handler = (void *) next_opcode; // op_handlers[next_opcode];
+					*p_handler = op_handlers[next_opcode];
 				}
+#endif
 				ip += sizeof(void *);
 
 				if(op_flags & QB_OP_BRANCH) {
@@ -688,12 +691,14 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 					SHIFT_POINTER(*p_ip, instruction_shift);
 					ip += sizeof(int8_t *);
 
+#ifndef _MSC_VER
 					if(initializing) {
 						// update second next handler
 						void **p_handler = (void **) ip;
 						qb_opcode next_opcode = (qb_opcode) *p_handler;
-						*p_handler = (void *) next_opcode; // op_handlers[next_opcode];
+						*p_handler = op_handlers[next_opcode];
 					}
+#endif
 					ip += sizeof(void *);
 
 					// update second instruction pointer
@@ -778,11 +783,13 @@ qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance) {
 	return qfunc;
 }
 
+void qb_main(qb_interpreter_context *__restrict cxt);
+
 void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 #ifndef _MSC_VER
 	static int handlers_initialized = FALSE;
 	if(!handlers_initialized) {
-		qb_main(NULL, NULL);
+		qb_main(NULL);
 		handlers_initialized = TRUE;
 	}
 #endif
