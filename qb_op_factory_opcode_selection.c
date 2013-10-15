@@ -184,9 +184,9 @@ static uint32_t qb_get_minimum_width(qb_compiler_context *cxt, qb_operand *opera
 	return width;
 }
 
-static qb_opcode qb_select_vectorized_nullary_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *result) {
-	if(result->address->type >= QB_TYPE_F32) {
-		uint32_t width1 = qb_get_minimum_width(cxt, result);
+static qb_opcode qb_select_vectorized_nullary_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *operand1) {
+	if(operand1->address->type >= QB_TYPE_F32) {
+		uint32_t width1 = qb_get_minimum_width(cxt, operand1);
 		uint32_t denominator;
 		qb_opcode opcode;
 
@@ -199,7 +199,7 @@ static qb_opcode qb_select_vectorized_nullary_opcode(qb_compiler_context *cxt, q
 		} else {
 			return QB_NOP;
 		}
-		opcode = opcodes[denominator - 2][QB_TYPE_F64 - result->address->type];
+		opcode = opcodes[denominator - 2][QB_TYPE_F64 - operand1->address->type];
 		if(width1 > denominator) {
 			opcode = qb_select_multidata_opcode(cxt, opcode);
 		}
@@ -214,6 +214,19 @@ static qb_opcode qb_select_opcode_nullary_arithmetic(qb_compiler_context *cxt, q
 	qb_opcode opcode = qb_select_vectorized_nullary_opcode(cxt, af->vector_opcodes, &operands[0]);
 	if(opcode == QB_NOP) {
 		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operands[0]);
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_opcode_nullary_arithmetic_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_operand *container = &operands[0], *name = &operands[1];
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
+	qb_address *address = (result->type == QB_OPERAND_ADDRESS) ? result->address : qb_obtain_object_property(cxt, container, name, 0);
+	qb_operand operand = { QB_OPERAND_ADDRESS, address };
+	qb_opcode opcode = qb_select_vectorized_nullary_opcode(cxt, af->vector_opcodes, &operand);
+	if(opcode == QB_NOP) {
+		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, &operand);
 	}
 	return opcode;
 }

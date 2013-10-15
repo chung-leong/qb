@@ -308,16 +308,16 @@ static int8_t * qb_copy_address(qb_address *address, int8_t *memory) {
 				if(i == src->dimension_count - 1) {
 					dst->array_size_addresses[i] = dst->dimension_addresses[i];
 				} else {
-					dst->array_size_addresses[i] = (qb_address *) p; p += sizeof(qb_address);
-					*dst->array_size_addresses[i] = *src->array_size_addresses[i];
+					dst->array_size_addresses[i] = (qb_address *) p; 
+					p = qb_copy_address(src->array_size_addresses[i], p);
 				}
 			}
 			dst->array_size_address = dst->array_size_addresses[0];
 		} else {
 			dst->dimension_addresses = &dst->array_size_address;
 			dst->array_size_addresses = &dst->array_size_address;
-			dst->array_size_address = (qb_address *) p; p += sizeof(qb_address);
-			*dst->array_size_address = *src->array_size_address;
+			dst->array_size_address = (qb_address *) p;
+			p = qb_copy_address(src->array_size_address, p);
 		}
 		if(src->index_alias_schemes) {
 			dst->index_alias_schemes = (qb_index_alias_scheme **) p; p += sizeof(qb_index_alias_scheme *) * src->dimension_count;
@@ -383,10 +383,6 @@ int8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory) {
 		memcpy((char *) dst->name, src->name, src->name_length + 1);
 		dst->hash_value = src->hash_value;
 		dst->name_length = src->name_length;
-
-		// since we're going to free the op array later, update the pointer so
-		// cxt->variables continue to point to a valid string (to avoid seeing garbage in the debugger)
-		src->name = dst->name;
 	} else {
 		dst->hash_value = 0;
 		dst->name_length = 0;

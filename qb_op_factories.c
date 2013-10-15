@@ -1124,7 +1124,7 @@ qb_derived_op_factory factory_decrement_post = {
 	&factory_decrement_pre,
 };
 
-qb_arithmetic_op_factory factory_increment_object_property_pre = {
+qb_derived_op_factory factory_increment_object_property_pre = {
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -1132,21 +1132,16 @@ qb_arithmetic_op_factory factory_increment_object_property_pre = {
 	qb_validate_operands_object_property,
 	qb_set_result_fetch_object_property,
 	qb_set_result_dimensions_object_property,
-	qb_select_opcode_nullary_arithmetic,
+	qb_select_opcode_nullary_arithmetic_object_property,
 	qb_transfer_operands_increment_object_property,
 
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	{	QB_INC_F64,	QB_INC_F32,	QB_INC_I64,	QB_INC_I64,	QB_INC_I32,	QB_INC_I32,	QB_INC_I16,	QB_INC_I16,	QB_INC_I08,	QB_INC_I08,	},
-	{
-		{	QB_INC_2X_F64,	QB_INC_2X_F32,	},
-		{	QB_INC_3X_F64,	QB_INC_3X_F32,	},
-		{	QB_INC_4X_F64,	QB_INC_4X_F32,	},
-	},
+	&factory_increment_pre,
 };
 
-qb_arithmetic_op_factory factory_decrement_object_property_pre = {
+qb_derived_op_factory factory_decrement_object_property_pre = {
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -1154,18 +1149,13 @@ qb_arithmetic_op_factory factory_decrement_object_property_pre = {
 	qb_validate_operands_object_property,
 	qb_set_result_fetch_object_property,
 	qb_set_result_dimensions_object_property,
-	qb_select_opcode_nullary_arithmetic,
+	qb_select_opcode_nullary_arithmetic_object_property,
 	qb_transfer_operands_increment_object_property,
 
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	{	QB_DEC_F64,	QB_DEC_F32,	QB_DEC_I64,	QB_DEC_I64,	QB_DEC_I32,	QB_DEC_I32,	QB_DEC_I16,	QB_DEC_I16,	QB_DEC_I08,	QB_DEC_I08,	},
-	{
-		{	QB_DEC_2X_F64,	QB_DEC_2X_F32,	},
-		{	QB_DEC_3X_F64,	QB_DEC_3X_F32,	},
-		{	QB_DEC_4X_F64,	QB_DEC_4X_F32,	},
-	},
+	&factory_decrement_pre,
 };
 
 qb_derived_op_factory factory_increment_object_property_post = {

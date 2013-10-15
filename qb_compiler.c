@@ -470,17 +470,21 @@ void qb_allocate_external_storage_space(qb_compiler_context *cxt, qb_variable *v
 	}
 
 	if(var->address->dimension_count > 0) {
-		// set the locations of the dimensional variables as well
+		// set the locations of the dimensional variables as well if they aren't constant
 		if(var->address->dimension_count == 1) {
-			var->address->array_size_address->segment_selector = ivar->address->array_size_address->segment_selector;
-			var->address->array_size_address->segment_offset = ivar->address->array_size_address->segment_offset;
+			if(!CONSTANT(var->address->array_size_address)) {
+				var->address->array_size_address->segment_selector = ivar->address->array_size_address->segment_selector;
+				var->address->array_size_address->segment_offset = ivar->address->array_size_address->segment_offset;
+			}
 		} else {
 			uint32_t i;
 			for(i = 0; i < var->address->dimension_count; i++) {
-				var->address->array_size_addresses[i]->segment_selector = ivar->address->array_size_addresses[i]->segment_selector;
-				var->address->array_size_addresses[i]->segment_offset = ivar->address->array_size_addresses[i]->segment_offset;
-				var->address->dimension_addresses[i]->segment_selector = ivar->address->dimension_addresses[i]->segment_selector;
-				var->address->dimension_addresses[i]->segment_offset = ivar->address->dimension_addresses[i]->segment_offset;
+				if(!CONSTANT(var->address->array_size_addresses[i])) {
+					var->address->array_size_addresses[i]->segment_selector = ivar->address->array_size_addresses[i]->segment_selector;
+					var->address->array_size_addresses[i]->segment_offset = ivar->address->array_size_addresses[i]->segment_offset;
+					var->address->dimension_addresses[i]->segment_selector = ivar->address->dimension_addresses[i]->segment_selector;
+					var->address->dimension_addresses[i]->segment_offset = ivar->address->dimension_addresses[i]->segment_offset;
+				}
 			}
 		}
 	}
