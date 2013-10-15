@@ -346,7 +346,7 @@ class Handler {
 		$srcCount = $this->getInputOperandCount();
 		$opCount = $this->getOperandCount();
 		$lines = array();
-		$lines[] = "#define INSTR		(($instr *) ip)";
+		$lines[] = "#define INSTR		(($instr * __restrict) ip)";
 		if($this->needsLineNumber()) {
 			$lines[] = "#define line_number		INSTR->line_number";
 		}

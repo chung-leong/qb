@@ -94,7 +94,6 @@ class CodeGenerator {
 		}
 		$lines[] = 			"register void *__restrict handler;";
 		$lines[] = 			"register int8_t *__restrict ip;";
-		$lines[] =			"qb_storage *local_storage = cxt->function->local_storage;";
 		
 		if($compiler == "MSVC") {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
