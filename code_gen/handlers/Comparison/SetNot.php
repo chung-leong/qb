@@ -2,10 +2,10 @@
 
 class SetNot extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, SetOperator, BooleanResult;
+	use ArrayAddressMode, UnaryOperator, BooleanResult;
 
 	protected function getActionOnUnitData() {
-		return "res = (!op1);";
+		return $this->getIterationCode("res = (!op1);");
 	}
 }
 
