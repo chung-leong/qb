@@ -2934,19 +2934,19 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 			}
 		}
 
-	/*
-	for(i = 0; i < operand_count; i++) {
-		qb_address *address = operands[i].address;
-		if(address->mode == QB_ADDRESS_MODE_ELE) {
-			// see if the opcode has an ELE version; most do, but a few do not
-			uint32_t op_flags = qb_get_op_flags(cxt, opcode);
-			if(!(op_flags & QB_OP_VERSION_AVAILABLE_ELE)) {
-				// copy the element to an temporary variable
-				// TODO
+		/*
+		for(i = 0; i < operand_count; i++) {
+			qb_address *address = operands[i].address;
+			if(address->mode == QB_ADDRESS_MODE_ELE) {
+				// see if the opcode has an ELE version; most do, but a few do not
+				uint32_t op_flags = qb_get_op_flags(cxt, opcode);
+				if(!(op_flags & QB_OP_VERSION_AVAILABLE_ELE)) {
+					// copy the element to an temporary variable
+					// TODO
+				}
 			}
 		}
-	}
-	*/
+		*/
 
 		// add the op
 		qb_add_op(cxt, qop);
@@ -3027,6 +3027,9 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 				}
 				result_prototype->coercion_flags = f->coercion_flags;
 				result_prototype->address_flags = f->address_flags;
+			} else {
+				// the translation loop depends on the type getting set to something other than QB_TYPE_UNKNOWN
+				result_prototype->preliminary_type = QB_TYPE_ANY;
 			}
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			// use the result from the previous stage if it's available 

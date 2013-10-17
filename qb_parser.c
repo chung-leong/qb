@@ -729,7 +729,7 @@ void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, ze
 	}
 
 	cxt->pool = pool;
-	cxt->zend_class = NULL;
+	cxt->zend_class = ce;
 	cxt->file_path = filename;
 	cxt->line_number = line_number;
 }

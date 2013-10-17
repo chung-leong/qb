@@ -637,8 +637,8 @@ static void qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb
 			case QB_RESULT_DESTINATION_PROPERTY:
 				return;
 			default:
+				qb_abort("The return value from a regular PHP function must be either saved to a variable or ignored");
 				break;
 		}
 	}
-	qb_abort("The return value from a regular PHP function must be either saved to a variable or ignored");
 }
