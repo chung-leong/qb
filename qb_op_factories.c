@@ -1789,6 +1789,29 @@ qb_arithmetic_op_factory factory_multiply = {
 	},
 };
 
+qb_arithmetic_op_factory factory_multiply_add = {
+	NULL,
+	qb_resolve_expression_type_highest_rank,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_largest_of_three,
+	qb_select_opcode_binary_arithmetic,
+	qb_transfer_operands_all,
+
+	QB_COERCE_TO_LVALUE_TYPE,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_MAC_F64_F64_F64_F64,	QB_MAC_F32_F32_F32_F32,	QB_MAC_U64_U64_U64_U64,	QB_MAC_U64_U64_U64_U64,	QB_MAC_U32_U32_U32_U32,	QB_MAC_U32_U32_U32_U32,	QB_NOP,	QB_NOP,	QB_NOP,	QB_NOP,	},
+	{
+		{	QB_MAC_2X_F64_F64_F64_F64,	QB_MAC_2X_F32_F32_F32_F32,	},
+		{	QB_MAC_3X_F64_F64_F64_F64,	QB_MAC_3X_F32_F32_F32_F32,	},
+		{	QB_MAC_4X_F64_F64_F64_F64,	QB_MAC_4X_F32_F32_F32_F32,	},
+	},
+};
+
 qb_arithmetic_op_factory factory_divide = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,

@@ -269,7 +269,7 @@ static void qb_set_result_foreach_fetch(qb_compiler_context *cxt, qb_op_factory 
 		*extra_result = cxt->foreach_index;
 	}
 	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_array_element(cxt, container->address, cxt->foreach_index.address, FALSE);
+	result->address = qb_obtain_array_element(cxt, container->address, cxt->foreach_index.address, QB_ARRAY_BOUND_CHECK_NONE);
 }
 
 static void qb_set_result_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {

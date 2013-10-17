@@ -47,6 +47,7 @@ typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
 typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
 
 typedef struct qb_op_decomposer					qb_op_decomposer;
+typedef struct qb_fetch_do_op_decomposer		qb_fetch_do_op_decomposer;
 
 typedef void (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
@@ -205,6 +206,12 @@ struct qb_op_decomposer {
 	void *factory;
 };
 
+struct qb_fetch_do_op_decomposer {
+	qb_produce_composite_proc produce_composite;
+	void *fetch_factory;
+	void *do_factory;
+};
+
 extern qb_op_factory factory_nop;
 
 extern qb_copy_op_factory factory_assign;
@@ -313,6 +320,7 @@ extern qb_arithmetic_op_factory factory_multiply;
 extern qb_arithmetic_op_factory factory_divide;
 extern qb_arithmetic_op_factory factory_modulo;
 extern qb_float_op_factory factory_floor_modulo;
+extern qb_arithmetic_op_factory factory_multiply_add;
 
 extern void *factories_add_assign[3];
 extern void *factories_subtract_assign[3];

@@ -30,7 +30,7 @@ static void qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, qb_
 			qb_abort("%s() expects %d to %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count->number);
 		}
 	}
-	qb_produce_op(cxt, func->intrinsic_function->extra, arguments->arguments, argument_count->number, result, jump_target_indices, jump_target_count, result_prototype);
+	qb_produce_op(cxt, func->intrinsic_function->extra, arguments->arguments, argument_count->number, result, NULL, 0, result_prototype);
 	cxt->function_name = NULL;
 }
 
@@ -47,8 +47,23 @@ static void qb_decompose_pairwise_op_series(qb_compiler_context *cxt, void *fact
 		pairwise_result.type = QB_OPERAND_EMPTY;
 		pairwise_result.generic_pointer = NULL;
 		cxt->argument_offset = i - 1;
-		qb_produce_op(cxt, d->factory, operand_pair, 2, &pairwise_result, jump_target_indices, jump_target_count, result_prototype);
+		qb_produce_op(cxt, d->factory, operand_pair, 2, &pairwise_result, NULL, 0, result_prototype);
 		qb_lock_operand(cxt, &pairwise_result);
 	}
 	*result = pairwise_result;
+}
+
+static void qb_decompose_object_property_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_fetch_do_op_decomposer *d = factory;
+	qb_operand fetch_result;
+	qb_result_prototype fetch_result_prototype;
+	qb_operand do_operands[2];
+	
+	// do the fetch first
+	qb_produce_op(cxt, d->fetch_factory, operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
+
+	// perform whatever action
+	do_operands[0] = fetch_result;
+	do_operands[1] = operands[2];
+	qb_produce_op(cxt, d->do_factory, do_operands, operand_count - 1, result, NULL, 0, result_prototype);
 }

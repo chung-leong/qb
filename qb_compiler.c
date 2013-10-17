@@ -382,11 +382,11 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *s
 			// accommodate the input by resizing the array
 			// if it's multidimensional, the dimension has to be updated as well
 			if(address->dimension_count > 1) {
-				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
-				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size, operands, 4);
-			} else {
 				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_ADDRESS, address->dimension_addresses[0] }, { QB_OPERAND_ADDRESS, address->array_size_addresses[1] }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
 				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
+			} else {
+				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
+				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size, operands, 4);
 			}
 		} else {
 			// a scalar will not cause overrun
@@ -2569,9 +2569,11 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 				// a write operation and the array can expand
 				// enlarge the array to accommodate an index larger than the current size
 				// since sub-arrays are never expandable, the offset should always be zero
-				qb_operand operands[5] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
-				return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index_multiply, operands, 5);
-			} else {
+
+				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, container_address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index_multiply, operands, 6);
+
+			} else if(bound_check_flags & (QB_ARRAY_BOUND_CHECK_WRITE | QB_ARRAY_BOUND_CHECK_READ)) {
 				// a read operation or a write to a non-expanding array
 				if(array_offset_address == cxt->zero_address) {
 					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address } };
@@ -2579,6 +2581,14 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 				} else {
 					qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
 					return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_multiply_add, operands, 4);
+				}
+			} else {
+				if(array_offset_address == cxt->zero_address) {
+					qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, sub_array_size_address } };
+					return qb_obtain_on_demand_value(cxt, &factory_multiply, operands, 2);
+				} else {
+					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
+					return qb_obtain_on_demand_value(cxt, &factory_multiply_add, operands, 2);
 				}
 			}
 		}
@@ -2606,7 +2616,7 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 					qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address }  };
 					return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index, operands, 4);
 				}
-			} else {
+			} else if(bound_check_flags & (QB_ARRAY_BOUND_CHECK_WRITE | QB_ARRAY_BOUND_CHECK_READ)) {
 				if(array_offset_address == cxt->zero_address) {
 					qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address } };
 					return qb_obtain_on_demand_value(cxt, &factory_guard_array_index, operands, 2);
@@ -2614,6 +2624,8 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
 					return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_add, operands, 3);
 				}
+			} else {
+				return index_address;
 			}
 		}
 	}
@@ -2981,8 +2993,9 @@ static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *add
 	if(address->expression) {
 		qb_expression *expr = address->expression;
 		address->expression = NULL;
-		qb_create_op(cxt, expr->op_factory, expr->operands, expr->operand_count, expr->result, NULL, 0, TRUE);
+		// set the flag first, in case the op invalidates itself
 		expr->flags |= QB_EXPR_RESULT_IS_STILL_VALID;
+		qb_create_op(cxt, expr->op_factory, expr->operands, expr->operand_count, expr->result, NULL, 0, TRUE);
 	}
 }
 
@@ -3418,13 +3431,13 @@ static int32_t qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t in
 				}
 				if(new_opcode) {
 					qb_operand *new_operands = qb_allocate_operands(cxt->pool, 4);
+					new_operands[0] = qop->operands[0];
+					new_operands[1] = qop->operands[1];
 					if(next_qop->operands[0].address == qop->operands[2].address) {
-						new_operands[0] = next_qop->operands[1];
+						new_operands[2] = next_qop->operands[1];
 					} else {
-						new_operands[0] = next_qop->operands[0];
+						new_operands[2] = next_qop->operands[0];
 					}
-					new_operands[1] = qop->operands[0];
-					new_operands[2] = qop->operands[1];
 					new_operands[3] = next_qop->operands[2];
 					qop->operands = new_operands;
 					qop->operand_count = 4;

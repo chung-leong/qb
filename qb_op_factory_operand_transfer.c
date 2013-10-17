@@ -65,7 +65,7 @@ static void qb_transfer_operands_array_element_isset(qb_compiler_context *cxt, q
 	} else {
 		variable_address = container->address->array_size_addresses[1];
 	}
-	predicate_address = qb_obtain_predicate_address(cxt, container->address, FALSE);
+	predicate_address = qb_obtain_predicate_address(cxt, variable_address, FALSE);
 	dest[0].address = variable_address;
 	dest[0].type = QB_OPERAND_ADDRESS;
 	dest[1].address = predicate_address;
@@ -160,7 +160,7 @@ static void qb_transfer_operands_unset_object_property(qb_compiler_context *cxt,
 static void qb_transfer_operands_object_property_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_ISSET);
-	qb_address *predicate_address = qb_obtain_predicate_address(cxt, container->address, FALSE);
+	qb_address *predicate_address = qb_obtain_predicate_address(cxt, address, FALSE);
 	dest[0].address = SCALAR(address) ? address : address->array_size_address;
 	dest[0].type = QB_OPERAND_ADDRESS;
 	dest[1].address = predicate_address;

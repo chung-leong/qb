@@ -344,6 +344,7 @@ uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address);
 void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar);
 
 enum {
+	QB_ARRAY_BOUND_CHECK_NONE	= 0x0000,
 	QB_ARRAY_BOUND_CHECK_READ	= 0x0001,
 	QB_ARRAY_BOUND_CHECK_WRITE	= 0x0002,
 	QB_ARRAY_BOUND_CHECK_ISSET	= 0x0004,

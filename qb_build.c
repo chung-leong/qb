@@ -93,6 +93,7 @@ static void qb_parse_declarations(qb_build_context *cxt) {
 					class_decl = qb_parse_class_doc_comment(parser_cxt, tag->scope);
 					qb_add_class_declaration(cxt, class_decl);
 				}
+				func_decl->class_declaration = class_decl;
 			}
 		}
 		qb_free_parser_context(parser_cxt);
