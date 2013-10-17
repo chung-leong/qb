@@ -29,7 +29,7 @@ struct qb_build_context {
 	qb_function_tag *function_tags;
 	uint32_t function_tag_count;
 
-	qb_compiler_context *compiler_contexts;
+	qb_compiler_context **compiler_contexts;
 	uint32_t compiler_context_count;
 
 	qb_function_declaration **function_declarations;
@@ -37,8 +37,6 @@ struct qb_build_context {
 
 	qb_class_declaration **class_declarations;
 	uint32_t class_declaration_count;
-
-	uint32_t deferral_count;
 
 	qb_data_pool *pool;
 	qb_data_pool _pool;

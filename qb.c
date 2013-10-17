@@ -441,7 +441,7 @@ qb_function * qb_find_compiled_function(zend_function *zfunc) {
 		TSRMLS_FETCH();
 		build_context = QB_G(build_context);
 		for(i = 0; i < build_context->compiler_context_count; i++) {
-			qb_compiler_context *compiler_cxt = &build_context->compiler_contexts[i];
+			qb_compiler_context *compiler_cxt = build_context->compiler_contexts[i];
 			if(compiler_cxt->function_prototype.zend_op_array == &zfunc->op_array) {
 				return &compiler_cxt->function_prototype;
 			}
@@ -487,6 +487,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 		qb_free_interpreter_context(interpreter_cxt);
 		return ZEND_USER_OPCODE_RETURN;
 	} else {
+		execute_data->opline++;
 		return ZEND_USER_OPCODE_CONTINUE;
 	}
 }

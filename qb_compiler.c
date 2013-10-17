@@ -3551,6 +3551,7 @@ void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 }
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC) {
+	memset(cxt, 0, sizeof(qb_compiler_context));
 	cxt->pool = pool;
 	if(function_decl) {
 		cxt->function_flags = function_decl->flags;

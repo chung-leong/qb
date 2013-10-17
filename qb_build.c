@@ -64,7 +64,7 @@ static zend_op_array *qb_find_zend_op_array(qb_build_context *cxt, qb_function_t
 qb_compiler_context * qb_find_compiler_context(qb_build_context *cxt, qb_function *function_prototype) {
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
-		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 		if(&compiler_cxt->function_prototype == function_prototype) {
 			return compiler_cxt;
 		}
@@ -103,9 +103,11 @@ static void qb_parse_declarations(qb_build_context *cxt) {
 static void qb_initialize_build_environment(qb_build_context *cxt) {
 	USE_TSRM
 	uint32_t i;
-	for(i = 0; i < cxt->function_declaration_count; i++) {
-		qb_compiler_context *compiler_cxt = qb_enlarge_array((void **) &cxt->compiler_contexts, 1);
 
+	cxt->compiler_context_count = cxt->function_declaration_count;
+	cxt->compiler_contexts = emalloc(sizeof(qb_compiler_context *) * cxt->compiler_context_count);
+	for(i = 0; i < cxt->function_declaration_count; i++) {
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i] = emalloc(sizeof(qb_compiler_context));
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, cxt->function_declarations[i], i, cxt->function_declaration_count TSRMLS_CC);
 
 		QB_G(current_filename) = compiler_cxt->zend_op_array->filename;
@@ -117,16 +119,20 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 		qb_initialize_function_prototype(compiler_cxt);
 
 		if(!compiler_cxt->function_declaration->import_path) {
-			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
-
 			// show the zend opcodes if turned on
 			if(QB_G(show_zend_opcodes)) {
 				qb_printer_context _printer_cxt, *printer_cxt = &_printer_cxt;
 				qb_initialize_printer_context(printer_cxt, compiler_cxt TSRMLS_CC);
 				qb_print_zend_ops(printer_cxt);
 			}
+		}
+	}
 
+	for(i = 0; i < cxt->compiler_context_count; i++) {
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
+		if(!compiler_cxt->function_declaration->import_path) {
 			// run an initial pass over the opcode to gather info
+			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
 			qb_initialize_php_translater_context(translater_cxt, compiler_cxt TSRMLS_CC);
 			qb_survey_instructions(translater_cxt);
 			qb_free_php_translater_context(translater_cxt);
@@ -140,7 +146,7 @@ static void qb_merge_function_dependencies(qb_build_context *cxt, qb_compiler_co
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		if(d1[i]) {
 			// function is dependent on the other
-			qb_compiler_context *other_compiler_cxt = &cxt->compiler_contexts[i];
+			qb_compiler_context *other_compiler_cxt = cxt->compiler_contexts[i];
 			if(compiler_cxt != other_compiler_cxt) {
 				int8_t *d2 = other_compiler_cxt->dependencies;
 				for(j = 0; j < cxt->compiler_context_count; j++) {
@@ -156,12 +162,13 @@ static void qb_merge_function_dependencies(qb_build_context *cxt, qb_compiler_co
 }
 
 static int qb_compare_dependencies(const void *a, const void *b) {
-	const qb_compiler_context *cxt_a = a, *cxt_b = b;
+	const qb_compiler_context *cxt_a = *((const qb_compiler_context **) a);
+	const qb_compiler_context *cxt_b = *((const qb_compiler_context **) b);
 	if(cxt_a->dependencies[cxt_b->dependency_index]) {
 		// a is dependent on b, so it needs to be translated after b
 		return 1;
 	} else if(cxt_b->dependencies[cxt_a->dependency_index]) {
-		// b is dependent on a, so it needs to be translated after b
+		// b is dependent on a, so it needs to be translated after a
 		return -1;
 	} else {
 		// order doesn't matter
@@ -177,7 +184,7 @@ static void qb_resolve_dependencies(qb_build_context *cxt) {
 		do {
 			changed = FALSE;
 			for(i = 0; i < cxt->compiler_context_count; i++) {
-				qb_merge_function_dependencies(cxt, &cxt->compiler_contexts[i], &changed);
+				qb_merge_function_dependencies(cxt, cxt->compiler_contexts[i], &changed);
 			}
 		} while(changed);
 
@@ -191,7 +198,7 @@ void qb_perform_translation(qb_build_context *cxt) {
 	USE_TSRM
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
-		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 
 		if(!compiler_cxt->function_declaration->import_path) {
 			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
@@ -258,7 +265,7 @@ void qb_generate_executables(qb_build_context *cxt) {
 	int32_t native_compile = FALSE;
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
-		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 		qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
 		qb_function *qfunc;
 
@@ -284,7 +291,7 @@ void qb_generate_executables(qb_build_context *cxt) {
 	}
 	if(!QB_G(allow_bytecode_interpretation)) {
 		for(i = 0; i < cxt->compiler_context_count; i++) {
-			compiler_cxt = &cxt->compiler_contexts[i];
+			compiler_cxt = cxt->compiler_contexts[i];
 			if(!compiler_cxt->native_proc) {
 				qb_abort("unable to compile to native code");
 			}
@@ -311,22 +318,27 @@ void qb_build(qb_build_context *cxt) {
 }
 
 void qb_initialize_build_context(qb_build_context *cxt TSRMLS_DC) {
-	cxt->deferral_count = 0;
 	cxt->pool = &cxt->_pool;
+	cxt->compiler_contexts = NULL;
+	cxt->compiler_context_count = 0;
 	qb_initialize_data_pool(cxt->pool);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->function_tags, &cxt->function_tag_count, sizeof(qb_function_tag), 16);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->function_declarations, &cxt->function_declaration_count, sizeof(qb_function_declaration *), 16);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->class_declarations, &cxt->class_declaration_count, sizeof(qb_class_declaration *), 16);
-	qb_attach_new_array(cxt->pool, (void **) &cxt->compiler_contexts, &cxt->compiler_context_count, sizeof(qb_compiler_context), 16);
 	SAVE_TSRMLS
 }
 
 void qb_free_build_context(qb_build_context *cxt) {
-	uint32_t i;
-	for(i = 0; i < cxt->compiler_context_count; i++) {
-		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
-		qb_free_compiler_context(compiler_cxt);
-	}
 	qb_free_data_pool(cxt->pool);
+
+	if(cxt->compiler_contexts) {
+		uint32_t i;
+		for(i = 0; i < cxt->compiler_context_count; i++) {
+			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
+			qb_free_compiler_context(compiler_cxt);
+			efree(compiler_cxt);
+		}
+		efree(cxt->compiler_contexts);
+	}
 }
 
