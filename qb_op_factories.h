@@ -505,4 +505,7 @@ extern qb_basic_op_factory factory_pack_be;
 extern qb_basic_op_factory factory_unpack_le;
 extern qb_basic_op_factory factory_unpack_be;
 
+extern qb_op_factory factory_define;
+extern qb_op_factory factory_defined;
+
 #endif

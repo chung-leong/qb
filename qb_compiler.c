@@ -262,11 +262,7 @@ qb_expression * qb_get_on_demand_expression(qb_compiler_context *cxt, void *op_f
 			int32_t match = TRUE;
 			for(j = 0; j < expr->operand_count; j++) {
 				if(expr->operands[j].type != operands[j].type || expr->operands[j].address != operands[j].address) {
-					// don't consider it different if the operand is empty
-					// it's just a slot where the handler would put a variable
-					if(operands[j].type != QB_OPERAND_EMPTY) {
-						match = FALSE;
-					}
+					match = FALSE;
 				}
 			}
 			if(match) {
@@ -1574,6 +1570,10 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 		target_address = qb_obtain_temporary_variable(cxt, element_type, dim);
 	}
 
+	if(RESIZABLE(target_address) && resizing) {
+		// attach an expression to make it expand/contract
+		qb_attach_bound_checking_expression(cxt, dim->array_size_address, target_address, TRUE);
+	}
 	if(TEMPORARY(target_address)) {
 		if(dim->dimension_count > 1) {
 			// obtain an alias with dimensional info 
@@ -1584,10 +1584,6 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 		} else if(address_flags & QB_ADDRESS_STRING) {
 			target_address = qb_obtain_string_alias(cxt, target_address);
 		}
-	}
-	if(RESIZABLE(target_address) && resizing) {
-		// attach an expression to make it expand/contract
-		qb_attach_bound_checking_expression(cxt, dim->array_size_address, target_address, TRUE);
 	}
 	return target_address;
 }

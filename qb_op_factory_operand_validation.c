@@ -562,6 +562,32 @@ static void qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_factory 
 	}
 }
 
+static void qb_validate_operands_defined(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *name = &operands[0];
+	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
+		qb_abort("%s() expects a constant string", cxt->function_name);
+	}
+}
+
+static void qb_validate_operands_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *name = &operands[0], *value = &operands[1];
+	char *name_str;
+	uint32_t name_len;
+
+	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
+		qb_abort("%s() expects a constant string as the first parameter", cxt->function_name);
+	}
+	if(!(value->type == QB_OPERAND_ZVAL || (value->type == QB_OPERAND_ADDRESS && CONSTANT(value->address) && SCALAR(value->address)))) {
+		qb_abort("%s() expects a constant expression as the second parameter", cxt->function_name);
+	}
+
+	name_str = Z_STRVAL_P(name->constant);
+	name_len = Z_STRLEN_P(name->constant);
+	if(zend_memnstr(name_str, "::", sizeof("::") - 1, name_str + name_len)) {
+		qb_abort("Class constants cannot be defined or redefined");
+	}
+}
+
 static void qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
@@ -609,10 +635,10 @@ static void qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb
 			case QB_RESULT_DESTINATION_VARIABLE:
 			case QB_RESULT_DESTINATION_ELEMENT:
 			case QB_RESULT_DESTINATION_PROPERTY:
-				break;
+				return;
 			default:
-				qb_abort("The return value from a PHP function must be either saved to a variable or ignored");
 				break;
 		}
 	}
+	qb_abort("The return value from a regular PHP function must be either saved to a variable or ignored");
 }

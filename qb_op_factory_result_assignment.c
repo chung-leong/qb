@@ -400,6 +400,75 @@ static void qb_set_preliminary_result_unpack(qb_compiler_context *cxt, qb_op_fac
 	qb_set_result_prototype(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 }
 
+static void qb_set_result_defined(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	USE_TSRM
+	qb_operand *name = &operands[0];
+	zval c;
+	char *name_str = Z_STRVAL_P(name->constant);
+	uint32_t name_len = Z_STRLEN_P(name->constant);
+	int32_t constant_exists = FALSE;
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	if(zend_get_constant_ex(name_str, name_len, &c, NULL, ZEND_FETCH_CLASS_SILENT TSRMLS_CC)) {
+#else
+	if(zend_get_constant(name_str, name_len, &c TSRMLS_CC)) {
+#endif
+		zval_dtor(&c);
+		constant_exists = TRUE;
+	} else {
+		zval *special_constant = qb_get_special_constant(cxt, name_str, name_len);
+		if(special_constant) {
+			constant_exists = TRUE;
+		}
+	}
+	result->type = QB_OPERAND_ADDRESS;
+	result->address = (constant_exists) ? cxt->true_address : cxt->false_address;
+}
+
+static void qb_set_result_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	USE_TSRM
+	qb_operand *name = &operands[0], *value = &operands[1];
+	int registration_result;
+	zend_constant c;
+	const char *name_str = Z_STRVAL_P(name->constant);
+	uint32_t name_len = Z_STRLEN_P(name->constant);
+
+	if(value->type == QB_OPERAND_ZVAL) {
+		c.value = *value->constant;
+		zval_copy_ctor(&c.value);
+	} else if(value->type == QB_OPERAND_ADDRESS) {
+		if(value->address->type >= QB_TYPE_F32) {
+			double dval;
+			switch(value->address->type) {
+				case QB_TYPE_F32: dval = VALUE(F32, value->address); break;
+				case QB_TYPE_F64: dval = VALUE(F64, value->address); break;
+				default: break;
+			}
+			ZVAL_DOUBLE(&c.value, dval);
+		} else {
+			long lval;
+			switch(value->address->type) {
+				case QB_TYPE_S08: lval = VALUE(S08, value->address); break;
+				case QB_TYPE_U08: lval = VALUE(U08, value->address); break;
+				case QB_TYPE_S16: lval = VALUE(S16, value->address); break;
+				case QB_TYPE_U16: lval = VALUE(U16, value->address); break;
+				case QB_TYPE_S32: lval = VALUE(S32, value->address); break;
+				case QB_TYPE_U32: lval = VALUE(U32, value->address); break;
+				case QB_TYPE_S64: lval = (long) VALUE(S64, value->address); break;
+				case QB_TYPE_U64: lval = (long) VALUE(U64, value->address); break;
+				default: break;
+			}
+			ZVAL_LONG(&c.value, lval);
+		}
+	}
+	c.flags = CONST_CS;
+	c.name = zend_strndup(name_str, name_len);
+	c.name_len = name_len + 1;
+	c.module_number = PHP_USER_CONSTANT;
+	registration_result = zend_register_constant(&c TSRMLS_CC);
+	result->address = (registration_result == SUCCESS) ? cxt->true_address : cxt->false_address;
+	result->type = QB_OPERAND_ADDRESS;
+}
+
 static void qb_set_result_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *func = &operands[0];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);

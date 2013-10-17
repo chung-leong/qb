@@ -5278,3 +5278,35 @@ qb_basic_op_factory factory_unpack_be = {
 	QB_ADDRESS_TEMPORARY,
 	{	QB_UNPACK_BE_U08_F64,	QB_UNPACK_BE_U08_F32,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I64,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I32,	QB_UNPACK_BE_U08_I16,	QB_UNPACK_BE_U08_I16	},
 };
+
+qb_op_factory factory_defined = {
+	NULL,
+	qb_resolve_expression_type_boolean,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_defined,
+	qb_set_result_defined,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
+};
+
+qb_op_factory factory_define = {
+	NULL,
+	qb_resolve_expression_type_boolean,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_define,
+	qb_set_result_define,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
+};

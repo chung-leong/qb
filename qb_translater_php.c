@@ -725,10 +725,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"uint64",				1,		2,		&factory_cast_U64			},
 	{	0,	"float32",				1,		1,		&factory_cast_F32			},
 	{	0,	"float64",				1,		1,		&factory_cast_F64			},
-/*
-	{	0,	"defined",				1,		1,		NULL						},
-	{	0,	"define",				2,		2,		NULL						},
-*/
+	{	0,	"defined",				1,		1,		&factory_defined			},
+	{	0,	"define",				2,		2,		&factory_define				},
 	{	0,	"equal",				2,		2,		&factory_set_equal			},
 	{	0,	"not_equal",			2,		2,		&factory_set_not_equal		},
 	{	0,	"less_than",			2,		2,		&factory_set_less_than		},
@@ -1060,7 +1058,7 @@ void qb_translate_instructions(qb_php_translater_context *cxt) {
 	// make sure there's always a RET at the end
 	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
 		qb_operand operand = { QB_OPERAND_EMPTY, NULL };
-		qb_create_op(cxt->compiler_context, &factory_return, NULL, 0, &operand, NULL, 0, FALSE);
+		qb_create_op(cxt->compiler_context, &factory_return, &operand, 1, NULL, NULL, 0, FALSE);
 	}
 }
 
