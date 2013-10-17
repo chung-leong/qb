@@ -30,7 +30,6 @@ typedef struct qb_fetch_op_factory				qb_fetch_op_factory;
 typedef struct qb_copy_op_factory				qb_copy_op_factory;
 typedef struct qb_unset_op_factory				qb_unset_op_factory;
 typedef struct qb_unset_element_op_factory		qb_unset_element_op_factory;
-typedef struct qb_chained_op_factory			qb_chained_op_factory;
 typedef struct qb_cast_op_factory				qb_cast_op_factory;
 typedef struct qb_comparison_op_factory			qb_comparison_op_factory;
 typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
@@ -44,6 +43,12 @@ typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
 typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
 typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
+
+typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
+
+typedef struct qb_op_decomposer					qb_op_decomposer;
+
+typedef void (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
 typedef qb_primitive_type (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
 
@@ -62,6 +67,7 @@ typedef qb_opcode (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_facto
 typedef void (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
 
 #define OP_FACTORY_COMMON_ELEMENTS		\
+	qb_produce_composite_proc produce_composite;	\
 	qb_resolve_expression_type_proc resolve_type;	\
 	qb_link_results_proc link_results;	\
 	qb_coerce_operands_proc coerce_operands;	\
@@ -103,12 +109,6 @@ struct qb_fetch_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	uint32_t bound_check_flags;
 }; 
-
-struct qb_chained_op_factory {
-	OP_FACTORY_COMMON_ELEMENTS
-	qb_opcode opcode_initial;
-	qb_opcode opcode_subsequent;
-};
 
 struct qb_unset_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
@@ -158,7 +158,7 @@ struct qb_fcall_op_factory {
 struct qb_minmax_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcodes_pair[10];
-	qb_opcode opcodes_list[10];
+	qb_opcode opcodes_list[10];	
 };
 
 struct qb_vector_op_factory {
@@ -194,6 +194,15 @@ struct qb_utf8_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode ucs16_opcode;
 	qb_opcode ucs32_opcode;
+};
+
+struct qb_intrinsic_op_factory {
+	qb_produce_composite_proc produce_composite;
+};
+
+struct qb_op_decomposer {
+	qb_produce_composite_proc produce_composite;
+	void *factory;
 };
 
 extern qb_op_factory factory_nop;
@@ -238,9 +247,9 @@ extern qb_simple_op_factory factory_guard_array_extent_multiply;
 extern qb_simple_op_factory factory_guard_array_extent_subtract;
 extern qb_simple_op_factory factory_guard_array_extent_subtract_multiply;
 
-extern qb_chained_op_factory factory_check_array_index_add;
-extern qb_chained_op_factory factory_check_array_index_multiply;
-extern qb_chained_op_factory factory_check_array_index_multiply_add;
+extern qb_simple_op_factory factory_check_array_index_add;
+extern qb_simple_op_factory factory_check_array_index_multiply;
+extern qb_simple_op_factory factory_check_array_index_multiply_add;
 
 extern qb_simple_op_factory factory_accommodate_array_index;
 extern qb_simple_op_factory factory_accommodate_array_index_multiply;
@@ -252,6 +261,8 @@ extern qb_simple_op_factory factory_choose_size_of_larger_array;
 extern qb_simple_op_factory factory_choose_size_of_larger_array_top_level;
 extern qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays;
 extern qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays_top_level;
+
+extern qb_simple_op_factory factory_index_multiply;
 
 extern qb_cast_op_factory factory_cast_S08;
 extern qb_cast_op_factory factory_cast_U08;
@@ -338,7 +349,7 @@ extern qb_basic_op_factory factory_branch_on_not_equal;
 extern qb_basic_op_factory factory_branch_on_less_than;
 extern qb_basic_op_factory factory_branch_on_less_equal;
 
-extern qb_op_factory factory_intrinsic;
+extern qb_intrinsic_op_factory factory_intrinsic;
 extern qb_simple_op_factory factory_zend_function_call;
 extern qb_simple_op_factory factory_send_zend_argument;
 
@@ -458,7 +469,7 @@ extern qb_pixel_op_factory factory_sample_nearest;
 extern qb_pixel_op_factory factory_sample_bilinear;
 
 extern qb_basic_op_factory factory_array_column;
-extern qb_basic_op_factory factory_array_diff;
+extern qb_op_decomposer factory_array_diff;
 extern qb_basic_op_factory factory_array_diff_count;
 extern qb_basic_op_factory factory_array_intersect;
 extern qb_basic_op_factory factory_array_intersect_count;

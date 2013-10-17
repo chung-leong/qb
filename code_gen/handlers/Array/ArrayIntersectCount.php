@@ -58,7 +58,7 @@ class ArrayIntersectCount extends Handler {
 		$lines[] = 				"}";
 		$lines[] = 			"}";
 		$lines[] = 			"if(found) {";
-		$lines[] = 				"count += op3;";
+		$lines[] = 				"count++;";
 		$lines[] = 			"}";
 		$lines[] = 			"op1_ptr += op3;";
 		$lines[] = 		"}";

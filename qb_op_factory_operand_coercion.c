@@ -232,14 +232,6 @@ static void qb_coerce_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f
 	}
 }
 
-static void qb_coerce_operands_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	f = func->intrinsic_function->extra;
-	if(f->coerce_operands) {
-		f->coerce_operands(cxt, f, expr_type, arguments->arguments, argument_count->number);
-	}
-}
-
 static void qb_coerce_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);

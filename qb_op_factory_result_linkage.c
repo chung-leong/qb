@@ -123,11 +123,3 @@ static void qb_link_results_array_append(qb_compiler_context *cxt, qb_op_factory
 		value->result_prototype->parent = result_prototype;
 	}
 }
-
-static void qb_link_results_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
-	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	f = func->intrinsic_function->extra;
-	if(f->link_results) {
-		f->link_results(cxt, f, arguments->arguments, argument_count->number, result_prototype);
-	}
-}

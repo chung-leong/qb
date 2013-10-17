@@ -106,7 +106,7 @@ struct qb_compiler_context {
 	qb_address **address_aliases;
 	uint32_t address_alias_count;
 
-	qb_address **on_demand_expressions;
+	qb_expression **on_demand_expressions;
 	uint32_t on_demand_expression_count;
 
 	qb_address *zero_address;
@@ -114,7 +114,8 @@ struct qb_compiler_context {
 	qb_address *false_address;
 	qb_address *true_address;
 
-	qb_intrinsic_function *intrinsic_function;
+	const char *function_name;
+	uint32_t argument_offset;
 	qb_operand foreach_index;
 
 	int32_t matrix_padding;
@@ -281,7 +282,6 @@ static zend_always_inline void qb_add_variable(qb_compiler_context *cxt, qb_vari
 	*p = variable;
 }
 
-void qb_mark_jump_target(qb_compiler_context *cxt, uint32_t current_qop_index, uint32_t target_index);
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address);
 
 void qb_lock_address(qb_compiler_context *cxt, qb_address *address);
@@ -346,10 +346,13 @@ enum {
 	QB_ARRAY_BOUND_CHECK_ISSET	= 0x0004,
 };
 
+qb_address * qb_obtain_predicate_address(qb_compiler_context *cxt, qb_address *container_address, int32_t writable);
 qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags);
 qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name, uint32_t bound_check_flags);
 qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address, uint32_t bound_check_flags);
-qb_address * qb_obtain_bound_checked_address(qb_compiler_context *cxt, qb_address *address, qb_address *size_address, int32_t resizing);
+
+void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *address, qb_address *size_address, int32_t resizing);
+void qb_invalidate_all_on_demand_expressions(qb_compiler_context *cxt);
 
 qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count);
 qb_address * qb_obtain_on_demand_sum(qb_compiler_context *cxt, qb_address *augend_address, qb_address *addend_address);

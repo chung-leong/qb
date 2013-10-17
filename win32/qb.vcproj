@@ -717,6 +717,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_op_factory_decomposition.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\qb_op_factory_dimension_calculation.c"
 				>
 				<FileConfiguration

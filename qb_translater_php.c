@@ -218,15 +218,6 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 		ifunc = qb_find_intrinsic_function(cxt, name->constant);
 	}
 	if(ifunc) {
-		if(!(ifunc->argument_count_min <= argument_count && argument_count <= ifunc->argument_count_max)) {
-			if(ifunc->argument_count_max == (uint32_t) -1) {
-				qb_abort("%s() expects at least %d arguments but %d were passed", ifunc->name, ifunc->argument_count_min, argument_count);
-			} else if(ifunc->argument_count_min == ifunc->argument_count_max) {
-				qb_abort("%s() expects %d arguments but %d were passed", ifunc->name, ifunc->argument_count_min, argument_count);
-			} else {
-				qb_abort("%s() expects %d to %d arguments but %d were passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count);
-			}
-		}
 		if(ifunc->argument_count_max != (uint32_t) -1 &&  ifunc->argument_count_max > max_operand_count) {
 			max_operand_count = ifunc->argument_count_max;
 		}
@@ -948,12 +939,21 @@ static void qb_translate_instruction_range(qb_php_translater_context *cxt, uint3
 			}
 			qb_translate_current_instruction(cxt);
 		} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+			int32_t is_jump_target;
 			uint32_t current_op_count;
 
 			if(cxt->compiler_context->op_translations[cxt->zend_op_index] != QB_OP_INDEX_NONE && cxt->compiler_context->op_translations[cxt->zend_op_index] != QB_OP_INDEX_JUMP_TARGET) {
 				// instruction has already been translated--do a jump there and exit
+				qb_invalidate_all_on_demand_expressions(cxt->compiler_context);
 				qb_create_op(cxt->compiler_context, &factory_jump, NULL, 0, NULL, &cxt->zend_op_index, 1, FALSE);
 				break;
+			}
+
+			// see if the next op is going to be a jump target
+			is_jump_target = (cxt->compiler_context->op_translations[cxt->zend_op_index] == QB_OP_INDEX_JUMP_TARGET);
+			if(is_jump_target) {
+				// the result of on-demand expressions might no longer be valid
+				qb_invalidate_all_on_demand_expressions(cxt->compiler_context);
 			}
 
 			// translate the current instruction, saving the op-count
@@ -966,8 +966,8 @@ static void qb_translate_instruction_range(qb_php_translater_context *cxt, uint3
 				qb_create_op(cxt->compiler_context, &factory_nop, NULL, 0, NULL, 0, 0, TRUE);
 			}
 
-			// flag new op as a jump target if there's a placeholder in the position
-			if(cxt->compiler_context->op_translations[cxt->zend_op_index] == QB_OP_INDEX_JUMP_TARGET) {
+			// flag the first new op as a jump target 
+			if(is_jump_target) {
 				qb_op *first_op = cxt->compiler_context->ops[current_op_count];
 				first_op->flags |= QB_OP_JUMP_TARGET;
 			}

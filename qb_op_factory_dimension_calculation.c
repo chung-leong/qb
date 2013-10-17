@@ -41,7 +41,7 @@ static void qb_copy_address_dimensions(qb_compiler_context *cxt, qb_address *add
 				if(i == dim->dimension_count - 1) {
 					dim->array_size_addresses[i] = dim->dimension_addresses[i];
 				} else {
-					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->array_size_addresses[i + 1]);
 				}
 			}
 		}
@@ -104,7 +104,7 @@ static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *ad
 				if(i == dim->dimension_count - 1) {
 					dim->array_size_addresses[i] = dim->dimension_addresses[i];
 				} else {
-					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->array_size_addresses[i + 1]);
 				}
 			}
 		}
@@ -327,13 +327,14 @@ static void qb_append_address_dimensions(qb_compiler_context *cxt, qb_address *f
 	dim->dimension_count = 1 + address->dimension_count - offset;
 	dim->dimension_addresses[0] = first_dimension_address;
 	for(i = 1; i < dim->dimension_count; i++) {
-		dim->dimension_addresses[i] = address->dimension_addresses[i + offset];
+		uint32_t dimension = VALUE(U32, address->dimension_addresses[i + (offset - 1)]);
+		dim->dimension_addresses[i] = address->dimension_addresses[i + (offset - 1)];
 	}
 	for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
 		if(i == dim->dimension_count - 1) {
 			dim->array_size_addresses[i] = dim->dimension_addresses[i];
 		} else {
-			dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+			dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->array_size_addresses[i + 1]);
 		}
 	}
 	dim->array_size_address = dim->array_size_addresses[0];

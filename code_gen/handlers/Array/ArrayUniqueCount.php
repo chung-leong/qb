@@ -56,7 +56,7 @@ class ArrayUniqueCount extends Handler {
 		$lines[] = 			"}";
 		$lines[] = 		"}";
 		$lines[] = 		"if(!repeat) {";
-		$lines[] = 			"count += op2;";
+		$lines[] = 			"count++;";
 		$lines[] = 		"}";
 		$lines[] = 	"}";
 		$lines[] = "}";

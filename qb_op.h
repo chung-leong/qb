@@ -62,10 +62,9 @@ enum {
 	QB_ADDRESS_NON_REUSABLE			= 0x00002000,
 	QB_ADDRESS_AUTO_EXPAND			= 0x00004000,
 	QB_ADDRESS_FOREACH_INDEX		= 0x01000000,
-	QB_ADDRESS_ON_DEMAND_VALUE		= 0x02000000,
 
 	QB_ADDRESS_IN_USE				= 0x80000000,
-
+	QB_ADDRESS_TAGGED				= 0x40000000,
 
 	QB_ADDRESS_RUNTIME_FLAGS		= 0x0000FFFF,
 	QB_ADDRESS_COMPILE_TIME_FLAGS	= 0xFFFF0000,
@@ -80,7 +79,12 @@ struct qb_index_alias_scheme {
 	zend_class_entry *zend_class;
 };
 
+enum {
+	QB_EXPR_RESULT_IS_STILL_VALID	= 0x00000001,
+};
+
 struct qb_expression {
+	uint32_t flags;
 	qb_operand *operands;
 	qb_operand *result;
 	uint32_t operand_count;
@@ -264,9 +268,9 @@ struct qb_pointer_PAR {
 #define SHARED(address)						(address->flags & QB_ADDRESS_SHARED)
 #define IN_USE(address)						(address->flags & QB_ADDRESS_IN_USE)
 #define READ_ONLY(address)					(address->flags & QB_ADDRESS_READ_ONLY)
-#define ON_DEMAND(address)					(address->flags & QB_ADDRESS_ON_DEMAND_VALUE)
 #define NON_REUSABLE(address)				(address->flags & QB_ADDRESS_NON_REUSABLE)
 #define RESIZABLE(address)					(address->flags & QB_ADDRESS_RESIZABLE)
+#define TAGGED(address)						(address->flags & QB_ADDRESS_TAGGED)
 #define AUTO_EXPAND(address)				(address->flags & QB_ADDRESS_AUTO_EXPAND)
 #define FIXED_LENGTH(address)				CONSTANT(address->array_size_address)
 #define VARIABLE_LENGTH(address)			(address->dimension_count > 0 && !CONSTANT(address->array_size_address))

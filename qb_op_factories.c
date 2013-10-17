@@ -28,8 +28,10 @@
 #include "qb_op_factory_result_assignment.c"
 #include "qb_op_factory_opcode_selection.c"
 #include "qb_op_factory_operand_transfer.c"
+#include "qb_op_factory_decomposition.c"
 
 qb_op_factory factory_nop = {
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -45,6 +47,7 @@ qb_op_factory factory_nop = {
 };
 
 qb_copy_op_factory factory_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_variable,
 	qb_coerce_operands_assign,
@@ -77,6 +80,7 @@ qb_copy_op_factory factory_assign = {
 };
 
 qb_derived_op_factory factory_assign_array_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_array_element,
 	qb_coerce_operands_assign_array_element,
@@ -93,6 +97,7 @@ qb_derived_op_factory factory_assign_array_element = {
 };
 
 qb_derived_op_factory factory_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_object_property,
 	qb_coerce_operands_assign_object_property,
@@ -113,6 +118,7 @@ qb_op_factory factory_assign_ref = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_validate_operands_assign_ref,
 	NULL,
 	NULL,
@@ -124,6 +130,7 @@ qb_op_factory factory_assign_ref = {
 };
 
 qb_op_factory factory_fetch_local = {
+	NULL,
 	qb_resolve_expression_type_fetch_local,
 	NULL,
 	NULL,
@@ -139,6 +146,7 @@ qb_op_factory factory_fetch_local = {
 };
 
 qb_op_factory factory_fetch_global = {
+	NULL,
 	qb_resolve_expression_type_fetch_global,
 	NULL,
 	NULL,
@@ -154,6 +162,7 @@ qb_op_factory factory_fetch_global = {
 };
 
 qb_op_factory factory_fetch_static = {
+	NULL,
 	qb_resolve_expression_type_fetch_static,
 	NULL,
 	NULL,
@@ -169,6 +178,7 @@ qb_op_factory factory_fetch_static = {
 };
 
 qb_op_factory factory_fetch_class = {
+	NULL,
 	qb_resolve_expression_type_fetch_class,
 	NULL,
 	NULL,
@@ -186,6 +196,7 @@ qb_op_factory factory_fetch_class = {
 void *factories_fetch_variable[] = { &factory_fetch_local, &factory_fetch_global, &factory_fetch_static, &factory_fetch_class };
 
 qb_op_factory factory_fetch_array_size = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	qb_coerce_operands_fetch_array_size,
@@ -201,6 +212,7 @@ qb_op_factory factory_fetch_array_size = {
 };
 
 qb_fetch_op_factory factory_fetch_array_element_read = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -217,6 +229,7 @@ qb_fetch_op_factory factory_fetch_array_element_read = {
 };
 
 qb_fetch_op_factory factory_fetch_array_element_write = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -233,6 +246,7 @@ qb_fetch_op_factory factory_fetch_array_element_write = {
 };
 
 qb_fetch_op_factory factory_fetch_array_element_isset = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -249,6 +263,7 @@ qb_fetch_op_factory factory_fetch_array_element_isset = {
 };
 
 qb_fetch_op_factory factory_fetch_object_property_read = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -265,6 +280,7 @@ qb_fetch_op_factory factory_fetch_object_property_read = {
 };
 
 qb_fetch_op_factory factory_fetch_object_property_write = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -281,6 +297,7 @@ qb_fetch_op_factory factory_fetch_object_property_write = {
 };
 
 qb_fetch_op_factory factory_fetch_object_property_isset = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -300,6 +317,7 @@ qb_op_factory factory_fetch_class_self = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_set_result_fetch_class_self,
 	qb_validate_operands_fetch_class_self,
 	qb_set_result_fetch_class_self,
@@ -312,6 +330,7 @@ qb_op_factory factory_fetch_class_self = {
 };
 
 qb_op_factory factory_fetch_class_parent = {
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -330,6 +349,7 @@ qb_op_factory factory_fetch_class_static = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_set_result_fetch_class_static,
 	qb_validate_operands_fetch_class_static,
 	qb_set_result_fetch_class_static,
@@ -344,6 +364,7 @@ qb_op_factory factory_fetch_class_static = {
 void *factories_fetch_class[] = { &factory_fetch_class_self, &factory_fetch_class_parent, &factory_fetch_class_static };
 
 qb_op_factory factory_fetch_constant = {
+	NULL,
 	qb_resolve_expression_lvalue,
 	NULL,
 	NULL,
@@ -359,6 +380,7 @@ qb_op_factory factory_fetch_constant = {
 };
 
 qb_op_factory factory_array_init = {
+	NULL,
 	qb_resolve_expression_lvalue,
 	qb_link_results_array_init,
 	NULL,
@@ -375,6 +397,7 @@ qb_op_factory factory_array_init = {
 
 qb_op_factory factory_array_append = {
 	NULL,
+	NULL,
 	qb_link_results_array_append,
 	NULL,
 	qb_set_result_prototype,
@@ -390,6 +413,7 @@ qb_op_factory factory_array_append = {
 
 qb_op_factory factory_free = {
 	NULL,
+	NULL,
 	qb_link_results_free,
 	NULL,
 	qb_set_result_prototype,
@@ -404,16 +428,16 @@ qb_op_factory factory_free = {
 };
 
 qb_simple_op_factory factory_guard_array_index = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_second_operand,
+	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_index,
-
+	qb_transfer_operands_all,
 	0,
 	0,
 	0,
@@ -421,16 +445,16 @@ qb_simple_op_factory factory_guard_array_index = {
 };
 
 qb_simple_op_factory factory_guard_array_index_add = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_index_add,
-
+	qb_transfer_operands_all,
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -438,16 +462,16 @@ qb_simple_op_factory factory_guard_array_index_add = {
 };
 
 qb_simple_op_factory factory_guard_array_index_multiply = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_index_multiply,
-
+	qb_transfer_operands_all,
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -455,15 +479,16 @@ qb_simple_op_factory factory_guard_array_index_multiply = {
 };
 
 qb_simple_op_factory factory_guard_array_index_multiply_add = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_index_multiply_add,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -472,6 +497,7 @@ qb_simple_op_factory factory_guard_array_index_multiply_add = {
 };
 
 qb_simple_op_factory factory_guard_array_size = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
@@ -480,7 +506,7 @@ qb_simple_op_factory factory_guard_array_size = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_size,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -489,6 +515,7 @@ qb_simple_op_factory factory_guard_array_size = {
 };
 
 qb_simple_op_factory factory_guard_array_extent = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
@@ -497,7 +524,7 @@ qb_simple_op_factory factory_guard_array_extent = {
 	qb_set_result_third_operand,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_extent,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -506,15 +533,16 @@ qb_simple_op_factory factory_guard_array_extent = {
 };
 
 qb_simple_op_factory factory_guard_array_extent_multiply = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_extent_multiply,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -523,15 +551,16 @@ qb_simple_op_factory factory_guard_array_extent_multiply = {
 };
 
 qb_simple_op_factory factory_guard_array_extent_subtract = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_extent_subtract,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -540,15 +569,16 @@ qb_simple_op_factory factory_guard_array_extent_subtract = {
 };
 
 qb_simple_op_factory factory_guard_array_extent_subtract_multiply = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_guard_array_extent_subtract_multiply,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -556,70 +586,69 @@ qb_simple_op_factory factory_guard_array_extent_subtract_multiply = {
 	QB_EXT_GUARD_SUB_MUL_U32_U32_U32_U32,
 };
 
-qb_chained_op_factory factory_check_array_index_add = {
+qb_simple_op_factory factory_check_array_index_add = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_check_array_index,
+	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_check_array_index,
-	qb_transfer_operands_check_array_index_add,
-
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
-	QB_IDX_CHECK_ADD_INIT_U32_U32_U32_I32_U32,
 	QB_IDX_CHECK_ADD_U32_U32_U32_I32_U32,
 };
 
-qb_chained_op_factory factory_check_array_index_multiply = {
+qb_simple_op_factory factory_check_array_index_multiply = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_check_array_index,
+	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_check_array_index,
-	qb_transfer_operands_check_array_index_multiply,
-
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
-	QB_IDX_CHECK_MUL_INIT_U32_U32_U32_I32_U32,
 	QB_IDX_CHECK_MUL_U32_U32_U32_I32_U32,
 };
 
-qb_chained_op_factory factory_check_array_index_multiply_add = {
+qb_simple_op_factory factory_check_array_index_multiply_add = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_check_array_index,
+	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_check_array_index,
-	qb_transfer_operands_check_array_index_multiply_add,
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
 
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
-	QB_IDX_CHECK_MAC_INIT_U32_U32_U32_U32_I32_U32,
 	QB_IDX_CHECK_MAC_U32_U32_U32_U32_I32_U32,
 };
 
 qb_simple_op_factory factory_accommodate_array_index = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_second_operand,
+	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_accommodate_array_index,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -628,15 +657,16 @@ qb_simple_op_factory factory_accommodate_array_index = {
 };
 
 qb_simple_op_factory factory_accommodate_array_index_multiply = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_accommodate_array_index_multiply,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -645,15 +675,16 @@ qb_simple_op_factory factory_accommodate_array_index_multiply = {
 };
 
 qb_simple_op_factory factory_accommodate_array_push = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_accommodate_array_push,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -662,6 +693,7 @@ qb_simple_op_factory factory_accommodate_array_push = {
 };
 
 qb_simple_op_factory factory_accommodate_array_size = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -670,7 +702,7 @@ qb_simple_op_factory factory_accommodate_array_size = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_accommodate_array_size,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -679,6 +711,7 @@ qb_simple_op_factory factory_accommodate_array_size = {
 };
 
 qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -687,7 +720,7 @@ qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_accommodate_array_size_update_dimension,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -696,15 +729,16 @@ qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
 };
 
 qb_simple_op_factory factory_choose_size_of_larger_array = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_choose_size_of_larger_array,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -713,15 +747,16 @@ qb_simple_op_factory factory_choose_size_of_larger_array = {
 };
 
 qb_simple_op_factory factory_choose_size_of_larger_array_top_level = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_choose_size_of_larger_array_top_level,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -730,15 +765,16 @@ qb_simple_op_factory factory_choose_size_of_larger_array_top_level = {
 };
 
 qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_choose_size_of_larger_array,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -747,15 +783,16 @@ qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays = {
 };
 
 qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays_top_level = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_choose_size_of_larger_array_top_level,
+	qb_transfer_operands_all,
 
 	0,
 	0,
@@ -766,6 +803,7 @@ qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays_top_level = 
 extern qb_simple_op_factory factory_choose_dimension_of_larger_array;
 
 qb_op_factory factory_receive_argument = {
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -784,6 +822,7 @@ qb_op_factory factory_send_argument = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_set_result_send_argument,
 	NULL,
 	qb_set_result_send_argument,
@@ -795,22 +834,12 @@ qb_op_factory factory_send_argument = {
 	0,
 };
 
-qb_op_factory factory_intrinsic = {
-	qb_resolve_expression_type_intrinsic,
-	qb_link_results_intrinsic,
-	qb_coerce_operands_intrinsic,
-	qb_set_preliminary_result_intrinsic,
-	qb_validate_operands_intrinsic,
-	qb_set_final_result_intrinsic,
-	NULL,
-	qb_select_opcode_intrinsic,
-	qb_transfer_operands_intrinsic,
-	0,
-	0,
-	0,
+qb_intrinsic_op_factory factory_intrinsic = {
+	qb_produce_intrinsic_op,
 };
 
 qb_simple_op_factory factory_function_call = {
+	NULL,
 	qb_resolve_expression_type_function_call,
 	NULL,
 	qb_coerce_operands_function_call,
@@ -827,6 +856,7 @@ qb_simple_op_factory factory_function_call = {
 };
 
 qb_simple_op_factory factory_zend_function_call = {
+	NULL,
 	qb_resolve_expression_type_zend_function_call,
 	NULL,
 	qb_coerce_operands_zend_function_call,
@@ -845,6 +875,7 @@ qb_simple_op_factory factory_zend_function_call = {
 void *factories_fcall[] = { &factory_intrinsic, &factory_function_call, &factory_zend_function_call };
 
 qb_cast_op_factory factory_cast_S08 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -862,6 +893,7 @@ qb_cast_op_factory factory_cast_S08 = {
 };
 
 qb_cast_op_factory factory_cast_U08 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -879,6 +911,7 @@ qb_cast_op_factory factory_cast_U08 = {
 };
 
 qb_cast_op_factory factory_cast_S16 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -896,6 +929,7 @@ qb_cast_op_factory factory_cast_S16 = {
 };
 
 qb_cast_op_factory factory_cast_U16 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -913,6 +947,7 @@ qb_cast_op_factory factory_cast_U16 = {
 };
 
 qb_cast_op_factory factory_cast_S32 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -930,6 +965,7 @@ qb_cast_op_factory factory_cast_S32 = {
 };
 
 qb_cast_op_factory factory_cast_U32 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -947,6 +983,7 @@ qb_cast_op_factory factory_cast_U32 = {
 };
 
 qb_cast_op_factory factory_cast_S64 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -964,6 +1001,7 @@ qb_cast_op_factory factory_cast_S64 = {
 };
 
 qb_cast_op_factory factory_cast_U64 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -981,6 +1019,7 @@ qb_cast_op_factory factory_cast_U64 = {
 };
 
 qb_cast_op_factory factory_cast_F32 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -998,6 +1037,7 @@ qb_cast_op_factory factory_cast_F32 = {
 };
 
 qb_cast_op_factory factory_cast_F64 = {
+	NULL,
 	qb_resolve_expression_type_cast,
 	NULL,
 	NULL,
@@ -1015,6 +1055,7 @@ qb_cast_op_factory factory_cast_F64 = {
 };
 
 qb_op_factory factory_array_cast = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -1030,6 +1071,7 @@ qb_op_factory factory_array_cast = {
 };
 
 qb_op_factory factory_string_cast = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	NULL,
@@ -1047,6 +1089,7 @@ qb_op_factory factory_string_cast = {
 void *factories_cast[] = { &factory_cast_S32, &factory_cast_S64, &factory_cast_F64, &factory_boolean_cast, &factory_array_cast, &factory_string_cast, };
 
 qb_arithmetic_op_factory factory_increment_pre = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -1069,6 +1112,7 @@ qb_arithmetic_op_factory factory_increment_pre = {
 };
 
 qb_arithmetic_op_factory factory_decrement_pre = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -1091,6 +1135,7 @@ qb_arithmetic_op_factory factory_decrement_pre = {
 };
 
 qb_derived_op_factory factory_increment_post = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -1108,6 +1153,7 @@ qb_derived_op_factory factory_increment_post = {
 };
 
 qb_derived_op_factory factory_decrement_post = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -1125,6 +1171,7 @@ qb_derived_op_factory factory_decrement_post = {
 };
 
 qb_derived_op_factory factory_increment_object_property_pre = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -1142,6 +1189,7 @@ qb_derived_op_factory factory_increment_object_property_pre = {
 };
 
 qb_derived_op_factory factory_decrement_object_property_pre = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -1159,6 +1207,7 @@ qb_derived_op_factory factory_decrement_object_property_pre = {
 };
 
 qb_derived_op_factory factory_increment_object_property_post = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -1176,6 +1225,7 @@ qb_derived_op_factory factory_increment_object_property_post = {
 };
 
 qb_derived_op_factory factory_decrement_object_property_post = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	NULL,
 	NULL,
@@ -1193,6 +1243,7 @@ qb_derived_op_factory factory_decrement_object_property_post = {
 };
 
 qb_basic_op_factory factory_shift_left = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1210,6 +1261,7 @@ qb_basic_op_factory factory_shift_left = {
 };
 
 qb_basic_op_factory factory_shift_right = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1227,6 +1279,7 @@ qb_basic_op_factory factory_shift_right = {
 };
 
 qb_derived_op_factory factory_shift_left_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1244,6 +1297,7 @@ qb_derived_op_factory factory_shift_left_assign = {
 };
 
 qb_derived_op_factory factory_shift_left_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1261,6 +1315,7 @@ qb_derived_op_factory factory_shift_left_assign_element = {
 };
 
 qb_derived_op_factory factory_shift_left_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1280,6 +1335,7 @@ qb_derived_op_factory factory_shift_left_assign_object_property = {
 void *factories_shift_left_assign[3] = { &factory_shift_left_assign, &factory_shift_left_assign_element, &factory_shift_left_assign_object_property };
 
 qb_derived_op_factory factory_shift_right_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1297,6 +1353,7 @@ qb_derived_op_factory factory_shift_right_assign = {
 };
 
 qb_derived_op_factory factory_shift_right_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1314,6 +1371,7 @@ qb_derived_op_factory factory_shift_right_assign_element = {
 };
 
 qb_derived_op_factory factory_shift_right_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1333,6 +1391,7 @@ qb_derived_op_factory factory_shift_right_assign_object_property = {
 void *factories_shift_right_assign[3] = { &factory_shift_right_assign, &factory_shift_right_assign_element, &factory_shift_right_assign_object_property };
 
 qb_basic_op_factory factory_bitwise_not = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1350,6 +1409,7 @@ qb_basic_op_factory factory_bitwise_not = {
 };
 
 qb_basic_op_factory factory_bitwise_and = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1367,6 +1427,7 @@ qb_basic_op_factory factory_bitwise_and = {
 };
 
 qb_basic_op_factory factory_bitwise_or = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1384,6 +1445,7 @@ qb_basic_op_factory factory_bitwise_or = {
 };
 
 qb_basic_op_factory factory_bitwise_xor = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1401,6 +1463,7 @@ qb_basic_op_factory factory_bitwise_xor = {
 };
 
 qb_derived_op_factory factory_bitwise_and_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1418,6 +1481,7 @@ qb_derived_op_factory factory_bitwise_and_assign = {
 };
 
 qb_derived_op_factory factory_bitwise_and_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1435,6 +1499,7 @@ qb_derived_op_factory factory_bitwise_and_assign_element = {
 };
 
 qb_derived_op_factory factory_bitwise_and_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1454,6 +1519,7 @@ qb_derived_op_factory factory_bitwise_and_assign_object_property = {
 void *factories_bitwise_and_assign[3] = { &factory_bitwise_and_assign, &factory_bitwise_and_assign_element, &factory_bitwise_and_assign_object_property };
 
 qb_derived_op_factory factory_bitwise_or_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1471,6 +1537,7 @@ qb_derived_op_factory factory_bitwise_or_assign = {
 };
 
 qb_derived_op_factory factory_bitwise_or_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1488,6 +1555,7 @@ qb_derived_op_factory factory_bitwise_or_assign_element = {
 };
 
 qb_derived_op_factory factory_bitwise_or_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1507,6 +1575,7 @@ qb_derived_op_factory factory_bitwise_or_assign_object_property = {
 void *factories_bitwise_or_assign[3] = { &factory_bitwise_or_assign, &factory_bitwise_or_assign_element, &factory_bitwise_or_assign_object_property };
 
 qb_derived_op_factory factory_bitwise_xor_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1524,6 +1593,7 @@ qb_derived_op_factory factory_bitwise_xor_assign = {
 };
 
 qb_derived_op_factory factory_bitwise_xor_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1541,6 +1611,7 @@ qb_derived_op_factory factory_bitwise_xor_assign_element = {
 };
 
 qb_derived_op_factory factory_bitwise_xor_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1560,6 +1631,7 @@ qb_derived_op_factory factory_bitwise_xor_assign_object_property = {
 void *factories_bitwise_xor_assign[3] = { &factory_bitwise_xor_assign, &factory_bitwise_xor_assign_element, &factory_bitwise_xor_assign_object_property };
 
 qb_basic_op_factory factory_boolean_cast = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	NULL,
@@ -1577,6 +1649,7 @@ qb_basic_op_factory factory_boolean_cast = {
 };
 
 qb_basic_op_factory factory_logical_not = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_all,
@@ -1594,6 +1667,7 @@ qb_basic_op_factory factory_logical_not = {
 };
 
 qb_basic_op_factory factory_logical_and = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_all,
@@ -1611,6 +1685,7 @@ qb_basic_op_factory factory_logical_and = {
 };
 
 qb_basic_op_factory factory_logical_or = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_all,
@@ -1628,6 +1703,7 @@ qb_basic_op_factory factory_logical_or = {
 };
 
 qb_basic_op_factory factory_logical_xor = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_all,
@@ -1645,6 +1721,7 @@ qb_basic_op_factory factory_logical_xor = {
 };
 
 qb_arithmetic_op_factory factory_add = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1667,6 +1744,7 @@ qb_arithmetic_op_factory factory_add = {
 };
 
 qb_arithmetic_op_factory factory_subtract = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1689,6 +1767,7 @@ qb_arithmetic_op_factory factory_subtract = {
 };
 
 qb_arithmetic_op_factory factory_multiply = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1711,6 +1790,7 @@ qb_arithmetic_op_factory factory_multiply = {
 };
 
 qb_arithmetic_op_factory factory_divide = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1733,6 +1813,7 @@ qb_arithmetic_op_factory factory_divide = {
 };
 
 qb_arithmetic_op_factory factory_modulo = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1755,6 +1836,7 @@ qb_arithmetic_op_factory factory_modulo = {
 };
 
 qb_float_op_factory factory_floor_modulo = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -1772,6 +1854,7 @@ qb_float_op_factory factory_floor_modulo = {
 };
 
 qb_derived_op_factory factory_add_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1789,6 +1872,7 @@ qb_derived_op_factory factory_add_assign = {
 };
 
 qb_derived_op_factory factory_add_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1806,6 +1890,7 @@ qb_derived_op_factory factory_add_assign_element = {
 };
 
 qb_derived_op_factory factory_add_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1825,6 +1910,7 @@ qb_derived_op_factory factory_add_assign_object_property = {
 void *factories_add_assign[3] = { &factory_add_assign, &factory_add_assign_element, &factory_add_assign_object_property };
 
 qb_derived_op_factory factory_subtract_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1842,6 +1928,7 @@ qb_derived_op_factory factory_subtract_assign = {
 };
 
 qb_derived_op_factory factory_subtract_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1859,6 +1946,7 @@ qb_derived_op_factory factory_subtract_assign_element = {
 };
 
 qb_derived_op_factory factory_subtract_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1878,6 +1966,7 @@ qb_derived_op_factory factory_subtract_assign_object_property = {
 void *factories_subtract_assign[3] = { &factory_subtract_assign, &factory_subtract_assign_element, &factory_subtract_assign_object_property };
 
 qb_derived_op_factory factory_multiply_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1895,6 +1984,7 @@ qb_derived_op_factory factory_multiply_assign = {
 };
 
 qb_derived_op_factory factory_multiply_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1912,6 +2002,7 @@ qb_derived_op_factory factory_multiply_assign_element = {
 };
 
 qb_derived_op_factory factory_multiply_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1931,6 +2022,7 @@ qb_derived_op_factory factory_multiply_assign_object_property = {
 void *factories_multiply_assign[3] = { &factory_multiply_assign, &factory_multiply_assign_element, &factory_multiply_assign_object_property };
 
 qb_derived_op_factory factory_divide_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -1948,6 +2040,7 @@ qb_derived_op_factory factory_divide_assign = {
 };
 
 qb_derived_op_factory factory_divide_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -1965,6 +2058,7 @@ qb_derived_op_factory factory_divide_assign_element = {
 };
 
 qb_derived_op_factory factory_divide_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -1984,6 +2078,7 @@ qb_derived_op_factory factory_divide_assign_object_property = {
 void *factories_divide_assign[3] = { &factory_divide_assign, &factory_divide_assign_element, &factory_divide_assign_object_property };
 
 qb_derived_op_factory factory_modulo_assign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign,
@@ -2001,6 +2096,7 @@ qb_derived_op_factory factory_modulo_assign = {
 };
 
 qb_derived_op_factory factory_modulo_assign_element = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_array_element,
@@ -2018,6 +2114,7 @@ qb_derived_op_factory factory_modulo_assign_element = {
 };
 
 qb_derived_op_factory factory_modulo_assign_object_property = {
+	NULL,
 	qb_resolve_expression_type_object_property,
 	qb_link_results_all_operands,
 	qb_coerce_operands_assign_object_property,
@@ -2037,6 +2134,7 @@ qb_derived_op_factory factory_modulo_assign_object_property = {
 void *factories_modulo_assign[3] = { &factory_modulo_assign, &factory_modulo_assign_element, &factory_modulo_assign_object_property };
 
 qb_basic_op_factory factory_equal = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2054,6 +2152,7 @@ qb_basic_op_factory factory_equal = {
 };
 
 qb_basic_op_factory factory_not_equal = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2071,6 +2170,7 @@ qb_basic_op_factory factory_not_equal = {
 };
 
 qb_basic_op_factory factory_less_than = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2088,6 +2188,7 @@ qb_basic_op_factory factory_less_than = {
 };
 
 qb_basic_op_factory factory_less_equal = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2105,6 +2206,7 @@ qb_basic_op_factory factory_less_equal = {
 };
 
 qb_derived_op_factory factory_identical = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_no_cast,
@@ -2122,6 +2224,7 @@ qb_derived_op_factory factory_identical = {
 };
 
 qb_derived_op_factory factory_not_identical = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_no_cast,
@@ -2139,6 +2242,7 @@ qb_derived_op_factory factory_not_identical = {
 };
 
 qb_derived_op_factory factory_case = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2157,6 +2261,7 @@ qb_derived_op_factory factory_case = {
 
 
 qb_basic_op_factory factory_array_element_isset = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -2173,6 +2278,7 @@ qb_basic_op_factory factory_array_element_isset = {
 };
 
 qb_basic_op_factory factory_object_property_isset = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	NULL,
@@ -2193,6 +2299,7 @@ qb_unset_op_factory factory_unset = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_validate_operands_referenceable,
 	NULL,
 	NULL,
@@ -2208,6 +2315,7 @@ qb_unset_op_factory factory_unset = {
 };
 
 qb_unset_element_op_factory factory_unset_array_element = {
+	NULL,
 	NULL,
 	NULL,
 	qb_coerce_operands_fetch_array_element,
@@ -2230,6 +2338,7 @@ qb_unset_op_factory factory_unset_object_property = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_validate_operands_object_property,
 	NULL,
 	NULL,
@@ -2245,6 +2354,7 @@ qb_unset_op_factory factory_unset_object_property = {
 };
 
 qb_basic_op_factory factory_branch_on_equal = {
+	NULL,
 	NULL,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2264,6 +2374,7 @@ qb_basic_op_factory factory_branch_on_equal = {
 qb_basic_op_factory factory_branch_on_not_equal = {
 	NULL,
 	NULL,
+	NULL,
 	qb_coerce_operands_highest_rank,
 	qb_set_result_prototype,
 	NULL,
@@ -2279,6 +2390,7 @@ qb_basic_op_factory factory_branch_on_not_equal = {
 };
 
 qb_basic_op_factory factory_branch_on_less_than = {
+	NULL,
 	NULL,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2298,6 +2410,7 @@ qb_basic_op_factory factory_branch_on_less_than = {
 qb_basic_op_factory factory_branch_on_less_equal = {
 	NULL,
 	NULL,
+	NULL,
 	qb_coerce_operands_highest_rank,
 	qb_set_result_prototype,
 	NULL,
@@ -2313,6 +2426,7 @@ qb_basic_op_factory factory_branch_on_less_equal = {
 };
 
 qb_basic_op_factory factory_set_equal = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2330,6 +2444,7 @@ qb_basic_op_factory factory_set_equal = {
 };
 
 qb_basic_op_factory factory_set_not_equal = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2347,6 +2462,7 @@ qb_basic_op_factory factory_set_not_equal = {
 };
 
 qb_basic_op_factory factory_set_less_than = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2364,6 +2480,7 @@ qb_basic_op_factory factory_set_less_than = {
 };
 
 qb_basic_op_factory factory_set_less_equal = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2381,6 +2498,7 @@ qb_basic_op_factory factory_set_less_equal = {
 };
 
 qb_derived_op_factory factory_set_greater_equal = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2398,6 +2516,7 @@ qb_derived_op_factory factory_set_greater_equal = {
 };
 
 qb_derived_op_factory factory_set_greater_than = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_highest_rank,
@@ -2415,6 +2534,7 @@ qb_derived_op_factory factory_set_greater_than = {
 };
 
 qb_simple_op_factory factory_set_not = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_all,
@@ -2432,6 +2552,7 @@ qb_simple_op_factory factory_set_not = {
 };
 
 qb_simple_op_factory factory_all = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_all,
@@ -2449,6 +2570,7 @@ qb_simple_op_factory factory_all = {
 };
 
 qb_simple_op_factory factory_any = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_all,
@@ -2466,6 +2588,7 @@ qb_simple_op_factory factory_any = {
 };
 
 qb_simple_op_factory factory_empty_string = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	NULL,
@@ -2483,6 +2606,7 @@ qb_simple_op_factory factory_empty_string = {
 };
 
 qb_string_op_factory factory_add_variable = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	qb_coerce_operands_add_variable,
@@ -2502,6 +2626,7 @@ qb_string_op_factory factory_add_variable = {
 };
 
 qb_simple_op_factory factory_add_string = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	qb_coerce_operands_add_string,
@@ -2519,6 +2644,7 @@ qb_simple_op_factory factory_add_string = {
 };
 
 qb_derived_op_factory factory_concat = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	qb_coerce_operands_concat,
@@ -2536,6 +2662,7 @@ qb_derived_op_factory factory_concat = {
 };
 
 qb_derived_op_factory factory_concat_assign = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	qb_coerce_operands_add_variable,
@@ -2553,6 +2680,7 @@ qb_derived_op_factory factory_concat_assign = {
 };
 
 qb_string_op_factory factory_print = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	qb_link_results_print,
 	qb_coerce_operands_print,
@@ -2573,6 +2701,7 @@ qb_string_op_factory factory_print = {
 
 qb_derived_op_factory factory_echo = {
 	NULL,
+	NULL,
 	qb_link_results_print,
 	qb_coerce_operands_print,
 	qb_set_result_prototype,
@@ -2590,6 +2719,7 @@ qb_derived_op_factory factory_echo = {
 
 qb_simple_op_factory factory_return = {
 	NULL,
+	NULL,
 	qb_link_results_return,
 	qb_coerce_operands_return,
 	qb_set_result_prototype,
@@ -2606,6 +2736,7 @@ qb_simple_op_factory factory_return = {
 };
 
 qb_simple_op_factory factory_exit = {
+	NULL,
 	NULL,
 	NULL,
 	qb_coerce_operands_int,
@@ -2630,6 +2761,7 @@ qb_simple_op_factory factory_end_static = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_select_opcode_simple,
 	NULL,
 
@@ -2640,6 +2772,7 @@ qb_simple_op_factory factory_end_static = {
 };
 
 qb_simple_op_factory factory_ext = {
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -2660,6 +2793,7 @@ qb_simple_op_factory factory_jump = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_set_result_prototype,
 	NULL,
 	NULL,
@@ -2674,6 +2808,7 @@ qb_simple_op_factory factory_jump = {
 };
 
 qb_simple_op_factory factory_branch_on_true = {
+	NULL,
 	NULL,
 	NULL,
 	qb_coerce_operands_boolean,
@@ -2691,6 +2826,7 @@ qb_simple_op_factory factory_branch_on_true = {
 };
 
 qb_simple_op_factory factory_branch_on_false = {
+	NULL,
 	NULL,
 	NULL,
 	qb_coerce_operands_boolean,
@@ -2711,6 +2847,7 @@ qb_simple_op_factory factory_foreach_reset = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_foreach_reset,
@@ -2725,6 +2862,7 @@ qb_simple_op_factory factory_foreach_reset = {
 };
 
 qb_simple_op_factory factory_foreach_fetch = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -2747,6 +2885,7 @@ qb_simple_op_factory factory_loop = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	qb_set_result_first_operand,
 	NULL,
 	qb_select_opcode_simple,
@@ -2759,6 +2898,7 @@ qb_simple_op_factory factory_loop = {
 };
 
 qb_float_op_factory factory_sin = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2776,6 +2916,7 @@ qb_float_op_factory factory_sin = {
 };
 
 qb_float_op_factory factory_asin = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2793,6 +2934,7 @@ qb_float_op_factory factory_asin = {
 };
 
 qb_float_op_factory factory_cos = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2810,6 +2952,7 @@ qb_float_op_factory factory_cos = {
 };
 
 qb_float_op_factory factory_acos = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2827,6 +2970,7 @@ qb_float_op_factory factory_acos = {
 };
 
 qb_float_op_factory factory_tan = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2844,6 +2988,7 @@ qb_float_op_factory factory_tan = {
 };
 
 qb_float_op_factory factory_atan = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2861,6 +3006,7 @@ qb_float_op_factory factory_atan = {
 };
 
 qb_float_op_factory factory_atan2 = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2878,6 +3024,7 @@ qb_float_op_factory factory_atan2 = {
 };
 
 qb_float_op_factory factory_sinh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2895,6 +3042,7 @@ qb_float_op_factory factory_sinh = {
 };
 
 qb_float_op_factory factory_asinh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2912,6 +3060,7 @@ qb_float_op_factory factory_asinh = {
 };
 
 qb_float_op_factory factory_cosh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2929,6 +3078,7 @@ qb_float_op_factory factory_cosh = {
 };
 
 qb_float_op_factory factory_acosh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2946,6 +3096,7 @@ qb_float_op_factory factory_acosh = {
 };
 
 qb_float_op_factory factory_tanh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2963,6 +3114,7 @@ qb_float_op_factory factory_tanh = {
 };
 
 qb_float_op_factory factory_atanh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2980,6 +3132,7 @@ qb_float_op_factory factory_atanh = {
 };
 
 qb_float_op_factory factory_ceil = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -2997,6 +3150,7 @@ qb_float_op_factory factory_ceil = {
 };
 
 qb_float_op_factory factory_floor = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3014,6 +3168,7 @@ qb_float_op_factory factory_floor = {
 };
 
 qb_float_op_factory factory_fract = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3031,6 +3186,7 @@ qb_float_op_factory factory_fract = {
 };
 
 qb_float_op_factory factory_round = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_round,
@@ -3048,6 +3204,7 @@ qb_float_op_factory factory_round = {
 };
 
 qb_float_op_factory factory_log = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3065,6 +3222,7 @@ qb_float_op_factory factory_log = {
 };
 
 qb_float_op_factory factory_log1p = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3082,6 +3240,7 @@ qb_float_op_factory factory_log1p = {
 };
 
 qb_float_op_factory factory_log10 = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3099,6 +3258,7 @@ qb_float_op_factory factory_log10 = {
 };
 
 qb_float_op_factory factory_log2 = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3116,6 +3276,7 @@ qb_float_op_factory factory_log2 = {
 };
 
 qb_float_op_factory factory_exp = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3133,6 +3294,7 @@ qb_float_op_factory factory_exp = {
 };
 
 qb_float_op_factory factory_exp2 = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3150,6 +3312,7 @@ qb_float_op_factory factory_exp2 = {
 };
 
 qb_float_op_factory factory_expm1 = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3167,6 +3330,7 @@ qb_float_op_factory factory_expm1 = {
 };
 
 qb_float_op_factory factory_sqrt = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3184,6 +3348,7 @@ qb_float_op_factory factory_sqrt = {
 };
 
 qb_float_op_factory factory_rsqrt = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3201,6 +3366,7 @@ qb_float_op_factory factory_rsqrt = {
 };
 
 qb_float_op_factory factory_pow = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3218,6 +3384,7 @@ qb_float_op_factory factory_pow = {
 };
 
 qb_float_op_factory factory_hypot = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3235,6 +3402,7 @@ qb_float_op_factory factory_hypot = {
 };
 
 qb_float_op_factory factory_sign = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3252,6 +3420,7 @@ qb_float_op_factory factory_sign = {
 };
 
 qb_float_op_factory factory_step = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3269,6 +3438,7 @@ qb_float_op_factory factory_step = {
 };
 
 qb_float_op_factory factory_clamp = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3286,6 +3456,7 @@ qb_float_op_factory factory_clamp = {
 };
 
 qb_float_op_factory factory_mix = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3303,6 +3474,7 @@ qb_float_op_factory factory_mix = {
 };
 
 qb_float_op_factory factory_smooth_step = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3320,6 +3492,7 @@ qb_float_op_factory factory_smooth_step = {
 };
 
 qb_float_op_factory factory_deg2rad = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3337,6 +3510,7 @@ qb_float_op_factory factory_deg2rad = {
 };
 
 qb_float_op_factory factory_rad2deg = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3354,6 +3528,7 @@ qb_float_op_factory factory_rad2deg = {
 };
 
 qb_float_op_factory factory_is_finite = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_first_operand,
@@ -3371,6 +3546,7 @@ qb_float_op_factory factory_is_finite = {
 };
 
 qb_float_op_factory factory_is_infinite = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_first_operand,
@@ -3388,6 +3564,7 @@ qb_float_op_factory factory_is_infinite = {
 };
 
 qb_float_op_factory factory_is_nan = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	qb_coerce_operands_first_operand,
@@ -3405,6 +3582,7 @@ qb_float_op_factory factory_is_nan = {
 };	
 
 qb_basic_op_factory factory_abs = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_all,
@@ -3422,6 +3600,7 @@ qb_basic_op_factory factory_abs = {
 };
 
 qb_minmax_op_factory factory_min = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	NULL,
 	qb_coerce_operands_all,
@@ -3440,6 +3619,7 @@ qb_minmax_op_factory factory_min = {
 };
 
 qb_minmax_op_factory factory_max = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	NULL,
 	qb_coerce_operands_all,
@@ -3458,6 +3638,7 @@ qb_minmax_op_factory factory_max = {
 };
 
 qb_basic_op_factory factory_rand = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3475,6 +3656,7 @@ qb_basic_op_factory factory_rand = {
 };
 
 qb_basic_op_factory factory_mt_rand = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3492,6 +3674,7 @@ qb_basic_op_factory factory_mt_rand = {
 };
 
 qb_float_op_factory factory_lcg = {
+	NULL,
 	qb_resolve_expression_lvalue,
 	NULL,
 	NULL,
@@ -3509,6 +3692,7 @@ qb_float_op_factory factory_lcg = {
 };
 
 qb_vector_op_factory factory_cross_product = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3531,6 +3715,7 @@ qb_vector_op_factory factory_cross_product = {
 };
 
 qb_vector_op_factory factory_distance = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3553,6 +3738,7 @@ qb_vector_op_factory factory_distance = {
 };
 
 qb_vector_op_factory factory_dot_product = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3575,6 +3761,7 @@ qb_vector_op_factory factory_dot_product = {
 };
 
 qb_vector_op_factory factory_faceforward = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3597,6 +3784,7 @@ qb_vector_op_factory factory_faceforward = {
 };
 
 qb_vector_op_factory factory_length = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3619,6 +3807,7 @@ qb_vector_op_factory factory_length = {
 };
 
 qb_vector_op_factory factory_normalize = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3642,6 +3831,7 @@ qb_vector_op_factory factory_normalize = {
 
 
 qb_vector_op_factory factory_reflect = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3664,6 +3854,7 @@ qb_vector_op_factory factory_reflect = {
 };
 
 qb_vector_op_factory factory_refract = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3686,6 +3877,7 @@ qb_vector_op_factory factory_refract = {
 };
 
 qb_matrix_op_factory factory_mm_mult_cm = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3709,6 +3901,7 @@ qb_matrix_op_factory factory_mm_mult_cm = {
 };
 
 qb_matrix_op_factory factory_mv_mult_cm = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3732,6 +3925,7 @@ qb_matrix_op_factory factory_mv_mult_cm = {
 };
 
 qb_matrix_op_factory factory_vm_mult_cm = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3755,6 +3949,7 @@ qb_matrix_op_factory factory_vm_mult_cm = {
 };
 
 qb_derived_op_factory factory_mm_mult_rm = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3772,6 +3967,7 @@ qb_derived_op_factory factory_mm_mult_rm = {
 };
 
 qb_derived_op_factory factory_mv_mult_rm = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3789,6 +3985,7 @@ qb_derived_op_factory factory_mv_mult_rm = {
 };
 
 qb_derived_op_factory factory_vm_mult_rm = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3805,7 +4002,8 @@ qb_derived_op_factory factory_vm_mult_rm = {
 	&factory_mv_mult_cm,
 };
 
-qb_matrix_op_factory_selector factory_mm_mult = { 
+qb_matrix_op_factory_selector factory_mm_mult = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3823,7 +4021,8 @@ qb_matrix_op_factory_selector factory_mm_mult = {
 	(qb_op_factory *) &factory_mm_mult_rm,
 };
 
-qb_matrix_op_factory_selector factory_mv_mult = { 
+qb_matrix_op_factory_selector factory_mv_mult = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3841,7 +4040,8 @@ qb_matrix_op_factory_selector factory_mv_mult = {
 	(qb_op_factory *) &factory_mv_mult_rm,
 };
 
-qb_matrix_op_factory_selector factory_vm_mult = { 
+qb_matrix_op_factory_selector factory_vm_mult = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3860,6 +4060,7 @@ qb_matrix_op_factory_selector factory_vm_mult = {
 };
 
 qb_matrix_op_factory factory_transpose = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3883,6 +4084,7 @@ qb_matrix_op_factory factory_transpose = {
 };
 
 qb_matrix_op_factory factory_inverse = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3906,6 +4108,7 @@ qb_matrix_op_factory factory_inverse = {
 };
 
 qb_matrix_op_factory factory_determinant = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3930,6 +4133,7 @@ qb_matrix_op_factory factory_determinant = {
 
 /*
 qb_matrix_op_factory factory_transform_cm = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -3955,6 +4159,7 @@ qb_matrix_op_factory factory_transform_cm = {
 
 /*
 qb_matrix_op_factory factory_transform_rm = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -3980,6 +4185,7 @@ qb_matrix_op_factory factory_transform_rm = {
 
 /*
 qb_matrix_op_factory_selector factory_transform = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -3998,6 +4204,7 @@ qb_matrix_op_factory_selector factory_transform = {
 */
 
 qb_float_op_factory factory_complex_abs = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4015,6 +4222,7 @@ qb_float_op_factory factory_complex_abs = {
 };
 
 qb_float_op_factory factory_complex_arg = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4032,6 +4240,7 @@ qb_float_op_factory factory_complex_arg = {
 };
 
 qb_float_op_factory factory_complex_multiply = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4049,6 +4258,7 @@ qb_float_op_factory factory_complex_multiply = {
 };
 
 qb_float_op_factory factory_complex_divide = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4066,6 +4276,7 @@ qb_float_op_factory factory_complex_divide = {
 };
 
 qb_float_op_factory factory_complex_exp = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4083,6 +4294,7 @@ qb_float_op_factory factory_complex_exp = {
 };
 
 qb_float_op_factory factory_complex_log = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4100,6 +4312,7 @@ qb_float_op_factory factory_complex_log = {
 };
 
 qb_float_op_factory factory_complex_sqrt = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4117,6 +4330,7 @@ qb_float_op_factory factory_complex_sqrt = {
 };
 
 qb_float_op_factory factory_complex_pow = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4134,6 +4348,7 @@ qb_float_op_factory factory_complex_pow = {
 };
 
 qb_float_op_factory factory_complex_sin = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4151,6 +4366,7 @@ qb_float_op_factory factory_complex_sin = {
 };
 
 qb_float_op_factory factory_complex_cos = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4168,6 +4384,7 @@ qb_float_op_factory factory_complex_cos = {
 };
 
 qb_float_op_factory factory_complex_tan = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4185,6 +4402,7 @@ qb_float_op_factory factory_complex_tan = {
 };
 
 qb_float_op_factory factory_complex_sinh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4202,6 +4420,7 @@ qb_float_op_factory factory_complex_sinh = {
 };
 
 qb_float_op_factory factory_complex_cosh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4219,6 +4438,7 @@ qb_float_op_factory factory_complex_cosh = {
 };
 
 qb_float_op_factory factory_complex_tanh = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4236,6 +4456,7 @@ qb_float_op_factory factory_complex_tanh = {
 };
 
 qb_pixel_op_factory factory_sample_nearest = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4256,6 +4477,7 @@ qb_pixel_op_factory factory_sample_nearest = {
 };
 
 qb_pixel_op_factory factory_sample_bilinear = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4276,6 +4498,7 @@ qb_pixel_op_factory factory_sample_bilinear = {
 };
 
 qb_float_op_factory factory_alpha_blend = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4293,6 +4516,7 @@ qb_float_op_factory factory_alpha_blend = {
 };
 
 qb_pixel_op_factory factory_apply_premult = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4313,6 +4537,7 @@ qb_pixel_op_factory factory_apply_premult = {
 };
 
 qb_pixel_op_factory factory_remove_premult = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4333,6 +4558,7 @@ qb_pixel_op_factory factory_remove_premult = {
 };
 
 qb_pixel_op_factory factory_rgb2hsv = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4353,6 +4579,7 @@ qb_pixel_op_factory factory_rgb2hsv = {
 };
 
 qb_pixel_op_factory factory_hsv2rgb = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4373,6 +4600,7 @@ qb_pixel_op_factory factory_hsv2rgb = {
 };
 
 qb_pixel_op_factory factory_rgb2hsl = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4393,6 +4621,7 @@ qb_pixel_op_factory factory_rgb2hsl = {
 };
 
 qb_pixel_op_factory factory_hsl2rgb = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4413,6 +4642,7 @@ qb_pixel_op_factory factory_hsl2rgb = {
 };
 
 qb_basic_op_factory factory_array_column = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_array_column,
@@ -4429,12 +4659,13 @@ qb_basic_op_factory factory_array_column = {
 	{	QB_ACOL_F64_U32_U32_U32_F64,	QB_ACOL_F32_U32_U32_U32_F32,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I64_U32_U32_U32_I64,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I32_U32_U32_U32_I32,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I16_U32_U32_U32_I16,	QB_ACOL_I08_U32_U32_U32_I08,	QB_ACOL_I08_U32_U32_U32_I08	},
 };
 
-qb_basic_op_factory factory_array_diff = {
-	qb_resolve_expression_type_highest_rank,
+qb_basic_op_factory factory_array_diff_two = {
+	NULL,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands_two_arrays,
+	qb_validate_operands_array_diff,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_array_diff,
 	qb_select_opcode_basic,
@@ -4447,12 +4678,13 @@ qb_basic_op_factory factory_array_diff = {
 };
 
 qb_basic_op_factory factory_array_diff_count = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_array_diff,
@@ -4463,7 +4695,13 @@ qb_basic_op_factory factory_array_diff_count = {
 	{	QB_SZ_ADIFF_F64_F64_U32_U32,	QB_SZ_ADIFF_F32_F32_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32	},
 };
 
+qb_op_decomposer factory_array_diff = {
+	qb_decompose_pairwise_op_series,
+	&factory_array_diff_two,
+};
+
 qb_basic_op_factory factory_array_intersect = {
+	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
@@ -4481,12 +4719,13 @@ qb_basic_op_factory factory_array_intersect = {
 };
 
 qb_basic_op_factory factory_array_intersect_count = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_array_diff,
@@ -4498,6 +4737,7 @@ qb_basic_op_factory factory_array_intersect_count = {
 };
 
 qb_basic_op_factory factory_array_pos = {
+	NULL,
 	qb_resolve_expression_type_search_index,
 	NULL,
 	qb_coerce_operands_array_pos,
@@ -4515,6 +4755,7 @@ qb_basic_op_factory factory_array_pos = {
 };
 
 qb_basic_op_factory factory_array_product = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_all,
@@ -4532,6 +4773,7 @@ qb_basic_op_factory factory_array_product = {
 };
 
 qb_op_factory factory_array_push = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	qb_coerce_operands_array_push,
@@ -4547,6 +4789,7 @@ qb_op_factory factory_array_push = {
 };
 
 qb_basic_op_factory factory_array_reverse = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_all,
@@ -4564,6 +4807,7 @@ qb_basic_op_factory factory_array_reverse = {
 };
 
 qb_basic_op_factory factory_array_rpos = {
+	NULL,
 	qb_resolve_expression_type_search_index,
 	NULL,
 	qb_coerce_operands_array_pos,
@@ -4581,6 +4825,7 @@ qb_basic_op_factory factory_array_rpos = {
 };
 
 qb_basic_op_factory factory_array_search = {
+	NULL,
 	qb_resolve_expression_type_search_index,
 	NULL,
 	qb_coerce_operands_all_to_first,
@@ -4598,6 +4843,7 @@ qb_basic_op_factory factory_array_search = {
 };
 
 qb_op_factory factory_array_slice = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_array_slice,
@@ -4612,6 +4858,7 @@ qb_op_factory factory_array_slice = {
 };
 
 qb_basic_op_factory factory_array_sum = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_all,
@@ -4629,6 +4876,7 @@ qb_basic_op_factory factory_array_sum = {
 };
 
 qb_basic_op_factory factory_array_unique = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	qb_coerce_operands_all,
@@ -4646,6 +4894,7 @@ qb_basic_op_factory factory_array_unique = {
 };
 
 qb_op_factory factory_array_unshift = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	qb_coerce_operands_array_push,
@@ -4661,12 +4910,13 @@ qb_op_factory factory_array_unshift = {
 };
 
 qb_basic_op_factory factory_array_unique_count = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_array_reverse,
@@ -4678,6 +4928,7 @@ qb_basic_op_factory factory_array_unique_count = {
 };
 
 qb_basic_op_factory factory_rsort = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	NULL,
@@ -4695,6 +4946,7 @@ qb_basic_op_factory factory_rsort = {
 };
 
 qb_basic_op_factory factory_shuffle = {
+	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
 	NULL,
@@ -4712,6 +4964,7 @@ qb_basic_op_factory factory_shuffle = {
 };
 
 qb_basic_op_factory factory_sort = {
+	NULL,
 	qb_resolve_expression_type_first_operand,
 	NULL,
 	NULL,
@@ -4730,6 +4983,7 @@ qb_basic_op_factory factory_sort = {
 
 /*
 qb_basic_op_factory factory_array_insert = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -4748,6 +5002,7 @@ qb_basic_op_factory factory_array_insert = {
 
 /*
 qb_basic_op_factory factory_array_pad = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -4767,6 +5022,7 @@ qb_basic_op_factory factory_array_pad = {
 
 /*
 qb_copy_op_factory factory_array_merge = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -4784,6 +5040,7 @@ qb_copy_op_factory factory_array_merge = {
 
 /*
 qb_copy_op_factory factory_array_fill = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -4802,6 +5059,7 @@ qb_copy_op_factory factory_array_fill = {
 
 /*
 qb_basic_op_factory factory_range = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -4821,6 +5079,7 @@ qb_basic_op_factory factory_range = {
 
 /*
 qb_simple_op_factory factory_array_rand = {
+	NULL,
 	qb_resolve_expression_type,
 	qb_link_results_all_operands,
 	qb_coerce_operands,
@@ -4838,6 +5097,7 @@ qb_simple_op_factory factory_array_rand = {
 
 /*
 qb_basic_op_factory factory_array_resize = {
+	NULL,
 	qb_append_array_resize,
 	NULL,
 	0,
@@ -4849,6 +5109,7 @@ qb_basic_op_factory factory_array_resize = {
 */
 
 qb_utf8_op_factory factory_utf8_decode = {
+	NULL,
 	qb_resolve_expression_type_utf8_decode,
 	NULL,
 	qb_coerce_operands_utf8_decode,
@@ -4867,12 +5128,13 @@ qb_utf8_op_factory factory_utf8_decode = {
 };
 
 qb_utf8_op_factory factory_utf8_decode_count = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_utf8_decode,
 	qb_transfer_operands_first,
@@ -4885,6 +5147,7 @@ qb_utf8_op_factory factory_utf8_decode_count = {
 };
 
 qb_utf8_op_factory factory_utf8_encode = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	qb_coerce_operands_utf8_encode,
@@ -4903,12 +5166,13 @@ qb_utf8_op_factory factory_utf8_encode = {
 };
 
 qb_utf8_op_factory factory_utf8_encode_count = {
+	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_non_reusable_temporary_value,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_utf8_encode,
 	qb_transfer_operands_first,
@@ -4921,6 +5185,7 @@ qb_utf8_op_factory factory_utf8_encode_count = {
 };
 
 qb_basic_op_factory factory_pack_le = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	qb_coerce_operands_pack,
@@ -4938,6 +5203,7 @@ qb_basic_op_factory factory_pack_le = {
 };
 
 qb_basic_op_factory factory_pack_be = {
+	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	qb_coerce_operands_pack,
@@ -4955,6 +5221,7 @@ qb_basic_op_factory factory_pack_be = {
 };
 
 qb_basic_op_factory factory_unpack_le = {
+	NULL,
 	qb_resolve_expression_type_unpack,
 	NULL,
 	qb_coerce_operands_unpack,
@@ -4972,6 +5239,7 @@ qb_basic_op_factory factory_unpack_le = {
 };
 
 qb_basic_op_factory factory_unpack_be = {
+	NULL,
 	qb_resolve_expression_type_unpack,
 	NULL,
 	qb_coerce_operands_unpack,

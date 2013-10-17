@@ -72,14 +72,16 @@ static qb_variable * qb_find_variable_with_size_address(qb_printer_context *cxt,
 	return NULL;
 }
 
-static void qb_print_address(qb_printer_context *cxt, qb_address *address, int32_t ignore_index) {
+static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 	uint32_t i;
 	if(CONSTANT(address)) {
-		if(!SCALAR(address)) {
-			if(address->flags & QB_ADDRESS_STRING) {
-				uint32_t len = VALUE(U32, address->array_size_address);
-				char *string = (char *) ARRAY(U08, address);
-				php_printf("\"%.*s\"", len, string);
+		if(address->flags & QB_ADDRESS_STRING) {
+			uint32_t len = VALUE(U32, address->array_size_address);
+			char *string = (char *) ARRAY(U08, address);
+			php_printf("\"%.*s\"", len, string);
+		} else {
+			if(SCALAR(address)) {
+				qb_print_value(cxt, ARRAY(I08, address), address->type);
 			} else {
 				uint32_t count = ARRAY_SIZE(address);
 				int8_t *bytes = ARRAY(I08, address);
@@ -97,30 +99,40 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address, int32
 				}
 				php_printf("]");
 			}
-		} else {
-			if(address->flags & QB_ADDRESS_STRING) {
-				char *string = (char *) ARRAY(U08, address);
-				php_printf("\"%.*s\"", 1, string);
-			} else{
-				qb_print_value(cxt, ARRAY(I08, address), address->type);
-			}
 		}
 	} else if(address->source_address) {
 		if(address->source_address->dimension_count == address->dimension_count + 1) {
 			// array element
-			qb_print_address(cxt, address->source_address, TRUE);
-			if(!ignore_index) {
+			if(address->mode == QB_ADDRESS_MODE_ELE) {
+				int32_t depth, recursive = FALSE;
+				qb_print_address(cxt, address->source_address);
 				php_printf("[");
-				if(address->segment_offset != QB_OFFSET_INVALID) {
-					uint32_t index = ELEMENT_COUNT(address->segment_offset, address->type);
-					php_printf("%d", index);
-				} else {
-					qb_print_address(cxt, address->array_index_address, FALSE);
+				// leave it empty it's the dimension (i.e. end of the array)
+				if(!qb_find_variable_with_size_address(cxt, address, &depth, &recursive) || !recursive) {
+					qb_print_address(cxt, address->array_index_address);
 				}
 				php_printf("]");
+			} else if(address->mode == QB_ADDRESS_MODE_SCA) {
+				// array element referenced by constant indices
+				// find the original array first
+				qb_address *array_address = address->source_address, *a;
+				uint32_t i, index;
+				for(a = array_address; a; a = a->source_address) {
+					if(a->source_address && a->source_address->dimension_count == a->dimension_count + 1) {
+						array_address = a->source_address;
+					}
+				}
+				qb_print_address(cxt, array_address);
+
+				index = ELEMENT_COUNT(address->segment_offset, address->type);
+				for(i = 0; i < array_address->dimension_count; i++) {
+					uint32_t dimension = DIMENSION(address, i);
+					php_printf("[%d]", index / dimension);
+					index = index % dimension;
+				}
 			}
 		} else {
-			qb_print_address(cxt, address->source_address, FALSE); 
+			qb_print_address(cxt, address->source_address); 
 		}
 	} else {
 		qb_variable *qvar;
@@ -189,7 +201,7 @@ static void qb_print_op(qb_printer_context *cxt, qb_op *qop, uint32_t index) {
 		qb_operand *operand = &qop->operands[i];
 		switch(operand->type) {
 			case QB_OPERAND_ADDRESS: {
-				qb_print_address(cxt, operand->address, FALSE);
+				qb_print_address(cxt, operand->address);
 			}	break;
 			case QB_OPERAND_EXTERNAL_SYMBOL: {
 				USE_TSRM

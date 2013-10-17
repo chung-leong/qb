@@ -71,18 +71,6 @@ static qb_opcode qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_f
 	}
 }
 
-static qb_opcode qb_select_opcode_check_array_index(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_chained_op_factory *pf = (qb_chained_op_factory *) f;
-	qb_operand *container = &operands[0];
-	
-	if(qb_find_predicate_address(cxt, container->address)) {
-		return pf->opcode_subsequent;
-	} else {
-		// use op that initializes predicate variable to true on success
-		return pf->opcode_initial;
-	}
-}
-
 static qb_opcode qb_select_opcode_array_element_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0];
@@ -610,13 +598,4 @@ static qb_opcode qb_select_opcode_utf8_encode(qb_compiler_context *cxt, qb_op_fa
 static qb_opcode qb_select_opcode_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	return qb_select_type_dependent_opcode(cxt, bf->opcodes, result);
-}
-
-static qb_opcode qb_select_opcode_intrinsic(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	f = func->intrinsic_function->extra;
-	if(f->select_opcode) {
-		return f->select_opcode(cxt, f, arguments->arguments, argument_count->number, result);
-	}
-	return QB_NOP;
 }
