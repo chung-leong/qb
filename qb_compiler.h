@@ -124,6 +124,9 @@ struct qb_compiler_context {
 	char *external_code;
 	uint32_t external_code_length;
 
+	uint32_t dependency_index;
+	int8_t *dependencies;
+
 	void ***tsrm_ls;
 };
 
@@ -391,7 +394,7 @@ void qb_assign_storage_space(qb_compiler_context *cxt);
 void qb_resolve_address_modes(qb_compiler_context *cxt);
 void qb_resolve_reference_counts(qb_compiler_context *compiler_cxt);
 
-void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
+void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC);
 void qb_free_compiler_context(qb_compiler_context *cxt);
 
 #endif

@@ -47,9 +47,6 @@ struct qb_php_translater_context {
 	qb_address *foreach_index_address;
 
 	int32_t silence;
-
-	qb_operand fcall_by_name_operands[2];
-
 	void ***tsrm_ls;
 };
 
@@ -91,6 +88,7 @@ enum {
 
 void qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void qb_free_php_translater_context(qb_php_translater_context *cxt);
+void qb_survey_instructions(qb_php_translater_context *cxt);
 void qb_translate_instructions(qb_php_translater_context *cxt);
 
 qb_intrinsic_function * qb_find_intrinsic_function(qb_php_translater_context *cxt, zval *callable);

@@ -22,12 +22,19 @@
 #define QB_BUILD_H_
 
 typedef struct qb_build_context				qb_build_context;
+typedef struct qb_function_tag				qb_function_tag;
+typedef struct qb_function_dependencies		qb_function_dependencies;
 
 struct qb_build_context {
+	qb_function_tag *function_tags;
+	uint32_t function_tag_count;
+
 	qb_compiler_context *compiler_contexts;
 	uint32_t compiler_context_count;
+
 	qb_function_declaration **function_declarations;
 	uint32_t function_declaration_count;
+
 	qb_class_declaration **class_declarations;
 	uint32_t class_declaration_count;
 
@@ -39,19 +46,25 @@ struct qb_build_context {
 	void ***tsrm_ls;
 };
 
-static zend_always_inline void qb_add_function_declaration(qb_build_context *cxt, qb_function_declaration *function_decl) {
-	qb_function_declaration **p = qb_enlarge_array((void **) &cxt->function_declarations, 1);
-	*p = function_decl;
-}
+struct qb_function_tag {
+	const char *function_name;
+	const char *file_path;
+	zend_class_entry *scope;
+	uint32_t line_number;
+};
 
-static zend_always_inline void qb_add_class_declaration(qb_build_context *cxt, qb_class_declaration *class_decl) {
-	qb_class_declaration **p = qb_enlarge_array((void **) &cxt->class_declarations, 1);
-	*p = class_decl;
-}
-
-qb_class_declaration * qb_find_class_declaration(qb_build_context *cxt, zend_class_entry *ce);
+struct qb_function_dependencies {
+	qb_function_declaration *declaration;
+	uint32_t index;
+	int8_t *flags;
+	const char *name;
+	uint32_t name_length;
+	ulong hash;
+};
 
 void qb_build(qb_build_context *cxt);
+
+qb_compiler_context * qb_find_compiler_context(qb_build_context *cxt, qb_function *function_prototype);
 
 void qb_initialize_build_context(qb_build_context *cxt TSRMLS_DC);
 void qb_free_build_context(qb_build_context *cxt);

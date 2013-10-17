@@ -20,15 +20,93 @@
 
 #include "qb.h"
 
-void qb_build(qb_build_context *cxt) {
-	USE_TSRM
-	qb_compiler_context *compiler_cxt;
-	uint32_t i, native_compile = FALSE;
+static zend_always_inline void qb_add_function_declaration(qb_build_context *cxt, qb_function_declaration *function_decl) {
+	qb_function_declaration **p = qb_enlarge_array((void **) &cxt->function_declarations, 1);
+	*p = function_decl;
+}
 
-	// create the compiler contexts for all functions to be compiled 
+static zend_always_inline void qb_add_class_declaration(qb_build_context *cxt, qb_class_declaration *class_decl) {
+	qb_class_declaration **p = qb_enlarge_array((void **) &cxt->class_declarations, 1);
+	*p = class_decl;
+}
+
+static qb_class_declaration * qb_find_class_declaration(qb_build_context *cxt, zend_class_entry *ce) {
+	uint32_t i = 0;
+	for(i = 0; i < cxt->class_declaration_count; i++) {
+		qb_class_declaration *decl = cxt->class_declarations[i];
+		if(decl->zend_class == ce) {
+			return decl;
+		}
+	}
+	return NULL;
+}
+
+static zend_op_array *qb_find_zend_op_array(qb_build_context *cxt, qb_function_tag *tag) {
+	USE_TSRM
+	HashTable *ft;
+	zend_function *zfunc = NULL;
+	uint32_t name_len = strlen(tag->function_name);
+	char *name;
+	ALLOCA_FLAG(use_heap)
+
+	if(tag->scope) {
+		ft = &tag->scope->function_table;
+	} else {
+		ft = EG(function_table);
+	}
+	name = do_alloca(name_len + 1, use_heap);
+	zend_str_tolower_copy(name, tag->function_name, name_len);
+	zend_hash_find(ft, name, name_len + 1, (void **) &zfunc);
+	free_alloca(name, use_heap);
+	return (zfunc) ? &zfunc->op_array : NULL;
+}
+
+qb_compiler_context * qb_find_compiler_context(qb_build_context *cxt, qb_function *function_prototype) {
+	uint32_t i;
+	for(i = 0; i < cxt->compiler_context_count; i++) {
+		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
+		if(&compiler_cxt->function_prototype == function_prototype) {
+			return compiler_cxt;
+		}
+	}
+	return NULL;
+}
+
+static void qb_parse_declarations(qb_build_context *cxt) {
+	USE_TSRM
+	uint32_t i;
+	for(i = 0; i < cxt->function_tag_count; i++) {
+		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
+		qb_function_tag *tag = &cxt->function_tags[i];
+		qb_function_declaration *func_decl;
+		zend_op_array *op_array = qb_find_zend_op_array(cxt, tag);
+
+		qb_initialize_parser_context(parser_cxt, cxt->pool, tag->scope, tag->file_path, tag->line_number TSRMLS_CC);
+		func_decl = qb_parse_function_doc_comment(parser_cxt, op_array);
+
+		if(func_decl) {
+			qb_add_function_declaration(cxt, func_decl);
+
+			if(tag->scope) {
+				qb_class_declaration *class_decl = qb_find_class_declaration(cxt, tag->scope);
+				if(!class_decl) {
+					class_decl = qb_parse_class_doc_comment(parser_cxt, tag->scope);
+					qb_add_class_declaration(cxt, class_decl);
+				}
+			}
+		}
+		qb_free_parser_context(parser_cxt);
+	}
+
+}
+
+static void qb_initialize_build_environment(qb_build_context *cxt) {
+	USE_TSRM
+	uint32_t i;
 	for(i = 0; i < cxt->function_declaration_count; i++) {
-		compiler_cxt = qb_enlarge_array((void **) &cxt->compiler_contexts, 1);
-		qb_initialize_compiler_context(compiler_cxt, cxt->pool, cxt->function_declarations[i] TSRMLS_CC);
+		qb_compiler_context *compiler_cxt = qb_enlarge_array((void **) &cxt->compiler_contexts, 1);
+
+		qb_initialize_compiler_context(compiler_cxt, cxt->pool, cxt->function_declarations[i], i, cxt->function_declaration_count TSRMLS_CC);
 
 		QB_G(current_filename) = compiler_cxt->zend_op_array->filename;
 
@@ -37,15 +115,9 @@ void qb_build(qb_build_context *cxt) {
 
 		// set up function prototypes so the functions can resolved against each other
 		qb_initialize_function_prototype(compiler_cxt);
-	}
-
-	// translate the functions
-	for(i = 0; i < cxt->compiler_context_count; i++) {
-		compiler_cxt = &cxt->compiler_contexts[i];
 
 		if(!compiler_cxt->function_declaration->import_path) {
 			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
-			qb_initialize_php_translater_context(translater_cxt, compiler_cxt TSRMLS_CC);
 
 			// show the zend opcodes if turned on
 			if(QB_G(show_zend_opcodes)) {
@@ -54,8 +126,81 @@ void qb_build(qb_build_context *cxt) {
 				qb_print_zend_ops(printer_cxt);
 			}
 
+			// run an initial pass over the opcode to gather info
+			qb_initialize_php_translater_context(translater_cxt, compiler_cxt TSRMLS_CC);
+			qb_survey_instructions(translater_cxt);
+			qb_free_php_translater_context(translater_cxt);
+		}
+	}
+}
+
+static void qb_merge_function_dependencies(qb_build_context *cxt, qb_compiler_context *compiler_cxt, int32_t *p_changed) {
+	uint32_t i, j;
+	int8_t *d1 = compiler_cxt->dependencies;
+	for(i = 0; i < cxt->compiler_context_count; i++) {
+		if(d1[i]) {
+			// function is dependent on the other
+			qb_compiler_context *other_compiler_cxt = &cxt->compiler_contexts[i];
+			if(compiler_cxt != other_compiler_cxt) {
+				int8_t *d2 = other_compiler_cxt->dependencies;
+				for(j = 0; j < cxt->compiler_context_count; j++) {
+					// if the other function is dependent on yet another, this one is dependent on that too
+					if(d2[j] && !d1[j]) {
+						d1[j] = TRUE;
+						*p_changed = TRUE;
+					}
+				}
+			}
+		}
+	}
+}
+
+static int qb_compare_dependencies(const void *a, const void *b) {
+	const qb_compiler_context *cxt_a = a, *cxt_b = b;
+	if(cxt_a->dependencies[cxt_b->dependency_index]) {
+		// a is dependent on b, so it needs to be translated after b
+		return 1;
+	} else if(cxt_b->dependencies[cxt_a->dependency_index]) {
+		// b is dependent on a, so it needs to be translated after b
+		return -1;
+	} else {
+		// order doesn't matter
+		return 0;
+	}
+}
+
+static void qb_resolve_dependencies(qb_build_context *cxt) {
+	uint32_t i;
+	if(cxt->compiler_context_count > 1) {
+		// keep merging until there's no change
+		int32_t changed;
+		do {
+			changed = FALSE;
+			for(i = 0; i < cxt->compiler_context_count; i++) {
+				qb_merge_function_dependencies(cxt, &cxt->compiler_contexts[i], &changed);
+			}
+		} while(changed);
+
+		// sort the contexts by dependencies so when we translate a function call,
+		// the op-tree of the target function will be available
+		qsort(cxt->compiler_contexts, cxt->compiler_context_count, sizeof(qb_compiler_context *), qb_compare_dependencies);
+	}
+}
+
+void qb_perform_translation(qb_build_context *cxt) {
+	USE_TSRM
+	uint32_t i;
+	for(i = 0; i < cxt->compiler_context_count; i++) {
+		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
+
+		if(!compiler_cxt->function_declaration->import_path) {
+			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
+			qb_initialize_php_translater_context(translater_cxt, compiler_cxt TSRMLS_CC);
+
 			// translate the zend ops to intermediate qb ops
 			qb_translate_instructions(translater_cxt);
+
+			qb_free_php_translater_context(translater_cxt);
 		} else {
 			// load the code into memory
 			qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path);
@@ -106,19 +251,23 @@ void qb_build(qb_build_context *cxt) {
 		QB_G(current_filename) = NULL;
 		QB_G(current_line_number) = 0;
 	}
+}
 
-	// generate the instruction streams
+void qb_generate_executables(qb_build_context *cxt) {
+	USE_TSRM
+	int32_t native_compile = FALSE;
+	uint32_t i;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
+		qb_compiler_context *compiler_cxt = &cxt->compiler_contexts[i];
 		qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
 		qb_function *qfunc;
 
-		compiler_cxt = &cxt->compiler_contexts[i];
 		qb_initialize_encoder_context(encoder_cxt, compiler_cxt TSRMLS_CC);
 
 		// encode the instruction stream
 		qfunc = qb_encode_function(encoder_cxt);
 
-		// 
+		// attach the function to the op array
 		qb_attach_compiled_function(qfunc, compiler_cxt->zend_op_array);
 
 		if(compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE) {
@@ -144,21 +293,28 @@ void qb_build(qb_build_context *cxt) {
 #endif
 }
 
-qb_class_declaration * qb_find_class_declaration(qb_build_context *cxt, zend_class_entry *ce) {
-	uint32_t i = 0;
-	for(i = 0; i < cxt->class_declaration_count; i++) {
-		qb_class_declaration *decl = cxt->class_declarations[i];
-		if(decl->zend_class == ce) {
-			return decl;
-		}
-	}
-	return NULL;
+void qb_build(qb_build_context *cxt) {
+	// parse the doc comments
+	qb_parse_declarations(cxt);
+
+	// create the compiler contexts for all functions to be compiled 
+	qb_initialize_build_environment(cxt);
+
+	// resolve function dependencies
+	qb_resolve_dependencies(cxt);
+
+	// translate the functions
+	qb_perform_translation(cxt);
+
+	// generate the instruction streams
+	qb_generate_executables(cxt);
 }
 
 void qb_initialize_build_context(qb_build_context *cxt TSRMLS_DC) {
 	cxt->deferral_count = 0;
 	cxt->pool = &cxt->_pool;
 	qb_initialize_data_pool(cxt->pool);
+	qb_attach_new_array(cxt->pool, (void **) &cxt->function_tags, &cxt->function_tag_count, sizeof(qb_function_tag), 16);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->function_declarations, &cxt->function_declaration_count, sizeof(qb_function_declaration *), 16);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->class_declarations, &cxt->class_declaration_count, sizeof(qb_class_declaration *), 16);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->compiler_contexts, &cxt->compiler_context_count, sizeof(qb_compiler_context), 16);

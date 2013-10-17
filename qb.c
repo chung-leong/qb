@@ -473,69 +473,60 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = GET_QB_POINTER(op_array);
 	if(!qfunc) {
-		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
-		qb_build(build_cxt);
-		qfunc = GET_QB_POINTER(op_array);
-		qb_discard_current_build(TSRMLS_C);
+		if(QB_G(build_context)) {
+			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+			qb_build(build_cxt);
+			qfunc = GET_QB_POINTER(op_array);
+			qb_discard_current_build(TSRMLS_C);
+		}
 	}
 	if(qfunc) {
 		qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
 		qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
 		qb_execute(interpreter_cxt);
 		qb_free_interpreter_context(interpreter_cxt);
+		return ZEND_USER_OPCODE_RETURN;
 	} else {
-		qb_abort("Internal error");
+		return ZEND_USER_OPCODE_CONTINUE;
 	}
-	return ZEND_USER_OPCODE_RETURN;
 }
 
 void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 	TSRMLS_FETCH();
 	const char *doc_comment = CG(doc_comment);
 	uint32_t doc_comment_len = CG(doc_comment_len);
-	if(doc_comment && strstr(doc_comment, "@engine")) {
-		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
-		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
-		qb_function_declaration *func_decl;
-		zend_class_entry *zend_class = CG(active_class_entry);
-		const char *filename = CG(compiled_filename);
-		uint32_t line_number = CG(zend_lineno);
+	if(doc_comment && qb_find_engine_tag(doc_comment)) {
+		zend_op *user_op;
+		qb_build_context *build_cxt;
+		qb_function_tag *tag;
 
-		qb_initialize_parser_context(parser_cxt, build_cxt->pool, zend_class, filename, line_number TSRMLS_CC);
-		func_decl = qb_parse_function_doc_comment(parser_cxt, doc_comment, doc_comment_len);
-		if(func_decl) {
-			// add QB instruction
-			zend_op *user_op = &op_array->opcodes[op_array->last++];
-			user_op->opcode = qb_user_opcode;
-			Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
-			Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
-			Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
+		// tag the function
+		build_cxt = qb_get_current_build(TSRMLS_C);
+		tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
+		tag->scope = CG(active_class_entry);
+		tag->function_name = NULL;
+		tag->file_path = CG(compiled_filename);
+		tag->line_number = CG(zend_lineno);
 
-			// add the declaration to the build
-			qb_add_function_declaration(build_cxt, func_decl);
+		// add QB instruction
+		user_op = &op_array->opcodes[op_array->last++];
+		user_op->opcode = qb_user_opcode;
+		Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
+		Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
+		Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
 
-			// stash the declaration in the node until the compilation is done
-			SET_QB_POINTER(op_array, func_decl);
-
-			if(zend_class) {
-				qb_class_declaration *class_decl = qb_find_class_declaration(build_cxt, zend_class);
-				if(!class_decl) {
-					class_decl = qb_parse_class_doc_comment(parser_cxt, zend_class);
-				}
-				func_decl->class_declaration = class_decl;
-			}
-		}
-		qb_free_parser_context(parser_cxt);
+		// stash the tag in the node until the compilation is done
+		SET_QB_POINTER(op_array, tag);
 	}
 }
 
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	if(HAS_QB_USER_OP(op_array)) {
-		qb_function_declaration *func_decl = GET_QB_POINTER(op_array);
+		qb_function_tag *tag = GET_QB_POINTER(op_array);
 
 		// save the function name so we can find the function later
-		// this op_array might be temporary so we can't use the pointer
-		func_decl->function_name = op_array->function_name;
+		// op_array might be temporary so we can't use this pointer
+		tag->function_name = op_array->function_name;
 
 		SET_QB_POINTER(op_array, NULL);
 	}

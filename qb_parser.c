@@ -95,6 +95,23 @@ pcre *type_dim_regexp;
 pcre *type_dim_alias_regexp;
 pcre *identifier_regexp;
 
+int32_t qb_find_engine_tag(const char *doc_comment) {
+	// use strstr() to quickly check if the tag is there
+	const char *tag;
+	for(tag = strstr(doc_comment, "@engine"); tag; tag = strstr(tag, "@engine")) {
+		tag += sizeof("@engine") - 1;
+		if(*tag == ' ' || *tag == '\t') {
+			do {
+				tag++;
+			} while(*tag == ' ' || *tag == '\t');
+			if(tag[0] == 'q' && tag[1] == 'b') {
+				return TRUE;
+			}
+		}
+	} 
+	return FALSE;
+}
+
 static void qb_notice_doc_comment_issue(qb_parser_context *cxt, const char *format, ... ) {
 	va_list args;
 	va_start(args, format);
@@ -533,13 +550,16 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 	return function_decl;
 }
 
-qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, const char *doc_comment, size_t doc_comment_len) {
+qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, zend_op_array *op_array) {
 	qb_function_declaration *function_decl = NULL;
+	const char *doc_comment = op_array->doc_comment;
+	size_t doc_comment_len = op_array->doc_comment_len;
 	int offsets[48], matches;
 	uint32_t start_index = 0;
 	int32_t use_qb = FALSE;
 
 	function_decl = qb_allocate_function_declaration(cxt->pool);
+	function_decl->zend_op_array = op_array;
 
 	for(start_index = 0; start_index < doc_comment_len; start_index = offsets[1]) {
 		matches = pcre_exec(doc_comment_function_regexp, NULL, doc_comment, doc_comment_len, start_index, 0, offsets, sizeof(offsets) / sizeof(int));

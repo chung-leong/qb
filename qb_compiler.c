@@ -3550,27 +3550,7 @@ void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	*/
 }
 
-static zend_op_array *qb_find_zend_op_array(qb_function_declaration *decl TSRMLS_DC) {
-	HashTable *ft;
-	zend_function *zfunc = NULL;
-	uint32_t name_len = strlen(decl->function_name);
-	char *name;
-	ALLOCA_FLAG(use_heap)
-
-	if(decl->class_declaration) {
-		ft = &decl->class_declaration->zend_class->function_table;
-	} else {
-		ft = EG(function_table);
-	}
-	name = do_alloca(name_len + 1, use_heap);
-	zend_str_tolower_copy(name, decl->function_name, name_len);
-	zend_hash_find(ft, name, name_len + 1, (void **) &zfunc);
-	free_alloca(name, use_heap);
-
-	return (zfunc) ? &zfunc->op_array : NULL;
-}
-
-void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC) {
+void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC) {
 	cxt->pool = pool;
 	if(function_decl) {
 		cxt->function_flags = function_decl->flags;
@@ -3582,7 +3562,7 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 		}
 
 		cxt->function_declaration = function_decl;
-		cxt->zend_op_array = qb_find_zend_op_array(function_decl TSRMLS_CC);
+		cxt->zend_op_array = function_decl->zend_op_array;
 	}
 	SAVE_TSRMLS
 
@@ -3626,6 +3606,11 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	cxt->false_address->flags |= QB_ADDRESS_BOOLEAN;
 	cxt->true_address = qb_obtain_constant_S32(cxt, 1);
 	cxt->true_address->flags |= QB_ADDRESS_BOOLEAN;
+
+	cxt->dependency_index = dependency_index;
+	if(max_dependency_index > 1) {
+		cxt->dependencies = ecalloc(max_dependency_index, sizeof(int8_t));
+	}
 }
 
 void qb_free_compiler_context(qb_compiler_context *cxt) {
@@ -3647,6 +3632,9 @@ void qb_free_compiler_context(qb_compiler_context *cxt) {
 	if(cxt->external_code) {
 		efree(cxt->external_code);
 	}
+	if(cxt->dependencies) {
+		efree(cxt->dependencies);
+	}
 }
 
 void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
@@ -3655,7 +3643,7 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 
 	// set active op array to the function to whom the code belong, so that relative paths are resolved correctly
 	zend_op_array *active_op_array = EG(active_op_array);
-	zend_op_array *target_op_array = (cxt->function_declaration) ? qb_find_zend_op_array(cxt->function_declaration TSRMLS_CC) : NULL;
+	zend_op_array *target_op_array = cxt->function_declaration->zend_op_array;
 	if(target_op_array) {
 		EG(active_op_array) = target_op_array;
 	}
@@ -3838,7 +3826,7 @@ int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 	for(i = 0; i < QB_DIAGNOSTIC_SPEED_TEST_COUNTS; i++) {
 		double start_time, end_time, duration, instruction_per_sec;
 		compiler_cxt = qb_enlarge_array((void **) &cxt->compiler_contexts, 1);
-		qb_initialize_compiler_context(compiler_cxt, cxt->pool, NULL TSRMLS_CC);
+		qb_initialize_compiler_context(compiler_cxt, cxt->pool, NULL, 0, 0 TSRMLS_CC);
 		qb_create_diagnostic_loop(compiler_cxt, i);
 		
 		start_time = qb_get_high_res_timestamp();

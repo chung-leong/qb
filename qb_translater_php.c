@@ -277,6 +277,17 @@ static void qb_do_function_call_translation(qb_php_translater_context *cxt, void
 	func_operands[2].number = argument_count;
 	func_operands[2].type = QB_OPERAND_NUMBER;
 
+	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(qfunc && cxt->compiler_context->dependencies) {
+			USE_TSRM
+			// note that this function is dependent on the target function
+			qb_compiler_context *other_compiler_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
+			if(other_compiler_cxt) {
+				cxt->compiler_context->dependencies[other_compiler_cxt->dependency_index] = TRUE;
+			}
+		}
+	}
+
 	qb_produce_op(cxt->compiler_context, op_factory, func_operands, 3, result, NULL, 0, result_prototype);
 	free_alloca(arguments, use_heap);
 }
@@ -1006,7 +1017,7 @@ static void qb_translate_instruction_range(qb_php_translater_context *cxt, uint3
 	cxt->zend_op_index = zend_op_index;
 }
 
-void qb_translate_instructions(qb_php_translater_context *cxt) {
+void qb_survey_instructions(qb_php_translater_context *cxt) {
 	uint32_t i;
 	cxt->compiler_context->op_translations = qb_allocate_indices(cxt->pool, cxt->zend_op_array->last);
 	memset(cxt->compiler_context->op_translations, 0xFF, cxt->zend_op_array->last * sizeof(uint32_t));
@@ -1030,26 +1041,26 @@ void qb_translate_instructions(qb_php_translater_context *cxt) {
 		prototype->final_type = QB_TYPE_UNKNOWN;
 	}
 
+	// scan through the opcodes to determine the type of each expression
 	cxt->compiler_context->stage = QB_STAGE_RESULT_TYPE_RESOLUTION;
 	qb_translate_instruction_range(cxt, 0, cxt->zend_op_array->last);
+}
 
-	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
+void qb_translate_instructions(qb_php_translater_context *cxt) {
+	uint32_t i;
 	for(i = 0; i < cxt->compiler_context->temp_variable_count; i++) {
 		qb_temporary_variable *temp_variable = &cxt->compiler_context->temp_variables[i];
 		temp_variable->operand.type = QB_OPERAND_EMPTY;
 		temp_variable->operand.generic_pointer = NULL;
 	}
-	if(cxt->compiler_context->op_count > 0) {
-		// there are instructions for initializing static variables
-		// the first translated instruction is going to be a jump target
-		cxt->compiler_context->op_translations[0] = QB_OP_INDEX_JUMP_TARGET;
-		cxt->compiler_context->initialization_op_count = cxt->compiler_context->op_count;
-	}
+
+	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
 	qb_translate_instruction_range(cxt, 0, cxt->zend_op_array->last);
 
 	// make sure there's always a RET at the end
 	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
-		//qb_create_op(cxt, &factory_return, NULL, 0, NULL);
+		qb_operand operand = { QB_OPERAND_EMPTY, NULL };
+		qb_create_op(cxt->compiler_context, &factory_return, NULL, 0, &operand, NULL, 0, FALSE);
 	}
 }
 
@@ -1065,9 +1076,14 @@ void qb_initialize_php_translater_context(qb_php_translater_context *cxt, qb_com
 		hash_initialized = TRUE;
 	}
 
-	memset(cxt, 0, sizeof(qb_php_translater_context));
 	cxt->pool = compiler_cxt->pool;
 	cxt->compiler_context = compiler_cxt;
+	cxt->zend_op_index = 0;
+	cxt->jump_target_index1 = 0;
+	cxt->jump_target_index2 = 0;
+	cxt->silence = 0;
+	cxt->foreach_index_address = NULL;
+
 	if(compiler_cxt->function_declaration) {
 		cxt->zend_op_array = compiler_cxt->zend_op_array;
 	}
