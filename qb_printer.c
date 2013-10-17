@@ -211,6 +211,9 @@ static void qb_print_op(qb_printer_context *cxt, qb_op *qop, uint32_t index) {
 			case QB_OPERAND_SEGMENT_SELECTOR: {
 				php_printf("@%d", operand->address->segment_selector);
 			}	break;
+			case QB_OPERAND_ELEMENT_SIZE: {
+				php_printf("sizeof(%s)", type_names[operand->address->type]);
+			}	break;
 			case QB_OPERAND_NUMBER: {
 				php_printf("'%d'", operand->number);
 			}	break;

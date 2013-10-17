@@ -155,6 +155,11 @@ static void qb_encode_segment_selector(qb_encoder_context *cxt, qb_address *addr
 	*p_ip += sizeof(uint32_t);
 }
 
+static void qb_encode_element_size(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
+	*((uint32_t *) *p_ip) = BYTE_COUNT(1, address->type);
+	*p_ip += sizeof(uint32_t);
+}
+
 static void qb_encode_number(qb_encoder_context *cxt, int32_t number, int8_t **p_ip) {
 	*((int32_t *) *p_ip) = number;
 	*p_ip += sizeof(uint32_t);
@@ -205,6 +210,9 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 					}	break;
 					case QB_OPERAND_SEGMENT_SELECTOR: {
 						qb_encode_segment_selector(cxt, operand->address, &ip);
+					}	break;
+					case QB_OPERAND_ELEMENT_SIZE: {
+						qb_encode_element_size(cxt, operand->address, &ip);
 					}	break;
 					case QB_OPERAND_NUMBER: {
 						qb_encode_number(cxt, operand->number, &ip);

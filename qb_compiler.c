@@ -382,10 +382,10 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *s
 			// accommodate the input by resizing the array
 			// if it's multidimensional, the dimension has to be updated as well
 			if(address->dimension_count > 1) {
-				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_NUMBER, (void *) BYTE_COUNT(1, address->type) } };
+				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
 				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size, operands, 4);
 			} else {
-				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_ADDRESS, address->dimension_addresses[0] }, { QB_OPERAND_ADDRESS, address->array_size_addresses[1] }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_NUMBER, (void *) BYTE_COUNT(1, address->type) } };
+				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_ADDRESS, address->dimension_addresses[0] }, { QB_OPERAND_ADDRESS, address->array_size_addresses[1] }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
 				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
 			}
 		} else {
@@ -2569,7 +2569,7 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 				// a write operation and the array can expand
 				// enlarge the array to accommodate an index larger than the current size
 				// since sub-arrays are never expandable, the offset should always be zero
-				qb_operand operands[5] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_NUMBER, (void *) BYTE_COUNT(1, container_address->type) } };
+				qb_operand operands[5] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
 				return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index_multiply, operands, 5);
 			} else {
 				// a read operation or a write to a non-expanding array
@@ -2600,10 +2600,10 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
 				if(index_address == index_limit_address) {
 					// done slightly differently, since we need to put the original size of the array in a temporary variable
-					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_NUMBER, (void *) BYTE_COUNT(1, container_address->type) } };
+					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
 					return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_push, operands, 3);
 				} else {
-					qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_NUMBER, (void *) BYTE_COUNT(1, container_address->type) }  };
+					qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address }  };
 					return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index, operands, 4);
 				}
 			} else {
