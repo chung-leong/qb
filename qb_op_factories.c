@@ -4487,7 +4487,7 @@ qb_pixel_op_factory factory_sample_nearest = {
 	qb_validate_operands_sampling,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_sampling,
-	qb_select_opcode_pixel,
+	qb_select_opcode_sampling,
 	qb_transfer_operands_sampling,
 
 	0,
@@ -4508,7 +4508,7 @@ qb_pixel_op_factory factory_sample_bilinear = {
 	qb_validate_operands_sampling,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_sampling,
-	qb_select_opcode_pixel,
+	qb_select_opcode_sampling,
 	qb_transfer_operands_sampling,
 
 	0,

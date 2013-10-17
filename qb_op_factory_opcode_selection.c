@@ -236,7 +236,7 @@ static qb_opcode qb_select_vectorized_unary_opcode(qb_compiler_context *cxt, qb_
 			return QB_NOP;
 		}
 		opcode = opcodes[denominator - 2][QB_TYPE_F64 - operand1->address->type];
-		if(width1 > denominator || width2 > denominator) {
+		if(!FIXED_LENGTH(operand1->address) || !FIXED_LENGTH(result->address) || width1 > denominator || width2 > denominator) {
 			opcode = qb_select_multidata_opcode(cxt, opcode);
 		}
 		return opcode;
@@ -282,7 +282,7 @@ static qb_opcode qb_select_vectorized_binary_opcode(qb_compiler_context *cxt, qb
 			return QB_NOP;
 		}
 		opcode = opcodes[denominator - 2][QB_TYPE_F64 - operand1->address->type];
-		if(width1 > denominator || width2 > denominator || width3 > denominator) {
+		if(!FIXED_LENGTH(operand1->address) || !FIXED_LENGTH(operand2->address) || !FIXED_LENGTH(result->address) || width1 > denominator || width2 > denominator || width3 > denominator) {
 			opcode = qb_select_multidata_opcode(cxt, opcode);
 		}
 		return opcode;
@@ -348,6 +348,21 @@ static qb_opcode qb_select_opcode_print(qb_compiler_context *cxt, qb_op_factory 
 		} else {
 			opcode = qb_select_type_dependent_opcode(cxt, sf->opcodes, &operands[0]);
 		}
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_opcode_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) f;
+	qb_address *image_address = operands[0].address;
+	qb_address *address_x = operands[1].address;
+	qb_address *address_y = operands[2].address;
+	uint32_t channel_count = DIMENSION(image_address, -1);
+	qb_opcode opcode = pf->opcodes[channel_count - 3][QB_TYPE_F64 - image_address->type];
+
+	if(address_x->dimension_count > 1 || address_y->dimension_count > 1) {
+		// handling multiple pixels
+		opcode = qb_select_multidata_opcode(cxt, opcode);
 	}
 	return opcode;
 }

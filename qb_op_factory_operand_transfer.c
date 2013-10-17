@@ -477,9 +477,9 @@ static void qb_transfer_operands_matrix_current_mode(qb_compiler_context *cxt, q
 static void qb_transfer_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *image = &operands[0];
 	dest[0] = operands[0];
-	dest[1].address = image->address->dimension_addresses[0];
+	dest[1].address = image->address->dimension_addresses[1];
 	dest[1].type = QB_OPERAND_ADDRESS;
-	dest[2].address = image->address->dimension_addresses[1];
+	dest[2].address = image->address->dimension_addresses[0];
 	dest[2].type = QB_OPERAND_ADDRESS;
 	dest[3] = operands[1];
 	dest[4] = operands[2];

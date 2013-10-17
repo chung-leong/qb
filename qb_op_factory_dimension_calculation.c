@@ -74,10 +74,10 @@ static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *ad
 		count1 = address1->dimension_count - offset1;		
 	}
 	if(offset2 < 0) {
-		count2 = address1->dimension_count + offset2;
+		count2 = address2->dimension_count + offset2;
 		offset2 = 0;
 	} else {
-		count2 = address1->dimension_count - offset2;		
+		count2 = address2->dimension_count - offset2;		
 	}
 	dim->dimension_count = count1 + count2;
 	if(dim->dimension_count > 0) {
