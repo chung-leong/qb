@@ -66,6 +66,24 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 		result->type = QB_OPERAND_ADDRESS;
 	}
 }
+static void qb_set_preliminary_result_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		// link to the prototype in the other branch and keep it as the result 
+		// so that type coercion on both branches is performed on that prototype 
+		// ensuring the highest rank is obtained
+		result_prototype->parent = result->result_prototype;
+	} else {
+		qb_set_result_prototype(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+	}
+}
+
+static void qb_set_final_result_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(result->type == QB_OPERAND_ADDRESS) {
+		// write to the same address as the other branch
+	} else {
+		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+	}
+}
 
 static void qb_set_result_fetch_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_fetch_op_factory *ff = (qb_fetch_op_factory *) f;

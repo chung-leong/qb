@@ -217,6 +217,7 @@ extern qb_op_factory factory_nop;
 extern qb_copy_op_factory factory_assign;
 extern qb_derived_op_factory factory_assign_array_element;
 extern qb_derived_op_factory factory_assign_object_property;
+extern qb_derived_op_factory factory_assign_branching;
 
 extern qb_op_factory factory_assign_ref;
 
@@ -371,7 +372,7 @@ extern qb_simple_op_factory factory_foreach_reset;
 extern qb_simple_op_factory factory_foreach_fetch;
 extern qb_simple_op_factory factory_loop;
 extern qb_simple_op_factory factory_ext;
-
+extern qb_op_decomposer factory_branch_on_true_set;
 
 extern qb_simple_op_factory factory_empty_string;
 extern qb_string_op_factory factory_add_variable;

@@ -378,10 +378,25 @@ static void qb_translate_jump(qb_php_translater_context *cxt, void *op_factory, 
 }
 
 static void qb_translate_jump_set(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	// TODO
-	// jump over the false clause first
-	//cxt->jump_target_index1 = ZEND_OP_INDEX(target_op);
-	//cxt->jump_target_index2 = cxt->zend_op_index + 1;
+	zend_op *target_op1 = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
+	uint32_t target_indices[2];
+	
+	// this seem slightly weird
+	// basically, if the value is true, we go to the op that follows the IF_T
+	// if the value is false, we go to the op created through the translation of the next zend op
+	// that is, the second index points to the expression on the right side of ?:
+	// normally QB_INSTRUCTION_NEXT and (cxt->zend_op_index + 1) would refer to the same
+	// op, but this is not the case here as the order of the QB ops are different from the 
+	// order of the original zend ops
+	target_indices[0] = QB_INSTRUCTION_NEXT;
+	target_indices[1] = cxt->zend_op_index + 1;
+
+	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, target_indices, 2, result_prototype);
+
+	// process the zend ops beyond the ternary expression first
+	// before we process the false clause
+	cxt->jump_target_index1 = ZEND_OP_INDEX(target_op1);
+	cxt->jump_target_index2 = cxt->zend_op_index + 1;
 }
 
 static void qb_translate_branch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -443,7 +458,7 @@ static void qb_translate_continue(qb_php_translater_context *cxt, void *op_facto
 
 	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, &target_index, 1, result_prototype);
 
-	cxt->jump_target_index1 = jmp_to->cont;
+	cxt->jump_target_index1 = target_index;
 }
 
 static void qb_translate_foreach_fetch(qb_php_translater_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -492,7 +507,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_translate_basic_op,				&factory_less_than							},	// ZEND_IS_SMALLER
 	{	qb_translate_basic_op,				&factory_less_equal							},	// ZEND_IS_SMALLER_OR_EQUAL
 	{	qb_translate_cast_op,				factories_cast								},	// ZEND_CAST
-	{	qb_translate_basic_op,				NULL						},	// ZEND_QM_ASSIGN
+	{	qb_translate_basic_op,				&factory_assign_branching					},	// ZEND_QM_ASSIGN
 	{	qb_translate_combo_op,				factories_add_assign						},	// ZEND_ASSIGN_ADD
 	{	qb_translate_combo_op,				factories_subtract_assign					},	// ZEND_ASSIGN_SUB
 	{	qb_translate_combo_op,				factories_multiply_assign					},	// ZEND_ASSIGN_MUL
@@ -630,8 +645,8 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL										},	// ZEND_ADD_TRAIT
 	{	NULL,								NULL										},	// ZEND_BIND_TRAITS
 	{	NULL,								NULL										},	// ZEND_SEPARATE
-	{	qb_translate_basic_op,				NULL						},	// ZEND_QM_ASSIGN_VAR
-	{	qb_translate_jump_set,				NULL						},	// ZEND_JMP_SET_VAR
+	{	qb_translate_basic_op,				&factory_assign_branching					},	// ZEND_QM_ASSIGN_VAR
+	{	qb_translate_jump_set,				&factory_branch_on_true_set				},	// ZEND_JMP_SET_VAR
 	{	NULL,								NULL,										},	// ZEND_DISCARD_EXCEPTION
 	{	NULL,								NULL,										},	// ZEND_YIELD
 	{	NULL,								NULL,										},	// ZEND_GENERATOR_RETURN

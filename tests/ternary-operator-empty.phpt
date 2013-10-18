@@ -13,12 +13,14 @@ Ternary operator test (empty true clause)
  * @engine	qb
  * @param	int32	$a
  * @local	int32	$b
+ * @local	int32	$c
  * 
  * @return	void
  * 
  */
 function test_function($a) {
-	$b = $a ? : 456;
+	$c = -12;
+	$b = $a ? : $c + 456;
 	echo "$b\n";
 }
 
@@ -28,4 +30,4 @@ test_function(0);
 ?>
 --EXPECT--
 123
-456
+444

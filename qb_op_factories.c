@@ -129,6 +129,23 @@ qb_op_factory factory_assign_ref = {
 	0,
 };
 
+qb_derived_op_factory factory_assign_branching = {
+	NULL,
+	qb_resolve_expression_lvalue,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_preliminary_result_assign_branching,
+	NULL,
+	qb_set_final_result_assign_branching,
+	NULL,
+	qb_select_opcode_derived,
+	qb_transfer_operands_all,
+	QB_COERCE_TO_LVALUE_TYPE,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_TEMPORARY,
+	&factory_assign,
+};
+
 qb_op_factory factory_fetch_local = {
 	NULL,
 	qb_resolve_expression_type_fetch_local,
@@ -2918,6 +2935,11 @@ qb_simple_op_factory factory_loop = {
 	0,
 	0,
 	QB_INC_IF_GT_U32_U32,
+};
+
+qb_op_decomposer factory_branch_on_true_set = {
+	qb_decompose_branch_set,
+	&factory_branch_on_true,
 };
 
 qb_float_op_factory factory_sin = {
