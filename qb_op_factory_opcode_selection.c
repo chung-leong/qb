@@ -407,9 +407,9 @@ static qb_opcode qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_fa
 	qb_opcode opcode = QB_NOP;
 	uint32_t dimension = 0;
 	if(CONSTANT_DIMENSION(address1, -1)) {
-		uint32_t dimension = DIMENSION(address1, -1);
+		dimension = DIMENSION(address1, -1);
 	} else if(CONSTANT_DIMENSION(address2, -1)) {
-		uint32_t dimension = DIMENSION(address2, -1);
+		dimension = DIMENSION(address2, -1);
 	}
 	if(2 <= dimension && dimension <= 4) {
 		opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address1->type];
@@ -440,9 +440,9 @@ static qb_opcode qb_select_opcode_cross_product(qb_compiler_context *cxt, qb_op_
 		qb_address *address2 = operands[1].address;
 		uint32_t dimension = 0;
 		if(CONSTANT_DIMENSION(address1, -1)) {
-			uint32_t dimension = DIMENSION(address1, -1);
+			dimension = DIMENSION(address1, -1);
 		} else if(CONSTANT_DIMENSION(address2, -1)) {
-			uint32_t dimension = DIMENSION(address2, -1);
+			dimension = DIMENSION(address2, -1);
 		}
 		if(2 <= dimension && dimension <= 3) {
 			opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address1->type];
