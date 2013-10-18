@@ -422,7 +422,7 @@ static void qb_copy_matrix_multiplication_result_dimensions(qb_compiler_context 
 			if(i == dim->dimension_count - 1) {
 				dim->array_size_addresses[i] = dim->dimension_addresses[i];
 			} else {
-				dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+				dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->array_size_addresses[i + 1]);
 			}
 		}
 	}
