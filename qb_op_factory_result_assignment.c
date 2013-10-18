@@ -80,6 +80,9 @@ static void qb_set_preliminary_result_assign_branching(qb_compiler_context *cxt,
 static void qb_set_final_result_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result->type == QB_OPERAND_ADDRESS) {
 		// write to the same address as the other branch
+		// with bound checking, naturally
+		qb_operand *value = &operands[0];
+		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, result->address, TRUE);
 	} else {
 		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 	}

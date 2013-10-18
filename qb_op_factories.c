@@ -137,7 +137,7 @@ qb_derived_op_factory factory_assign_branching = {
 	qb_set_preliminary_result_assign_branching,
 	NULL,
 	qb_set_final_result_assign_branching,
-	NULL,
+	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
 	qb_transfer_operands_all,
 	QB_COERCE_TO_LVALUE_TYPE,
