@@ -5,7 +5,7 @@ Logical short-circuiting test
 
 /**
  * @engine	qb
- * @return	int32
+ * @return	bool
  * 
  */
 function A() {
@@ -15,7 +15,7 @@ function A() {
 
 /**
  * @engine	qb
- * @return	int32
+ * @return	bool
  * 
  */
 function B() {
@@ -25,7 +25,7 @@ function B() {
 
 /**
  * @engine	qb
- * @return	int32
+ * @return	bool
  * 
  */
 function C() {
@@ -35,7 +35,7 @@ function C() {
 
 /**
  * @engine	qb
- * @return	int32
+ * @return	bool
  * 
  */
 function D() {
@@ -61,13 +61,11 @@ function test_function() {
 	} else {
 		echo "A() || B() = false\n";
 	}
-	
 	if(A() || B() || C()) {
 		echo "A() || B() || C() = true\n";
 	} else {
 		echo "A() || B() || C() = false\n";
 	}
-	
 	if(A() && B() && C()) {
 		echo "A() && B() && C() = true\n";
 	} else {

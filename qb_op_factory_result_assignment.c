@@ -55,6 +55,29 @@ static void qb_set_result_none(qb_compiler_context *cxt, qb_op_factory *f, qb_pr
 	result->type = QB_OPERAND_NONE;
 }
 
+static void qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *condition = &operands[0];
+
+	// if the result isn't none, then this is part of a short-circuited logical statement
+	if(result->type != QB_OPERAND_NONE) {
+		if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			// link the previous prototype to this one
+			result->result_prototype->parent = result_prototype;		
+		}
+		if(condition->type == QB_OPERAND_ADDRESS) {
+			// the condition needs to be marked as reused so the branch op doesn't get merge with the comparison op
+			condition->address = qb_obtain_reused_alias(cxt, condition->address);
+		}
+		*result = *condition;
+	}
+}
+
+static void qb_set_result_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(result->type != QB_OPERAND_ADDRESS) {
+		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+	}
+}
+
 static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 

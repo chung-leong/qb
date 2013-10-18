@@ -282,7 +282,9 @@ struct qb_pointer_PAR {
 #define CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
 
 #define CONSTANT_DIMENSION(address, i)		CONSTANT(address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
-#define DIMENSION(address, i)				VALUE(U32, address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
+#define DIMENSION_ADDRESS(address, i)		(address->dimension_addresses[(i >= 0) ? i : address->dimension_count + i])
+#define ARRAY_SIZE_ADDRESS(address, i)		(address->array_size_addresses[(i >= 0) ? i : address->dimension_count + i])
+#define DIMENSION(address, i)				VALUE(U32, DIMENSION_ADDRESS(address, i))
 
 uint32_t qb_get_op_flags(qb_opcode opcode);
 uint32_t qb_get_operand_count(qb_opcode opcode);

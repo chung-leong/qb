@@ -290,6 +290,7 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 			decl->flags |= QB_TYPE_DECL_STRING;
 		} else if(FOUND_GROUP(TYPE_DECL_BOOLEAN)) {
 			decl->type = QB_TYPE_I32;
+			decl->flags |= QB_TYPE_DECL_BOOLEAN;
 		} else if(FOUND_GROUP(TYPE_DECL_STRING) && !FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
 			decl->type = QB_TYPE_U08;
 			decl->dimension_count = 1;

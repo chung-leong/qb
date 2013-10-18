@@ -271,6 +271,15 @@ static void qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_f
 		if(!(2 <= vector_width1 && vector_width1 <= 4)) {
 			qb_abort("%s() can only handle two, three, or four-dimensional vectors", cxt->function_name);
 		}
+		if(vector_width1 == 4) {
+			if(operand_count != 3) {
+				qb_abort("%s() requires a third parameter when given four-dimensional vectors", cxt->function_name);
+			}
+		} else {
+			if(operand_count != 2) {
+				qb_abort("%s() only accepts a third parameter when given four-dimensional vectors", cxt->function_name);
+			}
+		}
 	}
 }
 
@@ -372,6 +381,9 @@ static qb_address *qb_obtain_matrix_column_address(qb_compiler_context *cxt, qb_
 
 static void qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+	qb_matrix_order order = qb_get_matrix_order(cxt, f);
+	qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
+	qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
 
 	if(matrix1->address->dimension_count < 2) {
 		qb_abort("%s() expects the first parameter to be a matrix", cxt->function_name);
@@ -380,15 +392,16 @@ static void qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory
 		qb_abort("%s() expects the second parameter to be a matrix", cxt->function_name);
 	}
 
-	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -2) && CONSTANT_DIMENSION(matrix2->address, -1)) {
-		qb_matrix_order order = qb_get_matrix_order(cxt, f);
-		qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
-		qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
+	if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
 		if(m1_col_count != m2_row_count) {
 			qb_abort("The number of columns in the first matrix (%d) does not match the number of rows in the second matrix (%d)", m1_col_count, m2_row_count);
+		}
+	} else {
+		if(m1_col_address != m2_row_address) {
+			// TODO: add run time checks
 		}
 	}
 }

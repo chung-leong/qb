@@ -113,7 +113,7 @@ static void qb_set_image_linear_size(qb_storage *storage, qb_address *address, g
 static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_address *address, int32_t true_color) {
 	qb_pixel_format pixel_format = QB_PIXEL_INVALID;
 	qb_primitive_type element_type = address->type;
-	qb_address *last_dimension_address = address->dimension_addresses[address->dimension_count - 1];
+	qb_address *last_dimension_address = DIMENSION_ADDRESS(address, -1);
 	uint32_t last_dimension = VALUE_IN(storage, U32, last_dimension_address);
 
 	if(address->dimension_count == 3) {

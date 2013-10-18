@@ -384,6 +384,14 @@ static void qb_set_result_dimensions_dot_product(qb_compiler_context *cxt, qb_op
 	qb_choose_dimensions_from_two_addresses(cxt, first->address, -1, second->address, -1, dim);
 }
 
+static void qb_set_result_dimensions_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	if(operand_count == 3) {
+		qb_set_result_dimensions_largest_of_three(cxt, f, operands, operand_count, dim);	
+	} else {
+		qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim);	
+	}
+}
+
 static void qb_copy_matrix_multiplication_result_dimensions(qb_compiler_context *cxt, qb_address *matrix_address, int32_t offset, qb_address *row_address, qb_address *col_address, qb_matrix_order order, qb_variable_dimensions *dim) {
 	uint32_t i;
 	dim->dimension_count = matrix_address->dimension_count + offset;
@@ -501,9 +509,9 @@ static void qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_op_f
 	qb_copy_address_dimensions(cxt, matrix_address, 0, dim);
 
 	// swap the lowest two dimensions
-	temp = dim->dimension_addresses[dim->dimension_count - 2];
-	dim->dimension_addresses[dim->dimension_count - 2] = dim->dimension_addresses[dim->dimension_count - 1];
-	dim->dimension_addresses[dim->dimension_count - 1] = dim->array_size_addresses[dim->dimension_count - 1] = temp;
+	temp = DIMENSION_ADDRESS(dim, -2);
+	DIMENSION_ADDRESS(dim, -2) = DIMENSION_ADDRESS(dim, -1);
+	DIMENSION_ADDRESS(dim, -1) = ARRAY_SIZE_ADDRESS(dim, -1) = temp;
 	dim->source_address = matrix_address;
 }
 
@@ -514,7 +522,7 @@ static void qb_set_result_dimensions_determinant(qb_compiler_context *cxt, qb_op
 
 static void qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *image_address = operands[0].address;
-	qb_address *channel_count_address = image_address->dimension_addresses[image_address->dimension_count - 1];
+	qb_address *channel_count_address = DIMENSION_ADDRESS(image_address, -1);
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
 

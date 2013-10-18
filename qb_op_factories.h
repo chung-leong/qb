@@ -353,11 +353,6 @@ extern qb_unset_op_factory factory_unset;
 extern qb_unset_element_op_factory factory_unset_array_element;
 extern qb_unset_op_factory factory_unset_object_property;
 
-extern qb_basic_op_factory factory_branch_on_equal;
-extern qb_basic_op_factory factory_branch_on_not_equal;
-extern qb_basic_op_factory factory_branch_on_less_than;
-extern qb_basic_op_factory factory_branch_on_less_equal;
-
 extern qb_intrinsic_op_factory factory_intrinsic;
 extern qb_simple_op_factory factory_zend_function_call;
 extern qb_simple_op_factory factory_send_zend_argument;

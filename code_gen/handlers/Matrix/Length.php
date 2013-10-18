@@ -37,7 +37,7 @@ class Length extends Handler {
 		} else {
 			switch($i) {
 				case 1: return $this->operandSize;
-				case 2: return $this->operandSize;
+				case 2: return 1;
 			}
 		}
 	}

@@ -133,7 +133,14 @@ static qb_primitive_type qb_resolve_expression_type_unpack(qb_compiler_context *
 static qb_primitive_type qb_resolve_expression_type_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
-	return (qfunc->return_variable->address) ? qfunc->return_variable->address->type : QB_TYPE_VOID;
+	f->address_flags &= ~(QB_ADDRESS_BOOLEAN | QB_ADDRESS_STRING);
+	if(qfunc->return_variable->address) {
+		// should handle the address flag in a cleaner way
+		f->address_flags |= ((QB_ADDRESS_BOOLEAN | QB_ADDRESS_STRING) & qfunc->return_variable->address->flags);
+		return qfunc->return_variable->address->type;
+	} else {
+		return QB_TYPE_VOID;
+	}
 }
 
 static qb_primitive_type qb_resolve_expression_type_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {

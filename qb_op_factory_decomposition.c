@@ -78,6 +78,6 @@ static void qb_decompose_branch_set(qb_compiler_context *cxt, void *factory, qb_
 	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, jump_target_indices, jump_target_count, &branch_result_prototype);
 
 	// do the assignment
-	result_prototype->destination = NULL;
+	//result_prototype->destination = NULL;
 	qb_produce_op(cxt, &factory_assign_branching, operands, operand_count, result, NULL, 0, result_prototype);
 }

@@ -384,11 +384,12 @@ static qb_opcode qb_select_opcode_one_vector(qb_compiler_context *cxt, qb_op_fac
 	qb_vector_op_factory *vf = (qb_vector_op_factory *) f;
 	qb_address *address = operands[0].address;
 	qb_opcode opcode = QB_NOP;
+	uint32_t dimension = 0;
 	if(CONSTANT_DIMENSION(address, -1)) {
-		uint32_t dimension = DIMENSION(address, -1);
-		if(2 <= dimension && dimension <= 4) {
-			opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address->type];
-		}
+		dimension = DIMENSION(address, -1);
+	}
+	if(2 <= dimension && dimension <= 4) {
+		opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address->type];
 	}
 	if(opcode == QB_NOP) {
 		opcode = vf->opcodes_any_size[QB_TYPE_F64 - address->type];
@@ -404,18 +405,51 @@ static qb_opcode qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_fa
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
 	qb_opcode opcode = QB_NOP;
-	if(CONSTANT_DIMENSION(address1, -1) && CONSTANT_DIMENSION(address2, -1)) {
+	uint32_t dimension = 0;
+	if(CONSTANT_DIMENSION(address1, -1)) {
 		uint32_t dimension = DIMENSION(address1, -1);
-
-		if(2 <= dimension && dimension <= 4) {
-			opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address1->type];
-		}
+	} else if(CONSTANT_DIMENSION(address2, -1)) {
+		uint32_t dimension = DIMENSION(address2, -1);
+	}
+	if(2 <= dimension && dimension <= 4) {
+		opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address1->type];
 	}
 	if(opcode == QB_NOP) {
 		opcode = vf->opcodes_any_size[QB_TYPE_F64 - address1->type];
 	}
 	if(address1->dimension_count > 1 || address2->dimension_count > 1) {
 		opcode = qb_select_multidata_opcode(cxt, opcode);
+	}
+	return opcode;
+}
+
+static qb_opcode qb_select_opcode_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_vector_op_factory *vf = (qb_vector_op_factory *) f;
+	qb_opcode opcode = QB_NOP;
+	if(operand_count == 3) {
+		qb_address *address1 = operands[0].address;
+		qb_address *address2 = operands[1].address;
+		qb_address *address3 = operands[2].address;
+		uint32_t dimension = 4;
+		opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address1->type];
+		if(address1->dimension_count > 1 || address2->dimension_count > 1 || address3->dimension_count > 1) {
+			opcode = qb_select_multidata_opcode(cxt, opcode);
+		}
+	} else {
+		qb_address *address1 = operands[0].address;
+		qb_address *address2 = operands[1].address;
+		uint32_t dimension = 0;
+		if(CONSTANT_DIMENSION(address1, -1)) {
+			uint32_t dimension = DIMENSION(address1, -1);
+		} else if(CONSTANT_DIMENSION(address2, -1)) {
+			uint32_t dimension = DIMENSION(address2, -1);
+		}
+		if(2 <= dimension && dimension <= 3) {
+			opcode = vf->opcodes_fixed_size[dimension - 2][QB_TYPE_F64 - address1->type];
+		}
+		if(address1->dimension_count > 1 || address2->dimension_count > 1) {
+			opcode = qb_select_multidata_opcode(cxt, opcode);
+		}
 	}
 	return opcode;
 }

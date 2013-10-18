@@ -638,7 +638,7 @@ static qb_address * qb_obtain_alias_by_address_flag(qb_compiler_context *cxt, qb
 		for(i = 0; i < cxt->address_alias_count; i++) {
 			alias = cxt->address_aliases[i];
 			if(alias->source_address == address) {
-				if(alias->flags & QB_ADDRESS_STRING) {
+				if(alias->flags & flag) {
 					return alias;
 				}
 			}
@@ -655,6 +655,10 @@ qb_address * qb_obtain_string_alias(qb_compiler_context *cxt, qb_address *addres
 
 qb_address * qb_obtain_boolean_alias(qb_compiler_context *cxt, qb_address *address) {
 	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_BOOLEAN);
+}
+
+qb_address * qb_obtain_reused_alias(qb_compiler_context *cxt, qb_address *address) {
+	return qb_obtain_alias_by_address_flag(cxt, address, QB_ADDRESS_REUSED);
 }
 
 qb_address * qb_obtain_cast_alias(qb_compiler_context *cxt, qb_address *address, qb_primitive_type type) {
@@ -1898,6 +1902,9 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 			}
 			if(decl->flags & QB_TYPE_DECL_STRING) {
 				address->flags |= QB_ADDRESS_STRING;
+			}
+			if(decl->flags & QB_TYPE_DECL_BOOLEAN) {
+				address->flags |= QB_ADDRESS_BOOLEAN;
 			}
 			if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
 				address->index_alias_schemes = decl->index_alias_schemes;
