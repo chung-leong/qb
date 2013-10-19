@@ -4766,7 +4766,7 @@ qb_basic_op_factory factory_array_pos = {
 	NULL,
 	qb_coerce_operands_array_pos,
 	qb_set_result_prototype,
-	qb_validate_operands_two_arrays,
+	qb_validate_operands_array_pos,
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic_first_operand,
