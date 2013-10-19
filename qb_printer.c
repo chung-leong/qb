@@ -103,16 +103,7 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 	} else if(address->source_address) {
 		if(address->source_address->dimension_count == address->dimension_count + 1) {
 			// array element
-			if(address->mode == QB_ADDRESS_MODE_ELE) {
-				int32_t depth, recursive = FALSE;
-				qb_print_address(cxt, address->source_address);
-				php_printf("[");
-				// leave it empty it's the dimension (i.e. end of the array)
-				if(!qb_find_variable_with_size_address(cxt, address, &depth, &recursive) || !recursive) {
-					qb_print_address(cxt, address->array_index_address);
-				}
-				php_printf("]");
-			} else if(address->mode == QB_ADDRESS_MODE_SCA) {
+			if(address->mode == QB_ADDRESS_MODE_SCA) {
 				// array element referenced by constant indices
 				// find the original array first
 				qb_address *array_address = address->source_address, *a;
@@ -124,12 +115,21 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 				}
 				qb_print_address(cxt, array_address);
 
-				index = ELEMENT_COUNT(address->segment_offset, address->type);
+				index = ELEMENT_COUNT(address->segment_offset - array_address->segment_offset, address->type);
 				for(i = 0; i < array_address->dimension_count; i++) {
 					uint32_t dimension = DIMENSION(address, i);
 					php_printf("[%d]", index / dimension);
 					index = index % dimension;
 				}
+			} else {
+				int32_t depth, recursive = FALSE;
+				qb_print_address(cxt, address->source_address);
+				php_printf("[");
+				// leave it empty it's the dimension (i.e. end of the array)
+				if(!qb_find_variable_with_size_address(cxt, address, &depth, &recursive) || !recursive) {
+					qb_print_address(cxt, address->array_index_address);
+				}
+				php_printf("]");
 			}
 		} else {
 			qb_print_address(cxt, address->source_address); 

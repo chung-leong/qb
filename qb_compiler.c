@@ -616,6 +616,7 @@ void qb_assign_storage_space(qb_compiler_context *cxt) {
 			// add the offset
 			uint32_t index = VALUE(U32, address->array_index_address);
 			address->segment_offset += BYTE_COUNT(index, address->type);
+			address->array_index_address = cxt->zero_address;
 		}
 	}
 }
