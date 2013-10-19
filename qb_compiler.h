@@ -383,7 +383,7 @@ qb_operand * qb_push_stack_item(qb_compiler_context *cxt);
 qb_operand ** qb_pop_stack_items(qb_compiler_context *cxt, int32_t count);
 
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
-void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
+void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
 void qb_execute_op(qb_compiler_context *cxt, qb_op *op);
 
 void qb_add_variables(qb_compiler_context *cxt);

@@ -234,25 +234,7 @@ static void qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory 
 		assigment_operands[1].address = value->address;
 		assignment_result.type = QB_OPERAND_ADDRESS;
 		assignment_result.address = cxt->return_variable->address;
-		qb_create_op(cxt, &factory_assign, assigment_operands, 2, &assignment_result, NULL, 0, TRUE);
-	}
-}
-
-static void qb_transfer_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	if(operand_count == 1) {
-		dest[0] = operands[0];
-		dest[1] = *result;
-	} else {
-		if(operand_count == 2) {
-			dest[0] = operands[0];
-			dest[1] = operands[1];
-			dest[2] = *result;
-		} else {
-			qb_create_op(cxt, f, operands, operand_count - 1, result, NULL, 0, TRUE);
-			dest[0] = *result;
-			dest[1] = operands[operand_count - 1];
-			dest[2] = *result;
-		}
+		qb_create_op(cxt, &factory_assign, value->address->type, assigment_operands, 2, &assignment_result, NULL, 0, TRUE);
 	}
 }
 
@@ -266,7 +248,7 @@ static void qb_transfer_operands_increment(qb_compiler_context *cxt, qb_op_facto
 		assigment_operands[0].address = result->address;
 		assigment_operands[1].type = QB_OPERAND_ADDRESS;
 		assigment_operands[1].address = variable->address;
-		qb_create_op(cxt, &factory_assign, assigment_operands, 2, result, NULL, 0, TRUE);
+		qb_create_op(cxt, &factory_assign, variable->address->type, assigment_operands, 2, result, NULL, 0, TRUE);
 	}
 	dest[0] = *variable;
 }
@@ -281,7 +263,7 @@ static void qb_transfer_operands_increment_object_property(qb_compiler_context *
 			assigment_operands[0].address = result->address;
 			assigment_operands[1].type = QB_OPERAND_ADDRESS;
 			assigment_operands[1].address = variable_address;
-			qb_create_op(cxt, &factory_assign, assigment_operands, 2, result, NULL, 0, TRUE);
+			qb_create_op(cxt, &factory_assign, variable_address->type, assigment_operands, 2, result, NULL, 0, TRUE);
 		}
 	}
 	dest[0].address = variable_address;

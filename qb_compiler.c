@@ -2892,7 +2892,7 @@ static void qb_finalize_result_prototype(qb_compiler_context *cxt, qb_result_pro
 
 void qb_create_on_demand_op(qb_compiler_context *cxt, qb_operand *operand);
 
-void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used) {
+void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used) {
 	qb_op_factory *f = factory;
 	qb_opcode opcode = QB_NOP;
 	qb_op *qop;
@@ -2902,7 +2902,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 	// get the opcode for the operands 
 	// at this point, the operands should have the correct type
 	if(f->select_opcode) {
-		opcode = f->select_opcode(cxt, f, operands, operand_count, result);
+		opcode = f->select_opcode(cxt, f, expr_type, operands, operand_count, result);
 	}
 	op_flags = qb_get_op_flags(opcode);
 
@@ -2995,10 +2995,11 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_operand *operands,
 static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address) {
 	if(address->expression) {
 		qb_expression *expr = address->expression;
+		qb_primitive_type expr_type = (expr->result->type == QB_OPERAND_ADDRESS) ? expr->result->address->type : QB_TYPE_VOID;
 		address->expression = NULL;
 		// set the flag first, in case the op invalidates itself
 		expr->flags |= QB_EXPR_RESULT_IS_STILL_VALID;
-		qb_create_op(cxt, expr->op_factory, expr->operands, expr->operand_count, expr->result, NULL, 0, TRUE);
+		qb_create_op(cxt, expr->op_factory, expr_type, expr->operands, expr->operand_count, expr->result, NULL, 0, TRUE);
 	}
 }
 
@@ -3103,7 +3104,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 			}
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			// create the op
-			qb_create_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_used);
+			qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, result_used);
 
 			// unlock the operands after the op is created
 			for(i = 0; i < operand_count; i++) {
@@ -3116,7 +3117,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 				qb_unlock_address(cxt, result->address);
 			}
 		} else if(cxt->stage == QB_STAGE_VARIABLE_INITIALIZATION) {
-			qb_create_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
+			qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
 		}
 	}
 }
@@ -3742,8 +3743,8 @@ void qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 	jump_target_indices[0] = 0;
 	jump_target_indices[1] = QB_INSTRUCTION_NEXT;
 
-	qb_create_op(cxt, &factory_loop, &iteration, 1, &counter, jump_target_indices, 2, FALSE);
-	qb_create_op(cxt, &factory_return, NULL, 0, NULL, NULL, 0, FALSE);
+	qb_create_op(cxt, &factory_loop, QB_TYPE_VOID, &iteration, 1, &counter, jump_target_indices, 2, FALSE);
+	qb_create_op(cxt, &factory_return, QB_TYPE_VOID, NULL, 0, NULL, NULL, 0, FALSE);
 }
 
 void qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagnostic_type test_type) {

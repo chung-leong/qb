@@ -973,7 +973,7 @@ static void qb_translate_instruction_range(qb_php_translater_context *cxt, uint3
 			if(cxt->compiler_context->op_translations[cxt->zend_op_index] != QB_OP_INDEX_NONE && cxt->compiler_context->op_translations[cxt->zend_op_index] != QB_OP_INDEX_JUMP_TARGET) {
 				// instruction has already been translated--do a jump there and exit
 				qb_invalidate_all_on_demand_expressions(cxt->compiler_context);
-				qb_create_op(cxt->compiler_context, &factory_jump, NULL, 0, NULL, &cxt->zend_op_index, 1, FALSE);
+				qb_create_op(cxt->compiler_context, &factory_jump, QB_TYPE_VOID, NULL, 0, NULL, &cxt->zend_op_index, 1, FALSE);
 				break;
 			}
 
@@ -991,7 +991,7 @@ static void qb_translate_instruction_range(qb_php_translater_context *cxt, uint3
 
 			// add a nop if new one wasn't generated
 			if(current_op_count == cxt->compiler_context->op_count) {
-				qb_create_op(cxt->compiler_context, &factory_nop, NULL, 0, NULL, 0, 0, TRUE);
+				qb_create_op(cxt->compiler_context, &factory_nop, QB_TYPE_VOID, NULL, 0, NULL, 0, 0, TRUE);
 			}
 
 			// flag the first new op as a jump target 
@@ -1080,7 +1080,7 @@ void qb_translate_instructions(qb_php_translater_context *cxt) {
 	// make sure there's always a RET at the end
 	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
 		qb_operand operand = { QB_OPERAND_EMPTY, NULL };
-		qb_create_op(cxt->compiler_context, &factory_return, &operand, 1, NULL, NULL, 0, FALSE);
+		qb_create_op(cxt->compiler_context, &factory_return, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
 	}
 }
 

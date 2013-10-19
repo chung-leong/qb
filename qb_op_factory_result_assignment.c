@@ -393,7 +393,7 @@ static void qb_set_result_array_push(qb_compiler_context *cxt, qb_op_factory *f,
 	for(i = 1; i < operand_count; i++) {
 		qb_operand assign_operands[2] = { { QB_OPERAND_ADDRESS, variable_address }, { QB_OPERAND_ADDRESS, operands[i].address } };
 		qb_operand assign_result = { QB_OPERAND_ADDRESS, variable_address };
-		qb_create_op(cxt, &factory_assign, assign_operands, 2, &assign_result, NULL, 0, FALSE);
+		qb_create_op(cxt, &factory_assign, variable_address->type, assign_operands, 2, &assign_result, NULL, 0, FALSE);
 	}
 	result->address = dimension_address;
 	result->type = QB_OPERAND_ADDRESS;

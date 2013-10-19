@@ -3582,7 +3582,7 @@ qb_minmax_op_factory factory_min = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	qb_transfer_operands_minmax,
+	qb_transfer_operands_all,
 
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
@@ -3601,7 +3601,7 @@ qb_minmax_op_factory factory_max = {
 	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_basic,
-	qb_transfer_operands_minmax,
+	qb_transfer_operands_all,
 
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
