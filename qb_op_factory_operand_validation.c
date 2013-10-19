@@ -93,7 +93,7 @@ static void qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f
 	}
 }
 
-static void qb_validate_operands_minmax(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static void qb_validate_operands_minmax_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0];
 
 	if(operand_count == 1) {

@@ -36,7 +36,6 @@ typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
 typedef struct qb_arithmetic_op_factory			qb_arithmetic_op_factory;
 typedef struct qb_string_op_factory				qb_string_op_factory;
 typedef struct qb_fcall_op_factory				qb_fcall_op_factory;
-typedef struct qb_minmax_op_factory				qb_minmax_op_factory;
 typedef struct qb_vector_op_factory				qb_vector_op_factory;
 typedef struct qb_matrix_op_factory				qb_matrix_op_factory;
 typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
@@ -47,6 +46,7 @@ typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
 typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
 
 typedef struct qb_op_decomposer					qb_op_decomposer;
+typedef struct qb_minmax_decomposer				qb_minmax_decomposer;
 typedef struct qb_fetch_do_op_decomposer		qb_fetch_do_op_decomposer;
 
 typedef void (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
@@ -156,12 +156,6 @@ struct qb_fcall_op_factory {
 	qb_opcode opcode;
 };
 
-struct qb_minmax_op_factory {
-	OP_FACTORY_COMMON_ELEMENTS
-	qb_opcode opcodes_pair[10];
-	qb_opcode opcodes_list[10];	
-};
-
 struct qb_vector_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcodes_any_size[2];
@@ -204,6 +198,12 @@ struct qb_intrinsic_op_factory {
 struct qb_op_decomposer {
 	qb_produce_composite_proc produce_composite;
 	void *factory;
+};
+
+struct qb_minmax_decomposer {
+	qb_produce_composite_proc produce_composite;
+	void *pairwise_factory;
+	void *array_factory;
 };
 
 struct qb_fetch_do_op_decomposer {
@@ -417,8 +417,8 @@ extern qb_float_op_factory factory_step;
 extern qb_float_op_factory factory_tan;
 extern qb_float_op_factory factory_tanh;
 
-extern qb_minmax_op_factory factory_max;
-extern qb_minmax_op_factory factory_min;
+extern qb_minmax_decomposer factory_max;
+extern qb_minmax_decomposer factory_min;
 
 extern qb_basic_op_factory factory_mt_rand;
 extern qb_basic_op_factory factory_rand;

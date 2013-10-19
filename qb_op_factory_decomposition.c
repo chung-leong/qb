@@ -81,3 +81,12 @@ static void qb_decompose_branch_set(qb_compiler_context *cxt, void *factory, qb_
 	//result_prototype->destination = NULL;
 	qb_produce_op(cxt, &factory_assign_branching, operands, operand_count, result, NULL, 0, result_prototype);
 }
+
+static void qb_decompose_minmax(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_minmax_decomposer *d = factory;
+	if(operand_count > 1) {
+		qb_decompose_pairwise_op_series(cxt, factory, operands, operand_count, result, NULL, 0, result_prototype);
+	} else {
+		qb_produce_op(cxt, d->array_factory, operands, operand_count, result, NULL, 0, result_prototype);
+	}
+}
