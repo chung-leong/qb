@@ -3037,7 +3037,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 				result_prototype->address_flags = f->address_flags;
 			} else {
 				// the translation loop depends on the type getting set to something other than QB_TYPE_UNKNOWN
-				result_prototype->preliminary_type = QB_TYPE_VOID;
+				result_prototype->preliminary_type = QB_TYPE_ANY;
 			}
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			// use the result from the previous stage if it's available 
