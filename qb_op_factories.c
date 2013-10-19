@@ -2182,7 +2182,7 @@ qb_basic_op_factory factory_equal = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -2200,7 +2200,7 @@ qb_basic_op_factory factory_not_equal = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -2218,7 +2218,7 @@ qb_basic_op_factory factory_less_than = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -2236,7 +2236,7 @@ qb_basic_op_factory factory_less_equal = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -2402,7 +2402,7 @@ qb_basic_op_factory factory_set_equal = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -2420,7 +2420,7 @@ qb_basic_op_factory factory_set_not_equal = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -2438,7 +2438,7 @@ qb_basic_op_factory factory_set_less_than = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -2456,7 +2456,7 @@ qb_basic_op_factory factory_set_less_equal = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -3509,7 +3509,7 @@ qb_float_op_factory factory_is_finite = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3527,7 +3527,7 @@ qb_float_op_factory factory_is_infinite = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -3545,7 +3545,7 @@ qb_float_op_factory factory_is_nan = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
@@ -4659,7 +4659,7 @@ qb_basic_op_factory factory_array_diff_count = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_diff,
 
 	0,
@@ -4673,9 +4673,9 @@ qb_op_decomposer factory_array_diff = {
 	&factory_array_diff_two,
 };
 
-qb_basic_op_factory factory_array_intersect = {
+qb_basic_op_factory factory_array_intersect_two = {
 	NULL,
-	qb_resolve_expression_type_highest_rank,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
@@ -4691,6 +4691,11 @@ qb_basic_op_factory factory_array_intersect = {
 	{	QB_AISECT_F64_F64_U32_F64,	QB_AISECT_F32_F32_U32_F32,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I64_I64_U32_I64,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I32_I32_U32_I32,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I16_I16_U32_I16,	QB_AISECT_I08_I08_U32_I08,	QB_AISECT_I08_I08_U32_I08	},
 };
 
+qb_op_decomposer factory_array_intersect = {
+	qb_decompose_pairwise_op_series,
+	&factory_array_intersect_two,
+};
+
 qb_basic_op_factory factory_array_intersect_count = {
 	NULL,
 	qb_resolve_expression_type_index,
@@ -4700,7 +4705,7 @@ qb_basic_op_factory factory_array_intersect_count = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_diff,
 
 	0,
@@ -4718,7 +4723,7 @@ qb_basic_op_factory factory_array_pos = {
 	qb_validate_operands_two_arrays,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_pos,
 
 	0,
@@ -4770,7 +4775,7 @@ qb_basic_op_factory factory_array_reverse = {
 	qb_validate_operands_one_array,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_reverse,
 
 	0,
@@ -4788,7 +4793,7 @@ qb_basic_op_factory factory_array_rpos = {
 	qb_validate_operands_two_arrays,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_pos,
 
 	0,
@@ -4806,7 +4811,7 @@ qb_basic_op_factory factory_array_search = {
 	qb_validate_operands_one_array,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
 
 	0,
@@ -4857,7 +4862,7 @@ qb_basic_op_factory factory_array_unique = {
 	qb_validate_operands_one_array,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_array_unique,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_reverse,
 
 	0,
@@ -4891,7 +4896,7 @@ qb_basic_op_factory factory_array_unique_count = {
 	NULL,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_reverse,
 
 	0,
@@ -4909,7 +4914,7 @@ qb_basic_op_factory factory_rsort = {
 	qb_validate_operands_one_array_variable,
 	qb_set_result_true,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_sort,
 
 	0,
@@ -4927,7 +4932,7 @@ qb_basic_op_factory factory_shuffle = {
 	qb_validate_operands_one_array_variable,
 	qb_set_result_true,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_sort,
 
 	0,
@@ -4945,7 +4950,7 @@ qb_basic_op_factory factory_sort = {
 	qb_validate_operands_one_array_variable,
 	qb_set_result_true,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_sort,
 
 	0,
@@ -5166,7 +5171,7 @@ qb_basic_op_factory factory_pack_le = {
 	qb_validate_operands_pack,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_pack,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_first,
 
 	0,
@@ -5184,7 +5189,7 @@ qb_basic_op_factory factory_pack_be = {
 	qb_validate_operands_pack,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_pack,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_first,
 
 	0,

@@ -172,9 +172,9 @@ static void qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variable_
 	}
 	if(dim_chosen) {
 		// we can figure one which to use now
+		dim->dimension_count = dim_chosen->dimension_count;
 		if(dim->dimension_count > 0) {
 			uint32_t i;
-			dim->dimension_count = dim_chosen->dimension_count;
 			dim->source_address = dim_chosen->source_address;
 			for(i = 0; i < dim->dimension_count; i++) {
 				dim->dimension_addresses[i] = dim_chosen->dimension_addresses[i];
@@ -273,12 +273,17 @@ static void qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_variabl
 	}
 	if(dim_chosen) {
 		// we can figure one which to use now
-		uint32_t i;
 		dim->dimension_count = dim_chosen->dimension_count;
-		dim->source_address = dim_chosen->source_address;
-		for(i = 0; i < dim->dimension_count; i++) {
-			dim->dimension_addresses[i] = dim_chosen->dimension_addresses[i];
-			dim->array_size_addresses[i] = dim_chosen->array_size_addresses[i];
+		if(dim->dimension_count > 0) {
+			uint32_t i;
+			dim->dimension_count = dim_chosen->dimension_count;
+			dim->source_address = dim_chosen->source_address;
+			for(i = 0; i < dim->dimension_count; i++) {
+				dim->dimension_addresses[i] = dim_chosen->dimension_addresses[i];
+				dim->array_size_addresses[i] = dim_chosen->array_size_addresses[i];
+			}
+		} else {
+			dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
 		}
 	} else if(SCALAR(dim1)) {
 		// only need to choose between the second and third

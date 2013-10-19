@@ -81,14 +81,14 @@ static void qb_set_result_boolean_cast(qb_compiler_context *cxt, qb_op_factory *
 static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 
-	// if the expression type was set to void, then an earlier op has used the r-value as write target
-	// so there's no need to perform the assignment
+	result->address = variable->address;
+	result->type = QB_OPERAND_ADDRESS;
+	// no bound-checking if the assignment doesn't happen
 	if(expr_type != QB_TYPE_VOID) {
 		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, variable->address, TRUE);
-		result->address = variable->address;
-		result->type = QB_OPERAND_ADDRESS;
 	}
 }
+
 static void qb_set_preliminary_result_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		// link to the prototype in the other branch and keep it as the result 
@@ -136,13 +136,13 @@ static void qb_set_result_fetch_array_size(qb_compiler_context *cxt, qb_op_facto
 
 static void qb_set_result_assign_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0], *index = &operands[1], *value = &operands[2];
+	qb_address *index_address = (index->type == QB_OPERAND_NONE) ? container->address->dimension_addresses[0] : index->address;
+	qb_address *result_address = qb_obtain_array_element(cxt, container->address, index_address, QB_ARRAY_BOUND_CHECK_WRITE);
 
+	result->address = result_address;
+	result->type = QB_OPERAND_ADDRESS;
 	if(expr_type != QB_TYPE_VOID) {
-		qb_address *index_address = (index->type == QB_OPERAND_NONE) ? container->address->dimension_addresses[0] : index->address;
-		qb_address *result_address = qb_obtain_array_element(cxt, container->address, index_address, QB_ARRAY_BOUND_CHECK_WRITE);
 		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, result_address, TRUE);
-		result->address = result_address;
-		result->type = QB_OPERAND_ADDRESS;
 	}
 }
 
@@ -161,12 +161,12 @@ static void qb_set_result_fetch_object_property(qb_compiler_context *cxt, qb_op_
 
 static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0], *name = &operands[1], *value = &operands[2];
+	qb_address *result_address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_WRITE);
 
+	result->address = result_address;
+	result->type = QB_OPERAND_ADDRESS;
 	if(expr_type != QB_TYPE_VOID) {
-		qb_address *result_address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_WRITE);
 		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, result_address, TRUE);
-		result->address = result_address;
-		result->type = QB_OPERAND_ADDRESS;
 	}
 }
 

@@ -38,6 +38,12 @@ static qb_opcode qb_select_opcode_basic(qb_compiler_context *cxt, qb_op_factory 
 	return qb_select_type_dependent_opcode(cxt, bf->opcodes, expr_type);
 }
 
+static qb_opcode qb_select_opcode_basic_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
+	qb_primitive_type operand_type = operands[0].address->type;
+	return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type);
+}
+
 static qb_opcode qb_select_opcode_derived(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	f = df->parent;
@@ -57,8 +63,9 @@ static qb_opcode qb_select_opcode_derived_modify_assign(qb_compiler_context *cxt
 static qb_opcode qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *variable = &operands[0];
+	qb_primitive_type operand_type = variable->address->type;
 	if(SCALAR(variable->address)) {
-		return qb_select_type_dependent_opcode(cxt, bf->opcodes, expr_type);
+		return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type);
 	} else {
 		// will be checking the length of the array
 		return bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
@@ -68,8 +75,9 @@ static qb_opcode qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_f
 static qb_opcode qb_select_opcode_array_element_isset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0];
+	qb_primitive_type operand_type = container->address->type;
 	if(container->address->dimension_count == 1) {
-		return qb_select_type_dependent_opcode(cxt, bf->opcodes, expr_type);
+		return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type);
 	} else {
 		// will be checking the length of the sub-array
 		return bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
@@ -80,10 +88,11 @@ static qb_opcode qb_select_opcode_object_property_isset(qb_compiler_context *cxt
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
+	qb_primitive_type operand_type = container->address->type;
 
 	if(SCALAR(address)) {
 		qb_operand operand = { QB_OPERAND_ADDRESS, address };
-		return qb_select_type_dependent_opcode(cxt, bf->opcodes, expr_type);
+		return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type);
 	} else {
 		return bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
 	}
@@ -92,17 +101,18 @@ static qb_opcode qb_select_opcode_object_property_isset(qb_compiler_context *cxt
 static qb_opcode qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
 	qb_operand *variable = &operands[0];
+	qb_primitive_type operand_type = variable->address->type;
 	if(SCALAR(variable->address)) {
-		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, expr_type);
+		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, operand_type);
 	} else {
 		if(RESIZABLE(variable->address)) {
 			if(MULTIDIMENSIONAL(variable->address)) {
-				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, expr_type);
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, operand_type);
 			} else {
-				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, expr_type);
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, operand_type);
 			}
 		} else {
-			return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, expr_type);
+			return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, operand_type);
 		}
 	}
 }
@@ -110,14 +120,15 @@ static qb_opcode qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory 
 static qb_opcode qb_select_opcode_unset_array_element(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_unset_element_op_factory *uf = (qb_unset_element_op_factory *) f;
 	qb_operand *container = &operands[0];
+	qb_primitive_type operand_type = container->address->type;
 	if(RESIZABLE(container->address)) {
 		if(MULTIDIMENSIONAL(container->address)) {
-			return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, expr_type);
+			return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, operand_type);
 		} else {
-			return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, expr_type);
+			return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, operand_type);
 		}
 	} else {
-		return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, expr_type);
+		return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, operand_type);
 	}
 }
 
@@ -125,17 +136,18 @@ static qb_opcode qb_select_opcode_unset_object_property(qb_compiler_context *cxt
 	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
 	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
+	qb_primitive_type operand_type = address->type;
 	if(SCALAR(address)) {
-		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, expr_type);
+		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, operand_type);
 	} else {
 		if(RESIZABLE(address)) {
 			if(MULTIDIMENSIONAL(address)) {
-				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, expr_type);
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, operand_type);
 			} else {
-				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, expr_type);
+				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, operand_type);
 			}
 		} else {
-			return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, expr_type);
+			return qb_select_type_dependent_opcode(cxt, uf->no_resizing_opcodes, operand_type);
 		}
 	}
 }
@@ -299,7 +311,9 @@ static qb_opcode qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory
 	qb_address *src_address = value->address;
 	qb_address *dst_address = result->address;	
 	qb_opcode opcode = QB_NOP;
-	if(result->type != QB_OPERAND_NONE) {
+	// if the expression type was set to void, then an earlier op has used the r-value as write target
+	// so there's no need to perform the assignment
+	if(expr_type != QB_TYPE_VOID) {
 		if(src_address->type == dst_address->type) {
 			// vectorized instructions are available only for copying between variables of the same type
 			opcode = qb_select_vectorized_unary_opcode(cxt, cf->vector_opcodes, value, result);
