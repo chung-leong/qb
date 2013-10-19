@@ -351,6 +351,8 @@ static int8_t * qb_copy_address(qb_address *address, int8_t *memory) {
 						dst_scheme->class_name_length = 0;
 					}
 					dst->index_alias_schemes[i] = dst_scheme;
+				} else {
+					dst->index_alias_schemes[i] = NULL;
 				}
 			}
 		} else {
