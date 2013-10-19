@@ -175,6 +175,10 @@ struct qb_result_prototype {
 	uint32_t address_flags;
 	qb_result_prototype *parent;
 	qb_result_destination *destination;
+#ifdef ZEND_DEBUG
+	zend_op *zend_op;
+	void *extra;
+#endif
 };
 
 enum qb_result_destination_type {

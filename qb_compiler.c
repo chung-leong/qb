@@ -2253,7 +2253,7 @@ qb_primitive_type qb_get_result_destination_type(qb_compiler_context *cxt, qb_re
 }
 
 qb_address * qb_obtain_object_property(qb_compiler_context *cxt, qb_operand *container, qb_operand *name, uint32_t bound_check_flags) {
-	qb_address *address;
+	qb_address *address = NULL;
 	if(container->type == QB_OPERAND_NONE) {
 		address = qb_obtain_instance_variable(cxt, name->constant);
 	} else if(container->type == QB_OPERAND_ADDRESS) {

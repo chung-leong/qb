@@ -702,6 +702,10 @@ static void qb_translate_current_instruction(qb_php_translater_context *cxt) {
 			cxt->compiler_context->line_number = cxt->zend_op->lineno;
 			t->translate(cxt, t->extra, operands, operand_count, &results[0], result_prototype);
 
+#ifdef ZEND_DEBUG
+			result_prototype->extra = t->extra;
+#endif
+
 			if(operand_count >= 1) {
 				qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0]);
 				if(operand_count >= 2) {
@@ -1052,6 +1056,9 @@ void qb_survey_instructions(qb_php_translater_context *cxt) {
 		qb_result_prototype *prototype = &cxt->compiler_context->result_prototypes[i];
 		prototype->preliminary_type = QB_TYPE_UNKNOWN;
 		prototype->final_type = QB_TYPE_UNKNOWN;
+#ifdef ZEND_DEBUG
+		prototype->zend_op = &cxt->compiler_context->zend_op_array->opcodes[i];
+#endif
 	}
 
 	// scan through the opcodes to determine the type of each expression
