@@ -244,7 +244,7 @@ void qb_print_ops(qb_printer_context *cxt) {
 	}
 }
 
-void qb_print_zend_ops(qb_printer_context *cxt) {
+static void qb_print_zend_ops(qb_printer_context *cxt) {
 	uint32_t i = 0;
 	for(i = 0; i < cxt->compiler_context->zend_op_array->last; i++) {
 		zend_op *zop = &cxt->compiler_context->zend_op_array->opcodes[i];
@@ -255,10 +255,147 @@ void qb_print_zend_ops(qb_printer_context *cxt) {
 	}
 }
 
+static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_printer_context *cxt, qb_pbj_address *address) {
+	qb_pbj_translator_context *translator_cxt = cxt->compiler_context->translator_context;
+	uint32_t i;
+	for(i = 0; i < translator_cxt->pbj_parameter_count; i++) {
+		qb_pbj_parameter *parameter = &translator_cxt->pbj_parameters[i];
+		qb_pbj_address *destination = &parameter->destination;
+		if(destination->register_id == address->register_id) {
+			if(destination->dimension > 1) {
+				return parameter;
+			} else {
+				// see if the address is pointing to a channel used by the parameter
+				uint32_t j, k;
+				for(j = 0; j < address->channel_count; j++) {
+					uint32_t channel = address->channels[j];
+					for(k = 0; k < destination->channel_count; k++) {
+						if(channel == destination->channels[k]) {
+							return parameter;
+						}
+					}
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+static qb_pbj_texture * qb_find_pbj_texture_by_id(qb_printer_context *cxt, uint32_t image_id) {
+	qb_pbj_translator_context *translator_cxt = cxt->compiler_context->translator_context;
+	uint32_t i;
+	for(i = 0; i < translator_cxt->pbj_texture_count; i++) {
+		qb_pbj_texture *texture = &translator_cxt->pbj_textures[i];
+		if(texture->image_id == image_id) {
+			return texture;
+		}
+	}
+	return NULL;
+}
+
+static void qb_print_pbj_address(qb_printer_context *cxt, qb_pbj_address *address) {
+	if(address->dimension) {
+		qb_pbj_parameter *parameter = qb_find_pbj_parameter_by_address(cxt, address);
+		if(parameter) {
+			if(parameter->destination.channel_count == 1) {
+				// don't show channels when it's a scalar
+				php_printf("%s ", parameter->name);
+				return;
+			} else {
+				php_printf("%s.", parameter->name);
+			}
+		} else {
+			if(address->register_id & PBJ_REGISTER_INT) {
+				php_printf("i%d.", address->register_id & ~PBJ_REGISTER_INT);
+			} else {
+				php_printf("f%d.", address->register_id);
+			}
+		}
+		if(address->dimension == 1) {
+			static const char *rgba[] = { "r", "g", "b", "a" };
+			uint32_t i;
+			for(i = 0; i < address->channel_count; i++) {
+				php_printf("%s", rgba[address->channels[i]]);
+			}
+		} else {
+			static const char *matrix[] = { "m2x2", "m3x3", "m4x4" };
+			php_printf("%s", matrix[address->dimension - 2]);
+		}
+		php_printf(" ");
+	}
+}
+
+extern const char compressed_table_pbj_op_names[];
+
+static const char * qb_get_pbj_op_name(qb_printer_context *cxt, uint32_t opcode) {
+	if(!cxt->pool->pbj_op_names) {
+		qb_uncompress_table(compressed_table_pbj_op_names, (void ***) &cxt->pool->pbj_op_names, NULL, 0);
+		if(!cxt->pool->pbj_op_names) {
+			return "?";
+		}
+	}
+	return cxt->pool->pbj_op_names[opcode];
+}
+
+static void qb_print_pbj_op(qb_printer_context *cxt, qb_pbj_op *pop, uint32_t pop_index) {
+	const char *op_name = qb_get_pbj_op_name(cxt, pop->opcode);
+	php_printf("%04d: %s ", pop_index, op_name);
+
+	if(pop->opcode == PBJ_SAMPLE_NEAREST || pop->opcode == PBJ_SAMPLE_BILINEAR) {
+		qb_pbj_texture *texture = qb_find_pbj_texture_by_id(cxt, pop->image_id);
+		if(texture) {
+			php_printf("%s ", texture->name);
+		} else {
+			php_printf("t%d ", pop->image_id);
+		}
+	}
+	if(pop->opcode == PBJ_LOAD_CONSTANT) {
+		if(pop->constant.type == PBJ_TYPE_INT) {
+			php_printf("%d ", pop->constant.int_value);
+		} else {
+			php_printf("%G ", pop->constant.float_value);
+		}
+	} else {
+		qb_print_pbj_address(cxt, &pop->source);
+	}
+	if(pop->opcode == PBJ_SELECT || pop->opcode == PBJ_SMOOTH_STEP) {
+		qb_pbj_op *data_pop = pop + 1;
+		qb_print_pbj_address(cxt, &data_pop->source2);
+		qb_print_pbj_address(cxt, &data_pop->source3);
+	}
+	if(!(pop->opcode >= PBJ_IF && pop->opcode <= PBJ_END_IF)) {
+		qb_print_pbj_address(cxt, &pop->destination);
+	}
+	php_printf("\n");
+}
+
+static void qb_print_pbj_ops(qb_printer_context *cxt) {
+	qb_pbj_translator_context *translator_cxt = cxt->compiler_context->translator_context;
+	uint32_t i;
+	for(i = 0; i < translator_cxt->pbj_op_count; i++) {
+		qb_pbj_op *pop = &translator_cxt->pbj_ops[i];
+		qb_print_pbj_op(cxt, pop, i);
+	}
+}
+
+void qb_print_source_ops(qb_printer_context *cxt) {
+	switch(cxt->compiler_context->translation) {
+		case QB_TRANSLATION_PHP: {
+			qb_print_zend_ops(cxt);
+		}	break;
+		case QB_TRANSLATION_PBJ: {
+			qb_print_pbj_ops(cxt);
+		}	break;
+	}
+}
+
 void qb_initialize_printer_context(qb_printer_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 	cxt->compiler_context = compiler_cxt;
 	cxt->pool = compiler_cxt->pool;
 	cxt->storage = compiler_cxt->storage;
 
 	SAVE_TSRMLS
+}
+
+void qb_free_printer_context(qb_printer_context *cxt) {
 }

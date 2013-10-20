@@ -680,8 +680,7 @@ PHP_INI_BEGIN()
     STD_PHP_INI_BOOLEAN("qb.show_opcodes",					"0",	PHP_INI_ALL,	OnUpdateBool,	show_opcodes,					zend_qb_globals,	qb_globals)
     STD_PHP_INI_BOOLEAN("qb.show_native_source",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_native_source,				zend_qb_globals,	qb_globals)
     STD_PHP_INI_BOOLEAN("qb.show_compiler_errors",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_compiler_errors,			zend_qb_globals,	qb_globals)
-    STD_PHP_INI_BOOLEAN("qb.show_zend_opcodes",				"0",	PHP_INI_ALL,	OnUpdateBool,	show_zend_opcodes,				zend_qb_globals,	qb_globals)
-    STD_PHP_INI_BOOLEAN("qb.show_pbj_opcodes",				"0",	PHP_INI_ALL,	OnUpdateBool,	show_pbj_opcodes,				zend_qb_globals,	qb_globals)
+    STD_PHP_INI_BOOLEAN("qb.show_source_opcodes",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_source_opcodes,			zend_qb_globals,	qb_globals)
 PHP_INI_END()
 /* }}} */
 

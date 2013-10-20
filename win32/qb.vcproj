@@ -593,6 +593,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_compiler_optimization.c"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\qb_crc64.c"
 				>
 				<FileConfiguration
@@ -977,27 +989,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\qb_translater_pbj.c"
+				RelativePath="..\qb_translator_pbj.c"
 				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\qb_translater_php.c"
+				RelativePath="..\qb_translator_php.c"
 				>
 			</File>
 			<File
@@ -1090,11 +1086,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\qb_translater_pbj.h"
+				RelativePath="..\qb_translator_pbj.h"
 				>
 			</File>
 			<File
-				RelativePath="..\qb_translater_php.h"
+				RelativePath="..\qb_translator_php.h"
 				>
 			</File>
 			<File

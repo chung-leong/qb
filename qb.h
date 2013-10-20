@@ -119,7 +119,8 @@
 #include "qb_parser.h"
 #include "qb_compiler.h"
 #include "qb_op_factories.h"
-#include "qb_translater_php.h"
+#include "qb_translator_php.h"
+#include "qb_translator_pbj.h"
 #include "qb_encoder.h"
 #include "qb_interpreter.h"
 #include "qb_native_compiler.h"
@@ -150,8 +151,7 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	zend_bool show_opcodes;
 	zend_bool show_native_source;
 	zend_bool show_compiler_errors;
-	zend_bool show_zend_opcodes;
-	zend_bool show_pbj_opcodes;
+	zend_bool show_source_opcodes;
 
 	char *compiler_path;
 	char *compiler_env_path;

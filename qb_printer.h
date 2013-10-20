@@ -32,8 +32,9 @@ struct qb_printer_context {
 };
 
 void qb_print_ops(qb_printer_context *cxt);
-void qb_print_zend_ops(qb_printer_context *cxt);
+void qb_print_source_ops(qb_printer_context *cxt);
 
 void qb_initialize_printer_context(qb_printer_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+void qb_free_printer_context(qb_printer_context *cxt);
 
 #endif

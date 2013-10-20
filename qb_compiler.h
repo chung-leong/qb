@@ -31,6 +31,7 @@ typedef enum qb_diagnostic_type				qb_diagnostic_type;
 typedef enum qb_result_destination_type		qb_result_destination_type;
 typedef enum qb_matrix_order				qb_matrix_order;
 typedef enum qb_derived_variable_type		qb_derived_variable_type;
+typedef enum qb_translation_type			qb_translation_type;
 
 struct qb_variable_dimensions {
 	qb_address *source_address;
@@ -54,6 +55,11 @@ enum qb_stage {
 enum qb_matrix_order {
 	QB_MATRIX_ORDER_COLUMN_MAJOR	= 0,
 	QB_MATRIX_ORDER_ROW_MAJOR		= 1,
+};
+
+enum qb_translation_type {
+	QB_TRANSLATION_PHP,
+	QB_TRANSLATION_PBJ,
 };
 
 struct qb_compiler_context {
@@ -126,6 +132,9 @@ struct qb_compiler_context {
 
 	uint32_t dependency_index;
 	int8_t *dependencies;
+
+	qb_translation_type translation;
+	void *translator_context;
 
 	void ***tsrm_ls;
 };

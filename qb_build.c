@@ -119,24 +119,43 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 		// set up function prototypes so the functions can resolved against each other
 		qb_initialize_function_prototype(compiler_cxt);
 
+		// attach the appropriate translator
 		if(!compiler_cxt->function_declaration->import_path) {
-			// show the zend opcodes if turned on
-			if(QB_G(show_zend_opcodes)) {
-				qb_printer_context _printer_cxt, *printer_cxt = &_printer_cxt;
-				qb_initialize_printer_context(printer_cxt, compiler_cxt TSRMLS_CC);
-				qb_print_zend_ops(printer_cxt);
-			}
+			qb_php_translator_context *translator_cxt = emalloc(sizeof(qb_php_translator_context));
+			qb_initialize_php_translator_context(translator_cxt, compiler_cxt TSRMLS_CC);
+			compiler_cxt->translation = QB_TRANSLATION_PHP;
+			compiler_cxt->translator_context = translator_cxt;
+		} else {
+			qb_pbj_translator_context *translator_cxt = emalloc(sizeof(qb_pbj_translator_context));
+			qb_initialize_pbj_translator_context(translator_cxt, compiler_cxt TSRMLS_CC);
+			compiler_cxt->translation = QB_TRANSLATION_PBJ;
+			compiler_cxt->translator_context = translator_cxt;
+
+			// load the code into memory
+			qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path);
+
+			// decode the pbj data
+			qb_decode_pbj_binary(translator_cxt);
+		}
+
+		// show the zend/pbj opcodes if turned on
+		if(QB_G(show_source_opcodes)) {
+			qb_printer_context _printer_cxt, *printer_cxt = &_printer_cxt;
+			qb_initialize_printer_context(printer_cxt, compiler_cxt TSRMLS_CC);
+			qb_print_source_ops(printer_cxt);
+			qb_free_printer_context(printer_cxt);
 		}
 	}
 
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
-		if(!compiler_cxt->function_declaration->import_path) {
-			// run an initial pass over the opcode to gather info
-			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
-			qb_initialize_php_translater_context(translater_cxt, compiler_cxt TSRMLS_CC);
-			qb_survey_instructions(translater_cxt);
-			qb_free_php_translater_context(translater_cxt);
+
+		switch(compiler_cxt->translation) {
+			case QB_TRANSLATION_PHP: {
+				// run an initial pass over the opcode to gather info
+				qb_php_translator_context *translator_cxt = compiler_cxt->translator_context;
+				qb_survey_instructions(translator_cxt);
+			}	break;
 		}
 	}
 }
@@ -201,34 +220,22 @@ void qb_perform_translation(qb_build_context *cxt) {
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 
-		if(!compiler_cxt->function_declaration->import_path) {
-			qb_php_translater_context _translater_cxt, *translater_cxt = &_translater_cxt;
-			qb_initialize_php_translater_context(translater_cxt, compiler_cxt TSRMLS_CC);
+		switch(compiler_cxt->translation) {
+			case QB_TRANSLATION_PHP: {
+				qb_php_translator_context *translator_cxt = compiler_cxt->translator_context;
+				qb_initialize_php_translator_context(translator_cxt, compiler_cxt TSRMLS_CC);
 
-			// translate the zend ops to intermediate qb ops
-			qb_translate_instructions(translater_cxt);
-
-			qb_free_php_translater_context(translater_cxt);
-		} else {
-			// load the code into memory
-			qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path);
-
-			// decode the pbj data
-			//qb_pbj_decode(compiler_cxt);
-
-			// show the pb opcodes if turned on
-			if(QB_G(show_pbj_opcodes)) {
-				//qb_pbj_print_ops(compiler_cxt);
-			}
-
-			// map function arguments to PB kernel parameters
-			//qb_pbj_map_arguments(compiler_cxt);
+				// translate the zend ops to intermediate qb ops
+				qb_translate_instructions(translator_cxt);
+			}	break;
+			case QB_TRANSLATION_PBJ: {
 
 			// create the main loop and translate the PB instructions
 			//qb_pbj_translate_instructions(compiler_cxt);
 
 			// free the binary
 			qb_free_external_code(compiler_cxt);
+			}	break;
 		}
 
 		// make all jump target indices absolute
@@ -337,6 +344,7 @@ void qb_free_build_context(qb_build_context *cxt) {
 		for(i = 0; i < cxt->compiler_context_count; i++) {
 			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 			qb_free_compiler_context(compiler_cxt);
+			efree(compiler_cxt->translator_context);
 			efree(compiler_cxt);
 		}
 		efree(cxt->compiler_contexts);
