@@ -238,9 +238,6 @@ extern void *factories_fetch_class[3];
 extern qb_op_factory factory_array_init;
 extern qb_op_factory factory_array_append;
 
-extern qb_op_factory factory_receive_argument;
-extern qb_op_factory factory_send_argument;
-
 extern void *factories_fcall[3];
 
 extern qb_op_factory factory_free;

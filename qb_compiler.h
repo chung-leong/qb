@@ -78,11 +78,6 @@ struct qb_compiler_context {
 	qb_function_declaration *function_declaration;
 	uint32_t function_flags;
 
-	qb_operand **stack_items;
-	uint32_t stack_item_buffer_size;
-	uint32_t stack_item_count;
-	uint32_t stack_item_offset;
-
 	qb_storage *storage;
 
 	qb_variable *return_variable;
@@ -102,12 +97,6 @@ struct qb_compiler_context {
 
 	qb_address **writable_arrays;
 	uint32_t writable_array_count;
-
-	qb_result_prototype *result_prototypes;
-	uint32_t result_prototype_count;
-
-	qb_temporary_variable *temp_variables;
-	uint32_t temp_variable_count;
 
 	qb_address **address_aliases;
 	uint32_t address_alias_count;
@@ -300,7 +289,6 @@ void qb_lock_address(qb_compiler_context *cxt, qb_address *address);
 void qb_unlock_address(qb_compiler_context *cxt, qb_address *address);
 void qb_lock_operand(qb_compiler_context *cxt, qb_operand *operand);
 void qb_unlock_operand(qb_compiler_context *cxt, qb_operand *operand);
-void qb_lock_temporary_variables(qb_compiler_context *cxt);
 
 qb_primitive_type qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand *operands, uint32_t count, uint32_t flags);
 qb_primitive_type qb_get_operand_type(qb_compiler_context *cxt, qb_operand *operand, uint32_t flags);
@@ -387,9 +375,6 @@ qb_address * qb_retrieve_binary_op_result(qb_compiler_context *cxt, void *factor
 
 void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
 void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
-
-qb_operand * qb_push_stack_item(qb_compiler_context *cxt);
-qb_operand ** qb_pop_stack_items(qb_compiler_context *cxt, int32_t count);
 
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);

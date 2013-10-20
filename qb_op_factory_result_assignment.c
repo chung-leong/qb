@@ -370,20 +370,6 @@ static void qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_factory
 	}
 }
 
-static void qb_set_result_receive_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *argument = &operands[0], *default_value = &operands[1];
-	if(default_value->type == QB_OPERAND_ZVAL) {
-		qb_variable *qvar = cxt->variables[argument->number - 1];
-		qvar->default_value = default_value->constant;
-	}
-}
-
-static void qb_set_result_send_argument(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *argument = &operands[0];
-	qb_operand *stack_item = qb_push_stack_item(cxt);
-	*stack_item = *argument;
-}
-
 static void qb_set_result_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_address *dimension_address = container->address->dimension_addresses[0];

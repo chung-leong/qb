@@ -223,8 +223,6 @@ void qb_perform_translation(qb_build_context *cxt) {
 		switch(compiler_cxt->translation) {
 			case QB_TRANSLATION_PHP: {
 				qb_php_translator_context *translator_cxt = compiler_cxt->translator_context;
-				qb_initialize_php_translator_context(translator_cxt, compiler_cxt TSRMLS_CC);
-
 				// translate the zend ops to intermediate qb ops
 				qb_translate_instructions(translator_cxt);
 			}	break;

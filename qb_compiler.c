@@ -128,41 +128,6 @@ void qb_unlock_operand(qb_compiler_context *cxt, qb_operand *operand) {
 	}
 }
 
-void qb_lock_temporary_variables(qb_compiler_context *cxt) {
-	uint32_t i, j;
-	for(i = 0; i < cxt->temp_variable_count; i++) {
-		qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
-		if(temp_variable->operand.type == QB_OPERAND_ADDRESS) {
-			qb_address *address = temp_variable->operand.address;
-			if(address->source_address) {
-				qb_lock_address(cxt, address->source_address);
-			}
-			if(address->array_index_address) {
-				qb_lock_address(cxt, address->array_index_address);
-			}			
-		} else {
-			// lock temporary variables used to initialize an array as well
-			if(temp_variable->operand.type == QB_OPERAND_ARRAY_INITIALIZER) {
-				qb_lock_operand(cxt, &temp_variable->operand);
-			}
-		}
-	}
-	for(i = cxt->stack_item_offset, j = 0; j < cxt->stack_item_count; i++, j++) {
-		qb_operand *stack_item = cxt->stack_items[i];
-		qb_lock_operand(cxt, stack_item);
-	}
-	for(i = 0; i < cxt->on_demand_expression_count; i++) {
-		qb_expression *expr = cxt->on_demand_expressions[i];
-		if(expr->flags & QB_EXPR_RESULT_IS_STILL_VALID) {
-			for(j = 0; j < expr->operand_count; j++) {
-				qb_operand *operand = &expr->operands[j];
-				qb_lock_operand(cxt, operand);
-			}
-			qb_lock_operand(cxt, expr->result);
-		}
-	}
-}
-
 static void qb_mark_as_non_local(qb_compiler_context *cxt, qb_address *address) {
 	// TODO: need to consider whether this is still relevant
 	if(!(address->flags & QB_ADDRESS_NON_LOCAL)) {
@@ -1593,31 +1558,6 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 		}
 	}
 	return target_address;
-}
-
-qb_operand * qb_push_stack_item(qb_compiler_context *cxt) {
-	if(cxt->stack_item_offset + cxt->stack_item_count + 1 > cxt->stack_item_buffer_size) {
-		uint32_t i;
-		cxt->stack_item_buffer_size += 2;		// TODO: make it bigger
-		cxt->stack_items = erealloc(cxt->stack_items, cxt->stack_item_buffer_size * sizeof(qb_operand *));
-		for(i = 0; i < 2; i++) {
-			cxt->stack_items[cxt->stack_item_offset + cxt->stack_item_count + i] = qb_allocate_operands(cxt->pool, 1);
-		}
-	}
-	return cxt->stack_items[cxt->stack_item_offset + cxt->stack_item_count++];
-}
-
-qb_operand ** qb_get_stack_items(qb_compiler_context *cxt, int32_t index) {
-	if(index < 0) {
-		qb_abort("stack underflow");
-	}
-	return &cxt->stack_items[cxt->stack_item_offset + index];
-}
-
-qb_operand ** qb_pop_stack_items(qb_compiler_context *cxt, int32_t count) {
-	int32_t index = cxt->stack_item_count - count;
-	cxt->stack_item_count -= count;
-	return qb_get_stack_items(cxt, index);
 }
 
 qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index) {
@@ -3397,9 +3337,6 @@ void qb_free_compiler_context(qb_compiler_context *cxt) {
 		}
 		efree(cxt->storage->segments);
 		efree(cxt->storage);
-	}
-	if(cxt->stack_items) {
-		efree(cxt->stack_items);
 	}
 	if(cxt->external_code) {
 		efree(cxt->external_code);

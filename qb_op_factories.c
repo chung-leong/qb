@@ -819,38 +819,6 @@ qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays_top_level = 
 
 extern qb_simple_op_factory factory_choose_dimension_of_larger_array;
 
-qb_op_factory factory_receive_argument = {
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	qb_set_result_receive_argument,
-	NULL,
-	NULL,
-	NULL,
-	0,
-	0,
-	0,
-};
-
-qb_op_factory factory_send_argument = {
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	qb_set_result_send_argument,
-	NULL,
-	qb_set_result_send_argument,
-	NULL,
-	NULL,
-	NULL,
-	0,
-	0,
-	0,
-};
-
 qb_intrinsic_op_factory factory_intrinsic = {
 	qb_produce_intrinsic_op,
 };
