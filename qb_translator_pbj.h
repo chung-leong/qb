@@ -31,8 +31,9 @@ typedef struct qb_pbj_parameter				qb_pbj_parameter;
 typedef struct qb_pbj_texture				qb_pbj_texture;
 typedef struct qb_pbj_op					qb_pbj_op;
 typedef struct qb_pbj_translator			qb_pbj_translator;
+typedef struct qb_pbj_register				qb_pbj_register;
 
-typedef void (*qb_pbj_translator_proc)(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t intput_count, qb_pbj_address *output);
+typedef void (*qb_pbj_translator_proc)(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 struct qb_pbj_address {
 	uint32_t dimension;
@@ -52,46 +53,6 @@ struct qb_pbj_constant {
 		float32_t float_value;
 		int32_t int_value;
 	};
-};
-
-struct qb_pbj_translator_context {
-	qb_compiler_context *compiler_context;
-	qb_data_pool *pool;
-	qb_storage *storage;
-
-	uint32_t jump_target_index1;
-	uint32_t jump_target_index2;
-
-	qb_pbj_op *pbj_ops;
-	uint32_t pbj_op_count;
-	qb_pbj_op *pbj_op;
-	uint32_t pbj_op_index;
-	uint32_t pbj_op_offset;
-	qb_pbj_op **pbj_conditionals;
-	uint32_t pbj_conditional_count; 
-	qb_pbj_parameter *pbj_parameters;
-	uint32_t pbj_parameter_count;
-	qb_pbj_parameter *pbj_out_coord;
-	qb_pbj_parameter *pbj_out_pixel;
-	qb_pbj_texture *pbj_textures;
-	uint32_t pbj_texture_count;
-	qb_pbj_register *pbj_float_registers;
-	uint32_t pbj_float_register_count;
-	qb_pbj_register *pbj_int_registers;
-	uint32_t pbj_int_register_count;
-	qb_address **pbj_int_numerals;
-	qb_address **pbj_float_numerals;
-	qb_pbj_address pbj_comparison_register;
-	const char *pbj_name;
-	uint32_t pbj_name_length;
-	const char *pbj_vendor;
-	const char *pbj_display_name;
-	const char *pbj_description;
-	uint32_t pbj_version;
-	uint8_t *pbj_data;
-	uint8_t *pbj_data_end;
-
-	void ***tsrm_ls;
 };
 
 #define PBJ_CHANNEL_ACCESS_TYPE(index, count)		(((count - 1) << 2) | index)
@@ -142,16 +103,6 @@ struct qb_pbj_register {
 	uint32_t matrix_usage;
 	qb_address *channel_addresses[PBJ_CHANNEL_RGBA + 1];
 	qb_address *matrix_address;
-};
-
-struct qb_pbj_address_bundle {
-	uint32_t address_count;
-	uint32_t distinct_address_count;
-	qb_address *addresses[4];
-	qb_address *temporary_address;
-	uint32_t channel_counts[4];
-	uint32_t total_channel_count;
-	uint32_t access;
 };
 
 struct qb_pbj_value {
@@ -234,6 +185,52 @@ struct qb_pbj_translator {
 	qb_pbj_translator_proc translate;
 	uint32_t flags;
 	void *extra;
+};
+
+struct qb_pbj_translator_context {
+	qb_compiler_context *compiler_context;
+	qb_data_pool *pool;
+	qb_storage *storage;
+
+	qb_result_prototype *result_prototypes;
+	uint32_t result_prototype_count;
+
+	qb_pbj_register *pbj_registers;
+	uint32_t pbj_register_count;
+
+	qb_operand *pbj_register_slots;
+	uint32_t pbj_register_slot_count;
+
+	qb_pbj_op *pbj_ops;
+	uint32_t pbj_op_count;
+	qb_pbj_op *pbj_op;
+	uint32_t pbj_op_index;
+	uint32_t pbj_op_offset;
+	qb_pbj_op **pbj_conditionals;
+	uint32_t pbj_conditional_count; 
+	qb_pbj_parameter *pbj_parameters;
+	uint32_t pbj_parameter_count;
+	qb_pbj_parameter *pbj_out_coord;
+	qb_pbj_parameter *pbj_out_pixel;
+	qb_pbj_texture *pbj_textures;
+	uint32_t pbj_texture_count;
+	qb_pbj_register *pbj_float_registers;
+	uint32_t pbj_float_register_count;
+	qb_pbj_register *pbj_int_registers;
+	uint32_t pbj_int_register_count;
+	qb_address **pbj_int_numerals;
+	qb_address **pbj_float_numerals;
+	qb_pbj_address pbj_comparison_register;
+	const char *pbj_name;
+	uint32_t pbj_name_length;
+	const char *pbj_vendor;
+	const char *pbj_display_name;
+	const char *pbj_description;
+	uint32_t pbj_version;
+	uint8_t *pbj_data;
+	uint8_t *pbj_data_end;
+
+	void ***tsrm_ls;
 };
 
 enum {
@@ -348,6 +345,7 @@ void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_com
 void qb_free_pbj_translator_context(qb_pbj_translator_context *cxt);
 
 void qb_decode_pbj_binary(qb_pbj_translator_context *cxt);
+void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt);
 void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt);
 
 #endif

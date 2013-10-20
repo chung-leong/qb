@@ -461,102 +461,24 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 	}
 }
 
-static void qb_pbj_translate_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void qbj_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
-static void qb_pbj_translate_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
-static void qb_pbj_translate_select(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void qb_translate_pbj_select(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
-static void qb_pbj_translate_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void qb_translate_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
-static void qb_pbj_translate_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void qb_translate_pbj_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// jump over the else block
 }
 
-static void qb_pbj_translate_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_pbj_address **inputs, uint32_t input_count, qb_pbj_address *output) {
+static void qb_translate_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// do nothing
-}
-
-#define PBJ_RS				PBJ_READ_SOURCE
-#define PBJ_WD				PBJ_WRITE_DESTINATION
-#define PBJ_RS_WD			(PBJ_READ_SOURCE | PBJ_WRITE_DESTINATION)
-#define PBJ_RS_RD_WD		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION)
-#define PBJ_RS_RD_WD1		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION | PBJ_WRITE_SCALAR)
-#define PBJ_RS_RD_WB		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_BOOL)
-#define PBJ_RS_RS2_RS3_WD	(PBJ_READ_SOURCE | PBJ_READ_SOURCE2 | PBJ_READ_SOURCE3 | PBJ_WRITE_DESTINATION)
-
-static qb_pbj_translator pbj_op_translators[] = {
-	{	NULL,										0,					NULL						},	// PBJ_NOP
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_add				},	// PBJ_ADD
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_subtract			},	// PBJ_SUBTRACT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_multiply			},	// PBJ_MULTIPLY
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_divide				},	// PBJ_RECIPROCAL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_divide				},	// PBJ_DIVIDE
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_atan2				},	// PBJ_ATAN2
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_pow				},	// PBJ_POW
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_floor_modulo		},	// PBJ_MOD
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_min				},	// PBJ_MIN
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_max				},	// PBJ_MAX
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_step				},	// PBJ_STEP
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sin				},	// PBJ_SIN
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_cos				},	// PBJ_COS
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_tan				},	// PBJ_TAN
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_asin				},	// PBJ_ASIN
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_acos				},	// PBJ_ACOS
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_atan				},	// PBJ_ATAN
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_exp				},	// PBJ_EXP
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_exp2				},	// PBJ_EXP2
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_log				},	// PBJ_LOG
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_log2				},	// PBJ_LOG2
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sqrt				},	// PBJ_SQRT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_rsqrt			},	// PBJ_RSQRT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_abs				},	// PBJ_ABS
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sign				},	// PBJ_SIGN
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_floor				},	// PBJ_FLOOR
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_ceil				},	// PBJ_CEIL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_fract				},	// PBJ_FRACT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_COPY
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_FLOAT_TO_INT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_INT_TO_FLOAT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_mm_mult_cm			},	// PBJ_MATRIX_MATRIX_MULTIPLY
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_vm_mult_cm			},	// PBJ_VECTOR_MATRIX_MULTIPLY
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_mv_mult_cm			},	// PBJ_MATRIX_VECTOR_MULTIPLY
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_normalize			},	// PBJ_NORMALIZE
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_length				},	// PBJ_LENGTH
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD1,		&factory_distance			},	// PBJ_DISTANCE
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD1,		&factory_dot_product		},	// PBJ_DOT_PRODUCT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_cross_product		},	// PBJ_CROSS_PRODUCT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_equal				},	// PBJ_EQUAL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_not_equal			},	// PBJ_NOT_EQUAL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_less_than			},	// PBJ_LESS_THAN
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_less_equal			},	// PBJ_LESS_THAN_EQUAL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_logical_not		},	// PBJ_LOGICAL_NOT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_logical_and		},	// PBJ_LOGICAL_AND
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_logical_or			},	// PBJ_LOGICAL_OR
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WD,		&factory_logical_xor		},	// PBJ_LOGICAL_XOR
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sample_nearest		},	// PBJ_SAMPLE_NEAREST
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_sample_bilinear	},	// PBJ_SAMPLE_BILINEAR
-	{	qb_pbj_translate_load_constant,				PBJ_WD,				NULL,						},	// PBJ_LOAD_CONSTANT
-	{	qb_pbj_translate_select,					PBJ_RS_RS2_RS3_WD,	NULL,						},	// PBJ_SELECT
-	{	qb_pbj_translate_if,						PBJ_RS,				NULL,						},	// PBJ_IF
-	{	qb_pbj_translate_else,						0,					NULL,						},	// PBJ_ELSE
-	{	qb_pbj_translate_end_if,					0,					NULL						},	// PBJ_END_IF
-	{	qb_pbj_translate_basic_op,					0,					&factory_not_equal			},	// PBJ_FLOAT_TO_BOOL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_FLOAT
-	{	qb_pbj_translate_basic_op,					0,					&factory_not_equal			},	// PBJ_INT_TO_BOOL
-	{	NULL,										PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_INT
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_set_equal			},	// PBJ_VECTOR_EQUAL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RD_WB,		&factory_set_not_equal		},	// PBJ_VECTOR_NOT_EQUAL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_any				},	// PBJ_ANY
-	{	qb_pbj_translate_basic_op,					PBJ_RS_WD,			&factory_all				},	// PBJ_ALL
-	{	qb_pbj_translate_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step		},	// PBJ_SMOOTH_STEP
-};
-
-static void qb_pbj_translate_current_instruction(qb_pbj_translator_context *cxt) {
 }
 
 static int32_t qb_match_pbj_addresses(qb_pbj_translator_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
@@ -808,15 +730,171 @@ static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 	}
 }
 
-void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
-	// map function arguments to PB kernel parameters
-	qb_map_pbj_arguments(cxt);
+#define PBJ_RS				PBJ_READ_SOURCE
+#define PBJ_WD				PBJ_WRITE_DESTINATION
+#define PBJ_RS_WD			(PBJ_READ_SOURCE | PBJ_WRITE_DESTINATION)
+#define PBJ_RS_RD_WD		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION)
+#define PBJ_RS_RD_WD1		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION | PBJ_WRITE_SCALAR)
+#define PBJ_RS_RD_WB		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_BOOL)
+#define PBJ_RS_RS2_RS3_WD	(PBJ_READ_SOURCE | PBJ_READ_SOURCE2 | PBJ_READ_SOURCE3 | PBJ_WRITE_DESTINATION)
 
+static qb_pbj_translator pbj_op_translators[] = {
+	{	NULL,										0,					NULL						},	// PBJ_NOP
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_add				},	// PBJ_ADD
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_subtract			},	// PBJ_SUBTRACT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_multiply			},	// PBJ_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_divide				},	// PBJ_RECIPROCAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_divide				},	// PBJ_DIVIDE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_atan2				},	// PBJ_ATAN2
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_pow				},	// PBJ_POW
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_floor_modulo		},	// PBJ_MOD
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_min				},	// PBJ_MIN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_max				},	// PBJ_MAX
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_step				},	// PBJ_STEP
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sin				},	// PBJ_SIN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_cos				},	// PBJ_COS
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_tan				},	// PBJ_TAN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_asin				},	// PBJ_ASIN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_acos				},	// PBJ_ACOS
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_atan				},	// PBJ_ATAN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp				},	// PBJ_EXP
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp2				},	// PBJ_EXP2
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log				},	// PBJ_LOG
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log2				},	// PBJ_LOG2
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sqrt				},	// PBJ_SQRT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_rsqrt			},	// PBJ_RSQRT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_abs				},	// PBJ_ABS
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sign				},	// PBJ_SIGN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_floor				},	// PBJ_FLOOR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_ceil				},	// PBJ_CEIL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_fract				},	// PBJ_FRACT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_COPY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_FLOAT_TO_INT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_INT_TO_FLOAT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mm_mult_cm			},	// PBJ_MATRIX_MATRIX_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_vm_mult_cm			},	// PBJ_VECTOR_MATRIX_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mv_mult_cm			},	// PBJ_MATRIX_VECTOR_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_normalize			},	// PBJ_NORMALIZE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_length				},	// PBJ_LENGTH
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_distance			},	// PBJ_DISTANCE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_dot_product		},	// PBJ_DOT_PRODUCT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_cross_product		},	// PBJ_CROSS_PRODUCT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_equal				},	// PBJ_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_not_equal			},	// PBJ_NOT_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_than			},	// PBJ_LESS_THAN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_equal			},	// PBJ_LESS_THAN_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_logical_not		},	// PBJ_LOGICAL_NOT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_and		},	// PBJ_LOGICAL_AND
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_or			},	// PBJ_LOGICAL_OR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_xor		},	// PBJ_LOGICAL_XOR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_nearest		},	// PBJ_SAMPLE_NEAREST
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_bilinear	},	// PBJ_SAMPLE_BILINEAR
+	{	qb_translate_pbj_load_constant,				PBJ_WD,				NULL,						},	// PBJ_LOAD_CONSTANT
+	{	qb_translate_pbj_select,					PBJ_RS_RS2_RS3_WD,	NULL,						},	// PBJ_SELECT
+	{	qb_translate_pbj_if,						PBJ_RS,				NULL,						},	// PBJ_IF
+	{	qb_translate_pbj_else,						0,					NULL,						},	// PBJ_ELSE
+	{	qb_translate_pbj_end_if,					0,					NULL						},	// PBJ_END_IF
+	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal			},	// PBJ_FLOAT_TO_BOOL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_FLOAT
+	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal			},	// PBJ_INT_TO_BOOL
+	{	NULL,										PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_INT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_equal			},	// PBJ_VECTOR_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_not_equal		},	// PBJ_VECTOR_NOT_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_any				},	// PBJ_ANY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_all				},	// PBJ_ALL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step		},	// PBJ_SMOOTH_STEP
+};
+
+void qb_retrieve_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg, qb_operand *operand) {
 }
+
+void qb_retire_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg, qb_operand *operand) {
+}
+
+void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
+	qb_pbj_op *pop = cxt->pbj_op;
+	if(pop->opcode != PBJ_OP_DATA && pop->opcode != PBJ_NOP) {
+		qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
+		if(t->translate) {
+			qb_result_prototype *result_prototype = &cxt->result_prototypes[cxt->pbj_op_index];
+			qb_operand operands[4] = { { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_EMPTY, NULL } }; 
+			qb_operand result = { QB_OPERAND_EMPTY, NULL };
+			uint32_t operand_count = 0;
+
+			if(t->flags & PBJ_READ_DESTINATION) {
+				qb_retrieve_register(cxt, &pop->destination, &operands[operand_count++]);
+			}
+			if(t->flags & PBJ_READ_SOURCE) {
+				qb_retrieve_register(cxt, &pop->source, &operands[operand_count++]);
+			}
+			if(t->flags & PBJ_READ_SOURCE2) {
+				qb_pbj_op *data_pop = pop + 1;
+				qb_retrieve_register(cxt, &data_pop->source2, &operands[operand_count++]);
+				if(t->flags & PBJ_READ_SOURCE3) {
+					qb_retrieve_register(cxt, &data_pop->source3, &operands[operand_count++]);
+				}
+			}
+
+			t->translate(cxt, t, operands, operand_count, &result, result_prototype);
+
+			if(t->flags & PBJ_WRITE_DESTINATION) {
+				qb_retire_register(cxt, &pop->destination, &result);
+			} else if(t->flags & PBJ_WRITE_BOOL) {
+				qb_retire_register(cxt, &pop->destination, &result);
+			}
+		}
+	}
+}
+
+void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
+	uint32_t i;
+	// map function arguments to PB kernel parameters
+	//qb_map_pbj_arguments(cxt);
+
+	qb_enlarge_array((void **) cxt->result_prototypes, cxt->pbj_op_count);
+	for(i = 0; i < cxt->result_prototype_count; i++) {
+		qb_result_prototype *prototype = &cxt->result_prototypes[i];
+		prototype->preliminary_type = prototype->final_type = QB_TYPE_UNKNOWN;
+	}
+
+	cxt->compiler_context->stage = QB_STAGE_RESULT_TYPE_RESOLUTION;
+	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
+		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index++];
+		qb_translate_current_pbj_instruction(cxt);
+	}
+}
+
+void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
+	uint32_t i;
+	for(i = 0; i < cxt->pbj_register_slot_count; i++) {
+		qb_operand *slot = &cxt->pbj_register_slots[i];
+		slot->type = QB_OPERAND_EMPTY;
+		slot->generic_pointer = NULL;
+	}
+
+	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
+	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
+		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index++];
+		qb_translate_current_pbj_instruction(cxt);
+	}
+
+	// make sure there's always a RET at the end
+	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
+		qb_operand operand = { QB_OPERAND_EMPTY, NULL };
+		qb_create_op(cxt->compiler_context, &factory_return, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
+	}
+}
+
 
 void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
 	memset(cxt, 0, sizeof(qb_pbj_translator_context));
 	cxt->compiler_context = compiler_cxt;
+	cxt->pool = compiler_cxt->pool;
+
+	qb_attach_new_array(cxt->pool, (void **) &cxt->pbj_register_slots, &cxt->pbj_register_slot_count, sizeof(qb_operand), 16);
+	qb_attach_new_array(cxt->pool, (void **) &cxt->pbj_registers, &cxt->pbj_register_count, sizeof(qb_pbj_register), 16);
+
+	qb_attach_new_array(cxt->pool, (void **) &cxt->result_prototypes, &cxt->result_prototype_count, sizeof(qb_result_prototype), 16);
 
 	SAVE_TSRMLS
 }

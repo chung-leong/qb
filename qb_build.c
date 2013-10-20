@@ -156,6 +156,10 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 				qb_php_translator_context *translator_cxt = compiler_cxt->translator_context;
 				qb_survey_instructions(translator_cxt);
 			}	break;
+			case QB_TRANSLATION_PBJ: {
+				qb_pbj_translator_context *translator_cxt = compiler_cxt->translator_context;
+				qb_survey_pbj_instructions(translator_cxt);
+			}	break;
 		}
 	}
 }
@@ -227,12 +231,12 @@ void qb_perform_translation(qb_build_context *cxt) {
 				qb_translate_instructions(translator_cxt);
 			}	break;
 			case QB_TRANSLATION_PBJ: {
+				qb_pbj_translator_context *translator_cxt = compiler_cxt->translator_context;
+				// create the main loop and translate the PB instructions
+				qb_translate_pbj_instructions(translator_cxt);
 
-			// create the main loop and translate the PB instructions
-			//qb_pbj_translate_instructions(compiler_cxt);
-
-			// free the binary
-			qb_free_external_code(compiler_cxt);
+				// free the binary
+				qb_free_external_code(compiler_cxt);
 			}	break;
 		}
 

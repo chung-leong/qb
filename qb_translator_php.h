@@ -27,7 +27,6 @@ typedef struct qb_php_op_translator			qb_php_op_translator;
 int qb_initialize_php_translator(TSRMLS_D);
 
 typedef void (*qb_php_op_translator_proc)(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
-typedef void (*qb_php_intrinsic_translator_proc)(qb_php_translator_context *cxt, qb_intrinsic_function *f, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 struct qb_php_op_translator {
 	qb_php_op_translator_proc translate;
