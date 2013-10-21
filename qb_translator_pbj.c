@@ -21,7 +21,7 @@
 #include "qb.h"
 #include "qb_translator_pbj.h"
 
-static uint8_t qb_pbj_read_I08(qb_pbj_translator_context *cxt) {
+static uint8_t qb_read_pbj_I08(qb_pbj_translator_context *cxt) {
 	uint8_t value = 0;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 1) { 
 		value = *((uint8_t *) cxt->pbj_data);
@@ -30,7 +30,7 @@ static uint8_t qb_pbj_read_I08(qb_pbj_translator_context *cxt) {
 	return value;
 }
 
-static uint16_t qb_pbj_read_I16(qb_pbj_translator_context *cxt) {
+static uint16_t qb_read_pbj_I16(qb_pbj_translator_context *cxt) {
 	uint16_t value = 0;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 2) { 
 		value = SWAP_LE_I16(*((uint16_t *) cxt->pbj_data));
@@ -39,7 +39,7 @@ static uint16_t qb_pbj_read_I16(qb_pbj_translator_context *cxt) {
 	return value;
 }
 
-static uint32_t qb_pbj_read_I32(qb_pbj_translator_context *cxt) {
+static uint32_t qb_read_pbj_I32(qb_pbj_translator_context *cxt) {
 	uint32_t value = 0;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 4) { 
 		value = SWAP_LE_I32(*((uint32_t *) cxt->pbj_data));
@@ -48,7 +48,7 @@ static uint32_t qb_pbj_read_I32(qb_pbj_translator_context *cxt) {
 	return value;
 }
 
-static float32_t qb_pbj_read_F32(qb_pbj_translator_context *cxt) {
+static float32_t qb_read_pbj_F32(qb_pbj_translator_context *cxt) {
 	float32_t value = 0.0f;
 	if(cxt->pbj_data_end - cxt->pbj_data >= 4) { 
 		uint32_t int_value = SWAP_BE_I32(*((uint32_t *) cxt->pbj_data));
@@ -58,10 +58,10 @@ static float32_t qb_pbj_read_F32(qb_pbj_translator_context *cxt) {
 	return value;
 }
 
-static const char * qb_pbj_read_string(qb_pbj_translator_context *cxt, uint32_t *p_length) {
+static const char * qb_read_pbj_string(qb_pbj_translator_context *cxt, uint32_t *p_length) {
 	const char *value = "";
 	if(p_length) {
-		uint16_t len = qb_pbj_read_I16(cxt);
+		uint16_t len = qb_read_pbj_I16(cxt);
 		if(cxt->pbj_data_end - cxt->pbj_data >= len) { 
 			value = (const char *) cxt->pbj_data;
 			*p_length = len;
@@ -83,7 +83,7 @@ static const char * qb_pbj_read_string(qb_pbj_translator_context *cxt, uint32_t 
 	return value;
 }
 
-static qb_pbj_parameter * qb_pbj_find_parameter_by_address(qb_pbj_translator_context *cxt, qb_pbj_address *address) {
+static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_pbj_translator_context *cxt, qb_pbj_address *address) {
 	uint32_t i;
 	for(i = 0; i < cxt->parameter_count; i++) {
 		qb_pbj_parameter *parameter = &cxt->parameters[i];
@@ -108,7 +108,7 @@ static qb_pbj_parameter * qb_pbj_find_parameter_by_address(qb_pbj_translator_con
 	return NULL;
 }
 
-static qb_pbj_texture * qb_pbj_find_texture_by_id(qb_pbj_translator_context *cxt, uint32_t image_id) {
+static qb_pbj_texture * qb_find_pbj_texture_by_id(qb_pbj_translator_context *cxt, uint32_t image_id) {
 	uint32_t i;
 	for(i = 0; i < cxt->texture_count; i++) {
 		qb_pbj_texture *texture = &cxt->textures[i];
@@ -119,72 +119,72 @@ static qb_pbj_texture * qb_pbj_find_texture_by_id(qb_pbj_translator_context *cxt
 	return NULL;
 }
 
-static void qb_pbj_read_value(qb_pbj_translator_context *cxt, uint32_t type, qb_pbj_value *value) {
+static void qb_read_pbj_value(qb_pbj_translator_context *cxt, uint32_t type, qb_pbj_value *value) {
 	uint32_t i;
 	value->type = type;
 	switch(type) {
 		case PBJ_TYPE_FLOAT: {
-			value->float1 = qb_pbj_read_F32(cxt);
+			value->float1 = qb_read_pbj_F32(cxt);
 		}	break;
 		case PBJ_TYPE_FLOAT2: {
 			for(i = 0; i < 2; i++) {
-				value->float2[i] = qb_pbj_read_F32(cxt);
+				value->float2[i] = qb_read_pbj_F32(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_FLOAT3: {
 			for(i = 0; i < 3; i++) {
-				value->float3[i] = qb_pbj_read_F32(cxt);
+				value->float3[i] = qb_read_pbj_F32(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_FLOAT4: {
 			for(i = 0; i < 4; i++) {
-				value->float4[i] = qb_pbj_read_F32(cxt);
+				value->float4[i] = qb_read_pbj_F32(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_FLOAT2X2: {
 			for(i = 0; i < 4; i++) {
-				value->float2x2[i] = qb_pbj_read_F32(cxt);
+				value->float2x2[i] = qb_read_pbj_F32(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_FLOAT3X3: {
 			for(i = 0; i < 9; i++) {
-				value->float3x3[i] = qb_pbj_read_F32(cxt);
+				value->float3x3[i] = qb_read_pbj_F32(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_FLOAT4X4: {
 			for(i = 0; i < 16; i++) {
-				value->float4x4[i] = qb_pbj_read_F32(cxt);
+				value->float4x4[i] = qb_read_pbj_F32(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_BOOL:
 		case PBJ_TYPE_INT: {
-			value->int1 = qb_pbj_read_I16(cxt);
+			value->int1 = qb_read_pbj_I16(cxt);
 		}	break;
 		case PBJ_TYPE_BOOL2:
 		case PBJ_TYPE_INT2: {
 			for(i = 0; i < 2; i++) {
-				value->int2[i] = qb_pbj_read_I16(cxt);
+				value->int2[i] = qb_read_pbj_I16(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_BOOL3:
 		case PBJ_TYPE_INT3: {
 			for(i = 0; i < 3; i++) {
-				value->int3[i] = qb_pbj_read_I16(cxt);
+				value->int3[i] = qb_read_pbj_I16(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_BOOL4:
 		case PBJ_TYPE_INT4: {
 			for(i = 0; i < 4; i++) {
-				value->int4[i] = qb_pbj_read_I16(cxt);
+				value->int4[i] = qb_read_pbj_I16(cxt);
 			}
 		}	break;
 		case PBJ_TYPE_STRING: {
-			value->string = qb_pbj_read_string(cxt, NULL);
+			value->string = qb_read_pbj_string(cxt, NULL);
 		}	break;
 	}
 }
 
-static qb_pbj_texture * qb_pbj_find_texture(qb_pbj_translator_context *cxt, const char *name) {
+static qb_pbj_texture * qb_find_pbj_texture(qb_pbj_translator_context *cxt, const char *name) {
 	uint32_t i;
 	for(i = 0; i < cxt->texture_count; i++) {
 		qb_pbj_texture *texture = &cxt->textures[i];
@@ -195,7 +195,7 @@ static qb_pbj_texture * qb_pbj_find_texture(qb_pbj_translator_context *cxt, cons
 	return NULL;
 }
 
-static void ZEND_FASTCALL qb_set_pbj_destination_channels(qb_pbj_translator_context *cxt, qb_pbj_address *address, uint32_t channel_mask, uint32_t dimension) {
+static void qb_set_pbj_destination_channels(qb_pbj_translator_context *cxt, qb_pbj_address *address, uint32_t channel_mask, uint32_t dimension) {
 	// dimension is used only if no destination channels are selected 
 	// otherwise dimension is pertinent only to the source
 	if(channel_mask) {
@@ -214,7 +214,7 @@ static void ZEND_FASTCALL qb_set_pbj_destination_channels(qb_pbj_translator_cont
 	}
 }
 
-static void ZEND_FASTCALL qb_set_pbj_source_channels(qb_pbj_translator_context *cxt, qb_pbj_address *address, uint32_t channel_swizzle, uint32_t channel_count, uint32_t dimension) {
+static void qb_set_pbj_source_channels(qb_pbj_translator_context *cxt, qb_pbj_address *address, uint32_t channel_swizzle, uint32_t channel_count, uint32_t dimension) {
 	if(dimension == 1) {
 		uint32_t channel, i;
 		address->dimension = 1;
@@ -236,7 +236,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 	cxt->pbj_data_end = cxt->pbj_data + cxt->compiler_context->external_code_length;
 
 	while(cxt->pbj_data < cxt->pbj_data_end) {
-		opcode = qb_pbj_read_I08(cxt);
+		opcode = qb_read_pbj_I08(cxt);
 		if(opcode <= PBJ_ALL) {
 			uint32_t bit_fields, channel_mask, channel_swizzle, channel_count, dimension;
 			qb_pbj_op *pop;
@@ -256,8 +256,8 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			pop->opcode = opcode;
 
 			// read the destination address
-			pop->destination.register_id = qb_pbj_read_I16(cxt);
-			bit_fields = qb_pbj_read_I08(cxt);
+			pop->destination.register_id = qb_read_pbj_I16(cxt);
+			bit_fields = qb_read_pbj_I08(cxt);
 			channel_mask = bit_fields >> 4;
 			channel_count = (bit_fields & 0x03) + 1;
 			dimension = ((bit_fields >> 2) & 0x03) + 1;
@@ -267,21 +267,21 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 				pop->source.channel_count = pop->source.dimension = 0;
 				pop->image_id = 0;
 				if(pop->destination.register_id & PBJ_REGISTER_INT) {
-					pop->constant.int_value = qb_pbj_read_I32(cxt);
+					pop->constant.int_value = qb_read_pbj_I32(cxt);
 					pop->constant.type = PBJ_TYPE_INT;
 				} else {			
-					pop->constant.float_value = qb_pbj_read_F32(cxt);
+					pop->constant.float_value = qb_read_pbj_F32(cxt);
 					pop->constant.type = PBJ_TYPE_FLOAT;
 				}
 				pop->flags = PBJ_DESTINATION_IN_USE;
 			} else {
 				// read the source
-				pop->source.register_id = qb_pbj_read_I16(cxt);
-				channel_swizzle = qb_pbj_read_I08(cxt);
+				pop->source.register_id = qb_read_pbj_I16(cxt);
+				channel_swizzle = qb_read_pbj_I08(cxt);
 				qb_set_pbj_source_channels(cxt, &pop->source, channel_swizzle, channel_count, dimension);
 
 				// read the image id (only used for sampling functions)
-				pop->image_id = qb_pbj_read_I08(cxt);
+				pop->image_id = qb_read_pbj_I08(cxt);
 
 				if(opcode == PBJ_IF) {
 					// push the instruction onto the conditional stack
@@ -313,19 +313,21 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 					// put the on-true and on-false sources in the next op
 					qb_pbj_op *data_pop = qb_enlarge_array((void **) &cxt->pbj_ops, 1);
 					data_pop->opcode = PBJ_OP_DATA;
-					data_pop->source2.register_id = qb_pbj_read_I16(cxt);
-					channel_swizzle = qb_pbj_read_I08(cxt);
-					bit_fields = qb_pbj_read_I08(cxt);
+					data_pop->source2.register_id = qb_read_pbj_I16(cxt);
+					channel_swizzle = qb_read_pbj_I08(cxt);
+					bit_fields = qb_read_pbj_I08(cxt);
 					channel_count = (bit_fields >> 6) + 1;
 					qb_set_pbj_source_channels(cxt, &data_pop->source2, channel_swizzle, channel_count, dimension);
 
-					data_pop->source3.register_id = qb_pbj_read_I16(cxt);
-					channel_swizzle = qb_pbj_read_I08(cxt);
-					bit_fields = qb_pbj_read_I08(cxt);
+					data_pop->source3.register_id = qb_read_pbj_I16(cxt);
+					channel_swizzle = qb_read_pbj_I08(cxt);
+					bit_fields = qb_read_pbj_I08(cxt);
 					channel_count = (bit_fields >> 6) + 1;
 					qb_set_pbj_source_channels(cxt, &data_pop->source3, channel_swizzle, channel_count, dimension);
 					data_pop->flags = PBJ_SOURCE_IN_USE | PBJ_DESTINATION_IN_USE;
 					pop->flags = PBJ_SOURCE_IN_USE | PBJ_DESTINATION_IN_USE;
+				} else if(opcode == PBJ_SAMPLE_BILINEAR || opcode == PBJ_SAMPLE_NEAREST) {
+					pop->flags = PBJ_IMAGE_ID_IN_USE | PBJ_SOURCE_IN_USE | PBJ_DESTINATION_IN_USE; 
 				} else {
 					pop->flags = PBJ_SOURCE_IN_USE | PBJ_DESTINATION_IN_USE;
 				}
@@ -335,8 +337,8 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			const char *value_name;
 			qb_pbj_parameter *last_parameter;
 			qb_pbj_value *value = NULL, tmp;
-			value_type = qb_pbj_read_I08(cxt);
-			value_name = qb_pbj_read_string(cxt, NULL);
+			value_type = qb_read_pbj_I08(cxt);
+			value_name = qb_read_pbj_string(cxt, NULL);
 			if(opcode == PBJ_PARAMETER_METADATA && cxt->parameter_count > 0) {
 				last_parameter = &cxt->parameters[cxt->parameter_count - 1];
 				if(strcmp(value_name, "minValue") == 0) {
@@ -350,7 +352,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			if(!value) {
 				value = &tmp;
 			}
-			qb_pbj_read_value(cxt, value_type, value);
+			qb_read_pbj_value(cxt, value_type, value);
 			if(opcode == PBJ_PARAMETER_METADATA && value_type == PBJ_TYPE_STRING) {
 				if(strcmp(value_name, "parameterType") == 0) {
 					last_parameter->parameter_type = value->string;
@@ -377,10 +379,10 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 		} else if(opcode == PBJ_PARAMETER_DATA) {
 			qb_pbj_parameter *parameter = qb_enlarge_array((void **) &cxt->parameters, 1);
 			uint32_t bit_fields, dimension, channel_mask;
-			parameter->qualifier = qb_pbj_read_I08(cxt);
-			parameter->type = qb_pbj_read_I08(cxt);
-			parameter->destination.register_id = qb_pbj_read_I16(cxt);
-			bit_fields = qb_pbj_read_I08(cxt);
+			parameter->qualifier = qb_read_pbj_I08(cxt);
+			parameter->type = qb_read_pbj_I08(cxt);
+			parameter->destination.register_id = qb_read_pbj_I16(cxt);
+			bit_fields = qb_read_pbj_I08(cxt);
 			switch(parameter->type) {
 				case PBJ_TYPE_FLOAT2X2: 
 				case PBJ_TYPE_FLOAT3X3: 
@@ -394,7 +396,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 					break;
 			}
 			qb_set_pbj_destination_channels(cxt, &parameter->destination, channel_mask, dimension);
-			parameter->name = qb_pbj_read_string(cxt, NULL);
+			parameter->name = qb_read_pbj_string(cxt, NULL);
 			parameter->address = NULL;
 			parameter->parameter_type = NULL;
 			parameter->description = NULL;
@@ -404,15 +406,15 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			memset(&parameter->max_value, 0, sizeof(qb_pbj_value));
 		} else if(opcode == PBJ_TEXTURE_DATA) {
 			qb_pbj_texture *texture = qb_enlarge_array((void **) &cxt->textures, 1);
-			texture->image_id = qb_pbj_read_I08(cxt);
-			texture->channel_count = qb_pbj_read_I08(cxt);
-			texture->name = qb_pbj_read_string(cxt, NULL);
+			texture->image_id = qb_read_pbj_I08(cxt);
+			texture->channel_count = qb_read_pbj_I08(cxt);
+			texture->name = qb_read_pbj_string(cxt, NULL);
 			texture->address = NULL;
 			texture->input_size = NULL;
 		} else if(opcode == PBJ_KERNEL_NAME) {
-			cxt->pbj_name = qb_pbj_read_string(cxt, &cxt->name_length);
+			cxt->pbj_name = qb_read_pbj_string(cxt, &cxt->name_length);
 		} else if(opcode == PBJ_VERSION_DATA) {
-			qb_pbj_read_I32(cxt);
+			qb_read_pbj_I32(cxt);
 		} else {
 			qb_abort("unknown opcode: %02x (previous opcode = %02x)", opcode, prev_opcode);
 			break;
@@ -426,7 +428,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 		} else if(parameter->qualifier == PBJ_PARAMETER_OUT) {
 			cxt->out_pixel = parameter;
 		} else if(parameter->input_size_name) {
-			qb_pbj_texture *texture = qb_pbj_find_texture(cxt, parameter->input_size_name);
+			qb_pbj_texture *texture = qb_find_pbj_texture(cxt, parameter->input_size_name);
 			if(texture) {
 				texture->input_size = parameter;
 			}
@@ -656,7 +658,7 @@ static qb_variable * qb_find_output(qb_pbj_translator_context *cxt) {
 	return NULL;
 }
 
-static void qb_map_arguments(qb_pbj_translator_context *cxt) {
+static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 	uint32_t i;
 	qb_variable *qvar;
 
@@ -736,25 +738,25 @@ static void qb_map_arguments(qb_pbj_translator_context *cxt) {
 
 #define PBJ_RS				PBJ_READ_SOURCE
 #define PBJ_WD				PBJ_WRITE_DESTINATION
+#define PBJ_RI_RS_WD		(PBJ_READ_IMAGE | PBJ_READ_SOURCE | PBJ_WRITE_DESTINATION)
 #define PBJ_RS_WD			(PBJ_READ_SOURCE | PBJ_WRITE_DESTINATION)
-#define PBJ_RS_RD_WD		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION)
-#define PBJ_RS_RD_WD1		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION | PBJ_WRITE_SCALAR)
-#define PBJ_RS_RD_WB		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_BOOL)
+#define PBJ_RS_RD1_WD		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION_FIRST | PBJ_WRITE_DESTINATION)
+#define PBJ_RS_RD2_WD		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION)
 #define PBJ_RS_RS2_RS3_WD	(PBJ_READ_SOURCE | PBJ_READ_SOURCE2 | PBJ_READ_SOURCE3 | PBJ_WRITE_DESTINATION)
 
 static qb_pbj_translator pbj_op_translators[] = {
 	{	NULL,										0,					NULL							},	// PBJ_NOP
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_add					},	// PBJ_ADD
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_subtract				},	// PBJ_SUBTRACT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_multiply				},	// PBJ_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_add					},	// PBJ_ADD
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_subtract				},	// PBJ_SUBTRACT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_multiply				},	// PBJ_MULTIPLY
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_reciprocal				},	// PBJ_RECIPROCAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_divide					},	// PBJ_DIVIDE
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_atan2					},	// PBJ_ATAN2
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_pow					},	// PBJ_POW
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_floor_modulo			},	// PBJ_MOD
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_min					},	// PBJ_MIN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_max					},	// PBJ_MAX
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_step					},	// PBJ_STEP
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_divide					},	// PBJ_DIVIDE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_atan2					},	// PBJ_ATAN2
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_pow					},	// PBJ_POW
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_floor_modulo			},	// PBJ_MOD
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_min					},	// PBJ_MIN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_max					},	// PBJ_MAX
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_step					},	// PBJ_STEP
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sin					},	// PBJ_SIN
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_cos					},	// PBJ_COS
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_tan					},	// PBJ_TAN
@@ -772,38 +774,38 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_floor					},	// PBJ_FLOOR
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_ceil					},	// PBJ_CEIL
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_fract					},	// PBJ_FRACT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_COPY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_FLOAT_TO_INT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_INT_TO_FLOAT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mm_mult_cm				},	// PBJ_MATRIX_MATRIX_MULTIPLY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_vm_mult_cm				},	// PBJ_VECTOR_MATRIX_MULTIPLY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mv_mult_cm				},	// PBJ_MATRIX_VECTOR_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_COPY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_FLOAT_TO_INT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_INT_TO_FLOAT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD2_WD,		&factory_mm_mult_cm				},	// PBJ_MATRIX_MATRIX_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_vm_mult_cm				},	// PBJ_VECTOR_MATRIX_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD2_WD,		&factory_mv_mult_cm				},	// PBJ_MATRIX_VECTOR_MULTIPLY
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_normalize				},	// PBJ_NORMALIZE
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_length					},	// PBJ_LENGTH
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_distance				},	// PBJ_DISTANCE
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_dot_product			},	// PBJ_DOT_PRODUCT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_cross_product			},	// PBJ_CROSS_PRODUCT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_equal					},	// PBJ_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_not_equal				},	// PBJ_NOT_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_than				},	// PBJ_LESS_THAN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_equal				},	// PBJ_LESS_THAN_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_distance				},	// PBJ_DISTANCE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_dot_product			},	// PBJ_DOT_PRODUCT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_cross_product			},	// PBJ_CROSS_PRODUCT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_equal					},	// PBJ_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_not_equal				},	// PBJ_NOT_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_less_than				},	// PBJ_LESS_THAN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_less_equal				},	// PBJ_LESS_THAN_EQUAL
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_logical_not			},	// PBJ_LOGICAL_NOT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_and			},	// PBJ_LOGICAL_AND
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_or				},	// PBJ_LOGICAL_OR
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_xor			},	// PBJ_LOGICAL_XOR
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_nearest_vector	},	// PBJ_SAMPLE_NEAREST
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_bilinear_vector	},	// PBJ_SAMPLE_BILINEAR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_and			},	// PBJ_LOGICAL_AND
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_or				},	// PBJ_LOGICAL_OR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_xor			},	// PBJ_LOGICAL_XOR
+	{	qbj_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_nearest_vector	},	// PBJ_SAMPLE_NEAREST
+	{	qbj_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_bilinear_vector	},	// PBJ_SAMPLE_BILINEAR
 	{	qb_translate_pbj_load_constant,				PBJ_WD,				NULL,							},	// PBJ_LOAD_CONSTANT
 	{	qb_translate_pbj_select,					PBJ_RS_RS2_RS3_WD,	NULL,							},	// PBJ_SELECT
 	{	qb_translate_pbj_if,						PBJ_RS,				NULL,							},	// PBJ_IF
 	{	qb_translate_pbj_else,						0,					NULL,							},	// PBJ_ELSE
 	{	qb_translate_pbj_end_if,					0,					NULL							},	// PBJ_END_IF
 	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal				},	// PBJ_FLOAT_TO_BOOL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_BOOL_TO_FLOAT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_BOOL_TO_FLOAT
 	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal				},	// PBJ_INT_TO_BOOL
-	{	NULL,										PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_BOOL_TO_INT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_equal				},	// PBJ_VECTOR_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_not_equal			},	// PBJ_VECTOR_NOT_EQUAL
+	{	NULL,										PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_BOOL_TO_INT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_set_equal				},	// PBJ_VECTOR_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_set_not_equal			},	// PBJ_VECTOR_NOT_EQUAL
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_any					},	// PBJ_ANY
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_all					},	// PBJ_ALL
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step			},	// PBJ_SMOOTH_STEP
@@ -951,7 +953,13 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 			qb_operand result = { QB_OPERAND_EMPTY, NULL };
 			uint32_t operand_count = 0;
 
-			if(t->flags & PBJ_READ_DESTINATION) {
+			if(t->flags & PBJ_READ_IMAGE) {
+				qb_pbj_texture *texture = qb_find_pbj_texture_by_id(cxt, pop->image_id);
+				qb_operand *image = &operands[operand_count++];
+				image->address = texture->address;
+				image->type = QB_OPERAND_ADDRESS;
+			}
+			if(t->flags & PBJ_READ_DESTINATION_FIRST) {
 				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], FALSE);
 			}
 			if(t->flags & PBJ_READ_SOURCE) {
@@ -968,13 +976,16 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 					qb_retrieve_operand(cxt, &data_pop->source3, &operands[operand_count++], FALSE);
 				}
 			}
-			if(t->flags & (PBJ_WRITE_DESTINATION | PBJ_WRITE_BOOL)) {
+			if(t->flags & PBJ_READ_DESTINATION) {
+				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], FALSE);
+			}
+			if(t->flags & PBJ_WRITE_DESTINATION) {
 				qb_retrieve_operand(cxt, &pop->destination, &result, (pop->opcode != PBJ_LOAD_CONSTANT));
 			}
 
 			t->translate(cxt, t, operands, operand_count, &result, result_prototype);
 
-			if(t->flags & (PBJ_WRITE_DESTINATION | PBJ_WRITE_BOOL)) {
+			if(t->flags & PBJ_WRITE_DESTINATION) {
 				qb_retire_operand(cxt, &pop->destination, &result);
 			}
 		}
@@ -984,7 +995,7 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 
 static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
 	qb_pbj_register **p_regs, *reg;
-	qb_pbj_register_slot **p_slots, *slot;
+	qb_pbj_register_slot **p_slots;
 	qb_primitive_type element_type;
 	uint32_t id, reg_required, end, *p_count;
 
@@ -1014,11 +1025,10 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 
 	if(end >= *p_count) {
 		uint32_t addition = end - *p_count + 1;
-		reg = qb_enlarge_array((void **) p_regs, addition);
-		slot = qb_enlarge_array((void **) p_slots, addition);
-	} else {
-		reg = &(*p_regs)[id];
+		qb_enlarge_array((void **) p_regs, addition);
+		qb_enlarge_array((void **) p_slots, addition);
 	}
+	reg = &(*p_regs)[id];
 
 	if(reg_address->dimension > 1) {
 		if(!reg->matrix_address) {
@@ -1067,7 +1077,7 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 	}
 }
 
-static void ZEND_FASTCALL qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
+static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
 	// allocate matrices first, since they can spill into multiple registers
 	uint32_t i;
 	for(i = 0; i < cxt->pbj_op_count; i++) {
@@ -1107,7 +1117,7 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	qb_substitute_ops(cxt);
 
 	// map function arguments to PB kernel parameters
-	//qb_map_pbj_arguments(cxt);
+	qb_map_pbj_arguments(cxt);
 
 	// allocate registers
 	qb_allocate_pbj_registers(cxt);

@@ -59,14 +59,6 @@ struct qb_pbj_constant {
 	};
 };
 
-#define PBJ_CHANNEL_ACCESS_TYPE(index, count)		(((count - 1) << 2) | index)
-#define PBJ_CHANNEL_ACCESS_INDEX(usage)				(usage & 0x03)
-#define PBJ_CHANNEL_ACCESS_COUNT(usage)				((usage >> 2) + 1)
-
-#define PBJ_MATRIX_ACCESS_TYPE(dimension, offset)	(((dimension - 1) << 2) | offset)
-#define PBJ_MATRIX_ACCESS_OFFSET(usage)				(usage & 0x03)
-#define PBJ_MATRIX_ACCESS_DIMENSION(usage)			((usage >> 2) + 1)
-
 enum qb_pbj_channel_id {
 	PBJ_CHANNEL_R			= 0,
 	PBJ_CHANNEL_G,
@@ -134,8 +126,9 @@ struct qb_pbj_texture {
 };
 
 enum {
-	PBJ_SOURCE_IN_USE			= 0x0001,
-	PBJ_DESTINATION_IN_USE		= 0x0002,
+	PBJ_SOURCE_IN_USE				= 0x00000001,
+	PBJ_DESTINATION_IN_USE			= 0x00000002,
+	PBJ_IMAGE_ID_IN_USE				= 0x00000004,
 };
 
 struct qb_pbj_op {
@@ -154,25 +147,15 @@ struct qb_pbj_op {
 	};
 };
 
-#define PBJ_READ_SOURCE				0x00000001
-#define PBJ_READ_DESTINATION		0x00000002
-#define PBJ_READ_SOURCE2			0x00000004
-#define PBJ_READ_SOURCE3			0x00000008
-#define PBJ_WRITE_DESTINATION		0x00000010
-#define PBJ_WRITE_BOOL				0x00000020
-#define PBJ_WRITE_SCALAR			0x00000040
-
-#define PBJ_OP_READ					0x00000001
-#define PBJ_OP_READ_EXACT			(0x00000001 | 0x00000002)
-#define PBJ_OP_WRITE				0x00000004
-#define PBJ_OP_OVERWRITE			(0x00000004 | 0x00000008)
-#define PBJ_OP_OVERWRITE_EXACT		(0x00000004 | 0x00000008 | 0x00000010)
-
-#define PBJ_AS_SOURCE				0x00000100
-#define PBJ_AS_DESTINATION			0x00000200
-#define PBJ_AS_SOURCE2				0x00000400
-#define PBJ_AS_SOURCE3				0x00000800
-#define PBJ_AS_BOOL					0x00001000
+enum {
+	PBJ_READ_SOURCE					= 0x00000001,
+	PBJ_READ_DESTINATION_FIRST		= 0x00000002,
+	PBJ_READ_DESTINATION			= 0x00000004,
+	PBJ_READ_SOURCE2				= 0x00000008,
+	PBJ_READ_SOURCE3				= 0x00000010,
+	PBJ_READ_IMAGE					= 0x00000020,
+	PBJ_WRITE_DESTINATION			= 0x00000040,
+};
 
 struct qb_pbj_translator {
 	qb_pbj_translator_proc translate;

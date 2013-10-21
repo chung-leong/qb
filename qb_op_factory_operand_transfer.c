@@ -475,7 +475,6 @@ static void qb_transfer_operands_array_column(qb_compiler_context *cxt, qb_op_fa
 	dest[2].type = QB_OPERAND_ADDRESS;
 	dest[3] = *column_index;
 	dest[4] = *result;
-
 }
 
 static void qb_transfer_operands_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {

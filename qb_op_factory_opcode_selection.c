@@ -311,15 +311,17 @@ static qb_opcode qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory
 	qb_address *src_address = value->address;
 	qb_address *dst_address = result->address;	
 	qb_opcode opcode = QB_NOP;
-	// if the expression type was set to void, then an earlier op has used the r-value as write target
-	// so there's no need to perform the assignment
-	if(expr_type != QB_TYPE_VOID) {
-		if(src_address->type == dst_address->type) {
-			// vectorized instructions are available only for copying between variables of the same type
-			opcode = qb_select_vectorized_unary_opcode(cxt, cf->vector_opcodes, value, result);
-		}
-		if(opcode == QB_NOP) {
-			opcode = cf->opcodes[QB_TYPE_F64 - src_address->type][QB_TYPE_F64 - dst_address->type];
+	if(src_address != dst_address) {
+		// if the expression type was set to void, then an earlier op has used the r-value as write target
+		// so there's no need to perform the assignment
+		if(expr_type != QB_TYPE_VOID) {
+			if(src_address->type == dst_address->type) {
+				// vectorized instructions are available only for copying between variables of the same type
+				opcode = qb_select_vectorized_unary_opcode(cxt, cf->vector_opcodes, value, result);
+			}
+			if(opcode == QB_NOP) {
+				opcode = cf->opcodes[QB_TYPE_F64 - src_address->type][QB_TYPE_F64 - dst_address->type];
+			}
 		}
 	}
 	return opcode;
