@@ -609,7 +609,7 @@ static void qb_substitute_ops(qb_pbj_translator_context *cxt) {
 
 static int32_t qb_is_image(qb_pbj_translator_context *cxt, qb_address *address, uint32_t channel_count) {
 	if(address && address->type == QB_TYPE_F32 && address->dimension_count == 3) {
-		if(VALUE(U32, address->dimension_addresses[2]) == channel_count) {
+		if(CONSTANT_DIMENSION(address, -1) && DIMENSION(address, -1) == channel_count) {
 			return TRUE;
 		}
 	}
@@ -658,6 +658,97 @@ static qb_variable * qb_find_output(qb_pbj_translator_context *cxt) {
 	return NULL;
 }
 
+static qb_pbj_register * qb_create_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
+	qb_pbj_register **p_regs, *reg;
+	qb_pbj_register_slot **p_slots;
+	uint32_t id, reg_required, end, *p_count;
+
+	if(reg_address->register_id & PBJ_REGISTER_INT) {
+		id = reg_address->register_id & ~PBJ_REGISTER_INT;
+		p_regs = &cxt->int_registers;
+		p_slots = &cxt->int_register_slots;
+		p_count = &cxt->int_register_count;
+	} else {
+		id = reg_address->register_id;
+		p_regs = &cxt->float_registers;
+		p_slots = &cxt->float_register_slots;
+		p_count = &cxt->float_register_count;
+	}
+
+	// matrices could span more than one register
+	if(reg_address->dimension > 1) {
+		switch(reg_address->dimension) {
+			case 2: reg_required = 1; break;
+			case 3: reg_required = 3; break;
+			case 4: reg_required = 4; break;
+		}
+	} else {
+		reg_required = 1;
+	}
+	end = id + reg_required - 1;
+
+	if(end >= *p_count) {
+		uint32_t original_count = *p_count;
+		uint32_t addition = end - *p_count + 1;
+		qb_enlarge_array((void **) p_regs, addition);
+		qb_enlarge_array((void **) p_slots, addition);
+	}
+	reg = &(*p_regs)[id];
+	reg->span = reg_required;
+	return reg;
+}
+
+static void qb_propagate_pbj_matrix_span(qb_pbj_translator_context *cxt, qb_pbj_register *reg) {
+	if(reg->span == 1) {
+		qb_address *rgba_address = qb_create_address_alias(cxt->compiler_context, reg->matrix_address);
+		rgba_address->dimension_count = 1;
+		rgba_address->array_size_addresses = rgba_address->dimension_addresses = &rgba_address->array_size_address;
+		reg->channel_addresses[PBJ_CHANNEL_RGBA] = rgba_address;
+	} else {
+		// copy vector addresses into this and subsequent registers
+		uint32_t i;
+		for(i = 0; i < reg->span; i++) {
+			qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, i);
+			reg[i].channel_addresses[PBJ_CHANNEL_RGBA] = qb_obtain_array_element(cxt->compiler_context, reg->matrix_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
+		}
+	}
+}
+
+static qb_pbj_channel_id qb_get_pbj_channel_id(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
+	uint32_t i;
+	switch(reg_address->channel_count) {
+		case 1: return reg_address->channels[0];
+		case 2: {
+			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G) {
+				return PBJ_CHANNEL_RG;
+			} else if(reg_address->channels[0] == PBJ_CHANNEL_G && reg_address->channels[1] == PBJ_CHANNEL_B) {
+				return PBJ_CHANNEL_GB;
+			} else if(reg_address->channels[0] == PBJ_CHANNEL_B && reg_address->channels[1] == PBJ_CHANNEL_A) {
+				return PBJ_CHANNEL_BA;
+			}
+		}	break;
+		case 3: {
+			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G && reg_address->channels[2] == PBJ_CHANNEL_B) {
+				return PBJ_CHANNEL_RGB;
+			} else if(reg_address->channels[0] == PBJ_CHANNEL_G && reg_address->channels[1] == PBJ_CHANNEL_B && reg_address->channels[2] == PBJ_CHANNEL_A) {
+				return PBJ_CHANNEL_GBA;
+			}
+		}	break;
+		case 4: {
+			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G && reg_address->channels[2] == PBJ_CHANNEL_B && reg_address->channels[3] == PBJ_CHANNEL_A) {
+				return PBJ_CHANNEL_RGBA;
+			}
+		}	break;
+	}
+	for(i = 1; i < reg_address->channel_count; i++) {
+		if(reg_address->channels[i] != reg_address->channels[0]) {
+			return PBJ_CHANNEL_NOT_CONTINUOUS;
+		}
+	}
+	// the channels are all the same
+	return reg_address->channels[0];
+}
+
 static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 	uint32_t i;
 	qb_variable *qvar;
@@ -688,6 +779,8 @@ static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 
 	for(i = 0; i < cxt->parameter_count; i++) {
 		qb_pbj_parameter *parameter = &cxt->parameters[i];
+		qb_pbj_register *reg = qb_create_pbj_register(cxt, &parameter->destination);
+
 		if(parameter == cxt->out_pixel) {
 			qvar = qb_find_output(cxt);
 			if(qvar) {
@@ -705,14 +798,18 @@ static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 					if(qvar->address->type == parameter_type) {
 						uint32_t parameter_size, element_count;
 						if(parameter->destination.dimension > 1) {
-							parameter_size = pbj_matrix_sizes[parameter->destination.dimension];
+							parameter_size = reg->span * 4;
 						} else {
 							parameter_size = parameter->destination.channel_count;
 						}
 						if(SCALAR(qvar->address)) {
 							element_count = 1;
 						} else {
-							element_count = ARRAY_SIZE(qvar->address);
+							if(FIXED_LENGTH(qvar->address)) {
+								element_count = ARRAY_SIZE(qvar->address);
+							} else {
+								element_count = 0;
+							}
 						}
 						if(element_count == parameter_size) {
 							parameter->address = qvar->address;
@@ -731,6 +828,18 @@ static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 				if(!parameter->default_value.type) {
 					qb_abort("parameter '%s' does not have a default value and must be passed to the function", parameter->name);
 				}
+			}
+		}
+
+		// hook the address up to the register
+		if(parameter->destination.dimension > 1) {
+			reg->matrix_address = parameter->address;
+			qb_propagate_pbj_matrix_span(cxt, reg);
+		} else {
+			qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, &parameter->destination);
+			if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
+				// should always be the case for parameters
+				reg->channel_addresses[channel_id] = parameter->address;
 			}
 		}
 	}
@@ -811,41 +920,6 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step			},	// PBJ_SMOOTH_STEP
 };
 
-static qb_pbj_channel_id qb_get_pbj_channel_id(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
-	uint32_t i;
-	switch(reg_address->channel_count) {
-		case 1: return reg_address->channels[0];
-		case 2: {
-			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G) {
-				return PBJ_CHANNEL_RG;
-			} else if(reg_address->channels[0] == PBJ_CHANNEL_G && reg_address->channels[1] == PBJ_CHANNEL_B) {
-				return PBJ_CHANNEL_GB;
-			} else if(reg_address->channels[0] == PBJ_CHANNEL_B && reg_address->channels[1] == PBJ_CHANNEL_A) {
-				return PBJ_CHANNEL_BA;
-			}
-		}	break;
-		case 3: {
-			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G && reg_address->channels[2] == PBJ_CHANNEL_B) {
-				return PBJ_CHANNEL_RGB;
-			} else if(reg_address->channels[0] == PBJ_CHANNEL_G && reg_address->channels[1] == PBJ_CHANNEL_B && reg_address->channels[2] == PBJ_CHANNEL_A) {
-				return PBJ_CHANNEL_GBA;
-			}
-		}	break;
-		case 4: {
-			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G && reg_address->channels[2] == PBJ_CHANNEL_B && reg_address->channels[3] == PBJ_CHANNEL_A) {
-				return PBJ_CHANNEL_RGBA;
-			}
-		}	break;
-	}
-	for(i = 1; i < reg_address->channel_count; i++) {
-		if(reg_address->channels[i] != reg_address->channels[0]) {
-			return PBJ_CHANNEL_NOT_CONTINUOUS;
-		}
-	}
-	// the channels are all the same
-	return reg_address->channels[0];
-}
-
 static qb_pbj_register_slot * qb_get_pbj_register_slot(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
 	if(reg_address->register_id & PBJ_REGISTER_INT) {
 		return &cxt->int_register_slots[reg_address->register_id & ~PBJ_REGISTER_INT];
@@ -872,6 +946,17 @@ void qb_clear_pbj_register_slot(qb_pbj_translator_context *cxt, qb_pbj_register_
 	}
 }
 
+void qb_discard_unused_register(qb_pbj_translator_context *cxt, qb_pbj_register *reg) {
+	if(!reg->loaded) {
+		if(reg->matrix_address) {
+			qb_mark_as_temporary(cxt->compiler_context, reg->matrix_address);
+		} else {
+			qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
+			qb_mark_as_temporary(cxt->compiler_context, rgba_address);
+		}
+	}
+}
+
 void qb_invalidate_result_destination(qb_pbj_translator_context *cxt, qb_operand *operand) {
 	if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		operand->result_prototype->destination = NULL;
@@ -886,6 +971,7 @@ void qb_load_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_register *reg, 
 		qb_invalidate_result_destination(cxt, &slot->channels[i]);
 	}
 
+	reg->loaded = TRUE;
 	slot->matrix.address = reg->matrix_address;
 	slot->matrix.type = (reg->matrix_address) ? QB_OPERAND_ADDRESS : QB_OPERAND_NONE;
 	for(i = 0; i <= PBJ_CHANNEL_RGBA; i++) {
@@ -932,10 +1018,12 @@ void qb_retrieve_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_add
 void qb_retire_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
 	if(reg_address->dimension > 1) {
+		qb_unlock_operand(cxt->compiler_context, &slot->matrix);
 		slot->matrix = *operand;
 	} else {
 		qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, reg_address);
 		if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
+			qb_unlock_operand(cxt->compiler_context, &slot->channels[channel_id]);
 			slot->channels[channel_id] = *operand;
 		} else {
 			// TODO: need to perform a scatter operation
@@ -992,64 +1080,15 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 	}
 }
 
-
 static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
-	qb_pbj_register **p_regs, *reg;
-	qb_pbj_register_slot **p_slots;
-	qb_primitive_type element_type;
-	uint32_t id, reg_required, end, *p_count;
-
-	if(reg_address->register_id & PBJ_REGISTER_INT) {
-		id = reg_address->register_id & ~PBJ_REGISTER_INT;
-		element_type = QB_TYPE_I32;
-		p_regs = &cxt->int_registers;
-		p_slots = &cxt->int_register_slots;
-		p_count = &cxt->int_register_count;
-	} else {
-		id = reg_address->register_id;
-		element_type = QB_TYPE_F32;
-		p_regs = &cxt->float_registers;
-		p_slots = &cxt->float_register_slots;
-		p_count = &cxt->float_register_count;
-	}
-	if(reg_address->dimension > 1) {
-		switch(reg_address->dimension) {
-			case 2: reg_required = 1; break;
-			case 3: reg_required = 3; break;
-			case 4: reg_required = 4; break;
-		}
-	} else {
-		reg_required = 1;
-	}
-	end = id + reg_required - 1;
-
-	if(end >= *p_count) {
-		uint32_t addition = end - *p_count + 1;
-		qb_enlarge_array((void **) p_regs, addition);
-		qb_enlarge_array((void **) p_slots, addition);
-	}
-	reg = &(*p_regs)[id];
-
+	qb_pbj_register *reg = qb_create_pbj_register(cxt, reg_address);
+	qb_primitive_type element_type = (reg_address->register_id & PBJ_REGISTER_INT) ? QB_TYPE_I32 : QB_TYPE_F32;
 	if(reg_address->dimension > 1) {
 		if(!reg->matrix_address) {
-			uint32_t size = reg_required * 4;
+			uint32_t size = reg->span * 4;
 			uint32_t dimensions[2] = { reg_address->dimension, size / reg_address->dimension };
 			reg->matrix_address = qb_create_writable_array(cxt->compiler_context, element_type, dimensions, 2);
-			if(reg_required == 1) {
-				qb_address *rgba_address = qb_create_address_alias(cxt->compiler_context, reg->matrix_address);
-				rgba_address->dimension_count = 1;
-				rgba_address->array_size_addresses = rgba_address->dimension_addresses = &rgba_address->array_size_address;
-				reg->channel_addresses[PBJ_CHANNEL_RGBA] = rgba_address;
-			} else {
-				// copy vector addresses into this and subsequent registers
-				uint32_t i;
-				for(i = 0; i < reg_required; i++) {
-					qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, i);
-					reg[i].channel_addresses[PBJ_CHANNEL_RGBA] = qb_obtain_array_element(cxt->compiler_context, reg->matrix_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
-					reg[i].span = 1;
-				}
-			}
-			reg->span = reg_required;
+			qb_propagate_pbj_matrix_span(cxt, reg);
 		}
 	} else {
 		qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
@@ -1058,7 +1097,6 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 			uint32_t size = 4;
 			rgba_address = qb_create_writable_array(cxt->compiler_context, element_type, &size, 1);
 			reg->channel_addresses[PBJ_CHANNEL_RGBA] = rgba_address;
-			reg->span = 1;
 		}
 		if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
 			if(!reg->channel_addresses[channel_id]) {
@@ -1141,6 +1179,13 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_translate_current_pbj_instruction(cxt);
 	}
+
+	for(i = 0; i < cxt->int_register_slot_count; i++) {
+		qb_discard_unused_register(cxt, &cxt->int_registers[i]);
+	}
+	for(i = 0; i < cxt->float_register_slot_count; i++) {
+		qb_discard_unused_register(cxt, &cxt->float_registers[i]);
+	}
 }
 
 
@@ -1191,4 +1236,4 @@ void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_com
 void qb_free_pbj_translator_context(qb_pbj_translator_context *cxt) {
 }
 
-uint32_t pbj_matrix_sizes[] = { 0, 1, 4, 12, 16 };
+

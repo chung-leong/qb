@@ -77,6 +77,7 @@ struct qb_pbj_register {
 	qb_address *matrix_address;
 	qb_address *channel_addresses[PBJ_CHANNEL_RGBA + 1];
 	uint32_t span;
+	int32_t loaded;
 };
 
 struct qb_pbj_register_slot {
@@ -315,8 +316,6 @@ enum {
 	PBJ_PARAMETER_IN				= 0x0001,
 	PBJ_PARAMETER_OUT				= 0x0002,
 };
-
-extern uint32_t pbj_matrix_sizes[];
 
 void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void qb_free_pbj_translator_context(qb_pbj_translator_context *cxt);

@@ -394,7 +394,9 @@ static void qb_update_storage_location(qb_compiler_context *cxt, qb_address *add
 // allocate segment memory for address
 void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory) {
 	if(address->source_address) {
-		qb_allocate_storage_space(cxt, address->source_address, need_actual_memory);
+		if(address->source_address->segment_selector == QB_SELECTOR_INVALID) {
+			qb_allocate_storage_space(cxt, address->source_address, need_actual_memory);
+		}
 		qb_update_storage_location(cxt, address);
 	} else {
 		uint32_t selector, element_count, byte_count, new_segment_flags, alignment;
