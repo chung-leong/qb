@@ -29,6 +29,13 @@ void qb_mark_as_tagged(qb_compiler_context *cxt, qb_address *address) {
 	}
 }
 
+void qb_mark_as_temporary(qb_compiler_context *cxt, qb_address *address) {
+	address->flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_NON_REUSABLE | QB_ADDRESS_IN_USE;
+	if(address->source_address) {
+		qb_mark_as_temporary(cxt, address->source_address);
+	}
+}
+
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address) {
 	address->flags &= ~QB_ADDRESS_READ_ONLY;
 	if(address->source_address) {
@@ -215,8 +222,6 @@ void qb_invalidate_all_on_demand_expressions(qb_compiler_context *cxt) {
 	}
 }
 
-static qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *address);
-
 qb_expression * qb_get_on_demand_expression(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count) {
 	qb_op_factory *f = op_factory;
 	qb_expression *expr, **p_expr;
@@ -368,112 +373,130 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *s
 	}
 }
 
-/*static qb_address * qb_obtain_on_demand_predicate(qb_compiler_context *cxt, qb_address *condition_address, qb_address *address_if_true, qb_address *address_if_false) {
-	qb_address *operand_addresses[3] = { condition_address, address_if_true, address_if_false };
-	return qb_obtain_on_demand_value(cxt, address_if_true->type, operand_addresses, 3, &factory_predicate_copy);
-}*/
+static void qb_update_storage_location(qb_compiler_context *cxt, qb_address *address) {
+	if(address->source_address) {
+		qb_update_storage_location(cxt, address->source_address);
+		if(address->segment_selector == QB_SELECTOR_INVALID) {
+			address->segment_selector = address->source_address->segment_selector;
+		}
+		if(address->segment_offset == QB_OFFSET_INVALID) {
+			address->segment_offset = address->source_address->segment_offset;
+		}
+		if(address->mode == QB_ADDRESS_MODE_SCA && address->array_index_address != cxt->zero_address) {
+			// add the offset
+			uint32_t index = VALUE(U32, address->array_index_address);
+			address->segment_offset += BYTE_COUNT(index, address->type);
+			address->array_index_address = cxt->zero_address;
+		}
+	}
+}
 
 // allocate segment memory for address
-static void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory) {
-	uint32_t selector, element_count, byte_count, new_segment_flags, alignment;
-	uint32_t start_offset, end_offset;
-	qb_memory_segment *segment;
-
-	if(SCALAR(address)) {
-		element_count = 1;
-		byte_count = BYTE_COUNT(1, address->type);
-		alignment = max(byte_count, 4);
+void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory) {
+	if(address->source_address) {
+		qb_allocate_storage_space(cxt, address->source_address, need_actual_memory);
+		qb_update_storage_location(cxt, address);
 	} else {
-		if(FIXED_LENGTH(address)) {
-			element_count = ARRAY_SIZE(address);
-			byte_count = BYTE_COUNT(element_count, address->type);
-		} else {
-			element_count = 0;
-			byte_count = 0;
-		}
-		alignment = 16;
-	}
+		uint32_t selector, element_count, byte_count, new_segment_flags, alignment;
+		uint32_t start_offset, end_offset;
+		qb_memory_segment *segment;
 
-	// determine which segment should be used
-	if(element_count == 1) {
-		if(CONSTANT(address)) {
-			selector = QB_SELECTOR_CONSTANT_SCALAR;
-		} else if(TEMPORARY(address)) {
-			selector = QB_SELECTOR_TEMPORARY_SCALAR;
-		} else if(STATIC(address)) {
-			selector = QB_SELECTOR_STATIC_SCALAR;
-		} else if(SHARED(address)) {
-			selector = QB_SELECTOR_SHARED_SCALAR;
+		if(SCALAR(address)) {
+			element_count = 1;
+			byte_count = BYTE_COUNT(1, address->type);
+			alignment = max(byte_count, 4);
 		} else {
-			selector = QB_SELECTOR_LOCAL_SCALAR;
+			if(FIXED_LENGTH(address)) {
+				element_count = ARRAY_SIZE(address);
+				byte_count = BYTE_COUNT(element_count, address->type);
+			} else {
+				element_count = 0;
+				byte_count = 0;
+			}
+			alignment = 16;
 		}
-	} else if(element_count > 0 && byte_count <= 10240) {
-		// the array is fixed-length and isn't bigger than 10K
-		if(CONSTANT(address)) {
-			selector = QB_SELECTOR_CONSTANT_ARRAY;
-		} else if(TEMPORARY(address)) {
-			selector = QB_SELECTOR_TEMPORARY_ARRAY;
-		} else if(STATIC(address)) {
-			selector = QB_SELECTOR_STATIC_ARRAY;
-		} else if(SHARED(address)) {
-			selector = QB_SELECTOR_SHARED_ARRAY;
+
+		// determine which segment should be used
+		if(element_count == 1) {
+			if(CONSTANT(address)) {
+				selector = QB_SELECTOR_CONSTANT_SCALAR;
+			} else if(TEMPORARY(address)) {
+				selector = QB_SELECTOR_TEMPORARY_SCALAR;
+			} else if(STATIC(address)) {
+				selector = QB_SELECTOR_STATIC_SCALAR;
+			} else if(SHARED(address)) {
+				selector = QB_SELECTOR_SHARED_SCALAR;
+			} else {
+				selector = QB_SELECTOR_LOCAL_SCALAR;
+			}
+		} else if(element_count > 0 && byte_count <= 10240) {
+			// the array is fixed-length and isn't bigger than 10K
+			if(CONSTANT(address)) {
+				selector = QB_SELECTOR_CONSTANT_ARRAY;
+			} else if(TEMPORARY(address)) {
+				selector = QB_SELECTOR_TEMPORARY_ARRAY;
+			} else if(STATIC(address)) {
+				selector = QB_SELECTOR_STATIC_ARRAY;
+			} else if(SHARED(address)) {
+				selector = QB_SELECTOR_SHARED_ARRAY;
+			} else {
+				selector = QB_SELECTOR_LOCAL_ARRAY;
+			}
 		} else {
-			selector = QB_SELECTOR_LOCAL_ARRAY;
-		}
-	} else {
-		// it's a variable-length array or a big fixed-length array
-		selector = cxt->storage->segment_count;
-		if(TEMPORARY(address)) {
-			new_segment_flags = QB_SEGMENT_FREE_ON_RETURN;
-		} else if(STATIC(address)) {
-			new_segment_flags = 0;
-		} else if(SHARED(address)) {
-			new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_REENTRY;
-		} else {
-			new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_FORK | QB_SEGMENT_SEPARATE_ON_REENTRY;
-			if(byte_count > 0) {
-				new_segment_flags |= QB_SEGMENT_REALLOCATE_ON_CALL;
+			// it's a variable-length array or a big fixed-length array
+			selector = cxt->storage->segment_count;
+			if(TEMPORARY(address)) {
+				new_segment_flags = QB_SEGMENT_FREE_ON_RETURN;
+			} else if(STATIC(address)) {
+				new_segment_flags = 0;
+			} else if(SHARED(address)) {
+				new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_REENTRY;
+			} else {
+				new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_FORK | QB_SEGMENT_SEPARATE_ON_REENTRY;
+				if(byte_count > 0) {
+					new_segment_flags |= QB_SEGMENT_REALLOCATE_ON_CALL;
+				}
+			}
+			if(byte_count == 0) {
+				if(new_segment_flags & QB_SEGMENT_FREE_ON_RETURN) {
+					// don't just free the memory--set the segment length to 0 as well
+					// so it doesn't get reallocated on the next call
+					new_segment_flags |= QB_SEGMENT_EMPTY_ON_RETURN;
+				}
 			}
 		}
-		if(byte_count == 0) {
-			if(new_segment_flags & QB_SEGMENT_FREE_ON_RETURN) {
-				// don't just free the memory--set the segment length to 0 as well
-				// so it doesn't get reallocated on the next call
-				new_segment_flags |= QB_SEGMENT_EMPTY_ON_RETURN;
-			}
+
+		// create a new segment if necessary
+		if(selector >= cxt->storage->segment_count) {
+			cxt->storage->segment_count = selector + 1;
+			cxt->storage->segments = erealloc(cxt->storage->segments, sizeof(qb_memory_segment) * cxt->storage->segment_count);
+			segment = &cxt->storage->segments[selector];
+			memset(segment, 0, sizeof(qb_memory_segment));
+			segment->flags = new_segment_flags;
+		} else {
+			segment = &cxt->storage->segments[selector];
 		}
-	}
 
-	// create a new segment if necessary
-	if(selector >= cxt->storage->segment_count) {
-		cxt->storage->segment_count = selector + 1;
-		cxt->storage->segments = erealloc(cxt->storage->segments, sizeof(qb_memory_segment) * cxt->storage->segment_count);
-		segment = &cxt->storage->segments[selector];
-		memset(segment, 0, sizeof(qb_memory_segment));
-		segment->flags = new_segment_flags;
-	} else {
-		segment = &cxt->storage->segments[selector];
-	}
+		start_offset = ALIGN_TO(segment->byte_count, alignment);
+		end_offset = start_offset + byte_count;
 
-	start_offset = ALIGN_TO(segment->byte_count, alignment);
-	end_offset = start_offset + byte_count;
-
-	// allocate memory if we're going to write to the address at compile time
-	// should be true except when called by qb_assign_storage_space() down below
-	if(need_actual_memory) {
-		if(end_offset > segment->current_allocation) {
-			segment->current_allocation += 1024;
+		// allocate memory if we're going to write to the address at compile time
+		// should be true except when called by qb_assign_storage_space() down below
+		if(need_actual_memory) {
 			if(end_offset > segment->current_allocation) {
-				segment->current_allocation = end_offset;
+				segment->current_allocation += 1024;
+				if(end_offset > segment->current_allocation) {
+					segment->current_allocation = end_offset;
+				}
+				segment->memory = erealloc(segment->memory, segment->current_allocation);
 			}
-			segment->memory = erealloc(segment->memory, segment->current_allocation);
 		}
-	}
-	segment->byte_count = end_offset;
+		segment->byte_count = end_offset;
 
-	// fit in the info
-	address->segment_selector = selector;
-	address->segment_offset = start_offset;
+		// fit in the info
+		address->segment_selector = selector;
+		address->segment_offset = start_offset;
+	}
 }
 
 void qb_allocate_external_storage_space(qb_compiler_context *cxt, qb_variable *var) {
@@ -573,18 +596,7 @@ void qb_assign_storage_space(qb_compiler_context *cxt) {
 	// update the address aliases
 	for(i = 0; i < cxt->address_alias_count; i++) {
 		qb_address *address = cxt->address_aliases[i];
-		if(address->segment_selector == QB_SELECTOR_INVALID) {
-			address->segment_selector = address->source_address->segment_selector;
-		}
-		if(address->segment_offset == QB_OFFSET_INVALID) {
-			address->segment_offset = address->source_address->segment_offset;
-		}
-		if(address->mode == QB_ADDRESS_MODE_SCA && address->array_index_address != cxt->zero_address) {
-			// add the offset
-			uint32_t index = VALUE(U32, address->array_index_address);
-			address->segment_offset += BYTE_COUNT(index, address->type);
-			address->array_index_address = cxt->zero_address;
-		}
+		qb_update_storage_location(cxt, address);
 	}
 }
 
@@ -1713,7 +1725,7 @@ static qb_address * qb_retrieve_array_from_initializer(qb_compiler_context *cxt,
 		// need to use temporary fixed-length array, since the elements can change 
 		// not using qb_obtain_temporary_fixed_length_array() since the address cannot be reused
 		address = qb_create_writable_array(cxt, element_type, dimensions, dimension_count);
-		address->flags |= QB_ADDRESS_TEMPORARY;
+		qb_mark_as_temporary(cxt, address);
 
 		// allocate space for it so we can copy constants into the area
 		qb_allocate_storage_space(cxt, address, TRUE);

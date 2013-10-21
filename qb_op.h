@@ -140,6 +140,7 @@ enum {
 
 typedef struct qb_function			qb_function;
 typedef struct qb_pbj_constant		qb_pbj_constant;
+
 struct qb_operand {
 	qb_operand_type type;
 	union {
@@ -232,8 +233,8 @@ enum {
 };
 
 struct qb_op {
-	uint32_t flags;
 	qb_opcode opcode;
+	uint32_t flags;
 	uint32_t operand_count;
 	qb_operand *operands;
 	uint32_t jump_target_count;

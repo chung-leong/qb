@@ -450,8 +450,26 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 static void qbj_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 }
 
-static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 
+
+static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	if(result->address->segment_selector == QB_SELECTOR_INVALID) {
+		// the temporary segment gets separated on fork
+		// put constants there in case only parts of an array are constant 
+		qb_mark_as_temporary(cxt->compiler_context, result->address);
+		qb_allocate_storage_space(cxt->compiler_context, result->address, TRUE);
+	}
+	switch(value->pbj_constant->type) {
+		case PBJ_TYPE_INT: {
+			VALUE(I32, result->address) = value->pbj_constant->int_value;
+		}	break;
+		case PBJ_TYPE_FLOAT: {
+			VALUE(F32, result->address) = value->pbj_constant->float_value;
+		}	break;
+		default: {
+		}	break;
+	}
 }
 
 static void qb_translate_pbj_select(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -952,7 +970,7 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 				}
 			}
 			if(t->flags & (PBJ_WRITE_DESTINATION | PBJ_WRITE_BOOL)) {
-				qb_retrieve_operand(cxt, &pop->destination, &result, TRUE);
+				qb_retrieve_operand(cxt, &pop->destination, &result, (pop->opcode != PBJ_LOAD_CONSTANT));
 			}
 
 			t->translate(cxt, t, operands, operand_count, &result, result_prototype);
@@ -967,7 +985,7 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 
 static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
 	qb_pbj_register **p_regs, *reg;
-	qb_pbj_register_slot **p_slots;
+	qb_pbj_register_slot **p_slots, *slot;
 	qb_primitive_type element_type;
 	uint32_t id, reg_required, end, *p_count;
 
@@ -996,8 +1014,9 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 	end = id + reg_required - 1;
 
 	if(end >= *p_count) {
-		reg = qb_enlarge_array((void **) p_regs, *p_count - end + 1);
-		qb_enlarge_array((void **) p_slots, *p_count - end + 1);
+		uint32_t addition = end - *p_count + 1;
+		reg = qb_enlarge_array((void **) p_regs, addition);
+		slot = qb_enlarge_array((void **) p_slots, addition);
 	} else {
 		reg = &(*p_regs)[id];
 	}
@@ -1089,7 +1108,18 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	qb_substitute_ops(cxt);
 
 	// map function arguments to PB kernel parameters
-	//qb_map_arguments(cxt);
+	//qb_map_pbj_arguments(cxt);
+
+	// allocate registers
+	qb_allocate_pbj_registers(cxt);
+
+	// clear the register slots
+	for(i = 0; i < cxt->int_register_slot_count; i++) {
+		qb_clear_pbj_register_slot(cxt, &cxt->int_register_slots[i]);
+	}
+	for(i = 0; i < cxt->float_register_slot_count; i++) {
+		qb_clear_pbj_register_slot(cxt, &cxt->float_register_slots[i]);
+	}
 
 	qb_enlarge_array((void **) &cxt->result_prototypes, cxt->pbj_op_count);
 	for(i = 0; i < cxt->result_prototype_count; i++) {
@@ -1116,7 +1146,7 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	}
 
 	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
-	for(i = 0; i < cxt->pbj_op_count; cxt->pbj_op_index++) {
+	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index++];
 		qb_translate_current_pbj_instruction(cxt);
 	}
@@ -1133,6 +1163,7 @@ void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_com
 	memset(cxt, 0, sizeof(qb_pbj_translator_context));
 	cxt->compiler_context = compiler_cxt;
 	cxt->pool = compiler_cxt->pool;
+	cxt->storage = compiler_cxt->storage;
 
 	qb_attach_new_array(cxt->pool, (void **) &cxt->conditionals, &cxt->conditional_count, sizeof(qb_pbj_op *), 8);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->parameters, &cxt->parameter_count, sizeof(qb_pbj_parameter), 8);

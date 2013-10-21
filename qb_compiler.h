@@ -284,6 +284,7 @@ static zend_always_inline void qb_add_variable(qb_compiler_context *cxt, qb_vari
 }
 
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address);
+void qb_mark_as_temporary(qb_compiler_context *cxt, qb_address *address);
 
 void qb_lock_address(qb_compiler_context *cxt, qb_address *address);
 void qb_unlock_address(qb_compiler_context *cxt, qb_address *address);
@@ -378,6 +379,8 @@ qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *addre
 
 void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
 void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
+
+void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory);
 
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);

@@ -258,8 +258,8 @@ static void qb_print_zend_ops(qb_printer_context *cxt) {
 static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_printer_context *cxt, qb_pbj_address *address) {
 	qb_pbj_translator_context *translator_cxt = cxt->compiler_context->translator_context;
 	uint32_t i;
-	for(i = 0; i < translator_cxt->pbj_parameter_count; i++) {
-		qb_pbj_parameter *parameter = &translator_cxt->pbj_parameters[i];
+	for(i = 0; i < translator_cxt->parameter_count; i++) {
+		qb_pbj_parameter *parameter = &translator_cxt->parameters[i];
 		qb_pbj_address *destination = &parameter->destination;
 		if(destination->register_id == address->register_id) {
 			if(destination->dimension > 1) {
@@ -284,8 +284,8 @@ static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_printer_context *c
 static qb_pbj_texture * qb_find_pbj_texture_by_id(qb_printer_context *cxt, uint32_t image_id) {
 	qb_pbj_translator_context *translator_cxt = cxt->compiler_context->translator_context;
 	uint32_t i;
-	for(i = 0; i < translator_cxt->pbj_texture_count; i++) {
-		qb_pbj_texture *texture = &translator_cxt->pbj_textures[i];
+	for(i = 0; i < translator_cxt->texture_count; i++) {
+		qb_pbj_texture *texture = &translator_cxt->textures[i];
 		if(texture->image_id == image_id) {
 			return texture;
 		}

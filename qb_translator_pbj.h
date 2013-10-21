@@ -139,8 +139,8 @@ enum {
 };
 
 struct qb_pbj_op {
+	qb_pbj_opcode opcode;
 	uint32_t flags;
-	uint32_t opcode;
 	uint32_t image_id;
 	union {
 		qb_pbj_address destination;
