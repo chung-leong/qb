@@ -588,7 +588,7 @@ void qb_assign_storage_space(qb_compiler_context *cxt) {
 	}
 }
 
-static qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *address) {
+qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *address) {
 	qb_address *alias = qb_allocate_address(cxt->pool);
 	qb_address **p_alias = qb_enlarge_array((void **) &cxt->address_aliases, 1);
 	*alias = *address;

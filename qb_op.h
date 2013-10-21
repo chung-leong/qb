@@ -124,6 +124,7 @@ enum qb_operand_type {
 	QB_OPERAND_ARGUMENTS,
 	QB_OPERAND_SEGMENT_SELECTOR,
 	QB_OPERAND_ELEMENT_SIZE,
+	QB_OPERAND_PBJ_CONSTANT,
 };
 
 enum {
@@ -137,8 +138,8 @@ enum {
 	QB_OP_INDEX_JUMP_TARGET			= 0xFFFFFFFE,
 };
 
-typedef struct qb_function qb_function;
-
+typedef struct qb_function			qb_function;
+typedef struct qb_pbj_constant		qb_pbj_constant;
 struct qb_operand {
 	qb_operand_type type;
 	union {
@@ -152,6 +153,7 @@ struct qb_operand {
 		qb_result_prototype *result_prototype;
 		qb_intrinsic_function *intrinsic_function;
 		qb_operand *arguments;
+		qb_pbj_constant *pbj_constant;
 		void *generic_pointer;
 	};
 };

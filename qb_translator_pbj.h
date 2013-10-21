@@ -32,6 +32,10 @@ typedef struct qb_pbj_texture				qb_pbj_texture;
 typedef struct qb_pbj_op					qb_pbj_op;
 typedef struct qb_pbj_translator			qb_pbj_translator;
 typedef struct qb_pbj_register				qb_pbj_register;
+typedef struct qb_pbj_register_slot			qb_pbj_register_slot;
+
+typedef enum qb_pbj_opcode					qb_pbj_opcode;
+typedef enum qb_pbj_channel_id				qb_pbj_channel_id;
 
 typedef void (*qb_pbj_translator_proc)(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
@@ -63,46 +67,29 @@ struct qb_pbj_constant {
 #define PBJ_MATRIX_ACCESS_OFFSET(usage)				(usage & 0x03)
 #define PBJ_MATRIX_ACCESS_DIMENSION(usage)			((usage >> 2) + 1)
 
-enum {
-	PBJ_CHANNEL_R						= PBJ_CHANNEL_ACCESS_TYPE(0, 1),
-	PBJ_CHANNEL_G						= PBJ_CHANNEL_ACCESS_TYPE(1, 1),
-	PBJ_CHANNEL_B						= PBJ_CHANNEL_ACCESS_TYPE(2, 1),
-	PBJ_CHANNEL_A						= PBJ_CHANNEL_ACCESS_TYPE(3, 1),
-	PBJ_CHANNEL_RG						= PBJ_CHANNEL_ACCESS_TYPE(0, 2),
-	PBJ_CHANNEL_GB						= PBJ_CHANNEL_ACCESS_TYPE(1, 2),
-	PBJ_CHANNEL_BA						= PBJ_CHANNEL_ACCESS_TYPE(2, 2),
-	PBJ_CHANNEL_RGB						= PBJ_CHANNEL_ACCESS_TYPE(0, 3),
-	PBJ_CHANNEL_GBA						= PBJ_CHANNEL_ACCESS_TYPE(1, 3),
-	PBJ_CHANNEL_RGBA					= PBJ_CHANNEL_ACCESS_TYPE(0, 4),
-
-	PBJ_MATRIX_2X2						= PBJ_MATRIX_ACCESS_TYPE(2, 0),
-	PBJ_MATRIX_3X3_R1					= PBJ_MATRIX_ACCESS_TYPE(3, 0),
-	PBJ_MATRIX_3X3_R2					= PBJ_MATRIX_ACCESS_TYPE(3, 1),
-	PBJ_MATRIX_3X3_R3					= PBJ_MATRIX_ACCESS_TYPE(3, 2),
-	PBJ_MATRIX_4X4_R1					= PBJ_MATRIX_ACCESS_TYPE(4, 0),
-	PBJ_MATRIX_4X4_R2					= PBJ_MATRIX_ACCESS_TYPE(4, 1),
-	PBJ_MATRIX_4X4_R3					= PBJ_MATRIX_ACCESS_TYPE(4, 2),
-	PBJ_MATRIX_4X4_R4					= PBJ_MATRIX_ACCESS_TYPE(4, 3),
-};
-
-enum {
-	PBJ_USE_R							= 1 << PBJ_CHANNEL_R,
-	PBJ_USE_G							= 1 << PBJ_CHANNEL_G,
-	PBJ_USE_B							= 1 << PBJ_CHANNEL_B,
-	PBJ_USE_A							= 1 << PBJ_CHANNEL_A,
-	PBJ_USE_RG							= 1 << PBJ_CHANNEL_RG,
-	PBJ_USE_GB							= 1 << PBJ_CHANNEL_GB,
-	PBJ_USE_BA							= 1 << PBJ_CHANNEL_BA,
-	PBJ_USE_RGB							= 1 << PBJ_CHANNEL_RGB,
-	PBJ_USE_GBA							= 1 << PBJ_CHANNEL_GBA,
-	PBJ_USE_RGBA						= 1 << PBJ_CHANNEL_RGBA,
+enum qb_pbj_channel_id {
+	PBJ_CHANNEL_R			= 0,
+	PBJ_CHANNEL_G,
+	PBJ_CHANNEL_B,
+	PBJ_CHANNEL_A,
+	PBJ_CHANNEL_RG,
+	PBJ_CHANNEL_GB,
+	PBJ_CHANNEL_BA,
+	PBJ_CHANNEL_RGB,
+	PBJ_CHANNEL_GBA,
+	PBJ_CHANNEL_RGBA,
+	PBJ_CHANNEL_NOT_CONTINUOUS
 };
 
 struct qb_pbj_register {
-	uint32_t channel_usage;
-	uint32_t matrix_usage;
-	qb_address *channel_addresses[PBJ_CHANNEL_RGBA + 1];
 	qb_address *matrix_address;
+	qb_address *channel_addresses[PBJ_CHANNEL_RGBA + 1];
+	uint32_t span;
+};
+
+struct qb_pbj_register_slot {
+	qb_operand matrix;
+	qb_operand channels[PBJ_CHANNEL_RGBA + 1];
 };
 
 struct qb_pbj_value {
@@ -146,7 +133,13 @@ struct qb_pbj_texture {
 	qb_address *address;
 };
 
+enum {
+	PBJ_SOURCE_IN_USE			= 0x0001,
+	PBJ_DESTINATION_IN_USE		= 0x0002,
+};
+
 struct qb_pbj_op {
+	uint32_t flags;
 	uint32_t opcode;
 	uint32_t image_id;
 	union {
@@ -195,45 +188,46 @@ struct qb_pbj_translator_context {
 	qb_result_prototype *result_prototypes;
 	uint32_t result_prototype_count;
 
-	qb_pbj_register *pbj_registers;
-	uint32_t pbj_register_count;
+	qb_pbj_register *float_registers;
+	uint32_t float_register_count;
+	qb_pbj_register_slot *float_register_slots;
+	uint32_t float_register_slot_count;
 
-	qb_operand *pbj_register_slots;
-	uint32_t pbj_register_slot_count;
+	qb_pbj_register *int_registers;
+	uint32_t int_register_count;
+	qb_pbj_register_slot *int_register_slots;
+	uint32_t int_register_slot_count;
 
 	qb_pbj_op *pbj_ops;
 	uint32_t pbj_op_count;
 	qb_pbj_op *pbj_op;
 	uint32_t pbj_op_index;
-	uint32_t pbj_op_offset;
-	qb_pbj_op **pbj_conditionals;
-	uint32_t pbj_conditional_count; 
-	qb_pbj_parameter *pbj_parameters;
-	uint32_t pbj_parameter_count;
-	qb_pbj_parameter *pbj_out_coord;
-	qb_pbj_parameter *pbj_out_pixel;
-	qb_pbj_texture *pbj_textures;
-	uint32_t pbj_texture_count;
-	qb_pbj_register *pbj_float_registers;
-	uint32_t pbj_float_register_count;
-	qb_pbj_register *pbj_int_registers;
-	uint32_t pbj_int_register_count;
-	qb_address **pbj_int_numerals;
-	qb_address **pbj_float_numerals;
-	qb_pbj_address pbj_comparison_register;
+
+	qb_pbj_op **conditionals;
+	uint32_t conditional_count; 
+
+	qb_pbj_parameter *parameters;
+	uint32_t parameter_count;
+	qb_pbj_parameter *out_coord;
+	qb_pbj_parameter *out_pixel;
+
+	qb_pbj_texture *textures;
+	uint32_t texture_count;
+
 	const char *pbj_name;
-	uint32_t pbj_name_length;
-	const char *pbj_vendor;
-	const char *pbj_display_name;
-	const char *pbj_description;
-	uint32_t pbj_version;
+	uint32_t name_length;
+	const char *vendor;
+	const char *display_name;
+	const char *description;
+	uint32_t version;
+
 	uint8_t *pbj_data;
 	uint8_t *pbj_data_end;
 
 	void ***tsrm_ls;
 };
 
-enum {
+enum qb_pbj_opcode {
 	PBJ_NOP							= 0x00,
 	PBJ_ADD							= 0x01,
 	PBJ_SUBTRACT					= 0x02,

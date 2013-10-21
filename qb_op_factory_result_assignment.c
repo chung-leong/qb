@@ -19,19 +19,23 @@
 /* $Id$ */
 
 static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	result->type = QB_OPERAND_RESULT_PROTOTYPE;
-	result->result_prototype = result_prototype;
+	if(result->type != QB_OPERAND_ADDRESS) {
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	}
 }
 
 static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_variable_dimensions dim = { NULL, 0, cxt->one_address };
+	if(result->type != QB_OPERAND_ADDRESS) {
+		qb_variable_dimensions dim = { NULL, 0, cxt->one_address };
 
-	// figure out the result size (it's a scalar if set_dimensions is null)
-	if(f->set_dimensions) {
-		f->set_dimensions(cxt, f, operands, operand_count, &dim);
+		// figure out the result size (it's a scalar if set_dimensions is null)
+		if(f->set_dimensions) {
+			f->set_dimensions(cxt, f, operands, operand_count, &dim);
+		}
+		result->type = QB_OPERAND_ADDRESS;
+		result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype, TRUE);
 	}
-	result->type = QB_OPERAND_ADDRESS;
-	result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype, TRUE);
 }
 
 static void qb_set_result_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -69,12 +73,6 @@ static void qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, qb_
 			condition->address = qb_obtain_reused_alias(cxt, condition->address);
 		}
 		*result = *condition;
-	}
-}
-
-static void qb_set_result_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(result->type != QB_OPERAND_ADDRESS) {
-		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 	}
 }
 

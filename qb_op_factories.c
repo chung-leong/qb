@@ -1622,7 +1622,7 @@ qb_basic_op_factory factory_boolean_cast = {
 	NULL,
 	qb_set_result_prototype,
 	NULL,
-	qb_set_result_boolean_cast,
+	qb_set_result_temporary_value,
 	NULL,
 	qb_select_opcode_boolean_cast,
 	qb_transfer_operands_boolean_cast,
