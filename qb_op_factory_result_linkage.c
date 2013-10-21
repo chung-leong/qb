@@ -42,6 +42,10 @@ static void qb_link_results_variable(qb_compiler_context *cxt, qb_op_factory *f,
 		destination->prototype = result_prototype;
 		value->result_prototype->destination = destination;
 	}
+	if(variable->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		// the variable doesn't really need to be there--try to bypass the assignment 
+		result_prototype->address_flags |= QB_ADDRESS_TEMPORARY;
+	}
 }
 
 // link the value to the array element 

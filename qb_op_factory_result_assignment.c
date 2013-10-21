@@ -26,7 +26,8 @@ static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, 
 }
 
 static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(result->type != QB_OPERAND_ADDRESS) {
+	// if an address is provided and the result_prototype is flagged as non-temporary, then use that address
+	if(result->type != QB_OPERAND_ADDRESS || (result_prototype->address_flags & QB_ADDRESS_TEMPORARY)) {
 		qb_variable_dimensions dim = { NULL, 0, cxt->one_address };
 
 		// figure out the result size (it's a scalar if set_dimensions is null)
@@ -79,6 +80,10 @@ static void qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, qb_
 static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 
+	if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
+		// the assignment is done to a temporary variable--it's not necessary
+		*variable = *value;
+	}
 	result->address = variable->address;
 	result->type = QB_OPERAND_ADDRESS;
 	// no bound-checking if the assignment doesn't happen

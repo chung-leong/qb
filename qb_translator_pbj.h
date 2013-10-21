@@ -156,6 +156,7 @@ enum {
 	PBJ_READ_SOURCE3				= 0x00000010,
 	PBJ_READ_IMAGE					= 0x00000020,
 	PBJ_WRITE_DESTINATION			= 0x00000040,
+	PBJ_WRITE_SOURCE				= 0x00000080,
 };
 
 struct qb_pbj_translator {
