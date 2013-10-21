@@ -374,6 +374,15 @@ static qb_opcode qb_select_opcode_sampling(qb_compiler_context *cxt, qb_op_facto
 	return opcode;
 }
 
+static qb_opcode qb_select_opcode_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) df->parent;
+	qb_address *image_address = operands[0].address;
+	uint32_t channel_count = DIMENSION(image_address, -1);
+	qb_opcode opcode = pf->opcodes[channel_count - 3][QB_TYPE_F64 - image_address->type];
+	return opcode;
+}
+
 static qb_opcode qb_select_opcode_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) f;
 	qb_address *address = operands[0].address;

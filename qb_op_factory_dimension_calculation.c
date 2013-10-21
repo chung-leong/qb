@@ -552,6 +552,11 @@ static void qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_fa
 	}
 }
 
+static void qb_set_result_dimensions_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_address *image_address = operands[0].address;
+	qb_copy_address_dimensions(cxt, image_address, 2, dim);
+}
+
 static void qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	/*
 	uint32_t i, final_length = 0;

@@ -319,6 +319,7 @@ extern qb_arithmetic_op_factory factory_divide;
 extern qb_arithmetic_op_factory factory_modulo;
 extern qb_float_op_factory factory_floor_modulo;
 extern qb_arithmetic_op_factory factory_multiply_add;
+extern qb_basic_op_factory factory_reciprocal;
 
 extern void *factories_add_assign[3];
 extern void *factories_subtract_assign[3];
@@ -467,7 +468,9 @@ extern qb_pixel_op_factory factory_hsv2rgb;
 extern qb_pixel_op_factory factory_rgb2hsl;
 extern qb_pixel_op_factory factory_rgb2hsv;
 extern qb_pixel_op_factory factory_sample_nearest;
+extern qb_derived_op_factory factory_sample_nearest_vector;
 extern qb_pixel_op_factory factory_sample_bilinear;
+extern qb_derived_op_factory factory_sample_bilinear_vector;
 
 extern qb_basic_op_factory factory_array_column;
 extern qb_op_decomposer factory_array_diff;

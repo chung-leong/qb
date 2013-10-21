@@ -286,6 +286,14 @@ static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *
 	dest[3] = *result;
 }
 
+static void qb_transfer_operands_reciprocal(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *value = &operands[0];
+	dest[0].address = qb_obtain_constant(cxt, 0, value->address->type);
+	dest[0].type = QB_OPERAND_ADDRESS;
+	dest[1] = *value;
+	dest[2] = *result;
+}
+
 static void qb_transfer_operands_one_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[0];
 	if(dest_count == 3) {
@@ -433,14 +441,28 @@ static void qb_transfer_operands_matrix_current_mode(qb_compiler_context *cxt, q
 }
 
 static void qb_transfer_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_operand *image = &operands[0];
-	dest[0] = operands[0];
+	qb_operand *image = &operands[0], *x = &operands[1], *y = &operands[2];
+	dest[0] = *image;
 	dest[1].address = image->address->dimension_addresses[1];
 	dest[1].type = QB_OPERAND_ADDRESS;
 	dest[2].address = image->address->dimension_addresses[0];
 	dest[2].type = QB_OPERAND_ADDRESS;
-	dest[3] = operands[1];
-	dest[4] = operands[2];
+	dest[3] = *x;
+	dest[4] = *y;
+	dest[5] = *result;
+}
+
+static void qb_transfer_operands_sampling_vector(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *image = &operands[0], *coordinates = &operands[1];
+	dest[0] = *image;
+	dest[1].address = image->address->dimension_addresses[1];
+	dest[1].type = QB_OPERAND_ADDRESS;
+	dest[2].address = image->address->dimension_addresses[0];
+	dest[2].type = QB_OPERAND_ADDRESS;
+	dest[3].address = qb_obtain_array_element(cxt, coordinates->address, cxt->zero_address, QB_ARRAY_BOUND_CHECK_READ);
+	dest[3].type = QB_OPERAND_ADDRESS;
+	dest[4].address = qb_obtain_array_element(cxt, coordinates->address, cxt->one_address, QB_ARRAY_BOUND_CHECK_READ);
+	dest[4].type = QB_OPERAND_ADDRESS;
 	dest[5] = *result;
 }
 

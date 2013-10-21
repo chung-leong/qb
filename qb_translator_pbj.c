@@ -448,9 +448,8 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 }
 
 static void qbj_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, NULL, 0, result_prototype);
 }
-
-
 
 static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
@@ -744,70 +743,70 @@ static void qb_map_arguments(qb_pbj_translator_context *cxt) {
 #define PBJ_RS_RS2_RS3_WD	(PBJ_READ_SOURCE | PBJ_READ_SOURCE2 | PBJ_READ_SOURCE3 | PBJ_WRITE_DESTINATION)
 
 static qb_pbj_translator pbj_op_translators[] = {
-	{	NULL,										0,					NULL						},	// PBJ_NOP
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_add				},	// PBJ_ADD
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_subtract			},	// PBJ_SUBTRACT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_multiply			},	// PBJ_MULTIPLY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_divide				},	// PBJ_RECIPROCAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_divide				},	// PBJ_DIVIDE
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_atan2				},	// PBJ_ATAN2
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_pow				},	// PBJ_POW
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_floor_modulo		},	// PBJ_MOD
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_min				},	// PBJ_MIN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_max				},	// PBJ_MAX
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_step				},	// PBJ_STEP
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sin				},	// PBJ_SIN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_cos				},	// PBJ_COS
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_tan				},	// PBJ_TAN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_asin				},	// PBJ_ASIN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_acos				},	// PBJ_ACOS
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_atan				},	// PBJ_ATAN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp				},	// PBJ_EXP
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp2				},	// PBJ_EXP2
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log				},	// PBJ_LOG
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log2				},	// PBJ_LOG2
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sqrt				},	// PBJ_SQRT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_rsqrt			},	// PBJ_RSQRT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_abs				},	// PBJ_ABS
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sign				},	// PBJ_SIGN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_floor				},	// PBJ_FLOOR
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_ceil				},	// PBJ_CEIL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_fract				},	// PBJ_FRACT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_COPY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_FLOAT_TO_INT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_INT_TO_FLOAT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mm_mult_cm			},	// PBJ_MATRIX_MATRIX_MULTIPLY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_vm_mult_cm			},	// PBJ_VECTOR_MATRIX_MULTIPLY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mv_mult_cm			},	// PBJ_MATRIX_VECTOR_MULTIPLY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_normalize			},	// PBJ_NORMALIZE
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_length				},	// PBJ_LENGTH
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_distance			},	// PBJ_DISTANCE
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_dot_product		},	// PBJ_DOT_PRODUCT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_cross_product		},	// PBJ_CROSS_PRODUCT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_equal				},	// PBJ_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_not_equal			},	// PBJ_NOT_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_than			},	// PBJ_LESS_THAN
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_equal			},	// PBJ_LESS_THAN_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_logical_not		},	// PBJ_LOGICAL_NOT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_and		},	// PBJ_LOGICAL_AND
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_or			},	// PBJ_LOGICAL_OR
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_xor		},	// PBJ_LOGICAL_XOR
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_nearest		},	// PBJ_SAMPLE_NEAREST
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_bilinear	},	// PBJ_SAMPLE_BILINEAR
-	{	qb_translate_pbj_load_constant,				PBJ_WD,				NULL,						},	// PBJ_LOAD_CONSTANT
-	{	qb_translate_pbj_select,					PBJ_RS_RS2_RS3_WD,	NULL,						},	// PBJ_SELECT
-	{	qb_translate_pbj_if,						PBJ_RS,				NULL,						},	// PBJ_IF
-	{	qb_translate_pbj_else,						0,					NULL,						},	// PBJ_ELSE
-	{	qb_translate_pbj_end_if,					0,					NULL						},	// PBJ_END_IF
-	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal			},	// PBJ_FLOAT_TO_BOOL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_FLOAT
-	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal			},	// PBJ_INT_TO_BOOL
-	{	NULL,										PBJ_RS_WD,			&factory_assign				},	// PBJ_BOOL_TO_INT
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_equal			},	// PBJ_VECTOR_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_not_equal		},	// PBJ_VECTOR_NOT_EQUAL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_any				},	// PBJ_ANY
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_all				},	// PBJ_ALL
-	{	qbj_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step		},	// PBJ_SMOOTH_STEP
+	{	NULL,										0,					NULL							},	// PBJ_NOP
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_add					},	// PBJ_ADD
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_subtract				},	// PBJ_SUBTRACT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_multiply				},	// PBJ_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_reciprocal				},	// PBJ_RECIPROCAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_divide					},	// PBJ_DIVIDE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_atan2					},	// PBJ_ATAN2
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_pow					},	// PBJ_POW
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_floor_modulo			},	// PBJ_MOD
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_min					},	// PBJ_MIN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_max					},	// PBJ_MAX
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_step					},	// PBJ_STEP
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sin					},	// PBJ_SIN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_cos					},	// PBJ_COS
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_tan					},	// PBJ_TAN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_asin					},	// PBJ_ASIN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_acos					},	// PBJ_ACOS
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_atan					},	// PBJ_ATAN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp					},	// PBJ_EXP
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp2					},	// PBJ_EXP2
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log					},	// PBJ_LOG
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log2					},	// PBJ_LOG2
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sqrt					},	// PBJ_SQRT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_rsqrt					},	// PBJ_RSQRT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_abs					},	// PBJ_ABS
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sign					},	// PBJ_SIGN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_floor					},	// PBJ_FLOOR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_ceil					},	// PBJ_CEIL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_fract					},	// PBJ_FRACT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_COPY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_FLOAT_TO_INT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_INT_TO_FLOAT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mm_mult_cm				},	// PBJ_MATRIX_MATRIX_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_vm_mult_cm				},	// PBJ_VECTOR_MATRIX_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_mv_mult_cm				},	// PBJ_MATRIX_VECTOR_MULTIPLY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_normalize				},	// PBJ_NORMALIZE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_length					},	// PBJ_LENGTH
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_distance				},	// PBJ_DISTANCE
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD1,		&factory_dot_product			},	// PBJ_DOT_PRODUCT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_cross_product			},	// PBJ_CROSS_PRODUCT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_equal					},	// PBJ_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_not_equal				},	// PBJ_NOT_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_than				},	// PBJ_LESS_THAN
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_less_equal				},	// PBJ_LESS_THAN_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_logical_not			},	// PBJ_LOGICAL_NOT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_and			},	// PBJ_LOGICAL_AND
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_or				},	// PBJ_LOGICAL_OR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_logical_xor			},	// PBJ_LOGICAL_XOR
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_nearest_vector	},	// PBJ_SAMPLE_NEAREST
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sample_bilinear_vector	},	// PBJ_SAMPLE_BILINEAR
+	{	qb_translate_pbj_load_constant,				PBJ_WD,				NULL,							},	// PBJ_LOAD_CONSTANT
+	{	qb_translate_pbj_select,					PBJ_RS_RS2_RS3_WD,	NULL,							},	// PBJ_SELECT
+	{	qb_translate_pbj_if,						PBJ_RS,				NULL,							},	// PBJ_IF
+	{	qb_translate_pbj_else,						0,					NULL,							},	// PBJ_ELSE
+	{	qb_translate_pbj_end_if,					0,					NULL							},	// PBJ_END_IF
+	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal				},	// PBJ_FLOAT_TO_BOOL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_BOOL_TO_FLOAT
+	{	qbj_translate_pbj_basic_op,					0,					&factory_not_equal				},	// PBJ_INT_TO_BOOL
+	{	NULL,										PBJ_RS_RD_WD,		&factory_assign					},	// PBJ_BOOL_TO_INT
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_equal				},	// PBJ_VECTOR_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD_WB,		&factory_set_not_equal			},	// PBJ_VECTOR_NOT_EQUAL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_any					},	// PBJ_ANY
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_all					},	// PBJ_ALL
+	{	qbj_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step			},	// PBJ_SMOOTH_STEP
 };
 
 static qb_pbj_channel_id qb_get_pbj_channel_id(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
@@ -1129,7 +1128,7 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 
 	cxt->compiler_context->stage = QB_STAGE_RESULT_TYPE_RESOLUTION;
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
-		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index++];
+		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_translate_current_pbj_instruction(cxt);
 	}
 }
@@ -1147,7 +1146,7 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 
 	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
-		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index++];
+		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_translate_current_pbj_instruction(cxt);
 	}
 
