@@ -1518,6 +1518,18 @@ static void qb_perform_increment(qb_pbj_translator_context *cxt, qb_address *dst
 	qb_retrieve_unary_op_result(cxt->compiler_context, &factory_increment_pre, dst_address);
 }
 
+static void qb_perform_alpha_premultication(qb_pbj_translator_context *cxt, qb_address *dst_address) {
+	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
+	qb_operand result = { QB_OPERAND_ADDRESS, dst_address };
+	qb_create_op(cxt->compiler_context, &factory_apply_premult, QB_TYPE_F32, &operand, 1, &result, NULL, 0, TRUE);
+}
+
+static void qb_perform_alpha_premultiplication_removal(qb_pbj_translator_context *cxt, qb_address *dst_address) {
+	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
+	qb_operand result = { QB_OPERAND_ADDRESS, dst_address };
+	qb_create_op(cxt->compiler_context, &factory_remove_premult, QB_TYPE_F32, &operand, 1, &result, NULL, 0, TRUE);
+}
+
 static void qb_perform_return(qb_pbj_translator_context *cxt) {
 	qb_operand operand = { QB_OPERAND_NONE, NULL };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
@@ -1563,6 +1575,14 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	cxt->compiler_context->op_translations = qb_allocate_indices(cxt->pool, cxt->pbj_op_offset + cxt->pbj_op_count + 1); 
 	memset(cxt->compiler_context->op_translations, 0xFF, (cxt->pbj_op_offset + cxt->pbj_op_count + 1) * sizeof(uint32_t));
 
+	// apply premultiplication to input images
+	for(i = 0; i < cxt->texture_count; i++) {
+		qb_pbj_texture *texture = &cxt->textures[i];
+		if(DIMENSION(texture->address, -1) == 4) {
+			qb_perform_alpha_premultication(cxt, texture->address);
+		}
+	}
+
 	// set y to zero, but _OutCoord.y to 0.5, as that's the center of the grid
 	start_coord_address = qb_obtain_constant_F32(cxt->compiler_context, 0.5);
 	qb_perform_assignment(cxt, cxt->y_address, cxt->compiler_context->zero_address);
@@ -1602,6 +1622,11 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 
 	// jump to beginning of outer loop if y is less than height
 	qb_create_loop(cxt, cxt->y_address, cxt->output_image_height_address, OUTER_LOOK_JUMP_TARGET_INDEX);
+
+	// remove premultiplication from output image if it has an alpha channel
+	if(DIMENSION(cxt->output_image_address, -1) == 4) {
+		qb_perform_alpha_premultiplication_removal(cxt, cxt->output_image_address);
+	}
 
 	qb_perform_return(cxt);
 }
