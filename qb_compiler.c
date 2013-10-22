@@ -3022,7 +3022,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 		if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			// do validation
 			if(f->validate_operands) {
-				f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype->destination) ? result_prototype->destination : NULL);
+				f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype) ? result_prototype->destination : NULL);
 			}
 		}
 

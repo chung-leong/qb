@@ -80,7 +80,7 @@ static void qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, qb_
 static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 
-	if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
+	if(result_prototype && (result_prototype->address_flags & QB_ADDRESS_TEMPORARY)) {
 		// the assignment is done to a temporary variable--it's not necessary
 		*variable = *value;
 	}

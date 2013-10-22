@@ -200,6 +200,21 @@ struct qb_pbj_translator_context {
 	qb_pbj_texture *textures;
 	uint32_t texture_count;
 
+	qb_address *x_address;
+	qb_address *y_address;
+	qb_address *active_pixel_address;
+
+	qb_address *output_image_address;
+	qb_address *output_image_width_address;
+	qb_address *output_image_height_address;
+	qb_address *output_image_channel_count_address;
+	qb_address *output_image_scanline_address;
+	qb_address *output_image_pixel_address;
+
+	qb_address *out_coord_address;
+	qb_address *out_coord_x_address;
+	qb_address *out_coord_y_address;
+
 	const char *pbj_name;
 	uint32_t name_length;
 	const char *vendor;

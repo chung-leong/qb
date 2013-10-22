@@ -39,7 +39,7 @@ if(file_exists($correct_path)) {
 		// exact match
 		$match = true;
 	} else {
-		$diff = 0;
+		$diff = 10;
 		if($diff < 3) {
 			// the output is different ever so slightly
 			$match = true;

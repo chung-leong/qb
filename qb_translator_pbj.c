@@ -749,10 +749,133 @@ static qb_pbj_channel_id qb_get_pbj_channel_id(qb_pbj_translator_context *cxt, q
 	return reg_address->channels[0];
 }
 
-static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
+static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_value *value) {
+	qb_address *address = NULL;
+	int32_t *int_values = NULL;
+	float32_t *float_values;
+	uint32_t dimensions[2];
+	uint32_t dimension_count;
+	uint32_t i, j;
+
+	switch(value->type) {
+		case PBJ_TYPE_BOOL:
+		case PBJ_TYPE_INT: return qb_obtain_constant_S32(cxt, value->int1);
+		case PBJ_TYPE_FLOAT: return qb_obtain_constant_F32(cxt, value->float1);
+		case PBJ_TYPE_INT2: {
+			dimensions[0] = 2;
+			dimension_count = 1;
+			int_values = value->int2;
+		}	break;
+		case PBJ_TYPE_INT3: {
+			dimensions[0] = 3;
+			dimension_count = 1;
+			int_values = value->int3;
+		}	break;
+		case PBJ_TYPE_INT4: {
+			dimensions[0] = 4;
+			dimension_count = 1;
+			int_values = value->int4;
+		}	break;
+		case PBJ_TYPE_FLOAT2: {
+			dimensions[0] = 2;
+			dimension_count = 1;
+			float_values = value->float2;
+		}	break;
+		case PBJ_TYPE_FLOAT3: {
+			dimensions[0] = 3;
+			dimension_count = 1;
+			float_values = value->float3;
+		}	break;
+		case PBJ_TYPE_FLOAT4: {
+			dimensions[0] = 4;
+			dimension_count = 1;
+			float_values = value->float4;
+		}	break;
+		case PBJ_TYPE_FLOAT2X2: {
+			dimensions[0] = 2;
+			dimensions[1] = 2;
+			dimension_count = 2;
+			float_values = value->float2x2;
+		}	break;
+		case PBJ_TYPE_FLOAT3X3: {
+			dimensions[0] = 3;
+			dimensions[1] = 4;
+			dimension_count = 2;
+			float_values = value->float3x3;
+		}	break;
+		case PBJ_TYPE_FLOAT4X4: {
+			dimensions[0] = 4;
+			dimensions[1] = 4;
+			dimension_count = 2;
+			float_values = value->float4x4;
+		}	break;
+		default:
+			qb_abort("invalid type id: %d", value->type);
+	}
+
+	if(int_values) {
+		address = qb_create_constant_array(cxt, QB_TYPE_S32, dimensions, dimension_count);
+		for(i = 0; i < dimensions[0]; i++) {
+			ARRAY(S32, address)[i] = int_values[i];
+		}
+	} else if(float_values) {
+		uint32_t value_count = (dimension_count == 1) ? dimensions[0] : dimensions[1] * dimensions[0];
+		address = qb_create_constant_array(cxt, QB_TYPE_F32, dimensions, dimension_count);
+		if(value_count == 9) {
+			// 3x3 matrices are padded
+			for(i = 0, j = 0; i < value_count; i++) {
+				ARRAY(F32, address)[j] = float_values[j];
+				j++;
+				if(j == 3) {
+					ARRAY(F32, address)[j] = 0;
+					j++;
+				}
+			}
+		} else {
+			for(i = 0; i < value_count; i++) {
+				ARRAY(F32, address)[i] = float_values[i];
+			}
+		}
+	}
+	return address;
+}
+
+static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 	uint32_t i;
 	qb_variable *qvar;
+	qb_variable_dimensions dim;
 
+	// find the output image
+	qvar = qb_find_output(cxt);
+	if(!qvar) {
+		qb_abort("a parameter must be passed by reference to the function to receive the result");
+	} 
+	cxt->output_image_address = qvar->address;
+	cxt->output_image_width_address = cxt->output_image_address->dimension_addresses[1];
+	cxt->output_image_height_address = cxt->output_image_address->dimension_addresses[0];
+	cxt->output_image_channel_count_address = cxt->output_image_address->dimension_addresses[2];
+
+	// variables for looping 
+	cxt->x_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
+	cxt->y_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
+
+	// the current coordinate--basically x and y in float 
+	dim.array_size_address = qb_obtain_constant_U32(cxt->compiler_context, 2);
+	dim.dimension_count = 1;
+	cxt->out_coord_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_F32, &dim);
+	cxt->out_coord_x_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord_address, cxt->compiler_context->zero_address, QB_ARRAY_BOUND_CHECK_NONE);
+	cxt->out_coord_y_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord_address, cxt->compiler_context->one_address, QB_ARRAY_BOUND_CHECK_NONE);
+
+	// sub-array representing the pixel
+	cxt->output_image_scanline_address = qb_obtain_array_element(cxt->compiler_context, cxt->output_image_address, cxt->y_address, QB_ARRAY_BOUND_CHECK_NONE);
+	cxt->output_image_pixel_address = qb_obtain_array_element(cxt->compiler_context, cxt->output_image_scanline_address, cxt->x_address, QB_ARRAY_BOUND_CHECK_NONE);
+
+	// a temporary array holding the pixel being worked on
+	dim.array_size_address = cxt->output_image_channel_count_address;
+	dim.dimension_count = 1;
+	cxt->active_pixel_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_F32, &dim);
+
+	// hook input images to the texture parameters
 	for(i = 0; i < cxt->texture_count; i++) {
 		qb_pbj_texture *texture = &cxt->textures[i];
 		qvar = qb_find_argument(cxt, texture->name);
@@ -772,8 +895,8 @@ static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 			}
 		}
 		// premultiplication is applied to input images with alpha channel
-		if(VALUE(U32, texture->address->dimension_addresses[2]) == 4) {
-			texture->address->flags &= ~QB_ADDRESS_READ_ONLY;
+		if(DIMENSION(texture->address, -1) == 4) {
+			qb_mark_as_writable(cxt->compiler_context, texture->address);
 		}
 	}
 
@@ -782,14 +905,9 @@ static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 		qb_pbj_register *reg = qb_create_pbj_register(cxt, &parameter->destination);
 
 		if(parameter == cxt->out_pixel) {
-			qvar = qb_find_output(cxt);
-			if(qvar) {
-				parameter->address = qvar->address;
-			} else {
-				qb_abort("a parameter must be passed by reference to the function to receive the result");
-			} 
+			parameter->address = cxt->active_pixel_address;
 		} else if(parameter == cxt->out_coord) {
-			// this is actually set within the function 
+			parameter->address = cxt->out_coord_address;
 		} else {
 			qvar = qb_find_argument(cxt, parameter->name);
 			if(qvar) {
@@ -825,7 +943,9 @@ static void qb_map_pbj_arguments(qb_pbj_translator_context *cxt) {
 
 			} else {
 				// see if it has a default value
-				if(!parameter->default_value.type) {
+				if(parameter->default_value.type) {
+					parameter->address = qb_create_pbj_constant(cxt->compiler_context, &parameter->default_value);
+				} else {
 					qb_abort("parameter '%s' does not have a default value and must be passed to the function", parameter->name);
 				}
 			}
@@ -1249,7 +1369,7 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	qb_substitute_ops(cxt);
 
 	// map function arguments to PB kernel parameters
-	qb_map_pbj_arguments(cxt);
+	qb_map_pbj_variables(cxt);
 
 	// allocate registers
 	qb_allocate_pbj_registers(cxt);
@@ -1286,20 +1406,25 @@ static void qb_perform_assignment(qb_pbj_translator_context *cxt, qb_address *ds
 	qb_retrieve_binary_op_result(cxt->compiler_context, &factory_assign, dst_address, src_address);
 }
 
+static void qb_perform_subtraction(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address) {
+	qb_retrieve_binary_op_result(cxt->compiler_context, factories_subtract_assign[0], dst_address, src_address);
+}
+
 static void qb_perform_increment(qb_pbj_translator_context *cxt, qb_address *dst_address) {
 	qb_retrieve_unary_op_result(cxt->compiler_context, &factory_increment_pre, dst_address);
 }
 
 static void qb_perform_return(qb_pbj_translator_context *cxt) {
-	qb_operand operand = { QB_OPERAND_EMPTY, NULL };
-	qb_create_op(cxt->compiler_context, &factory_return, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
+	qb_operand operand = { QB_OPERAND_NONE, NULL };
+	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_produce_op(cxt->compiler_context, &factory_return, &operand, 1, &result, NULL, 0, NULL);
 }
 
 static void qb_create_loop(qb_pbj_translator_context *cxt, qb_address *index_address, qb_address *limit_address, uint32_t jump_target_index) {
 	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, limit_address } };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
 	uint32_t jump_target_indices[2] = { jump_target_index, QB_INSTRUCTION_NEXT };
-	qb_create_op(cxt->compiler_context, &factory_loop, QB_TYPE_U32, operands, 2, &result, jump_target_indices, 2, TRUE);
+	qb_produce_op(cxt->compiler_context, &factory_loop, operands, 2, &result, jump_target_indices, 2, NULL);
 }
 
 static void qb_set_previous_op_as_jump_target(qb_pbj_translator_context *cxt, uint32_t src_index) {
@@ -1310,9 +1435,7 @@ static void qb_set_previous_op_as_jump_target(qb_pbj_translator_context *cxt, ui
 }
 
 void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
-	qb_address *image_address, *scanline_address, *pixel_address, *output_address;
-	qb_address *width_address, *height_address, *x_address, *y_address, *channel_count_address;
-	qb_address *out_coord_x_address, *out_coord_y_address, *start_coord_address, *empty_pixel_address;
+	qb_address *start_coord_address;
 	uint32_t i;
 
 	// clear the register slots again
@@ -1326,25 +1449,7 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	// interpret 3x4 matrix as 3x3 with padded element
 	cxt->compiler_context->matrix_padding = TRUE;
 
-	// variables for looping 
-	x_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
-	y_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
-	image_address = cxt->out_pixel->address;
-	width_address = image_address->dimension_addresses[1];
-	height_address = image_address->dimension_addresses[0];
-	channel_count_address = image_address->dimension_addresses[2];
-
-	// sub-array representing the pixel
-	scanline_address = qb_obtain_array_element(cxt->compiler_context, image_address, y_address, QB_ARRAY_BOUND_CHECK_NONE);
-	pixel_address = qb_obtain_array_element(cxt->compiler_context, scanline_address, x_address, QB_ARRAY_BOUND_CHECK_NONE);
-	empty_pixel_address = qb_obtain_constant_F32(cxt->compiler_context, 0.0);
-
-	// the pixel produced by the PB routine
-	output_address = cxt->out_pixel->address;
-
-	// _OutCoord--or x and y as float
-	out_coord_x_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord->address, cxt->compiler_context->zero_address, QB_ARRAY_BOUND_CHECK_NONE);
-	out_coord_y_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord->address, cxt->compiler_context->one_address, QB_ARRAY_BOUND_CHECK_NONE);
+	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
 
 #define OUTER_LOOK_JUMP_TARGET_INDEX		0
 #define INNER_LOOP_JUMP_TARGET_INDEX		1
@@ -1356,17 +1461,17 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 
 	// set y to zero, but _OutCoord.y to 0.5, as that's the center of the grid
 	start_coord_address = qb_obtain_constant_F32(cxt->compiler_context, 0.5);
-	qb_perform_assignment(cxt, y_address, cxt->compiler_context->zero_address);
-	qb_perform_assignment(cxt, out_coord_y_address, start_coord_address);
+	qb_perform_assignment(cxt, cxt->y_address, cxt->compiler_context->zero_address);
+	qb_perform_assignment(cxt, cxt->out_coord_y_address, start_coord_address);
 
 	// set x to zero, but _OutCoord.x to 0.5
 	// the outer loop starts here
-	qb_perform_assignment(cxt, x_address, cxt->compiler_context->zero_address);
+	qb_perform_assignment(cxt, cxt->x_address, cxt->compiler_context->zero_address);
 	qb_set_previous_op_as_jump_target(cxt, OUTER_LOOK_JUMP_TARGET_INDEX);
-	qb_perform_assignment(cxt, out_coord_x_address, start_coord_address);
+	qb_perform_assignment(cxt, cxt->out_coord_x_address, start_coord_address);
 
-	// initialize the output pixel to zero--the inner loop starts here
-	qb_perform_assignment(cxt, output_address, empty_pixel_address);
+	// initialize the active pixel to zero--the inner loop starts here
+	qb_perform_subtraction(cxt, cxt->active_pixel_address, cxt->active_pixel_address);
 	qb_set_previous_op_as_jump_target(cxt, INNER_LOOP_JUMP_TARGET_INDEX);
 
 	// translate the instructions
@@ -1377,22 +1482,22 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	}
 
 	// copy the output pixel into the image
-	qb_perform_assignment(cxt, pixel_address, output_address);
+	qb_perform_assignment(cxt, cxt->output_image_pixel_address, cxt->active_pixel_address);
 
 	// mark the previous instruction as a jump target in case there's an jump to the end of the PB program
 	qb_set_previous_op_as_jump_target(cxt, cxt->pbj_op_offset + cxt->pbj_op_count);
 
 	// increment _OutCoord.x
-	qb_perform_increment(cxt, out_coord_x_address);
+	qb_perform_increment(cxt, cxt->out_coord_x_address);
 
 	// jump to beginning of inner loop if x is less than width
-	qb_create_loop(cxt, x_address, width_address, INNER_LOOP_JUMP_TARGET_INDEX);
+	qb_create_loop(cxt, cxt->x_address, cxt->output_image_width_address, INNER_LOOP_JUMP_TARGET_INDEX);
 
 	// increment _OutCoord.y
-	qb_perform_increment(cxt, out_coord_y_address);
+	qb_perform_increment(cxt, cxt->out_coord_y_address);
 
 	// jump to beginning of outer loop if y is less than height
-	qb_create_loop(cxt, y_address, height_address, OUTER_LOOK_JUMP_TARGET_INDEX);
+	qb_create_loop(cxt, cxt->y_address, cxt->output_image_height_address, OUTER_LOOK_JUMP_TARGET_INDEX);
 
 	qb_perform_return(cxt);
 }
