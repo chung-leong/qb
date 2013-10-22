@@ -1026,14 +1026,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\qb_compiler_pbj.h"
-				>
-			</File>
-			<File
-				RelativePath="..\qb_compiler_php.h"
-				>
-			</File>
-			<File
 				RelativePath="..\qb_encoder.h"
 				>
 			</File>

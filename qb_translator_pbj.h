@@ -187,6 +187,7 @@ struct qb_pbj_translator_context {
 	uint32_t pbj_op_count;
 	qb_pbj_op *pbj_op;
 	uint32_t pbj_op_index;
+	uint32_t pbj_op_offset;
 
 	qb_pbj_op **conditionals;
 	uint32_t conditional_count; 

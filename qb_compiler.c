@@ -2548,7 +2548,7 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 					return qb_obtain_on_demand_value(cxt, &factory_multiply, operands, 2);
 				} else {
 					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_multiply_add, operands, 2);
+					return qb_obtain_on_demand_value(cxt, &factory_multiply_add, operands, 3);
 				}
 			}
 		}

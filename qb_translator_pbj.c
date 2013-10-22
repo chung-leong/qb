@@ -990,12 +990,17 @@ void qb_load_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_register *reg, 
 	}
 }
 
-void qb_retrieve_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand, int32_t allow_empty) {
+enum {
+	ALLOW_EMPTY		= 0x0001,
+	IGNORE_VALUE	= 0x0002,
+};
+
+void qb_retrieve_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand, uint32_t flags) {
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
 	qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
 	if(reg_address->dimension > 1) {
 		if(slot->matrix.type == QB_OPERAND_EMPTY) {
-			if(!allow_empty) {
+			if(flags & ALLOW_EMPTY) {
 				// need to put the register into the slot
 				qb_load_pbj_register(cxt, reg, slot);
 			}
@@ -1005,17 +1010,26 @@ void qb_retrieve_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_add
 		qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, reg_address);
 		if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
 			if(slot->channels[channel_id].type == QB_OPERAND_EMPTY) {
-				if(!allow_empty) {
+				if(!(flags & ALLOW_EMPTY)) {
 					qb_load_pbj_register(cxt, reg, slot);
 				}
 			}
 			*operand = slot->channels[channel_id];
 		} else {
-			if(!allow_empty) {
+			if(!(flags & ALLOW_EMPTY)) {
 				// TODO: need to perform a gather operation
 			} else {
 				operand->type = QB_OPERAND_EMPTY;
 				operand->generic_pointer = NULL;
+			}
+		}
+	}
+	if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		if(operand->result_prototype->destination) {
+			// loading a value slated to be eliminated
+			// clear the destination so the assignment occurs
+			if(!(IGNORE_VALUE)) {				
+				operand->result_prototype->destination = NULL;
 			}
 		}
 	}
@@ -1128,10 +1142,10 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 				image->type = QB_OPERAND_ADDRESS;
 			}
 			if(t->flags & PBJ_READ_DESTINATION_FIRST) {
-				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], FALSE);
+				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], (t->extra == &factory_assign) ? IGNORE_VALUE : 0);
 			}
 			if(t->flags & PBJ_READ_SOURCE) {
-				qb_retrieve_operand(cxt, &pop->source, &operands[operand_count++], FALSE);
+				qb_retrieve_operand(cxt, &pop->source, &operands[operand_count++], 0);
 			} else if(pop->opcode == PBJ_LOAD_CONSTANT) {
 				qb_operand *constant = &operands[operand_count++];
 				constant->pbj_constant = &pop->constant;
@@ -1139,16 +1153,16 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 			}
 			if(t->flags & PBJ_READ_SOURCE2) {
 				qb_pbj_op *data_pop = pop + 1;
-				qb_retrieve_operand(cxt, &data_pop->source2, &operands[operand_count++], FALSE);
+				qb_retrieve_operand(cxt, &data_pop->source2, &operands[operand_count++], 0);
 				if(t->flags & PBJ_READ_SOURCE3) {
-					qb_retrieve_operand(cxt, &data_pop->source3, &operands[operand_count++], FALSE);
+					qb_retrieve_operand(cxt, &data_pop->source3, &operands[operand_count++], 0);
 				}
 			}
 			if(t->flags & PBJ_READ_DESTINATION) {
-				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], FALSE);
+				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], 0);
 			}
 			if(t->flags & PBJ_WRITE_DESTINATION) {
-				qb_retrieve_operand(cxt, &pop->destination, &result, (pop->opcode != PBJ_LOAD_CONSTANT));
+				qb_retrieve_operand(cxt, &pop->destination, &result, (pop->opcode != PBJ_LOAD_CONSTANT) ? ALLOW_EMPTY : 0);
 			}
 
 			t->translate(cxt, t, operands, operand_count, &result, result_prototype);
@@ -1268,10 +1282,40 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	}
 }
 
+static void qb_perform_assignment(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address) {
+	qb_retrieve_binary_op_result(cxt->compiler_context, &factory_assign, dst_address, src_address);
+}
 
+static void qb_perform_increment(qb_pbj_translator_context *cxt, qb_address *dst_address) {
+	qb_retrieve_unary_op_result(cxt->compiler_context, &factory_increment_pre, dst_address);
+}
+
+static void qb_perform_return(qb_pbj_translator_context *cxt) {
+	qb_operand operand = { QB_OPERAND_EMPTY, NULL };
+	qb_create_op(cxt->compiler_context, &factory_return, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
+}
+
+static void qb_create_loop(qb_pbj_translator_context *cxt, qb_address *index_address, qb_address *limit_address, uint32_t jump_target_index) {
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, limit_address } };
+	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	uint32_t jump_target_indices[2] = { jump_target_index, QB_INSTRUCTION_NEXT };
+	qb_create_op(cxt->compiler_context, &factory_loop, QB_TYPE_U32, operands, 2, &result, jump_target_indices, 2, TRUE);
+}
+
+static void qb_set_previous_op_as_jump_target(qb_pbj_translator_context *cxt, uint32_t src_index) {
+	uint32_t qop_index = cxt->compiler_context->op_count - 1;
+	qb_op *qop = cxt->compiler_context->ops[qop_index];
+	cxt->compiler_context->op_translations[src_index] = qop_index;
+	qop->flags |= QB_OP_JUMP_TARGET;
+}
 
 void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
+	qb_address *image_address, *scanline_address, *pixel_address, *output_address;
+	qb_address *width_address, *height_address, *x_address, *y_address, *channel_count_address;
+	qb_address *out_coord_x_address, *out_coord_y_address, *start_coord_address, *empty_pixel_address;
 	uint32_t i;
+
+	// clear the register slots again
 	for(i = 0; i < cxt->int_register_slot_count; i++) {
 		qb_clear_pbj_register_slot(cxt, &cxt->int_register_slots[i]);
 	}
@@ -1279,17 +1323,78 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 		qb_clear_pbj_register_slot(cxt, &cxt->float_register_slots[i]);
 	}
 
+	// interpret 3x4 matrix as 3x3 with padded element
+	cxt->compiler_context->matrix_padding = TRUE;
+
+	// variables for looping 
+	x_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
+	y_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
+	image_address = cxt->out_pixel->address;
+	width_address = image_address->dimension_addresses[1];
+	height_address = image_address->dimension_addresses[0];
+	channel_count_address = image_address->dimension_addresses[2];
+
+	// sub-array representing the pixel
+	scanline_address = qb_obtain_array_element(cxt->compiler_context, image_address, y_address, QB_ARRAY_BOUND_CHECK_NONE);
+	pixel_address = qb_obtain_array_element(cxt->compiler_context, scanline_address, x_address, QB_ARRAY_BOUND_CHECK_NONE);
+	empty_pixel_address = qb_obtain_constant_F32(cxt->compiler_context, 0.0);
+
+	// the pixel produced by the PB routine
+	output_address = cxt->out_pixel->address;
+
+	// _OutCoord--or x and y as float
+	out_coord_x_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord->address, cxt->compiler_context->zero_address, QB_ARRAY_BOUND_CHECK_NONE);
+	out_coord_y_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord->address, cxt->compiler_context->one_address, QB_ARRAY_BOUND_CHECK_NONE);
+
+#define OUTER_LOOK_JUMP_TARGET_INDEX		0
+#define INNER_LOOP_JUMP_TARGET_INDEX		1
+
+	// shift the translation table by two so there's a place to put the inner and outer loop jump targets
+	cxt->pbj_op_offset = 2;
+	cxt->compiler_context->op_translations = qb_allocate_indices(cxt->pool, cxt->pbj_op_offset + cxt->pbj_op_count + 1); 
+	memset(cxt->compiler_context->op_translations, 0xFF, (cxt->pbj_op_offset + cxt->pbj_op_count + 1) * sizeof(uint32_t));
+
+	// set y to zero, but _OutCoord.y to 0.5, as that's the center of the grid
+	start_coord_address = qb_obtain_constant_F32(cxt->compiler_context, 0.5);
+	qb_perform_assignment(cxt, y_address, cxt->compiler_context->zero_address);
+	qb_perform_assignment(cxt, out_coord_y_address, start_coord_address);
+
+	// set x to zero, but _OutCoord.x to 0.5
+	// the outer loop starts here
+	qb_perform_assignment(cxt, x_address, cxt->compiler_context->zero_address);
+	qb_set_previous_op_as_jump_target(cxt, OUTER_LOOK_JUMP_TARGET_INDEX);
+	qb_perform_assignment(cxt, out_coord_x_address, start_coord_address);
+
+	// initialize the output pixel to zero--the inner loop starts here
+	qb_perform_assignment(cxt, output_address, empty_pixel_address);
+	qb_set_previous_op_as_jump_target(cxt, INNER_LOOP_JUMP_TARGET_INDEX);
+
+	// translate the instructions
 	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_translate_current_pbj_instruction(cxt);
 	}
 
-	// make sure there's always a RET at the end
-	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
-		qb_operand operand = { QB_OPERAND_EMPTY, NULL };
-		qb_create_op(cxt->compiler_context, &factory_return, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
-	}
+	// copy the output pixel into the image
+	qb_perform_assignment(cxt, pixel_address, output_address);
+
+	// mark the previous instruction as a jump target in case there's an jump to the end of the PB program
+	qb_set_previous_op_as_jump_target(cxt, cxt->pbj_op_offset + cxt->pbj_op_count);
+
+	// increment _OutCoord.x
+	qb_perform_increment(cxt, out_coord_x_address);
+
+	// jump to beginning of inner loop if x is less than width
+	qb_create_loop(cxt, x_address, width_address, INNER_LOOP_JUMP_TARGET_INDEX);
+
+	// increment _OutCoord.y
+	qb_perform_increment(cxt, out_coord_y_address);
+
+	// jump to beginning of outer loop if y is less than height
+	qb_create_loop(cxt, y_address, height_address, OUTER_LOOK_JUMP_TARGET_INDEX);
+
+	qb_perform_return(cxt);
 }
 
 
