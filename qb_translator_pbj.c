@@ -455,21 +455,59 @@ static void qbj_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_tr
 
 static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
-	if(result->address->segment_selector == QB_SELECTOR_INVALID) {
-		// the temporary segment gets separated on fork
-		// put constants there in case only parts of an array are constant 
-		qb_mark_as_temporary(cxt->compiler_context, result->address);
-		qb_allocate_storage_space(cxt->compiler_context, result->address, TRUE);
-	}
-	switch(value->pbj_constant->type) {
-		case PBJ_TYPE_INT: {
-			VALUE(I32, result->address) = value->pbj_constant->int_value;
-		}	break;
-		case PBJ_TYPE_FLOAT: {
-			VALUE(F32, result->address) = value->pbj_constant->float_value;
-		}	break;
-		default: {
-		}	break;
+	if(CONSTANT(result->address)) {
+		// just write into the constant
+		switch(value->pbj_constant->type) {
+			case PBJ_TYPE_INT: {
+				VALUE(I32, result->address) = value->pbj_constant->int_value;
+			}	break;
+			case PBJ_TYPE_FLOAT: {
+				VALUE(F32, result->address) = value->pbj_constant->float_value;
+			}	break;
+			default: {
+			}	break;
+		}
+	} else {
+		qb_address *constant_address, *dst_address = result->address;
+		qb_operand as_operands[2], as_result = { QB_OPERAND_EMPTY, NULL };
+		/*
+		if(result->address->array_index_address == cxt->compiler_context->zero_address) {
+			qb_address *constant_address, *base_address, *result_address, *expected_result_address = NULL;
+			uint32_t current_index, previous_index, current_int_flag, int_flag;
+			uint32_t i, j, type, constant_count;
+			uint32_t expected_constant_count = 1;
+
+			base_address = result->address;
+			while(base_address->source_address) {
+				base_address = base_address->source_address;
+			}
+			expected_constant_count = ARRAY_SIZE(base_address);
+		
+			// see if there are other load-constant ops
+			constant_count = 1;
+			for(i = cxt->pbj_op_index + 1; i < cxt->pbj_op_count && constant_count < expected_constant_count; i++) {
+				qb_pbj_op *pop = &cxt->pbj_ops[i];
+				if(pop->opcode != PBJ_LOAD_CONSTANT) {
+					break;
+				}
+			}
+		}
+		*/
+		switch(value->pbj_constant->type) {
+			case PBJ_TYPE_INT: {
+				constant_address = qb_obtain_constant_S32(cxt->compiler_context, value->pbj_constant->int_value);
+			}	break;
+			case PBJ_TYPE_FLOAT: {
+				constant_address = qb_obtain_constant_F32(cxt->compiler_context, value->pbj_constant->float_value);
+			}	break;
+			default: {
+			}	break;
+		}
+		as_operands[0].address = dst_address;
+		as_operands[0].type = QB_OPERAND_ADDRESS;
+		as_operands[1].address = constant_address;
+		as_operands[1].type = QB_OPERAND_ADDRESS;
+		qb_produce_op(cxt->compiler_context, t->extra, as_operands, 2, &as_result, NULL, 0, result_prototype);
 	}
 }
 
@@ -823,12 +861,10 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 		address = qb_create_constant_array(cxt, QB_TYPE_F32, dimensions, dimension_count);
 		if(value_count == 9) {
 			// 3x3 matrices are padded
-			for(i = 0, j = 0; i < value_count; i++) {
-				ARRAY(F32, address)[j] = float_values[j];
-				j++;
-				if(j == 3) {
-					ARRAY(F32, address)[j] = 0;
-					j++;
+			for(i = 0, j = 0; i < value_count; i++, j++) {
+				ARRAY(F32, address)[j] = float_values[i];
+				if(i == 2 || i == 5 || i == 8) {
+					ARRAY(F32, address)[++j] = 0;
 				}
 			}
 		} else {
@@ -1027,7 +1063,7 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_xor			},	// PBJ_LOGICAL_XOR
 	{	qbj_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_nearest_vector	},	// PBJ_SAMPLE_NEAREST
 	{	qbj_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_bilinear_vector	},	// PBJ_SAMPLE_BILINEAR
-	{	qb_translate_pbj_load_constant,				PBJ_WD,				NULL,							},	// PBJ_LOAD_CONSTANT
+	{	qb_translate_pbj_load_constant,				PBJ_WD,				&factory_assign,				},	// PBJ_LOAD_CONSTANT
 	{	qb_translate_pbj_select,					PBJ_RS_RS2_RS3_WD,	NULL,							},	// PBJ_SELECT
 	{	qb_translate_pbj_if,						PBJ_RS,				NULL,							},	// PBJ_IF
 	{	qb_translate_pbj_else,						0,					NULL,							},	// PBJ_ELSE

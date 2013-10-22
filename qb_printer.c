@@ -117,7 +117,7 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 
 				index = ELEMENT_COUNT(address->segment_offset - array_address->segment_offset, address->type);
 				for(i = 0; i < array_address->dimension_count; i++) {
-					uint32_t dimension = DIMENSION(address, i);
+					uint32_t dimension = DIMENSION(array_address, i);
 					php_printf("[%d]", index / dimension);
 					index = index % dimension;
 				}
