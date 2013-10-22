@@ -470,38 +470,73 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 	} else {
 		qb_address *constant_address, *dst_address = result->address;
 		qb_operand as_operands[2], as_result = { QB_OPERAND_EMPTY, NULL };
-		/*
+		uint32_t constant_count = 1;
+
 		if(result->address->array_index_address == cxt->compiler_context->zero_address) {
-			qb_address *constant_address, *base_address, *result_address, *expected_result_address = NULL;
-			uint32_t current_index, previous_index, current_int_flag, int_flag;
-			uint32_t i, j, type, constant_count;
+			qb_address *base_address;
 			uint32_t expected_constant_count = 1;
 
 			base_address = result->address;
 			while(base_address->source_address) {
 				base_address = base_address->source_address;
 			}
-			expected_constant_count = ARRAY_SIZE(base_address);
+			if(!SCALAR(base_address)) {
+				uint32_t expected_constant_count = ARRAY_SIZE(base_address);
+				uint32_t remaining = expected_constant_count;
+				uint32_t expected_reg_id = cxt->pbj_op->destination.register_id;
+				uint32_t expected_channel = cxt->pbj_op->destination.channels[0];
+				qb_pbj_op *pop = cxt->pbj_op;
 		
-			// see if there are other load-constant ops
-			constant_count = 1;
-			for(i = cxt->pbj_op_index + 1; i < cxt->pbj_op_count && constant_count < expected_constant_count; i++) {
-				qb_pbj_op *pop = &cxt->pbj_ops[i];
-				if(pop->opcode != PBJ_LOAD_CONSTANT) {
-					break;
+				// see if other load-constant ops follow that write into the same location
+				do {
+					pop++;
+					remaining--;
+					if(expected_channel < 3) {
+						expected_channel++;
+					} else {
+						expected_channel = 0;
+						expected_reg_id++;
+					}
+					if(pop->opcode != PBJ_LOAD_CONSTANT || pop->destination.register_id != expected_reg_id || pop->destination.channels[0] != expected_channel) {
+						break;
+					}
+				} while(remaining > 0);
+
+				if(remaining == 0) {
+					constant_count = expected_constant_count;
+					dst_address = base_address;
 				}
 			}
 		}
-		*/
-		switch(value->pbj_constant->type) {
-			case PBJ_TYPE_INT: {
-				constant_address = qb_obtain_constant_S32(cxt->compiler_context, value->pbj_constant->int_value);
-			}	break;
-			case PBJ_TYPE_FLOAT: {
-				constant_address = qb_obtain_constant_F32(cxt->compiler_context, value->pbj_constant->float_value);
-			}	break;
-			default: {
-			}	break;
+		if(constant_count == 1) {
+			switch(dst_address->type) {
+				case QB_TYPE_S32: {
+					constant_address = qb_obtain_constant_S32(cxt->compiler_context, value->pbj_constant->int_value);
+				}	break;
+				case QB_TYPE_F32: {
+					constant_address = qb_obtain_constant_F32(cxt->compiler_context, value->pbj_constant->float_value);
+				}	break;
+				default: {
+				}	break;
+			}
+		} else {
+			qb_pbj_op *pop = cxt->pbj_op;
+			uint32_t i;
+			constant_address = qb_create_constant_array(cxt->compiler_context, dst_address->type, &constant_count, 1);
+			for(i = 0; i < constant_count; i++) {
+				switch(dst_address->type) {
+					case QB_TYPE_S32: {
+						ARRAY(S32, constant_address)[i] = pop->constant.int_value;
+					}	break;
+					case QB_TYPE_F32: {	
+						ARRAY(F32, constant_address)[i] = pop->constant.float_value;
+					}	break;
+				}
+				pop++;
+			}
+
+			// jump over additional ops that are processed
+			cxt->pbj_op_index += (constant_count - 1);
 		}
 		as_operands[0].address = dst_address;
 		as_operands[0].type = QB_OPERAND_ADDRESS;
