@@ -453,10 +453,25 @@ static void qbj_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_tr
 	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
+static int32_t qb_is_read_only(qb_pbj_translator_context *cxt, qb_address *address) {
+	if(!READ_ONLY(address)) {
+		return FALSE;
+	}
+	if(address->source_address) {
+		return qb_is_read_only(cxt, address->source_address);
+	}
+	return TRUE;
+}
+
 static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
-	if(CONSTANT(result->address)) {
-		// just write into the constant
+	if(qb_is_read_only(cxt, result->address)) {
+		// since we've clear the read-only flags of registers that get written to
+		// we know that the destination can be treated as a constant
+		qb_mark_as_constant(cxt->compiler_context, result->address);
+		if(result->address->segment_selector == QB_SELECTOR_INVALID) {
+			qb_allocate_storage_space(cxt->compiler_context, result->address, TRUE);
+		}
 		switch(value->pbj_constant->type) {
 			case PBJ_TYPE_INT: {
 				VALUE(I32, result->address) = value->pbj_constant->int_value;
@@ -468,44 +483,45 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 			}	break;
 		}
 	} else {
-		qb_address *constant_address, *dst_address = result->address;
+		qb_address *base_address, *constant_address, *dst_address = result->address;
 		qb_operand as_operands[2], as_result = { QB_OPERAND_EMPTY, NULL };
 		uint32_t constant_count = 1;
+		uint32_t expected_constant_count = 1;
 
-		if(result->address->array_index_address == cxt->compiler_context->zero_address) {
-			qb_address *base_address;
-			uint32_t expected_constant_count = 1;
-
-			base_address = result->address;
-			while(base_address->source_address) {
+		// see if we're writing into an array
+		base_address = result->address;
+		while(base_address->source_address) {
+			if(base_address->array_index_address == cxt->compiler_context->zero_address) {
 				base_address = base_address->source_address;
+			} else {
+				break;
 			}
-			if(!SCALAR(base_address)) {
-				uint32_t expected_constant_count = ARRAY_SIZE(base_address);
-				uint32_t remaining = expected_constant_count;
-				uint32_t expected_reg_id = cxt->pbj_op->destination.register_id;
-				uint32_t expected_channel = cxt->pbj_op->destination.channels[0];
-				qb_pbj_op *pop = cxt->pbj_op;
-		
-				// see if other load-constant ops follow that write into the same location
-				do {
-					pop++;
-					remaining--;
-					if(expected_channel < 3) {
-						expected_channel++;
-					} else {
-						expected_channel = 0;
-						expected_reg_id++;
-					}
-					if(pop->opcode != PBJ_LOAD_CONSTANT || pop->destination.register_id != expected_reg_id || pop->destination.channels[0] != expected_channel) {
-						break;
-					}
-				} while(remaining > 0);
-
-				if(remaining == 0) {
-					constant_count = expected_constant_count;
-					dst_address = base_address;
+		}
+		if(!SCALAR(base_address)) {
+			uint32_t expected_constant_count = ARRAY_SIZE(base_address);
+			uint32_t remaining = expected_constant_count;
+			uint32_t expected_reg_id = cxt->pbj_op->destination.register_id;
+			uint32_t expected_channel = cxt->pbj_op->destination.channels[0];
+			qb_pbj_op *pop = cxt->pbj_op;
+	
+			// see if other load-constant ops follow that write into the same location
+			do {
+				pop++;
+				remaining--;
+				if(expected_channel < 3) {
+					expected_channel++;
+				} else {
+					expected_channel = 0;
+					expected_reg_id++;
 				}
+				if(pop->opcode != PBJ_LOAD_CONSTANT || pop->destination.register_id != expected_reg_id || pop->destination.channels[0] != expected_channel) {
+					break;
+				}
+			} while(remaining > 0);
+
+			if(remaining == 0) {
+				constant_count = expected_constant_count;
+				dst_address = base_address;
 			}
 		}
 		if(constant_count == 1) {
@@ -1045,8 +1061,6 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 #define PBJ_RS_RS2_RS3_WD	(PBJ_READ_SOURCE | PBJ_READ_SOURCE2 | PBJ_READ_SOURCE3 | PBJ_WRITE_DESTINATION)
 #define PBJ_RS_RD1_WD_WS	(PBJ_READ_SOURCE | PBJ_READ_DESTINATION_FIRST | PBJ_WRITE_DESTINATION | PBJ_WRITE_SOURCE)
 
-
-
 static qb_pbj_translator pbj_op_translators[] = {
 	{	NULL,										0,					NULL							},	// PBJ_NOP
 	{	qbj_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_add					},	// PBJ_ADD
@@ -1428,6 +1442,25 @@ static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
 		if(pop->flags & PBJ_DESTINATION_IN_USE) {
 			if(pop->destination.dimension == 1) {
 				qb_allocate_pbj_register(cxt, &pop->destination);
+			}
+		}
+	}
+
+	// mark addresses destination addresses as writable unless it's load-constant
+	for(i = 0; i < cxt->pbj_op_count; i++) {
+		qb_pbj_op *pop = &cxt->pbj_ops[i];
+		if(pop->opcode != PBJ_LOAD_CONSTANT && pop->opcode != PBJ_NOP && pop->opcode != PBJ_OP_DATA) {
+			qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
+			if(t->flags & PBJ_WRITE_DESTINATION) {
+				qb_pbj_register *reg = qb_get_pbj_register(cxt, &pop->destination);
+				qb_address *dst_address;
+				if(pop->destination.dimension > 1) {
+					dst_address = reg->matrix_address;
+				} else {
+					qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, &pop->destination);
+					dst_address = reg->channel_addresses[channel_id];
+				}
+				qb_mark_as_writable(cxt->compiler_context, dst_address);
 			}
 		}
 	}

@@ -29,6 +29,13 @@ void qb_mark_as_tagged(qb_compiler_context *cxt, qb_address *address) {
 	}
 }
 
+void qb_mark_as_constant(qb_compiler_context *cxt, qb_address *address) {
+	address->flags |= QB_ADDRESS_CONSTANT;
+	if(address->source_address) {
+		qb_mark_as_constant(cxt, address->source_address);
+	}
+}
+
 void qb_mark_as_temporary(qb_compiler_context *cxt, qb_address *address) {
 	address->flags |= QB_ADDRESS_TEMPORARY | QB_ADDRESS_NON_REUSABLE | QB_ADDRESS_IN_USE;
 	if(address->source_address) {

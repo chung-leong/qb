@@ -345,8 +345,16 @@ void qb_free_build_context(qb_build_context *cxt) {
 		uint32_t i;
 		for(i = 0; i < cxt->compiler_context_count; i++) {
 			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
-			qb_free_compiler_context(compiler_cxt);
+			switch(compiler_cxt->translation) {
+				case QB_TRANSLATION_PHP: {
+					qb_free_php_translator_context(compiler_cxt->translator_context);
+				}	break;
+				case QB_TRANSLATION_PBJ: {
+					qb_free_pbj_translator_context(compiler_cxt->translator_context);
+				}	break;
+			}
 			efree(compiler_cxt->translator_context);
+			qb_free_compiler_context(compiler_cxt);
 			efree(compiler_cxt);
 		}
 		efree(cxt->compiler_contexts);

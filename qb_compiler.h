@@ -283,6 +283,7 @@ static zend_always_inline void qb_add_variable(qb_compiler_context *cxt, qb_vari
 	*p = variable;
 }
 
+void qb_mark_as_constant(qb_compiler_context *cxt, qb_address *address);
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address);
 void qb_mark_as_temporary(qb_compiler_context *cxt, qb_address *address);
 
