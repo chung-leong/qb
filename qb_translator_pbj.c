@@ -474,6 +474,8 @@ static void qb_perform_branch(qb_pbj_translator_context *cxt, qb_address *condit
 static void qb_perform_jump(qb_pbj_translator_context *cxt, uint32_t jump_target_index);
 static void qb_mark_next_op_as_jump_target(qb_pbj_translator_context *cxt, uint32_t src_index);
 
+static qb_pbj_channel_id * qb_get_pbj_channel_overlap(qb_pbj_translator_context *cxt, qb_pbj_channel_id channel_id, uint32_t *p_count);
+
 static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_pbj_constant *constant = &cxt->pbj_op->constant;
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, &cxt->pbj_op->destination);
@@ -482,13 +484,14 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 	qb_operand *slot_operand = NULL;
 	qb_pbj_op *pop = cxt->pbj_op;
 	uint32_t pop_index = cxt->pbj_op_index;
-	uint32_t first_channel = cxt->pbj_op->destination.channels[0];
 	qb_primitive_type expr_type;
+	qb_pbj_channel_id first_channel = cxt->pbj_op->destination.channels[0];
+	qb_pbj_channel_id channel_id;
 
 	// see if other load-constant ops follow that write into consecutive locations
 	uint32_t next_reg_id = cxt->pbj_op->destination.register_id;
 	uint32_t next_channel = cxt->pbj_op->destination.channels[0];
-	uint32_t constant_count = 1, dimensions[2], dimension_count;
+	uint32_t constant_count = 1, dimensions[2], dimension_count = 0;
 	while(pop_index + 1 < cxt->pbj_op_count && constant_count < 16) {
 		pop++;
 		pop_index++;
@@ -536,49 +539,50 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 					}
 					dimension_count = 2;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RGBA] && constant_count >= 4) {
-					target_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
-					slot_operand = &slot->channels[PBJ_CHANNEL_RGBA];
+					channel_id = PBJ_CHANNEL_RGBA;
 					constant_count = dimensions[0] = 4;
 					dimension_count = 1;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RGB] && constant_count >= 3) {
-					target_address = reg->channel_addresses[PBJ_CHANNEL_RGB];
-					slot_operand = &slot->channels[PBJ_CHANNEL_RGB];
+					channel_id = PBJ_CHANNEL_RGB;
 					constant_count = dimensions[0] = 3;
 					dimension_count = 1;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RG] && constant_count >= 2) {
-					target_address = reg->channel_addresses[PBJ_CHANNEL_RG];
-					slot_operand = &slot->channels[PBJ_CHANNEL_RG];
+					channel_id = PBJ_CHANNEL_RG;
 					constant_count = dimensions[0] = 2;
 					dimension_count = 1;
 				}
 			}	break;
 			case 1: {
 				if(reg->channel_addresses[PBJ_CHANNEL_GBA] && constant_count >= 3) {
-					target_address = reg->channel_addresses[PBJ_CHANNEL_GBA];
-					slot_operand = &slot->channels[PBJ_CHANNEL_GBA];
+					channel_id = PBJ_CHANNEL_GBA;
 					constant_count = dimensions[0] = 3;
 					dimension_count = 1;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_GB] && constant_count >= 2) {
-					target_address = reg->channel_addresses[PBJ_CHANNEL_GB];
-					slot_operand = &slot->channels[PBJ_CHANNEL_GB];
+					channel_id = PBJ_CHANNEL_GB;
 					constant_count = dimensions[0] = 2;
 					dimension_count = 1;
 				}
 			}	break;
 			case 2: {
 				 if(reg->channel_addresses[PBJ_CHANNEL_BA] && constant_count >= 2) {
-					target_address = reg->channel_addresses[PBJ_CHANNEL_BA];
-					slot_operand = &slot->channels[PBJ_CHANNEL_BA];
+					channel_id = PBJ_CHANNEL_BA;
 					constant_count = dimensions[0] = 2;
 					dimension_count = 1;
 				}
 			}	break;
 		}
 	}
-	if(!target_address) {
+	if(dimension_count > 1) {
+		target_address = reg->matrix_address;
+		slot_operand = &slot->matrix;
+	} else if(dimension_count == 1) {
+		target_address = reg->channel_addresses[channel_id];
+		slot_operand = &slot->channels[channel_id];
+	} else {
 		target_address = reg->channel_addresses[first_channel];
 		slot_operand = &slot->channels[first_channel];
 		constant_count = 1;
+		channel_id = first_channel;
 	}
 
 	switch(constant->type) {
@@ -588,6 +592,19 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 	}
 
 	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		if(dimension_count > 1) {
+		} else {
+			uint32_t overlapping_channel_count, i;
+			qb_pbj_channel_id *overlapping_channels = qb_get_pbj_channel_overlap(cxt, channel_id, &overlapping_channel_count);
+			for(i = 0; i < overlapping_channel_count; i++) {
+				uint32_t overlapping_channel = overlapping_channels[i];
+				slot->channels[overlapping_channel].type = QB_OPERAND_EMPTY;
+				slot->channels[overlapping_channel].generic_pointer = NULL;
+			}
+			slot->matrix.type = QB_OPERAND_EMPTY;
+			slot->matrix.generic_pointer = NULL;
+		}
+
 		result_prototype->preliminary_type = result_prototype->final_type = expr_type;
 		slot_operand->result_prototype = result_prototype;
 		slot_operand->type = QB_OPERAND_RESULT_PROTOTYPE;
