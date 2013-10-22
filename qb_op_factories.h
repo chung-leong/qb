@@ -42,6 +42,7 @@ typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
 typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
 typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
+typedef struct qb_gather_op_factory				qb_gather_op_factory;
 
 typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
 
@@ -130,6 +131,11 @@ struct qb_copy_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcodes[10][10];
 	qb_opcode vector_opcodes[3][2];
+};
+
+struct qb_gather_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	qb_opcode opcodes[7][10];
 };
 
 struct qb_cast_op_factory {
@@ -234,6 +240,9 @@ extern qb_op_factory factory_fetch_constant;
 
 extern void *factories_fetch_variable[4];
 extern void *factories_fetch_class[3];
+
+extern qb_gather_op_factory factory_gather;
+extern qb_gather_op_factory factory_scatter;
 
 extern qb_op_factory factory_array_init;
 extern qb_op_factory factory_array_append;

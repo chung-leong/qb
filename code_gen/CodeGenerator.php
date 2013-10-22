@@ -866,6 +866,13 @@ class CodeGenerator {
 
 			$this->handlers[] = new PredicateClearArray("CCLR_ARR", $elementTypeNoSign);
 			$this->handlers[] = new PredicateClearElement("CCLR_ELE", $elementTypeNoSign);
+			
+			for($i = 2; $i <= 8; $i++) {
+				$this->handlers[] = new Gather("GATH", $elementTypeNoSign, $i);
+			}
+			for($i = 2; $i <= 8; $i++) {
+				$this->handlers[] = new Gather("SCAT", $elementTypeNoSign, $i);
+			}
 		}
 	}
 

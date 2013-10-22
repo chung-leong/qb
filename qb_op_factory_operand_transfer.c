@@ -276,6 +276,12 @@ static void qb_transfer_operands_modify_assign(qb_compiler_context *cxt, qb_op_f
 	dest[2] = *result;
 }
 
+static void qb_transfer_operands_gather(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	dest[0] = operands[1];
+	dest[1] = operands[0];
+	dest[2] = *result;
+}
+
 static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0], *precision = &operands[1], *mode = &operands[2];
 	dest[0] = *value;
