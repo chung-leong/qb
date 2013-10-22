@@ -1450,9 +1450,11 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 		// figure out what kind of lvalue it is
 		switch(destination->type) {
 			case QB_RESULT_DESTINATION_VARIABLE: {
-				qb_address *address = destination->variable.address;
-				lvalue_type = address->type;
-				lvalue_size_address = address->array_size_address;
+				if(destination->variable.type == QB_OPERAND_ADDRESS) {
+					qb_address *address = destination->variable.address;
+					lvalue_type = address->type;
+					lvalue_size_address = address->array_size_address;
+				}
 			}	break;
 			case QB_RESULT_DESTINATION_ELEMENT: {
 				if(destination->element.container.type == QB_OPERAND_ADDRESS) {

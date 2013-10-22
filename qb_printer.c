@@ -374,7 +374,9 @@ static void qb_print_pbj_ops(qb_printer_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < translator_cxt->pbj_op_count; i++) {
 		qb_pbj_op *pop = &translator_cxt->pbj_ops[i];
-		qb_print_pbj_op(cxt, pop, i);
+		if(pop->opcode != PBJ_OP_DATA) {
+			qb_print_pbj_op(cxt, pop, i);
+		}
 	}
 }
 
