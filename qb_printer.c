@@ -117,9 +117,9 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 
 				index = ELEMENT_COUNT(address->segment_offset - array_address->segment_offset, address->type);
 				for(i = 0; i < array_address->dimension_count; i++) {
-					uint32_t dimension = DIMENSION(array_address, i);
-					php_printf("[%d]", index / dimension);
-					index = index % dimension;
+					uint32_t sub_array_size = (i + 1 < array_address->dimension_count) ? VALUE(U32, array_address->array_size_addresses[i + 1]) : 1;
+					php_printf("[%d]", index / sub_array_size);
+					index = index % sub_array_size;
 				}
 			} else {
 				int32_t depth, recursive = FALSE;

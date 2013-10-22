@@ -58,7 +58,7 @@ enum qb_matrix_order {
 };
 
 enum qb_translation_type {
-	QB_TRANSLATION_PHP,
+	QB_TRANSLATION_PHP				= 1,
 	QB_TRANSLATION_PBJ,
 };
 

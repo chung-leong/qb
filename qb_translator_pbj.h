@@ -157,6 +157,8 @@ enum {
 	PBJ_READ_IMAGE					= 0x00000020,
 	PBJ_WRITE_DESTINATION			= 0x00000040,
 	PBJ_WRITE_SOURCE				= 0x00000080,
+	PBJ_WRITE_BOOL					= 0x00000100,
+	PBJ_WRITE_SCALAR				= 0x00000200,
 };
 
 struct qb_pbj_translator {
@@ -183,11 +185,14 @@ struct qb_pbj_translator_context {
 	qb_pbj_register_slot *int_register_slots;
 	uint32_t int_register_slot_count;
 
+	qb_pbj_address comparison_result;
+
 	qb_pbj_op *pbj_ops;
 	uint32_t pbj_op_count;
 	qb_pbj_op *pbj_op;
 	uint32_t pbj_op_index;
 	uint32_t pbj_op_offset;
+	int32_t jump_target_index;
 
 	qb_pbj_op **conditionals;
 	uint32_t conditional_count; 
