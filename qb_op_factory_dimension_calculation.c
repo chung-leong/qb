@@ -49,7 +49,6 @@ static void qb_copy_address_dimensions(qb_compiler_context *cxt, qb_address *add
 		dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
 	}
 	dim->array_size_address = dim->array_size_addresses[0];
-	dim->source_address = address;
 }
 
 static int32_t qb_compare_addresses(qb_address **addresses1, uint32_t count1, qb_address **addresses2, uint32_t count2) {
@@ -112,7 +111,6 @@ static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *ad
 		dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
 	}
 	dim->array_size_address = dim->array_size_addresses[0];
-	dim->source_address = NULL;
 }
 
 static qb_address * qb_obtain_larger_of_two(qb_compiler_context *cxt, qb_address *size_address1, qb_address *value_address1, qb_address *size_address2, qb_address *value_address2) {
@@ -175,7 +173,6 @@ static void qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variable_
 		dim->dimension_count = dim_chosen->dimension_count;
 		if(dim->dimension_count > 0) {
 			uint32_t i;
-			dim->source_address = dim_chosen->source_address;
 			for(i = 0; i < dim->dimension_count; i++) {
 				dim->dimension_addresses[i] = dim_chosen->dimension_addresses[i];
 				dim->array_size_addresses[i] = dim_chosen->array_size_addresses[i];
@@ -277,7 +274,6 @@ static void qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_variabl
 		if(dim->dimension_count > 0) {
 			uint32_t i;
 			dim->dimension_count = dim_chosen->dimension_count;
-			dim->source_address = dim_chosen->source_address;
 			for(i = 0; i < dim->dimension_count; i++) {
 				dim->dimension_addresses[i] = dim_chosen->dimension_addresses[i];
 				dim->array_size_addresses[i] = dim_chosen->array_size_addresses[i];
@@ -436,7 +432,6 @@ static void qb_copy_matrix_multiplication_result_dimensions(qb_compiler_context 
 		}
 	}
 	dim->array_size_address = dim->array_size_addresses[0];
-	dim->source_address = NULL;
 }
 
 
@@ -521,7 +516,6 @@ static void qb_set_result_dimensions_transpose(qb_compiler_context *cxt, qb_op_f
 	temp = DIMENSION_ADDRESS(dim, -2);
 	DIMENSION_ADDRESS(dim, -2) = DIMENSION_ADDRESS(dim, -1);
 	DIMENSION_ADDRESS(dim, -1) = ARRAY_SIZE_ADDRESS(dim, -1) = temp;
-	dim->source_address = matrix_address;
 }
 
 static void qb_set_result_dimensions_determinant(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

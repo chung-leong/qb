@@ -34,7 +34,6 @@ typedef enum qb_derived_variable_type		qb_derived_variable_type;
 typedef enum qb_translation_type			qb_translation_type;
 
 struct qb_variable_dimensions {
-	qb_address *source_address;
 	uint32_t dimension_count;
 	qb_address *array_size_address;
 	qb_address *dimension_addresses[64];

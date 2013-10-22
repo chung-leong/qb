@@ -1488,19 +1488,11 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 						// substitution always happens since the lvalue will can be resized to match
 						substitute = TRUE;
 					} else {
-						if(dim && CONSTANT(dim->array_size_address)) {
-							// result size is known
-							if(CONSTANT(lvalue_size_address)) {
-								// size of lvalue is fixed	
-								uint32_t lvalue_size = VALUE(U32, lvalue_size_address);
-								uint32_t dim_size = VALUE(U32, dim->array_size_address);
-								if(lvalue_size == dim_size) {
-									substitute = TRUE;
-								} 
+						if(dim) {
+							if(dim->array_size_address == lvalue_size_address) {
+								// the size is the same
+								substitute = TRUE;
 							}
-						} else if(dim->source_address == destination->variable.address) {
-							// the destination is same as the source
-							substitute = TRUE;
 						}
 					}
 				} else {

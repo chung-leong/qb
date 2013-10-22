@@ -933,9 +933,8 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 }
 
 static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
-	uint32_t i;
+	uint32_t i, dimension;
 	qb_variable *qvar;
-	qb_variable_dimensions dim;
 
 	// find the output image
 	qvar = qb_find_output(cxt);
@@ -948,13 +947,12 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 	cxt->output_image_channel_count_address = cxt->output_image_address->dimension_addresses[2];
 
 	// variables for looping 
-	cxt->x_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
-	cxt->y_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_U32, NULL);
+	cxt->x_address = qb_create_writable_scalar(cxt->compiler_context, QB_TYPE_U32);
+	cxt->y_address = qb_create_writable_scalar(cxt->compiler_context, QB_TYPE_U32);
 
 	// the current coordinate--basically x and y in float 
-	dim.array_size_address = qb_obtain_constant_U32(cxt->compiler_context, 2);
-	dim.dimension_count = 1;
-	cxt->out_coord_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_F32, &dim);
+	dimension = 2;
+	cxt->out_coord_address = qb_create_writable_array(cxt->compiler_context, QB_TYPE_F32, &dimension, 1);
 	cxt->out_coord_x_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord_address, cxt->compiler_context->zero_address, QB_ARRAY_BOUND_CHECK_NONE);
 	cxt->out_coord_y_address = qb_obtain_array_element(cxt->compiler_context, cxt->out_coord_address, cxt->compiler_context->one_address, QB_ARRAY_BOUND_CHECK_NONE);
 
@@ -963,9 +961,8 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 	cxt->output_image_pixel_address = qb_obtain_array_element(cxt->compiler_context, cxt->output_image_scanline_address, cxt->x_address, QB_ARRAY_BOUND_CHECK_NONE);
 
 	// a temporary array holding the pixel being worked on
-	dim.array_size_address = cxt->output_image_channel_count_address;
-	dim.dimension_count = 1;
-	cxt->active_pixel_address = qb_obtain_temporary_variable(cxt->compiler_context, QB_TYPE_F32, &dim);
+	dimension = DIMENSION(cxt->output_image_address, -1);
+	cxt->active_pixel_address = qb_create_writable_array(cxt->compiler_context, QB_TYPE_F32, &dimension, 1);
 
 	// hook input images to the texture parameters
 	for(i = 0; i < cxt->texture_count; i++) {
@@ -1207,6 +1204,19 @@ enum {
 	IGNORE_VALUE	= 0x0002,
 };
 
+uint32_t qb_get_pbj_channel_mask(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
+	uint32_t mask = 0;
+	uint32_t i;
+	for(i = 0; i < reg_address->channel_count; i++) {
+		uint32_t channel = reg_address->channels[i];
+		mask |= channel << (i * 3);
+	}
+	return mask;
+}
+
+static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask);
+static void qb_perform_scatter(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask);
+
 void qb_retrieve_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand, uint32_t flags) {
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
 	qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
@@ -1229,7 +1239,22 @@ void qb_retrieve_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_add
 			*operand = slot->channels[channel_id];
 		} else {
 			if(!(flags & ALLOW_EMPTY)) {
-				// TODO: need to perform a gather operation
+				qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
+				qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
+				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+					// put the full address in there for now
+					operand->address = rgba_address;
+					operand->type = QB_OPERAND_ADDRESS;
+				} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+					qb_variable_dimensions dim = { 1, qb_obtain_constant_U32(cxt->compiler_context, reg_address->channel_count) };
+					qb_address *gather_address = qb_obtain_temporary_variable(cxt->compiler_context, rgba_address->type, &dim);
+					uint32_t mask = qb_get_pbj_channel_mask(cxt, reg_address);
+
+					qb_perform_gather(cxt, rgba_address, gather_address, mask);
+					qb_lock_address(cxt->compiler_context, gather_address);
+					operand->address = gather_address;
+					operand->type = QB_OPERAND_ADDRESS;
+				}
 			} else {
 				operand->type = QB_OPERAND_EMPTY;
 				operand->generic_pointer = NULL;
@@ -1325,13 +1350,20 @@ void qb_retire_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_addre
 	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(reg_address->dimension > 1) {
 			slot->matrix = *operand;
+			qb_lock_operand(cxt->compiler_context, operand);
 		} else {
 			qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, reg_address);
 			if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
 				qb_unlock_operand(cxt->compiler_context, &slot->channels[channel_id]);
 				slot->channels[channel_id] = *operand;
+				qb_lock_operand(cxt->compiler_context, operand);
 			} else {
-				// need to do a scatter operation
+				if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+					qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
+					qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
+					uint32_t mask = qb_get_pbj_channel_mask(cxt, reg_address);
+					qb_perform_gather(cxt, operand->address, rgba_address, mask);
+				}
 			}
 		}
 	}
@@ -1343,8 +1375,8 @@ void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 		qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
 		if(t->translate) {
 			qb_result_prototype *result_prototype = &cxt->result_prototypes[cxt->pbj_op_index];
-			qb_operand operands[4] = { { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_EMPTY, NULL } }; 
-			qb_operand result = { QB_OPERAND_EMPTY, NULL };
+			qb_operand operands[4] = { { QB_OPERAND_NONE, NULL }, { QB_OPERAND_NONE, NULL }, { QB_OPERAND_NONE, NULL }, { QB_OPERAND_NONE, NULL } }; 
+			qb_operand result = { QB_OPERAND_NONE, NULL };
 			qb_pbj_address scalar_destination;
 			uint32_t operand_count = 0;
 
@@ -1439,8 +1471,10 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 }
 
 static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
-	// allocate matrices first, since they can spill into multiple registers
 	uint32_t i;
+	qb_pbj_register *reg;
+
+	// allocate matrices first, since they can spill into multiple registers
 	for(i = 0; i < cxt->pbj_op_count; i++) {
 		qb_pbj_op *pop = &cxt->pbj_ops[i];
 		if(pop->flags & PBJ_SOURCE_IN_USE) {
@@ -1480,6 +1514,18 @@ static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
 	for(i = 1; i <= 4; i++) {
 		cxt->comparison_result.channel_count = i;
 		qb_allocate_pbj_register(cxt, &cxt->comparison_result);
+	}
+	reg = qb_get_pbj_register(cxt, &cxt->comparison_result);
+	for(i = PBJ_CHANNEL_R; i <= PBJ_CHANNEL_RGBA; i++) {
+		if(reg->channel_addresses[i]) {
+			qb_mark_as_temporary(cxt, reg->channel_addresses[i]);
+		}
+	}
+	reg = reg + 1;
+	for(i = PBJ_CHANNEL_R; i <= PBJ_CHANNEL_RGBA; i++) {
+		if(reg->channel_addresses[i]) {
+			qb_mark_as_temporary(cxt, reg->channel_addresses[i]);
+		}
 	}
 
 	// mark addresses destination addresses as writable unless it's load-constant
@@ -1581,6 +1627,32 @@ static void qb_perform_alpha_premultiplication_removal(qb_pbj_translator_context
 	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
 	qb_operand result = { QB_OPERAND_ADDRESS, dst_address };
 	qb_create_op(cxt->compiler_context, &factory_remove_premult, QB_TYPE_F32, &operand, 1, &result, NULL, 0, TRUE);
+	qb_set_jump_target(cxt);
+}
+
+static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask) {
+	qb_operand operands[3];
+	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	operands[0].address = dst_address;
+	operands[0].type = QB_OPERAND_ADDRESS;
+	operands[1].address = src_address;
+	operands[1].type = QB_OPERAND_ADDRESS;
+	operands[2].number = mask;
+	operands[2].type = QB_OPERAND_NUMBER;
+	qb_produce_op(cxt->compiler_context, &factory_gather, operands, 3, &result, NULL, 0, NULL);
+	qb_set_jump_target(cxt);
+}
+
+static void qb_perform_scatter(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask) {
+	qb_operand operands[3];
+	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	operands[0].address = dst_address;
+	operands[0].type = QB_OPERAND_ADDRESS;
+	operands[1].address = src_address;
+	operands[1].type = QB_OPERAND_ADDRESS;
+	operands[2].number = mask;
+	operands[2].type = QB_OPERAND_NUMBER;
+	qb_produce_op(cxt->compiler_context, &factory_scatter, operands, 3, &result, NULL, 0, NULL);
 	qb_set_jump_target(cxt);
 }
 

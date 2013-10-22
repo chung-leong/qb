@@ -30,7 +30,9 @@ static void qb_coerce_operands_all(qb_compiler_context *cxt, qb_op_factory *f, q
 static void qb_coerce_operands_boolean(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
-		qb_perform_boolean_coercion(cxt, &operands[i]);
+		if(operands[i].type != QB_OPERAND_ADDRESS || !STORAGE_TYPE_MATCH(operands[i].address->type, QB_TYPE_I32)) {
+			qb_perform_boolean_coercion(cxt, &operands[i]);
+		}
 	}
 }
 

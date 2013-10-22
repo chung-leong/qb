@@ -67,7 +67,7 @@ static int32_t qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t ind
 		if(TEMPORARY(condition_address) && !(condition_address->flags & QB_ADDRESS_REUSED)) {
 			qb_op *prev_qop = qb_get_previous_op(cxt, index);
 
-			if(prev_qop && prev_qop->operand_count == 3 && prev_qop->operands[2].address == condition_address) {
+			if(prev_qop && prev_qop->operand_count == 3 && (prev_qop->operands[2].address == condition_address || prev_qop->operands[2].address->source_address == condition_address)) {
 				qb_opcode new_opcode = 0;
 
 				// combine the comparison op with the branch op
