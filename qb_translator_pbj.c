@@ -83,31 +83,6 @@ static const char * qb_read_pbj_string(qb_pbj_translator_context *cxt, uint32_t 
 	return value;
 }
 
-static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_pbj_translator_context *cxt, qb_pbj_address *address) {
-	uint32_t i;
-	for(i = 0; i < cxt->parameter_count; i++) {
-		qb_pbj_parameter *parameter = &cxt->parameters[i];
-		qb_pbj_address *destination = &parameter->destination;
-		if(destination->register_id == address->register_id) {
-			if(destination->dimension > 1) {
-				return parameter;
-			} else {
-				// see if the address is pointing to a channel used by the parameter
-				uint32_t j, k;
-				for(j = 0; j < address->channel_count; j++) {
-					uint32_t channel = address->channels[j];
-					for(k = 0; k < destination->channel_count; k++) {
-						if(channel == destination->channels[k]) {
-							return parameter;
-						}
-					}
-				}
-			}
-		}
-	}
-	return NULL;
-}
-
 static qb_pbj_texture * qb_find_pbj_texture_by_id(qb_pbj_translator_context *cxt, uint32_t image_id) {
 	uint32_t i;
 	for(i = 0; i < cxt->texture_count; i++) {
@@ -195,38 +170,206 @@ static qb_pbj_texture * qb_find_pbj_texture(qb_pbj_translator_context *cxt, cons
 	return NULL;
 }
 
+static qb_pbj_channel_id qb_get_pbj_channel_id(qb_pbj_translator_context *cxt, qb_pbj_channel_id *channels, uint32_t channel_count) {
+	switch(channel_count) {
+		case 1: return channels[0];
+		case 2: {
+			if(channels[0] == PBJ_CHANNEL_R && channels[1] == PBJ_CHANNEL_G) {
+				return PBJ_CHANNEL_RG;
+			} else if(channels[0] == PBJ_CHANNEL_G && channels[1] == PBJ_CHANNEL_B) {
+				return PBJ_CHANNEL_GB;
+			} else if(channels[0] == PBJ_CHANNEL_B && channels[1] == PBJ_CHANNEL_A) {
+				return PBJ_CHANNEL_BA;
+			}
+		}	break;
+		case 3: {
+			if(channels[0] == PBJ_CHANNEL_R && channels[1] == PBJ_CHANNEL_G && channels[2] == PBJ_CHANNEL_B) {
+				return PBJ_CHANNEL_RGB;
+			} else if(channels[0] == PBJ_CHANNEL_G && channels[1] == PBJ_CHANNEL_B && channels[2] == PBJ_CHANNEL_A) {
+				return PBJ_CHANNEL_GBA;
+			}
+		}	break;
+		case 4: {
+			if(channels[0] == PBJ_CHANNEL_R && channels[1] == PBJ_CHANNEL_G && channels[2] == PBJ_CHANNEL_B && channels[3] == PBJ_CHANNEL_A) {
+				return PBJ_CHANNEL_RGBA;
+			}
+		}	break;
+	}
+	return PBJ_CHANNEL_NOT_CONTINUOUS;
+}
+
+static uint32_t qb_get_pbj_channel_count(qb_pbj_translator_context *cxt, qb_pbj_channel_id channel_id) {
+	switch(channel_id) {
+		case PBJ_CHANNEL_RG:
+		case PBJ_CHANNEL_GB:
+		case PBJ_CHANNEL_BA: return 2;
+		case PBJ_CHANNEL_RGB:
+		case PBJ_CHANNEL_GBA: return 3;
+		case PBJ_CHANNEL_RGBA: return 4;
+	}
+	return 1;
+}
+
+static qb_pbj_channel_id qb_get_first_pbj_channel(qb_pbj_translator_context *cxt, qb_pbj_channel_id channel_id) {
+	switch(channel_id) {
+		case PBJ_CHANNEL_RG:
+		case PBJ_CHANNEL_RGB:
+		case PBJ_CHANNEL_RGBA: return PBJ_CHANNEL_R;
+		case PBJ_CHANNEL_GB:
+		case PBJ_CHANNEL_GBA: return PBJ_CHANNEL_G;
+		case PBJ_CHANNEL_BA: return PBJ_CHANNEL_B;
+	}
+	return channel_id;
+}
+
+static uint32_t qb_get_pbj_channel_overlap(qb_pbj_translator_context *cxt, qb_pbj_channel_id parent_channel_id, qb_pbj_channel_id channel_id) {
+	switch(parent_channel_id) {
+		case PBJ_CHANNEL_RGBA: {
+			switch(channel_id) {
+				case PBJ_CHANNEL_R:
+				case PBJ_CHANNEL_RG:
+				case PBJ_CHANNEL_RGB: return 0;
+				case PBJ_CHANNEL_G:
+				case PBJ_CHANNEL_GB:
+				case PBJ_CHANNEL_GBA: return 1;
+				case PBJ_CHANNEL_B:
+				case PBJ_CHANNEL_BA: return 2;
+				case PBJ_CHANNEL_A: return 3;
+			}
+		}	break;
+		case PBJ_CHANNEL_GBA: {
+			switch(channel_id) {
+				case PBJ_CHANNEL_G:
+				case PBJ_CHANNEL_GB:
+				case PBJ_CHANNEL_GBA: return 0;
+				case PBJ_CHANNEL_B:
+				case PBJ_CHANNEL_BA: return 1;
+				case PBJ_CHANNEL_A: return 2;
+			}
+		}	break;
+		case PBJ_CHANNEL_RGB: {
+			switch(channel_id) {
+				case PBJ_CHANNEL_R:
+				case PBJ_CHANNEL_RG: return 0;
+				case PBJ_CHANNEL_G:
+				case PBJ_CHANNEL_GB: return 1;
+				case PBJ_CHANNEL_B: return 2;
+			}
+		}	break;
+		case PBJ_CHANNEL_BA: {
+			switch(channel_id) {
+				case PBJ_CHANNEL_B: return 0;
+				case PBJ_CHANNEL_A: return 1;
+			}
+		}	break;
+		case PBJ_CHANNEL_GB: {
+			switch(channel_id) {
+				case PBJ_CHANNEL_G: return 0;
+				case PBJ_CHANNEL_B: return 1;
+			}
+		}	break;
+		case PBJ_CHANNEL_RG: {
+			switch(channel_id) {
+				case PBJ_CHANNEL_R: return 0;
+				case PBJ_CHANNEL_G: return 1;
+			}
+		}	break;
+	}
+	return -1;
+}
+
+static uint32_t qb_get_pbj_channel_mask(qb_pbj_translator_context *cxt, qb_pbj_channel_id *channels, uint32_t channel_count) {
+	qb_pbj_channel_id first_channel = PBJ_CHANNEL_A;
+	uint32_t mask = 0;
+	uint32_t i;
+	for(i = 0; i < channel_count; i++) {
+		qb_pbj_channel_id channel = channels[i];
+		if(channel < first_channel) {
+			first_channel = channel;
+		}
+	}
+	for(i = 0; i < channel_count; i++) {
+		qb_pbj_channel_id channel = channels[i];
+		mask |= (channel - first_channel) << (i * 3);
+	}
+	return mask;
+}
+
+static qb_pbj_channel_id qb_get_pbj_channel_extent(qb_pbj_translator_context *cxt, qb_pbj_channel_id *channels, uint32_t channel_count) {
+	qb_pbj_channel_id start = PBJ_CHANNEL_A;
+	qb_pbj_channel_id end = PBJ_CHANNEL_R;
+	uint32_t i, width;
+	for(i = 0; i < channel_count; i++) {
+		qb_pbj_channel_id channel = channels[i];
+		if(channel < start) {
+			start = channel;
+		} else if(channel > end) {
+			end = channel;
+		}
+	}
+	width = start - end;
+	if(width == 2) {
+		switch(start) {
+			case PBJ_CHANNEL_R: return PBJ_CHANNEL_RG;
+			case PBJ_CHANNEL_G: return PBJ_CHANNEL_GB;
+			case PBJ_CHANNEL_B: return PBJ_CHANNEL_BA;
+		}
+	} else if(width == 3) {
+		switch(start) {
+			case PBJ_CHANNEL_R: return PBJ_CHANNEL_RGB;
+			case PBJ_CHANNEL_G: return PBJ_CHANNEL_GBA;
+		}
+	}
+	return PBJ_CHANNEL_RGBA;
+}
+
 static void qb_set_pbj_destination_channels(qb_pbj_translator_context *cxt, qb_pbj_address *address, uint32_t channel_mask, uint32_t dimension) {
 	// dimension is used only if no destination channels are selected 
 	// otherwise dimension is pertinent only to the source
 	if(channel_mask) {
-		uint32_t channel, bit;
-		address->dimension = 1;
-		address->channel_count = 0;
-		address->all_channels = 0;
+		qb_pbj_channel_id channels[4];
+		qb_pbj_channel_id channel;
+		uint32_t bit, channel_count = 0;
 		for(bit = 0x08, channel = 0; channel < 4; channel++, bit >>= 1) {
 			if(channel_mask & bit) {
-				address->channels[address->channel_count++] = channel;
+				channels[channel_count++] = channel;
 			}
+		}
+		address->dimension = 1;
+		address->channel_id = qb_get_pbj_channel_id(cxt, channels, channel_count);
+		if(address->channel_id == PBJ_CHANNEL_NOT_CONTINUOUS) {
+			address->channel_id = qb_get_pbj_channel_extent(cxt, channels, channel_count);
+			address->channel_mask = qb_get_pbj_channel_mask(cxt, channels, channel_count);
+		} else {
+			address->channel_mask = 0;
 		}
 	} else {
 		address->dimension = dimension;
-		address->channel_count = 0;
+		address->channel_mask = 0;
+		address->channel_id = PBJ_CHANNEL_MATRIX;
 	}
 }
 
 static void qb_set_pbj_source_channels(qb_pbj_translator_context *cxt, qb_pbj_address *address, uint32_t channel_swizzle, uint32_t channel_count, uint32_t dimension) {
 	if(dimension == 1) {
-		uint32_t channel, i;
-		address->dimension = 1;
-		address->channel_count = channel_count;
-		address->all_channels = 0;
+		qb_pbj_channel_id channels[4];
+		qb_pbj_channel_id channel;
+		uint32_t i;
 		for(i = 0; i < channel_count; i++) {
 			channel = (channel_swizzle >> ((3 - i) * 2)) & 0x03;
-			address->channels[i] = channel;
+			channels[i] = channel;
+		}
+		address->dimension = 1;
+		if(address->channel_id == PBJ_CHANNEL_NOT_CONTINUOUS) {
+			address->channel_id = qb_get_pbj_channel_extent(cxt, channels, channel_count);
+			address->channel_mask = qb_get_pbj_channel_mask(cxt, channels, channel_count);
+		} else {
+			address->channel_mask = 0;
 		}
 	} else {
 		address->dimension = dimension;
-		address->channel_count = 0;
+		address->channel_mask = 0;
+		address->channel_id = PBJ_CHANNEL_MATRIX;
 	}
 }
 
@@ -264,7 +407,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			qb_set_pbj_destination_channels(cxt, &pop->destination, channel_mask, dimension);
 
 			if(opcode == PBJ_LOAD_CONSTANT) {
-				pop->source.channel_count = pop->source.dimension = 0;
+				pop->source.channel_id = pop->source.channel_mask = pop->source.register_id = pop->source.dimension = 0;
 				pop->image_id = 0;
 				if(pop->destination.register_id & PBJ_REGISTER_INT) {
 					pop->constant.int_value = qb_read_pbj_I32(cxt);
@@ -474,8 +617,6 @@ static void qb_perform_branch(qb_pbj_translator_context *cxt, qb_address *condit
 static void qb_perform_jump(qb_pbj_translator_context *cxt, uint32_t jump_target_index);
 static void qb_mark_next_op_as_jump_target(qb_pbj_translator_context *cxt, uint32_t src_index);
 
-static qb_pbj_channel_id * qb_get_pbj_channel_overlap(qb_pbj_translator_context *cxt, qb_pbj_channel_id channel_id, uint32_t *p_count);
-
 static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_pbj_constant *constant = &cxt->pbj_op->constant;
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, &cxt->pbj_op->destination);
@@ -485,12 +626,12 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 	qb_pbj_op *pop = cxt->pbj_op;
 	uint32_t pop_index = cxt->pbj_op_index;
 	qb_primitive_type expr_type;
-	qb_pbj_channel_id first_channel = cxt->pbj_op->destination.channels[0];
+	qb_pbj_channel_id first_channel = cxt->pbj_op->destination.channel_id;
 	qb_pbj_channel_id channel_id;
 
 	// see if other load-constant ops follow that write into consecutive locations
 	uint32_t next_reg_id = cxt->pbj_op->destination.register_id;
-	uint32_t next_channel = cxt->pbj_op->destination.channels[0];
+	uint32_t next_channel = cxt->pbj_op->destination.channel_id;
 	uint32_t constant_count = 1, dimensions[2], dimension_count = 0;
 	while(pop_index + 1 < cxt->pbj_op_count && constant_count < 16) {
 		pop++;
@@ -503,7 +644,7 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 		}
 		if(pop->opcode != PBJ_LOAD_CONSTANT) {
 			break;
-		} else if(pop->destination.register_id != next_reg_id || pop->destination.channels[0] != next_channel) {
+		} else if(pop->destination.register_id != next_reg_id || pop->destination.channel_id != next_channel) {
 			if(constant_count != 3 || constant_count != 6) {
 				break;
 			}
@@ -592,19 +733,6 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 	}
 
 	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		if(dimension_count > 1) {
-		} else {
-			uint32_t overlapping_channel_count, i;
-			qb_pbj_channel_id *overlapping_channels = qb_get_pbj_channel_overlap(cxt, channel_id, &overlapping_channel_count);
-			for(i = 0; i < overlapping_channel_count; i++) {
-				uint32_t overlapping_channel = overlapping_channels[i];
-				slot->channels[overlapping_channel].type = QB_OPERAND_EMPTY;
-				slot->channels[overlapping_channel].generic_pointer = NULL;
-			}
-			slot->matrix.type = QB_OPERAND_EMPTY;
-			slot->matrix.generic_pointer = NULL;
-		}
-
 		result_prototype->preliminary_type = result_prototype->final_type = expr_type;
 		slot_operand->result_prototype = result_prototype;
 		slot_operand->type = QB_OPERAND_RESULT_PROTOTYPE;
@@ -701,7 +829,7 @@ static void qb_translate_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_trans
 
 static int32_t qb_match_pbj_addresses(qb_pbj_translator_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
 	return (reg1_address->register_id == reg2_address->register_id && reg1_address->dimension == reg2_address->dimension 
-		 && reg1_address->channel_count == reg2_address->channel_count && reg1_address->all_channels == reg2_address->all_channels);
+ 		 && reg1_address->channel_id == reg2_address->channel_id && reg1_address->channel_mask == reg2_address->channel_mask);
 }
 
 typedef struct qb_pbj_op_info {
@@ -926,41 +1054,6 @@ static void qb_propagate_pbj_matrix_span(qb_pbj_translator_context *cxt, qb_pbj_
 	}
 }
 
-static qb_pbj_channel_id qb_get_pbj_channel_id(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
-	uint32_t i;
-	switch(reg_address->channel_count) {
-		case 1: return reg_address->channels[0];
-		case 2: {
-			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G) {
-				return PBJ_CHANNEL_RG;
-			} else if(reg_address->channels[0] == PBJ_CHANNEL_G && reg_address->channels[1] == PBJ_CHANNEL_B) {
-				return PBJ_CHANNEL_GB;
-			} else if(reg_address->channels[0] == PBJ_CHANNEL_B && reg_address->channels[1] == PBJ_CHANNEL_A) {
-				return PBJ_CHANNEL_BA;
-			}
-		}	break;
-		case 3: {
-			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G && reg_address->channels[2] == PBJ_CHANNEL_B) {
-				return PBJ_CHANNEL_RGB;
-			} else if(reg_address->channels[0] == PBJ_CHANNEL_G && reg_address->channels[1] == PBJ_CHANNEL_B && reg_address->channels[2] == PBJ_CHANNEL_A) {
-				return PBJ_CHANNEL_GBA;
-			}
-		}	break;
-		case 4: {
-			if(reg_address->channels[0] == PBJ_CHANNEL_R && reg_address->channels[1] == PBJ_CHANNEL_G && reg_address->channels[2] == PBJ_CHANNEL_B && reg_address->channels[3] == PBJ_CHANNEL_A) {
-				return PBJ_CHANNEL_RGBA;
-			}
-		}	break;
-	}
-	for(i = 1; i < reg_address->channel_count; i++) {
-		if(reg_address->channels[i] != reg_address->channels[0]) {
-			return PBJ_CHANNEL_NOT_CONTINUOUS;
-		}
-	}
-	// the channels are all the same
-	return reg_address->channels[0];
-}
-
 static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_value *value) {
 	qb_address *address = NULL;
 	int32_t *int_values = NULL;
@@ -1125,7 +1218,7 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 						if(parameter->destination.dimension > 1) {
 							parameter_size = reg->span * 4;
 						} else {
-							parameter_size = parameter->destination.channel_count;
+							parameter_size = qb_get_pbj_channel_count(cxt, parameter->destination.channel_id);
 						}
 						if(SCALAR(qvar->address)) {
 							element_count = 1;
@@ -1163,11 +1256,7 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 			reg->matrix_address = parameter->address;
 			qb_propagate_pbj_matrix_span(cxt, reg);
 		} else {
-			qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, &parameter->destination);
-			if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
-				// should always be the case for parameters
-				reg->channel_addresses[channel_id] = parameter->address;
-			}
+			reg->channel_addresses[parameter->destination.channel_id] = parameter->address;
 		}
 	}
 }
@@ -1297,69 +1386,8 @@ static void qb_load_pbj_matrix(qb_pbj_translator_context *cxt, qb_pbj_register *
 	slot->matrix.type = QB_OPERAND_ADDRESS;
 }
 
-static qb_pbj_channel_id * qb_get_pbj_channel_overlap(qb_pbj_translator_context *cxt, qb_pbj_channel_id channel_id, uint32_t *p_count) {
-	qb_pbj_channel_id *overlapping_channels;
-	uint32_t overlapping_channel_count;
-	switch(channel_id) {
-		case PBJ_CHANNEL_R: {
-			static qb_pbj_channel_id R[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_RG, PBJ_CHANNEL_RGB, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 4;
-			overlapping_channels = R;
-		}	break;
-		case PBJ_CHANNEL_G: {
-			static qb_pbj_channel_id G[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 6;
-			overlapping_channels = G;
-		}	break;
-		case PBJ_CHANNEL_B: {
-			static qb_pbj_channel_id B[] = { PBJ_CHANNEL_B, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 6;
-			overlapping_channels = B;
-		}	break;
-		case PBJ_CHANNEL_A: {
-			static qb_pbj_channel_id A[] = { PBJ_CHANNEL_A, PBJ_CHANNEL_BA, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 4;
-			overlapping_channels = A;
-		}	break;
-		case PBJ_CHANNEL_RG: {
-			static qb_pbj_channel_id RG[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 7;
-			overlapping_channels = RG;
-		}	break;
-		case PBJ_CHANNEL_GB: {
-			static qb_pbj_channel_id GB[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 8;
-			overlapping_channels = GB;
-		}	break;
-		case PBJ_CHANNEL_BA: {
-			static qb_pbj_channel_id BA[] = { PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 7;
-			overlapping_channels = BA;
-		}	break;
-		case PBJ_CHANNEL_RGB: {
-			static qb_pbj_channel_id RGB[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 9;
-			overlapping_channels = RGB;
-		}	break;
-		case PBJ_CHANNEL_GBA: {
-			static qb_pbj_channel_id GBA[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 9;
-			overlapping_channels = GBA;
-		}	break;
-		case PBJ_CHANNEL_RGBA: {
-			static qb_pbj_channel_id RGBA[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
-			overlapping_channel_count = 10;
-			overlapping_channels = RGBA;
-		}	break;
-		default: {
-			overlapping_channel_count = 0;
-		}	break;
-	}
-	*p_count = overlapping_channel_count;
-	return overlapping_channels;
-}
-
 static void qb_load_pbj_channel(qb_pbj_translator_context *cxt, qb_pbj_register *reg, qb_pbj_channel_id channel_id, qb_pbj_register_slot *slot) {
+	/*
 	uint32_t overlapping_channel_count, i;
 	qb_pbj_channel_id *overlapping_channels = qb_get_pbj_channel_overlap(cxt, channel_id, &overlapping_channel_count);
 	
@@ -1372,130 +1400,11 @@ static void qb_load_pbj_channel(qb_pbj_translator_context *cxt, qb_pbj_register 
 	reg->loaded = TRUE;
 	slot->channels[channel_id].address = reg->channel_addresses[channel_id];
 	slot->channels[channel_id].type = QB_OPERAND_ADDRESS;
-}
-
-enum {
-	ALLOW_EMPTY		= 0x0001,
-	IGNORE_VALUE	= 0x0002,
-};
-
-uint32_t qb_get_pbj_channel_mask(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
-	uint32_t mask = 0;
-	uint32_t i;
-	for(i = 0; i < reg_address->channel_count; i++) {
-		uint32_t channel = reg_address->channels[i];
-		mask |= channel << (i * 3);
-	}
-	return mask;
+	*/
 }
 
 static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask);
 static void qb_perform_scatter(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask);
-
-void qb_retrieve_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand, uint32_t flags) {
-	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
-	qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
-	if(reg_address->dimension > 1) {
-		if(slot->matrix.type == QB_OPERAND_EMPTY) {
-			if(!(flags & ALLOW_EMPTY)) {
-				// put the register into the slot
-				qb_load_pbj_matrix(cxt, reg, slot);
-			}
-		}
-		*operand = slot->matrix;
-	} else {
-		qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, reg_address);
-		if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
-			if(slot->channels[channel_id].type == QB_OPERAND_EMPTY) {
-				if(!(flags & ALLOW_EMPTY)) {
-					qb_load_pbj_channel(cxt, reg, channel_id, slot);
-				}
-			}
-			*operand = slot->channels[channel_id];
-		} else {
-			if(!(flags & ALLOW_EMPTY)) {
-				qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
-				// TODO: load the channels
-				qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
-				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-					// put the full address in there for now
-					operand->address = rgba_address;
-					operand->type = QB_OPERAND_ADDRESS;
-				} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-					qb_variable_dimensions dim = { 1, qb_obtain_constant_U32(cxt->compiler_context, reg_address->channel_count) };
-					qb_address *gather_address = qb_obtain_temporary_variable(cxt->compiler_context, rgba_address->type, &dim);
-					uint32_t mask = qb_get_pbj_channel_mask(cxt, reg_address);
-
-					qb_perform_gather(cxt, rgba_address, gather_address, mask);
-					qb_lock_address(cxt->compiler_context, gather_address);
-					operand->address = gather_address;
-					operand->type = QB_OPERAND_ADDRESS;
-				}
-			} else {
-				operand->type = QB_OPERAND_EMPTY;
-				operand->generic_pointer = NULL;
-			}
-		}
-	}
-	if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		if(operand->result_prototype->destination) {
-			// loading a value slated to be eliminated
-			// clear the destination so the assignment occurs
-			if(!(IGNORE_VALUE)) {				
-				operand->result_prototype->destination = NULL;
-			}
-		}
-	}
-}
-
-void qb_retire_operand(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
-	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
-	qb_operand *slot_operand = NULL;
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		if(reg_address->dimension > 1) {
-			slot->matrix = *operand;
-		} else {
-			qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
-			qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, reg_address);
-			if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
-				if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-					uint32_t overlapping_channel_count, i;
-					qb_pbj_channel_id *overlapping_channels = qb_get_pbj_channel_overlap(cxt, channel_id, &overlapping_channel_count);
-
-					// clear slots for overlapping addresses, so that access through them
-					// would trigger qb_load_pbj_register(), which invalidate this result prototype
-					// basically, it's a case where a temporary variable cannot substitute for the given address
-					// because what is being modified is one part of a larger structure (e.g. one coordinate of a vector)
-					for(i = 0; i < overlapping_channel_count; i++) {
-						uint32_t overlapping_channel = overlapping_channels[i];
-						slot->channels[overlapping_channel].type = QB_OPERAND_EMPTY;
-						slot->channels[overlapping_channel].generic_pointer = NULL;
-					}
-					slot->matrix.type = QB_OPERAND_EMPTY;
-					slot->matrix.generic_pointer = NULL;
-				}
-				slot->channels[channel_id] = *operand;
-			}
-		}
-	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(reg_address->dimension > 1) {
-			slot->matrix = *operand;
-		} else {
-			qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, reg_address);
-			if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
-				qb_unlock_operand(cxt->compiler_context, &slot->channels[channel_id]);
-				slot->channels[channel_id] = *operand;
-			} else {
-				if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-					qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
-					qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
-					uint32_t mask = qb_get_pbj_channel_mask(cxt, reg_address);
-					qb_perform_gather(cxt, operand->address, rgba_address, mask);
-				}
-			}
-		}
-	}
-}
 
 static void qb_lock_temporary_variables_in_register_slots(qb_pbj_translator_context *cxt, qb_pbj_register_slot *slots, uint32_t count) {
 	uint32_t i, j;
@@ -1508,17 +1417,57 @@ static void qb_lock_temporary_variables_in_register_slots(qb_pbj_translator_cont
 	}
 }
 
-static int32_t qb_permit_empty_register_slot(qb_pbj_translator_context *cxt, qb_result_prototype *result_prototype) {
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		// permit empty slot initially, so we can figure out which assignments are redundant
-		return TRUE;
-	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// if the temporary flag wasn't clear, then the assignment is possibily redundant
-		if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
-			return TRUE;
+static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
+	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
+	qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
+	if(reg_address->dimension > 1) {
+		if(slot->matrix.type == QB_OPERAND_EMPTY) {
+			qb_load_pbj_matrix(cxt, reg, slot);
+		}
+		*operand = slot->matrix;
+	} else {
+		if(!reg_address->channel_mask) {
+			qb_operand *channel = &slot->channels[reg_address->channel_id];
+			if(channel->type == QB_OPERAND_EMPTY) {
+				qb_load_pbj_channel(cxt, reg, reg_address->channel_id, slot);
+			}
+			*operand = *channel;
+		} else {
+			qb_address *src_address = reg->channel_addresses[reg_address->channel_id];
+			if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+				// put the full address in there for now
+				operand->address = src_address;
+				operand->type = QB_OPERAND_ADDRESS;
+			} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+				uint32_t channel_length = qb_get_pbj_channel_count(cxt, reg_address->channel_id);
+				qb_variable_dimensions dim = { 1, qb_obtain_constant_U32(cxt->compiler_context, channel_length) };
+				qb_address *gather_address = qb_obtain_temporary_variable(cxt->compiler_context, src_address->type, &dim);
+
+				qb_perform_gather(cxt, src_address, gather_address, reg_address->channel_mask);
+				qb_lock_address(cxt->compiler_context, gather_address);
+				operand->address = gather_address;
+				operand->type = QB_OPERAND_ADDRESS;
+			}
 		}
 	}
-	return FALSE;
+}
+
+static void qb_retire_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
+	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
+	qb_operand *slot_operand = NULL;
+	if(reg_address->dimension > 1) {
+		slot->matrix = *operand;
+	} else {
+		qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
+		if(!reg_address->channel_mask) {
+			slot->channels[reg_address->channel_id] = *operand;
+		} else {
+			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+				qb_address *src_address = reg->channel_addresses[reg_address->channel_id];
+				qb_perform_scatter(cxt, operand->address, src_address, reg_address->channel_mask);
+			}
+		}
+	}
 }
 
 static void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
@@ -1527,8 +1476,8 @@ static void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt)
 		qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
 		if(t->translate) {
 			qb_result_prototype *result_prototype = &cxt->result_prototypes[cxt->pbj_op_index];
-			qb_operand operands[4] = { { QB_OPERAND_NONE, NULL }, { QB_OPERAND_NONE, NULL }, { QB_OPERAND_NONE, NULL }, { QB_OPERAND_NONE, NULL } }; 
-			qb_operand result = { QB_OPERAND_NONE, NULL };
+			qb_operand operands[4]; 
+			qb_operand result;
 			qb_pbj_address scalar_destination, *result_pbj_address = NULL;
 			uint32_t operand_count = 0;
 
@@ -1539,59 +1488,60 @@ static void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt)
 				image->type = QB_OPERAND_ADDRESS;
 			}
 			if(t->flags & PBJ_READ_DESTINATION_FIRST) {
-				uint32_t flags = 0;
-				if(t->extra == &factory_assign) {
-					flags = IGNORE_VALUE;
-					if(qb_permit_empty_register_slot(cxt, result_prototype)) {
-						flags |= ALLOW_EMPTY;
-					}
-				}
-				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], flags);
+				qb_fetch_pbj_register(cxt, &pop->destination, &operands[operand_count++]);
 			}
 			if(t->flags & PBJ_READ_SOURCE) {
-				qb_retrieve_operand(cxt, &pop->source, &operands[operand_count++], 0);
+				qb_fetch_pbj_register(cxt, &pop->source, &operands[operand_count++]);
 			} 
 			if(t->flags & PBJ_READ_SOURCE2) {
 				qb_pbj_op *data_pop = pop + 1;
-				qb_retrieve_operand(cxt, &data_pop->source2, &operands[operand_count++], 0);
+				qb_fetch_pbj_register(cxt, &data_pop->source2, &operands[operand_count++]);
 				if(t->flags & PBJ_READ_SOURCE3) {
-					qb_retrieve_operand(cxt, &data_pop->source3, &operands[operand_count++], 0);
+					qb_fetch_pbj_register(cxt, &data_pop->source3, &operands[operand_count++]);
 				}
 			}
 			if(t->flags & PBJ_READ_DESTINATION) {
-				qb_retrieve_operand(cxt, &pop->destination, &operands[operand_count++], 0);
+				qb_fetch_pbj_register(cxt, &pop->destination, &operands[operand_count++]);
 			}
-
 			if(t->flags & (PBJ_WRITE_DESTINATION | PBJ_WRITE_BOOLEAN)) {
-				uint32_t flags = 0;
-				if(qb_permit_empty_register_slot(cxt, result_prototype)) {
-					flags |= ALLOW_EMPTY;
-				}
 				if(t->flags & PBJ_WRITE_SCALAR) {
 					// the op writes to the first channel of the destination only (e.g. dot product)
 					scalar_destination = pop->destination;
-					scalar_destination.channel_count = 1;
+					scalar_destination.channel_id = qb_get_first_pbj_channel(cxt, pop->destination.channel_id);
 					result_pbj_address = &scalar_destination;
 				} else if(t->flags & PBJ_WRITE_BOOLEAN) {
 					// the op writes to integer register #1
-					cxt->comparison_result.channel_count = pop->source.channel_count;
+					switch(qb_get_pbj_channel_count(cxt, pop->source.channel_id)) {
+						case 1: cxt->comparison_result.channel_id = PBJ_CHANNEL_R; break;
+						case 2: cxt->comparison_result.channel_id = PBJ_CHANNEL_RG; break;
+						case 3: cxt->comparison_result.channel_id = PBJ_CHANNEL_RGB; break;
+						case 4: cxt->comparison_result.channel_id = PBJ_CHANNEL_RGBA; break;
+					}
 					result_pbj_address = &cxt->comparison_result;
 				} else {
 					result_pbj_address = &pop->destination;
 				}
-				qb_retrieve_operand(cxt, result_pbj_address, &result, flags);
 
-				/*if(result.type == QB_OPERAND_ADDRESS && CONSTANT(result.address)) {
-					result.type = QB_OPERAND_EMPTY;
+				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+					// it's always empty at this stage
 					result.generic_pointer = NULL;
-					//qb_retire_operand(cxt, result_pbj_address, &result);
-				}*/
+					result.type = QB_OPERAND_EMPTY;
+				} else {
+					if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
+						// there's no need for an actual address 
+						result.generic_pointer = NULL;
+						result.type = QB_OPERAND_EMPTY;
+					} else {
+						// an address is needed
+						qb_fetch_pbj_register(cxt, result_pbj_address, &result);
+					}
+				}
 			}
 
 			t->translate(cxt, t, operands, operand_count, &result, result_prototype);
 
 			if(result_pbj_address) {
-				qb_retire_operand(cxt, result_pbj_address, &result);
+				qb_retire_pbj_register(cxt, result_pbj_address, &result);
 			}
 
 			qb_lock_temporary_variables_in_register_slots(cxt, cxt->int_register_slots, cxt->int_register_slot_count);
@@ -1611,106 +1561,93 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 			qb_propagate_pbj_matrix_span(cxt, reg);
 		}
 	} else {
-		qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
-		qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, reg_address);
-		if(!rgba_address) {
-			uint32_t size = 4;
-			rgba_address = qb_create_writable_array(cxt->compiler_context, element_type, &size, 1);
-			reg->channel_addresses[PBJ_CHANNEL_RGBA] = rgba_address;
-		}
-		if(channel_id != PBJ_CHANNEL_NOT_CONTINUOUS) {
-			if(!reg->channel_addresses[channel_id]) {
-				qb_address *channel_address;
-				uint32_t channel = reg_address->channels[0];
-				qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, channel);
-				if(channel_id <= PBJ_CHANNEL_A) {
-					channel_address = qb_obtain_array_element(cxt->compiler_context, rgba_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
-				} else {
-					qb_address *length_address = qb_obtain_constant_U32(cxt->compiler_context, reg_address->channel_count);
-					channel_address = qb_obtain_array_slice(cxt->compiler_context, rgba_address, index_address, length_address, QB_ARRAY_BOUND_CHECK_NONE);
+		if(!reg->channel_addresses[reg_address->channel_id]) {
+			qb_address *channel_address, *src_address = NULL;
+			qb_pbj_channel_id first_channel = qb_get_first_pbj_channel(cxt, reg_address->channel_id);
+			uint32_t channel_count = qb_get_pbj_channel_count(cxt, reg_address->channel_id);
+			uint32_t i, offset;
+
+			// find a wider channel that contains this one
+			for(i = PBJ_CHANNEL_RGBA; i > (uint32_t) reg_address->channel_id; i--) {
+				if(reg->channel_addresses[i]) {
+					offset = qb_get_pbj_channel_overlap(cxt, i, reg_address->channel_id);
+					if(offset != (uint32_t) -1) {
+						src_address = reg->channel_addresses[i];
+					}
 				}
-				reg->channel_addresses[channel_id] = channel_address;
+			}
+
+			if(src_address) {
+				qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, offset);
+				if(channel_count == 1) {
+					channel_address = qb_obtain_array_element(cxt->compiler_context, src_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
+				} else {
+					qb_address *length_address = qb_obtain_constant_U32(cxt->compiler_context, channel_count);
+					channel_address = qb_obtain_array_slice(cxt->compiler_context, src_address, index_address, length_address, QB_ARRAY_BOUND_CHECK_NONE);
+				}
+			} else {
+				qb_primitive_type type = (reg_address->register_id & PBJ_REGISTER_INT) ? QB_TYPE_S32 : QB_TYPE_F32;
+				if(channel_count == 1) {
+					channel_address = qb_create_writable_scalar(cxt->compiler_context, type);
+				} else {
+					channel_address = qb_create_writable_array(cxt->compiler_context, type, &channel_count, 1);
+				}
+			}
+			reg->channel_addresses[reg_address->channel_id] = channel_address;
+		}
+	}
+}
+
+static void qb_allocate_pbj_registers_in_range(qb_pbj_translator_context *cxt, qb_pbj_channel_id first, qb_pbj_channel_id last) {
+	uint32_t i;
+	for(i = 0; i < cxt->pbj_op_count; i++) {
+		qb_pbj_op *pop = &cxt->pbj_ops[i];
+		if(pop->flags & PBJ_SOURCE_IN_USE) {
+			if(first <= pop->source.channel_id && pop->source.channel_id <= last) {
+				qb_allocate_pbj_register(cxt, &pop->source);
+			}
+		}
+		if(pop->flags & PBJ_DESTINATION_IN_USE) {
+			if(first <= pop->destination.channel_id && pop->destination.channel_id <= last) {
+				qb_allocate_pbj_register(cxt, &pop->destination);
 			}
 		}
 	}
 }
 
 static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
-	uint32_t i;
 	qb_pbj_register *reg;
 
 	// allocate matrices first, since they can spill into multiple registers
-	for(i = 0; i < cxt->pbj_op_count; i++) {
-		qb_pbj_op *pop = &cxt->pbj_ops[i];
-		if(pop->flags & PBJ_SOURCE_IN_USE) {
-			if(pop->source.dimension > 1) {
-				qb_allocate_pbj_register(cxt, &pop->source);
-			}
-		}
-		if(pop->flags & PBJ_DESTINATION_IN_USE) {
-			if(pop->destination.dimension > 1) {
-				qb_allocate_pbj_register(cxt, &pop->destination);
-			}
-		}
-	}
+	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_MATRIX, PBJ_CHANNEL_MATRIX);
 
-	// allocate vectors and scalars
-	for(i = 0; i < cxt->pbj_op_count; i++) {
-		qb_pbj_op *pop = &cxt->pbj_ops[i];
-		if(pop->flags & PBJ_SOURCE_IN_USE) {
-			if(pop->source.dimension == 1) {
-				qb_allocate_pbj_register(cxt, &pop->source);
-			}
-		}
-		if(pop->flags & PBJ_DESTINATION_IN_USE) {
-			if(pop->destination.dimension == 1) {
-				qb_allocate_pbj_register(cxt, &pop->destination);
-			}
-		}
-	}
+	// allocate vectors, starting from the largest
+	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_RGBA, PBJ_CHANNEL_RGBA);
+	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA);
+	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_RG, PBJ_CHANNEL_BA);
+
+	// allocate scalars
+	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_R, PBJ_CHANNEL_A);
 
 	// allocate return register used by comparison operators
 	cxt->comparison_result.dimension = 1;
-	cxt->comparison_result.channels[0] = 0;
-	cxt->comparison_result.channels[1] = 1;
-	cxt->comparison_result.channels[2] = 2;
-	cxt->comparison_result.channels[3] = 3;
 	cxt->comparison_result.register_id = 0 | PBJ_REGISTER_INT;
-	for(i = 1; i <= 4; i++) {
-		cxt->comparison_result.channel_count = i;
-		qb_allocate_pbj_register(cxt, &cxt->comparison_result);
-	}
-	reg = qb_get_pbj_register(cxt, &cxt->comparison_result);
-	for(i = PBJ_CHANNEL_R; i <= PBJ_CHANNEL_RGBA; i++) {
-		if(reg->channel_addresses[i]) {
-			qb_mark_as_temporary(cxt->compiler_context, reg->channel_addresses[i]);
-		}
-	}
-	reg = reg + 1;
-	for(i = PBJ_CHANNEL_R; i <= PBJ_CHANNEL_RGBA; i++) {
-		if(reg->channel_addresses[i]) {
-			qb_mark_as_temporary(cxt->compiler_context, reg->channel_addresses[i]);
-		}
-	}
+	cxt->comparison_result.channel_id = PBJ_CHANNEL_RGBA;
+	qb_allocate_pbj_register(cxt, &cxt->comparison_result);
+	cxt->comparison_result.channel_id = PBJ_CHANNEL_RGB;
+	qb_allocate_pbj_register(cxt, &cxt->comparison_result);
+	cxt->comparison_result.channel_id = PBJ_CHANNEL_RG;
+	qb_allocate_pbj_register(cxt, &cxt->comparison_result);
+	cxt->comparison_result.channel_id = PBJ_CHANNEL_R;
+	qb_allocate_pbj_register(cxt, &cxt->comparison_result);
 
-	// mark addresses destination addresses as writable unless it's load-constant
-	for(i = 0; i < cxt->pbj_op_count; i++) {
-		qb_pbj_op *pop = &cxt->pbj_ops[i];
-		if(pop->opcode != PBJ_LOAD_CONSTANT && pop->opcode != PBJ_NOP && pop->opcode != PBJ_OP_DATA) {
-			qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
-			if(t->flags & PBJ_WRITE_DESTINATION) {
-				qb_pbj_register *reg = qb_get_pbj_register(cxt, &pop->destination);
-				qb_address *dst_address;
-				if(pop->destination.dimension > 1) {
-					dst_address = reg->matrix_address;
-				} else {
-					qb_pbj_channel_id channel_id = qb_get_pbj_channel_id(cxt, &pop->destination);
-					dst_address = reg->channel_addresses[channel_id];
-				}
-				qb_mark_as_writable(cxt->compiler_context, dst_address);
-			}
-		}
-	}
+	// mark the address as temporary so it fuses with other ops
+	reg = qb_get_pbj_register(cxt, &cxt->comparison_result);
+	qb_mark_as_temporary(cxt->compiler_context, reg->channel_addresses[PBJ_CHANNEL_R]);
+
+	// do that for the next register too
+	reg = reg + 1;
+	qb_mark_as_temporary(cxt->compiler_context, reg->channel_addresses[PBJ_CHANNEL_R]);
 }
 
 void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
@@ -1931,7 +1868,7 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	qb_mark_next_op_as_jump_target(cxt, cxt->pbj_op_offset + cxt->pbj_op_count);
 
 	// copy the output pixel into the image
-	qb_retrieve_operand(cxt, &cxt->out_pixel->destination, &operand, 0);
+	qb_fetch_pbj_register(cxt, &cxt->out_pixel->destination, &operand);
 	qb_perform_assignment(cxt, cxt->output_image_pixel_address, operand.address);
 
 	// increment _OutCoord.x

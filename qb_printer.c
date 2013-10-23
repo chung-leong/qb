@@ -265,15 +265,8 @@ static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_printer_context *c
 			if(destination->dimension > 1) {
 				return parameter;
 			} else {
-				// see if the address is pointing to a channel used by the parameter
-				uint32_t j, k;
-				for(j = 0; j < address->channel_count; j++) {
-					uint32_t channel = address->channels[j];
-					for(k = 0; k < destination->channel_count; k++) {
-						if(channel == destination->channels[k]) {
-							return parameter;
-						}
-					}
+				if((destination->channel_id == address->channel_id) && (destination->channel_mask == address->channel_mask)) {
+					return parameter;
 				}
 			}
 		}
@@ -297,7 +290,7 @@ static void qb_print_pbj_address(qb_printer_context *cxt, qb_pbj_address *addres
 	if(address->dimension) {
 		qb_pbj_parameter *parameter = qb_find_pbj_parameter_by_address(cxt, address);
 		if(parameter) {
-			if(parameter->destination.channel_count == 1) {
+			if(parameter->destination.channel_id <= PBJ_CHANNEL_A) {
 				// don't show channels when it's a scalar
 				php_printf("%s ", parameter->name);
 				return;
@@ -312,14 +305,18 @@ static void qb_print_pbj_address(qb_printer_context *cxt, qb_pbj_address *addres
 			}
 		}
 		if(address->dimension == 1) {
-			static const char *rgba[] = { "r", "g", "b", "a" };
-			uint32_t i;
-			for(i = 0; i < address->channel_count; i++) {
-				php_printf("%s", rgba[address->channels[i]]);
+			static const char *channels[] = { "r", "g", "b", "a", "rg", "gb", "ba", "rgb", "gba", "rgba" };
+			if(!address->channel_mask) {
+				php_printf("%s", channels[address->channel_id]);
+			} else {
+				uint32_t count = strlen(channels[address->channel_id]), i;
+				for(i = 0; i < count; i++) {
+					php_printf("%s", channels[address->channel_mask >> (i * 3)]);
+				}
 			}
 		} else {
-			static const char *matrix[] = { "m2x2", "m3x3", "m4x4" };
-			php_printf("%s", matrix[address->dimension - 2]);
+			static const char *matrix[] = { "", "", "m2x2", "m3x3", "m4x4" };
+			php_printf("%s", matrix[address->dimension]);
 		}
 		php_printf(" ");
 	}

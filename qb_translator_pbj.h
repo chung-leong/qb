@@ -41,12 +41,9 @@ typedef void (*qb_pbj_translator_proc)(qb_pbj_translator_context *cxt, qb_pbj_tr
 
 struct qb_pbj_address {
 	uint32_t dimension;
-	uint32_t channel_count;
-	union {
-		uint8_t	channels[4];
-		uint32_t all_channels;
-	};
 	uint32_t register_id;
+	uint32_t channel_mask;
+	qb_pbj_channel_id channel_id;
 };
 
 struct qb_pbj_constant {
@@ -70,7 +67,8 @@ enum qb_pbj_channel_id {
 	PBJ_CHANNEL_RGB,
 	PBJ_CHANNEL_GBA,
 	PBJ_CHANNEL_RGBA,
-	PBJ_CHANNEL_NOT_CONTINUOUS
+	PBJ_CHANNEL_MATRIX,
+	PBJ_CHANNEL_NOT_CONTINUOUS = -1,
 };
 
 struct qb_pbj_register {
