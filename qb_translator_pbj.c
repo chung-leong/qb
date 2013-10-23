@@ -360,6 +360,7 @@ static void qb_set_pbj_source_channels(qb_pbj_translator_context *cxt, qb_pbj_ad
 			channels[i] = channel;
 		}
 		address->dimension = 1;
+		address->channel_id = qb_get_pbj_channel_id(cxt, channels, channel_count);
 		if(address->channel_id == PBJ_CHANNEL_NOT_CONTINUOUS) {
 			address->channel_id = qb_get_pbj_channel_extent(cxt, channels, channel_count);
 			address->channel_mask = qb_get_pbj_channel_mask(cxt, channels, channel_count);
@@ -1362,45 +1363,105 @@ static void qb_discard_unused_register(qb_pbj_translator_context *cxt, qb_pbj_re
 
 static void qb_invalidate_result_prototype(qb_pbj_translator_context *cxt, qb_operand *operand) {
 	if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-		operand->result_prototype->destination = NULL;
-
 		// clear the temporary flag to indicate that the given address should be used
 		operand->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-		operand->type = QB_OPERAND_EMPTY;
-		operand->generic_pointer = NULL;
 	}
 }
 
 static void qb_load_pbj_matrix(qb_pbj_translator_context *cxt, qb_pbj_register *reg, qb_pbj_register_slot *slot) {
 	uint32_t i, j;
 
-	// invalidate all temporaries in the slot
+	// invalidate all temporaries in the slot and put in the allocated address
 	for(i = 0; i < reg->span; i++) {
 		for(j = 0; j <= PBJ_CHANNEL_RGBA; j++) {
-			qb_invalidate_result_prototype(cxt, &slot[i].channels[j]);
+			if(reg->channel_addresses[j]) {
+				qb_operand *channel = &slot[i].channels[j];
+				qb_invalidate_result_prototype(cxt, channel);
+				channel->address = reg->channel_addresses[j];
+				channel->type = QB_OPERAND_ADDRESS;
+			}
 		}
 	}
 
-	reg->loaded = TRUE;
+	qb_invalidate_result_prototype(cxt, &slot->matrix);
 	slot->matrix.address = reg->matrix_address;
 	slot->matrix.type = QB_OPERAND_ADDRESS;
+	reg->loaded = TRUE;
 }
 
 static void qb_load_pbj_channel(qb_pbj_translator_context *cxt, qb_pbj_register *reg, qb_pbj_channel_id channel_id, qb_pbj_register_slot *slot) {
-	/*
 	uint32_t overlapping_channel_count, i;
-	qb_pbj_channel_id *overlapping_channels = qb_get_pbj_channel_overlap(cxt, channel_id, &overlapping_channel_count);
+	qb_pbj_channel_id *overlapping_channels;
+
+	switch(channel_id) {
+		case PBJ_CHANNEL_R: {
+			static qb_pbj_channel_id R[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_RG, PBJ_CHANNEL_RGB, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 4;
+			overlapping_channels = R;
+		}	break;
+		case PBJ_CHANNEL_G: {
+			static qb_pbj_channel_id G[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 6;
+			overlapping_channels = G;
+		}	break;
+		case PBJ_CHANNEL_B: {
+			static qb_pbj_channel_id B[] = { PBJ_CHANNEL_B, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 6;
+			overlapping_channels = B;
+		}	break;
+		case PBJ_CHANNEL_A: {
+			static qb_pbj_channel_id A[] = { PBJ_CHANNEL_A, PBJ_CHANNEL_BA, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 4;
+			overlapping_channels = A;
+		}	break;
+		case PBJ_CHANNEL_RG: {
+			static qb_pbj_channel_id RG[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 7;
+			overlapping_channels = RG;
+		}	break;
+		case PBJ_CHANNEL_GB: {
+			static qb_pbj_channel_id GB[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 8;
+			overlapping_channels = GB;
+		}	break;
+		case PBJ_CHANNEL_BA: {
+			static qb_pbj_channel_id BA[] = { PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 7;
+			overlapping_channels = BA;
+		}	break;
+		case PBJ_CHANNEL_RGB: {
+			static qb_pbj_channel_id RGB[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 9;
+			overlapping_channels = RGB;
+		}	break;
+		case PBJ_CHANNEL_GBA: {
+			static qb_pbj_channel_id GBA[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 9;
+			overlapping_channels = GBA;
+		}	break;
+		case PBJ_CHANNEL_RGBA: {
+			static qb_pbj_channel_id RGBA[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			overlapping_channel_count = 10;
+			overlapping_channels = RGBA;
+		}	break;
+		default: {
+			overlapping_channel_count = 0;
+		}	break;
+	}
 	
 	for(i = 0; i < overlapping_channel_count; i++) {
-		qb_pbj_channel_id overlapping_channel = overlapping_channels[i];
-		qb_invalidate_result_prototype(cxt, &slot->channels[overlapping_channel]);
+		qb_pbj_channel_id id = overlapping_channels[i];
+		if(reg->channel_addresses[id]) {
+			qb_operand *channel = &slot->channels[id];
+			qb_invalidate_result_prototype(cxt, channel);
+			channel->address = reg->channel_addresses[id];
+			channel->type = QB_OPERAND_ADDRESS;
+		}
 	}
-	qb_invalidate_result_prototype(cxt, &slot->matrix);
 
-	reg->loaded = TRUE;
 	slot->channels[channel_id].address = reg->channel_addresses[channel_id];
 	slot->channels[channel_id].type = QB_OPERAND_ADDRESS;
-	*/
+	reg->loaded = TRUE;
 }
 
 static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask);
@@ -1647,7 +1708,9 @@ static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
 
 	// do that for the next register too
 	reg = reg + 1;
-	qb_mark_as_temporary(cxt->compiler_context, reg->channel_addresses[PBJ_CHANNEL_R]);
+	if(reg->channel_addresses[PBJ_CHANNEL_R]) {
+		qb_mark_as_temporary(cxt->compiler_context, reg->channel_addresses[PBJ_CHANNEL_R]);
+	}
 }
 
 void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
