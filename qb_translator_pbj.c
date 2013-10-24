@@ -1189,6 +1189,9 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 			}	break;
 		}
 	}
+	if(new_reg_address.channel_id <= PBJ_CHANNEL_A) {
+		constant_count = 1;
+	}
 
 	switch(constant->type) {
 		case PBJ_TYPE_INT: expr_type = QB_TYPE_S32; break;
@@ -1271,9 +1274,9 @@ static void qb_translate_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_trans
 #define PBJ_RI_RS_WD		(PBJ_READ_IMAGE | PBJ_READ_SOURCE | PBJ_WRITE_DESTINATION)
 #define PBJ_RS_WD			(PBJ_READ_SOURCE | PBJ_WRITE_DESTINATION)
 #define PBJ_RS_RD1_WD		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION_FIRST | PBJ_WRITE_DESTINATION)
-#define PBJ_RS_RD1_WDS		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION | PBJ_WRITE_SCALAR)
+#define PBJ_RS_RD1_WDS		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION_FIRST | PBJ_WRITE_DESTINATION | PBJ_WRITE_SCALAR)
 #define PBJ_RS_RD2_WD		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_DESTINATION)
-#define PBJ_RS_RD1_WB		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION | PBJ_WRITE_BOOLEAN)
+#define PBJ_RS_RD1_WB		(PBJ_READ_SOURCE | PBJ_READ_DESTINATION_FIRST | PBJ_WRITE_BOOLEAN)
 #define PBJ_RS_RS2_RS3_WD	(PBJ_READ_SOURCE | PBJ_READ_SOURCE2 | PBJ_READ_SOURCE3 | PBJ_WRITE_DESTINATION)
 #define PBJ_RS_RD1_WD_WS	(PBJ_READ_SOURCE | PBJ_READ_DESTINATION_FIRST | PBJ_WRITE_DESTINATION | PBJ_WRITE_SOURCE)
 
@@ -1720,6 +1723,7 @@ static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
 
 void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	uint32_t i;
+	qb_operand operand;
 
 	// look for for sequences of ops representing smoothstep()
 	qb_substitute_ops(cxt);
@@ -1738,7 +1742,7 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 		qb_clear_pbj_register_slot(cxt, &cxt->float_register_slots[i]);
 	}
 
-	qb_enlarge_array((void **) &cxt->result_prototypes, cxt->pbj_op_count);
+	qb_enlarge_array((void **) &cxt->result_prototypes, cxt->pbj_op_count + 1);
 	for(i = 0; i < cxt->result_prototype_count; i++) {
 		qb_result_prototype *prototype = &cxt->result_prototypes[i];
 		prototype->preliminary_type = prototype->final_type = QB_TYPE_UNKNOWN;
@@ -1754,6 +1758,9 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_translate_current_pbj_instruction(cxt);
 	}
+
+	// ensure the output is correctly written to 
+	qb_fetch_pbj_register(cxt, &cxt->out_pixel->destination, &operand);
 
 	for(i = 0; i < cxt->int_register_slot_count; i++) {
 		qb_discard_unused_register(cxt, &cxt->int_registers[i]);
