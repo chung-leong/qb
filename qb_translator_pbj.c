@@ -1405,9 +1405,9 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 							if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
 								// clear the temporary flag to indicate that the actual address should be used
 								channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
+								channel->address = reg->channel_addresses[j];
+								channel->type = QB_OPERAND_ADDRESS;
 							}
-							channel->address = reg->channel_addresses[j];
-							channel->type = QB_OPERAND_ADDRESS;
 						}
 					}
 				}
@@ -1429,9 +1429,9 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 						qb_operand *channel = &slot->channels[id];
 						if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
 							channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
+							channel->address = reg->channel_addresses[id];
+							channel->type = QB_OPERAND_ADDRESS;
 						}
-						channel->address = reg->channel_addresses[id];
-						channel->type = QB_OPERAND_ADDRESS;
 					}
 				}
 			}
@@ -1541,15 +1541,19 @@ static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_add
 static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
 	qb_operand *slot_operand = NULL;
-	if(reg_address->dimension > 1) {
-		slot->matrix = *operand;
+	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION && operand->type == QB_OPERAND_ADDRESS) {
+		qb_clear_pbj_register_slot(cxt, slot);
 	} else {
-		qb_operand *channel = &slot->channels[reg_address->channel_id];
-		if(reg_address->channel_mask == (uint32_t) -1) {
-			 *channel = *operand;
+		if(reg_address->dimension > 1) {
+			slot->matrix = *operand;
 		} else {
-			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {				
-				qb_perform_scatter(cxt, operand->address, channel->address, reg_address->channel_mask);
+			qb_operand *channel = &slot->channels[reg_address->channel_id];
+			if(reg_address->channel_mask == (uint32_t) -1) {
+				 *channel = *operand;
+			} else {
+				if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {				
+					qb_perform_scatter(cxt, operand->address, channel->address, reg_address->channel_mask);
+				}
 			}
 		}
 	}
