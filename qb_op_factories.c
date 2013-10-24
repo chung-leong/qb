@@ -48,7 +48,7 @@ qb_op_factory factory_nop = {
 
 qb_copy_op_factory factory_assign = {
 	NULL,
-	qb_resolve_expression_type_first_operand,
+	qb_resolve_expression_type_assign,
 	qb_link_results_variable,
 	qb_coerce_operands_assign,
 	qb_set_result_prototype,
