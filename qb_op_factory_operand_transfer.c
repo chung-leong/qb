@@ -294,7 +294,7 @@ static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *
 
 static void qb_transfer_operands_reciprocal(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0];
-	dest[0].address = qb_obtain_constant(cxt, 0, value->address->type);
+	dest[0].address = qb_obtain_constant(cxt, 1, value->address->type);
 	dest[0].type = QB_OPERAND_ADDRESS;
 	dest[1] = *value;
 	dest[2] = *result;

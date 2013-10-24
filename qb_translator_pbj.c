@@ -1397,10 +1397,10 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 							qb_operand *channel = &slot[i].channels[j];
 							if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
 								// clear the temporary flag to indicate that the actual address should be used
-								//operand->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-								channel->address = reg->channel_addresses[j];
-								channel->type = QB_OPERAND_ADDRESS;
+								channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
 							}
+							channel->address = reg->channel_addresses[j];
+							channel->type = QB_OPERAND_ADDRESS;
 						}
 					}
 				}
@@ -1422,9 +1422,9 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 						qb_operand *channel = &slot->channels[id];
 						if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
 							channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-							channel->address = reg->channel_addresses[id];
-							channel->type = QB_OPERAND_ADDRESS;
 						}
+						channel->address = reg->channel_addresses[id];
+						channel->type = QB_OPERAND_ADDRESS;
 					}
 				}
 			}
@@ -1459,39 +1459,48 @@ static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_add
 		qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
 		qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
 
-		// see if there're temporary variables sitting in other channels in the same register slot
 		if(reg_address->dimension > 1) {
-			uint32_t i, j;
-			for(i = 0; i < reg->span; i++) {
-				for(j = 0; j <= PBJ_CHANNEL_RGBA; j++) {
-					if(reg->channel_addresses[j]) {
-						qb_operand *channel = &slot[i].channels[j];
-						if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
-							channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-							channel->address = reg->channel_addresses[j];
-							channel->type = QB_OPERAND_ADDRESS;
-							use_actual_address = TRUE;
-						} else if(channel->type == QB_OPERAND_ADDRESS) {
-							use_actual_address = TRUE;
+			if(slot->matrix.address == reg->matrix_address) {
+				// the address is loaded, use it
+				use_actual_address = TRUE;
+			} else {
+				uint32_t i, j;
+				// see if there're temporary variables sitting in other channels in the same register slot
+				for(i = 0; i < reg->span; i++) {
+					for(j = 0; j <= PBJ_CHANNEL_RGBA; j++) {
+						if(reg->channel_addresses[j]) {
+							qb_operand *channel = &slot[i].channels[j];
+							if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
+								channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
+								channel->address = reg->channel_addresses[j];
+								channel->type = QB_OPERAND_ADDRESS;
+								use_actual_address = TRUE;
+							} else if(channel->type == QB_OPERAND_ADDRESS) {
+								use_actual_address = TRUE;
+							}
 						}
 					}
 				}
 			}
 		} else {
-			uint32_t overlapping_channel_count;
-			qb_pbj_channel_id *overlapping_channels = qb_get_overlapping_pbj_channels(cxt, reg_address->channel_id, &overlapping_channel_count);
-			uint32_t i;
-			for(i = 0; i < overlapping_channel_count; i++) {
-				qb_pbj_channel_id id = overlapping_channels[i];
-				qb_operand *channel = &slot->channels[id];
-				if(reg->channel_addresses[id]) {
-					if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
-						channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-						channel->address = reg->channel_addresses[id];
-						channel->type = QB_OPERAND_ADDRESS;
-						use_actual_address = TRUE;
-					} else if(channel->type == QB_OPERAND_ADDRESS) {
-						use_actual_address = TRUE;
+			if(slot->channels[reg_address->channel_id].address == reg->channel_addresses[reg_address->channel_id]) {
+				use_actual_address = TRUE;
+			} else {
+				uint32_t overlapping_channel_count;
+				qb_pbj_channel_id *overlapping_channels = qb_get_overlapping_pbj_channels(cxt, reg_address->channel_id, &overlapping_channel_count);
+				uint32_t i;
+				for(i = 0; i < overlapping_channel_count; i++) {
+					qb_pbj_channel_id id = overlapping_channels[i];
+					qb_operand *channel = &slot->channels[id];
+					if(reg->channel_addresses[id]) {
+						if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
+							channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
+							channel->address = reg->channel_addresses[id];
+							channel->type = QB_OPERAND_ADDRESS;
+							use_actual_address = TRUE;
+						} else if(channel->type == QB_OPERAND_ADDRESS) {
+							use_actual_address = TRUE;
+						}
 					}
 				}
 			}
@@ -1505,6 +1514,16 @@ static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_add
 	// if other addresses overlaps the target, then use its actual address
 	// leave it empty otherwise
 	if(use_actual_address) {
+		qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
+		qb_operand *target;
+		if(reg_address->dimension > 1) {
+			target = &slot->matrix;
+		} else {
+			target = &slot->channels[reg_address->channel_id];
+		}
+		qb_unlock_operand(cxt, target);
+		target->type = QB_OPERAND_EMPTY;
+
 		qb_fetch_pbj_register(cxt, reg_address, result);
 	} else {
 		result->generic_pointer = NULL;
@@ -1897,6 +1916,7 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		uint32_t current_op_count = cxt->compiler_context->op_count;
 
+		cxt->compiler_context->line_number = cxt->pbj_op_index;
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_translate_current_pbj_instruction(cxt);
 
