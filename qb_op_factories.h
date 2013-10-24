@@ -226,6 +226,7 @@ extern qb_derived_op_factory factory_assign_object_property;
 extern qb_derived_op_factory factory_assign_branching;
 
 extern qb_op_factory factory_assign_ref;
+extern qb_op_decomposer factory_select;
 
 extern qb_op_factory factory_fetch_array_size;
 

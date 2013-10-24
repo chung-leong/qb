@@ -609,225 +609,6 @@ static qb_pbj_register * qb_get_pbj_register(qb_pbj_translator_context *cxt, qb_
 	}
 }
 
-static void qb_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, NULL, 0, result_prototype);
-}
-
-static void qb_perform_assignment(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address);
-static void qb_perform_branch(qb_pbj_translator_context *cxt, qb_address *condition_address, uint32_t jump_target_index);
-static void qb_perform_jump(qb_pbj_translator_context *cxt, uint32_t jump_target_index);
-static void qb_mark_next_op_as_jump_target(qb_pbj_translator_context *cxt, uint32_t src_index);
-
-static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_pbj_constant *constant = &cxt->pbj_op->constant;
-	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, &cxt->pbj_op->destination);
-	qb_pbj_register *reg = qb_get_pbj_register(cxt, &cxt->pbj_op->destination);
-	qb_address *target_address = NULL, *constant_address;
-	qb_operand *slot_operand = NULL;
-	qb_pbj_op *pop = cxt->pbj_op;
-	uint32_t pop_index = cxt->pbj_op_index;
-	qb_primitive_type expr_type;
-	qb_pbj_channel_id first_channel = cxt->pbj_op->destination.channel_id;
-	qb_pbj_channel_id channel_id;
-
-	// see if other load-constant ops follow that write into consecutive locations
-	uint32_t next_reg_id = cxt->pbj_op->destination.register_id;
-	uint32_t next_channel = cxt->pbj_op->destination.channel_id;
-	uint32_t constant_count = 1, dimensions[2], dimension_count = 0;
-	while(pop_index + 1 < cxt->pbj_op_count && constant_count < 16) {
-		pop++;
-		pop_index++;
-		if(next_channel < 3) {
-			next_channel++;
-		} else {
-			next_channel = 0;
-			next_reg_id++;
-		}
-		if(pop->opcode != PBJ_LOAD_CONSTANT) {
-			break;
-		} else if(pop->destination.register_id != next_reg_id || pop->destination.channel_id != next_channel) {
-			if(constant_count != 3 || constant_count != 6) {
-				break;
-			}
-		} else {
-			constant_count++;
-		}
-	}
-
-	if(constant_count > 1) {
-		// see when the constant may fit
-		switch(first_channel) {
-			case 0: {
-				if(reg->matrix_address && ((constant_count >= ARRAY_SIZE(reg->matrix_address)) || (constant_count >= 9 && ARRAY_SIZE(reg->matrix_address) == 12))) {
-					target_address = reg->matrix_address;
-					slot_operand = &slot->matrix;
-					switch(ARRAY_SIZE(reg->matrix_address)) {
-						case 16: {
-							dimensions[0] = 4; 
-							dimensions[1] = 4; 
-							constant_count = 16;
-						}	break;
-						case 12: {
-							dimensions[0] = 3; 
-							dimensions[1] = 4; 
-							constant_count = 9;
-						}	break;
-						case 4: {
-							dimensions[0] = 2; 
-							dimensions[1] = 2; 
-							constant_count = 4;
-						}	break;
-						default: break;
-					}
-					dimension_count = 2;
-				} else if(reg->channel_addresses[PBJ_CHANNEL_RGBA] && constant_count >= 4) {
-					channel_id = PBJ_CHANNEL_RGBA;
-					constant_count = dimensions[0] = 4;
-					dimension_count = 1;
-				} else if(reg->channel_addresses[PBJ_CHANNEL_RGB] && constant_count >= 3) {
-					channel_id = PBJ_CHANNEL_RGB;
-					constant_count = dimensions[0] = 3;
-					dimension_count = 1;
-				} else if(reg->channel_addresses[PBJ_CHANNEL_RG] && constant_count >= 2) {
-					channel_id = PBJ_CHANNEL_RG;
-					constant_count = dimensions[0] = 2;
-					dimension_count = 1;
-				}
-			}	break;
-			case 1: {
-				if(reg->channel_addresses[PBJ_CHANNEL_GBA] && constant_count >= 3) {
-					channel_id = PBJ_CHANNEL_GBA;
-					constant_count = dimensions[0] = 3;
-					dimension_count = 1;
-				} else if(reg->channel_addresses[PBJ_CHANNEL_GB] && constant_count >= 2) {
-					channel_id = PBJ_CHANNEL_GB;
-					constant_count = dimensions[0] = 2;
-					dimension_count = 1;
-				}
-			}	break;
-			case 2: {
-				 if(reg->channel_addresses[PBJ_CHANNEL_BA] && constant_count >= 2) {
-					channel_id = PBJ_CHANNEL_BA;
-					constant_count = dimensions[0] = 2;
-					dimension_count = 1;
-				}
-			}	break;
-		}
-	}
-	if(dimension_count > 1) {
-		target_address = reg->matrix_address;
-		slot_operand = &slot->matrix;
-	} else if(dimension_count == 1) {
-		target_address = reg->channel_addresses[channel_id];
-		slot_operand = &slot->channels[channel_id];
-	} else {
-		target_address = reg->channel_addresses[first_channel];
-		slot_operand = &slot->channels[first_channel];
-		constant_count = 1;
-		channel_id = first_channel;
-	}
-
-	switch(constant->type) {
-		case PBJ_TYPE_INT: expr_type = QB_TYPE_S32; break;
-		case PBJ_TYPE_FLOAT: expr_type = QB_TYPE_F32; break;
-		default: break;
-	}
-
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		result_prototype->preliminary_type = result_prototype->final_type = expr_type;
-		slot_operand->result_prototype = result_prototype;
-		slot_operand->type = QB_OPERAND_RESULT_PROTOTYPE;
-		result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
-	} else {
-		if(constant_count == 1) {
-			switch(expr_type) {
-				case QB_TYPE_S32: constant_address = qb_obtain_constant_S32(cxt->compiler_context, constant->int_value); break;
-				case QB_TYPE_F32: constant_address = qb_obtain_constant_F32(cxt->compiler_context, constant->float_value); break;
-				default: break;
-			}
-		} else {
-			qb_pbj_op *pop = cxt->pbj_op;
-			uint32_t i, j;
-			constant_address = qb_create_constant_array(cxt->compiler_context, expr_type, dimensions, dimension_count);
-			for(i = 0, j = 0; i < constant_count; i++, j++) {
-				if(constant_count == 9 && (i == 3 || i == 6)) {
-					// padding for 3x3 matrices
-					j++;
-				}
-				switch(expr_type) {
-					case QB_TYPE_S32: ARRAY(S32, constant_address)[j] = pop->constant.int_value; break;
-					case QB_TYPE_F32: ARRAY(F32, constant_address)[j] = pop->constant.float_value; break;
-				}
-				pop++;
-			}
-		}
-		if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
-			// save it into the slot
-			qb_unlock_operand(cxt->compiler_context, slot_operand);
-			slot_operand->address = constant_address;
-			slot_operand->type = QB_OPERAND_ADDRESS;
-		} else {
-			// need to do a copy 
-			qb_perform_assignment(cxt, target_address, constant_address);
-		}
-	}
-	// jump over additional ops that are processed
-	cxt->pbj_op_index += (constant_count - 1);
-}
-
-static void qb_translate_pbj_select(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *condition = &operands[0], *true_value = &operands[1], *false_value = &operands[2];
-
-	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		qb_primitive_type expr_type = qb_get_operand_type(cxt->compiler_context, true_value, 0);
-		result_prototype->preliminary_type = result_prototype->final_type = expr_type;
-		if(result->type != QB_OPERAND_ADDRESS) {
-			result->result_prototype = result_prototype;
-			result->type = QB_OPERAND_RESULT_PROTOTYPE;
-			result_prototype->address_flags = QB_ADDRESS_TEMPORARY;
-		}
-	} else {
-		if(result->type != QB_OPERAND_ADDRESS) {
-			qb_variable_dimensions dim = { SCALAR(true_value->address) ? 0 : 1, true_value->address->array_size_address };
-			result->address = qb_obtain_write_target(cxt->compiler_context, true_value->address->type, &dim, 0, result_prototype, FALSE);
-			result->type = QB_OPERAND_ADDRESS;
-		}
-
-		// branch to true block if non-zero, else fall into to false block
-		// skipping two instructions
-		qb_perform_branch(cxt, condition->address, QB_INSTRUCTION_OFFSET + 3);
-
-		// assignment of false value
-		qb_perform_assignment(cxt, result->address, false_value->address);
-
-		// jump over the true block (i.e. going to the code generated by the next pbj instruction)
-		qb_perform_jump(cxt, cxt->pbj_op_offset + cxt->pbj_op_index + 1);
-
-		// assignment of true value
-		qb_mark_next_op_as_jump_target(cxt, QB_INSTRUCTION_OFFSET);
-		qb_perform_assignment(cxt, result->address, true_value->address);
-
-		// flags the next op as jump targets
-		qb_mark_next_op_as_jump_target(cxt, cxt->pbj_op_offset + cxt->pbj_op_index + 1);
-	}
-}
-
-static void qb_translate_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	// jump to the instruction immediately following the else or end-if if the condition is false
-	uint32_t jump_target_indices[2] = { QB_INSTRUCTION_NEXT, cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1 };
-	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, jump_target_indices, 2, result_prototype);
-}
-
-static void qb_translate_pbj_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	// jump over the else block
-	uint32_t jump_target_index = cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1;
-	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, &jump_target_index, 1, result_prototype);
-}
-
-static void qb_translate_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	// do nothing
-}
-
 static int32_t qb_match_pbj_addresses(qb_pbj_translator_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
 	return (reg1_address->register_id == reg2_address->register_id && reg1_address->dimension == reg2_address->dimension 
  		 && reg1_address->channel_id == reg2_address->channel_id && reg1_address->channel_mask == reg2_address->channel_mask);
@@ -1262,6 +1043,167 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 	}
 }
 
+static void qb_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, NULL, 0, result_prototype);
+}
+
+static void qb_translate_pbj_copy(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	operands[1] = operands[0];
+	operands[0] = *result;
+	qb_produce_op(cxt->compiler_context, t->extra, operands, 2, result, NULL, 0, result_prototype);
+}
+
+static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand);
+
+static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
+	qb_pbj_constant *constant = &cxt->pbj_op->constant;
+	qb_pbj_register *reg = qb_get_pbj_register(cxt, &cxt->pbj_op->destination);
+	qb_pbj_address new_reg_address = cxt->pbj_op->destination;
+	qb_primitive_type expr_type;
+	qb_result_prototype value_prototype;
+
+	// see if other load-constant ops follow that write into consecutive locations
+	uint32_t next_reg_id = new_reg_address.register_id;
+	qb_pbj_channel_id next_channel = new_reg_address.channel_id;
+	qb_pbj_channel_id first_channel = new_reg_address.channel_id;
+	uint32_t constant_count = 1;
+	uint32_t pop_index = cxt->pbj_op_index;
+	qb_pbj_op *pop = cxt->pbj_op;
+	while(pop_index + 1 < cxt->pbj_op_count && constant_count < 16) {
+		pop++;
+		pop_index++;
+		if(next_channel < 3) {
+			next_channel++;
+		} else {
+			next_channel = 0;
+			next_reg_id++;
+		}
+		if(pop->opcode != PBJ_LOAD_CONSTANT) {
+			break;
+		} else if(pop->destination.register_id != next_reg_id || pop->destination.channel_id != next_channel) {
+			if(constant_count != 3 || constant_count != 6) {
+				break;
+			}
+		} else {
+			constant_count++;
+		}
+	}
+
+	if(constant_count > 1) {
+		// see when the constant may fit
+		switch(first_channel) {
+			case 0: {
+				if(reg->matrix_address && ((constant_count >= ARRAY_SIZE(reg->matrix_address)) || (constant_count >= 9 && ARRAY_SIZE(reg->matrix_address) == 12))) {
+					constant_count = ARRAY_SIZE(reg->matrix_address);
+					if(constant_count == 12) {
+						constant_count = 9;
+					}
+					new_reg_address.dimension = DIMENSION(reg->matrix_address, -1);
+					new_reg_address.channel_id = PBJ_CHANNEL_MATRIX;
+				} else if(reg->channel_addresses[PBJ_CHANNEL_RGBA] && constant_count >= 4) {
+					new_reg_address.channel_id = PBJ_CHANNEL_RGBA;
+				} else if(reg->channel_addresses[PBJ_CHANNEL_RGB] && constant_count >= 3) {
+					constant_count = 3;
+					new_reg_address.channel_id = PBJ_CHANNEL_RGB;
+				} else if(reg->channel_addresses[PBJ_CHANNEL_RG] && constant_count >= 2) {
+					constant_count = 2;
+					new_reg_address.channel_id = PBJ_CHANNEL_RG;
+				}
+			}	break;
+			case 1: {
+				if(reg->channel_addresses[PBJ_CHANNEL_GBA] && constant_count >= 3) {
+					constant_count = 3;
+					new_reg_address.channel_id = PBJ_CHANNEL_GBA;
+				} else if(reg->channel_addresses[PBJ_CHANNEL_GB] && constant_count >= 2) {
+					constant_count = 2;
+					new_reg_address.channel_id = PBJ_CHANNEL_GB;
+				}
+			}	break;
+			case 2: {
+				 if(reg->channel_addresses[PBJ_CHANNEL_BA] && constant_count >= 2) {
+					constant_count = 2;
+					new_reg_address.channel_id = PBJ_CHANNEL_BA;
+				}
+			}	break;
+		}
+	}
+
+	switch(constant->type) {
+		case PBJ_TYPE_INT: expr_type = QB_TYPE_S32; break;
+		case PBJ_TYPE_FLOAT: expr_type = QB_TYPE_F32; break;
+		default: break;
+	}
+
+	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		value_prototype.preliminary_type = value_prototype.final_type = expr_type;
+		value_prototype.address_flags = QB_ADDRESS_CONSTANT;
+		value_prototype.coercion_flags = 0;
+		value_prototype.destination = NULL;
+		value->result_prototype = &value_prototype;
+		value->type = QB_OPERAND_RESULT_PROTOTYPE;
+	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(constant_count == 1) {
+			switch(expr_type) {
+				case QB_TYPE_S32: value->address = qb_obtain_constant_S32(cxt->compiler_context, constant->int_value); break;
+				case QB_TYPE_F32: value->address = qb_obtain_constant_F32(cxt->compiler_context, constant->float_value); break;
+				default: break;
+			}
+		} else {
+			qb_pbj_op *pop = cxt->pbj_op;
+			uint32_t i, j;
+			uint32_t dimensions[2], dimension_count;
+			if(new_reg_address.dimension > 1) {
+				if(new_reg_address.dimension == 3) {
+					dimensions[0] = 3;
+					dimensions[1] = 4;
+				} else {
+					dimensions[0] = dimensions[1] = new_reg_address.dimension;
+				}
+				dimension_count = 2;
+			} else {
+				dimensions[0] = qb_get_pbj_channel_count(cxt, new_reg_address.channel_id);
+				dimension_count = 1;
+			}
+
+			value->address = qb_create_constant_array(cxt->compiler_context, expr_type, dimensions, dimension_count);
+			for(i = 0, j = 0; i < constant_count; i++, j++) {
+				if(constant_count == 9 && (i == 3 || i == 6)) {
+					// padding for 3x3 matrices
+					j++;
+				}
+				switch(expr_type) {
+					case QB_TYPE_S32: ARRAY(S32, value->address)[j] = pop->constant.int_value; break;
+					case QB_TYPE_F32: ARRAY(F32, value->address)[j] = pop->constant.float_value; break;
+				}
+				pop++;
+			}
+		}
+		value->type = QB_OPERAND_ADDRESS;
+	}
+	// jump over additional ops that are processed
+	cxt->pbj_op_index += (constant_count - 1);
+
+	qb_fetch_pbj_register(cxt, &new_reg_address, result);
+	qb_translate_pbj_copy(cxt, t, value, 1, result, result_prototype);
+}
+
+static void qb_translate_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	// jump to the instruction immediately following the else or end-if if the condition is false
+	uint32_t jump_target_indices[2] = { QB_INSTRUCTION_NEXT, cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1 };
+	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, jump_target_indices, 2, result_prototype);
+}
+
+static void qb_translate_pbj_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	// jump over the else block
+	uint32_t jump_target_index = cxt->pbj_op_offset + cxt->pbj_op->branch_target_index + 1;
+	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, &jump_target_index, 1, result_prototype);
+}
+
+static void qb_translate_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	// do nothing
+}
+
 #define PBJ_RS				PBJ_READ_SOURCE
 #define PBJ_WD				PBJ_WRITE_DESTINATION
 #define PBJ_RI_RS_WD		(PBJ_READ_IMAGE | PBJ_READ_SOURCE | PBJ_WRITE_DESTINATION)
@@ -1303,7 +1245,7 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_floor					},	// PBJ_FLOOR
 	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_ceil					},	// PBJ_CEIL
 	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_fract					},	// PBJ_FRACT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_COPY
+	{	qb_translate_pbj_copy,						PBJ_RS_WD,			&factory_assign					},	// PBJ_COPY
 	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_FLOAT_TO_INT
 	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_assign					},	// PBJ_INT_TO_FLOAT
 	{	qb_translate_pbj_basic_op,					PBJ_RS_RD2_WD,		&factory_mm_mult_cm				},	// PBJ_MATRIX_MATRIX_MULTIPLY
@@ -1324,8 +1266,8 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_xor			},	// PBJ_LOGICAL_XOR
 	{	qb_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_nearest_vector	},	// PBJ_SAMPLE_NEAREST
 	{	qb_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_bilinear_vector	},	// PBJ_SAMPLE_BILINEAR
-	{	qb_translate_pbj_load_constant,				0,					NULL,							},	// PBJ_LOAD_CONSTANT
-	{	qb_translate_pbj_select,					PBJ_RS_RS2_RS3_WD,	NULL,							},	// PBJ_SELECT
+	{	qb_translate_pbj_load_constant,				PBJ_WD,				&factory_assign,				},	// PBJ_LOAD_CONSTANT
+	{	qb_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_select,				},	// PBJ_SELECT
 	{	qb_translate_pbj_if,						PBJ_RS,				&factory_branch_on_false,		},	// PBJ_IF
 	{	qb_translate_pbj_else,						0,					&factory_jump,					},	// PBJ_ELSE
 	{	qb_translate_pbj_end_if,					0,					NULL							},	// PBJ_END_IF
@@ -1355,8 +1297,12 @@ static void qb_discard_unused_register(qb_pbj_translator_context *cxt, qb_pbj_re
 		if(reg->matrix_address) {
 			qb_mark_as_temporary(cxt->compiler_context, reg->matrix_address);
 		} else {
-			qb_address *rgba_address = reg->channel_addresses[PBJ_CHANNEL_RGBA];
-			qb_mark_as_temporary(cxt->compiler_context, rgba_address);
+			uint32_t i;
+			for(i = 0; i <= PBJ_CHANNEL_RGBA; i++) {
+				if(reg->channel_addresses[i]) {
+					qb_mark_as_temporary(cxt->compiler_context, reg->channel_addresses[i]);
+				}
+			}
 		}
 	}
 }

@@ -146,6 +146,11 @@ qb_derived_op_factory factory_assign_branching = {
 	&factory_assign,
 };
 
+qb_op_decomposer factory_select = {
+	qb_decompose_select,
+	&factory_branch_on_true,
+};
+
 qb_op_factory factory_fetch_local = {
 	NULL,
 	qb_resolve_expression_type_fetch_local,

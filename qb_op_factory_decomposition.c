@@ -78,7 +78,6 @@ static void qb_decompose_branch_set(qb_compiler_context *cxt, void *factory, qb_
 	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, jump_target_indices, jump_target_count, &branch_result_prototype);
 
 	// do the assignment
-	//result_prototype->destination = NULL;
 	qb_produce_op(cxt, &factory_assign_branching, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
@@ -89,4 +88,25 @@ static void qb_decompose_minmax(qb_compiler_context *cxt, void *factory, qb_oper
 	} else {
 		qb_produce_op(cxt, d->array_factory, operands, operand_count, result, NULL, 0, result_prototype);
 	}
+}
+
+static void qb_decompose_select(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_op_decomposer *d = factory;
+	qb_operand branch_condition = operands[0];
+	qb_operand branch_result = { QB_OPERAND_NONE, NULL }, jump_result = { QB_OPERAND_NONE, NULL };
+	qb_result_prototype branch_result_prototype, jump_result_prototype;
+	uint32_t branch_target_indices[3] = { QB_INSTRUCTION_OFFSET + 3, QB_INSTRUCTION_NEXT };
+	uint32_t jump_target_index = QB_INSTRUCTION_OFFSET + 4;
+
+	// do the branch first
+	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, branch_target_indices, 2, &branch_result_prototype);
+
+	// do the assignment to second value
+	qb_produce_op(cxt, &factory_assign_branching, &operands[2], 1, result, NULL, 0, result_prototype);
+
+	// jump over the assignment to the first value
+	qb_produce_op(cxt, &factory_jump, NULL, 0, &jump_result, &jump_target_index, 1, &jump_result_prototype);
+
+	// do the assignment to first value
+	qb_produce_op(cxt, &factory_assign_branching, &operands[1], 1, result, NULL, 0, result_prototype);
 }

@@ -101,7 +101,9 @@ static void qb_set_preliminary_result_assign_branching(qb_compiler_context *cxt,
 		// link to the prototype in the other branch and keep it as the result 
 		// so that type coercion on both branches is performed on that prototype 
 		// ensuring the highest rank is obtained
-		result_prototype->parent = result->result_prototype;
+		if(result_prototype != result->result_prototype) {
+			result_prototype->parent = result->result_prototype;
+		}
 	} else {
 		qb_set_result_prototype(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 	}
