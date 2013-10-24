@@ -102,11 +102,11 @@ static void qb_decompose_select(qb_compiler_context *cxt, void *factory, qb_oper
 	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, branch_target_indices, 2, &branch_result_prototype);
 
 	// do the assignment to second value
-	qb_produce_op(cxt, &factory_assign_branching, &operands[2], 1, result, NULL, 0, result_prototype);
+	qb_produce_op(cxt, &factory_assign_select, &operands[2], 1, result, NULL, 0, result_prototype);
 
 	// jump over the assignment to the first value
 	qb_produce_op(cxt, &factory_jump, NULL, 0, &jump_result, &jump_target_index, 1, &jump_result_prototype);
 
 	// do the assignment to first value
-	qb_produce_op(cxt, &factory_assign_branching, &operands[1], 1, result, NULL, 0, result_prototype);
+	qb_produce_op(cxt, &factory_assign_select, &operands[1], 1, result, NULL, 0, result_prototype);
 }

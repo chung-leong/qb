@@ -1054,6 +1054,8 @@ static void qb_translate_pbj_copy(qb_pbj_translator_context *cxt, qb_pbj_transla
 }
 
 static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand);
+static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *result, qb_result_prototype *result_prototype);
+static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand);
 
 static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
@@ -1184,8 +1186,9 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 	// jump over additional ops that are processed
 	cxt->pbj_op_index += (constant_count - 1);
 
-	qb_fetch_pbj_register(cxt, &new_reg_address, result);
+	qb_fetch_pbj_write_target(cxt, &new_reg_address, result, result_prototype);
 	qb_translate_pbj_copy(cxt, t, value, 1, result, result_prototype);
+	qb_retire_pbj_write_target(cxt, &new_reg_address, result);
 }
 
 static void qb_translate_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -1266,7 +1269,7 @@ static qb_pbj_translator pbj_op_translators[] = {
 	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_xor			},	// PBJ_LOGICAL_XOR
 	{	qb_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_nearest_vector	},	// PBJ_SAMPLE_NEAREST
 	{	qb_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_bilinear_vector	},	// PBJ_SAMPLE_BILINEAR
-	{	qb_translate_pbj_load_constant,				PBJ_WD,				&factory_assign,				},	// PBJ_LOAD_CONSTANT
+	{	qb_translate_pbj_load_constant,				0,					&factory_assign,				},	// PBJ_LOAD_CONSTANT
 	{	qb_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_select,				},	// PBJ_SELECT
 	{	qb_translate_pbj_if,						PBJ_RS,				&factory_branch_on_false,		},	// PBJ_IF
 	{	qb_translate_pbj_else,						0,					&factory_jump,					},	// PBJ_ELSE
@@ -1459,7 +1462,7 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 	}
 }
 
-static void qb_retire_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
+static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
 	qb_operand *slot_operand = NULL;
 	if(reg_address->dimension > 1) {
@@ -1473,6 +1476,23 @@ static void qb_retire_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addres
 				qb_address *src_address = reg->channel_addresses[reg_address->channel_id];
 				qb_perform_scatter(cxt, operand->address, src_address, reg_address->channel_mask);
 			}
+		}
+	}
+}
+
+static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		// it's always empty at this stage
+		result->generic_pointer = NULL;
+		result->type = QB_OPERAND_EMPTY;
+	} else {
+		if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
+			// there's no need for an actual address 
+			result->generic_pointer = NULL;
+			result->type = QB_OPERAND_EMPTY;
+		} else {
+			// an address is needed
+			qb_fetch_pbj_register(cxt, reg_address, result);
 		}
 	}
 }
@@ -1528,27 +1548,13 @@ static void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt)
 				} else {
 					result_pbj_address = &pop->destination;
 				}
-
-				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-					// it's always empty at this stage
-					result.generic_pointer = NULL;
-					result.type = QB_OPERAND_EMPTY;
-				} else {
-					if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
-						// there's no need for an actual address 
-						result.generic_pointer = NULL;
-						result.type = QB_OPERAND_EMPTY;
-					} else {
-						// an address is needed
-						qb_fetch_pbj_register(cxt, result_pbj_address, &result);
-					}
-				}
+				qb_fetch_pbj_write_target(cxt, result_pbj_address, &result, result_prototype);
 			}
 
 			t->translate(cxt, t, operands, operand_count, &result, result_prototype);
 
 			if(result_pbj_address) {
-				qb_retire_pbj_register(cxt, result_pbj_address, &result);
+				qb_retire_pbj_write_target(cxt, result_pbj_address, &result);
 			}
 
 			qb_lock_temporary_variables_in_register_slots(cxt, cxt->int_register_slots, cxt->int_register_slot_count);
@@ -1571,15 +1577,17 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 		if(!reg->channel_addresses[reg_address->channel_id]) {
 			qb_address *channel_address, *src_address = NULL;
 			qb_pbj_channel_id first_channel = qb_get_first_pbj_channel(cxt, reg_address->channel_id);
+			qb_pbj_channel_id parent_channel;
 			uint32_t channel_count = qb_get_pbj_channel_count(cxt, reg_address->channel_id);
-			uint32_t i, offset;
+			uint32_t offset;
 
 			// find a wider channel that contains this one
-			for(i = PBJ_CHANNEL_RGBA; i > (uint32_t) reg_address->channel_id; i--) {
-				if(reg->channel_addresses[i]) {
-					offset = qb_get_pbj_channel_overlap(cxt, i, reg_address->channel_id);
+			for(parent_channel = PBJ_CHANNEL_RGBA; parent_channel > reg_address->channel_id; parent_channel--) {
+				if(reg->channel_addresses[parent_channel]) {
+					offset = qb_get_pbj_channel_overlap(cxt, parent_channel, reg_address->channel_id);
 					if(offset != (uint32_t) -1) {
-						src_address = reg->channel_addresses[i];
+						src_address = reg->channel_addresses[parent_channel];
+						break;
 					}
 				}
 			}

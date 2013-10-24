@@ -142,6 +142,23 @@ qb_derived_op_factory factory_assign_branching = {
 	qb_transfer_operands_all,
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_assign,
+};
+
+qb_derived_op_factory factory_assign_select = {
+	NULL,
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_final_result_assign_branching,
+	qb_set_result_dimensions_first_operand,
+	qb_select_opcode_derived,
+	qb_transfer_operands_all,
+	0,
+	0,
 	QB_ADDRESS_TEMPORARY,
 	&factory_assign,
 };
@@ -1910,9 +1927,9 @@ qb_float_op_factory factory_floor_modulo = {
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
 
-	QB_COERCE_TO_LVALUE_TYPE,
+	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
-	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
+	QB_ADDRESS_TEMPORARY,
 	{	QB_MOD_FLR_F64_F64_F64,	QB_MOD_FLR_F32_F32_F32,	},
 };
 
