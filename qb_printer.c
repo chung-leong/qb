@@ -364,12 +364,13 @@ static void qb_print_pbj_address(qb_printer_context *cxt, qb_pbj_address *addres
 		}
 		if(address->dimension == 1) {
 			static const char *channels[] = { "r", "g", "b", "a", "rg", "gb", "ba", "rgb", "gba", "rgba" };
-			if(!address->channel_mask) {
-				php_printf("%s", channels[address->channel_id]);
+			const char *channel_name = channels[address->channel_id];
+			if(address->channel_mask == (uint32_t) -1) {
+				php_printf("%s", channel_name);
 			} else {
-				uint32_t count = strlen(channels[address->channel_id]), i;
-				for(i = 0; i < count; i++) {
-					php_printf("%s", channels[address->channel_mask >> (i * 3)]);
+				uint32_t i;
+				for(i = 0; i < address->channel_count; i++) {
+					php_printf("%c", channel_name[address->channel_mask >> (i * 3)]);
 				}
 			}
 		} else {

@@ -244,7 +244,7 @@ void qb_perform_translation(qb_build_context *cxt) {
 		qb_resolve_jump_targets(compiler_cxt);
 
 		// fuse basic instructions into compound ones
-		qb_fuse_instructions(compiler_cxt, 1);
+		//qb_fuse_instructions(compiler_cxt, 1);
 
 		// assign storage space to variables
 		qb_assign_storage_space(compiler_cxt);

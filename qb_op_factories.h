@@ -330,7 +330,7 @@ extern qb_arithmetic_op_factory factory_divide;
 extern qb_arithmetic_op_factory factory_modulo;
 extern qb_float_op_factory factory_floor_modulo;
 extern qb_arithmetic_op_factory factory_multiply_add;
-extern qb_basic_op_factory factory_reciprocal;
+extern qb_derived_op_factory factory_reciprocal;
 
 extern void *factories_add_assign[3];
 extern void *factories_subtract_assign[3];

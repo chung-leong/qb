@@ -2775,7 +2775,7 @@ qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *contain
 
 qb_address * qb_retrieve_array_dimensions(qb_compiler_context *cxt, qb_address *address) {
 	qb_address *dimension_count_address = qb_obtain_constant_U32(cxt, address->dimension_count);
-	qb_variable_dimensions dim = { NULL, 1, dimension_count_address };
+	qb_variable_dimensions dim = { 1, dimension_count_address };
 	qb_address *dimensions_address = qb_obtain_temporary_variable(cxt, QB_TYPE_U32, &dim);
 	uint32_t i;
 	for(i = 0; i < address->dimension_count; i++) {
@@ -2888,14 +2888,16 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 
 		// add the ops for calculating on-demand values 
 		for(i = 0; i < qop->operand_count; i++) {
-			int32_t duplicate = FALSE;
-			for(j = 0; j < i; j++) {
-				if(qop->operands[i].type == qop->operands[j].type && qop->operands[i].address == qop->operands[j].address) {
-					duplicate = TRUE;
+			if(qop->operands[i].type == QB_OPERAND_ADDRESS) {
+				int32_t duplicate = FALSE;
+				for(j = 0; j < i; j++) {
+					if(qop->operands[i].type == qop->operands[j].type && qop->operands[i].address == qop->operands[j].address) {
+						duplicate = TRUE;
+					}
 				}
-			}
-			if(!duplicate) {
-				qb_create_on_demand_op(cxt, &qop->operands[i]);
+				if(!duplicate) {
+					qb_create_on_demand_op(cxt, &qop->operands[i]);
+				}
 			}
 		}
 

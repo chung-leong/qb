@@ -1933,7 +1933,7 @@ qb_float_op_factory factory_floor_modulo = {
 	{	QB_MOD_FLR_F64_F64_F64,	QB_MOD_FLR_F32_F32_F32,	},
 };
 
-qb_basic_op_factory factory_reciprocal = {
+qb_derived_op_factory factory_reciprocal = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -1942,13 +1942,13 @@ qb_basic_op_factory factory_reciprocal = {
 	NULL,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_first_operand,
-	qb_select_opcode_unary_arithmetic,
+	qb_select_opcode_reciprocal,
 	qb_transfer_operands_reciprocal,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
-	{	QB_DIV_F64_F64_F64,	QB_DIV_F32_F32_F32,	QB_DIV_U64_U64_U64,	QB_DIV_S64_S64_S64,	QB_DIV_U32_U32_U32,	QB_DIV_S32_S32_S32,	QB_DIV_U16_U16_U16,	QB_DIV_S16_S16_S16,	QB_DIV_U08_U08_U08,	QB_DIV_S08_S08_S08,	},
+	&factory_divide,
 };
 
 qb_derived_op_factory factory_add_assign = {

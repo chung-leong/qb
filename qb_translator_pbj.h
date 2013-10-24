@@ -42,6 +42,7 @@ typedef void (*qb_pbj_translator_proc)(qb_pbj_translator_context *cxt, qb_pbj_tr
 struct qb_pbj_address {
 	uint32_t dimension;
 	uint32_t register_id;
+	uint32_t channel_count;
 	uint32_t channel_mask;
 	qb_pbj_channel_id channel_id;
 };
@@ -182,8 +183,6 @@ struct qb_pbj_translator_context {
 	uint32_t int_register_count;
 	qb_pbj_register_slot *int_register_slots;
 	uint32_t int_register_slot_count;
-
-	qb_pbj_address comparison_result;
 
 	qb_pbj_op *pbj_ops;
 	uint32_t pbj_op_count;

@@ -269,6 +269,12 @@ static qb_opcode qb_select_opcode_unary_arithmetic_object_property(qb_compiler_c
 	return opcode;
 }
 
+static qb_opcode qb_select_opcode_reciprocal(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
+	return qb_select_type_dependent_opcode(cxt, af->regular_opcodes, expr_type);
+}
+
 static qb_opcode qb_select_vectorized_binary_opcode(qb_compiler_context *cxt, qb_opcode opcodes[][2], qb_operand *operand1, qb_operand *operand2, qb_operand *result) {
 	if(operand1->address->type >= QB_TYPE_F32) {
 		uint32_t width1 = qb_get_minimum_width(cxt, operand1);
