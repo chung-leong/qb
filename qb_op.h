@@ -127,17 +127,6 @@ enum qb_operand_type {
 	QB_OPERAND_PBJ_CONSTANT,
 };
 
-enum {
-	QB_INSTRUCTION_OFFSET			= 0x40000000,
-	QB_INSTRUCTION_NEXT 			= 1 | QB_INSTRUCTION_OFFSET,
-	QB_INSTRUCTION_END				= 0xFFFFFFFF,
-};
-
-enum {
-	QB_OP_INDEX_NONE				= 0xFFFFFFFF,
-	QB_OP_INDEX_JUMP_TARGET			= 0xFFFFFFFE,
-};
-
 typedef struct qb_function			qb_function;
 typedef struct qb_pbj_constant		qb_pbj_constant;
 

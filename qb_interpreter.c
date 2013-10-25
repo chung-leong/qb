@@ -334,7 +334,7 @@ static void qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 		}
 	}
 
-	if(retval_index != (uint32_t) -1) {
+	if(retval_index != INVALID_INDEX) {
 		if(cxt->function->return_variable->address) {
 			qb_variable *qvar = cxt->function->return_variable;
 			qb_variable *caller_qvar = cxt->caller_context->function->variables[retval_index];

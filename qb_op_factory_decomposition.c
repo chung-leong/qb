@@ -95,18 +95,18 @@ static void qb_decompose_select(qb_compiler_context *cxt, void *factory, qb_oper
 	qb_operand branch_condition = operands[0];
 	qb_operand branch_result = { QB_OPERAND_NONE, NULL }, jump_result = { QB_OPERAND_NONE, NULL };
 	qb_result_prototype branch_result_prototype, jump_result_prototype;
-	uint32_t branch_target_indices[3] = { QB_INSTRUCTION_OFFSET + 3, QB_INSTRUCTION_NEXT };
-	uint32_t jump_target_index = QB_INSTRUCTION_OFFSET + 4;
+	uint32_t branch_indices[3] = { JUMP_TARGET_INDEX(cxt->source_op_index, 3), JUMP_TARGET_INDEX(cxt->source_op_index, 1) };
+	uint32_t jump_indices[1] = { JUMP_TARGET_INDEX(cxt->source_op_index, 4) };
 
-	// do the branch first
-	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, branch_target_indices, 2, &branch_result_prototype);
+	// branch to assignment to first value on true (offset = 0)
+	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, branch_indices, 2, &branch_result_prototype);
 
-	// do the assignment to second value
+	// perform assignment to second value (offset = 1)
 	qb_produce_op(cxt, &factory_assign_select, &operands[2], 1, result, NULL, 0, result_prototype);
 
-	// jump over the assignment to the first value
-	qb_produce_op(cxt, &factory_jump, NULL, 0, &jump_result, &jump_target_index, 1, &jump_result_prototype);
+	// jump over assignment to the first value (offset = 2)
+	qb_produce_op(cxt, &factory_jump, NULL, 0, &jump_result, jump_indices, 1, &jump_result_prototype);
 
-	// do the assignment to first value
+	// perform assignment to first value (offset = 3)
 	qb_produce_op(cxt, &factory_assign_select, &operands[1], 1, result, NULL, 0, result_prototype);
 }

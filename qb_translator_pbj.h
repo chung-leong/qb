@@ -188,7 +188,6 @@ struct qb_pbj_translator_context {
 	uint32_t pbj_op_count;
 	qb_pbj_op *pbj_op;
 	uint32_t pbj_op_index;
-	uint32_t pbj_op_offset;
 	int32_t jump_target_index;
 
 	qb_pbj_op **conditionals;
@@ -201,6 +200,10 @@ struct qb_pbj_translator_context {
 
 	qb_pbj_texture *textures;
 	uint32_t texture_count;
+
+	uint32_t loop_op_index;
+	uint32_t outer_loop_start_index;
+	uint32_t inner_loop_start_index;
 
 	qb_address *x_address;
 	qb_address *y_address;

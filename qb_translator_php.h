@@ -40,8 +40,8 @@ struct qb_php_translator_context {
 	zend_op_array *zend_op_array;
 	zend_op *zend_op;
 	uint32_t zend_op_index;
-	uint32_t jump_target_index1;
-	uint32_t jump_target_index2;
+	uint32_t next_op_index1;
+	uint32_t next_op_index2;
 
 	qb_operand **stack_items;
 	uint32_t stack_item_buffer_size;

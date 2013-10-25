@@ -39,7 +39,6 @@ struct qb_native_compiler_context {
 	qb_op **ops;
 	qb_op *current_op;
 	uint32_t op_count;
-	uint32_t *op_translations;
 	qb_variable **variables;
 	uint32_t variable_count;
 	qb_address **scalars;

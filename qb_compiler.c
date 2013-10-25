@@ -156,17 +156,58 @@ static void qb_mark_as_non_local(qb_compiler_context *cxt, qb_address *address) 
 	}
 }
 
-static uint32_t qb_get_jump_target_absolute_index(qb_compiler_context *cxt, uint32_t current_qop_index, uint32_t target_index) {
-	if(target_index & QB_INSTRUCTION_OFFSET) {
-		int16_t offset = target_index & ~QB_INSTRUCTION_OFFSET;
-		return current_qop_index + offset;
-	} else {
-		if(cxt->op_translations) {
-			return cxt->op_translations[target_index];
-		} else {
-			return target_index;
+int32_t qb_is_source_op_translated(qb_compiler_context *cxt, uint32_t source_index) {
+	if(source_index < cxt->op_translation_table_size) {
+		uint32_t qop_index = cxt->op_translation_table[source_index];
+		if(qop_index < cxt->op_count) {
+			return TRUE;
 		}
 	}
+	return FALSE;
+}
+
+uint32_t qb_set_source_op_index(qb_compiler_context *cxt, uint32_t source_index, uint32_t line_number) {
+	USE_TSRM
+	if(source_index >= cxt->op_translation_table_size) {
+		// expand the table
+		uint32_t original_size = cxt->op_translation_table_size;
+		uint32_t addition = (source_index + 1) - original_size;
+		uint32_t *new_entries = qb_enlarge_array((void **) &cxt->op_translation_table, addition);
+		uint32_t i;
+		for(i = 0; i < addition; i++) {
+			new_entries[i] = INVALID_INDEX;
+		}
+	}
+	QB_G(current_line_number) = cxt->line_number = line_number;
+	cxt->source_op_index = source_index;
+	return cxt->op_translation_table[source_index] = cxt->op_count;
+}
+
+static uint32_t qb_get_translated_op_index(qb_compiler_context *cxt, uint32_t jump_target_index) {
+	int32_t offset = OP_INDEX_OFFSET(jump_target_index);
+	uint32_t source_index = OP_INDEX(jump_target_index);
+	uint32_t qop_index = cxt->op_translation_table[source_index] + offset;
+	return qop_index;
+}
+
+void qb_add_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index) {
+	qb_jump_target *jump_target;
+	if(!cxt->jump_targets) {
+		qb_attach_new_array(cxt->pool, (void **) &cxt->jump_targets, &cxt->jump_target_count, sizeof(qb_jump_target), 16);
+	}
+	jump_target = qb_enlarge_array((void **) &cxt->jump_targets, 1);
+	jump_target->jump_target_index = jump_target_index;
+}
+
+int32_t qb_is_jump_target(qb_compiler_context *cxt, uint32_t source_op_index) {
+	uint32_t i = 0;
+	for(i = 0; i < cxt->jump_target_count; i++) {
+		qb_jump_target *jump_target = &cxt->jump_targets[i];
+		if(OP_INDEX(jump_target->jump_target_index) == source_op_index) {
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 static void qb_invalidate_expression(qb_compiler_context *cxt, qb_expression *expr) {
@@ -3057,10 +3098,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 			// mark the jump targets
 			for(i = 0; i < jump_target_count; i++) {
-				uint32_t target_index = jump_target_indices[i];
-				if(target_index != QB_INSTRUCTION_NEXT && target_index != QB_OP_INDEX_NONE) {
-					cxt->op_translations[target_index] = QB_OP_INDEX_JUMP_TARGET;
-				}
+				qb_add_jump_target(cxt, jump_target_indices[i]);
 			}
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			// create the op
@@ -3091,18 +3129,23 @@ static void qb_validate_op(qb_compiler_context *cxt, qb_op *qop, uint32_t qop_in
 
 void qb_resolve_jump_targets(qb_compiler_context *cxt) {
 	uint32_t i, j;
-
+	for(i = 0; i < cxt->jump_target_count; i++) {
+		qb_jump_target *target = &cxt->jump_targets[i];
+		uint32_t qop_index = qb_get_translated_op_index(cxt, target->jump_target_index);
+		if(qop_index < cxt->op_count) {
+			qb_op *qop = cxt->ops[qop_index];
+			qop->flags |= QB_OP_JUMP_TARGET;
+		}
+	}
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
-
 		for(j = 0; j < qop->jump_target_count; j++) {
-			uint32_t absolute_index = qb_get_jump_target_absolute_index(cxt, i, qop->jump_target_indices[j]);
-
-			// if skip to the next op if it's pointing to a NOP
-			while(cxt->ops[absolute_index]->opcode == QB_NOP) {
-				absolute_index++;
+			uint32_t qop_index = qb_get_translated_op_index(cxt, qop->jump_target_indices[j]);
+			// skip to the next op if it's pointing to a NOP
+			while(cxt->ops[qop_index]->opcode == QB_NOP) {
+				qop_index++;
 			}
-			qop->jump_target_indices[j] = absolute_index;
+			qop->jump_target_indices[j] = qop_index;
 		}
 	}
 }
@@ -3295,6 +3338,7 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	}
 	SAVE_TSRMLS
 
+	qb_attach_new_array(pool, (void **) &cxt->op_translation_table, &cxt->op_translation_table_size, sizeof(uint32_t), 64);
 	qb_attach_new_array(pool, (void **) &cxt->variables, &cxt->variable_count, sizeof(qb_variable *), 16);
 	qb_attach_new_array(pool, (void **) &cxt->ops, &cxt->op_count, sizeof(qb_op *), 256);
 	qb_attach_new_array(pool, (void **) &cxt->constant_scalars, &cxt->constant_scalar_count, sizeof(qb_address *), 64);
@@ -3446,7 +3490,7 @@ void qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 	counter.address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
 	counter.type = QB_OPERAND_ADDRESS;
 	jump_target_indices[0] = 0;
-	jump_target_indices[1] = QB_INSTRUCTION_NEXT;
+	jump_target_indices[1] = JUMP_TARGET_INDEX(0, 0);
 
 	qb_create_op(cxt, &factory_loop, QB_TYPE_VOID, &iteration, 1, &counter, jump_target_indices, 2, FALSE);
 	qb_create_op(cxt, &factory_return, QB_TYPE_VOID, NULL, 0, NULL, NULL, 0, FALSE);

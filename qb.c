@@ -222,7 +222,7 @@ static void qb_transfer_dimension(qb_storage *src_storage, qb_address *src_addre
 	} else {
 		segment = &dst_storage->segments[variable_selector];
 		dst_address->segment_selector = variable_selector;
-		index = (uint32_t) -1;
+		index = INVALID_INDEX;
 	}
 	dst_address->segment_offset = segment->byte_count;
 	segment->byte_count += sizeof(uint32_t);

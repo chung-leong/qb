@@ -323,7 +323,7 @@ static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_printer_context *c
 			} else {
 				if(destination->channel_id == address->channel_id) {
 					return parameter;
-				} else if(qb_get_pbj_channel_offset(cxt, destination->channel_id, address->channel_id) != (uint32_t) -1) {
+				} else if(qb_get_pbj_channel_offset(cxt, destination->channel_id, address->channel_id) != INVALID_INDEX) {
 					return parameter;
 				}
 			}
@@ -365,7 +365,7 @@ static void qb_print_pbj_address(qb_printer_context *cxt, qb_pbj_address *addres
 		if(address->dimension == 1) {
 			static const char *channels[] = { "r", "g", "b", "a", "rg", "gb", "ba", "rgb", "gba", "rgba" };
 			const char *channel_name = channels[address->channel_id];
-			if(address->channel_mask == (uint32_t) -1) {
+			if(address->channel_mask == INVALID_INDEX) {
 				php_printf("%s", channel_name);
 			} else {
 				uint32_t i;

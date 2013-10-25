@@ -68,6 +68,7 @@ typedef enum qb_primitive_type				qb_primitive_type;
 
 #define SHIFT_POINTER(p, shift)				*((uintptr_t *) &(p)) += shift
 
+#define INVALID_INDEX						((uint32_t) -1)
 
 enum qb_primitive_type {
 	QB_TYPE_I08						= 0,

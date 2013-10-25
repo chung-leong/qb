@@ -25,6 +25,7 @@ typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_variable_dimensions		qb_variable_dimensions;
 typedef struct qb_temporary_variable		qb_temporary_variable;
+typedef struct qb_jump_target				qb_jump_target;
 
 typedef enum qb_stage						qb_stage;
 typedef enum qb_diagnostic_type				qb_diagnostic_type;
@@ -45,6 +46,14 @@ struct qb_temporary_variable {
 	uint32_t last_access_op_index;
 };
 
+struct qb_jump_target {
+	uint32_t jump_target_index;
+};
+
+#define JUMP_TARGET_INDEX(source_index, offset)				(((offset) << 24) | (source_index))
+#define OP_INDEX_OFFSET(jump_target_index)					((int8_t) ((jump_target_index) >> 24))
+#define OP_INDEX(jump_target_index)							((jump_target_index) & 0x00FFFFFF)
+
 enum qb_stage {
 	QB_STAGE_VARIABLE_INITIALIZATION,
 	QB_STAGE_RESULT_TYPE_RESOLUTION,
@@ -64,7 +73,9 @@ enum qb_translation_type {
 struct qb_compiler_context {
 	qb_op **ops;
 	uint32_t op_count;
-	uint32_t *op_translations;
+	uint32_t *op_translation_table;
+	uint32_t op_translation_table_size;
+	uint32_t source_op_index;
 	uint32_t line_number;
 	uint32_t initialization_op_count;
 
@@ -102,6 +113,9 @@ struct qb_compiler_context {
 
 	qb_expression **on_demand_expressions;
 	uint32_t on_demand_expression_count;
+
+	qb_jump_target *jump_targets;
+	uint32_t jump_target_count;
 
 	qb_address *zero_address;
 	qb_address *one_address;
@@ -382,6 +396,11 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
 
 void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory);
+
+int32_t qb_is_source_op_translated(qb_compiler_context *cxt, uint32_t source_index);
+uint32_t qb_set_source_op_index(qb_compiler_context *cxt, uint32_t source_index, uint32_t line_number);
+void qb_add_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index);
+int32_t qb_is_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index);
 
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);

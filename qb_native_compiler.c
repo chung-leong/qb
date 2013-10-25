@@ -616,7 +616,7 @@ static int32_t qb_get_jump_direction(qb_native_compiler_context *cxt, uint32_t j
 		if(jump_target_index & QB_INSTRUCTION_OFFSET) {
 			target_qop_index = current_qop_index + (jump_target_index & ~QB_INSTRUCTION_OFFSET);
 		} else {
-			target_qop_index = cxt->op_translations[jump_target_index];
+			target_qop_index = cxt->op_translation_table[jump_target_index];
 		}
 		if(target_qop_index <= current_qop_index) {
 			return -1;
@@ -631,7 +631,7 @@ static const char * qb_get_jump(qb_native_compiler_context *cxt, uint32_t jump_t
 		if(jump_target_index & QB_INSTRUCTION_OFFSET) {
 			target_qop_index = current_qop_index + (jump_target_index & ~QB_INSTRUCTION_OFFSET);
 		} else {
-			target_qop_index = cxt->op_translations[jump_target_index];
+			target_qop_index = cxt->op_translation_table[jump_target_index];
 		}
 		// return the goto only if the location isn't the next op
 		next_qop_index = current_qop_index + 1;
@@ -1350,7 +1350,6 @@ static void qb_print_functions(qb_native_compiler_context *cxt) {
 				// copy variables from the compiler context to make life easier
 				cxt->ops = compiler_cxt->ops;
 				cxt->op_count = compiler_cxt->op_count;
-				cxt->op_translations = compiler_cxt->op_translations;
 				cxt->variables = compiler_cxt->variables;
 				cxt->variable_count = compiler_cxt->variable_count;
 				cxt->scalars = compiler_cxt->scalars;
