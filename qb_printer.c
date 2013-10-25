@@ -346,7 +346,7 @@ static qb_pbj_texture * qb_find_pbj_texture_by_id(qb_printer_context *cxt, uint3
 
 static void qb_print_pbj_address(qb_printer_context *cxt, qb_pbj_address *address) {
 	if(address->dimension) {
-		qb_pbj_parameter *parameter = qb_find_pbj_parameter_by_address(cxt, address);
+		qb_pbj_parameter *parameter = NULL;//qb_find_pbj_parameter_by_address(cxt, address);
 		if(parameter) {
 			if(parameter->destination.channel_id <= PBJ_CHANNEL_A) {
 				// don't show channels when it's a scalar
