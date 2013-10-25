@@ -1168,6 +1168,7 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 					new_reg_address.channel_id = PBJ_CHANNEL_MATRIX;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RGBA] && constant_count >= 4) {
 					new_reg_address.channel_id = PBJ_CHANNEL_RGBA;
+					constant_count = 4;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RGB] && constant_count >= 3) {
 					constant_count = 3;
 					new_reg_address.channel_id = PBJ_CHANNEL_RGB;
@@ -1457,7 +1458,6 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 				qb_address *src_address = operand->address;
 				qb_variable_dimensions dim = { 1, qb_obtain_constant_U32(cxt->compiler_context, reg_address->channel_count) };
 				qb_address *gather_address = qb_obtain_temporary_variable(cxt->compiler_context, src_address->type, &dim);
-
 
 				qb_perform_gather(cxt, src_address, gather_address, reg_address->channel_mask);
 				qb_lock_address(cxt->compiler_context, gather_address);
