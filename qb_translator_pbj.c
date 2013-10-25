@@ -1259,7 +1259,7 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 
 static void qb_translate_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// jump to the instruction immediately following the else or end-if if the condition is false
-	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op_index, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op->branch_target_index + 1, 0) };
+	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op_index + 1, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op->branch_target_index + 1, 0) };
 	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, target_indices, 2, result_prototype);
 }
 
@@ -1923,8 +1923,9 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 		prototype->preliminary_type = prototype->final_type = QB_TYPE_UNKNOWN;
 	}
 
-	qb_start_pbj_filter_loop(cxt);
 	cxt->compiler_context->stage = QB_STAGE_RESULT_TYPE_RESOLUTION;
+
+	qb_start_pbj_filter_loop(cxt);
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_translate_current_pbj_instruction(cxt);
