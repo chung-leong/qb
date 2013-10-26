@@ -482,9 +482,29 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	}
 	if(qfunc) {
 		qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
+		double start_time, end_time, duration;
+
+		if(UNEXPECTED(QB_G(execution_log_path)[0])) {
+			start_time = qb_get_high_res_timestamp();
+		}
+
 		qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
 		qb_execute(interpreter_cxt);
 		qb_free_interpreter_context(interpreter_cxt);
+
+		if(UNEXPECTED(QB_G(execution_log_path)[0])) {
+			end_time = qb_get_high_res_timestamp();
+			duration = end_time - start_time;
+			if(duration > 0) {
+				if(qfunc->name[0] != '_') {
+					php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
+					if(stream) {
+						php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
+						php_stream_close(stream);
+					}
+				}
+			}
+		}
 		return ZEND_USER_OPCODE_RETURN;
 	} else {
 		execute_data->opline++;

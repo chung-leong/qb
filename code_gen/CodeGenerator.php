@@ -754,18 +754,22 @@ class CodeGenerator {
 			$this->addFlowControlHandlers($elementType);
 			$this->addIncrementDecrementHandlers($elementType);
 			$this->addBoundCheckingHandlers($elementType);
-			$this->addArithmeticHandlers($elementType);
 			$this->addAssignmentHandlers($elementType);
-			$this->addComparisonHandlers($elementType);
+			$this->addArithmeticHandlers($elementType);
 			$this->addBitwiseHandlers($elementType);
+			$this->addComparisonHandlers($elementType);
 			$this->addLogicalHandlers($elementType);
-			$this->addCastHandlers($elementType);
 			$this->addMathHandlers($elementType);
-			$this->addStringHandlers($elementType);
 			$this->addArrayHandlers($elementType);
 			$this->addSamplingHandlers($elementType);
 			$this->addMatrixHandlers($elementType);
 			$this->addComplexNumberHandlers($elementType);
+		}
+		foreach($this->elementTypes as $elementType) {
+			$this->addCastHandlers($elementType);
+			$this->addScatterGatherHandlers($elementType);
+			$this->addUnsetHandlers($elementType);
+			$this->addStringHandlers($elementType);
 		}
 		$this->addDebugHandlers();
 	}
@@ -857,7 +861,26 @@ class CodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new Copy("MOV", $elementTypeNoSign, $addressMode);
 			}
-			
+		}
+	}
+	
+	protected function addScatterGatherHandlers($elementType) {
+		$unsigned = preg_match('/^U/', $elementType);
+		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
+		if(!$unsigned) {
+			for($i = 2; $i <= 8; $i++) {
+				$this->handlers[] = new Gather("GATH", $elementTypeNoSign, $i);
+			}
+			for($i = 2; $i <= 8; $i++) {
+				$this->handlers[] = new Gather("SCAT", $elementTypeNoSign, $i);
+			}
+		}
+	}
+	
+	protected function addUnsetHandlers($elementType) {
+		$unsigned = preg_match('/^U/', $elementType);
+		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
+		if(!$unsigned) {
 			$this->handlers[] = new ClearScalar("CLR_SCA", $elementTypeNoSign);
 			$this->handlers[] = new ClearArrayResize("CLR_ARR_RSZ", $elementTypeNoSign);
 			$this->handlers[] = new ClearArrayResizeUpdateDimension("CLR_ARR_RSZ_DIM", $elementTypeNoSign);
@@ -866,13 +889,6 @@ class CodeGenerator {
 
 			$this->handlers[] = new PredicateClearArray("CCLR_ARR", $elementTypeNoSign);
 			$this->handlers[] = new PredicateClearElement("CCLR_ELE", $elementTypeNoSign);
-			
-			for($i = 2; $i <= 8; $i++) {
-				$this->handlers[] = new Gather("GATH", $elementTypeNoSign, $i);
-			}
-			for($i = 2; $i <= 8; $i++) {
-				$this->handlers[] = new Gather("SCAT", $elementTypeNoSign, $i);
-			}
 		}
 	}
 
