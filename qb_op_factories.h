@@ -49,6 +49,7 @@ typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
 typedef struct qb_op_decomposer					qb_op_decomposer;
 typedef struct qb_minmax_decomposer				qb_minmax_decomposer;
 typedef struct qb_fetch_do_op_decomposer		qb_fetch_do_op_decomposer;
+typedef struct qb_set_op_chooser				qb_set_op_chooser;
 
 typedef void (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
@@ -218,6 +219,12 @@ struct qb_fetch_do_op_decomposer {
 	void *do_factory;
 };
 
+struct qb_set_op_chooser {
+	qb_produce_composite_proc produce_composite;
+	void *scalar_factory;
+	void *set_factory;
+};
+
 extern qb_op_factory factory_nop;
 
 extern qb_copy_op_factory factory_assign;
@@ -347,6 +354,8 @@ extern qb_derived_op_factory factory_set_greater_than;
 extern qb_simple_op_factory factory_set_not;
 extern qb_simple_op_factory factory_all;
 extern qb_simple_op_factory factory_any;
+extern qb_set_op_chooser factory_set_or_scalar_less_than;
+extern qb_set_op_chooser factory_set_or_scalar_less_equal;
 
 extern qb_basic_op_factory factory_equal;
 extern qb_basic_op_factory factory_not_equal;

@@ -2505,6 +2505,12 @@ qb_basic_op_factory factory_set_less_than = {
 	{	QB_LT_SET_F64_F64_I32,	QB_LT_SET_F32_F32_I32,	QB_LT_SET_U64_U64_I32,	QB_LT_SET_S64_S64_I32,	QB_LT_SET_U32_U32_I32,	QB_LT_SET_S32_S32_I32,	QB_LT_SET_U16_U16_I32,	QB_LT_SET_S16_S16_I32,	QB_LT_SET_U08_U08_I32,	QB_LT_SET_S08_S08_I32,	},
 };
 
+qb_set_op_chooser factory_set_or_scalar_less_than = {
+	qb_choose_set_or_scalar_op,
+	&factory_less_than,
+	&factory_set_less_than,
+};
+
 qb_basic_op_factory factory_set_less_equal = {
 	NULL,
 	qb_resolve_expression_type_boolean,
@@ -2521,6 +2527,12 @@ qb_basic_op_factory factory_set_less_equal = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
 	{	QB_LE_SET_F64_F64_I32,	QB_LE_SET_F32_F32_I32,	QB_LE_SET_U64_U64_I32,	QB_LE_SET_S64_S64_I32,	QB_LE_SET_U32_U32_I32,	QB_LE_SET_S32_S32_I32,	QB_LE_SET_U16_U16_I32,	QB_LE_SET_S16_S16_I32,	QB_LE_SET_U08_U08_I32,	QB_LE_SET_S08_S08_I32,	},
+};
+
+qb_set_op_chooser factory_set_or_scalar_less_equal = {
+	qb_choose_set_or_scalar_op,
+	&factory_less_equal,
+	&factory_set_less_equal,
 };
 
 qb_derived_op_factory factory_set_greater_equal = {

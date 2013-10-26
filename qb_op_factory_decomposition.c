@@ -110,3 +110,12 @@ static void qb_decompose_select(qb_compiler_context *cxt, void *factory, qb_oper
 	// perform assignment to first value (offset = 3)
 	qb_produce_op(cxt, &factory_assign_select, &operands[1], 1, result, NULL, 0, result_prototype);
 }
+
+static void qb_choose_set_or_scalar_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_set_op_chooser *c = factory;
+	if(SCALAR(operands[0].address)) {
+		qb_produce_op(cxt, c->scalar_factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
+	} else {
+		qb_produce_op(cxt, c->set_factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
+	}
+}
