@@ -140,6 +140,8 @@ struct qb_pbj_op {
 		qb_pbj_address source2;
 		qb_pbj_constant constant;
 	};
+	qb_pbj_address *destination_origin;
+	qb_pbj_address *eventual_destination;
 };
 
 enum {
@@ -153,6 +155,30 @@ enum {
 	PBJ_WRITE_SOURCE				= 0x00000080,
 	PBJ_WRITE_BOOLEAN				= 0x00000100,
 	PBJ_WRITE_SCALAR				= 0x00000200,
+};
+
+enum {
+	PBJ_OP_READ						= 0x00000001,
+	PBJ_OP_READ_EXACT				= (0x00000001 | 0x00000002),
+	PBJ_OP_WRITE					= 0x00000004,
+	PBJ_OP_OVERWRITE				= (0x00000004 | 0x00000008),
+	PBJ_OP_OVERWRITE_EXACT			= (0x00000004 | 0x00000008 | 0x00000010),
+};
+
+enum {
+	PBJ_AS_SOURCE					= 0x00000100,
+	PBJ_AS_DESTINATION				= 0x00000200,
+	PBJ_AS_SOURCE2					= 0x00000400,
+	PBJ_AS_SOURCE3					= 0x00000800,
+	PBJ_AS_BOOL						= 0x00001000,
+};
+
+enum {
+	PBJ_ADDRESS_EQUAL						= 1,
+	PBJ_ADDRESS_EXACT_OVERLAP				= 2,
+	PBJ_ADDRESS_SECOND_CONTAINS_FIRST		= 3,
+	PBJ_ADDRESS_FIRST_CONTAINS_SECOND		= 4,
+	PBJ_ADDRESS_OVERLAP						= 5,
 };
 
 struct qb_pbj_translator {
