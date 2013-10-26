@@ -79,11 +79,6 @@ struct qb_pbj_register {
 	int32_t loaded;
 };
 
-struct qb_pbj_register_slot {
-	qb_operand matrix;
-	qb_operand channels[PBJ_CHANNEL_RGBA + 1];
-};
-
 struct qb_pbj_value {
 	uint32_t type;
 	union {
@@ -176,13 +171,9 @@ struct qb_pbj_translator_context {
 
 	qb_pbj_register *float_registers;
 	uint32_t float_register_count;
-	qb_pbj_register_slot *float_register_slots;
-	uint32_t float_register_slot_count;
 
 	qb_pbj_register *int_registers;
 	uint32_t int_register_count;
-	qb_pbj_register_slot *int_register_slots;
-	uint32_t int_register_slot_count;
 
 	qb_pbj_op *pbj_ops;
 	uint32_t pbj_op_count;

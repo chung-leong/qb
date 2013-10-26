@@ -437,6 +437,8 @@ extern qb_float_op_factory factory_tanh;
 
 extern qb_minmax_decomposer factory_max;
 extern qb_minmax_decomposer factory_min;
+extern qb_basic_op_factory factory_min_two;
+extern qb_basic_op_factory factory_max_two;
 
 extern qb_basic_op_factory factory_mt_rand;
 extern qb_basic_op_factory factory_rand;
