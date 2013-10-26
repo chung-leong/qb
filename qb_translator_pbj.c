@@ -437,6 +437,125 @@ static void qb_set_pbj_source_channels(qb_pbj_translator_context *cxt, qb_pbj_ad
 	}
 }
 
+static int32_t qb_match_pbj_addresses(qb_pbj_translator_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
+	return (reg1_address->register_id == reg2_address->register_id && reg1_address->dimension == reg2_address->dimension 
+ 		 && reg1_address->channel_id == reg2_address->channel_id && reg1_address->channel_mask == reg2_address->channel_mask);
+}
+
+typedef struct qb_pbj_op_info {
+	qb_pbj_opcode opcode;
+	qb_pbj_address **src_ptr;
+	qb_pbj_address **dst_ptr;
+} qb_pbj_op_info;
+
+static uint32_t qb_find_op_sequence(qb_pbj_translator_context *cxt, qb_pbj_op_info *seq, uint32_t seq_len) {
+	// use Boyer-Moore-Horspool to locate the opcode sequence
+	uint32_t i, j, last = seq_len - 1, skip;
+    uint32_t bad_opcode_skip[PBJ_MAX_OPCODE + 1];
+	for(i = 0; i <= PBJ_MAX_OPCODE; i++) {
+        bad_opcode_skip[i] = seq_len;
+	}
+	for(i = 0; i < last; i++) {
+		bad_opcode_skip[seq[i].opcode] = last - i;
+	}
+	for(j = 0; j + last < cxt->pbj_op_count; j += skip) {
+		for(i = last; cxt->pbj_ops[j + i].opcode == seq[i].opcode; i--) {
+			if(i == 0) {
+				// found the opcode sequence--now verify that the addresses are correct
+				int32_t correct = TRUE;
+				for(i = 0; i < seq_len && correct; i++) {
+					qb_pbj_op *pop = &cxt->pbj_ops[j + i];
+					if(pop->opcode == PBJ_LOAD_CONSTANT) {
+						// check the constant
+						if(pop->constant.type == PBJ_TYPE_INT) {
+							if(pop->constant.int_value != *((int32_t *) seq[i].src_ptr)) {
+								correct = FALSE;
+							}
+						} else {
+							if(pop->constant.float_value != *((float32_t *) seq[i].src_ptr)) {
+								correct = FALSE;
+							}
+						}
+					} else {
+						if(seq[i].src_ptr) {
+							// check the source:
+							// if the pointer is null, set it
+							// if not, check that the address match
+							if(!*seq[i].src_ptr) {
+								*seq[i].src_ptr = &pop->source;
+							} else {
+								if(!qb_match_pbj_addresses(cxt, &pop->source, *seq[i].src_ptr)) {
+									correct = FALSE;
+								}
+							}
+						}
+					}
+					if(seq[i].dst_ptr) {
+						// check the destination--same logic
+						if(!*seq[i].dst_ptr) {
+							*seq[i].dst_ptr = &pop->destination;
+						} else {
+							if(!qb_match_pbj_addresses(cxt, &pop->destination, *seq[i].dst_ptr)) {
+								correct = FALSE;
+							}
+						}
+					}
+				}
+				return (correct) ? j : INVALID_INDEX;
+			}
+		}
+		skip = bad_opcode_skip[cxt->pbj_ops[j + last].opcode];
+    }
+    return INVALID_INDEX;
+}
+
+static void qb_substitute_ops(qb_pbj_translator_context *cxt) {
+	// look for smoothStep sequence
+	qb_pbj_address *x = NULL, *edge0 = NULL, *edge1 = NULL, *result = NULL;
+	qb_pbj_address *zero = NULL, *one = NULL, *var1 = NULL, *var2 = NULL, *var3 = NULL; 
+	float32_t constants[4] = { 0.0, 1.0, 2.0, 3.0 }; 
+	qb_pbj_op_info smooth_step_sequence[] = { 
+		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[0],	&zero	},
+		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[1],	&one	},
+		{	PBJ_COPY,			&x,									&var1	},
+		{	PBJ_SUBTRACT,		&edge0,								&var1	},
+		{	PBJ_COPY,			&edge1,								&var2	},
+		{	PBJ_SUBTRACT,		&edge0,								&var2	},
+		{	PBJ_RECIPROCAL,		&var2,								&var3	},
+		{	PBJ_MULTIPLY,		&var3,								&var1	},
+		{	PBJ_MAX,			&zero,								&var1	},
+		{	PBJ_MIN,			&one,								&var1	},
+		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[2],	&var2	},
+		{	PBJ_MULTIPLY,		&var1,								&var2	},
+		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[3],	&var3	},
+		{	PBJ_SUBTRACT,		&var2,								&var3	},
+		{	PBJ_COPY,			&var1,								&var2	},
+		{	PBJ_MULTIPLY,		&var1,								&var2	},
+		{	PBJ_MULTIPLY,		&var3,								&result	},
+	};
+	uint32_t start_index, seq_len = sizeof(smooth_step_sequence) / sizeof(qb_pbj_op_info);
+	start_index = qb_find_op_sequence(cxt, smooth_step_sequence, seq_len);
+	if(start_index != INVALID_INDEX) {
+		qb_pbj_op *ss_pop = &cxt->pbj_ops[start_index];
+		qb_pbj_op *ss_data_pop = &cxt->pbj_ops[start_index + 1];
+		uint32_t i;
+
+		// change the first and second ops to smoothStep
+		ss_pop->opcode = PBJ_SMOOTH_STEP;
+		memcpy(&ss_pop->source, edge0, sizeof(qb_pbj_address));
+		memcpy(&ss_pop->destination, result, sizeof(qb_pbj_address));
+		ss_data_pop->opcode = PBJ_OP_DATA;
+		memcpy(&ss_data_pop->source2, edge1, sizeof(qb_pbj_address));
+		memcpy(&ss_data_pop->source3, x, sizeof(qb_pbj_address));
+
+		// make the other NOP
+		for(i = 2; i < seq_len; i++) {
+			qb_pbj_op *nop = &cxt->pbj_ops[start_index + i];
+			nop->opcode = PBJ_NOP;
+		}
+	}
+}
+
 void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 	uint32_t opcode, prev_opcode, i;
 	cxt->pbj_data = (uint8_t *) cxt->compiler_context->external_code;
@@ -628,6 +747,10 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 		}
 		prev_opcode = opcode;
 	}
+
+	// look for for sequences of ops representing smoothstep()
+	qb_substitute_ops(cxt);
+
 	for(i = 0; i < cxt->parameter_count; i++) {
 		qb_pbj_parameter *parameter = &cxt->parameters[i];
 		if(strcmp(parameter->name, "_OutCoord") == 0) {
@@ -641,7 +764,6 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			}
 		}
 	}
-
 	if(!cxt->out_pixel) {
 		qb_abort("missing output pixel");
 	}
@@ -669,126 +791,6 @@ static qb_pbj_register * qb_get_pbj_register(qb_pbj_translator_context *cxt, qb_
 		return &cxt->int_registers[reg_address->register_id & ~PBJ_REGISTER_INT];
 	} else {
 		return &cxt->float_registers[reg_address->register_id];
-	}
-}
-
-static int32_t qb_match_pbj_addresses(qb_pbj_translator_context *cxt, qb_pbj_address *reg1_address, qb_pbj_address *reg2_address) {
-	return (reg1_address->register_id == reg2_address->register_id && reg1_address->dimension == reg2_address->dimension 
- 		 && reg1_address->channel_id == reg2_address->channel_id && reg1_address->channel_mask == reg2_address->channel_mask);
-}
-
-typedef struct qb_pbj_op_info {
-	uint32_t opcode;
-	qb_pbj_address **src_ptr;
-	qb_pbj_address **dst_ptr;
-} qb_pbj_op_info;
-
-static uint32_t qb_find_op_sequence(qb_pbj_translator_context *cxt, qb_pbj_op_info *seq, uint32_t seq_len) {
-	// use Boyer-Moore-Horspool to locate the opcode sequence
-	uint32_t i, j, last = seq_len - 1, skip;
-    uint32_t bad_opcode_skip[PBJ_MAX_OPCODE + 1];
-	for(i = 0; i <= PBJ_MAX_OPCODE; i++) {
-        bad_opcode_skip[i] = seq_len;
-	}
-	for(i = 0; i < last; i++) {
-		bad_opcode_skip[seq[i].opcode] = last - i;
-	}
-	for(j = 0; j + last < cxt->pbj_op_count; j += skip) {
-		for(i = last; cxt->pbj_ops[j + i].opcode == seq[i].opcode; i--) {
-			if(i == 0) {
-				// found the opcode sequence--now verify that the addresses are correct
-				int32_t correct = TRUE;
-				for(i = 0; i < seq_len && correct; i++) {
-					qb_pbj_op *pop = &cxt->pbj_ops[j + i];
-					if(pop->opcode == PBJ_LOAD_CONSTANT) {
-						// check the constant
-						if(pop->constant.type == PBJ_TYPE_INT) {
-							if(pop->constant.int_value != *((int32_t *) seq[i].src_ptr)) {
-								correct = FALSE;
-							}
-						} else {
-							if(pop->constant.float_value != *((float32_t *) seq[i].src_ptr)) {
-								correct = FALSE;
-							}
-						}
-					} else {
-						if(seq[i].src_ptr) {
-							// check the source:
-							// if the pointer is null, set it
-							// if not, check that the address match
-							if(!*seq[i].src_ptr) {
-								*seq[i].src_ptr = &pop->source;
-							} else {
-								if(!qb_match_pbj_addresses(cxt, &pop->source, *seq[i].src_ptr)) {
-									correct = FALSE;
-								}
-							}
-						}
-					}
-					if(seq[i].dst_ptr) {
-						// check the destination--same logic
-						if(!*seq[i].dst_ptr) {
-							*seq[i].dst_ptr = &pop->destination;
-						} else {
-							if(!qb_match_pbj_addresses(cxt, &pop->destination, *seq[i].dst_ptr)) {
-								correct = FALSE;
-							}
-						}
-					}
-				}
-				return (correct) ? j : INVALID_INDEX;
-			}
-		}
-		skip = bad_opcode_skip[cxt->pbj_ops[j + last].opcode];
-    }
-    return INVALID_INDEX;
-}
-
-static void qb_substitute_ops(qb_pbj_translator_context *cxt) {
-	// look for smoothStep sequence
-	qb_pbj_address *x = NULL, *edge0 = NULL, *edge1 = NULL, *result = NULL;
-	qb_pbj_address *zero = NULL, *one = NULL, *var1 = NULL, *var2 = NULL, *var3 = NULL; 
-	float32_t constants[4] = { 0.0, 1.0, 2.0, 3.0 }; 
-	qb_pbj_op_info smooth_step_sequence[18] = { 
-		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[0],	&zero	},
-		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[1],	&one	},
-		{	PBJ_COPY,			&x,									&var1	},
-		{	PBJ_SUBTRACT,		&edge0,								&var1	},
-		{	PBJ_COPY,			&edge1,								&var2	},
-		{	PBJ_SUBTRACT,		&edge0,								&var2	},
-		{	PBJ_RECIPROCAL,		&var2,								&var3	},
-		{	PBJ_MULTIPLY,		&var3,								&var1	},
-		{	PBJ_MAX,			&zero,								&var1	},
-		{	PBJ_MIN,			&one,								&var1	},
-		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[2],	&var2	},
-		{	PBJ_MULTIPLY,		&var1,								&var2	},
-		{	PBJ_LOAD_CONSTANT,	(qb_pbj_address **)	&constants[3],	&var3	},
-		{	PBJ_SUBTRACT,		&var2,								&var3	},
-		{	PBJ_COPY,			&var1,								&var2	},
-		{	PBJ_MULTIPLY,		&var1,								&var2	},
-		{	PBJ_MULTIPLY,		&var3,								&var2	},
-		{	PBJ_COPY,			&var2,								&result	},
-	};
-	uint32_t start_index, seq_len = sizeof(smooth_step_sequence) / sizeof(qb_pbj_op_info);
-	start_index = qb_find_op_sequence(cxt, smooth_step_sequence, seq_len);
-	if(start_index != INVALID_INDEX) {
-		qb_pbj_op *ss_pop = &cxt->pbj_ops[start_index];
-		qb_pbj_op *ss_data_pop = &cxt->pbj_ops[start_index + 1];
-		uint32_t i;
-
-		// change the first and second ops to smoothStep
-		ss_pop->opcode = PBJ_SMOOTH_STEP;
-		memcpy(&ss_pop->source, x, sizeof(qb_pbj_address));
-		memcpy(&ss_pop->destination, result, sizeof(qb_pbj_address));
-		ss_data_pop->opcode = PBJ_OP_DATA;
-		memcpy(&ss_data_pop->source2, edge0, sizeof(qb_pbj_address));
-		memcpy(&ss_data_pop->source3, edge1, sizeof(qb_pbj_address));
-
-		// make the other NOP
-		for(i = 2; i < seq_len; i++) {
-			qb_pbj_op *nop = &cxt->pbj_ops[start_index + i];
-			nop->opcode = PBJ_NOP;
-		}
 	}
 }
 
@@ -1871,9 +1873,6 @@ static void qb_end_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	uint32_t i;
 	qb_operand operand;
-
-	// look for for sequences of ops representing smoothstep()
-	qb_substitute_ops(cxt);
 
 	// map function arguments to PB kernel parameters
 	qb_map_pbj_variables(cxt);

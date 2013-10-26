@@ -427,12 +427,14 @@ static void qb_print_pbj_op(qb_printer_context *cxt, qb_pbj_op *pop, uint32_t po
 	}
 	php_printf("\n");
 
+	/*
 	for(i = 0; i < cxt->compiler_context->op_count; i++) {
 		qb_op *qop = cxt->compiler_context->ops[i];
 		if(qop->line_number == pop_index) {
 			qb_print_op(cxt, qop, i);
 		}
 	}
+	*/
 }
 
 static void qb_print_pbj_ops(qb_printer_context *cxt) {

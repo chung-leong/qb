@@ -137,6 +137,14 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 			// decode the pbj data
 			qb_decode_pbj_binary(translator_cxt);
 		}
+
+		// show the zend/pbj opcodes if turned on
+		if(QB_G(show_source_opcodes)) {
+			qb_printer_context _printer_cxt, *printer_cxt = &_printer_cxt;
+			qb_initialize_printer_context(printer_cxt, compiler_cxt TSRMLS_CC);
+			qb_print_source_ops(printer_cxt);
+			qb_free_printer_context(printer_cxt);
+		}
 	}
 
 	for(i = 0; i < cxt->compiler_context_count; i++) {
@@ -228,7 +236,7 @@ void qb_perform_translation(qb_build_context *cxt) {
 				qb_translate_pbj_instructions(translator_cxt);
 
 				// free the binary
-				//qb_free_external_code(compiler_cxt);
+				qb_free_external_code(compiler_cxt);
 			}	break;
 		}
 
@@ -255,14 +263,6 @@ void qb_perform_translation(qb_build_context *cxt) {
 			qb_printer_context _printer_cxt, *printer_cxt = &_printer_cxt;
 			qb_initialize_printer_context(printer_cxt, compiler_cxt TSRMLS_CC);
 			qb_print_ops(printer_cxt);
-		}
-
-		// show the zend/pbj opcodes if turned on
-		if(QB_G(show_source_opcodes)) {
-			qb_printer_context _printer_cxt, *printer_cxt = &_printer_cxt;
-			qb_initialize_printer_context(printer_cxt, compiler_cxt TSRMLS_CC);
-			qb_print_source_ops(printer_cxt);
-			qb_free_printer_context(printer_cxt);
 		}
 
 		QB_G(current_filename) = NULL;
