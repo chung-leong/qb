@@ -1167,28 +1167,34 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 					new_reg_address.dimension = DIMENSION(reg->matrix_address, -1);
 					new_reg_address.channel_id = PBJ_CHANNEL_MATRIX;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RGBA] && constant_count >= 4) {
-					new_reg_address.channel_id = PBJ_CHANNEL_RGBA;
 					constant_count = 4;
+					new_reg_address.channel_count = 4;
+					new_reg_address.channel_id = PBJ_CHANNEL_RGBA;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RGB] && constant_count >= 3) {
 					constant_count = 3;
+					new_reg_address.channel_count = 3;
 					new_reg_address.channel_id = PBJ_CHANNEL_RGB;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_RG] && constant_count >= 2) {
 					constant_count = 2;
+					new_reg_address.channel_count = 2;
 					new_reg_address.channel_id = PBJ_CHANNEL_RG;
 				}
 			}	break;
 			case 1: {
 				if(reg->channel_addresses[PBJ_CHANNEL_GBA] && constant_count >= 3) {
 					constant_count = 3;
+					new_reg_address.channel_count = 3;
 					new_reg_address.channel_id = PBJ_CHANNEL_GBA;
 				} else if(reg->channel_addresses[PBJ_CHANNEL_GB] && constant_count >= 2) {
 					constant_count = 2;
+					new_reg_address.channel_count = 2;
 					new_reg_address.channel_id = PBJ_CHANNEL_GB;
 				}
 			}	break;
 			case 2: {
 				 if(reg->channel_addresses[PBJ_CHANNEL_BA] && constant_count >= 2) {
 					constant_count = 2;
+					new_reg_address.channel_count = 2;
 					new_reg_address.channel_id = PBJ_CHANNEL_BA;
 				}
 			}	break;
