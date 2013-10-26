@@ -281,52 +281,52 @@ static uint32_t qb_get_pbj_channel_offset(qb_pbj_translator_context *cxt, qb_pbj
 static qb_pbj_channel_id *qb_get_overlapping_pbj_channels(qb_pbj_translator_context *cxt, qb_pbj_channel_id channel_id, uint32_t *p_count) {
 	switch(channel_id) {
 		case PBJ_CHANNEL_R: {
-			static qb_pbj_channel_id R[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_RG, PBJ_CHANNEL_RGB, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id R[] = { PBJ_CHANNEL_RG, PBJ_CHANNEL_RGB, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(R) / sizeof(qb_pbj_channel_id);
 			return R;
 		}	break;
 		case PBJ_CHANNEL_G: {
-			static qb_pbj_channel_id G[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id G[] = { PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(G) / sizeof(qb_pbj_channel_id);
 			return G;
 		}	break;
 		case PBJ_CHANNEL_B: {
-			static qb_pbj_channel_id B[] = { PBJ_CHANNEL_B, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id B[] = { PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(B) / sizeof(qb_pbj_channel_id);
 			return B;
 		}	break;
 		case PBJ_CHANNEL_A: {
-			static qb_pbj_channel_id A[] = { PBJ_CHANNEL_A, PBJ_CHANNEL_BA, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id A[] = { PBJ_CHANNEL_BA, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(A) / sizeof(qb_pbj_channel_id);
 			return A;
 		}	break;
 		case PBJ_CHANNEL_RG: {
-			static qb_pbj_channel_id RG[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id RG[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(RG) / sizeof(qb_pbj_channel_id);
 			return RG;
 		}	break;
 		case PBJ_CHANNEL_GB: {
-			static qb_pbj_channel_id GB[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id GB[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(GB) / sizeof(qb_pbj_channel_id);
 			return GB;
 		}	break;
 		case PBJ_CHANNEL_BA: {
-			static qb_pbj_channel_id BA[] = { PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id BA[] = { PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_GB, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(BA) / sizeof(qb_pbj_channel_id);
 			return BA;
 		}	break;
 		case PBJ_CHANNEL_RGB: {
-			static qb_pbj_channel_id RGB[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id RGB[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(RGB) / sizeof(qb_pbj_channel_id);
 			return RGB;
 		}	break;
 		case PBJ_CHANNEL_GBA: {
-			static qb_pbj_channel_id GBA[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id GBA[] = { PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_RGBA };
 			*p_count = sizeof(GBA) / sizeof(qb_pbj_channel_id);
 			return GBA;
 		}	break;
 		case PBJ_CHANNEL_RGBA: {
-			static qb_pbj_channel_id RGBA[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA, PBJ_CHANNEL_RGBA };
+			static qb_pbj_channel_id RGBA[] = { PBJ_CHANNEL_R, PBJ_CHANNEL_G, PBJ_CHANNEL_B, PBJ_CHANNEL_A, PBJ_CHANNEL_RG, PBJ_CHANNEL_GB, PBJ_CHANNEL_BA, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA };
 			*p_count = sizeof(RGBA) / sizeof(qb_pbj_channel_id);
 			return RGBA;
 		}	break;
@@ -891,8 +891,14 @@ static void qb_propagate_pbj_matrix_span(qb_pbj_translator_context *cxt, qb_pbj_
 		rgba_address->dimension_count = 1;
 		rgba_address->array_size_addresses = rgba_address->dimension_addresses = &rgba_address->array_size_address;
 		reg->channel_addresses[PBJ_CHANNEL_RGBA] = rgba_address;
-	} else {
+	} else if(reg->span == 3) {
 		// copy vector addresses into this and subsequent registers
+		uint32_t i;
+		for(i = 0; i < reg->span; i++) {
+			qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, i);
+			reg[i].channel_addresses[PBJ_CHANNEL_RGBA] = qb_obtain_array_element(cxt->compiler_context, reg->matrix_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
+		}
+	} else {
 		uint32_t i;
 		for(i = 0; i < reg->span; i++) {
 			qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, i);
@@ -950,8 +956,8 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 			float_values = value->float2x2;
 		}	break;
 		case PBJ_TYPE_FLOAT3X3: {
-			dimensions[0] = 3;
-			dimensions[1] = 4;
+			dimensions[0] = 4;
+			dimensions[1] = 3;
 			dimension_count = 2;
 			float_values = value->float3x3;
 		}	break;
@@ -1087,7 +1093,6 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 				} else {
 					qb_abort("parameter '%s' is obtained from the input image and cannot be passed separately", parameter->name);
 				}
-
 			} else {
 				// see if it has a default value
 				if(parameter->default_value.type) {
@@ -1232,8 +1237,8 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 			uint32_t dimensions[2], dimension_count;
 			if(new_reg_address.dimension > 1) {
 				if(new_reg_address.dimension == 3) {
-					dimensions[0] = 3;
-					dimensions[1] = 4;
+					dimensions[0] = 4;
+					dimensions[1] = 3;
 				} else {
 					dimensions[0] = dimensions[1] = new_reg_address.dimension;
 				}
@@ -1396,7 +1401,23 @@ static void qb_lock_temporary_variables_in_register_slots(qb_pbj_translator_cont
 	}
 }
 
-static void qb_clear_overlapping(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
+static void qb_invalidate_result_prototype(qb_pbj_translator_context *cxt, qb_operand *operand) {
+	if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		operand->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
+		if(operand->result_prototype->destination) {
+			// if the prototype's destination is another temporary variable, 
+			// that other prototype also needs to be invalidated
+			if(operand->result_prototype->destination->type == QB_RESULT_DESTINATION_VARIABLE) {
+				qb_invalidate_result_prototype(cxt, &operand->result_prototype->destination->variable);
+				operand->result_prototype->destination = NULL;
+			}
+		}
+		operand->type = QB_OPERAND_EMPTY;
+		operand->address = NULL;
+	}
+}
+
+static void qb_invalidate_substitutions(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, int32_t invalidate_selected) {
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
 	qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
 	if(reg_address->dimension > 1) {
@@ -1404,18 +1425,12 @@ static void qb_clear_overlapping(qb_pbj_translator_context *cxt, qb_pbj_address 
 		for(i = 0; i < reg->span; i++) {
 			for(j = 0; j <= PBJ_CHANNEL_RGBA; j++) {
 				if(reg->channel_addresses[j]) {
-					qb_operand *channel = &slot[i].channels[j];
-					if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
-						// clear the temporary flag to indicate that the actual address should be used
-						channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-						channel->address = NULL;
-						channel->type = QB_OPERAND_EMPTY;
-					} else if(channel->type == QB_OPERAND_ADDRESS) {
-						channel->address = NULL;
-						channel->type = QB_OPERAND_EMPTY;
-					}
+					qb_invalidate_result_prototype(cxt, &slot[i].channels[j]);
 				}
 			}
+		}
+		if(invalidate_selected) {
+			qb_invalidate_result_prototype(cxt, &slot->matrix);
 		}
 	} else {
 		qb_operand *channel = &slot->channels[reg_address->channel_id];
@@ -1425,16 +1440,11 @@ static void qb_clear_overlapping(qb_pbj_translator_context *cxt, qb_pbj_address 
 		for(i = 0; i < overlapping_channel_count; i++) {
 			qb_pbj_channel_id id = overlapping_channels[i];
 			if(reg->channel_addresses[id]) {
-				qb_operand *channel = &slot->channels[id];
-				if(channel->type == QB_OPERAND_RESULT_PROTOTYPE) {
-					channel->result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-					channel->address = NULL;
-					channel->type = QB_OPERAND_EMPTY;
-				} else if(channel->type == QB_OPERAND_ADDRESS) {
-					channel->address = NULL;
-					channel->type = QB_OPERAND_EMPTY;
-				}
+				qb_invalidate_result_prototype(cxt, &slot->channels[id]);
 			}
+		}
+		if(invalidate_selected) {
+			qb_invalidate_result_prototype(cxt, channel);
 		}
 	}
 }
@@ -1447,20 +1457,23 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 	qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
 	if(reg_address->dimension > 1) {
 		if(slot->matrix.type == QB_OPERAND_EMPTY) {
-			qb_clear_overlapping(cxt, reg_address);
-
+			// since there's nothing in the slot, the actual register needs to be used
 			operand->address = reg->matrix_address;
 			operand->type = QB_OPERAND_ADDRESS;
+
+			// substitution is not valid for channels contained within the matrix
+			qb_invalidate_substitutions(cxt, reg_address, FALSE);
 		} else {
 			*operand = slot->matrix;
 		}
 	} else {
 		qb_operand *channel = &slot->channels[reg_address->channel_id];
 		if(channel->type == QB_OPERAND_EMPTY) {
-			qb_clear_overlapping(cxt, reg_address);
-
 			operand->address = reg->channel_addresses[reg_address->channel_id];
 			operand->type = QB_OPERAND_ADDRESS;
+
+			// substitution is not valid for channels overlapping this one
+			qb_invalidate_substitutions(cxt, reg_address, FALSE);
 		} else {
 			*operand = *channel;
 		}
@@ -1480,32 +1493,44 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 }
 
 static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *result, qb_result_prototype *result_prototype) {
-	int32_t use_actual_address = TRUE;
 	qb_pbj_register *reg = qb_get_pbj_register(cxt, reg_address);
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
-
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(!(result_prototype->address_flags & QB_ADDRESS_TEMPORARY)) {
-			use_actual_address = TRUE;
-		}
-	}
-
-	// if other addresses overlaps the target, then use its actual address
-	// leave it empty otherwise
-	if(use_actual_address) {
-		qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
+	if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 		qb_operand *target;
-
-		qb_clear_overlapping(cxt, reg_address);
 		if(reg_address->dimension > 1) {
 			target = &slot->matrix;
 		} else {
 			target = &slot->channels[reg_address->channel_id];
 		}
-		qb_fetch_pbj_register(cxt, reg_address, result);
-	} else {
-		result->generic_pointer = NULL;
-		result->type = QB_OPERAND_EMPTY;
+		// see what's in the slot
+		if(target->type == QB_OPERAND_ADDRESS) {
+			// an address is stored here--we won't be writing to it
+			result->type = QB_OPERAND_EMPTY;
+			result->address = NULL;
+		} else if(target->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			*result = *target;
+		} else if(target->type == QB_OPERAND_EMPTY) {
+			*result = *target;
+		}
+		qb_invalidate_substitutions(cxt, reg_address, FALSE);
+	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
+			// the result of the expression is a temporary variable
+			result->address = NULL;
+			result->type = QB_OPERAND_EMPTY;
+		} else {
+			// we need to write to the actual register
+			qb_address *address;
+			if(reg_address->dimension > 1) {
+				address = reg->matrix_address;
+			} else {
+				address = reg->channel_addresses[reg_address->channel_id];
+			}
+			result->address = address;
+			result->type = QB_OPERAND_ADDRESS;
+
+			qb_clear_overlapping(cxt, reg_address);
+		}
 	}
 }
 
@@ -1514,19 +1539,20 @@ static void qb_retire_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addres
 
 static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand) {
 	qb_pbj_register_slot *slot = qb_get_pbj_register_slot(cxt, reg_address);
+	qb_operand *target;
 	if(reg_address->dimension > 1) {
-		slot->matrix = *operand;
+		target = &slot->matrix;
 	} else {
-		qb_operand *channel = &slot->channels[reg_address->channel_id];
-		if(reg_address->channel_mask == INVALID_INDEX) {
-			 *channel = *operand;
-		} else {
-			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {				
-				qb_perform_scatter(cxt, operand->address, channel->address, reg_address->channel_mask);
-			}
-		}
+		target = &slot->channels[reg_address->channel_id];
 	}
-	qb_retire_pbj_register(cxt, reg_address, operand);
+	if(reg_address->channel_mask != INVALID_INDEX) {
+		if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {				
+			qb_perform_scatter(cxt, operand->address, target->address, reg_address->channel_mask);
+		}
+	} else {
+		qb_unlock_operand(cxt->compiler_context, target);
+		*target = *operand;
+	}
 }
 
 static void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
@@ -1621,7 +1647,7 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 	if(reg_address->dimension > 1) {
 		if(!reg->matrix_address) {
 			uint32_t size = reg->span * 4;
-			uint32_t dimensions[2] = { reg_address->dimension, size / reg_address->dimension };
+			uint32_t dimensions[2] = { size / reg_address->dimension, reg_address->dimension };
 			reg->matrix_address = qb_create_writable_array(cxt->compiler_context, element_type, dimensions, 2);
 			qb_propagate_pbj_matrix_span(cxt, reg);
 		}

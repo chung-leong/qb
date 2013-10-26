@@ -45,6 +45,10 @@ static void qb_link_results_variable(qb_compiler_context *cxt, qb_op_factory *f,
 	if(variable->type == QB_OPERAND_EMPTY) {
 		// the variable doesn't really need to be there--try to bypass the assignment 
 		result_prototype->address_flags |= QB_ADDRESS_TEMPORARY;
+	} else if(variable->type == QB_OPERAND_RESULT_PROTOTYPE) {
+		if(variable->result_prototype->address_flags & QB_ADDRESS_TEMPORARY) {
+			result_prototype->address_flags |= QB_ADDRESS_TEMPORARY;
+		}
 	}
 }
 

@@ -19,12 +19,12 @@
 /* $Id$ */
 
 static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(result->type != QB_OPERAND_ADDRESS) {
-		result->type = QB_OPERAND_RESULT_PROTOTYPE;
-		result->result_prototype = result_prototype;
-	} else {
+	if(result->type == QB_OPERAND_ADDRESS) {
 		// the result won't be a temporary variable
 		result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
+	} else {
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
 	}
 }
 
@@ -83,16 +83,16 @@ static void qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, qb_
 static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 
-	if(variable->type == QB_OPERAND_EMPTY) {
-		// no variable to assign to
-		*result = *value;
-	} else {
+	if(variable->type == QB_OPERAND_ADDRESS) {
 		result->address = variable->address;
 		result->type = QB_OPERAND_ADDRESS;
 		// no bound-checking if the assignment doesn't happen
 		if(expr_type != QB_TYPE_VOID) {
 			qb_attach_bound_checking_expression(cxt, value->address->array_size_address, variable->address, TRUE);
 		}
+	} else {
+		// no variable to assign to
+		*result = *value;
 	}
 }
 

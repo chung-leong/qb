@@ -396,8 +396,10 @@ static void qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(m1_col_count != m2_row_count) {
-			qb_abort("The number of columns in the first matrix (%d) does not match the number of rows in the second matrix (%d)", m1_col_count, m2_row_count);
+		if(!cxt->matrix_padding) {
+			if(m1_col_count != m2_row_count) {
+				qb_abort("The number of columns in the first matrix (%d) does not match the number of rows in the second matrix (%d)", m1_col_count, m2_row_count);
+			}
 		}
 	} else {
 		if(m1_col_address != m2_row_address) {
@@ -423,8 +425,10 @@ static void qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(m1_col_count != m2_row_count) {
-			qb_abort("The number of columns in the matrix (%d) does not match the vector's dimension (%d)", m1_col_count, m2_row_count);
+		if(!cxt->matrix_padding) {
+			if(m1_col_count != m2_row_count) {
+				qb_abort("The number of columns in the matrix (%d) does not match the vector's dimension (%d)", m1_col_count, m2_row_count);
+			}
 		}
 	}
 }
@@ -446,8 +450,10 @@ static void qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(m1_col_count != m2_row_count) {
-			qb_abort("The number of rows in the matrix (%d) does not match the vector's dimension (%d)", m2_row_count, m1_col_count);
+		if(!cxt->matrix_padding) {
+			if(m1_col_count != m2_row_count) {
+				qb_abort("The number of rows in the matrix (%d) does not match the vector's dimension (%d)", m2_row_count, m1_col_count);
+			}
 		}
 	}
 }
