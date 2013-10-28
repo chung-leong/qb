@@ -318,7 +318,9 @@ void qb_free_thread_pool(qb_thread_pool *pool) {
 		}
 		pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
 #else
-		WaitForSingleObject(pool->main_thread_resumption_event, INFINITE);
+		if(pool->task_completion_count < pool->worker_count) {
+			WaitForSingleObject(pool->main_thread_resumption_event, INFINITE);
+		}
 #endif
 
 		for(i = 0; i < pool->worker_count; i++) {
