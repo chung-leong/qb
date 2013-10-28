@@ -104,7 +104,7 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 		if(address->source_address->dimension_count == address->dimension_count + 1) {
 			// array element
 			qb_address *array_address = address->source_address, *a;
-			uint32_t i, index;
+			uint32_t index;
 			for(a = array_address; a; a = a->source_address) {
 				if(a->source_address && a->source_address->dimension_count == a->dimension_count + 1) {
 					array_address = a->source_address;
@@ -397,7 +397,7 @@ static const char * qb_get_pbj_op_name(qb_printer_context *cxt, uint32_t opcode)
 
 static void qb_print_pbj_op(qb_printer_context *cxt, qb_pbj_op *pop, uint32_t pop_index) {
 	const char *op_name = qb_get_pbj_op_name(cxt, pop->opcode);
-	uint32_t i;
+	//uint32_t i;
 	php_printf("%04d: %s ", pop_index, op_name);
 
 	if(pop->opcode == PBJ_SAMPLE_NEAREST || pop->opcode == PBJ_SAMPLE_BILINEAR) {

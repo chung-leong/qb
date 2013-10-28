@@ -432,6 +432,24 @@ static void qb_discard_current_build(TSRMLS_D) {
 	}
 }
 
+qb_thread_pool * qb_get_thread_pool(TSRMLS_D) {
+	qb_thread_pool *pool = QB_G(thread_pool);
+	if(!pool) {
+		pool = emalloc(sizeof(qb_thread_pool));
+		qb_initialize_thread_pool(pool TSRMLS_CC);
+		QB_G(thread_pool) = pool;
+	}
+	return pool;
+}
+
+void qb_destroy_thread_pool(TSRMLS_D) {
+	qb_thread_pool *pool = QB_G(thread_pool);
+	if(pool) {
+		qb_free_thread_pool(pool);
+		efree(pool);
+	}
+}
+
 qb_function * qb_find_compiled_function(zend_function *zfunc) {
 	uint32_t i;
 	qb_function *qfunc = qb_get_compiled_function(zfunc);
@@ -690,6 +708,8 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("qb.native_code_cache_path",  		"",		PHP_INI_SYSTEM, OnUpdatePath,	native_code_cache_path,			zend_qb_globals,	qb_globals)
 	STD_PHP_INI_ENTRY("qb.execution_log_path",  			"",		PHP_INI_SYSTEM, OnUpdatePath,	execution_log_path,				zend_qb_globals,	qb_globals)
 
+	STD_PHP_INI_ENTRY("qb.thread_count",					"0",	PHP_INI_SYSTEM, OnUpdateLong,	thread_count,					zend_qb_globals,	qb_globals)
+
 	STD_PHP_INI_BOOLEAN("qb.allow_bytecode_interpretation",	"1",	PHP_INI_ALL,	OnUpdateBool,	allow_bytecode_interpretation,	zend_qb_globals,	qb_globals)
 	STD_PHP_INI_BOOLEAN("qb.allow_debugger_inspection",		"1",	PHP_INI_ALL,	OnUpdateBool,	allow_debugger_inspection,		zend_qb_globals,	qb_globals)
 	STD_PHP_INI_BOOLEAN("qb.allow_debug_backtrace",			"0",	PHP_INI_ALL,	OnUpdateBool,	allow_debug_backtrace,			zend_qb_globals,	qb_globals)
@@ -701,6 +721,7 @@ PHP_INI_BEGIN()
     STD_PHP_INI_BOOLEAN("qb.show_native_source",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_native_source,				zend_qb_globals,	qb_globals)
     STD_PHP_INI_BOOLEAN("qb.show_compiler_errors",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_compiler_errors,			zend_qb_globals,	qb_globals)
     STD_PHP_INI_BOOLEAN("qb.show_source_opcodes",			"0",	PHP_INI_ALL,	OnUpdateBool,	show_source_opcodes,			zend_qb_globals,	qb_globals)
+
 PHP_INI_END()
 /* }}} */
 
@@ -784,6 +805,7 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(scope_count) = 0;
 	QB_G(external_symbols) = NULL;
 	QB_G(external_symbol_count) = 0;
+	QB_G(thread_pool) = NULL;
 #ifdef NATIVE_COMPILE_ENABLED
 	QB_G(native_code_bundles) = NULL;
 	QB_G(native_code_bundle_count) = 0;
@@ -798,6 +820,8 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 {
 	uint32_t i, j;
 	qb_discard_current_build(TSRMLS_C);
+
+	qb_destroy_thread_pool(TSRMLS_C);
 
 	for(i = 0; i < QB_G(scope_count); i++) {
 		qb_import_scope *scope = QB_G(scopes)[i];

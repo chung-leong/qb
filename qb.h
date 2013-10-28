@@ -122,6 +122,7 @@
 #include "qb_translator_php.h"
 #include "qb_translator_pbj.h"
 #include "qb_encoder.h"
+#include "qb_thread.h"
 #include "qb_interpreter.h"
 #include "qb_native_compiler.h"
 #include "qb_printer.h"
@@ -138,6 +139,8 @@ enum {
 ZEND_BEGIN_MODULE_GLOBALS(qb)
 	const char *current_filename;
 	uint32_t current_line_number;
+
+	int thread_count;
 
 	zend_bool allow_bytecode_interpretation;
 	zend_bool allow_native_compilation;
@@ -198,6 +201,8 @@ qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_i
 uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer TSRMLS_DC);
 
 qb_build_context * qb_get_current_build(TSRMLS_D);
+
+qb_thread_pool * qb_get_thread_pool(TSRMLS_D);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);

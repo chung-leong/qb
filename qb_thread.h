@@ -31,12 +31,13 @@ typedef struct qb_thread_task		qb_thread_task;
 typedef struct qb_thread_worker		qb_thread_worker;
 typedef struct qb_thread_pool		qb_thread_pool;
 
-typedef void (*qb_thread_proc)(void *param1, void *param2);
+typedef void (*qb_thread_proc)(void *param1, void *param2, int param3);
 
 struct qb_thread_task {
 	qb_thread_proc proc;
 	void *param1;
 	void *param2;
+	int param3;
 	qb_thread_worker **worker_pointer;
 };
 
@@ -78,9 +79,12 @@ struct qb_thread_pool {
 
 long qb_get_cpu_count(void);
 
-void qb_schedule_task(qb_thread_pool *pool, qb_thread_proc proc, void *param1, void *param2, qb_thread_worker **p_worker);
-void qb_run_in_main_thread(qb_thread_worker *worker, qb_thread_proc proc, void *param1, void *param2);
-void qb_initialize_thread_pool(qb_thread_pool *pool);
+void qb_schedule_task(qb_thread_pool *pool, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread_worker **p_worker);
 void qb_run_tasks(qb_thread_pool *pool);
+void qb_run_in_main_thread(qb_thread_worker *worker, qb_thread_proc proc, void *param1, void *param2, int param3);
+
+void qb_initialize_thread_pool(qb_thread_pool *pool TSRMLS_DC);
+void qb_free_thread_pool(qb_thread_pool *pool);
+
 
 #endif

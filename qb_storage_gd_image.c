@@ -278,10 +278,97 @@ static void qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
 	image->sy = height;
 }
 
+static void qb_copy_rgba_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
+		p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
+		p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
+		p[3] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0f / gdAlphaMax));
+		p += 4;
+	}
+}
+
+static void qb_copy_rgb_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
+		p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
+		p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
+		p += 3;
+	}
+}
+
+static void qb_copy_monochrome_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax)) * 0.299f
+			 + ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax)) * 0.587f
+			 + ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax)) * 0.114f;
+		p += 1;
+	}
+}
+
+static void qb_copy_rgba_pixel_from_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
+		p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
+		p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
+		p[3] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0f / gdAlphaMax));
+		p += 4;
+	}
+}
+
+static void qb_copy_rgb_pixel_from_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
+		p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
+		p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
+		p += 3;
+	}
+}
+
+static void qb_copy_monochrome_pixel_from_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax)) * 0.299f
+			 + ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax)) * 0.587f
+			 + ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax)) * 0.114f;
+		p += 1;
+	}
+}
+
 static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *address, gdImagePtr image) {
 	uint32_t i, j;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
 	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
+	uint32_t cpu_count = qb_get_cpu_count();
 
 	if(image->trueColor) {
 		int tpixel;
@@ -301,77 +388,69 @@ static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *addr
 			}	break;
 			case QB_PIXEL_F32_4: {
 				float32_t *p = ARRAY_IN(storage, F32, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
-						p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
-						p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
-						p[3] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0f / gdAlphaMax));
-						p += 4;
-					}
+					qb_schedule_task(pool, qb_copy_rgba_pixel_from_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 4;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F32_3: {
 				float32_t *p = ARRAY_IN(storage, F32, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
-						p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
-						p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
-						p += 3;
-					}
+					qb_schedule_task(pool, qb_copy_rgb_pixel_from_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 3;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F32_1: {
 				float32_t *p = ARRAY_IN(storage, F32, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax)) * 0.299f
-							 + ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax)) * 0.587f
-							 + ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax)) * 0.114f;
-						p += 1;
-					}
+					qb_schedule_task(pool, qb_copy_monochrome_pixel_from_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 1;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F64_4: {
 				float64_t *p = ARRAY_IN(storage, F64, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-						p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-						p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-						p[3] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
-						p += 4;
-					}
+					qb_schedule_task(pool, qb_copy_rgba_pixel_from_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 4;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F64_3: {
 				float64_t *p = ARRAY_IN(storage, F64, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						p[0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
-						p[1] = ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
-						p[2] = ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
-						p += 3;
-					}
+					qb_schedule_task(pool, qb_copy_rgb_pixel_from_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 3;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F64_1: {
 				float64_t *p = ARRAY_IN(storage, F64, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						p[0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax)) * 0.299
-							 + ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax)) * 0.587
-							 + ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax)) * 0.114;
-						p += 1;
-					}
+					qb_schedule_task(pool, qb_copy_monochrome_pixel_from_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 1;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			default: {
 			}	break;
@@ -395,6 +474,94 @@ static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *addr
 			default: {
 			}	break;
 		}
+	}
+}
+
+static void qb_copy_rgba_pixel_to_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r, g, b, a;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float32(p[0], gdRedMax);
+		g = qb_clamp_float32(p[1], gdGreenMax);
+		b = qb_clamp_float32(p[2], gdBlueMax);
+		a = gdAlphaTransparent - qb_clamp_float32(p[3], gdAlphaMax);
+		tpixels[i] = gdTrueColorAlpha(r, g, b, a);
+		p += 4;
+	}
+}
+
+static void qb_copy_rgb_pixel_to_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r, g, b;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float32(p[0], gdRedMax);
+		g = qb_clamp_float32(p[1], gdGreenMax);
+		b = qb_clamp_float32(p[2], gdBlueMax);
+		tpixels[i] = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
+		p += 3;
+	}
+}
+
+static void qb_copy_monochrome_pixel_to_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float32(p[0], gdRedMax);
+		tpixels[i] = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
+		p += 1;
+	}
+}
+
+static void qb_copy_rgba_pixel_to_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r, g, b, a;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float64(p[0], gdRedMax);
+		g = qb_clamp_float64(p[1], gdGreenMax);
+		b = qb_clamp_float64(p[2], gdBlueMax);
+		a = gdAlphaTransparent - qb_clamp_float64(p[3], gdAlphaMax);
+		tpixels[i] = gdTrueColorAlpha(r, g, b, a);
+		p += 4;
+	}
+}
+
+static void qb_copy_rgb_pixel_to_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r, g, b;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float64(p[0], gdRedMax);
+		g = qb_clamp_float64(p[1], gdGreenMax);
+		b = qb_clamp_float64(p[2], gdBlueMax);
+		tpixels[i] = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
+		p += 3;
+	}
+}
+
+static void qb_copy_monochrome_pixel_to_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float64(p[0], gdRedMax);
+		tpixels[i] = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
+		p += 1;
 	}
 }
 
@@ -425,13 +592,11 @@ static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *addres
 	}
 
 	if(image->trueColor) {
-		int tpixel, r, g, b, a;
-
 		switch(pixel_type) {
 			case QB_PIXEL_I08_4:
 			case QB_PIXEL_I32_1: {
 				int32_t *p = ARRAY_IN(storage, I32, address);
-
+				int tpixel;
 				for(i = 0; i < (uint32_t) image->sy; i++) {
 					for(j = 0; j < (uint32_t) image->sx; j++) {
 						tpixel = *p++;
@@ -441,90 +606,78 @@ static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *addres
 			}	break;
 			case QB_PIXEL_F32_4: {
 				float32_t *p = ARRAY_IN(storage, F32, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float32(p[0], gdRedMax);
-						g = qb_clamp_float32(p[1], gdGreenMax);
-						b = qb_clamp_float32(p[2], gdBlueMax);
-						a = gdAlphaTransparent - qb_clamp_float32(p[3], gdAlphaMax);
-						tpixel = gdTrueColorAlpha(r, g, b, a);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
-						p += 4;
-					}
+					qb_schedule_task(pool, qb_copy_rgba_pixel_to_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 4;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F32_3: {
 				float32_t *p = ARRAY_IN(storage, F32, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float32(p[0], gdRedMax);
-						g = qb_clamp_float32(p[1], gdGreenMax);
-						b = qb_clamp_float32(p[2], gdBlueMax);
-						tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
-						p += 3;
-					}
+					qb_schedule_task(pool, qb_copy_rgb_pixel_to_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 3;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F32_1: {
 				float32_t *p = ARRAY_IN(storage, F32, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float32(p[0], gdRedMax);
-						tpixel = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
-						p += 1;
-					}
+					qb_schedule_task(pool, qb_copy_monochrome_pixel_to_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 1;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F64_4: {
 				float64_t *p = ARRAY_IN(storage, F64, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float64(p[0], gdRedMax);
-						g = qb_clamp_float64(p[1], gdGreenMax);
-						b = qb_clamp_float64(p[2], gdBlueMax);
-						a = gdAlphaTransparent - qb_clamp_float64(p[3], gdAlphaMax);
-						tpixel = gdTrueColorAlpha(r, g, b, a);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
-						p += 4;
-					}
+					qb_schedule_task(pool, qb_copy_rgba_pixel_to_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 4;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F64_3: {
 				float64_t *p = ARRAY_IN(storage, F64, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float64(p[0], gdRedMax);
-						g = qb_clamp_float64(p[1], gdGreenMax);
-						b = qb_clamp_float64(p[2], gdBlueMax);
-						tpixel = gdTrueColorAlpha(r, g, b, gdAlphaOpaque);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
-						p += 3;
-					}
+					qb_schedule_task(pool, qb_copy_rgb_pixel_to_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 3;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			case QB_PIXEL_F64_1: {
 				float64_t *p = ARRAY_IN(storage, F64, address);
+				qb_thread_pool *pool;
+				TSRMLS_FETCH();
+				pool = qb_get_thread_pool(TSRMLS_C);
 				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						r = qb_clamp_float64(p[0], gdRedMax);
-						tpixel = gdTrueColorAlpha(r, r, r, gdAlphaOpaque);
-						gdImageTrueColorPixel(image, j, i) = tpixel;
-						p += 1;
-					}
+					qb_schedule_task(pool, qb_copy_monochrome_pixel_to_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
+					p += image->sx * 1;
 				}
+				qb_run_tasks(pool);
 			}	break;
 			default: {
 			}	break;
 		}
 	} else {
-		unsigned char pixel;
-
 		switch(pixel_type) {
 			case QB_PIXEL_I08_1: {
 				int8_t *p = ARRAY_IN(storage, I08, address);
-
+				unsigned char pixel;
 				for(i = 0; i < (uint32_t) image->sy; i++) {
 					for(j = 0; j < (uint32_t) image->sx; j++) {
 						pixel = p[0];
@@ -532,7 +685,6 @@ static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *addres
 						p += 1;
 					}
 				}
-
 			}	break;
 			default: {
 			}	break;
