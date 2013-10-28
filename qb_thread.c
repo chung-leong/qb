@@ -20,190 +20,303 @@
 
 #include "qb.h"
 
-#ifdef HAVE_PTHREAD
-
-uint32_t qb_get_cpu_count() {
-	static uint32_t count = 0;
+long qb_get_cpu_count(void) {
+	static long count = 0;
 	if(!count) {
-#ifdef WIN32
+#if defined(__linux__)
+		count = sysconf( _SC_NPROCESSORS_ONLN );
+#elif defined(WIN32)
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
 		count = sysinfo.dwNumberOfProcessors;
-#elif defined(__linux__)
-		count = sysconf( _SC_NPROCESSORS_ONLN );
 #endif
 	}
 	return count;
 }
 
-int32_t qb_schedule_task(qb_thread_pool *pool, void *proc, void *param1, void *param2) {
+void qb_schedule_task(qb_thread_pool *pool, qb_thread_proc proc, void *param1, void *param2, qb_thread_worker **p_worker) {
 	qb_thread_task *next_task;
 	if(pool->task_count >= pool->task_buffer_size) {
 		pool->task_buffer_size += 16;
-		pool->tasks = perealloc(pool->tasks, sizeof(qb_thread_task) * pool->task_buffer_size, TRUE);
+		pool->tasks = realloc(pool->tasks, sizeof(qb_thread_task) * pool->task_buffer_size);
 	}
 	next_task = &pool->tasks[pool->task_count];
 	next_task->proc = proc;
 	next_task->param1 = param1;
 	next_task->param2 = param2;
-	next_task->assigned = FALSE;
+	next_task->worker_pointer = p_worker;
 	pool->task_count++;
-	return TRUE;
 }
 
-#ifdef WIN32
-DWORD WINAPI qb_run_task(LPVOID lpThreadParameter) {
-	qb_task_assignment *assignment = lpThreadParameter;
-	for(;;) {
-		qb_thread_task *task = (qb_thread_task *) assignment->task;
-		if(task) {
-			task->proc(task->param1, task->param2);
-			assignment->task = NULL;
+void qb_run_in_main_thread(qb_thread_worker *worker, qb_thread_proc proc, void *param1, void *param2) {
+	qb_thread_pool *pool = worker->pool;
+	qb_thread_task req;
+	req.proc = proc;
+	req.param1 = param1;
+	req.param2 = param2;
 
-			SetEvent(assignment->win32_completion_event);
-		}
-	}
-	return 0;
-}
+#ifndef WIN32
+	// acquire mutex--only one worker may submit a request at a time
+	pthread_mutex_lock(&pool->main_thread_request_mutex);
+
+	// wake up the main thread to handle the request
+	pthread_mutex_lock(&pool->main_thread_resumption_mutex);
+	pool->worker_request = &req;
+	pool->waiting_worker = worker;
+	pthread_cond_signal(&pool->main_thread_resumption_condition);
+	pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
+
+	// wait for request to be handled
+	pthread_cond_wait(&worker->resumption_condition, &worker->resumption_mutex);
+
+	// release mutex
+	pthread_mutex_unlock(&pool->main_thread_request_mutex);
 #else
-void *qb_run_task(void *arg) {
-	qb_task_assignment *assignment = arg;
-	for(;;) {
-		qb_thread_task *task = (qb_thread_task *) assignment->task;
-		if(task) {
-			task->proc(task->param1, task->param2);
-			assignment->task = NULL;
+	// acquire mutex--only one worker may submit a request at a time
+	WaitForSingleObject(pool->main_thread_request_mutex, INFINITE);
+	pool->worker_request = &req;
+	pool->waiting_worker = worker;
+	SetEvent(pool->main_thread_resumption_event);
 
-			pthread_mutex_lock(assignment->pthread_completion_mutex);
-			*assignment->pthread_completion_state = TRUE;
-			pthread_mutex_unlock(assignment->pthread_completion_mutex);
-			pthread_cond_signal(assignment->pthread_completion_cond);
+	// wait for request to be handled
+	WaitForSingleObject(worker->resumption_event, INFINITE);
+
+	// release mutex
+	ReleaseMutex(pool->main_thread_request_mutex);
+#endif
+}
+
+#ifndef WIN32
+void *qb_run_task(void *arg) {
+	qb_thread_worker *worker = arg;
+	qb_thread_pool *pool = worker->pool;
+	long completion_count;
+	pthread_mutex_lock(&worker->resumption_mutex);
+	for(;;) {
+		uint32_t task_index = __sync_fetch_and_add(&pool->task_index, 1);
+		if(task_index < pool->task_count) {
+			qb_thread_task *task = &pool->tasks[task_index];
+			if(task->worker_pointer) {
+				*task->worker_pointer = worker;
+			}
+			task->proc(task->param1, task->param2);
+
+			completion_count = __sync_add_and_fetch(&pool->task_completion_count, 1);
+			if(completion_count == pool->task_count) {
+				// every thing is done--wake up the main thread
+				pthread_mutex_lock(&pool->main_thread_resumption_mutex);
+				pool->task_count = 0;
+				pool->task_completion_count = 0;
+				pthread_cond_signal(&pool->main_thread_resumption_condition);
+				pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
+			}
 		} else {
-			pthread_mutex_lock(assignment->pthread_wake_mutex);
-			if(assignment->thread_suspended) {
-				pthread_cond_wait(assignment->pthread_wake_cond, assignment->pthread_wake_mutex);
-				pthread_mutex_unlock(assignment->pthread_wake_mutex);
-			} else {
-				pthread_mutex_unlock(assignment->pthread_wake_mutex);
+			// nothing to do--start waiting again
+			pthread_cond_wait(&worker->resumption_condition, &worker->resumption_mutex);
+			if(pool->task_count == 0) {
+				// time to leave
+				break;
 			}
 		}
+	}
+	pthread_mutex_unlock(&worker->resumption_mutex);
+
+	completion_count = __sync_add_and_fetch(&pool->task_completion_count, 1);
+	if(completion_count == pool->worker_count) {
+		// last thread to exit--wake up the main thread
+		pthread_mutex_lock(&pool->main_thread_resumption_mutex);
+		pthread_cond_signal(&pool->main_thread_resumption_condition);
+		pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
 	}
 	return NULL;
 }
-#endif
-
-int qb_initialize_thread_pool(qb_thread_pool *pool) {
-	uint32_t i ;
-	pool->task_buffer_size = 16;
-	pool->tasks = malloc(sizeof(qb_thread_task) * pool->task_buffer_size);
-	pool->task_count = 0;
-	pool->thread_count = qb_get_cpu_count();
-	pool->task_assignments = malloc(sizeof(qb_task_assignment) * pool->thread_count);
-
-#ifdef WIN32
-	pool->win32_completion_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-	pool->win32_threads = malloc(sizeof(HANDLE) * pool->thread_count);
-	for(i = 0; i < pool->thread_count; i++) {
-		pool->win32_threads[i] = CreateThread(NULL, 0, qb_run_task, &pool->task_assignments[i], CREATE_SUSPENDED, NULL);
-		pool->task_assignments[i].task = NULL;
-		pool->task_assignments[i].thread_suspended = TRUE;
-		pool->task_assignments[i].win32_completion_event = pool->win32_completion_event;
-	}
 #else
-	pool->pthreads = malloc(sizeof(pthread_t) * pool->thread_count);
-	pool->pthread_wake_conds = malloc(sizeof(pthread_cond_t) * pool->thread_count);
-	pool->pthread_wake_mutexes = malloc(sizeof(pthread_mutex_t) * pool->thread_count);
-	pthread_cond_init(&pool->pthread_completion_cond, NULL);
-	pthread_mutex_init(&pool->pthread_completion_mutex, NULL);
-	for(i = 0; i < pool->thread_count; i++) {
-		pool->task_assignments[i].task = NULL;
-		pool->task_assignments[i].thread_suspended = TRUE;
-		pthread_cond_init(&pool->pthread_wake_conds[i], NULL);
-		pthread_mutex_init(&pool->pthread_wake_mutexes[i], NULL);
-		pool->task_assignments[i].pthread_wake_cond = &pool->pthread_wake_conds[i];
-		pool->task_assignments[i].pthread_wake_mutex = &pool->pthread_wake_mutexes[i];
-		pool->task_assignments[i].pthread_completion_cond = &pool->pthread_completion_cond;
-		pool->task_assignments[i].pthread_completion_mutex = &pool->pthread_completion_mutex;
-		pool->task_assignments[i].pthread_completion_state = (int32_t *) &pool->pthread_completion_state;
-		pthread_create(&pool->pthreads[i], NULL, qb_run_task, &pool->task_assignments[i]);
-	}
-#endif
-	return TRUE;
-}
+DWORD WINAPI qb_run_task(LPVOID lpThreadParameter) {
+	qb_thread_worker *worker = lpThreadParameter;
+	qb_thread_pool *pool = worker->pool;
+	WaitForSingleObject(worker->resumption_event, INFINITE);
 
-int qb_run_tasks(qb_thread_pool *pool) {
-	uint32_t i, j, start_index = 0, active_thread_count = 0, suspended_thread_count = 0;
-	// wake up the threads
-	for(i = 0; i < pool->thread_count; i++) {
-		if(i < pool->task_count) {
-#ifdef WIN32
-			pool->task_assignments[i].thread_suspended = FALSE;
-			ResumeThread(pool->win32_threads[i]);
-#else
-			pthread_mutex_lock(&pool->pthread_wake_mutexes[i]);
-			pool->task_assignments[i].thread_suspended = FALSE;
-			pthread_mutex_unlock(&pool->pthread_wake_mutexes[i]);
-			pthread_cond_signal(&pool->pthread_wake_conds[i]);
-#endif
-			active_thread_count++;
-		}
-	}
+	if(pool->task_count > 0) {
+		for(;;) {
+			long task_index = InterlockedIncrement(&pool->task_index) - 1;
+			if(task_index < pool->task_count) {
+				qb_thread_task *task = &pool->tasks[task_index];
+				if(task->worker_pointer) {
+					*task->worker_pointer = worker;
+				}
+				task->proc(task->param1, task->param2);
 
-	// assign tasks to threads
-	for(;;) {
-		for(i = 0; i < active_thread_count; i++) {
-			qb_task_assignment *assignment = &pool->task_assignments[i];
-			if(!assignment->thread_suspended) {
-				if(assignment->task == NULL) {
-					int32_t assigned = FALSE;
-					for(j = start_index; j < pool->task_count; j++) {
-						qb_thread_task *next_task = &pool->tasks[j];
-						if(!next_task->assigned) {
-							next_task->assigned = TRUE;
-							assignment->task = next_task;
-							assigned = TRUE;
-							break;
-						} else {
-							start_index++;
-						}
-					}
-
-					// no more tasks remaining--suspend the thread
-					if(!assigned) {
-#ifdef WIN32
-						assignment->thread_suspended = TRUE;
-						SuspendThread(pool->win32_threads[i]);
-#else
-						pthread_mutex_lock(assignment->pthread_wake_mutex);
-						assignment->thread_suspended = TRUE;
-						pthread_mutex_unlock(assignment->pthread_wake_mutex);
-#endif
-						suspended_thread_count++;
-					}
+				if(InterlockedIncrement(&pool->task_completion_count) == pool->task_count) {
+					// every thing is done--wake up the main thread
+					pool->task_count = 0;
+					pool->task_completion_count = 0;
+					SetEvent(pool->main_thread_resumption_event);
+				}
+			} else {
+				// nothing to do--start waiting again
+				WaitForSingleObject(worker->resumption_event, INFINITE);
+				if(pool->task_count == 0) {
+					// time to leave
+					break;
 				}
 			}
 		}
-		if(suspended_thread_count < active_thread_count) {
-			// wait for a thread to complete
-#ifdef WIN32
-			WaitForSingleObject(pool->win32_completion_event, INFINITE);
-#else
-			pthread_mutex_lock(&pool->pthread_completion_mutex);
-			if(!pool->pthread_completion_state) {
-				pthread_cond_wait(&pool->pthread_completion_cond, &pool->pthread_completion_mutex);
-				pool->pthread_completion_state = FALSE;
-				pthread_mutex_unlock(&pool->pthread_completion_mutex);
-			} else {
-				pool->pthread_completion_state = FALSE;
-				pthread_mutex_unlock(&pool->pthread_completion_mutex);
-			}
+	}
+
+	if(InterlockedIncrement(&pool->task_completion_count) == pool->worker_count) {
+		// last thread to exit--wake up the main thread
+		SetEvent(pool->main_thread_resumption_event);
+	}
+	return 0;
+}
 #endif
-		} else {
-			// all the worker threads are suspended--time to leave
-			break;
+
+void qb_run_tasks(qb_thread_pool *pool) {
+	long i;
+
+	pool->task_index = 0;
+
+	// wake up the workers
+	for(i = 0; i < pool->worker_count; i++) {
+		if(i < pool->task_count) {
+			qb_thread_worker *worker = &pool->workers[i];
+#ifndef WIN32
+			pthread_mutex_lock(&worker->resumption_mutex);
+			pthread_cond_signal(&worker->resumption_condition);
+			pthread_mutex_unlock(&worker->resumption_mutex);
+#else
+			SetEvent(worker->resumption_event);
+#endif
 		}
 	}
-	return TRUE;
+
+#ifndef WIN32
+	pthread_mutex_lock(&pool->main_thread_resumption_mutex);
+#endif
+
+	while(pool->task_count) {
+#ifndef WIN32
+		pthread_cond_wait(&pool->main_thread_resumption_condition, &pool->main_thread_resumption_mutex);
+#else
+		WaitForSingleObject(pool->main_thread_resumption_event, INFINITE);
+#endif
+		if(pool->worker_request) {
+			// handle request from a worker thread
+			qb_thread_task *task = pool->worker_request;
+			qb_thread_worker *worker = pool->waiting_worker;
+			task->proc(task->param1, task->param2);
+
+			pool->worker_request = NULL;
+			pool->waiting_worker = NULL;
+
+#ifndef WIN32
+			pthread_mutex_lock(&worker->resumption_mutex);
+			pthread_cond_signal(&worker->resumption_condition);
+			pthread_mutex_unlock(&worker->resumption_mutex);
+#else
+			SetEvent(worker->resumption_event);
+#endif
+		}
+	}
+
+#ifndef WIN32
+	pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
+#endif
 }
 
+void qb_initialize_thread_pool(qb_thread_pool *pool) {
+	long i ;
+	pool->task_buffer_size = 16;
+	pool->tasks = malloc(sizeof(qb_thread_task) * pool->task_buffer_size);
+	pool->task_count = 0;
+	pool->task_index = 0;
+	pool->task_completion_count = 0;
+	pool->worker_count = qb_get_cpu_count() * 100;
+	pool->workers = malloc(sizeof(qb_thread_worker) * pool->worker_count);
+	pool->worker_request = NULL;
+	pool->waiting_worker = NULL;
+
+#ifndef WIN32
+	pthread_cond_init(&pool->main_thread_resumption_condition, NULL);
+	pthread_mutex_init(&pool->main_thread_resumption_mutex, NULL);
+	pthread_mutex_init(&pool->main_thread_request_mutex, NULL);
+#else
+	pool->main_thread_resumption_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+	pool->main_thread_request_mutex = CreateMutex(NULL, FALSE, NULL);
 #endif
+	for(i = 0; i < pool->worker_count; i++) {
+		qb_thread_worker *worker = &pool->workers[i];
+		worker->pool = pool;
+
+#ifndef WIN32
+		pthread_cond_init(&worker->resumption_condition, NULL);
+		pthread_mutex_init(&worker->resumption_mutex, NULL);
+		if(pthread_create(&worker->thread, NULL, qb_run_task, worker) != 0) {
+			pthread_cond_destroy(&worker->resumption_condition);
+			pthread_mutex_destroy(&worker->resumption_mutex);
+			pool->worker_count = i;
+			break;
+		}
+#else
+		worker->resumption_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+		worker->thread = CreateThread(NULL, 0, qb_run_task, worker, 0, NULL);
+		if(worker->thread == NULL) {
+			CloseHandle(worker->resumption_event);
+			pool->worker_count = i;
+			break;
+		}
+#endif
+	}
+}
+
+void qb_free_thread_pool(qb_thread_pool *pool) {
+	long i;
+	pool->task_index = 0;
+	pool->task_count = 0;
+	pool->task_completion_count = 0;
+
+	// wake up the workers so they will exit
+	for(i = 0; i < pool->worker_count; i++) {
+		qb_thread_worker *worker = &pool->workers[i];
+#ifndef WIN32
+		pthread_mutex_lock(&worker->resumption_mutex);
+		pthread_cond_signal(&worker->resumption_condition);
+		pthread_mutex_unlock(&worker->resumption_mutex);
+#else
+		SetEvent(worker->resumption_event);
+#endif
+	}
+
+	// wait for them to exit before continuing
+#ifndef WIN32
+	pthread_mutex_lock(&pool->main_thread_resumption_mutex);
+	if(pool->task_completion_count < pool->worker_count) {
+		pthread_cond_wait(&pool->main_thread_resumption_condition, &pool->main_thread_resumption_mutex);
+	}
+	pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
+#else
+	WaitForSingleObject(pool->main_thread_resumption_event, INFINITE);
+#endif
+
+	for(i = 0; i < pool->worker_count; i++) {
+		qb_thread_worker *worker = &pool->workers[i];
+#ifndef WIN32
+		pthread_cond_destroy(&worker->resumption_condition);
+		pthread_mutex_destroy(&worker->resumption_mutex);
+#else
+		CloseHandle(worker->resumption_event);
+		CloseHandle(worker->thread);
+#endif
+	}
+
+#ifndef WIN32
+	pthread_cond_destroy(&pool->main_thread_resumption_condition);
+	pthread_mutex_destroy(&pool->main_thread_resumption_mutex);
+#else
+	CloseHandle(pool->main_thread_resumption_event);
+	CloseHandle(pool->main_thread_request_mutex);
+#endif
+
+	free(pool->tasks);
+	free(pool->workers);
+}

@@ -27,57 +27,60 @@
 #include <pthread.h>
 #endif
 
-typedef void (*qb_thread_proc)(void *, void *);
-
-typedef struct qb_thread_pool		qb_thread_pool;
 typedef struct qb_thread_task		qb_thread_task;
-typedef struct qb_task_assignment	qb_task_assignment;
+typedef struct qb_thread_worker		qb_thread_worker;
+typedef struct qb_thread_pool		qb_thread_pool;
+
+typedef void (*qb_thread_proc)(void *param1, void *param2);
 
 struct qb_thread_task {
 	qb_thread_proc proc;
 	void *param1;
 	void *param2;
-	int32_t assigned;
+	qb_thread_worker **worker_pointer;
 };
 
-struct qb_task_assignment {
-	volatile qb_thread_task *task;
-#ifdef WIN32
-	HANDLE win32_completion_event;
-	int32_t thread_suspended;
+struct qb_thread_worker {
+	qb_thread_pool *pool;
+
+#ifndef WIN32
+	pthread_t thread;
+	pthread_cond_t resumption_condition;
+	pthread_mutex_t resumption_mutex;
 #else
-	volatile int32_t thread_suspended;
-	pthread_cond_t *pthread_wake_cond;
-	pthread_mutex_t *pthread_wake_mutex;
-	pthread_cond_t *pthread_completion_cond;
-	pthread_mutex_t *pthread_completion_mutex;
-	int32_t *pthread_completion_state;
+	HANDLE thread;
+	HANDLE resumption_event;
 #endif
 };
 
 struct qb_thread_pool {
 	qb_thread_task *tasks;
-	uint32_t task_count;
-	uint32_t task_buffer_size;
-	uint32_t task_remaining;
-	qb_task_assignment *task_assignments;
-	uint32_t thread_count;
+	volatile long task_count;
+	volatile long task_index;
+	volatile long task_completion_count;
+	long task_buffer_size;
 
-#ifdef WIN32
-	HANDLE *win32_threads;
-	HANDLE win32_completion_event;
+	qb_thread_worker *workers;
+	long worker_count;
+
+	qb_thread_task *worker_request;
+	qb_thread_worker *waiting_worker;
+
+#ifndef WIN32
+	pthread_cond_t main_thread_resumption_condition;
+	pthread_mutex_t main_thread_resumption_mutex;
+	pthread_mutex_t main_thread_request_mutex;
 #else
-	pthread_t *pthreads;
-	pthread_cond_t *pthread_wake_conds;
-	pthread_mutex_t *pthread_wake_mutexes;
-	pthread_cond_t pthread_completion_cond;
-	pthread_mutex_t pthread_completion_mutex;
-	volatile int32_t pthread_completion_state;
+	HANDLE main_thread_resumption_event;
+	HANDLE main_thread_request_mutex;
 #endif
 };
 
-int32_t qb_schedule_task(qb_thread_pool *pool, void *proc, void *param1, void *param2);
-int qb_initialize_thread_pool(qb_thread_pool *pool);
-int qb_run_tasks(qb_thread_pool *pool);
+long qb_get_cpu_count(void);
+
+void qb_schedule_task(qb_thread_pool *pool, qb_thread_proc proc, void *param1, void *param2, qb_thread_worker **p_worker);
+void qb_run_in_main_thread(qb_thread_worker *worker, qb_thread_proc proc, void *param1, void *param2);
+void qb_initialize_thread_pool(qb_thread_pool *pool);
+void qb_run_tasks(qb_thread_pool *pool);
 
 #endif
