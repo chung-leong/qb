@@ -198,7 +198,7 @@ void qb_run_tasks(qb_thread_pool *pool) {
 		pthread_mutex_lock(&pool->main_thread_resumption_mutex);
 #endif
 
-		while(pool->stage == QB_POOL_COMPLETION) {
+		while(pool->stage != QB_POOL_COMPLETION) {
 #ifndef WIN32
 			pthread_cond_wait(&pool->main_thread_resumption_condition, &pool->main_thread_resumption_mutex);
 #else

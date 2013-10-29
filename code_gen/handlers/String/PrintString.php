@@ -13,7 +13,7 @@ class PrintString extends Handler {
 	}
 
 	public function getAction() {
-		return "php_write(op1_ptr, op1_count TSRMLS_CC);";
+		return "qb_write_output(cxt, op1_ptr, op1_count);";
 	}
 }
 

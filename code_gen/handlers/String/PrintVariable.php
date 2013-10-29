@@ -14,7 +14,7 @@ class PrintVariable extends Handler {
 		$lines[] = "USE_TSRM";
 		$lines[] = "char sprintf_buffer[64];";
 		$lines[] = "uint32_t len = $sprintf;";
-		$lines[] = "php_write(sprintf_buffer, len TSRMLS_CC);";
+		$lines[] = "qb_write_output(cxt, sprintf_buffer, len);";
 		return $lines;
 	}
 
@@ -24,17 +24,17 @@ class PrintVariable extends Handler {
 		$lines = array();
 		$lines[] = "USE_TSRM";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
-		$lines[] = "php_write(\"[\", 1 TSRMLS_CC);";
+		$lines[] = "qb_write_output(cxt, \"[\", 1);";
 		$lines[] = "while(op1_ptr < op1_end) {";
 		$lines[] =		"char sprintf_buffer[64];";
 		$lines[] =		"uint32_t len = $sprintf;";
-		$lines[] =		"php_write(sprintf_buffer, len TSRMLS_CC);";
+		$lines[] =		"qb_write_output(cxt, sprintf_buffer, len);";
 		$lines[] = 		"op1_ptr++;";
 		$lines[] = 		"if(op1_ptr != op1_end) {";
-		$lines[] = 			"php_write(\", \", 2 TSRMLS_CC);";
+		$lines[] = 			"qb_write_output(cxt, \", \", 2);";
 		$lines[] = 		"}";
 		$lines[] = "}";
-		$lines[] = "php_write(\"]\", 1 TSRMLS_CC);";
+		$lines[] = "qb_write_output(cxt, \"]\", 1);";
 		return $lines;
 	}
 }

@@ -131,4 +131,6 @@ void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
 void qb_main(qb_interpreter_context *__restrict cxt);
 
+void qb_write_output(qb_interpreter_context *cxt, const char *s, uint32_t count);
+
 #endif

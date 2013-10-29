@@ -33,30 +33,30 @@ class PrintMultidimensionalVariable extends Handler {
 		$lines[] = "for(i = 0; i < op2_count; i++) {";
 		$lines[] = 		"counts[i] = 0;";
 		$lines[] = "}";
-		$lines[] = "php_write(\"[\", 1 TSRMLS_CC);";
+		$lines[] = "qb_write_output(cxt, \"[\", 1);";
 		$lines[] = "while(op1_ptr < op1_end || depth > 0) {";
 		$lines[] = 		"if(counts[depth] < op2_ptr[depth]) {";
 		$lines[] = 			"if(counts[depth] > 0) {";
-		$lines[] = 				"php_write(\", \", 2 TSRMLS_CC);";
+		$lines[] = 				"qb_write_output(cxt, \", \", 2);";
 		$lines[] = 			"}";
 		$lines[] = 			"if(depth + 1 == op2_count) {";
 		$lines[] = 				"char sprintf_buffer[64];";
 		$lines[] = 				"uint32_t len = $sprintf;";
-		$lines[] = 				"php_write(sprintf_buffer, len TSRMLS_CC);";
+		$lines[] = 				"qb_write_output(cxt, sprintf_buffer, len);";
 		$lines[] = 				"op1_ptr++;";
 		$lines[] = 				"counts[depth]++;";
 		$lines[] = 			"} else {";
-		$lines[] = 				"php_write(\"[\", 1 TSRMLS_CC);";
+		$lines[] = 				"qb_write_output(cxt, \"[\", 1);";
 		$lines[] = 				"depth++;";
 		$lines[] = 			"}";
 		$lines[] = 		"} else {";
-		$lines[] = 			"php_write(\"]\", 1 TSRMLS_CC);";
+		$lines[] = 			"qb_write_output(cxt, \"]\", 1);";
 		$lines[] = 			"counts[depth] = 0;";
 		$lines[] = 			"depth--;";
 		$lines[] = 			"counts[depth]++;";
 		$lines[] = 		"}";
 		$lines[] = "}";
-		$lines[] = "php_write(\"]\", 1 TSRMLS_CC);";
+		$lines[] = "qb_write_output(cxt, \"]\", 1);";
 		return $lines;
 	}
 }
