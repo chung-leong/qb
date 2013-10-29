@@ -779,6 +779,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"float64",				1,		1,		&factory_cast_F64			},
 	{	0,	"defined",				1,		1,		&factory_defined			},
 	{	0,	"define",				2,		2,		&factory_define				},
+	{	0,	"fork",					0,		1,		&factory_fork				},
+	{	0,	"spoon",				0,		0,		&factory_spoon				},
 	{	0,	"equal",				2,		2,		&factory_set_equal			},
 	{	0,	"not_equal",			2,		2,		&factory_set_not_equal		},
 	{	0,	"less_than",			2,		2,		&factory_set_less_than		},

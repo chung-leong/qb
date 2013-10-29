@@ -50,6 +50,7 @@ typedef struct qb_op_decomposer					qb_op_decomposer;
 typedef struct qb_minmax_decomposer				qb_minmax_decomposer;
 typedef struct qb_fetch_do_op_decomposer		qb_fetch_do_op_decomposer;
 typedef struct qb_set_op_chooser				qb_set_op_chooser;
+typedef struct qb_fork_decomposer				qb_fork_decomposer;
 
 typedef void (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
@@ -225,6 +226,13 @@ struct qb_set_op_chooser {
 	void *set_factory;
 };
 
+struct qb_fork_decomposer {
+	qb_produce_composite_proc produce_composite;
+	void *init_factory;
+	void *resume_factory;
+	void *result_factory;
+};
+
 extern qb_op_factory factory_nop;
 
 extern qb_copy_op_factory factory_assign;
@@ -386,6 +394,9 @@ extern qb_simple_op_factory factory_foreach_fetch;
 extern qb_simple_op_factory factory_loop;
 extern qb_simple_op_factory factory_ext;
 extern qb_op_decomposer factory_branch_on_true_set;
+
+extern qb_fork_decomposer factory_fork;
+extern qb_simple_op_factory factory_spoon;
 
 extern qb_simple_op_factory factory_empty_string;
 extern qb_string_op_factory factory_add_variable;

@@ -129,9 +129,6 @@ class CodeGenerator {
 			$lines[] = 			"}";
 			$lines[] = 		"} while(1);";
 		}
-		$lines[] = 			"exit_label: {";
-		$lines[] =				"return;";
-		$lines[] =			"}";
 		if($compiler == "GCC") {
 			$lines[] = 	"} else {";
 			foreach($this->handlers as $handler) {
@@ -1159,13 +1156,17 @@ class CodeGenerator {
 	protected function addFlowControlHandlers($elementType) {
 		$unsigned = preg_match('/^U/', $elementType);
 		$elementTypeNoSign = preg_replace('/^S/', "I", $elementType);
-		if(!in_array("Jump", array_map("get_class", $this->handlers))) {
+		if($elementType == "U32") {
 			$this->handlers[] = new NOP("NOP");
 			$this->handlers[] = new Jump("JMP");
 			$this->handlers[] = new Leave("RET");
 			$this->handlers[] = new Terminate("EXIT", "I32");
 			$this->handlers[] = new FunctionCall("FCALL");
 			$this->handlers[] = new StaticInitializationEnd("END_STATIC");
+			$this->handlers[] = new Fork("FORK", "U32");
+			$this->handlers[] = new ForkResult("FORK_RES", "U32");
+			$this->handlers[] = new Resume("RESUME");
+			$this->handlers[] = new Spoon("SPOON");
 		}
 		$branchHandlers = array();
 		if($elementType == "U32") {

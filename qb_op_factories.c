@@ -2809,6 +2809,85 @@ qb_simple_op_factory factory_end_static = {
 	QB_END_STATIC,
 };
 
+qb_simple_op_factory factory_fork_init = {
+	NULL,
+	NULL,
+	NULL,
+	qb_coerce_operands_int,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_fork,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_FORK_U32,
+};
+
+qb_simple_op_factory factory_fork_resume = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_RESUME,
+};
+
+qb_simple_op_factory factory_fork_result = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_fork,
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_FORK_RES_U32,
+};
+
+qb_fork_decomposer factory_fork = {
+	qb_decompose_fork,
+	&factory_fork_init,
+	&factory_fork_resume,
+	&factory_fork_result,
+};
+
+qb_simple_op_factory factory_spoon = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_SPOON,
+};
+
 qb_simple_op_factory factory_ext = {
 	NULL,
 	NULL,

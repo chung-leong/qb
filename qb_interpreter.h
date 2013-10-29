@@ -29,12 +29,13 @@ typedef struct qb_import_scope			qb_import_scope;
 typedef struct qb_zend_argument_stack	qb_zend_argument_stack;
 
 typedef enum qb_import_scope_type		qb_import_scope_type;
+typedef enum qb_vm_exit_type			qb_vm_exit_type;
 
 enum qb_import_scope_type {
-	QB_IMPORT_SCOPE_GLOBAL				= 1,
-	QB_IMPORT_SCOPE_CLASS				= 2,
-	QB_IMPORT_SCOPE_OBJECT				= 3,
-	QB_IMPORT_SCOPE_ABSTRACT_OBJECT		= 4,
+	QB_IMPORT_SCOPE_GLOBAL = 1,
+	QB_IMPORT_SCOPE_CLASS,
+	QB_IMPORT_SCOPE_OBJECT,
+	QB_IMPORT_SCOPE_ABSTRACT_OBJECT,
 };
 
 struct qb_import_scope {
@@ -63,11 +64,23 @@ enum {
 	QB_INTERPRETER_INSIDE_THREAD			= 0x00000002,
 };
 
+enum qb_vm_exit_type { 
+	QB_VM_RETURN = 0,
+	QB_VM_BAILOUT,
+	QB_VM_FORK,
+	QB_VM_SPOON,
+	QB_VM_EXCEPTION,
+	QB_VM_YIELD,
+};
+
 struct qb_interpreter_context {
 	uint32_t flags;
 	qb_function *function;
 	int8_t *instruction_pointer;
 	qb_interpreter_context *caller_context;
+
+	uint32_t fork_id;
+	uint32_t fork_count;
 
 	uint32_t *argument_indices;
 	uint32_t argument_count;
@@ -75,7 +88,8 @@ struct qb_interpreter_context {
 	uint32_t line_number;
 	uint32_t call_depth;
 
-	int32_t exception_encountered;
+	qb_vm_exit_type exit_type;
+	int32_t exit_status_code;
 
 	volatile unsigned char *windows_timed_out_pointer;
 	int floating_point_precision;
@@ -121,5 +135,7 @@ void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_inde
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);
+
+void qb_main(qb_interpreter_context *__restrict cxt);
 
 #endif

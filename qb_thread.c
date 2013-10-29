@@ -37,8 +37,8 @@ long qb_get_cpu_count(void) {
 void qb_schedule_task(qb_thread_pool *pool, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread_worker **p_worker) {
 	qb_thread_task *next_task;
 	if(pool->task_count >= pool->task_buffer_size) {
-		pool->task_buffer_size += 16;
-		pool->tasks = realloc(pool->tasks, sizeof(qb_thread_task) * pool->task_buffer_size);
+		pool->task_buffer_size = ALIGN_TO(pool->task_count, 1024);
+		pool->tasks = erealloc(pool->tasks, sizeof(qb_thread_task) * pool->task_buffer_size);
 	}
 	next_task = &pool->tasks[pool->task_count];
 	next_task->proc = proc;
@@ -245,10 +245,10 @@ void qb_initialize_thread_pool(qb_thread_pool *pool TSRMLS_DC) {
 	pool->task_count = 0;
 	pool->task_index = 0;
 	pool->task_completion_count = 0;
-	pool->tasks = malloc(sizeof(qb_thread_task) * pool->task_buffer_size);
+	pool->tasks = emalloc(sizeof(qb_thread_task) * pool->task_buffer_size);
 	if(thread_count > 1) {
 		pool->worker_count = thread_count;
-		pool->workers = malloc(sizeof(qb_thread_worker) * pool->worker_count);
+		pool->workers = emalloc(sizeof(qb_thread_worker) * pool->worker_count);
 		pool->worker_request = NULL;
 		pool->waiting_worker = NULL;
 
@@ -341,7 +341,7 @@ void qb_free_thread_pool(qb_thread_pool *pool) {
 		CloseHandle(pool->main_thread_resumption_event);
 		CloseHandle(pool->main_thread_request_mutex);
 #endif
-		free(pool->workers);
+		efree(pool->workers);
 	}
-	free(pool->tasks);
+	efree(pool->tasks);
 }

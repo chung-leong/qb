@@ -282,6 +282,15 @@ static void qb_transfer_operands_gather(qb_compiler_context *cxt, qb_op_factory 
 	dest[2] = *result;
 }
 
+static void qb_transfer_operands_fork(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	if(operand_count > 0) {
+		dest[0] = operands[0];
+	} else {
+		dest[0].address = qb_obtain_constant_U32(cxt, 0);
+		dest[0].type = QB_OPERAND_ADDRESS;
+	}
+}
+
 static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0], *precision = &operands[1], *mode = &operands[2];
 	dest[0] = *value;

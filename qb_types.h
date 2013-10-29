@@ -41,7 +41,7 @@ typedef enum qb_primitive_type				qb_primitive_type;
 #define STRING(x)							MAKE_STRING(x)
 
 #define MAX_SEGMENT_COUNT					256
-#define MAX_DIMENSION						64
+#define MAX_DIMENSION						8
 #define MAX_THREAD_COUNT					32
 
 #define CTYPE_I08							int8_t

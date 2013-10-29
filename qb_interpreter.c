@@ -419,7 +419,8 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	// use shadow variables for debugging purpose by default
 	cxt->flags = QB_INTERPRETER_EMPLOY_SHADOW_VARIABLES;
 	cxt->thread_count_for_next_op = 0;
-	cxt->exception_encountered = 0;
+	cxt->exit_type = QB_VM_RETURN;
+	cxt->exit_status_code = 0;
 	cxt->floating_point_precision = EG(precision);
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
@@ -430,8 +431,6 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 	qb_unlock_function(cxt->function);
 }
-
-void qb_main(qb_interpreter_context *__restrict cxt);
 
 static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #ifdef NATIVE_COMPILE_ENABLED
@@ -446,6 +445,14 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #else
 	qb_main(cxt);
 #endif
+	switch(cxt->exit_type) {
+		case QB_VM_RETURN: break;
+		case QB_VM_EXCEPTION: break;
+		case QB_VM_FORK: {
+		}	break;
+		case QB_VM_SPOON: {
+		}	break;
+	}
 }
 
 static void qb_initialize_local_variables(qb_interpreter_context *cxt) {
@@ -602,11 +609,7 @@ static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function
 	call_result = zend_call_function(&fci, &fcc TSRMLS_CC);
 	(*p_user_op)->lineno = 0;
 
-	if(call_result == SUCCESS) {
-		if(EG(exception)) {
-			cxt->exception_encountered = TRUE;
-		}
-	} else {
+	if(call_result != SUCCESS) {
 		qb_abort("Internal error");
 	}
 	return retval;

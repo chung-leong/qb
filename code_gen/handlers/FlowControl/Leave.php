@@ -2,10 +2,13 @@
 
 class Leave extends Handler {
 
-	use NoOperands, ExitFunction;
+	use NoOperands, ExitVM;
 	
 	public function getAction() {
-		return "goto exit_label;";
+		$lines = array();
+		$lines[] = "cxt->exit_type = QB_VM_RETURN;";
+		$lines[] = "return;";
+		return $lines;
 	}
 }
 

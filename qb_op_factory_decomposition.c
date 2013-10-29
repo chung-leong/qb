@@ -119,3 +119,18 @@ static void qb_choose_set_or_scalar_op(qb_compiler_context *cxt, void *factory, 
 		qb_produce_op(cxt, c->set_factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
 	}
 }
+
+static void qb_decompose_fork(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_fork_decomposer *d = factory;
+	qb_operand init_result = { QB_OPERAND_NONE, NULL }, resume_result = { QB_OPERAND_NONE, NULL };
+	qb_result_prototype init_result_prototype, resume_result_prototype;
+
+	// do the fork 
+	qb_produce_op(cxt, d->init_factory, operands, operand_count, &init_result, NULL, 0, &init_result_prototype);
+
+	// add resumption point (empty op that holds the next_handler pointer)
+	qb_produce_op(cxt, d->resume_factory, NULL, 0, &resume_result, NULL, 0, &resume_result_prototype);
+
+	// add result op
+	qb_produce_op(cxt, d->result_factory, NULL, 0, result, NULL, 0, result_prototype);
+}
