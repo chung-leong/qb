@@ -628,7 +628,7 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 
 static void qb_adjust_pointer(void **p, uintptr_t start, uintptr_t end, intptr_t shift) {
 	uintptr_t address = *((uintptr_t *) p);
-	if(start <= address && address < end) {
+	if(start <= address && address <= end) {
 		SHIFT_POINTER(*p, shift);
 	}
 }
@@ -824,7 +824,7 @@ void qb_free_function(qb_function *qfunc) {
 		qb_free_function(qfunc->next_reentrance_copy);
 	}
 	if(qfunc->next_forked_copy) {
-		qb_free_function(qfunc->next_reentrance_copy);
+		qb_free_function(qfunc->next_forked_copy);
 	}
 	// free memory segments
 	for(i = QB_SELECTOR_ARRAY_START; i < qfunc->local_storage->segment_count; i++) {

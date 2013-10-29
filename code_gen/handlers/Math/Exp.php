@@ -2,7 +2,7 @@
 
 class Exp extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
 	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(2);

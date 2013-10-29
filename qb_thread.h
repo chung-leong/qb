@@ -54,12 +54,20 @@ struct qb_thread_worker {
 #endif
 };
 
+enum {
+	QB_POOL_RUNNING = 0,
+	QB_POOL_COMPLETION = 1,
+	QB_POOL_TERMINATION,
+};
+
 struct qb_thread_pool {
 	qb_thread_task *tasks;
 	volatile long task_count;
 	volatile long task_index;
 	volatile long task_completion_count;
 	long task_buffer_size;
+
+	volatile long stage;
 
 	qb_thread_worker *workers;
 	long worker_count;

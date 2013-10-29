@@ -373,6 +373,27 @@ static void qb_unlock_function(qb_function *f) {
 	f->in_use = 0;
 }
 
+static void qb_create_function_copy_in_main_thread(void *param1, void *param2, int param3) {
+	qb_function *last = param1, *f, **p_new = param2;
+	int32_t reentrance = param3;
+	if(reentrance) {
+		while(last->next_reentrance_copy) {
+			last = last->next_reentrance_copy;
+		}
+	} else {
+		while(last->next_forked_copy) {
+			last = last->next_forked_copy;
+		}
+	}
+	f = qb_create_function_copy(last, reentrance);
+	if(reentrance) {
+		last->next_reentrance_copy = f;
+	} else {
+		last->next_forked_copy = f;
+	}
+	*p_new = f;
+}
+
 static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_function *base, int32_t reentrance) {
 	qb_function *f, *last;
 	if(reentrance) {
@@ -392,8 +413,9 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 	}
 
 	// need to create a copy
-	if(cxt && cxt->flags & QB_INTERPRETER_INSIDE_THREAD) {
-		// TODO: switch to main thread
+	if(cxt->worker) {
+		// do it in the main thread
+		qb_run_in_main_thread(cxt->worker, qb_create_function_copy_in_main_thread, last, &f, reentrance);
 	} else {
 		f = qb_create_function_copy(last, reentrance);
 		if(reentrance) {
@@ -417,8 +439,6 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	}
 
 	// use shadow variables for debugging purpose by default
-	cxt->flags = QB_INTERPRETER_EMPLOY_SHADOW_VARIABLES;
-	cxt->thread_count_for_next_op = 0;
 	cxt->exit_type = QB_VM_RETURN;
 	cxt->exit_status_code = 0;
 	cxt->floating_point_precision = EG(precision);
@@ -445,14 +465,92 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #else
 	qb_main(cxt);
 #endif
+}
+
+static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) {
+	qb_interpreter_context *cxt = param1;
+	qb_function *qfunc = param2;
+	if(qfunc) {
+		// acquire a copy of the function and calculate the entry point
+		intptr_t instr_offset = cxt->instruction_pointer - qfunc->instructions;
+		cxt->function = qb_acquire_function(cxt, qfunc, FALSE);
+		if(UNEXPECTED(!(cxt->function->flags & QB_FUNCTION_RELOCATED))) {
+			qb_relocate_function(cxt->function, TRUE);
+		}
+		cxt->instruction_pointer = cxt->function->instructions + instr_offset;
+	}
+	qb_enter_vm(cxt);
 	switch(cxt->exit_type) {
-		case QB_VM_RETURN: break;
-		case QB_VM_EXCEPTION: break;
-		case QB_VM_FORK: {
+		case QB_VM_EXCEPTION: {
+		}	break;
+		case QB_VM_RETURN: {
 		}	break;
 		case QB_VM_SPOON: {
 		}	break;
+		case QB_VM_FORK: {
+			break;
+		}
 	}
+}
+
+static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
+	USE_TSRM
+	for(;;) {
+		qb_enter_vm(cxt);
+
+		switch(cxt->exit_type) {
+			case QB_VM_EXCEPTION: return FALSE;
+			case QB_VM_RETURN: return TRUE;
+			case QB_VM_BAILOUT: {
+				EG(exit_status) = cxt->exit_status_code;
+				zend_bailout();
+			}	break;
+			case QB_VM_FORK: {
+				qb_thread_pool *pool = qb_get_thread_pool(TSRMLS_C);
+				if(pool->worker_count > 0) {
+					qb_interpreter_context *fork_contexts;
+					uint32_t i;
+
+					if(cxt->fork_count == 0) {
+						cxt->fork_count = pool->worker_count;
+					}
+					cxt->fork_id = 0;
+
+					// the first fork reuses the same interpreter context
+					qb_schedule_task(pool, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->worker);
+
+					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (cxt->fork_count - 1));
+					for(i = 1; i < cxt->fork_count; i++) {
+						qb_interpreter_context *fork_cxt = &fork_contexts[i - 1];
+						fork_cxt->function = NULL;
+						fork_cxt->instruction_pointer = cxt->instruction_pointer;
+						fork_cxt->caller_context = NULL;
+						fork_cxt->worker = NULL;
+						fork_cxt->fork_id = i;
+						fork_cxt->fork_count = cxt->fork_count;
+						fork_cxt->argument_indices = NULL;
+						fork_cxt->argument_count = 0;
+						fork_cxt->result_index = 0;
+						fork_cxt->line_number = 0;
+						fork_cxt->call_depth = cxt->call_depth;
+						fork_cxt->exit_type = QB_VM_RETURN;
+						fork_cxt->exit_status_code = 0;
+						fork_cxt->windows_timed_out_pointer = cxt->windows_timed_out_pointer;
+						fork_cxt->floating_point_precision = cxt->floating_point_precision;
+#ifdef ZTS 
+						fork_cxt->tsrm_ls = tsrm_ls;
+#endif
+						qb_schedule_task(pool, qb_execute_in_worker_thread, fork_cxt, cxt->function, 0, &fork_cxt->worker);
+					}
+					qb_run_tasks(pool);
+				} else {
+					// go back into the vm
+				}
+			}	break;
+			case QB_VM_SPOON: break;	// go back into the vm
+		}
+	}
+	return TRUE;
 }
 
 static void qb_initialize_local_variables(qb_interpreter_context *cxt) {
@@ -516,10 +614,10 @@ void qb_execute(qb_interpreter_context *cxt) {
 	qb_transfer_variables_from_external_sources(cxt);
 
 	// enter the vm
-	qb_enter_vm(cxt);
-
-	// move values back into caller space
-	qb_transfer_variables_to_external_sources(cxt);
+	if(qb_execute_in_main_thread(cxt)) {
+		// move values back into caller space
+		qb_transfer_variables_to_external_sources(cxt);
+	}
 
 	// release dynamically allocated segments
 	qb_finalize_variables(cxt);
@@ -534,8 +632,8 @@ void qb_execute_internal(qb_interpreter_context *cxt) {
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
 	USE_TSRM
 	uint32_t i;
-	uint32_t count = cxt->thread_count_for_next_op;
-	cxt->thread_count_for_next_op = 0;
+	uint32_t count = 0; //cxt->thread_count_for_next_op;
+	//cxt->thread_count_for_next_op = 0;
 
 	if(!QB_G(thread_pool)) {
 		//qb_initialize_thread_pool(cxt->thread_pool);

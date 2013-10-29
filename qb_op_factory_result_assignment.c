@@ -402,7 +402,6 @@ static void qb_set_result_array_unshift(qb_compiler_context *cxt, qb_op_factory 
 	qb_operand *container = &operands[0];
 	qb_address *dimension_address = container->address->dimension_addresses[0];
 	qb_address *variable_address = qb_obtain_array_element(cxt, container->address, dimension_address, QB_ARRAY_BOUND_CHECK_WRITE);
-	uint32_t i;
 
 	/*
 	for(i = 1; i < operand_count; i++) {

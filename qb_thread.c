@@ -107,8 +107,7 @@ void *qb_run_task(void *arg) {
 			if(completion_count == pool->task_count) {
 				// every thing is done--wake up the main thread
 				pthread_mutex_lock(&pool->main_thread_resumption_mutex);
-				pool->task_count = 0;
-				pool->task_completion_count = 0;
+				pool->task_completion_all = TRUE;
 				pthread_cond_signal(&pool->main_thread_resumption_condition);
 				pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
 			}
@@ -136,9 +135,10 @@ void *qb_run_task(void *arg) {
 DWORD WINAPI qb_run_task(LPVOID lpThreadParameter) {
 	qb_thread_worker *worker = lpThreadParameter;
 	qb_thread_pool *pool = worker->pool;
+	long completion_count;
 	WaitForSingleObject(worker->resumption_event, INFINITE);
 
-	if(pool->task_count > 0) {
+	if(pool->stage != QB_POOL_TERMINATION) {
 		for(;;) {
 			long task_index = InterlockedIncrement(&pool->task_index) - 1;
 			if(task_index < pool->task_count) {
@@ -148,16 +148,16 @@ DWORD WINAPI qb_run_task(LPVOID lpThreadParameter) {
 				}
 				task->proc(task->param1, task->param2, task->param3);
 
-				if(InterlockedIncrement(&pool->task_completion_count) == pool->task_count) {
+				completion_count = InterlockedIncrement(&pool->task_completion_count);
+				if(completion_count == pool->task_count) {
 					// every thing is done--wake up the main thread
-					pool->task_count = 0;
-					pool->task_completion_count = 0;
+					pool->stage = QB_POOL_COMPLETION;
 					SetEvent(pool->main_thread_resumption_event);
 				}
 			} else {
 				// nothing to do--start waiting again
 				WaitForSingleObject(worker->resumption_event, INFINITE);
-				if(pool->task_count == 0) {
+				if(pool->stage == QB_POOL_TERMINATION) {
 					// time to leave
 					break;
 				}
@@ -165,7 +165,8 @@ DWORD WINAPI qb_run_task(LPVOID lpThreadParameter) {
 		}
 	}
 
-	if(InterlockedIncrement(&pool->task_completion_count) == pool->worker_count) {
+	completion_count = InterlockedIncrement(&pool->task_completion_count);
+	if(completion_count == pool->worker_count) {
 		// last thread to exit--wake up the main thread
 		SetEvent(pool->main_thread_resumption_event);
 	}
@@ -177,6 +178,7 @@ void qb_run_tasks(qb_thread_pool *pool) {
 	long i;
 	if(pool->worker_count > 0) {
 		pool->task_index = 0;
+		pool->stage = QB_POOL_RUNNING;
 
 		// wake up the workers
 		for(i = 0; i < pool->worker_count; i++) {
@@ -196,7 +198,7 @@ void qb_run_tasks(qb_thread_pool *pool) {
 		pthread_mutex_lock(&pool->main_thread_resumption_mutex);
 #endif
 
-		while(pool->task_count) {
+		while(pool->stage == QB_POOL_COMPLETION) {
 #ifndef WIN32
 			pthread_cond_wait(&pool->main_thread_resumption_condition, &pool->main_thread_resumption_mutex);
 #else
@@ -229,9 +231,12 @@ void qb_run_tasks(qb_thread_pool *pool) {
 		for(i = 0; i < pool->task_count; i++) {
 			qb_thread_task *task = &pool->tasks[i];
 			task->proc(task->param1, task->param2, task->param3);
+			pool->task_completion_count++;
 		}
 		pool->task_count = 0;
 	}
+	pool->task_count = 0;
+	pool->task_completion_count = 0;
 }
 
 void qb_initialize_thread_pool(qb_thread_pool *pool TSRMLS_DC) {
@@ -296,7 +301,7 @@ void qb_free_thread_pool(qb_thread_pool *pool) {
 		long i;
 		pool->task_index = 0;
 		pool->task_count = 0;
-		pool->task_completion_count = 0;
+		pool->stage = QB_POOL_TERMINATION;
 
 		// wake up the workers so they will exit
 		for(i = 0; i < pool->worker_count; i++) {

@@ -59,11 +59,6 @@ struct qb_zend_argument_stack {
 	uint32_t argument_pointer_count;
 };
 
-enum {
-	QB_INTERPRETER_EMPLOY_SHADOW_VARIABLES	= 0x00000001,
-	QB_INTERPRETER_INSIDE_THREAD			= 0x00000002,
-};
-
 enum qb_vm_exit_type { 
 	QB_VM_RETURN = 0,
 	QB_VM_BAILOUT,
@@ -74,10 +69,11 @@ enum qb_vm_exit_type {
 };
 
 struct qb_interpreter_context {
-	uint32_t flags;
 	qb_function *function;
 	int8_t *instruction_pointer;
 	qb_interpreter_context *caller_context;
+
+	qb_thread_worker *worker;
 
 	uint32_t fork_id;
 	uint32_t fork_count;
@@ -94,9 +90,6 @@ struct qb_interpreter_context {
 	volatile unsigned char *windows_timed_out_pointer;
 	int floating_point_precision;
 	void ***tsrm_ls;
-
-	uint32_t thread_count_for_next_op;
-	qb_pointer_adjustment adjustments_for_next_op[MAX_THREAD_COUNT][8];
 };
 
 struct qb_native_symbol {
