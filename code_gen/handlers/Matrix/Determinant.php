@@ -71,7 +71,7 @@ class Determinant extends Handler {
 			
 			$lines[] = "uint32_t matrix_rows = op2, matrix_cols = op2;";
 			$lines[] = "if(matrix_rows == 4) {";
-			$lines[] = 		"$determinantFunction4X(op1_ptr, op1_count, res_ptr);";
+			$lines[] = 		"$determinantFunction4X(op1_ptr, res_ptr);";
 			$lines[] = "} else {";
 			$lines[] = 		"ALLOCA_FLAG(use_heap)";
 			$lines[] =		"uint32_t minor_size = (matrix_rows - 1) * (matrix_cols - 1);";
@@ -89,7 +89,7 @@ class Determinant extends Handler {
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"$determinantFunction(minor, 0, matrix_rows - 1, &minor_det, 1);";
+			$lines[] = 			"$determinantFunction(minor, 0, matrix_rows - 1, &minor_det);";
 			$lines[] = 			"det += a * minor_det * sign;";
 			$lines[] = 			"sign = -sign;";
 			$lines[] = 		"}";

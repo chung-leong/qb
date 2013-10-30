@@ -2,7 +2,7 @@
 
 class MultiplyMatrixByVector extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, MatrixConventionDependent, FloatingPointOnly;
+	use ArrayAddressMode, BinaryOperator, MatrixConventionDependent, FloatingPointOnly, Multithreaded;
 
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {

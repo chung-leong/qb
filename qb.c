@@ -487,6 +487,16 @@ qb_function * qb_get_compiled_function(zend_function *zfunc) {
 	return NULL;
 }
 
+uint32_t qb_get_thread_count(TSRMLS_D) {
+	uint32_t thread_count;
+	if(QB_G(thread_count) > 0) {
+		thread_count = QB_G(thread_count);
+	} else {
+		thread_count = qb_get_cpu_count();
+	}
+	return thread_count;
+}
+
 int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = GET_QB_POINTER(op_array);

@@ -204,6 +204,8 @@ qb_build_context * qb_get_current_build(TSRMLS_D);
 
 qb_thread_pool * qb_get_thread_pool(TSRMLS_D);
 
+uint32_t qb_get_thread_count(TSRMLS_D);
+
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
 void qb_abort(const char *format, ...);
 

@@ -24,6 +24,16 @@ class ArrayColumn extends Handler {
 		}
 	}
 		
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return "op2_count";
+			case 3: return 1;
+			case 4: return 1;
+			case 5: return "res_count";
+		}
+	}
+	
 	public function getHelperFunctions() {
 		$functions = array(
 			array(

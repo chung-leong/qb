@@ -409,7 +409,7 @@ class Handler {
 		}
 		return $lines;
 	}
-	
+
 	public function getFunctionName($prefix) {
 		$className = get_class($this);
 		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $className);
@@ -550,14 +550,19 @@ class Handler {
 						if($this->changesOperandSize($i)) {
 							$params[] = "uint32_t *{$name}_count_ptr";
 						} else {
-							$params[] = "uint32_t {$name}_count";
+							// don't need the size if it's a constant number
+							if($this->isMultipleData() || !is_numeric($this->getOperandSize($i))) {
+								$params[] = "uint32_t {$name}_count";
+							}
 						}
 					} else {
 						$params[] = "{$name}_ptr";
 						if($this->changesOperandSize($i)) {
 							$params[] = "{$name}_count_ptr";
 						} else {
-							$params[] = "{$name}_count";
+							if($this->isMultipleData() || !is_numeric($this->getOperandSize($i))) {
+								$params[] = "{$name}_count";
+							}
 						}
 					}
 					break;
@@ -593,51 +598,106 @@ class Handler {
 			$params[] = $this->getControllerFunctionName();
 			$params[] = "($instr *) ip";
 		}
+		
+		// add operand sizes
+		$opCount = $this->getOperandCount();
+		for($i = 1; $i <= $opCount; $i++) {
+			$addressMode = $this->getOperandAddressMode($i);
+			if($addressMode == "ARR") {
+				if($forDeclaration) {
+					$params[] = "uint32_t operand{$i}_size";
+				} else {
+					$params[] = $this->getOperandSize($i);
+				}
+			}
+		}
+		// add threshold value
+		if($forDeclaration) {
+			$params[] = "uint32_t threshold";
+		} else {
+			$params[] = $this->getMultithreadingThreshold();
+		}
 		return implode(", ", $params);
 	}
 	
 	// return the body list of the dispatcher function
 	public function getDispatcherFunctionDefinition() {
-		if(!$this->isMultipleData() || !$this->isMultithreaded()) {
-			return null;
-		}
-		$instr = $this->getInstructionStructure();
-		$dispatcherTypeDecl = "void";
-		$dispatcherFunction = $this->getDispatcherFunctionName();
-		$dispatcherParameterList = $this->getDispatcherFunctionParameterList(true);
-		$opCount = $this->getOperandCount();
-		$lines = array();
-		$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
-		$lines[] =		"uint32_t j;";
-		$lines[] =		"$instr new_instr_list[MAX_THREAD_COUNT];";
-		$lines[] =		"int8_t *new_ips[MAX_THREAD_COUNT];";
-		$lines[] =		"for(j = 0; j < cxt->thread_count_for_next_op; j++) {";
-		$lines[] =			"$instr *new_instr = &new_instr_list[j];";
-		$lines[] =			"qb_pointer_adjustment *adj;";
-		// create temporary instruction structures
-		for($i = 1, $k = 0; $i < $opCount; $i++) {
-			$addressMode = $this->getOperandAddressMode($i);
-			$cType = $this->getOperandCType($i);
-			if($addressMode == "ARR") {
-				$lines[] = 	"adj = &cxt->adjustments_for_next_op[j][$k];";
-				$lines[] = 	"new_instr->operand{$i}.data_pointer = instr->operand{$i}.data_pointer;";
-				$lines[] = 	"new_instr->operand{$i}.index_pointer = &adj->index;";
-				$lines[] = 	"new_instr->operand{$i}.count_pointer = &adj->count;";
-				$k++;
-			} else {
-				$lines[] = 	"new_instr->operand{$i} = (($cType *) instr->operand{$i};";
+		if($this->isMultipleData() && $this->isMultithreaded()) {
+			$addressOperands = array();
+			$instr = $this->getInstructionStructure();
+			$dispatcherTypeDecl = "int32_t";
+			$dispatcherFunction = $this->getDispatcherFunctionName();
+			$dispatcherParameterList = $this->getDispatcherFunctionParameterList(true);
+			$opCount = $this->getOperandCount();
+			$arrayCount = 1;
+			$lines = array();
+			$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
+			$lines[] =		"int32_t use_multithreading = TRUE;";
+			$lines[] =		"uint32_t op{$opCount}_count = instr->operand{$opCount}.count_pointer[0];";
+			$lines[] =		"if(op{$opCount}_count >= threshold * operand{$opCount}_size) {";
+			$lines[] =			"USE_TSRM";
+			$lines[] =			"uint32_t res_unit_count = op{$opCount}_count / operand{$opCount}_size;";
+			$lines[] =			"uint32_t thread_count = (cxt->worker_count * threshold <= res_unit_count) ? cxt->worker_count : res_unit_count / threshold + 1;";
+			$lines[] =			"uint32_t chunk_size = res_unit_count / thread_count;";
+			for($i = 1; $i < $opCount; $i++) {
+				$addressMode = $this->getOperandAddressMode($i);
+				if($addressMode == "ARR") {
+					$lines[] =	"uint32_t op{$i}_count = instr->operand{$i}.count_pointer[0], op{$i}_unit_count = op{$i}_count / operand{$i}_size, op{$i}_shift, op{$i}_chunk_size;";
+					$arrayCount++;
+				}	
 			}
+			$lines[] =			"uint32_t op{$i}_shift = operand{$opCount}_size * chunk_size, op{$i}_chunk_size = operand{$opCount}_size * chunk_size;";			
+			for($i = 1; $i < $opCount; $i++) {
+				$addressMode = $this->getOperandAddressMode($i);
+				if($addressMode == "ARR") {
+					$lines[] =	"if(op{$i}_unit_count == res_unit_count) {";
+					$lines[] =		"op{$i}_shift = operand{$i}_size * chunk_size;";
+					$lines[] =		"op{$i}_chunk_size = operand{$i}_size * chunk_size;";
+					$lines[] =	"} else if(op{$i}_unit_count == 1) {";
+					$lines[] =		"op{$i}_shift = 0;";
+					$lines[] =		"op{$i}_chunk_size = operand{$i}_size;";
+					$lines[] =	"} else {";
+					$lines[] =		"use_multithreading = FALSE;";
+					$lines[] =	"}";
+				}	
+			}
+			$lines[] =			"if(use_multithreading) {";
+			$lines[] =				"// create temporary instruction structures";
+			$lines[] =				"$instr new_instr_list[MAX_THREAD_COUNT];";
+			$lines[] =				"uint32_t new_indices[MAX_THREAD_COUNT][$arrayCount];";
+			$lines[] =				"uint32_t new_counts[MAX_THREAD_COUNT][$arrayCount];";
+			$lines[] =				"int8_t *new_ips[MAX_THREAD_COUNT];";
+			$lines[] =				"uint32_t i;";
+			$lines[] =				"for(i = 0; i < thread_count; i++) {";
+			$lines[] =					"$instr *new_instr = &new_instr_list[i];";
+			for($i = 1, $k = 0; $i <= $opCount; $i++) {
+				$addressMode = $this->getOperandAddressMode($i);
+				if($addressMode == "ARR") {
+					$lines[] =			"new_indices[i][$k] = i * op{$i}_shift;";
+					$lines[] =			"new_counts[i][$k] = (i == thread_count - 1) ? op{$i}_count - (i * op{$i}_shift) : op{$i}_chunk_size;";
+					$lines[] = 			"new_instr->operand{$i}.data_pointer = instr->operand{$i}.data_pointer;";
+					$lines[] = 			"new_instr->operand{$i}.index_pointer = &new_indices[i][$k];";
+					$lines[] = 			"new_instr->operand{$i}.count_pointer = &new_counts[i][$k];";
+					$k++;
+				} else {
+					$lines[] = 			"new_instr->operand{$i} = instr->operand{$i};";
+				}
+			}
+			$lines[] =					"new_ips[i] = (int8_t *) new_instr;";
+			$lines[] =				"}";
+			$lines[] = 				"qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);";
+			$lines[] =				"return TRUE;";
+			$lines[] =			"}";
+			$lines[] =		"}";
+			$lines[] =		"return FALSE;";
+			$lines[] = "}";
+			return $lines;
 		}
-		$lines[] =			"new_ips[j] = (int8_t *) new_instr;";
-		$lines[] =		"}";
-		$lines[] = "qb_dispatch_instruction_to_threads(cxt, control_func, new_ips);";
-		$lines[] = "}";
-		return $lines;
 	}
 	
-	// return the body of the controller function, which decides whether to use multithreading or not
+	// return the name of the controller function, which decides whether to use multithreading or not
 	protected function getControllerFunctionName() {
-		return $this->getFunctionName("dispatch");
+		return $this->getFunctionName("redirect");
 	}
 	
 	// return the parameter list of the controller function
@@ -646,53 +706,52 @@ class Handler {
 		if($forDeclaration) {
 			$params[] = "qb_interpreter_context *__restrict cxt";
 			$params[] = "int8_t *__restrict ip";
+			$params[] = "int unused";
 		} else {
 			$params[] = "cxt";
 			$params[] = "ip";
+			$params[] = "0";
 		}
 		return implode(", ", $params);
 	}
 	
 	// return the body of the controller function
 	public function getControllerFunctionDefinition() {
-		if(!$this->isMultipleData() || !$this->isMultithreaded()) {
-			return null;
+		if($this->isMultipleData() && $this->isMultithreaded()) {
+			$srcCount = $this->getInputOperandCount();
+			$controllerTypeDecl = "void";
+			$controllerFunction = $this->getControllerFunctionName();
+			$controllerParameterList = $this->getControllerFunctionParameterList(true);
+			$dispatcherFunction = $this->getDispatcherFunctionName();
+			$dispatcherParameterList = $this->getDispatcherFunctionParameterList(false);
+			$handlerFunction = $this->getHandlerFunctionName();
+			$handlerParameterList = $this->getHandlerFunctionParameterList(false);
+			$lines = array();
+			$lines[] = "$controllerTypeDecl $controllerFunction($controllerParameterList) {";
+			$lines[] =		$this->getMacroDefinitions();
+			$lines[] =		"if(cxt->worker || (cxt->worker_count <= 1) || !$dispatcherFunction($dispatcherParameterList)) {";
+			$lines[] = 			"$handlerFunction($handlerParameterList);";
+			$lines[] =		"}";
+			$lines[] =		$this->getMacroUndefinitions();
+			$lines[] = "}";
+			return $lines;
 		}
-		$opCount = $this->getOperandCount();
-		$controllerTypeDecl = "void";
-		$controllerFunction = $this->getControllerFunctionName();
-		$controllerParameterList = $this->getControllerFunctionParameterList(true);
-		$dispatcherFunction = $this->getDispatcherFunctionName();
-		$dispatcherParameterList = $this->getDispatcherFunctionParameterList(false);
-		$handlerFunction = $this->getHandlerFunctionName();
-		$handlerParameterList = $this->getHandlerFunctionParameterList(false);
-		$lines = array();
-		$lines[] = "$controllerTypeDecl $controllerFunction($controllerParameterList) {";
-		$lines[] =		"if(cxt->thread_count_for_next_op) {";
-		$lines[] =			"$dispatcherFunction($dispatcherParameterList);";
-		$lines[] = 		"} else {";
-		$lines[] =			$this->getMacroDefinitions();
-		$lines[] = 			"$handlerFunction($handlerParameterList);";
-		$lines[] =			$this->getMacroUndefinitions();
-		$lines[] =		"}";
-		$lines[] = "}";
-		return $lines;
 	}
 	
 	// return codes that perform what the op is supposed to do
 	public function getAction() {
 		$functionType = $this->getHandlerFunctionType();
 		if($functionType) {	
-			if(!$this->isMultipleData() || !$this->isMultithreaded()) {
-				// call the handler directly
-				$function = $this->getHandlerFunctionName();
-				$parameterList = $this->getHandlerFunctionParameterList(false);
-			} else {
+			if($this->isMultipleData() && $this->isMultithreaded()) {
 				// send instruction to the controller function, which will either
 				// (1) call the dispatcher function, which then calls the controller function again from different threads
 				// (2) call the handler function
 				$function = $this->getControllerFunctionName();
 				$parameterList = $this->getControllerFunctionParameterList(false);
+			} else {
+				// call the handler directly
+				$function = $this->getHandlerFunctionName();
+				$parameterList = $this->getHandlerFunctionParameterList(false);
 			}
 			return "$function($parameterList);";
 		} else {
@@ -792,7 +851,7 @@ class Handler {
 	}
 	
 	// return code for a loop that performs the same operation on all element of an array 
-	protected function getIterationCode($expression) {
+	protected function getIterationCode($expression, $operandSizeOverride = false) {
 		$srcCount = $this->getInputOperandCount();
 		$lines = array();		
 		
@@ -800,7 +859,7 @@ class Handler {
 		$condition = false;
 		$operandCounts = array();
 		for($i = 1; $i <= $srcCount; $i++) {
-			$operandSize = $this->getOperandSize($i);
+			$operandSize = ($operandSizeOverride) ? $operandSizeOverride : $this->getOperandSize($i);
 			if($this->getOperandAddressMode($i) == "ARR" && $operandSize !== 0) {
 				$operandCounts[] = "op{$i}_count";
 			}
@@ -811,7 +870,7 @@ class Handler {
 		$lines[] = "if($condition) {";
 		for($i = 1; $i <= $srcCount; $i++) {
 			$cType = $this->getOperandCType($i);
-			$operandSize = $this->getOperandSize($i);
+			$operandSize = ($operandSizeOverride) ? $operandSizeOverride : $this->getOperandSize($i);
 			if($this->getOperandAddressMode($i) == "ARR" && $operandSize !== 0) {
 				$lines[] =	"$cType *op{$i}_start = op{$i}_ptr, *op{$i}_end = op{$i}_ptr + op{$i}_count;";
 			}
@@ -821,11 +880,11 @@ class Handler {
 		$lines[] = 		"for(;;) {";
 		$lines[] = 			$expression;
 		$lines[] =			"";
-		$operandSize = $this->getOperandSize($srcCount + 1);
+		$operandSize = ($operandSizeOverride) ? $operandSizeOverride : $this->getOperandSize($srcCount + 1);
 		// group incrementations together since they can happen in parallel
 		$lines[] = 			"res_ptr += $operandSize;";
 		for($i = 1; $i <= $srcCount; $i++) {
-			$operandSize = $this->getOperandSize($i);
+			$operandSize = ($operandSizeOverride) ? $operandSizeOverride : $this->getOperandSize($i);
 			if($this->getOperandAddressMode($i) == "ARR" && $operandSize !== 0) {
 				$lines[] =		"op{$i}_ptr += $operandSize;";
 			}

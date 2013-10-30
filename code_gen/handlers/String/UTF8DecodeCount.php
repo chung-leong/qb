@@ -18,6 +18,13 @@ class UTF8DecodeCount extends Handler {
 		}
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return 1;
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "uint32_t codepoint, state = 0, count = 0, i;";

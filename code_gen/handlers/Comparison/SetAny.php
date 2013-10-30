@@ -11,6 +11,13 @@ class SetAny extends Handler {
 		}
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return 1;
+		}
+	}
+	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$lines[] = array();

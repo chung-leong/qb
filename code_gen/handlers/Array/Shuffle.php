@@ -18,6 +18,13 @@ class Shuffle extends Handler {
 		}
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return 1;
+			case 2: return "res_count";
+		}
+	}
+	
 	public function needsInterpreterContext() {
 		return true;
 	}

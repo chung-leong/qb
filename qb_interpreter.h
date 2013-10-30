@@ -74,6 +74,7 @@ struct qb_interpreter_context {
 	qb_interpreter_context *caller_context;
 
 	qb_thread_worker *worker;
+	uint32_t worker_count;
 
 	uint32_t fork_id;
 	uint32_t fork_count;
@@ -112,7 +113,7 @@ extern uint32_t native_proc_table_size;
 extern void *op_handlers[];
 #endif
 
-void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers);
+void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count);
 
 void qb_execute(qb_interpreter_context *cxt);
 void qb_execute_internal(qb_interpreter_context *cxt);

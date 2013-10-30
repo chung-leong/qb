@@ -22,6 +22,13 @@ class PrintMultidimensionalVariable extends Handler {
 		}
 	}
 
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return "op2_count";
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf("*op1_ptr");
 		$cType = $this->getOperandCType(1);

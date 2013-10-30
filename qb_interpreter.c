@@ -440,6 +440,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 
 	// use shadow variables for debugging purpose by default
 	cxt->worker = NULL;
+	cxt->worker_count = qb_get_thread_count(TSRMLS_C);
 	cxt->exit_type = QB_VM_RETURN;
 	cxt->exit_status_code = 0;
 	cxt->floating_point_precision = EG(precision);
@@ -630,20 +631,16 @@ void qb_execute_internal(qb_interpreter_context *cxt) {
 	qb_finalize_variables(cxt);
 }
 
-void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers) {
+void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count) {
 	USE_TSRM
 	uint32_t i;
-	uint32_t count = 0; //cxt->thread_count_for_next_op;
-	//cxt->thread_count_for_next_op = 0;
+	qb_thread_pool *pool = qb_get_thread_pool(TSRMLS_C);
 
-	if(!QB_G(thread_pool)) {
-		//qb_initialize_thread_pool(cxt->thread_pool);
-	}
-	for(i = 0; i < count; i++)  {
+	for(i = 0; i < thread_count; i++)  {
 		int8_t *ip = instruction_pointers[i];
-		//qb_schedule_task(cxt->thread_pool, control_func, cxt, ip);
+		qb_schedule_task(pool, control_func, cxt, ip, 0, &cxt->worker);
 	}
-	//qb_run_tasks(cxt->thread_pool);
+	qb_run_tasks(pool);
 }
 
 static void qb_resize_segment_in_main_thread(void *param1, void *param2, int param3) {

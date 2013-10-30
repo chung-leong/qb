@@ -18,6 +18,13 @@ class PredicateClearArray extends Handler {
 		}
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return 1;
+			case 2: return "res_count";
+		}
+	}
+	
 	protected function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "if(op1) {";

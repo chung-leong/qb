@@ -23,6 +23,15 @@ class AppendMultidimensionalVariable extends Handler {
 			case 4: return "ARR";
 		}
 	}
+	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return "op2_count";
+			case 3: return 1;
+			case 4: return "op4_count";
+		}
+	}
 
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf("*op1_ptr");

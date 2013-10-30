@@ -22,6 +22,14 @@ class AppendVariable extends Handler {
 		}
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return 1;
+			case 2: return 1;
+			case 3: return "op3_count";
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$sprintf = $this->getSprintf("op1");
 		$lines = array();

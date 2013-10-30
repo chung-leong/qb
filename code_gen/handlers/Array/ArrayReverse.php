@@ -19,6 +19,15 @@ class ArrayReverse extends Handler {
 			case 3: return $this->operandType;
 		}
 	}
+
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return 1;
+			case 3: return "res_count";
+		}
+	}
+	
 	
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);

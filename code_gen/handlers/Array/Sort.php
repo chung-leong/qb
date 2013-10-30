@@ -24,6 +24,13 @@ class Sort extends Handler {
 		return "extern";
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return 1;
+			case 2: return "res_count";
+		}
+	}
+	
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);

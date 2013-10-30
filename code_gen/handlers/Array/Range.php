@@ -27,6 +27,15 @@ class Range extends Handler {
 		}
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return 1;
+			case 2: return 1;
+			case 3: return 1;
+			case 4: return "res_count";
+		}
+	}
+	
 	public function getHelperFunctions() {
 		$type = $this->getOperandType(1);
 		$cType = $this->getOperandCType(1);

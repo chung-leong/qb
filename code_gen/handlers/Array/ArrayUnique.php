@@ -20,6 +20,14 @@ class ArrayUnique extends Handler {
 		}
 	}
 	
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return 1;
+			case 3: return "res_count";
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "uint32_t i, j, k;";

@@ -86,7 +86,7 @@ class InvertMatrix extends Handler {
 			$lines[] = 					"}";
 			$lines[] = 				"}";
 			$lines[] = 			"}";
-			$lines[] = 			"$determinantFunction(minor, 0, matrix_rows - 1, &minor_det, 1);";
+			$lines[] = 			"$determinantFunction(minor, 0, matrix_rows - 1, &minor_det);";
 			$lines[] = 			"cofactors[p] = minor_det * sign;";
 			$lines[] = 			"p++;";
 			$lines[] = 			"if(n == 0) {";

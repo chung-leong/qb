@@ -240,12 +240,7 @@ void qb_run_tasks(qb_thread_pool *pool) {
 }
 
 void qb_initialize_thread_pool(qb_thread_pool *pool TSRMLS_DC) {
-	long i, thread_count;
-	if(QB_G(thread_count) > 0) {
-		thread_count = QB_G(thread_count);
-	} else {
-		thread_count = qb_get_cpu_count();
-	}
+	long i, thread_count = qb_get_thread_count(TSRMLS_C);
 	pool->task_buffer_size = 16;
 	pool->task_count = 0;
 	pool->task_index = 0;

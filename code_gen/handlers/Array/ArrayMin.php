@@ -4,6 +4,13 @@ class ArrayMin extends Handler {
 
 	use MultipleAddressMode, UnaryOperator, UnitResult;
 
+	public function getOperandSize($i) {
+		switch($i) {
+			case 1: return "op1_count";
+			case 2: return 1;
+		}
+	}
+	
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(1);
 		$lines[] = "if(op1_count > 0) {";
