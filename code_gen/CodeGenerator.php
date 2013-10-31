@@ -1258,6 +1258,9 @@ class CodeGenerator {
 		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new Range("RANGE", $elementType, $addressMode);
 		}
+		foreach($this->scalarAddressModes as $addressMode) {
+			$this->handlers[] = new RangeCount("SZ_RANGE", $elementType, $addressMode);
+		}
 		if(!$unsigned) {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new ArraySearch("AFIND", $elementTypeNoSign, $addressMode);

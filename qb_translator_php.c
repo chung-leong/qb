@@ -921,8 +921,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 /*
 	{	0,	"array_unshift",		2,		-1,		NULL						},
 	{	0,	"in_array",				2,		2,		&factory_in_array			},
-	{	0,	"range",				2,		3,		&factory_range				},
 */
+	{	0,	"range",				2,		3,		&factory_range				},
 	{	0,	"rsort",				1,		1,		&factory_rsort				},
 	{	0,	"shuffle",				1,		1,		&factory_shuffle			},
 	{	0,	"sort",					1,		1,		&factory_sort				},

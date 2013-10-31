@@ -575,6 +575,20 @@ static void qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_fac
 	}
 }
 
+static void qb_validate_operands_range(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *start = &operands[0], *end = &operands[1], *interval = &operands[2];
+
+	if(!SCALAR(start->address)) {
+		qb_abort("%s() expects a scalar as the first parameter", cxt->function_name);
+	}
+	if(!SCALAR(end->address)) {
+		qb_abort("%s() expects a scalar as the second parameter", cxt->function_name);
+	}
+	if(interval->type == QB_OPERAND_ADDRESS && !SCALAR(interval->address)) {
+		qb_abort("%s() expects a scalar as the third parameter", cxt->function_name);
+	}
+}
+
 static void qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_validate_operands_one_array(cxt, f, expr_type, operands, operand_count, result_destination);
 }

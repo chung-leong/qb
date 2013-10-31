@@ -660,15 +660,9 @@ static void qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_o
 }
 
 static void qb_set_result_dimensions_range(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	/*
+	dim->array_size_address = qb_obtain_on_demand_value(cxt, &factory_range_count, operands, operand_count);
+	dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;
 	dim->dimension_count = 1;
-	if(current_array_size != UINT32_MAX) {
-		dim->array_size = current_array_size;
-	} else {
-		// the array size isn't known (or the parameters are erroreous)
-		dim->array_size = 0;
-	}
-	*/
 }
 
 static void qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

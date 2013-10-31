@@ -523,6 +523,8 @@ extern qb_op_factory factory_array_slice;
 extern qb_basic_op_factory factory_array_sum;
 extern qb_basic_op_factory factory_array_unique;
 extern qb_basic_op_factory factory_array_unique_count;
+extern qb_basic_op_factory factory_range;
+extern qb_basic_op_factory factory_range_count;
 extern qb_basic_op_factory factory_rsort;
 extern qb_basic_op_factory factory_shuffle;
 extern qb_basic_op_factory factory_sort;

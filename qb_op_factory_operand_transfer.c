@@ -519,6 +519,19 @@ static void qb_transfer_operands_array_reverse(qb_compiler_context *cxt, qb_op_f
 	dest[2] = *result;
 }
 
+static void qb_transfer_operands_range(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *start = &operands[0], *end = &operands[1], *interval = &operands[2];
+	dest[0] = *start;
+	dest[1] = *end;
+	if(operand_count == 3) {
+		dest[2] = *interval;
+	} else {
+		dest[2].address = qb_obtain_constant(cxt, 1, start->address->type);
+		dest[2].type = QB_OPERAND_ADDRESS;
+	}
+	dest[3] = *result;
+}
+
 static void qb_transfer_operands_sort(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0];
 	dest[0].address = (container->address->dimension_count > 1) ? container->address->array_size_addresses[1] : cxt->one_address;
