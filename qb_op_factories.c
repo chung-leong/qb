@@ -4997,7 +4997,7 @@ qb_op_decomposer factory_array_pop = {
 	qb_decompose_array_pop,
 };
 
-qb_op_factory factory_array_push = {
+qb_op_factory factory_array_push_one = {
 	NULL,
 	qb_resolve_expression_type_index,
 	NULL,
@@ -5011,6 +5011,11 @@ qb_op_factory factory_array_push = {
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
+};
+
+qb_op_decomposer factory_array_push = {
+	qb_decompose_array_push,
+	&factory_array_push_one,
 };
 
 qb_basic_op_factory factory_array_reverse = {

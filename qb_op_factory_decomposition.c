@@ -162,3 +162,16 @@ static void qb_decompose_array_shift(qb_compiler_context *cxt, void *factory, qb
 
 	qb_produce_op(cxt, &factory_unset_array_element, fetch_operands, 2, &unset_result, NULL, 0, &unset_result_prototype);
 }
+
+static void qb_decompose_array_push(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_op_decomposer *d = factory;
+	qb_operand push_operands[2];
+	uint32_t i;
+
+	push_operands[0] = operands[0];
+	for(i = 1; i < operand_count; i++) {
+		cxt->argument_offset = i - 1;
+		push_operands[1] = operands[i];
+		qb_produce_op(cxt, d->factory, push_operands, 2, result, NULL, 0, result_prototype);
+	}
+}

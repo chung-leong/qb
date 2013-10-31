@@ -519,7 +519,7 @@ extern qb_simple_op_factory factory_array_pad_count;
 extern qb_op_decomposer factory_array_pop;
 extern qb_basic_op_factory factory_array_pos;
 extern qb_basic_op_factory factory_array_product;
-extern qb_op_factory factory_array_push;
+extern qb_op_decomposer factory_array_push;
 extern qb_basic_op_factory factory_array_reverse;
 extern qb_basic_op_factory factory_array_rpos;
 extern qb_basic_op_factory factory_array_search;
