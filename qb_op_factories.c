@@ -610,7 +610,7 @@ qb_simple_op_factory factory_guard_array_extent = {
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_third_operand,
+	qb_set_result_second_operand,
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,

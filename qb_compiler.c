@@ -2687,7 +2687,7 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 		// the length is the size minus the index
 		if(sub_array_size_address) {
 			if(CONSTANT(index_address) && CONSTANT(sub_array_size_address) && CONSTANT(extent_limit_address)) {
-				uint32_t length = CONSTANT(extent_limit_address) - VALUE(U32, index_address);
+				uint32_t length = VALUE(U32, extent_limit_address) - VALUE(U32, index_address);
 				uint32_t extent_limit = VALUE(U32, extent_limit_address);
 				// check for integer overflow
 				if(length <= extent_limit) {
@@ -2703,7 +2703,7 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 			}
 		} else {
 			if(CONSTANT(index_address) && CONSTANT(extent_limit_address)) {
-				uint32_t length = CONSTANT(extent_limit_address) - VALUE(U32, index_address);
+				uint32_t length = VALUE(U32, extent_limit_address) - VALUE(U32, index_address);
 				uint32_t extent_limit = VALUE(U32, extent_limit_address);
 				if(length <= extent_limit) {
 					return qb_obtain_constant_U32(cxt, length);
@@ -2723,7 +2723,7 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 qb_address * qb_obtain_bound_checked_array_remainder_length(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
 	qb_address *extent_limit_address = container_address->dimension_addresses[0];
 	if(CONSTANT(index_address) && CONSTANT(extent_limit_address)) {
-		uint32_t length = CONSTANT(extent_limit_address) - VALUE(U32, index_address);
+		uint32_t length = VALUE(U32, extent_limit_address) - VALUE(U32, index_address);
 		uint32_t extent_limit = VALUE(U32, extent_limit_address);
 		if(length <= extent_limit) {
 			return qb_obtain_constant_U32(cxt, length);
@@ -2741,6 +2741,11 @@ qb_address * qb_obtain_bound_checked_array_remainder_length(qb_compiler_context 
 qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, uint32_t bound_check_flags) {
 	qb_address *result_address;
 	uint32_t i;
+
+	// if the index is to an array element, copy the value to a temporary variable 
+	if(index_address->mode == QB_ADDRESS_MODE_ELE) {
+		index_address = qb_obtain_scalar_value(cxt, index_address);
+	}
 
 	// obtain the expanded index, multiplying it by the sub-array size and adding in the array offset
 	index_address = qb_obtain_bound_checked_array_index(cxt, container_address, index_address, bound_check_flags);
@@ -2784,13 +2789,20 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 }
 
 qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *index_address, qb_address *length_address, uint32_t bound_check_flags) {
-	qb_address *result_address, *extent_address;
+	qb_address *result_address, *extent_address, *offset_address;
 	uint32_t i;
+
+	if(index_address->mode == QB_ADDRESS_MODE_ELE) {
+		index_address = qb_obtain_scalar_value(cxt, index_address);
+	}
+	if(length_address && length_address->mode == QB_ADDRESS_MODE_ELE) {
+		length_address = qb_obtain_scalar_value(cxt, length_address);
+	}
 
 	// obtain the slice's extent (i.e. length * sub-array size)
 	extent_address = qb_obtain_bound_checked_array_extent(cxt, container_address, index_address, length_address, bound_check_flags);
 
-	index_address = qb_obtain_bound_checked_array_index(cxt, container_address, index_address, bound_check_flags);
+	offset_address = qb_obtain_bound_checked_array_index(cxt, container_address, index_address, bound_check_flags);
 
 	// see if we have created the address earlier
 	for(i = 0; i < cxt->address_alias_count; i++) {
@@ -2804,7 +2816,7 @@ qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *contain
 
 	result_address = qb_create_address_alias(cxt, container_address);
 	result_address->flags &= ~QB_ADDRESS_RESIZABLE;
-	result_address->array_index_address = index_address;
+	result_address->array_index_address = offset_address;
 	result_address->array_size_address = extent_address;
 	if(result_address->dimension_count > 1) {
 		if(!length_address) {
