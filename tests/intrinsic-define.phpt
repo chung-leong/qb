@@ -27,6 +27,8 @@ function test_function() {
 	}
 }
 
+test_function();
+
 echo GOOD, "\n";
 echo BAD, "\n";
 echo @UGLY, "\n";

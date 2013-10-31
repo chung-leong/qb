@@ -442,13 +442,32 @@ static void qb_translate_branch(qb_php_translator_context *cxt, void *op_factory
 	zend_op *target_op1 = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
 	uint32_t target_indices[2];
 
-	// start down the next instruction first before going down the branch
-	cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
-	cxt->next_op_index2 = cxt->zend_op_index + 1;
+	// coerce the condition to boolean here so we can check whether a branch can be eliminated
+	qb_perform_boolean_coercion(cxt->compiler_context, condition);
 
-	target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
-	target_indices[1] = JUMP_TARGET_INDEX(cxt->next_op_index2, 0);
-	qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, target_indices, 2, result_prototype);
+	if(CONSTANT(condition->address)) {
+		// the condition is constant--eliminate the branch
+		int32_t is_true = VALUE_IN(cxt->compiler_context->storage, I32, condition->address);
+		if((is_true && op_factory == &factory_branch_on_true) || (!is_true && op_factory == &factory_branch_on_false)) {
+			// the branch always occurs--jump to it
+			cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
+
+			target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
+			qb_produce_op(cxt->compiler_context, &factory_jump, NULL, 0, result, target_indices, 1, result_prototype);
+		} else {
+			// the branch is not reachable, just go to the next op
+			cxt->next_op_index2 = cxt->zend_op_index + 1;
+		}
+	} else {
+
+		// start down the next instruction first before going down the branch
+		cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
+		cxt->next_op_index2 = cxt->zend_op_index + 1;
+
+		target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
+		target_indices[1] = JUMP_TARGET_INDEX(cxt->next_op_index2, 0);
+		qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, target_indices, 2, result_prototype);
+	}
 }
 
 static void qb_translate_for_loop(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {

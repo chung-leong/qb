@@ -5488,6 +5488,6 @@ qb_op_factory factory_define = {
 	NULL,
 	NULL,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
 };

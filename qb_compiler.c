@@ -102,6 +102,13 @@ void qb_lock_address(qb_compiler_context *cxt, qb_address *address) {
 		if(TEMPORARY(address->array_size_address)) {
 			qb_lock_address(cxt, address->array_size_address);
 		}
+		if(address->dimension_count > 1) {
+			uint32_t i;
+			for(i = 0; i < address->dimension_count; i++) {
+				qb_lock_address(cxt, address->array_size_addresses[i]);
+				qb_lock_address(cxt, address->dimension_addresses[i]);
+			}
+		}
 	}
 }
 
@@ -1442,6 +1449,12 @@ static qb_address * qb_obtain_multidimensional_alias(qb_compiler_context *cxt, q
 		alias->dimension_addresses[i] = dim->dimension_addresses[i];
 		alias->array_size_addresses[i] = dim->array_size_addresses[i];
 	}
+	if(IN_USE(address)) {
+		for(i = 0; i < dim->dimension_count; i++) {
+			qb_lock_address(cxt, alias->dimension_addresses[i]);
+			qb_lock_address(cxt, alias->array_size_addresses[i]);
+		}
+	}
 	alias->array_size_address = dim->array_size_address;
 	return alias;
 }
@@ -2477,7 +2490,11 @@ void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand) 
 		} else if(operand->type == QB_OPERAND_ZVAL) {
 			int32_t is_true = zend_is_true(operand->constant);
 			operand->type = QB_OPERAND_ADDRESS;
-			operand->address = qb_obtain_constant_S32(cxt, is_true);
+			operand->address = qb_obtain_constant_boolean(cxt, is_true);
+		} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
+			int32_t is_true = (operand->array_initializer->element_count > 0);
+			operand->type = QB_OPERAND_ADDRESS;
+			operand->address = qb_obtain_constant_boolean(cxt, is_true);
 		}
 	}
 }
