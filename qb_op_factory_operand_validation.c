@@ -421,7 +421,7 @@ static void qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory
 	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -1)) {
 		qb_matrix_order order = qb_get_matrix_order(cxt, f);
 		qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
-		qb_address *m2_row_address = matrix2->address->dimension_addresses[matrix2->address->dimension_count - 1];
+		qb_address *m2_row_address = DIMENSION_ADDRESS(matrix2->address, -1);
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
@@ -445,7 +445,7 @@ static void qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory
 
 	if(CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -2) && CONSTANT_DIMENSION(matrix2->address, -1)) {
 		qb_matrix_order order = qb_get_matrix_order(cxt, f);
-		qb_address *m1_col_address = matrix1->address->dimension_addresses[matrix1->address->dimension_count - 1];
+		qb_address *m1_col_address = DIMENSION_ADDRESS(matrix1->address, -1);
 		qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
@@ -466,6 +466,34 @@ static void qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, q
 		f = s->rm_factory;
 	}
 	f->validate_operands(cxt, f, expr_type, operands, operand_count, result_destination);
+}
+
+static void qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+
+	if(matrix1->address->dimension_count < 2) {
+		qb_abort("%s() expects the first parameter to be a matrix", cxt->function_name);
+	}
+	if(matrix2->address->dimension_count < 1) {
+		qb_abort("%s() expects the second parameter to be a vector", cxt->function_name);
+	}
+
+	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -1)) {
+		qb_matrix_order order = qb_get_matrix_order(cxt, f);
+		qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
+		qb_address *m1_row_address = qb_obtain_matrix_row_address(cxt, matrix1->address, order);
+		qb_address *m2_row_address = DIMENSION_ADDRESS(matrix2->address, -1);
+		uint32_t m1_col_count = VALUE(U32, m1_col_address);
+		uint32_t m1_row_count = VALUE(U32, m1_row_address);
+		uint32_t m2_row_count = VALUE(U32, m2_row_address);
+
+		if(!(m2_row_count >= 2 && m2_row_count <= 4)) {
+			qb_abort("%s() can only handle vectors with 2, 3, or 4 elements", cxt->function_name);
+		}
+		if(m1_col_count != m2_row_count + 1 || m1_row_count != m2_row_count) {
+			qb_abort("%s() expects a %dx%d matrix when given a vector with %d elements", cxt->function_name, m2_row_count, m2_row_count + 1, m2_row_count);
+		}
+	}
 }
 
 static void qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {

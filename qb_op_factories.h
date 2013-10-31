@@ -488,6 +488,9 @@ extern qb_derived_op_factory factory_vm_mult_rm;
 extern qb_matrix_op_factory_selector factory_mm_mult; 
 extern qb_matrix_op_factory_selector factory_mv_mult; 
 extern qb_matrix_op_factory_selector factory_vm_mult; 
+extern qb_matrix_op_factory factory_transform_cm;
+extern qb_matrix_op_factory factory_transform_rm;
+extern qb_matrix_op_factory_selector factory_transform;
 
 extern qb_matrix_op_factory factory_determinant;
 extern qb_matrix_op_factory factory_inverse;

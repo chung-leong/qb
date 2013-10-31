@@ -417,22 +417,28 @@ class Handler {
 		}
 		return $lines;
 	}
-
-	public function getFunctionName($prefix) {
+	
+	protected function getFunctionNameComponents($prefix) {
 		$className = get_class($this);
-		$opName = preg_replace("/([a-z])([A-Z])/", "$1_$2", $className);
-		$opName = strtolower($opName);
-		$name = "qb_{$prefix}_{$opName}";
+		$parts = array();
+		$parts[] = "qb";
+		$parts[] = $prefix;
+		$parts[] = strtolower(preg_replace("/([a-z])([A-Z])/", "$1_$2", $className));
 		if($this->operandSize != 1 && is_int($this->operandSize)) {
-			$name .= "_{$this->operandSize}x";
+			$parts[] = "{$this->operandSize}x";
 		}
 		if($this->isMultipleData()) {
-			$name .= "_multiple_times";
+			$parts[] = "multiple_times";
 		}
 		if($this->operandType) {
-			$name .= "_{$this->operandType}";
+			$parts[] = $this->operandType;
 		}
-		return $name;
+		return $parts;
+	}
+
+	protected function getFunctionName($prefix) {
+		$parts = $this->getFunctionNameComponents($prefix);
+		return implode('_', $parts);
 	}
 	
 	public function getHandlerFunctionName() {

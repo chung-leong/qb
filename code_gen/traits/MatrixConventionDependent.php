@@ -18,12 +18,14 @@ trait MatrixConventionDependent {
 		}
 	}
 	
-	public function getFunctionName($prefix) {
-		$name = parent::getFunctionName($prefix);
+	protected function getFunctionNameComponents($prefix) {
+		$parts = parent::getFunctionNameComponents($prefix);
 		if($this->getPadding()) {
-			$name = preg_replace('/(\dx)/', '$1_padded', $name);
+			array_splice($parts, -2, 0, 'padded');
+		} else {
+			array_splice($parts, -1, 0, str_replace('-', '_', $this->getMatrixConvention()));
 		}
-		return $name;
+		return $parts;
 	}
 }
 

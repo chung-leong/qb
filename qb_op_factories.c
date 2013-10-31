@@ -4299,18 +4299,17 @@ qb_matrix_op_factory factory_determinant = {
 	0,
 };
 
-/*
 qb_matrix_op_factory factory_transform_cm = {
 	NULL,
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
+	qb_validate_operands_transform,
+	qb_set_result_temporary_value,
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_transform_cm,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR,
@@ -4323,25 +4322,23 @@ qb_matrix_op_factory factory_transform_cm = {
 	},
 	0,
 };
-*/
 
-/*
 qb_matrix_op_factory factory_transform_rm = {
 	NULL,
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
+	qb_validate_operands_transform,
+	qb_set_result_temporary_value,
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_transform_rm,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
-	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR,
+	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_ROW_MAJOR,
 	QB_ADDRESS_TEMPORARY,
-	{	0,			0,	},
+	{	QB_NOP,			QB_NOP,	},
 	{
 		{	QB_TRAN_RM_2X_F64_F64_F64,		QB_TRAN_RM_2X_F32_F32_F32,	},
 		{	QB_TRAN_RM_3X_F64_F64_F64,		QB_TRAN_RM_3X_F32_F32_F32,	},
@@ -4349,14 +4346,13 @@ qb_matrix_op_factory factory_transform_rm = {
 	},
 	0,
 };
-*/
 
-/*
 qb_matrix_op_factory_selector factory_transform = {
 	NULL,
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
+	qb_set_result_prototype,
 	qb_validate_operands_matrix_current_mode,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_matrix_current_mode,
@@ -4369,7 +4365,6 @@ qb_matrix_op_factory_selector factory_transform = {
 	(qb_op_factory *) &factory_transform_cm,
 	(qb_op_factory *) &factory_transform_rm,
 };
-*/
 
 qb_float_op_factory factory_complex_abs = {
 	NULL,
