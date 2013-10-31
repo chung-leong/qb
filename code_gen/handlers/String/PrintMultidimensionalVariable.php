@@ -2,7 +2,9 @@
 
 class PrintMultidimensionalVariable extends Handler {
 
-	use ArrayAddressMode, UseSprintf;
+	use ArrayAddressMode, MainThreadExecution, UseSprintf {
+		MainThreadExecution::needsInterpreterContext insteadof UseSprintf;
+	}
 	
 	public function getInputOperandCount() {
 		return 2;
@@ -40,30 +42,30 @@ class PrintMultidimensionalVariable extends Handler {
 		$lines[] = "for(i = 0; i < op2_count; i++) {";
 		$lines[] = 		"counts[i] = 0;";
 		$lines[] = "}";
-		$lines[] = "qb_write_output(cxt, \"[\", 1);";
+		$lines[] = "php_write(\"[\", 1 TSRMLS_CC);";
 		$lines[] = "while(op1_ptr < op1_end || depth > 0) {";
 		$lines[] = 		"if(counts[depth] < op2_ptr[depth]) {";
 		$lines[] = 			"if(counts[depth] > 0) {";
-		$lines[] = 				"qb_write_output(cxt, \", \", 2);";
+		$lines[] = 				"php_write(\", \", 2 TSRMLS_CC);";
 		$lines[] = 			"}";
 		$lines[] = 			"if(depth + 1 == op2_count) {";
 		$lines[] = 				"char sprintf_buffer[64];";
 		$lines[] = 				"uint32_t len = $sprintf;";
-		$lines[] = 				"qb_write_output(cxt, sprintf_buffer, len);";
+		$lines[] = 				"php_write(sprintf_buffer, len TSRMLS_CC);";
 		$lines[] = 				"op1_ptr++;";
 		$lines[] = 				"counts[depth]++;";
 		$lines[] = 			"} else {";
-		$lines[] = 				"qb_write_output(cxt, \"[\", 1);";
+		$lines[] = 				"php_write(\"[\", 1 TSRMLS_CC);";
 		$lines[] = 				"depth++;";
 		$lines[] = 			"}";
 		$lines[] = 		"} else {";
-		$lines[] = 			"qb_write_output(cxt, \"]\", 1);";
+		$lines[] = 			"php_write(\"]\", 1 TSRMLS_CC);";
 		$lines[] = 			"counts[depth] = 0;";
 		$lines[] = 			"depth--;";
 		$lines[] = 			"counts[depth]++;";
 		$lines[] = 		"}";
 		$lines[] = "}";
-		$lines[] = "qb_write_output(cxt, \"]\", 1);";
+		$lines[] = "php_write(\"]\", 1 TSRMLS_CC);";
 		return $lines;
 	}
 }

@@ -2,7 +2,9 @@
 
 class PrintVariable extends Handler {
 
-	use MultipleAddressMode, UseSprintf;
+	use MultipleAddressMode, MainThreadExecution, UseSprintf {
+		MainThreadExecution::needsInterpreterContext insteadof UseSprintf;
+	}
 	
 	public function getInputOperandCount() {
 		return 1;
@@ -14,7 +16,7 @@ class PrintVariable extends Handler {
 		$lines[] = "USE_TSRM";
 		$lines[] = "char sprintf_buffer[64];";
 		$lines[] = "uint32_t len = $sprintf;";
-		$lines[] = "qb_write_output(cxt, sprintf_buffer, len);";
+		$lines[] = "php_write(sprintf_buffer, len TSRMLS_CC);";
 		return $lines;
 	}
 
@@ -24,17 +26,17 @@ class PrintVariable extends Handler {
 		$lines = array();
 		$lines[] = "USE_TSRM";
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
-		$lines[] = "qb_write_output(cxt, \"[\", 1);";
+		$lines[] = "php_write(\"[\", 1 TSRMLS_CC);";
 		$lines[] = "while(op1_ptr < op1_end) {";
 		$lines[] =		"char sprintf_buffer[64];";
 		$lines[] =		"uint32_t len = $sprintf;";
-		$lines[] =		"qb_write_output(cxt, sprintf_buffer, len);";
+		$lines[] =		"php_write(sprintf_buffer, len TSRMLS_CC);";
 		$lines[] = 		"op1_ptr++;";
 		$lines[] = 		"if(op1_ptr != op1_end) {";
-		$lines[] = 			"qb_write_output(cxt, \", \", 2);";
+		$lines[] = 			"php_write(\", \", 2 TSRMLS_CC);";
 		$lines[] = 		"}";
 		$lines[] = "}";
-		$lines[] = "qb_write_output(cxt, \"]\", 1);";
+		$lines[] = "php_write(\"]\", 1 TSRMLS_CC);";
 		return $lines;
 	}
 }

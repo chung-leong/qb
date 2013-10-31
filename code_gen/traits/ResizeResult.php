@@ -2,17 +2,11 @@
 
 trait ResizeResult {
 
+	use MainThreadExecution;
+
 	public function changesOperandSize($i) {
 		$srcCount = $this->getInputOperandCount();
 		return ($i > $srcCount);
-	}
-	
-	public function needsInterpreterContext() {
-		return true;
-	}
-	
-	public function needsLocalStorage() {
-		return true;
 	}
 	
 	public function getHandlerFunctionType() {

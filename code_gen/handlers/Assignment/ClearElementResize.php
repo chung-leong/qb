@@ -12,10 +12,6 @@ class ClearElementResize extends Handler {
 		return true;
 	}
 	
-	public function needsLocalStorage() {
-		return true;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";				// element index
@@ -46,7 +42,7 @@ class ClearElementResize extends Handler {
 		$lines[] =			"res_ptr[i] = 0;";
 		$lines[] = 		"}";
 		$lines[] = 		"res_count = end;";
-		$lines[] = 		"qb_adjust_memory_segment(cxt, op3, end * sizeof($cType));";
+		$lines[] = 		"qb_resize_segment(&cxt->function->local_storage->segments[op3], end * sizeof($cType));";
 		$lines[] = "}";
 		return $lines;
 	}

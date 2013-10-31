@@ -641,30 +641,14 @@ void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *contr
 		qb_schedule_task(pool, control_func, cxt, ip, 0, &cxt->worker);
 	}
 	qb_run_tasks(pool);
+	cxt->worker = NULL;
 }
 
-static void qb_resize_segment_in_main_thread(void *param1, void *param2, int param3) {
-	qb_memory_segment *segment = param1;
-	intptr_t *p_shift = param2;
-	uint32_t new_size = param3;
-	*p_shift = qb_resize_segment(segment, new_size);
-}
-
-intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, uint32_t segment_selector, uint32_t new_size) {
-	qb_memory_segment *segment = &cxt->function->local_storage->segments[segment_selector];
-#ifdef ZEND_DEBUG
-	if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-		qb_abort("Invalid segment selector");
-	}
-#endif
-	// do it in the main thread
-	if(cxt->worker) {
-		intptr_t shift = 0;
-		qb_run_in_main_thread(cxt->worker, qb_resize_segment_in_main_thread, segment, &shift, new_size);
-		return shift;
-	} else {
-		return qb_resize_segment(segment, new_size);
-	}
+void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer) {
+	qb_thread_worker *worker = cxt->worker;
+	cxt->worker = NULL;
+	qb_run_in_main_thread(worker, control_func, cxt, instruction_pointer, 0);
+	cxt->worker = worker;
 }
 
 static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_number) {
@@ -785,23 +769,6 @@ static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *q
 		qb_free_interpreter_context(new_cxt);
 	} else {
 		qb_abort("Too much recursion");
-	}
-}
-
-static void qb_write_output_in_main_thread(void *param1, void *param2, int param3) {
-	qb_interpreter_context *cxt = param1;
-	const char *s = param2;
-	uint32_t count = param3;
-	USE_TSRM
-	php_write((void *) s, count TSRMLS_CC);
-}
-
-void qb_write_output(qb_interpreter_context *cxt, const char *s, uint32_t count) {
-	if(cxt->worker) {
-		qb_run_in_main_thread(cxt->worker, qb_write_output_in_main_thread, cxt, (void *) s, count);
-	} else {
-		USE_TSRM
-		php_write((void *) s, count TSRMLS_CC);
 	}
 }
 

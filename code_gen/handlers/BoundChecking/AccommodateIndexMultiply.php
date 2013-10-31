@@ -2,7 +2,7 @@
 
 class AccommodateIndexMultiply extends Handler {
 
-	use ScalarAddressMode, SenaryOperator;
+	use ScalarAddressMode, SenaryOperator, MainThreadExecution;
 	
 	public function changesOperand($i) {
 		return ($i == 2 || $i == 4 || $i == 7);
@@ -12,10 +12,6 @@ class AccommodateIndexMultiply extends Handler {
 		return true;
 	}
 	
-	public function needsLocalStorage() {
-		return true;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";		// index
@@ -48,7 +44,7 @@ class AccommodateIndexMultiply extends Handler {
 		$lines[] =		"uint32_t new_size = new_dim * op3;";
 		$lines[] =		"op4 = new_size;";
 		$lines[] =		"op2 = new_dim;";
-		$lines[] = 		"qb_adjust_memory_segment(cxt, op5, new_size * op6);";
+		$lines[] = 		"qb_resize_segment(&cxt->function->local_storage->segments[op5], new_size * op6);";
 		$lines[] = "}";
 		return $lines;
 	}

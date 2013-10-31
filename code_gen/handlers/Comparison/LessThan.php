@@ -2,10 +2,7 @@
 
 class LessThan extends Handler {
 
-	use MultipleAddressMode, BinaryOperator;
-	use BooleanResult;
-	use ScalarResult;
-	use ArrayComparison;
+	use MultipleAddressMode, BinaryOperator, BooleanResult, ScalarResult, ArrayComparison;
 	
 	protected function getActionOnUnitData() {
 		return "res = (op1 < op2);";

@@ -2,7 +2,7 @@
 
 class AccommodateSizeUpdateDimension extends Handler {
 
-	use ScalarAddressMode, SenaryOperator;
+	use ScalarAddressMode, SenaryOperator, MainThreadExecution;
 	
 	public function getOutputOperandCount() {
 		return 0;
@@ -16,10 +16,6 @@ class AccommodateSizeUpdateDimension extends Handler {
 		return true;
 	}
 	
-	public function needsLocalStorage() {
-		return true;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";		// source size
@@ -53,7 +49,7 @@ class AccommodateSizeUpdateDimension extends Handler {
 		$lines[] =		"}";
 		$lines[] =		"op2 = new_size;";
 		$lines[] =		"op3 = new_dim;";
-		$lines[] = 		"qb_adjust_memory_segment(cxt, op5, new_size * op6);";
+		$lines[] = 		"qb_resize_segment(&cxt->function->local_storage->segments[op5], new_size * op6);";
 		$lines[] = "}";
 		return $lines;
 	}

@@ -23,10 +23,6 @@ trait UseSprintf {
 		}
 		return $sprintf;
 	}	
-	
-	public function getFunctionType() {
-		return 'extern';
-	}
 }
 
 ?>

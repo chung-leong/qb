@@ -2,7 +2,7 @@
 
 class AccommodateSize extends Handler {
 
-	use ScalarAddressMode, QuaternaryOperator;
+	use ScalarAddressMode, QuaternaryOperator, MainThreadExecution;
 	
 	public function getOutputOperandCount() {
 		return 0;
@@ -16,10 +16,6 @@ class AccommodateSize extends Handler {
 		return true;
 	}
 	
-	public function needsLocalStorage() {
-		return true;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";		// source size
@@ -43,7 +39,7 @@ class AccommodateSize extends Handler {
 		$lines[] = "if(UNEXPECTED(!(op1 == op2))) {";
 		$lines[] =		"uint32_t new_dim = op1;";
 		$lines[] =		"op2 = new_dim;";
-		$lines[] = 		"qb_adjust_memory_segment(cxt, op3, new_dim * op4);";
+		$lines[] = 		"qb_resize_segment(&cxt->function->local_storage->segments[op3], new_dim * op4);";
 		$lines[] = "}";
 		return $lines;
 	}

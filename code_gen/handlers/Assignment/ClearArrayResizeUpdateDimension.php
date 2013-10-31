@@ -2,7 +2,7 @@
 
 class ClearArrayResizeUpdateDimension extends Handler {
 
-	use ArrayAddressMode, BinaryOperator;
+	use ArrayAddressMode, BinaryOperator, MainThreadExecution;
 	
 	public function changesOperandSize($i) {
 		return ($i == 3);
@@ -16,10 +16,6 @@ class ClearArrayResizeUpdateDimension extends Handler {
 		return true;
 	}
 	
-	public function needsLocalStorage() {
-		return true;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";					// the first dimension
@@ -44,7 +40,7 @@ class ClearArrayResizeUpdateDimension extends Handler {
 		$lines[] = "}";
 		$lines[] = "op1 = 0;";
 		$lines[] = "res_count = 0;";
-		$lines[] = "qb_adjust_memory_segment(cxt, op2, 0);";
+		$lines[] = "qb_resize_segment(&cxt->function->local_storage->segments[op2], 0);";
 		return $lines;
 	}
 }

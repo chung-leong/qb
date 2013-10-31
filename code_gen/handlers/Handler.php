@@ -334,6 +334,14 @@ class Handler {
 		return false;
 	}
 	
+	public function runsInMainThread() {
+		return false;
+	}
+
+	public function getMultithreadingThreshold() {
+		return 4096;
+	}
+	
 	public function performsWrapAround() {
 		if($this->addressMode == "ARR" && !$this->isOverridden('getActionOnMultipleData')) {
 			return true;
@@ -432,7 +440,9 @@ class Handler {
 	}
 	
 	public function getHandlerFunctionType() {
-		if(!$this->isOverridden('getAction') && !$this->isOverridden('getCode')) {
+		if($this->runsInMainThread()) {
+			return 'extern';
+		} else if(!$this->isOverridden('getAction') && !$this->isOverridden('getCode')) {
 			if($this->isMultipleData()) {
 				return 'extern';
 			} else {
@@ -457,7 +467,7 @@ class Handler {
 					return 'inline';
 				}
 			}
-		}
+		} 
 		return null;
 	}
 
@@ -718,7 +728,6 @@ class Handler {
 	// return the body of the controller function
 	public function getControllerFunctionDefinition() {
 		if($this->isMultipleData() && $this->isMultithreaded()) {
-			$srcCount = $this->getInputOperandCount();
 			$controllerTypeDecl = "void";
 			$controllerFunction = $this->getControllerFunctionName();
 			$controllerParameterList = $this->getControllerFunctionParameterList(true);
@@ -735,6 +744,23 @@ class Handler {
 			$lines[] =		$this->getMacroUndefinitions();
 			$lines[] = "}";
 			return $lines;
+		} else if($this->runsInMainThread()) {
+			$controllerTypeDecl = "void";
+			$controllerFunction = $this->getControllerFunctionName();
+			$controllerParameterList = $this->getControllerFunctionParameterList(true);
+			$handlerFunction = $this->getHandlerFunctionName();
+			$handlerParameterList = $this->getHandlerFunctionParameterList(false);
+			$lines = array();
+			$lines[] = "$controllerTypeDecl $controllerFunction($controllerParameterList) {";
+			$lines[] =		$this->getMacroDefinitions();
+			$lines[] =		"if(cxt->worker) {";
+			$lines[] = 			"qb_dispatch_instruction_to_main_thread(cxt, $controllerFunction, ip);";
+			$lines[] =		"} else {";
+			$lines[] = 			"$handlerFunction($handlerParameterList);";
+			$lines[] =		"}";
+			$lines[] =		$this->getMacroUndefinitions();
+			$lines[] = "}";
+			return $lines;
 		}
 	}
 	
@@ -746,6 +772,10 @@ class Handler {
 				// send instruction to the controller function, which will either
 				// (1) call the dispatcher function, which then calls the controller function again from different threads
 				// (2) call the handler function
+				$function = $this->getControllerFunctionName();
+				$parameterList = $this->getControllerFunctionParameterList(false);
+			} else if($this->runsInMainThread()) {
+				// if the call occurs inside a thread, it needs to be redirected to the main thread
 				$function = $this->getControllerFunctionName();
 				$parameterList = $this->getControllerFunctionParameterList(false);
 			} else {

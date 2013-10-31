@@ -2,7 +2,7 @@
 
 class ClearArrayResize extends Handler {
 
-	use ArrayAddressMode, UnaryOperator;
+	use ArrayAddressMode, UnaryOperator, MainThreadExecution;
 	
 	public function changesOperandSize($i) {
 		return ($i == 2);
@@ -12,10 +12,6 @@ class ClearArrayResize extends Handler {
 		return true;
 	}
 	
-	public function needsLocalStorage() {
-		return true;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";					// segment selector
@@ -37,7 +33,7 @@ class ClearArrayResize extends Handler {
 		$lines[] =		"res_ptr[i] = 0;";
 		$lines[] = "}";
 		$lines[] = "res_count = 0;";
-		$lines[] = "qb_adjust_memory_segment(cxt, op1, 0);";
+		$lines[] = "qb_resize_segment(&cxt->function->local_storage->segments[op1], 0);";
 		return $lines;
 	}
 }

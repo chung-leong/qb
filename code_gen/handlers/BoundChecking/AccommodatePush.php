@@ -2,7 +2,7 @@
 
 class AccommodatePush extends Handler {
 
-	use ScalarAddressMode, TernaryOperator;
+	use ScalarAddressMode, TernaryOperator, MainThreadExecution;
 	
 	public function changesOperand($i) {
 		return ($i == 1 || $i == 4);
@@ -12,10 +12,6 @@ class AccommodatePush extends Handler {
 		return true;
 	}
 	
-	public function needsLocalStorage() {
-		return true;
-	}
-
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return "U32";		// dimension
@@ -39,7 +35,7 @@ class AccommodatePush extends Handler {
 		$lines[] = "uint32_t new_dim = op1 + 1;";
 		$lines[] = "res = op1;";
 		$lines[] = "op1 = new_dim;";
-		$lines[] = "qb_adjust_memory_segment(cxt, op2, new_dim * op3);";
+		$lines[] = "qb_resize_segment(&cxt->function->local_storage->segments[op2], new_dim * op3);";
 		return $lines;
 	}
 }

@@ -114,6 +114,7 @@ extern void *op_handlers[];
 #endif
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count);
+void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer);
 
 void qb_execute(qb_interpreter_context *cxt);
 void qb_execute_internal(qb_interpreter_context *cxt);
