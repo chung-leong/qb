@@ -13,7 +13,7 @@ class SetLessThan extends Handler {
 	}
 	
 	protected function getActionOnUnitData() {
-		return $this->getIterationCode("res = (op1 < op2);");
+		return $this->getIterationCode("res = (op1 < op2);", 1);
 	}
 }
 
