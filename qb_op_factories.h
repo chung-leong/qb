@@ -513,6 +513,8 @@ extern qb_op_decomposer factory_array_diff;
 extern qb_basic_op_factory factory_array_diff_count;
 extern qb_op_decomposer factory_array_intersect;
 extern qb_basic_op_factory factory_array_intersect_count;
+extern qb_basic_op_factory factory_array_pad;
+extern qb_simple_op_factory factory_array_pad_count;
 extern qb_basic_op_factory factory_array_pos;
 extern qb_basic_op_factory factory_array_product;
 extern qb_op_factory factory_array_push;

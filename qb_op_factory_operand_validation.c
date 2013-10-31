@@ -551,6 +551,32 @@ static void qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_fact
 	}
 }
 
+static void qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *input = &operands[0], *size = &operands[1], *value = &operands[2];
+
+	if(SCALAR(input->address)) {
+		qb_abort("%s() expects the first parameter to be an array", cxt->function_name);
+	}
+
+	if(input->address->dimension_count > 1) {
+		qb_address *element_size_address = input->address->array_size_addresses[1];
+		qb_address *value_size_address = value->address->array_size_address;
+		if(CONSTANT(element_size_address) && CONSTANT(value_size_address)) {
+			uint32_t element_size = VALUE(U32, element_size_address);
+			uint32_t value_size = VALUE(U32, value_size_address);
+			if(element_size != value_size) {
+				qb_abort("%s() expects the third parameter to have the same size as the elements in the input array");
+			}
+		} else {
+			// TODO: add runtime  check
+		}
+	} else {
+		if(!SCALAR(value->address)) {
+			qb_abort("%s() expects the third parameter to be a scalar when the input array is not multidimensional", cxt->function_name);
+		}
+	}
+}
+
 static void qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand = &operands[0];
 

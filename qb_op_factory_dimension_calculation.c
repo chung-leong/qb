@@ -638,19 +638,11 @@ static void qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_op_
 
 static void qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *container_address = operands[0].address;
-	/*
-	dim->array_size = 0;
-	if(container_address->dimension_count > 1) {
-		uint32_t i;
-		dim->dimension_count = container_address->dimension_count;
-		for(i = 1; i < container_address->dimension_count; i++) {
-			dim->dimension_addresses[i] = container_address->dimension_addresses[i];
-		}
-		dim->dimension_addresses[0] = NULL;
-	} else {
-		dim->dimension_count = 1;
-	}
-	*/
+	qb_address *dimension_address = container_address->dimension_addresses[0];
+	qb_address *min_dimension_address = operands[1].address;
+	qb_operand count_operands[2] = { { QB_OPERAND_ADDRESS, dimension_address }, { QB_OPERAND_ADDRESS, min_dimension_address } };
+	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_pad_count, count_operands, 2);
+	qb_append_address_dimensions(cxt, first_dimension_address, container_address, 1, dim);
 }
 
 static void qb_set_result_dimensions_array_column(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

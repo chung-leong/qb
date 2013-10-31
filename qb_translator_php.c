@@ -896,7 +896,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_intersect",		2,		-1,		&factory_array_intersect	},
 /*
 	{	0,	"array_merge",			2,		-1,		&factory_array_merge		},
+*/
 	{	0,	"array_pad",			3,		3,		&factory_array_pad			},
+/*
 	{	0,	"array_pop",			1,		1,		NULL						},
 */
 	{	0,	"array_pos",			2,		3,		&factory_array_pos			},

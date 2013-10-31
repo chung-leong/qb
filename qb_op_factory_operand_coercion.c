@@ -160,6 +160,13 @@ static void qb_coerce_operands_array_column(qb_compiler_context *cxt, qb_op_fact
 	qb_perform_type_coercion(cxt, column_index, QB_TYPE_U32, 0);
 }
 
+static void qb_coerce_operands_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *size = &operands[1], *value = &operands[2];
+	qb_perform_type_coercion(cxt, container, expr_type, f->coercion_flags);
+	qb_perform_type_coercion(cxt, size, QB_TYPE_U32, 0);
+	qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags);
+}
+
 static void qb_coerce_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *subarray = &operands[1], *offset = &operands[2];
 	qb_primitive_type operand_type = qb_get_operand_type(cxt, container, f->coercion_flags);

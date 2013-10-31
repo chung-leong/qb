@@ -7,8 +7,8 @@ class ArrayPad extends Handler {
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: return "ARR";
-			case 2: return "ARR";
-			case 3: return "SCA";
+			case 2: return "SCA";
+			case 3: return "ARR";
 			case 4: return "ARR";
 		}
 	}
@@ -16,8 +16,8 @@ class ArrayPad extends Handler {
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return $this->operandType;
-			case 2: return $this->operandType;
-			case 3: return "S32";
+			case 2: return "S32";
+			case 3: return $this->operandType;
 			case 4: return $this->operandType;
 		}
 	}
@@ -25,8 +25,8 @@ class ArrayPad extends Handler {
 	public function getOperandSize($i) {
 		switch($i) {
 			case 1: return "op1_count";
-			case 2: return "op2_count";
-			case 3: return 1;
+			case 2: return 1;
+			case 3: return "op3_count";
 			case 4: return "res_count";
 		}
 	}
@@ -37,8 +37,8 @@ class ArrayPad extends Handler {
 		$lines = array();
 		$lines[] = "if(res_count > op1_count) {";
 		$lines[] =		"$cType *res_end;";
-		$lines[] =		"$cType *op2_start = op2_ptr, *op2_end = op2_ptr + op2_count;";
-		$lines[] =		"if(op3 > 0) {";
+		$lines[] =		"$cType *op3_start = op3_ptr, *op3_end = op3_ptr + op3_count;";
+		$lines[] =		"if(op2 > 0) {";
 		$lines[] = 			"memcpy(res_ptr, op1_ptr, sizeof($cType) * op1_count);";
 		$lines[] =			"res_end = res_ptr + res_count;";
 		$lines[] =			"res_ptr += op1_count;";		
@@ -47,11 +47,11 @@ class ArrayPad extends Handler {
 		$lines[] = 			"memcpy(res_end, op1_ptr, sizeof($cType) * op1_count);";
 		$lines[] =		"}";
 		$lines[] =		"while(res_ptr < res_end) {";
-		$lines[] =			"*res_ptr = *op2_ptr;";
-		$lines[] =			"op2_ptr++;";
+		$lines[] =			"*res_ptr = *op3_ptr;";
+		$lines[] =			"op3_ptr++;";
 		$lines[] =			"res_ptr++;";
-		$lines[] =			"if(op2_ptr >= op2_end) {";
-		$lines[] = 				"op2_ptr = op2_start;";
+		$lines[] =			"if(op3_ptr >= op3_end) {";
+		$lines[] = 				"op3_ptr = op3_start;";
 		$lines[] =			"}";
 		$lines[] =		"}";
 		$lines[] = "} else {";		

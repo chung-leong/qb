@@ -5204,25 +5204,41 @@ qb_basic_op_factory factory_array_insert = {
 };
 */
 
-/*
 qb_basic_op_factory factory_array_pad = {
 	NULL,
-	qb_resolve_expression_type,
+	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands,
+	qb_coerce_operands_array_pad,
 	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
+	qb_validate_operands_array_pad,
+	qb_set_result_temporary_value,
 	qb_set_result_dimensions_array_pad,
 	qb_select_opcode_basic,
-	qb_transfer_operands,
+	qb_transfer_operands_all,
 
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
-	{	QB_APAD_F64_F64_S32_F64,	QB_APAD_F32_F32_S32_F32,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I64_I64_S32_I64,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I32_I32_S32_I32,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I16_I16_S32_I16,	QB_APAD_I08_I08_S32_I08,	QB_APAD_I08_I08_S32_I08,	},
+	{	QB_APAD_F64_S32_F64_F64,	QB_APAD_F32_S32_F32_F32,	QB_APAD_I64_S32_I64_I64,	QB_APAD_I64_S32_I64_I64,	QB_APAD_I32_S32_I32_I32,	QB_APAD_I32_S32_I32_I32,	QB_APAD_I16_S32_I16_I16,	QB_APAD_I16_S32_I16_I16,	QB_APAD_I08_S32_I08_I08,	QB_APAD_I08_S32_I08_I08,	},
 };
-*/
+
+qb_simple_op_factory factory_array_pad_count = {
+	NULL,
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
+
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	QB_SZ_APAD_U32_S32_U32,
+};
 
 /*
 qb_copy_op_factory factory_array_merge = {

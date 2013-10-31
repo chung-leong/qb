@@ -1285,6 +1285,9 @@ class CodeGenerator {
 			$this->handlers[] = new ArrayPad("APAD", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {
+			$this->handlers[] = new ArrayPadCount("SZ_APAD", 'U32');
+		}
+		if($elementType == 'U32') {
 			$this->handlers[] = new ArrayRandom("ARAND", $elementType, $addressMode);
 		}
 	}
