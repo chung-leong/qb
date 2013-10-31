@@ -915,11 +915,7 @@ qb_address * qb_obtain_constant_float(qb_compiler_context *cxt, float64_t value,
 }
 
 qb_address * qb_obtain_constant_boolean(qb_compiler_context *cxt, int32_t value) {
-	if(value == 0) {
-		return cxt->true_address;
-	} else {
-		return cxt->false_address;
-	}
+	return (value) ? cxt->true_address : cxt->false_address;
 }
 
 qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
