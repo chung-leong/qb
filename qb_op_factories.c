@@ -468,6 +468,23 @@ qb_gather_op_factory factory_scatter = {
 	},
 };
 
+qb_derived_op_factory factory_assign_temporary = {
+	NULL,
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_first_operand,
+	qb_select_opcode_derived,
+	qb_transfer_operands_all,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	&factory_assign,
+};
+
 qb_op_factory factory_array_init = {
 	NULL,
 	qb_resolve_expression_lvalue,
@@ -4976,6 +4993,10 @@ qb_basic_op_factory factory_array_product = {
 	{	QB_APROD_F64_F64,	QB_APROD_F32_F32,	QB_APROD_U64_U64,	QB_APROD_S64_S64,	QB_APROD_U32_U32,	QB_APROD_S32_S32,	QB_APROD_U16_U16,	QB_APROD_S16_S16,	QB_APROD_U08_U08,	QB_APROD_S08_S08	},
 };
 
+qb_op_decomposer factory_array_pop = {
+	qb_decompose_array_pop,
+};
+
 qb_op_factory factory_array_push = {
 	NULL,
 	qb_resolve_expression_type_index,
@@ -5044,6 +5065,10 @@ qb_basic_op_factory factory_array_search = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_AFIND_F64_F64_I32,	QB_AFIND_F32_F32_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I64_I64_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I32_I32_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I16_I16_I32,	QB_AFIND_I08_I08_I32,	QB_AFIND_I08_I08_I32	},
+};
+
+qb_op_decomposer factory_array_shift = {
+	qb_decompose_array_shift,
 };
 
 qb_op_factory factory_array_slice = {

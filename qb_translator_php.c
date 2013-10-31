@@ -898,9 +898,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_merge",			2,		-1,		&factory_array_merge		},
 */
 	{	0,	"array_pad",			3,		3,		&factory_array_pad			},
-/*
-	{	0,	"array_pop",			1,		1,		NULL						},
-*/
+	{	0,	"array_pop",			1,		1,		&factory_array_pop			},
 	{	0,	"array_pos",			2,		3,		&factory_array_pos			},
 	{	0,	"array_product",		1,		1,		&factory_array_product		},
 	{	0,	"array_push",			2,		-1,		&factory_array_push			},
@@ -911,9 +909,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_reverse",		1,		1,		&factory_array_reverse		},
 	{	0,	"array_rpos",			2,		3,		&factory_array_rpos			},
 	{	0,	"array_search",			2,		2,		&factory_array_search		},
-/*
-	{	0,	"array_shift",			1,		1,		NULL						},
-*/
+	{	0,	"array_shift",			1,		1,		&factory_array_shift		},
 	{	0,	"array_slice",			2,		3,		&factory_array_slice		},
 /*
 	{	0,	"array_splice",			2,		4,		NULL						},

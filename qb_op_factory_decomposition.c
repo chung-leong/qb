@@ -134,3 +134,31 @@ static void qb_decompose_fork(qb_compiler_context *cxt, void *factory, qb_operan
 	// add result op
 	qb_produce_op(cxt, d->result_factory, NULL, 0, result, NULL, 0, result_prototype);
 }
+
+static void qb_decompose_array_pop(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0];
+	qb_address *index_address = (cxt->stage == QB_STAGE_OPCODE_TRANSLATION) ? qb_retrieve_binary_op_result(cxt, &factory_subtract, DIMENSION_ADDRESS(container->address, 0), cxt->one_address) : cxt->zero_address;
+	qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, container->address }, { QB_OPERAND_ADDRESS, index_address } };
+	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL }, unset_result = { QB_OPERAND_EMPTY, NULL };
+	qb_result_prototype fetch_result_prototype, unset_result_prototype;
+
+	qb_produce_op(cxt, &factory_fetch_array_element_read, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
+
+	qb_produce_op(cxt, &factory_assign_temporary, &fetch_result, 1, result, NULL, 0, result_prototype);
+
+	qb_produce_op(cxt, &factory_unset_array_element, fetch_operands, 2, &unset_result, NULL, 0, &unset_result_prototype);
+}
+
+static void qb_decompose_array_shift(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_operand *container = &operands[0];
+	qb_address *index_address = cxt->zero_address;
+	qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, container->address }, { QB_OPERAND_ADDRESS, index_address } };
+	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL }, unset_result = { QB_OPERAND_EMPTY, NULL };
+	qb_result_prototype fetch_result_prototype, unset_result_prototype;
+
+	qb_produce_op(cxt, &factory_fetch_array_element_read, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
+
+	qb_produce_op(cxt, &factory_assign_temporary, &fetch_result, 1, result, NULL, 0, result_prototype);
+
+	qb_produce_op(cxt, &factory_unset_array_element, fetch_operands, 2, &unset_result, NULL, 0, &unset_result_prototype);
+}
