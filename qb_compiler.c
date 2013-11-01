@@ -3431,9 +3431,6 @@ void qb_free_compiler_context(qb_compiler_context *cxt) {
 		efree(cxt->storage->segments);
 		efree(cxt->storage);
 	}
-	if(cxt->external_code) {
-		efree(cxt->external_code);
-	}
 	if(cxt->dependencies) {
 		efree(cxt->dependencies);
 	}
@@ -3445,7 +3442,7 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 
 	// set active op array to the function to whom the code belong, so that relative paths are resolved correctly
 	zend_op_array *active_op_array = EG(active_op_array);
-	zend_op_array *target_op_array = cxt->function_declaration->zend_op_array;
+	zend_op_array *target_op_array = (cxt->function_declaration) ? cxt->function_declaration->zend_op_array : NULL;
 	if(target_op_array) {
 		EG(active_op_array) = target_op_array;
 	}

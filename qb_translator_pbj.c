@@ -679,7 +679,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			texture->address = NULL;
 			texture->input_size = NULL;
 		} else if(opcode == PBJ_KERNEL_NAME) {
-			cxt->pbj_name = qb_read_pbj_string(cxt, &cxt->name_length);
+			cxt->name = qb_read_pbj_string(cxt, &cxt->name_length);
 		} else if(opcode == PBJ_VERSION_DATA) {
 			qb_read_pbj_I32(cxt);
 		} else {

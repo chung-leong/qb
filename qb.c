@@ -954,6 +954,7 @@ PHP_FUNCTION(qb_compile)
    Extract information from a given resource */
 PHP_FUNCTION(qb_extract)
 {
+	qb_extractor_context _cxt, *cxt = &_cxt;
 	zval *input = NULL;
 	long output_type;
 
@@ -961,7 +962,14 @@ PHP_FUNCTION(qb_extract)
 		return;
 	}
 
-	//qb_extract(input, output_type, return_value TSRMLS_CC);
+	qb_initialize_extractor_context(cxt, input, return_value TSRMLS_CC);
+	switch(output_type) {
+		case QB_PBJ_DETAILS:
+		case QB_PBJ_DECLARATION:
+			qb_extract_pbj_info(cxt, output_type);
+			break;
+	}
+	qb_free_extractor_context(cxt);
 }
 /* }}} */
 

@@ -17,17 +17,8 @@
 */
 
 /* $Id$ */
-#ifdef __DISABLED__
 
 #include "qb.h"
-
-void qb_initialize_compiler_data_pool(qb_data_pool *pool);
-void qb_free_compiler_data_pool(qb_data_pool *pool);
-void qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
-void qb_free_external_code(qb_compiler_context *cxt);
-void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl TSRMLS_DC);
-void qb_free_compiler_context(qb_compiler_context *cxt);
-void qb_pbj_decode(qb_compiler_context *cxt);
 
 static zval * qb_add_string(zval *array, const char *name, const char *s, int32_t len) {
 	HashTable *ht = Z_ARRVAL_P(array);
@@ -200,7 +191,7 @@ static void qb_append_string(zval *string, const char *format, ...) {
 
 void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 	USE_TSRM
-	qb_compiler_context *compiler_cxt = cxt->compiler_cxt;
+	qb_pbj_translator_context *translator_cxt = cxt->translator_context;
 	zval path = *cxt->input, *parameters;
 	uint32_t i;
 
@@ -208,22 +199,22 @@ void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 	convert_to_string(&path);
 
 	// load the code into memory
-	qb_load_external_code(compiler_cxt, Z_STRVAL(path));
+	qb_load_external_code(cxt->compiler_context, Z_STRVAL(path));
 
 	// decode the pbj data
-	qb_pbj_decode(compiler_cxt);
+	qb_decode_pbj_binary(translator_cxt);
 
 	if(output_type == QB_PBJ_DETAILS) {
 		array_init(cxt->return_value);
-		qb_add_string(cxt->return_value, "vendor", compiler_cxt->pbj_vendor, -1);
-		qb_add_string(cxt->return_value, "name", compiler_cxt->pbj_name, compiler_cxt->pbj_name_length);
-		qb_add_string(cxt->return_value, "displayName", compiler_cxt->pbj_display_name, -1);
-		qb_add_string(cxt->return_value, "description", compiler_cxt->pbj_description, -1);
-		qb_add_int(cxt->return_value, "version", compiler_cxt->pbj_version);
+		qb_add_string(cxt->return_value, "vendor", translator_cxt->vendor, -1);
+		qb_add_string(cxt->return_value, "name", translator_cxt->name, translator_cxt->name_length);
+		qb_add_string(cxt->return_value, "displayName", translator_cxt->display_name, -1);
+		qb_add_string(cxt->return_value, "description", translator_cxt->description, -1);
+		qb_add_int(cxt->return_value, "version", translator_cxt->version);
 		parameters = qb_add_array(cxt->return_value, "parameters");
-		for(i = 0; i < compiler_cxt->pbj_parameter_count; i++) {
-			qb_pbj_parameter *param = &compiler_cxt->pbj_parameters[i];
-			if(param != compiler_cxt->pbj_out_coord && !param->input_size_name) {
+		for(i = 0; i < translator_cxt->parameter_count; i++) {
+			qb_pbj_parameter *param = &translator_cxt->parameters[i];
+			if(param != translator_cxt->out_coord && !param->input_size_name) {
 				zval *param_info = qb_add_array(parameters, NULL);
 				qb_add_string(param_info, "direction", (param->qualifier == PBJ_PARAMETER_OUT) ? "out" : "in", -1);
 				qb_add_string(param_info, "name", param->name, -1);
@@ -238,8 +229,8 @@ void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 				}
 			}
 		}
-		for(i = 0; i < compiler_cxt->pbj_texture_count; i++) {
-			qb_pbj_texture *texture = &compiler_cxt->pbj_textures[i];
+		for(i = 0; i < translator_cxt->texture_count; i++) {
+			qb_pbj_texture *texture = &translator_cxt->textures[i];
 			zval *param_info = qb_add_array(parameters, NULL);
 			qb_add_string(param_info, "direction", "in", -1);
 			qb_add_string(param_info, "name", texture->name, -1);
@@ -252,12 +243,12 @@ void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 		const char *pbj_path = Z_STRVAL_P(cxt->input);
 		uint32_t param_count = 0;
 		ZVAL_STRING(cxt->return_value, "/**\n", TRUE);
-		qb_append_string(cxt->return_value, " * %.*s()\t", compiler_cxt->pbj_name_length, compiler_cxt->pbj_name);
-		if(compiler_cxt->pbj_description) {
-			qb_append_string(cxt->return_value, "%s", compiler_cxt->pbj_description);
+		qb_append_string(cxt->return_value, " * %.*s()\t", translator_cxt->name_length, translator_cxt->name);
+		if(translator_cxt->description) {
+			qb_append_string(cxt->return_value, "%s", translator_cxt->description);
 		}
-		if(compiler_cxt->pbj_vendor) {
-			qb_append_string(cxt->return_value, " (%s)", compiler_cxt->pbj_vendor);
+		if(translator_cxt->vendor) {
+			qb_append_string(cxt->return_value, " (%s)", translator_cxt->vendor);
 		}
 		qb_append_string(cxt->return_value, "\n");
 		
@@ -266,8 +257,8 @@ void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 		qb_append_string(cxt->return_value, " * @import\t%s\n", pbj_path);
 		qb_append_string(cxt->return_value, " *\n");
 
-		if(compiler_cxt->pbj_out_pixel) {
-			qb_pbj_parameter *param = compiler_cxt->pbj_out_pixel;
+		if(translator_cxt->out_pixel) {
+			qb_pbj_parameter *param = translator_cxt->out_pixel;
 			uint32_t channel_count;
 			switch(param->type) {
 				case PBJ_TYPE_FLOAT:  channel_count = 1; break;
@@ -277,13 +268,13 @@ void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 			}
 			qb_append_string(cxt->return_value, " * @param\t%s\t$%s\n", pbj_texture_qb_types[channel_count], param->name);
 		}
-		for(i = 0; i < compiler_cxt->pbj_texture_count; i++) {
-			qb_pbj_texture *texture = &compiler_cxt->pbj_textures[i];
+		for(i = 0; i < translator_cxt->texture_count; i++) {
+			qb_pbj_texture *texture = &translator_cxt->textures[i];
 			qb_append_string(cxt->return_value, " * @param\t%s\t$%s\n", pbj_texture_qb_types[texture->channel_count], texture->name);
 		}
-		for(i = 0; i < compiler_cxt->pbj_parameter_count; i++) {
-			qb_pbj_parameter *param = &compiler_cxt->pbj_parameters[i];
-			if(param != compiler_cxt->pbj_out_coord && param != compiler_cxt->pbj_out_pixel && !param->input_size_name) {
+		for(i = 0; i < translator_cxt->parameter_count; i++) {
+			qb_pbj_parameter *param = &translator_cxt->parameters[i];
+			if(param != translator_cxt->out_coord && param != translator_cxt->out_pixel && !param->input_size_name) {
 				const char *type = pbj_param_qb_types[param->type];
 				if(param->parameter_type) {
 					if(param->type == PBJ_TYPE_FLOAT2) {
@@ -315,23 +306,23 @@ void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
 		qb_append_string(cxt->return_value, " *\n");
 		qb_append_string(cxt->return_value, " * @return\tvoid\n");
 		qb_append_string(cxt->return_value, " */\n");
-		qb_append_string(cxt->return_value, "function %.*s(", compiler_cxt->pbj_name_length, compiler_cxt->pbj_name);
-		if(compiler_cxt->pbj_out_pixel) {
-			qb_pbj_parameter *param = compiler_cxt->pbj_out_pixel;
+		qb_append_string(cxt->return_value, "function %.*s(", translator_cxt->name_length, translator_cxt->name);
+		if(translator_cxt->out_pixel) {
+			qb_pbj_parameter *param = translator_cxt->out_pixel;
 			qb_append_string(cxt->return_value, "&$%s", param->name);
 			param_count++;
 		}
-		for(i = 0; i < compiler_cxt->pbj_texture_count; i++) {
-			qb_pbj_texture *texture = &compiler_cxt->pbj_textures[i];
+		for(i = 0; i < translator_cxt->texture_count; i++) {
+			qb_pbj_texture *texture = &translator_cxt->textures[i];
 			if(param_count) {
 				qb_append_string(cxt->return_value, ", ");
 			}
 			qb_append_string(cxt->return_value, "$%s", texture->name);
 			param_count++;
 		}
-		for(i = 0; i < compiler_cxt->pbj_parameter_count; i++) {
-			qb_pbj_parameter *param = &compiler_cxt->pbj_parameters[i];
-			if(param != compiler_cxt->pbj_out_coord && param != compiler_cxt->pbj_out_pixel && !param->input_size_name) {
+		for(i = 0; i < translator_cxt->parameter_count; i++) {
+			qb_pbj_parameter *param = &translator_cxt->parameters[i];
+			if(param != translator_cxt->out_coord && param != translator_cxt->out_pixel && !param->input_size_name) {
 				if(param_count) {
 					qb_append_string(cxt->return_value, ", ");
 				}
@@ -347,31 +338,23 @@ void qb_initialize_extractor_context(qb_extractor_context *cxt, zval *input, zva
 	memset(cxt, 0, sizeof(qb_extractor_context));
 	cxt->input = input;
 	cxt->return_value = return_value;
-	cxt->pool = &cxt->_pool;
-	cxt->compiler_cxt = &cxt->_compiler_cxt;
-	qb_initialize_compiler_data_pool(cxt->pool);
-	qb_initialize_compiler_context(cxt->compiler_cxt, cxt->pool, NULL TSRMLS_CC);
+	cxt->pool = emalloc(sizeof(qb_data_pool));
+	cxt->compiler_context = emalloc(sizeof(qb_compiler_context));
+	cxt->translator_context = emalloc(sizeof(qb_pbj_translator_context));
+
+	qb_initialize_data_pool(cxt->pool);
+	qb_initialize_compiler_context(cxt->compiler_context, cxt->pool, NULL, 0, 1 TSRMLS_CC);
+	qb_initialize_pbj_translator_context(cxt->translator_context, cxt->compiler_context TSRMLS_CC);
+
 	SAVE_TSRMLS
 }
 
 void qb_free_extractor_context(qb_extractor_context *cxt) {
-	qb_free_compiler_context(cxt->compiler_cxt);
-	qb_free_compiler_data_pool(cxt->pool);
+	qb_free_pbj_translator_context(cxt->translator_context);
+	qb_free_compiler_context(cxt->compiler_context);
+	qb_free_data_pool(cxt->pool);
+
+	efree(cxt->translator_context);
+	efree(cxt->compiler_context);
+	efree(cxt->pool);
 }
-
-int qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC) {
-	qb_extractor_context _cxt, *cxt = &_cxt;
-	qb_initialize_extractor_context(cxt, input, return_value TSRMLS_CC);
-
-	switch(output_type) {
-		case QB_PBJ_DETAILS:
-		case QB_PBJ_DECLARATION:
-			qb_extract_pbj_info(cxt, output_type);
-			break;
-	}
-
-	qb_free_extractor_context(cxt);
-	return SUCCESS;
-}
-
-#endif

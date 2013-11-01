@@ -315,7 +315,7 @@ struct qb_pbj_translator_context {
 	qb_address *out_coord_x_address;
 	qb_address *out_coord_y_address;
 
-	const char *pbj_name;
+	const char *name;
 	uint32_t name_length;
 	const char *vendor;
 	const char *display_name;
