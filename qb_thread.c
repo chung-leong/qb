@@ -107,7 +107,7 @@ void *qb_run_task(void *arg) {
 			if(completion_count == pool->task_count) {
 				// every thing is done--wake up the main thread
 				pthread_mutex_lock(&pool->main_thread_resumption_mutex);
-				pool->task_completion_all = TRUE;
+				pool->stage = QB_POOL_COMPLETION;
 				pthread_cond_signal(&pool->main_thread_resumption_condition);
 				pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
 			}

@@ -78,6 +78,9 @@ if test "$PHP_QB" != "no"; then
     PHP_ADD_LIBRARY(rt,, QB_SHARED_LIBADD)
     ;;
   esac
+  
+  PHP_RUN_ONCE(EXTRA_LIBS, -pthread, [EXTRA_LIBS="$EXTRA_LIBS -pthread"])
+
   extra_sources="\
 	qb_build.c \
 	qb_compat.c \
@@ -94,6 +97,7 @@ if test "$PHP_QB" != "no"; then
 	qb_parser.c \
 	qb_printer.c \
 	qb_storage.c \
+	qb_thread.c \
 	qb_translator_pbj.c \
 	qb_translator_php.c \
 	qb_types.c" 
