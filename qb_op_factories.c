@@ -5103,6 +5103,11 @@ qb_copy_op_factory factory_array_merge = {
 };
 */
 
+qb_op_decomposer factory_in_array = {
+	qb_decompose_in_array,
+	&factory_array_search,
+};
+
 qb_basic_op_factory factory_range = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,

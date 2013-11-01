@@ -22,7 +22,7 @@ static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, 
 	if(result->type == QB_OPERAND_ADDRESS) {
 		// the result won't be a temporary variable
 		result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
-	} else {
+	} else if(result_prototype) {
 		result->type = QB_OPERAND_RESULT_PROTOTYPE;
 		result->result_prototype = result_prototype;
 	}

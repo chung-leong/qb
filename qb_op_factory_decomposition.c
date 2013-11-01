@@ -202,3 +202,14 @@ static void qb_decompose_array_unshift(qb_compiler_context *cxt, void *factory, 
 
 	qb_produce_op(cxt, &factory_assign_temporary, &length, 1, result, NULL, 0, result_prototype);
 }
+
+static void qb_decompose_in_array(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_operand search_result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand comparison_operands[2];
+
+	qb_produce_op(cxt, &factory_array_search, operands, operand_count, &search_result, NULL, 0, NULL);
+	comparison_operands[0] = search_result;
+	comparison_operands[1].address = qb_obtain_constant_U32(cxt, -1);
+	comparison_operands[1].type = QB_OPERAND_ADDRESS;
+	qb_produce_op(cxt, &factory_not_equal, comparison_operands, 2, result, NULL, 0, result_prototype);
+}

@@ -535,6 +535,7 @@ extern qb_basic_op_factory factory_array_sum;
 extern qb_basic_op_factory factory_array_unique;
 extern qb_basic_op_factory factory_array_unique_count;
 extern qb_op_decomposer factory_array_unshift;
+extern qb_op_decomposer factory_in_array;
 extern qb_basic_op_factory factory_range;
 extern qb_basic_op_factory factory_range_count;
 extern qb_basic_op_factory factory_rsort;
