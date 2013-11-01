@@ -377,6 +377,16 @@ static void qb_set_result_dimensions_fork(qb_compiler_context *cxt, qb_op_factor
 	dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;
 }
 
+static void qb_set_result_dimensions_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	if(operand_count == 2) {
+		qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim);
+	} else {
+		dim->array_size_address = cxt->one_address;
+		dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;		
+		dim->dimension_count = 0;
+	}
+}
+
 static void qb_set_result_dimensions_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	switch(operand_count) {
 		case 1: qb_set_result_dimensions_first_operand(cxt, f, operands, operand_count, dim); break;

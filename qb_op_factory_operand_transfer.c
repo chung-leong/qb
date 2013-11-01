@@ -291,6 +291,20 @@ static void qb_transfer_operands_fork(qb_compiler_context *cxt, qb_op_factory *f
 	}
 }
 
+static void qb_transfer_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	if(operand_count == 2) {
+		dest[0] = operands[0];
+		dest[1] = operands[1];
+	} else {
+		qb_primitive_type expr_type = result->address->type;
+		dest[0].address = qb_obtain_constant(cxt, 0, expr_type);
+		dest[0].type = QB_OPERAND_ADDRESS;
+		dest[1].address = qb_obtain_constant(cxt, (int64_t) integer_upper_bounds[expr_type], expr_type);
+		dest[1].type = QB_OPERAND_ADDRESS;
+	}
+	dest[2] = *result;
+}
+
 static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0], *precision = &operands[1], *mode = &operands[2];
 	dest[0] = *value;
@@ -520,7 +534,7 @@ static void qb_transfer_operands_array_pos(qb_compiler_context *cxt, qb_op_facto
 
 static void qb_transfer_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *count = &operands[1];
-	dest[0].address = container->address->array_size_address;
+	dest[0].address = DIMENSION_ADDRESS(container->address, 0);
 	dest[0].type = QB_OPERAND_ADDRESS;
 	if(count->type == QB_OPERAND_ADDRESS) {
 		dest[1] = *count;

@@ -748,7 +748,9 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 	for(i = 0; i < argument_count; i++) {
 		zval_ptr_dtor(&arguments[i]);
 	}
-	zval_ptr_dtor(&retval);
+	if(retval) {
+		zval_ptr_dtor(&retval);
+	}
 
 	free_alloca(arguments, use_heap1);
 	free_alloca(argument_pointers, use_heap2);

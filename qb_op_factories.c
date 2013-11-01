@@ -1354,7 +1354,6 @@ qb_basic_op_factory factory_shift_left = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1372,7 +1371,6 @@ qb_basic_op_factory factory_shift_right = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1496,7 +1494,6 @@ qb_basic_op_factory factory_bitwise_not = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1514,7 +1511,6 @@ qb_basic_op_factory factory_bitwise_and = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1532,7 +1528,6 @@ qb_basic_op_factory factory_bitwise_or = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1550,7 +1545,6 @@ qb_basic_op_factory factory_bitwise_xor = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1744,7 +1738,6 @@ qb_basic_op_factory factory_logical_not = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -1762,7 +1755,6 @@ qb_basic_op_factory factory_logical_and = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -1780,7 +1772,6 @@ qb_basic_op_factory factory_logical_or = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -1798,7 +1789,6 @@ qb_basic_op_factory factory_logical_xor = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -1816,7 +1806,6 @@ qb_arithmetic_op_factory factory_add = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1839,7 +1828,6 @@ qb_arithmetic_op_factory factory_subtract = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1862,7 +1850,6 @@ qb_arithmetic_op_factory factory_multiply = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1885,7 +1872,6 @@ qb_arithmetic_op_factory factory_multiply_add = {
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_binary_arithmetic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1908,7 +1894,6 @@ qb_arithmetic_op_factory factory_divide = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1931,7 +1916,6 @@ qb_arithmetic_op_factory factory_modulo = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_binary_arithmetic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1954,7 +1938,6 @@ qb_float_op_factory factory_floor_modulo = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -1972,7 +1955,6 @@ qb_derived_op_factory factory_reciprocal = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_reciprocal,
 	qb_transfer_operands_reciprocal,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -2582,7 +2564,6 @@ qb_simple_op_factory factory_set_not = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2600,7 +2581,6 @@ qb_simple_op_factory factory_all = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2618,7 +2598,6 @@ qb_simple_op_factory factory_any = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2919,7 +2898,6 @@ qb_simple_op_factory factory_branch_on_true = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	0,
 	0,
@@ -2937,7 +2915,6 @@ qb_simple_op_factory factory_branch_on_false = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_BOOLEAN,
 	0,
 	0,
@@ -3011,7 +2988,6 @@ qb_float_op_factory factory_sin = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3029,7 +3005,6 @@ qb_float_op_factory factory_asin = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3047,7 +3022,6 @@ qb_float_op_factory factory_cos = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3065,7 +3039,6 @@ qb_float_op_factory factory_acos = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3083,7 +3056,6 @@ qb_float_op_factory factory_tan = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3101,7 +3073,6 @@ qb_float_op_factory factory_atan = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3119,7 +3090,6 @@ qb_float_op_factory factory_atan2 = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3137,7 +3107,6 @@ qb_float_op_factory factory_sinh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3155,7 +3124,6 @@ qb_float_op_factory factory_asinh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3173,7 +3141,6 @@ qb_float_op_factory factory_cosh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3191,7 +3158,6 @@ qb_float_op_factory factory_acosh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3209,7 +3175,6 @@ qb_float_op_factory factory_tanh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3227,7 +3192,6 @@ qb_float_op_factory factory_atanh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3245,7 +3209,6 @@ qb_float_op_factory factory_ceil = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3263,7 +3226,6 @@ qb_float_op_factory factory_floor = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3281,7 +3243,6 @@ qb_float_op_factory factory_fract = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3299,7 +3260,6 @@ qb_float_op_factory factory_round = {
 	qb_set_result_dimensions_round,
 	qb_select_opcode_basic,
 	qb_transfer_operands_round,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3317,7 +3277,6 @@ qb_float_op_factory factory_log = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3335,7 +3294,6 @@ qb_float_op_factory factory_log1p = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3353,7 +3311,6 @@ qb_float_op_factory factory_log10 = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3371,7 +3328,6 @@ qb_float_op_factory factory_log2 = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3389,7 +3345,6 @@ qb_float_op_factory factory_exp = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3407,7 +3362,6 @@ qb_float_op_factory factory_exp2 = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3425,7 +3379,6 @@ qb_float_op_factory factory_expm1 = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3443,7 +3396,6 @@ qb_float_op_factory factory_sqrt = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3461,7 +3413,6 @@ qb_float_op_factory factory_rsqrt = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3479,7 +3430,6 @@ qb_float_op_factory factory_pow = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3497,7 +3447,6 @@ qb_float_op_factory factory_hypot = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3515,7 +3464,6 @@ qb_float_op_factory factory_sign = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3533,7 +3481,6 @@ qb_float_op_factory factory_step = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3551,7 +3498,6 @@ qb_float_op_factory factory_clamp = {
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3569,7 +3515,6 @@ qb_float_op_factory factory_mix = {
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3587,7 +3532,6 @@ qb_float_op_factory factory_smooth_step = {
 	qb_set_result_dimensions_largest_of_three,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3605,7 +3549,6 @@ qb_float_op_factory factory_deg2rad = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3623,7 +3566,6 @@ qb_float_op_factory factory_rad2deg = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3641,7 +3583,6 @@ qb_float_op_factory factory_is_finite = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -3659,7 +3600,6 @@ qb_float_op_factory factory_is_infinite = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -3677,7 +3617,6 @@ qb_float_op_factory factory_is_nan = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -3695,7 +3634,6 @@ qb_basic_op_factory factory_abs = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_SIGNED,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3789,13 +3727,12 @@ qb_basic_op_factory factory_rand = {
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
 	qb_validate_operands_rand,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_larger_of_two,
+	qb_set_result_rand,
+	qb_set_result_dimensions_rand,
 	qb_select_opcode_basic,
-	qb_transfer_operands_all,
-
+	qb_transfer_operands_rand,
 	QB_COERCE_TO_LVALUE_TYPE,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	{	0 ,	0,	QB_RAND_U64_U64_U64,	QB_RAND_S64_S64_S64,	QB_RAND_U32_U32_U32,	QB_RAND_S32_S32_S32,	QB_RAND_U16_U16_U16,	QB_RAND_S16_S16_S16,	QB_RAND_U08_U08_U08,	QB_RAND_S08_S08_S08,	},
 };
@@ -3807,13 +3744,12 @@ qb_basic_op_factory factory_mt_rand = {
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
 	qb_validate_operands_rand,
-	qb_set_result_temporary_value,
-	qb_set_result_dimensions_larger_of_two,
+	qb_set_result_rand,
+	qb_set_result_dimensions_rand,
 	qb_select_opcode_basic,
-	qb_transfer_operands_all,
-
+	qb_transfer_operands_rand,
 	QB_COERCE_TO_LVALUE_TYPE,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	{	0,	0,	QB_MT_RAND_U64_U64_U64,	QB_MT_RAND_S64_S64_S64,	QB_MT_RAND_U32_U32_U32,	QB_MT_RAND_S32_S32_S32,	QB_MT_RAND_U16_U16_U16,	QB_MT_RAND_S16_S16_S16,	QB_MT_RAND_U08_U08_U08,	QB_MT_RAND_S08_S08_S08,	},
 };
@@ -3829,7 +3765,6 @@ qb_float_op_factory factory_lcg = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_result_only,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -3847,7 +3782,6 @@ qb_vector_op_factory factory_cross_product = {
 	qb_set_result_dimensions_cross_product,
 	qb_select_opcode_cross_product,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3870,7 +3804,6 @@ qb_vector_op_factory factory_distance = {
 	qb_set_result_dimensions_dot_product,
 	qb_select_opcode_one_vector,
 	qb_transfer_operands_two_vectors,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3893,7 +3826,6 @@ qb_vector_op_factory factory_dot_product = {
 	qb_set_result_dimensions_dot_product,
 	qb_select_opcode_two_vectors,
 	qb_transfer_operands_two_vectors,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3916,7 +3848,6 @@ qb_vector_op_factory factory_faceforward = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_two_vectors,
 	qb_transfer_operands_two_vectors,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3939,7 +3870,6 @@ qb_vector_op_factory factory_length = {
 	qb_set_result_dimensions_length,
 	qb_select_opcode_one_vector,
 	qb_transfer_operands_one_vector,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3962,7 +3892,6 @@ qb_vector_op_factory factory_normalize = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_one_vector,
 	qb_transfer_operands_one_vector,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3986,7 +3915,6 @@ qb_vector_op_factory factory_reflect = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_two_vectors,
 	qb_transfer_operands_two_vectors,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4009,7 +3937,6 @@ qb_vector_op_factory factory_refract = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_two_vectors,
 	qb_transfer_operands_refract,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4032,7 +3959,6 @@ qb_matrix_op_factory factory_mm_mult_cm = {
 	qb_set_result_dimensions_mm_mult,
 	qb_select_opcode_mm_mult_cm,
 	qb_transfer_operands_mm_mult_cm,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4056,7 +3982,6 @@ qb_matrix_op_factory factory_mv_mult_cm = {
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_mv_mult_cm,
 	qb_transfer_operands_mv_mult_cm,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4080,7 +4005,6 @@ qb_matrix_op_factory factory_vm_mult_cm = {
 	qb_set_result_dimensions_vm_mult,
 	qb_select_opcode_vm_mult_cm,
 	qb_transfer_operands_vm_mult_cm,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4104,7 +4028,6 @@ qb_derived_op_factory factory_mm_mult_rm = {
 	qb_set_result_dimensions_transpose_equivalent,
 	qb_select_opcode_transpose_equivalent,
 	qb_transfer_operands_transpose_equivalent,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_ROW_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4122,7 +4045,6 @@ qb_derived_op_factory factory_mv_mult_rm = {
 	qb_set_result_dimensions_transpose_equivalent,
 	qb_select_opcode_transpose_equivalent,
 	qb_transfer_operands_transpose_equivalent,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_ROW_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4140,7 +4062,6 @@ qb_derived_op_factory factory_vm_mult_rm = {
 	qb_set_result_dimensions_transpose_equivalent,
 	qb_select_opcode_transpose_equivalent,
 	qb_transfer_operands_transpose_equivalent,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_ROW_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4158,7 +4079,6 @@ qb_matrix_op_factory_selector factory_mm_mult = {
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
 	qb_transfer_operands_matrix_current_mode,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4177,7 +4097,6 @@ qb_matrix_op_factory_selector factory_mv_mult = {
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
 	qb_transfer_operands_matrix_current_mode,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4196,7 +4115,6 @@ qb_matrix_op_factory_selector factory_vm_mult = {
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
 	qb_transfer_operands_matrix_current_mode,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4215,7 +4133,6 @@ qb_matrix_op_factory factory_transpose = {
 	qb_set_result_dimensions_transpose,
 	qb_select_opcode_matrix_unary,
 	qb_transfer_operands_tranpose,
-
 	QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4239,7 +4156,6 @@ qb_matrix_op_factory factory_inverse = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_matrix_unary,
 	qb_transfer_operands_square_matrix,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4263,7 +4179,6 @@ qb_matrix_op_factory factory_determinant = {
 	qb_set_result_dimensions_determinant,
 	qb_select_opcode_matrix_unary,
 	qb_transfer_operands_square_matrix,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4287,7 +4202,6 @@ qb_matrix_op_factory factory_transform_cm = {
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_transform_cm,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_COLUMN_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4311,7 +4225,6 @@ qb_matrix_op_factory factory_transform_rm = {
 	qb_set_result_dimensions_mv_mult,
 	qb_select_opcode_transform_rm,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION | QB_RESULT_IS_ROW_MAJOR,
 	QB_ADDRESS_TEMPORARY,
@@ -4335,7 +4248,6 @@ qb_matrix_op_factory_selector factory_transform = {
 	qb_set_result_dimensions_matrix_current_mode,
 	qb_select_opcode_matrix_current_mode,
 	qb_transfer_operands_matrix_current_mode,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4354,7 +4266,6 @@ qb_float_op_factory factory_complex_abs = {
 	qb_set_result_dimensions_length,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4372,7 +4283,6 @@ qb_float_op_factory factory_complex_arg = {
 	qb_set_result_dimensions_length,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4390,7 +4300,6 @@ qb_float_op_factory factory_complex_multiply = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4408,7 +4317,6 @@ qb_float_op_factory factory_complex_divide = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4426,7 +4334,6 @@ qb_float_op_factory factory_complex_exp = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4444,7 +4351,6 @@ qb_float_op_factory factory_complex_log = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4462,7 +4368,6 @@ qb_float_op_factory factory_complex_sqrt = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4480,7 +4385,6 @@ qb_float_op_factory factory_complex_pow = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4498,7 +4402,6 @@ qb_float_op_factory factory_complex_sin = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4516,7 +4419,6 @@ qb_float_op_factory factory_complex_cos = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4534,7 +4436,6 @@ qb_float_op_factory factory_complex_tan = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4552,7 +4453,6 @@ qb_float_op_factory factory_complex_sinh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4570,7 +4470,6 @@ qb_float_op_factory factory_complex_cosh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4588,7 +4487,6 @@ qb_float_op_factory factory_complex_tanh = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_complex_number,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4680,7 +4578,6 @@ qb_float_op_factory factory_alpha_blend = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4698,7 +4595,6 @@ qb_pixel_op_factory factory_apply_premult = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4719,7 +4615,6 @@ qb_pixel_op_factory factory_remove_premult = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4740,7 +4635,6 @@ qb_pixel_op_factory factory_rgb2hsv = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4761,7 +4655,6 @@ qb_pixel_op_factory factory_hsv2rgb = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4782,7 +4675,6 @@ qb_pixel_op_factory factory_rgb2hsl = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4803,7 +4695,6 @@ qb_pixel_op_factory factory_hsl2rgb = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_pixel,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5207,7 +5098,6 @@ qb_copy_op_factory factory_array_merge = {
 	qb_set_result_dimensions_array_merge,
 	qb_select_copy_opcode,
 	qb_transfer_operands,
-
 	QB_COERCE_TO_HIGHEST_RANK,
 	QB_TYPE_OPERAND,
 };
@@ -5224,7 +5114,6 @@ qb_basic_op_factory factory_range = {
 	qb_set_result_dimensions_range,
 	qb_select_opcode_basic,
 	qb_transfer_operands_range,
-
 	QB_COERCE_TO_LVALUE_TYPE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5289,7 +5178,6 @@ qb_utf8_op_factory factory_utf8_decode = {
 	qb_set_result_dimensions_utf8_decode,
 	qb_select_opcode_utf8_decode,
 	qb_transfer_operands_all,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -5398,7 +5286,6 @@ qb_basic_op_factory factory_unpack_le = {
 	NULL,
 	qb_select_opcode_unpack,
 	qb_transfer_operands_unpack,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5416,7 +5303,6 @@ qb_basic_op_factory factory_unpack_be = {
 	NULL,
 	qb_select_opcode_unpack,
 	qb_transfer_operands_unpack,
-
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_INTEGER,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
