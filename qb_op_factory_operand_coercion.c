@@ -196,6 +196,14 @@ static void qb_coerce_operands_array_push(qb_compiler_context *cxt, qb_op_factor
 	}
 }
 
+static void qb_coerce_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *count = &operands[1];
+	qb_perform_type_coercion(cxt, container, QB_TYPE_ANY, f->coercion_flags);
+	if(count->type != QB_OPERAND_NONE) {
+		qb_perform_type_coercion(cxt, count, QB_TYPE_U32, 0);
+	}
+}
+
 static void qb_coerce_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 	qb_perform_type_coercion(cxt, container, expr_type, f->coercion_flags);

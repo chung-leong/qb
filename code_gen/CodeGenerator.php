@@ -1294,7 +1294,9 @@ class CodeGenerator {
 			$this->handlers[] = new ArrayPadCount("SZ_APAD", 'U32');
 		}
 		if($elementType == 'U32') {
-			$this->handlers[] = new ArrayRandom("ARAND", $elementType, $addressMode);
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new ArrayRandom("ARAND", $elementType, $addressMode);
+			}
 		}
 	}
 	

@@ -902,8 +902,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_pos",			2,		3,		&factory_array_pos			},
 	{	0,	"array_product",		1,		1,		&factory_array_product		},
 	{	0,	"array_push",			2,		-1,		&factory_array_push			},
-/*
 	{	0,	"array_rand",			1,		2,		&factory_array_rand			},
+/*
 	{	0,	"array_resize",			2,		-1,		&factory_array_resize		},
 */
 	{	0,	"array_reverse",		1,		1,		&factory_array_reverse		},

@@ -595,6 +595,19 @@ static void qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_facto
 	}
 }
 
+static void qb_validate_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *container = &operands[0], *count = &operands[1];
+
+	if(SCALAR(container->address)) {
+		qb_abort("%s() expects the first parameter to be an array", cxt->function_name);
+	}
+	if(count->type == QB_OPERAND_ADDRESS) {
+		if(!SCALAR(count->address)) {
+			qb_abort("%s() expects the second parameter to be an scalar", cxt->function_name);
+		}
+	}
+}
+
 static void qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 

@@ -633,18 +633,16 @@ static void qb_set_result_dimensions_range(qb_compiler_context *cxt, qb_op_facto
 }
 
 static void qb_set_result_dimensions_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	qb_address *count_address = operands[1].address;
-	/*
-	if(CONSTANT(count_address)) {
-		uint32_t count = VALUE(U32, count_address);
-		dim->array_size = count;
-		dim->dimension_count = (count == 1) ? 0 : 1;
+	if(operands[1].type == QB_OPERAND_ADDRESS) {
+		qb_address *count_address = operands[1].address;
+		dim->array_size_address = count_address;
+		dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;
+		dim->dimension_count = (count_address != cxt->one_address) ? 1 : 0;
 	} else {
-		// don't know how many elements will be returned
-		dim->dimension_count = 1;
-		dim->array_size = 0;
+		dim->array_size_address = cxt->one_address;
+		dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;
+		dim->dimension_count = 0;
 	}
-	*/
 }
 
 static void qb_set_result_dimensions_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

@@ -518,6 +518,19 @@ static void qb_transfer_operands_array_pos(qb_compiler_context *cxt, qb_op_facto
 	dest[3] = *result;
 }
 
+static void qb_transfer_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *count = &operands[1];
+	dest[0].address = container->address->array_size_address;
+	dest[0].type = QB_OPERAND_ADDRESS;
+	if(count->type == QB_OPERAND_ADDRESS) {
+		dest[1] = *count;
+	} else {
+		dest[1].address = cxt->one_address;
+		dest[1].type = QB_OPERAND_ADDRESS;
+	}
+	dest[2] = *result;
+}
+
 static void qb_transfer_operands_array_reverse(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0];
 	dest[0] = *container;
