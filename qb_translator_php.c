@@ -889,8 +889,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 
 	{	0,	"array_column",			2,		2,		&factory_array_column		},
 	{	0,	"array_diff",			2,		-1,		&factory_array_diff			},
-/*
 	{	0,	"array_fill",			3,		3,		&factory_array_fill			},
+/*
 	{	0,	"array_filter",			1,		1,		&factory_array_diff			},
 */
 	{	0,	"array_intersect",		2,		-1,		&factory_array_intersect	},

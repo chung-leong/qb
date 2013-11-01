@@ -1268,6 +1268,9 @@ class CodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new ArraySearch("AFIND", $elementTypeNoSign, $addressMode);
 			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new ArrayFill("AFILL", $elementTypeNoSign, $addressMode);
+			}
 			foreach($this->scalarAddressModes as $addressMode) {
 				$this->handlers[] = new SubarrayPosition("APOS", $elementTypeNoSign, $addressMode);
 			}

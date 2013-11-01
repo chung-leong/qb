@@ -593,47 +593,22 @@ static void qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op
 }
 
 static void qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	/*
 	qb_address *index_address = operands[0].address;
 	qb_address *number_address = operands[1].address;
 	qb_address *value_address = operands[2].address;
-	int32_t count_is_constant;
+	qb_address *first_dimension_address;
 	uint32_t count;
-	if(CONSTANT(index_address) && CONSTANT(number_address)) {
+	if(index_address == cxt->zero_address) {
+		first_dimension_address = number_address;
+	} else if(CONSTANT(index_address) && CONSTANT(number_address)) {
 		uint32_t start_index = VALUE(U32, index_address);
 		uint32_t number = VALUE(U32, number_address);
 		count = start_index + number;
-		count_is_constant = TRUE;
+		first_dimension_address = qb_obtain_constant_U32(cxt, count);
 	} else {
-		count_is_constant = FALSE;
+		first_dimension_address = qb_obtain_on_demand_sum(cxt, index_address, number_address);
 	}
-
-	if(count_is_constant && !VARIABLE_LENGTH_ARRAY(value_address)) {
-		uint32_t value_size;
-		if(SCALAR(value_address)) {
-			value_size = 1;
-		} else {
-			value_size = ARRAY_SIZE(value_address);
-		}
-		dim->array_size = count * value_size;
-	} else {
-		dim->array_size = 0;
-	}
-	if(value_address->dimension_count > 0) {
-		uint32_t i;
-		dim->dimension_count = value_address->dimension_count + 1;
-		for(i = 0; i < value_address->dimension_count; i++) {
-			dim->dimension_addresses[i + 1] = value_address->dimension_addresses[i];
-		}
-		if(count_is_constant) {
-			dim->dimension_addresses[0] = qb_obtain_constant_U32(cxt, count);
-		} else {
-			dim->dimension_addresses[0] = NULL;
-		}
-	} else {
-		dim->dimension_count = 1;
-	}
-	*/
+	qb_append_address_dimensions(cxt, first_dimension_address, value_address, 0, dim);
 }
 
 static void qb_set_result_dimensions_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

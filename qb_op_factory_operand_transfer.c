@@ -502,6 +502,13 @@ static void qb_transfer_operands_array_diff(qb_compiler_context *cxt, qb_op_fact
 	dest[3] = *result;
 }
 
+static void qb_transfer_operands_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *start_index = &operands[0], *value = &operands[2];
+	dest[0] = *start_index;
+	dest[1] = *value;
+	dest[2] = *result;
+}
+
 static void qb_transfer_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *subarray = &operands[1], *offset = &operands[2];
 	dest[0] = *container;

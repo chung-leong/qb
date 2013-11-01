@@ -516,6 +516,7 @@ extern qb_derived_op_factory factory_sample_bilinear_vector;
 extern qb_basic_op_factory factory_array_column;
 extern qb_op_decomposer factory_array_diff;
 extern qb_basic_op_factory factory_array_diff_count;
+extern qb_basic_op_factory factory_array_fill;
 extern qb_op_decomposer factory_array_intersect;
 extern qb_basic_op_factory factory_array_intersect_count;
 extern qb_basic_op_factory factory_array_pad;

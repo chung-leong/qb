@@ -551,6 +551,16 @@ static void qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_fact
 	}
 }
 
+static void qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *start_index = &operands[0], *number = &operands[1], *value = &operands[2];
+	if(!SCALAR(start_index->address)) {
+		qb_abort("%s() expects the first parameter to be a scalar", cxt->function_name);
+	}
+	if(!SCALAR(number->address)) {
+		qb_abort("%s() expects the second parameter to be a scalar", cxt->function_name);
+	}
+}
+
 static void qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *input = &operands[0], *size = &operands[1], *value = &operands[2];
 

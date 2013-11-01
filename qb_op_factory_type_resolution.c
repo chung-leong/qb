@@ -58,6 +58,11 @@ static qb_primitive_type qb_resolve_expression_type_second_operand(qb_compiler_c
 	return qb_get_operand_type(cxt, &operands[1], f->coercion_flags);
 }
 
+// the expression has the same type as the third operand
+static qb_primitive_type qb_resolve_expression_type_third_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	return qb_get_operand_type(cxt, &operands[2], f->coercion_flags);
+}
+
 static qb_primitive_type qb_resolve_expression_type_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *variable = &operands[0], *value = &operands[1];
 	if(variable->type == QB_OPERAND_EMPTY) {

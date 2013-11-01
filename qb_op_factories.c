@@ -612,7 +612,6 @@ qb_simple_op_factory factory_guard_array_index_multiply_add = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -630,7 +629,6 @@ qb_simple_op_factory factory_guard_array_size = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	0,
@@ -648,7 +646,6 @@ qb_simple_op_factory factory_guard_array_extent = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	0,
@@ -666,7 +663,6 @@ qb_simple_op_factory factory_guard_array_extent_multiply = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -684,7 +680,6 @@ qb_simple_op_factory factory_guard_array_extent_subtract = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -702,7 +697,6 @@ qb_simple_op_factory factory_guard_array_extent_subtract_multiply = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -754,7 +748,6 @@ qb_simple_op_factory factory_check_array_index_multiply_add = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -772,7 +765,6 @@ qb_simple_op_factory factory_accommodate_array_index = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -790,7 +782,6 @@ qb_simple_op_factory factory_accommodate_array_index_multiply = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -808,7 +799,6 @@ qb_simple_op_factory factory_accommodate_array_push = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -826,7 +816,6 @@ qb_simple_op_factory factory_accommodate_array_size = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	0,
@@ -844,7 +833,6 @@ qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	0,
@@ -862,7 +850,6 @@ qb_simple_op_factory factory_accommodate_array_insert = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -880,7 +867,6 @@ qb_simple_op_factory factory_accommodate_array_insert_multidimensional = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -898,7 +884,6 @@ qb_simple_op_factory factory_choose_size_of_larger_array = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -916,7 +901,6 @@ qb_simple_op_factory factory_choose_size_of_larger_array_top_level = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -934,7 +918,6 @@ qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -952,7 +935,6 @@ qb_simple_op_factory factory_choose_size_of_largest_of_three_arrays_top_level = 
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -1226,7 +1208,6 @@ qb_arithmetic_op_factory factory_increment_pre = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_nullary_arithmetic,
 	qb_transfer_operands_result_only,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1249,7 +1230,6 @@ qb_arithmetic_op_factory factory_decrement_pre = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_nullary_arithmetic,
 	qb_transfer_operands_result_only,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1272,7 +1252,6 @@ qb_derived_op_factory factory_increment_post = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
 	qb_transfer_operands_increment,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1290,7 +1269,6 @@ qb_derived_op_factory factory_decrement_post = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_derived,
 	qb_transfer_operands_increment,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1308,7 +1286,6 @@ qb_derived_op_factory factory_increment_object_property_pre = {
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_nullary_arithmetic_object_property,
 	qb_transfer_operands_increment_object_property,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1326,7 +1303,6 @@ qb_derived_op_factory factory_decrement_object_property_pre = {
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_nullary_arithmetic_object_property,
 	qb_transfer_operands_increment_object_property,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1344,7 +1320,6 @@ qb_derived_op_factory factory_increment_object_property_post = {
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_derived,
 	qb_transfer_operands_increment_object_property,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1362,7 +1337,6 @@ qb_derived_op_factory factory_decrement_object_property_post = {
 	qb_set_result_dimensions_object_property,
 	qb_select_opcode_derived,
 	qb_transfer_operands_increment_object_property,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1416,7 +1390,6 @@ qb_derived_op_factory factory_shift_left_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1434,7 +1407,6 @@ qb_derived_op_factory factory_shift_left_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1452,7 +1424,6 @@ qb_derived_op_factory factory_shift_left_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1472,7 +1443,6 @@ qb_derived_op_factory factory_shift_right_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1490,7 +1460,6 @@ qb_derived_op_factory factory_shift_right_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1508,7 +1477,6 @@ qb_derived_op_factory factory_shift_right_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1600,7 +1568,6 @@ qb_derived_op_factory factory_bitwise_and_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1618,7 +1585,6 @@ qb_derived_op_factory factory_bitwise_and_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1636,7 +1602,6 @@ qb_derived_op_factory factory_bitwise_and_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1656,7 +1621,6 @@ qb_derived_op_factory factory_bitwise_or_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1674,7 +1638,6 @@ qb_derived_op_factory factory_bitwise_or_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1692,7 +1655,6 @@ qb_derived_op_factory factory_bitwise_or_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1712,7 +1674,6 @@ qb_derived_op_factory factory_bitwise_xor_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1730,7 +1691,6 @@ qb_derived_op_factory factory_bitwise_xor_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1748,7 +1708,6 @@ qb_derived_op_factory factory_bitwise_xor_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -1768,7 +1727,6 @@ qb_basic_op_factory factory_boolean_cast = {
 	NULL,
 	qb_select_opcode_boolean_cast,
 	qb_transfer_operands_boolean_cast,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2032,7 +1990,6 @@ qb_derived_op_factory factory_add_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2050,7 +2007,6 @@ qb_derived_op_factory factory_add_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2068,7 +2024,6 @@ qb_derived_op_factory factory_add_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2088,7 +2043,6 @@ qb_derived_op_factory factory_subtract_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2106,7 +2060,6 @@ qb_derived_op_factory factory_subtract_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2124,7 +2077,6 @@ qb_derived_op_factory factory_subtract_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2144,7 +2096,6 @@ qb_derived_op_factory factory_multiply_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2162,7 +2113,6 @@ qb_derived_op_factory factory_multiply_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2180,7 +2130,6 @@ qb_derived_op_factory factory_multiply_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2200,7 +2149,6 @@ qb_derived_op_factory factory_divide_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2218,7 +2166,6 @@ qb_derived_op_factory factory_divide_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2236,7 +2183,6 @@ qb_derived_op_factory factory_divide_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2256,7 +2202,6 @@ qb_derived_op_factory factory_modulo_assign = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2274,7 +2219,6 @@ qb_derived_op_factory factory_modulo_assign_element = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2292,7 +2236,6 @@ qb_derived_op_factory factory_modulo_assign_object_property = {
 	NULL,
 	qb_select_opcode_derived_modify_assign,
 	qb_transfer_operands_modify_assign,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2312,7 +2255,6 @@ qb_basic_op_factory factory_equal = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2330,7 +2272,6 @@ qb_basic_op_factory factory_not_equal = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2348,7 +2289,6 @@ qb_basic_op_factory factory_less_than = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2366,7 +2306,6 @@ qb_basic_op_factory factory_less_equal = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2384,7 +2323,6 @@ qb_derived_op_factory factory_identical = {
 	NULL,
 	qb_select_opcode_derived,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2402,7 +2340,6 @@ qb_derived_op_factory factory_not_identical = {
 	NULL,
 	qb_select_opcode_derived,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2420,7 +2357,6 @@ qb_derived_op_factory factory_case = {
 	NULL,
 	qb_select_opcode_derived,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2532,7 +2468,6 @@ qb_basic_op_factory factory_set_equal = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2550,7 +2485,6 @@ qb_basic_op_factory factory_set_not_equal = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2568,7 +2502,6 @@ qb_basic_op_factory factory_set_less_than = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2592,7 +2525,6 @@ qb_basic_op_factory factory_set_less_equal = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2616,7 +2548,6 @@ qb_derived_op_factory factory_set_greater_equal = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_derived,
 	qb_transfer_operands_reverse_binary,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2634,7 +2565,6 @@ qb_derived_op_factory factory_set_greater_than = {
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_derived,
 	qb_transfer_operands_reverse_binary,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2706,7 +2636,6 @@ qb_simple_op_factory factory_empty_string = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_empty_string,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
@@ -2724,7 +2653,6 @@ qb_string_op_factory factory_add_variable = {
 	NULL,
 	qb_select_opcode_add_variable,
 	qb_transfer_operands_add_string,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
@@ -2744,7 +2672,6 @@ qb_simple_op_factory factory_add_string = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_add_string,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
@@ -2762,7 +2689,6 @@ qb_derived_op_factory factory_concat = {
 	NULL,
 	qb_select_opcode_derived,
 	qb_transfer_operands_derived,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
@@ -2780,7 +2706,6 @@ qb_derived_op_factory factory_concat_assign = {
 	NULL,
 	qb_select_opcode_derived,
 	qb_transfer_operands_derived,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
@@ -2798,7 +2723,6 @@ qb_string_op_factory factory_print = {
 	NULL,
 	qb_select_opcode_print,
 	qb_transfer_operands_print,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_BOOLEAN,
@@ -2818,7 +2742,6 @@ qb_derived_op_factory factory_echo = {
 	NULL,
 	qb_select_opcode_derived,
 	qb_transfer_operands_print,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2836,7 +2759,6 @@ qb_simple_op_factory factory_return = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_return,
-
 	0,
 	0,
 	0,
@@ -2854,7 +2776,6 @@ qb_simple_op_factory factory_exit = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -2872,7 +2793,6 @@ qb_simple_op_factory factory_end_static = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2890,7 +2810,6 @@ qb_simple_op_factory factory_fork_init = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_fork,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2908,7 +2827,6 @@ qb_simple_op_factory factory_fork_resume = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2926,7 +2844,6 @@ qb_simple_op_factory factory_fork_result = {
 	qb_set_result_dimensions_fork,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2951,7 +2868,6 @@ qb_simple_op_factory factory_spoon = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2969,7 +2885,6 @@ qb_simple_op_factory factory_ext = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -2987,7 +2902,6 @@ qb_simple_op_factory factory_jump = {
 	NULL,
 	qb_select_opcode_simple,
 	NULL,
-
 	0,
 	0,
 	0,
@@ -3041,7 +2955,6 @@ qb_simple_op_factory factory_foreach_reset = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_foreach_reset,
-
 	0,
 	0,
 	0,
@@ -3059,7 +2972,6 @@ qb_simple_op_factory factory_foreach_fetch = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_foreach_fetch,
-
 	0,
 	0,
 	0,
@@ -3077,7 +2989,6 @@ qb_simple_op_factory factory_loop = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_assign,
-
 	0,
 	0,
 	0,
@@ -3802,7 +3713,6 @@ qb_basic_op_factory factory_min_two = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3820,7 +3730,6 @@ qb_basic_op_factory factory_min_array = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3844,7 +3753,6 @@ qb_basic_op_factory factory_max_two = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -3862,7 +3770,6 @@ qb_basic_op_factory factory_max_array = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4699,7 +4606,6 @@ qb_pixel_op_factory factory_sample_nearest = {
 	qb_set_result_dimensions_sampling,
 	qb_select_opcode_sampling,
 	qb_transfer_operands_sampling,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4720,7 +4626,6 @@ qb_derived_op_factory factory_sample_nearest_vector = {
 	qb_set_result_dimensions_sampling_vector,
 	qb_select_opcode_sampling_vector,
 	qb_transfer_operands_sampling_vector,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4738,7 +4643,6 @@ qb_pixel_op_factory factory_sample_bilinear = {
 	qb_set_result_dimensions_sampling,
 	qb_select_opcode_sampling,
 	qb_transfer_operands_sampling,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4759,7 +4663,6 @@ qb_derived_op_factory factory_sample_bilinear_vector = {
 	qb_set_result_dimensions_sampling_vector,
 	qb_select_opcode_sampling_vector,
 	qb_transfer_operands_sampling_vector,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4921,7 +4824,6 @@ qb_basic_op_factory factory_array_column = {
 	qb_set_result_dimensions_array_column,
 	qb_select_opcode_basic,
 	qb_transfer_operands_array_column,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4939,7 +4841,6 @@ qb_basic_op_factory factory_array_diff_two = {
 	qb_set_result_dimensions_array_diff,
 	qb_select_opcode_basic,
 	qb_transfer_operands_array_diff,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4957,7 +4858,6 @@ qb_basic_op_factory factory_array_diff_count = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_diff,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -4967,6 +4867,23 @@ qb_basic_op_factory factory_array_diff_count = {
 qb_op_decomposer factory_array_diff = {
 	qb_decompose_pairwise_op_series,
 	&factory_array_diff_two,
+};
+
+qb_basic_op_factory factory_array_fill = {
+	NULL,
+	qb_resolve_expression_type_third_operand,
+	NULL,
+	qb_coerce_operands_array_fill,
+	qb_set_result_prototype,
+	qb_validate_operands_array_fill,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_array_fill,
+	qb_select_opcode_basic,
+	qb_transfer_operands_array_fill,
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_AFILL_U32_F64_F64,	QB_AFILL_U32_F32_F32,	QB_AFILL_U32_I64_I64,	QB_AFILL_U32_I64_I64,	QB_AFILL_U32_I32_I32,	QB_AFILL_U32_I32_I32,	QB_AFILL_U32_I16_I16,	QB_AFILL_U32_I16_I16,	QB_AFILL_U32_I08_I08,	QB_AFILL_U32_I08_I08	},
 };
 
 qb_basic_op_factory factory_array_intersect_two = {
@@ -4980,7 +4897,6 @@ qb_basic_op_factory factory_array_intersect_two = {
 	qb_set_result_dimensions_array_intersect,
 	qb_select_opcode_basic,
 	qb_transfer_operands_array_diff,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5003,7 +4919,6 @@ qb_basic_op_factory factory_array_intersect_count = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_diff,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5021,7 +4936,6 @@ qb_basic_op_factory factory_array_pos = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_pos,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5039,7 +4953,6 @@ qb_basic_op_factory factory_array_product = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5065,7 +4978,6 @@ qb_basic_op_factory factory_array_reverse = {
 	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_reverse,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5083,7 +4995,6 @@ qb_basic_op_factory factory_array_rpos = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_pos,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5101,7 +5012,6 @@ qb_basic_op_factory factory_array_search = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5121,7 +5031,6 @@ qb_op_factory factory_array_slice = {
 	qb_validate_operands_array_slice,
 	qb_set_result_array_slice,
 	NULL,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -5138,7 +5047,6 @@ qb_basic_op_factory factory_array_sum = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5156,7 +5064,6 @@ qb_basic_op_factory factory_array_unique = {
 	qb_set_result_dimensions_array_unique,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_reverse,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5178,7 +5085,6 @@ qb_basic_op_factory factory_array_unique_count = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_reverse,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5196,7 +5102,6 @@ qb_basic_op_factory factory_rsort = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_sort,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_BOOLEAN,
@@ -5214,7 +5119,6 @@ qb_basic_op_factory factory_shuffle = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_sort,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_BOOLEAN,
@@ -5232,7 +5136,6 @@ qb_basic_op_factory factory_sort = {
 	NULL,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_sort,
-
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_BOOLEAN,
@@ -5269,7 +5172,6 @@ qb_basic_op_factory factory_array_pad = {
 	qb_set_result_dimensions_array_pad,
 	qb_select_opcode_basic,
 	qb_transfer_operands_all,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -5287,7 +5189,6 @@ qb_simple_op_factory factory_array_pad_count = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5310,25 +5211,6 @@ qb_copy_op_factory factory_array_merge = {
 	QB_COERCE_TO_HIGHEST_RANK,
 	QB_TYPE_OPERAND,
 };
-*/
-
-/*
-qb_copy_op_factory factory_array_fill = {
-	NULL,
-	qb_resolve_expression_type,
-	qb_link_results_all_operands,
-	qb_coerce_operands,
-	qb_set_result_prototype,
-	qb_validate_operands,
-	qb_set_result,
-	qb_set_result_dimensions_array_fill,
-	qb_select_copy_opcode,
-	qb_transfer_operands,
-
-	0,
-	QB_TYPE_OPERAND,
-};
-
 */
 
 qb_basic_op_factory factory_range = {
@@ -5360,7 +5242,6 @@ qb_basic_op_factory factory_range_count = {
 	NULL,
 	qb_select_opcode_basic,
 	qb_transfer_operands_range,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
@@ -5379,7 +5260,6 @@ qb_simple_op_factory factory_array_rand = {
 	qb_set_result_dimensions_array_rand,
 	qb_select_opcode_simple,
 	qb_transfer_operands,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ARAND_U32_U32_U32,
@@ -5428,7 +5308,6 @@ qb_utf8_op_factory factory_utf8_decode_count = {
 	NULL,
 	qb_select_opcode_utf8_decode,
 	qb_transfer_operands_first,
-
 	0,
 	0,
 	QB_ADDRESS_TEMPORARY,
@@ -5485,7 +5364,6 @@ qb_basic_op_factory factory_pack_le = {
 	qb_set_result_dimensions_pack,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_first,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
@@ -5503,7 +5381,6 @@ qb_basic_op_factory factory_pack_be = {
 	qb_set_result_dimensions_pack,
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_first,
-
 	0,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY | QB_ADDRESS_STRING,
