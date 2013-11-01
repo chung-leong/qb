@@ -796,6 +796,9 @@ class CodeGenerator {
 			$this->handlers[] = new AccommodateIndexMultiply("IDX_ACCOM_MUL", $elementType);
 			$this->handlers[] = new AccommodatePush("IDX_ACCOM_PUSH", $elementType);
 			
+			$this->handlers[] = new AccommodateInsert("INS_ACCOM", $elementType);
+			$this->handlers[] = new AccommodateInsertMultidimensional("INS_ACCOM_DIM", $elementType);
+			
 			$this->handlers[] = new AccommodateSize("SZ_ACCOM", $elementType);
 			$this->handlers[] = new AccommodateSizeUpdateDimension("SZ_ACCOM_DIM", $elementType);
 			

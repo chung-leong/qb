@@ -2579,32 +2579,33 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 				qb_operand operands[5] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address }, { QB_OPERAND_ADDRESS, predicate_address } };
 				return qb_obtain_on_demand_value(cxt, &factory_check_array_index_multiply_add, operands, 5);
 			}
-		} else {
-			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
-				// a write operation and the array can expand
-				// enlarge the array to accommodate an index larger than the current size
-				// since sub-arrays are never expandable, the offset should always be zero
+		} else if(bound_check_flags & QB_ARRAY_BOUND_CHECK_INSERT) {
+			qb_operand operands[7] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, container_address->array_size_address }, { QB_OPERAND_ADDRESS, cxt->one_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
+			return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_insert_multidimensional, operands, 7);
+		} else if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
+			// a write operation and the array can expand
+			// enlarge the array to accommodate an index larger than the current size
+			// since sub-arrays are never expandable, the offset should always be zero
 
-				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, container_address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
-				return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index_multiply, operands, 6);
+			qb_operand operands[6] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, container_address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
+			return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index_multiply, operands, 6);
 
-			} else if(bound_check_flags & (QB_ARRAY_BOUND_CHECK_WRITE | QB_ARRAY_BOUND_CHECK_READ)) {
-				// a read operation or a write to a non-expanding array
-				if(array_offset_address == cxt->zero_address) {
-					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_multiply, operands, 3);
-				} else {
-					qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_multiply_add, operands, 4);
-				}
+		} else if(bound_check_flags & (QB_ARRAY_BOUND_CHECK_WRITE | QB_ARRAY_BOUND_CHECK_READ)) {
+			// a read operation or a write to a non-expanding array
+			if(array_offset_address == cxt->zero_address) {
+				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_multiply, operands, 3);
 			} else {
-				if(array_offset_address == cxt->zero_address) {
-					qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, sub_array_size_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_multiply, operands, 2);
-				} else {
-					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_multiply_add, operands, 3);
-				}
+				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_multiply_add, operands, 4);
+			}
+		} else {
+			if(array_offset_address == cxt->zero_address) {
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, sub_array_size_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_multiply, operands, 2);
+			} else {
+				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, sub_array_size_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_multiply_add, operands, 3);
 			}
 		}
 	} else {
@@ -2621,27 +2622,29 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 			qb_address *predicate_address = qb_obtain_predicate_address(cxt, container_address, TRUE);
 			qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, array_offset_address }, { QB_OPERAND_ADDRESS, predicate_address } };
 			return qb_obtain_on_demand_value(cxt, &factory_check_array_index_add, operands, 4);
-		} else {
-			if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
-				if(index_address == index_limit_address) {
-					// done slightly differently, since we need to put the original size of the array in a temporary variable
-					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_push, operands, 3);
-				} else {
-					qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address }  };
-					return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index, operands, 4);
-				}
-			} else if(bound_check_flags & (QB_ARRAY_BOUND_CHECK_WRITE | QB_ARRAY_BOUND_CHECK_READ)) {
-				if(array_offset_address == cxt->zero_address) {
-					qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_guard_array_index, operands, 2);
-				} else {
-					qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
-					return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_add, operands, 3);
-				}
+		} else if(bound_check_flags & QB_ARRAY_BOUND_CHECK_INSERT) {
+			// accommodate an insertion at the index
+			qb_operand operands[5] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, cxt->one_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
+			return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_insert, operands, 5);
+		} else if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
+			if(index_address == index_limit_address) {
+				// done slightly differently, since we need to put the original size of the array in a temporary variable
+				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_push, operands, 3);
 			} else {
-				return index_address;
+				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_SEGMENT_SELECTOR, container_address }, { QB_OPERAND_ELEMENT_SIZE, container_address }  };
+				return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_index, operands, 4);
 			}
+		} else if(bound_check_flags & (QB_ARRAY_BOUND_CHECK_WRITE | QB_ARRAY_BOUND_CHECK_READ)) {
+			if(array_offset_address == cxt->zero_address) {
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_index, operands, 2);
+			} else {
+				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, index_limit_address }, { QB_OPERAND_ADDRESS, array_offset_address } };
+				return qb_obtain_on_demand_value(cxt, &factory_guard_array_index_add, operands, 3);
+			}
+		} else {
+			return index_address;
 		}
 	}
 }
@@ -3052,18 +3055,22 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 			if(f->resolve_type) {
 				expr_type = f->resolve_type(cxt, f, operands, operand_count);
 
-				// indicate in the prototype that the expression has this type
-				result_prototype->preliminary_type = expr_type;
-				if(!(f->coercion_flags & QB_COERCE_TO_LVALUE_TYPE) || result->type == QB_OPERAND_NONE) {
-					// as the result doesn't depend on the context (or there is no context at all)
-					// we're certain about the type 
-					result_prototype->final_type = expr_type;
+				if(result_prototype) {
+					// indicate in the prototype that the expression has this type
+					result_prototype->preliminary_type = expr_type;
+					if(!(f->coercion_flags & QB_COERCE_TO_LVALUE_TYPE) || result->type == QB_OPERAND_NONE) {
+						// as the result doesn't depend on the context (or there is no context at all)
+						// we're certain about the type 
+						result_prototype->final_type = expr_type;
+					}
+					result_prototype->coercion_flags = f->coercion_flags;
+					result_prototype->address_flags = f->address_flags;
 				}
-				result_prototype->coercion_flags = f->coercion_flags;
-				result_prototype->address_flags = f->address_flags;
 			} else {
 				// the translation loop depends on the type getting set to something other than QB_TYPE_UNKNOWN
-				result_prototype->preliminary_type = QB_TYPE_ANY;
+				if(result_prototype) {
+					result_prototype->preliminary_type = QB_TYPE_ANY;
+				}
 			}
 		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 			// use the result from the previous stage if it's available 

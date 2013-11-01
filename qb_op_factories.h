@@ -43,6 +43,7 @@ typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
 typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
 typedef struct qb_gather_op_factory				qb_gather_op_factory;
+typedef struct qb_insert_op_factory				qb_insert_op_factory;
 
 typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
 
@@ -250,6 +251,7 @@ extern qb_op_factory factory_fetch_array_size;
 extern qb_fetch_op_factory factory_fetch_array_element_read;
 extern qb_fetch_op_factory factory_fetch_array_element_write;
 extern qb_fetch_op_factory factory_fetch_array_element_isset;
+extern qb_fetch_op_factory factory_fetch_array_element_insert;
 extern qb_fetch_op_factory factory_fetch_object_property_read;
 extern qb_fetch_op_factory factory_fetch_object_property_write;
 extern qb_fetch_op_factory factory_fetch_object_property_isset;
@@ -288,6 +290,8 @@ extern qb_simple_op_factory factory_accommodate_array_index_multiply;
 extern qb_simple_op_factory factory_accommodate_array_push;
 extern qb_simple_op_factory factory_accommodate_array_size;
 extern qb_simple_op_factory factory_accommodate_array_size_update_dimension;
+extern qb_simple_op_factory factory_accommodate_array_insert;
+extern qb_simple_op_factory factory_accommodate_array_insert_multidimensional;
 
 extern qb_simple_op_factory factory_choose_size_of_larger_array;
 extern qb_simple_op_factory factory_choose_size_of_larger_array_top_level;
@@ -528,6 +532,7 @@ extern qb_op_factory factory_array_slice;
 extern qb_basic_op_factory factory_array_sum;
 extern qb_basic_op_factory factory_array_unique;
 extern qb_basic_op_factory factory_array_unique_count;
+extern qb_op_decomposer factory_array_unshift;
 extern qb_basic_op_factory factory_range;
 extern qb_basic_op_factory factory_range_count;
 extern qb_basic_op_factory factory_rsort;

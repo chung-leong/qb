@@ -360,6 +360,7 @@ enum {
 	QB_ARRAY_BOUND_CHECK_READ	= 0x0001,
 	QB_ARRAY_BOUND_CHECK_WRITE	= 0x0002,
 	QB_ARRAY_BOUND_CHECK_ISSET	= 0x0004,
+	QB_ARRAY_BOUND_CHECK_INSERT	= 0x0008,
 };
 
 qb_address * qb_obtain_predicate_address(qb_compiler_context *cxt, qb_address *container_address, int32_t writable);

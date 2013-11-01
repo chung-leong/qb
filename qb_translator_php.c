@@ -916,8 +916,8 @@ static qb_intrinsic_function intrinsic_functions[] = {
 */
 	{	0,	"array_sum",			1,		1,		&factory_array_sum			},
 	{	0,	"array_unique",			1,		1,		&factory_array_unique		},
+	{	0,	"array_unshift",		2,		-1,		&factory_array_unshift		},
 /*
-	{	0,	"array_unshift",		2,		-1,		NULL						},
 	{	0,	"in_array",				2,		2,		&factory_in_array			},
 */
 	{	0,	"range",				2,		3,		&factory_range				},
