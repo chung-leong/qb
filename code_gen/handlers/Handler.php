@@ -436,13 +436,9 @@ class Handler {
 		return $parts;
 	}
 
-	protected function getFunctionName($prefix) {
-		$parts = $this->getFunctionNameComponents($prefix);
-		return implode('_', $parts);
-	}
-	
 	public function getHandlerFunctionName() {
-		return $this->getFunctionName("do");
+		$parts = $this->getFunctionNameComponents("do");
+		return implode('_', $parts);
 	}
 	
 	public function getHandlerFunctionType() {
@@ -713,7 +709,11 @@ class Handler {
 	
 	// return the name of the controller function, which decides whether to use multithreading or not
 	protected function getControllerFunctionName() {
-		return $this->getFunctionName("redirect");
+		$parts = $this->getFunctionNameComponents("redirect");
+		if($this->addressMode == "ELE") {
+			array_splice($parts, -1, 0, "array_element");
+		}
+		return implode('_', $parts);
 	}
 	
 	// return the parameter list of the controller function
