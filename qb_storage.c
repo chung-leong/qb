@@ -43,12 +43,17 @@ static intptr_t qb_relocate_segment_memory(qb_memory_segment *segment, int8_t *n
 }
 
 void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segment) {
-	qb_relocate_segment_memory(segment, other_segment->memory);
+	if(other_segment->imported_segment) {
+		// if the target segment has imported another segment, import the same one instead
+		qb_import_segment(segment, other_segment->imported_segment);
+	} else {
+		qb_relocate_segment_memory(segment, other_segment->memory);
 
-	segment->flags |= QB_SEGMENT_IMPORTED;
-	segment->imported_segment = other_segment;
-	segment->next_dependent = other_segment->next_dependent;
-	other_segment->next_dependent = segment;
+		segment->flags |= QB_SEGMENT_IMPORTED;
+		segment->imported_segment = other_segment;
+		segment->next_dependent = other_segment->next_dependent;
+		other_segment->next_dependent = segment;
+	}
 }
 
 void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count) {
@@ -206,12 +211,9 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 				SHIFT_POINTER(dst->memory, shift);
 			}
 		} else {
-			// fixed the references first
 			if(dst->references) {
+				// only adjust the pointer--the references themselves will get shifted during relocation
 				SHIFT_POINTER(dst->references, shift);
-				for(j = 0; j < dst->reference_count; j++) {
-					SHIFT_POINTER(dst->references[j], instruction_shift);
-				}
 			}
 
 			if(separation) {
@@ -241,11 +243,9 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 					}
 				}
 			} else {
-				if(!(dst->flags & QB_SEGMENT_IMPORTED)) {
-					dst->byte_count = 0;
-					dst->current_allocation = 0;
-					qb_import_segment(dst, src);
-				}
+				dst->byte_count = 0;
+				dst->current_allocation = 0;
+				qb_import_segment(dst, src);
 			}
 		}
 	}
