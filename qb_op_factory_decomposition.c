@@ -53,7 +53,7 @@ static void qb_decompose_pairwise_op_series(qb_compiler_context *cxt, void *fact
 	*result = pairwise_result;
 }
 
-static void qb_decompose_object_property_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+static void qb_decompose_fetch_do_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_fetch_do_op_decomposer *d = factory;
 	qb_operand fetch_result;
 	qb_result_prototype fetch_result_prototype;

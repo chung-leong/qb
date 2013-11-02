@@ -97,7 +97,7 @@ qb_derived_op_factory factory_assign_array_element = {
 };
 
 qb_fetch_do_op_decomposer factory_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_assign,
 };
@@ -1265,25 +1265,25 @@ qb_derived_op_factory factory_decrement_post = {
 };
 
 qb_fetch_do_op_decomposer factory_increment_object_property_pre = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_increment_pre,
 };
 
 qb_fetch_do_op_decomposer factory_decrement_object_property_pre = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_decrement_pre,
 };
 
 qb_fetch_do_op_decomposer factory_increment_object_property_post = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_increment_post,
 };
 
 qb_fetch_do_op_decomposer factory_decrement_object_property_post = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_decrement_post,
 };
@@ -1339,27 +1339,16 @@ qb_derived_op_factory factory_shift_left_assign = {
 	&factory_shift_left,
 };
 
-qb_derived_op_factory factory_shift_left_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_shift_left,
+qb_fetch_do_op_decomposer factory_shift_left_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_object_property_write,
+	&factory_shift_left_assign,
 };
 
 qb_fetch_do_op_decomposer factory_shift_left_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
-	&factory_shift_left,
+	&factory_shift_left_assign,
 };
 
 void *factories_shift_left_assign[3] = { &factory_shift_left_assign, &factory_shift_left_assign_element, &factory_shift_left_assign_object_property };
@@ -1381,25 +1370,14 @@ qb_derived_op_factory factory_shift_right_assign = {
 	&factory_shift_right,
 };
 
-qb_derived_op_factory factory_shift_right_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_shift_right,
+qb_fetch_do_op_decomposer factory_shift_right_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_object_property_write,
+	&factory_shift_right_assign,
 };
 
 qb_fetch_do_op_decomposer factory_shift_right_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_shift_right_assign,
 };
@@ -1491,25 +1469,14 @@ qb_derived_op_factory factory_bitwise_and_assign = {
 	&factory_bitwise_and,
 };
 
-qb_derived_op_factory factory_bitwise_and_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_bitwise_and,
+qb_fetch_do_op_decomposer factory_bitwise_and_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_bitwise_and_assign,
 };
 
 qb_fetch_do_op_decomposer factory_bitwise_and_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_bitwise_and_assign,
 };
@@ -1533,25 +1500,14 @@ qb_derived_op_factory factory_bitwise_or_assign = {
 	&factory_bitwise_or,
 };
 
-qb_derived_op_factory factory_bitwise_or_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_bitwise_or,
+qb_fetch_do_op_decomposer factory_bitwise_or_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_bitwise_or_assign,
 };
 
 qb_fetch_do_op_decomposer factory_bitwise_or_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_bitwise_or_assign,
 };
@@ -1575,25 +1531,14 @@ qb_derived_op_factory factory_bitwise_xor_assign = {
 	&factory_bitwise_xor,
 };
 
-qb_derived_op_factory factory_bitwise_xor_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_bitwise_xor,
+qb_fetch_do_op_decomposer factory_bitwise_xor_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_bitwise_xor_assign,
 };
 
 qb_fetch_do_op_decomposer factory_bitwise_xor_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_bitwise_xor_assign,
 };
@@ -1868,25 +1813,14 @@ qb_derived_op_factory factory_add_assign = {
 	&factory_add,
 };
 
-qb_derived_op_factory factory_add_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_add,
+qb_fetch_do_op_decomposer factory_add_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_add_assign,
 };
 
 qb_fetch_do_op_decomposer factory_add_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_add_assign,
 };
@@ -1910,25 +1844,14 @@ qb_derived_op_factory factory_subtract_assign = {
 	&factory_subtract,
 };
 
-qb_derived_op_factory factory_subtract_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_subtract,
+qb_fetch_do_op_decomposer factory_subtract_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_subtract_assign,
 };
 
 qb_fetch_do_op_decomposer factory_subtract_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_subtract_assign,
 };
@@ -1952,25 +1875,14 @@ qb_derived_op_factory factory_multiply_assign = {
 	&factory_multiply,
 };
 
-qb_derived_op_factory factory_multiply_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_multiply,
+qb_fetch_do_op_decomposer factory_multiply_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_multiply_assign,
 };
 
 qb_fetch_do_op_decomposer factory_multiply_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_multiply_assign,
 };
@@ -1994,25 +1906,14 @@ qb_derived_op_factory factory_divide_assign = {
 	&factory_divide,
 };
 
-qb_derived_op_factory factory_divide_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_divide,
+qb_fetch_do_op_decomposer factory_divide_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_divide_assign,
 };
 
 qb_fetch_do_op_decomposer factory_divide_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_divide_assign,
 };
@@ -2036,25 +1937,14 @@ qb_derived_op_factory factory_modulo_assign = {
 	&factory_modulo,
 };
 
-qb_derived_op_factory factory_modulo_assign_element = {
-	NULL,
-	qb_resolve_expression_type_first_operand,
-	qb_link_results_all_operands,
-	qb_coerce_operands_assign_array_element,
-	qb_set_result_prototype,
-	NULL,
-	qb_set_result_assign_array_element,
-	NULL,
-	qb_select_opcode_derived_modify_assign,
-	qb_transfer_operands_modify_assign,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	&factory_modulo,
+qb_fetch_do_op_decomposer factory_modulo_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_modulo_assign,
 };
 
 qb_fetch_do_op_decomposer factory_modulo_assign_object_property = {
-	qb_decompose_object_property_op,
+	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_modulo_assign,
 };
