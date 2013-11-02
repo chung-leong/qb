@@ -52,10 +52,13 @@ static void qb_add_segment_reference(qb_encoder_context *cxt, qb_address *addres
 
 static zend_always_inline void * qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
 	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-	//return (void *) (segment->memory + address->segment_offset);
 	if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-		// add the base address so we know it's pointing to a preallocated segment
-		return (void *) (cxt->storage_base_address + address->segment_offset + ((uintptr_t) segment->memory - (uintptr_t) cxt->storage));
+		if(cxt->position_independent) {
+			// add the base address so we know it's pointing to a preallocated segment
+			return (void *) (cxt->storage_base_address + address->segment_offset + ((uintptr_t) segment->memory - (uintptr_t) cxt->storage));
+		} else {
+			return (void *) (segment->memory + address->segment_offset);
+		}
 	} else {
 		return (void *) (uintptr_t) (0 + address->segment_offset);
 	}
@@ -791,7 +794,7 @@ qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance) {
 
 void qb_main(qb_interpreter_context *__restrict cxt);
 
-void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {
+void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt, int32_t position_independent TSRMLS_DC) {
 #ifndef _MSC_VER
 	static int handlers_initialized = FALSE;
 	if(!handlers_initialized) {
@@ -805,11 +808,19 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 	cxt->compiler_context = compiler_cxt;
 	cxt->ops = compiler_cxt->ops;
 	cxt->op_count = compiler_cxt->op_count;
-	cxt->initialization_op_count = compiler_cxt->initialization_op_count;
+	cxt->position_independent = position_independent;
+	cxt->storage = NULL;
 
-	// map stuff half and a quarter way up the entire address space initially
-	cxt->instruction_base_address = ((uintptr_t) -1) / 4;
-	cxt->storage_base_address = ((uintptr_t) -1) / 2;
+	cxt->instruction_stream_length = 0;
+	cxt->instruction_op_count = 0;
+	cxt->instruction_crc64 = 0;
+	cxt->instructions = NULL;
+
+	if(position_independent) {
+		// map stuff half and a quarter way up the entire address space initially
+		cxt->instruction_base_address = ((uintptr_t) -1) / 4;
+		cxt->storage_base_address = ((uintptr_t) -1) / 2;
+	}
 
 	SAVE_TSRMLS
 }

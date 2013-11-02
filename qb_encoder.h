@@ -28,7 +28,7 @@ struct qb_encoder_context {
 
 	qb_op **ops;
 	uint32_t op_count;
-	uint32_t initialization_op_count;
+	int32_t position_independent;
 
 	qb_storage *storage;
 
@@ -49,7 +49,7 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory);
 uint32_t qb_get_variable_length(qb_variable *qvar);
 int8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory);
 
-void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
+void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context *compiler_cxt, int32_t position_independent TSRMLS_DC);
 void qb_free_encoder_context(qb_encoder_context *cxt);
 
 intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance);

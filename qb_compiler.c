@@ -3296,61 +3296,31 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 }
 
 void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
-	/*
 	USE_TSRM
-	qb_function _qfunc, *qfunc = &_qfunc;
-	qb_variable _retval, *retval = &_retval;
-	zend_function _zfunc, *zfunc = &_zfunc;
-	qb_op **current_ops, *ops[2], _ret_op, *ret_op = &_ret_op;
-	uint32_t current_op_count, current_segment_count;
 	int8_t instructions[256];
-	uint16_t opcodes[32];
+	qb_op *ops[2], ret_op = { QB_RET, QB_OP_EXIT, 0 };
+	qb_function _qfunc, *qfunc = &_qfunc;
+	qb_compiler_context _compiler_cxt, *compiler_cxt = &_compiler_cxt;
+	qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
+	qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
 
-	// change properties temporarily
-	current_ops = cxt->ops;
-	current_op_count = cxt->op_count;
-	current_segment_count = cxt->storage->segment_count;
-	cxt->ops = ops;
-	cxt->op_count = 2;
-	cxt->storage->segment_count = 2;
-
+	*compiler_cxt = *cxt;
 	ops[0] = op;
-	ops[1] = ret_op;
-	ret_op->flags = QB_OP_JUMP;
-	ret_op->opcode = QB_RET;
-	ret_op->operand_count = 0;
-	ret_op->operands = NULL;
-	qb_resolve_address_modes(cxt);
+	ops[1] = &ret_op;
+	compiler_cxt->ops = ops;
+	compiler_cxt->op_count = 2;
+	*qfunc = cxt->function_prototype;
+	qfunc->instructions = qfunc->instruction_start = instructions;
+	qfunc->in_use = FALSE;
+	
+	qb_resolve_address_modes(compiler_cxt);
+	qb_initialize_encoder_context(encoder_cxt, cxt, FALSE TSRMLS_CC);
+	qb_encode_instruction_stream(encoder_cxt, instructions);
+	qb_free_encoder_context(encoder_cxt);
 
-	memset(qfunc, 0, sizeof(qb_function));
-	memset(retval, 0, sizeof(qb_variable));
-	qfunc->local_storage = cxt->storage;
-	qfunc->return_variable = retval;
-	qfunc->variables = &retval;
-	qfunc->instructions = cxt->instructions = instructions;
-	qfunc->instruction_opcodes = cxt->instruction_opcodes = opcodes;
-	qb_set_instruction_offsets(cxt);
-	qfunc->instruction_length = cxt->instruction_length;
-	qfunc->instruction_opcode_count = cxt->instruction_op_count;
-	qb_encode_instructions(cxt);
-	cxt->instructions = NULL;
-	cxt->instruction_length = 0;
-	cxt->instruction_op_count = 0;
-
-	zfunc->type = ZEND_INTERNAL_FUNCTION;
-	zfunc->op_array.reserved[0] = qfunc;
-#ifndef ZEND_ENGINE_2_1
-	zfunc->internal_function.module = &qb_module_entry;
-#endif
-	zfunc->internal_function.handler = PHP_FN(qb_execute);
-
-	qb_execute(zfunc, NULL, NULL, 0, NULL TSRMLS_CC);
-
-	// restore properties
-	cxt->ops = current_ops;
-	cxt->op_count = current_op_count;
-	cxt->storage->segment_count = current_segment_count;
-	*/
+	qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
+	qb_execute_internal(interpreter_cxt);
+	qb_free_interpreter_context(interpreter_cxt);
 }
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC) {
@@ -3604,7 +3574,7 @@ void qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 	qb_resolve_address_modes(cxt);
 	qb_fuse_instructions(cxt, 2);
 
-	qb_initialize_encoder_context(encoder_cxt, cxt TSRMLS_CC);
+	qb_initialize_encoder_context(encoder_cxt, cxt, FALSE TSRMLS_CC);
 	qfunc = qb_encode_function(encoder_cxt);
 	qb_free_encoder_context(encoder_cxt);
 

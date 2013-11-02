@@ -226,10 +226,15 @@ static void qb_simplify_jump(qb_compiler_context *cxt, uint32_t index) {
 		qb_op *target_qop = cxt->ops[target_index];
 
 		// if the jump lands on another jump, change the target to that jump's target
-		while(target_qop->opcode == QB_JMP && target_index != index) {
-			target_index = target_qop->jump_target_indices[0];
-			target_qop = cxt->ops[target_index];
-			qop->jump_target_indices[0] = target_index;
+		while(target_qop->opcode == QB_JMP) {
+			if(target_index != target_qop->jump_target_indices[0]) {
+				target_index = target_qop->jump_target_indices[0];
+				target_qop = cxt->ops[target_index];
+				qop->jump_target_indices[0] = target_index;
+			} else {
+				// the jump goes to itself
+				break;
+			}
 		}
 
 		// if the only thing sitting between the jump and the target

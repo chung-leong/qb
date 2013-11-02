@@ -244,7 +244,7 @@ void qb_perform_translation(qb_build_context *cxt) {
 		qb_resolve_jump_targets(compiler_cxt);
 
 		// fuse basic instructions into compound ones
-		//qb_fuse_instructions(compiler_cxt, 1);
+		qb_fuse_instructions(compiler_cxt, 1);
 
 		// assign storage space to variables
 		qb_assign_storage_space(compiler_cxt);
@@ -279,7 +279,7 @@ void qb_generate_executables(qb_build_context *cxt) {
 		qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
 		qb_function *qfunc;
 
-		qb_initialize_encoder_context(encoder_cxt, compiler_cxt TSRMLS_CC);
+		qb_initialize_encoder_context(encoder_cxt, compiler_cxt, TRUE TSRMLS_CC);
 
 		// encode the instruction stream
 		qfunc = qb_encode_function(encoder_cxt);
