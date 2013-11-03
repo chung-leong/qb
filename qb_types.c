@@ -360,12 +360,6 @@ void qb_free_data_pool(qb_data_pool *pool) {
 	if(pool->op_names) {
 		efree((void *) pool->op_names);
 	}
-	if(pool->op_result_size_codes) {
-		efree((void *) pool->op_result_size_codes);
-	}
-	if(pool->op_result_size_variables) {
-		efree((void *) pool->op_result_size_variables);
-	}
 	if(pool->function_prototypes) {
 		efree((void *) pool->function_prototypes);
 	}

@@ -2,7 +2,7 @@
 
 class Sort extends Handler {
 
-	use ArrayAddressMode, UnaryOperator;
+	use ArrayAddressMode, UnaryOperator, Slow;
 	
 	protected $direction = "ascending";
 

@@ -18,9 +18,6 @@ class GuardExtentMultiply extends Handler {
 		$lines = array();
 		$lines[] = "res = op2 * op4;";
 		$lines[] = "if(UNEXPECTED(!(op1 + op2 <= op3))) {";
-		$lines[] =		"USE_TSRM";
-		$lines[] =		"QB_G(current_line_number) = line_number;";
-		$lines[] =		"qb_abort(\"Array index out of bounds (%d + %d > %d)\", op1, op2, op3);";
 		$lines[] = "}";
 		return $lines;
 	}

@@ -270,34 +270,6 @@ class CodeGenerator {
 			$actions[$index] = $code;
 		}
 
-		$resultSizePossibilities = array();
-		foreach($this->handlers as $index => $handler) {
-			$expressions = $handler->getResultSizePossibilities();
-			if($expressions) {
-				if($expressions) {
-					if(is_array($expressions)) {
-						$list = "";
-						foreach($expressions as $expr) {
-							$list .= $expr . "\x00";
-						}
-					} else {
-						$list = $expressions . "\x00";
-					}
-					$resultSizePossibilities[$index] = $list;
-				}
-			}
-		}
-		
-		$resultSizeCalculations = array();
-		foreach($this->handlers as $index => $handler) {
-			$lines = $handler->getResultSizeCalculation();
-			if($lines) {
-				$resultSizeCalculations[$index] = $this->formatCode($lines);
-			} else {
-				$resultSizeCalculations[$index] = null;
-			}
-		}
-		
 		// create function declaration table and reverse look-up table
 		$functionDeclarations = $this->getFunctionDeclarations();
 		$functionIndices = array();
@@ -367,6 +339,7 @@ class CodeGenerator {
 									case 'USE_TSRM':
 										break;
 									default:
+										print_r($decl);
 										throw new Exception("Missing function declaration for $name");
 								}
 							}

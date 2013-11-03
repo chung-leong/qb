@@ -793,3 +793,13 @@ void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_inde
 		qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, result_index, line_number);
 	}
 }
+
+void qb_trigger_out_of_bound_exception(qb_interpreter_context *cxt, uint32_t index, uint32_t limit, int32_t inclusive, uint32_t line_number) {
+	USE_TSRM
+	QB_G(current_line_number) = line_number;
+	if(inclusive) {
+		qb_abort("Array index out of bounds (%d > %d)", index, limit);
+	} else {
+		qb_abort("Array index out of bounds (%d >= %d)", index, limit);
+	}
+}

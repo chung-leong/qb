@@ -17,9 +17,7 @@ class GuardIndexAdd extends Handler {
 		$lines = array();
 		$lines[] = "res = op1 + op3;";
 		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
-		$lines[] =		"USE_TSRM";
-		$lines[] =		"QB_G(current_line_number) = line_number;";
-		$lines[] =		"qb_abort(\"Array index out of bounds (%d >= %d)\", op1, op2);";
+		$lines[] =		"qb_trigger_out_of_bound_exception(cxt, op1, op2, FALSE, line_number);";
 		$lines[] = "}";
 		return $lines;
 	}

@@ -46,6 +46,18 @@ struct qb_native_compiler_context {
 	qb_variable **variables;
 	uint32_t variable_count;
 
+	qb_address **constant_scalars;
+	uint32_t constant_scalar_count;
+
+	qb_address **writable_scalars;
+	uint32_t writable_scalar_count;
+
+	qb_address **constant_arrays;
+	uint32_t constant_array_count;
+
+	qb_address **writable_arrays;
+	uint32_t writable_array_count;
+
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
 
@@ -87,6 +99,7 @@ struct qb_native_compiler_context {
 extern qb_native_symbol global_native_symbols[];
 extern uint32_t global_native_symbol_count;
 
+void qb_free_native_code(qb_native_code_bundle *bundle);
 void qb_compile_to_native_code(qb_native_compiler_context *cxt);
 void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC);
 void qb_free_native_compiler_context(qb_native_compiler_context *cxt);

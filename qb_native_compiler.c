@@ -519,6 +519,14 @@ static const char * qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_a
 
 static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
 	char *buffer = qb_get_buffer(cxt);
+	switch(address->segment_selector) {
+		case QB_SELECTOR_CONSTANT_SCALAR: {
+
+		}	break;
+		case QB_SELECTOR_TEMPORARY_SCALAR:{ 
+
+		}	break;
+	}
 	if(CONSTANT(address)) {
 		switch(address->type) {
 			case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
@@ -736,28 +744,7 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 	}
 	qb_print(cxt, "\n");
 
-	// write variables that can be local
-	for(i = 0; i < cxt->scalar_count; i++) {
-		qb_address *scalar = cxt->scalars[i];
-		if(!CONSTANT(scalar)) {
-			qb_printf(cxt, "%s %s = %s[0];\n", type_cnames[scalar->type], qb_get_scalar(cxt, scalar), qb_get_segment_pointer(cxt, scalar));
-		}
-	}
-
 	qb_print(cxt, "\n");
-
-	// see which loop pointers are needed
-	memset(need_pointer, 0, sizeof(need_pointer));
-	for(i = 0; i < cxt->op_count; i++) {
-		qb_op *qop = cxt->ops[i];
-		for(j = 0; j < qop->operand_count; j++) {
-			qb_operand *operand = &qop->operands[j];
-			if(operand->type == QB_OPERAND_ADDRESS_ARR) {
-				qb_address *address = operand->address;
-				need_pointer[address->type][j] = TRUE;
-			}
-		}
-	}
 
 	// print the loop pointers
 	for(i = 0; i < QB_TYPE_COUNT; i++) {
@@ -782,19 +769,6 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 #ifdef ZTS
 		qb_print(cxt, STRING(USE_TSRM)"\n");
 #endif
-	qb_print(cxt, "\n");
-	// sanity check
-	qb_printf(cxt, "if(cxt->function->instruction_crc64 != 0x%" PRIX64 "ULL) {\n", cxt->instruction_crc64);
-	qb_print( cxt, "	return -1;\n");
-	qb_print( cxt, "}\n");
-
-	// set the stack variable references
-	for(i = 0; i < cxt->storage->segment_count; i++) {
-		qb_printf(cxt, "cxt->storage->segments[%d].stack_ref_memory = &segment%d;\n", i, i);
-	}
-	for(i = 0; i < cxt->storage->segment_count; i++) {
-		qb_printf(cxt, "cxt->storage->segments[%d].stack_ref_element_count = &segment_element_count%d;\n", i, i);
-	}
 	qb_print(cxt, "\n");
 }
 
@@ -848,6 +822,15 @@ static void qb_print_functions(qb_native_compiler_context *cxt) {
 				cxt->op_count = compiler_cxt->op_count;
 				cxt->variables = compiler_cxt->variables;
 				cxt->variable_count = compiler_cxt->variable_count;
+
+				cxt->constant_scalars = compiler_cxt->constant_scalars;
+				cxt->constant_scalar_count = compiler_cxt->constant_scalar_count;
+				cxt->writable_scalars = compiler_cxt->writable_scalars;
+				cxt->writable_scalar_count = compiler_cxt->writable_scalar_count;
+				cxt->constant_arrays = compiler_cxt->constant_arrays;
+				cxt->constant_array_count = compiler_cxt->constant_array_count;
+				cxt->writable_arrays = compiler_cxt->writable_arrays;
+				cxt->writable_array_count = compiler_cxt->writable_array_count;
 
 				cxt->storage = compiler_cxt->storage;
 

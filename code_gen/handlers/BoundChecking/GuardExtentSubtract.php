@@ -16,9 +16,6 @@ class GuardExtentSubtract extends Handler {
 		$lines = array();
 		$lines[] = "res = op1 - op2;";
 		$lines[] = "if(UNEXPECTED(!(op2 <= op1))) {";
-		$lines[] =		"USE_TSRM";
-		$lines[] =		"QB_G(current_line_number) = line_number;";
-		$lines[] =		"qb_abort(\"Array index out of bounds (%d - %d <= 0)\", op1, op2);";
 		$lines[] = "}";
 		return $lines;
 	}

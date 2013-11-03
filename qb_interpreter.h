@@ -124,15 +124,12 @@ void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode,
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 3) NO_RETURN
 void qb_abort_at(const char *format, uint32_t line_number, ...);
 
-intptr_t qb_adjust_memory_segment(qb_interpreter_context *cxt, uint32_t segment_selector, uint32_t new_size);
-
 void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number);
+void qb_trigger_out_of_bound_exception(qb_interpreter_context *cxt, uint32_t index, uint32_t limit, int32_t inclusive, uint32_t line_number);
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
 void qb_main(qb_interpreter_context *__restrict cxt);
-
-void qb_write_output(qb_interpreter_context *cxt, const char *s, uint32_t count);
 
 #endif
