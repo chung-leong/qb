@@ -28,6 +28,19 @@ static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, 
 	}
 }
 
+static int32_t qb_all_constant(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			if(!CONSTANT(operand->address)) {
+				return FALSE;
+			}
+		}
+	}
+	return TRUE;
+}
+
 static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// if an address is provided and the result_prototype is flagged as non-temporary, then use that address
 	if(result->type != QB_OPERAND_ADDRESS) {
@@ -37,8 +50,20 @@ static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factor
 		if(f->set_dimensions) {
 			f->set_dimensions(cxt, f, operands, operand_count, &dim);
 		}
+		if((f->result_flags & QB_RESULT_FROM_PURE_FUNCTION) && qb_all_constant(cxt, operands, operand_count) && CONSTANT(dim.array_size_address)) {
+			if(dim.dimension_count > 0) {
+				uint32_t dimensions[MAX_DIMENSION], i;
+				for(i = 0; i < dim.dimension_count; i++) {
+					dimensions[i] = VALUE(U32, dim.dimension_addresses[i]);
+				}
+				result->address = qb_create_constant_array(cxt, expr_type, dimensions, dim.dimension_count);
+			} else {
+				result->address = qb_create_constant_scalar(cxt, expr_type);
+			}
+		} else {
+			result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype, TRUE);
+		}
 		result->type = QB_OPERAND_ADDRESS;
-		result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype, TRUE);
 	}
 }
 

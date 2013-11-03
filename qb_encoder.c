@@ -20,7 +20,7 @@
 
 #include "qb.h"
 
-static void qb_set_instruction_offsets(qb_encoder_context *cxt) {
+void qb_set_instruction_offsets(qb_encoder_context *cxt) {
 	uint32_t instruction_offset, i;
 	uint32_t count = 0;
 
@@ -170,7 +170,7 @@ static void qb_encode_number(qb_encoder_context *cxt, int32_t number, int8_t **p
 
 int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 	uint32_t i, j;
-	int8_t *ip = memory;
+	int8_t *ip = cxt->instructions = memory;
 
 	//  encode the instruction stream in the following manner:
 	//  [op1 handler][op2 handler][op1 operands][op3 handler][op2 operands][op3 operands]...
@@ -184,6 +184,7 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 				qb_encode_handler(cxt, i, &ip);
 			}
 
+#ifdef ZEND_DEBUG
 			if((int8_t *) memory + qop->instruction_offset != ip) {
 				qb_op *prev_qop = cxt->ops[i - 1];
 				do {
@@ -191,6 +192,7 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 				} while(prev_qop->opcode == QB_NOP);
 				qb_abort("the previous op was not correctly encoded");
 			}
+#endif
 
 			if(qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT)) {
 				// put in the jump targets
@@ -614,7 +616,6 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 
 	// encode the instructions
 	qfunc->instructions = p;
-	cxt->instructions = qfunc->instructions;
 	p = qb_encode_instruction_stream(cxt, p);
 
 	// store the opcodes for use during relocation
@@ -820,6 +821,8 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 		// map stuff half and a quarter way up the entire address space initially
 		cxt->instruction_base_address = ((uintptr_t) -1) / 4;
 		cxt->storage_base_address = ((uintptr_t) -1) / 2;
+	} else {
+		cxt->storage = compiler_cxt->storage;
 	}
 
 	SAVE_TSRMLS

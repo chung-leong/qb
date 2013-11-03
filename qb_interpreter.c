@@ -438,7 +438,6 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 		cxt->call_depth = 1;
 	}
 
-	// use shadow variables for debugging purpose by default
 	cxt->worker = NULL;
 	cxt->worker_count = qb_get_thread_count(TSRMLS_C);
 	cxt->exit_type = QB_VM_RETURN;

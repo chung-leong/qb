@@ -551,7 +551,7 @@ qb_simple_op_factory factory_guard_array_index = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_IDX_GUARD_U32_U32,
 };
@@ -568,7 +568,7 @@ qb_simple_op_factory factory_guard_array_index_add = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_GUARD_ADD_U32_U32_U32_U32,
 };
@@ -585,7 +585,7 @@ qb_simple_op_factory factory_guard_array_index_multiply = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_GUARD_MUL_U32_U32_U32_U32,
 };
@@ -602,7 +602,7 @@ qb_simple_op_factory factory_guard_array_index_multiply_add = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_GUARD_MAC_U32_U32_U32_U32_U32,
 };
@@ -619,7 +619,7 @@ qb_simple_op_factory factory_guard_array_size = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_SZ_GUARD_U32_U32,
 };
@@ -636,7 +636,7 @@ qb_simple_op_factory factory_guard_array_extent = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_EXT_GUARD_U32_U32_U32,
 };
@@ -653,7 +653,7 @@ qb_simple_op_factory factory_guard_array_extent_multiply = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_EXT_GUARD_MUL_U32_U32_U32_U32_U32,
 };
@@ -670,7 +670,7 @@ qb_simple_op_factory factory_guard_array_extent_subtract = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_EXT_GUARD_SUB_U32_U32_U32,
 };
@@ -687,7 +687,7 @@ qb_simple_op_factory factory_guard_array_extent_subtract_multiply = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_EXT_GUARD_SUB_MUL_U32_U32_U32_U32,
 };
@@ -704,7 +704,7 @@ qb_simple_op_factory factory_check_array_index_add = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_CHECK_ADD_U32_U32_U32_I32_U32,
 };
@@ -721,7 +721,7 @@ qb_simple_op_factory factory_check_array_index_multiply = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_CHECK_MUL_U32_U32_U32_I32_U32,
 };
@@ -738,7 +738,7 @@ qb_simple_op_factory factory_check_array_index_multiply_add = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_CHECK_MAC_U32_U32_U32_U32_I32_U32,
 };
@@ -755,7 +755,7 @@ qb_simple_op_factory factory_accommodate_array_index = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_ACCOM_U32_U32_U32_U32,
 };
@@ -772,7 +772,7 @@ qb_simple_op_factory factory_accommodate_array_index_multiply = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_ACCOM_MUL_U32_U32_U32_U32_U32_U32_U32,
 };
@@ -789,7 +789,7 @@ qb_simple_op_factory factory_accommodate_array_push = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_TEMPORARY,
 	QB_IDX_ACCOM_PUSH_U32_U32_U32_U32,
 };
@@ -806,7 +806,7 @@ qb_simple_op_factory factory_accommodate_array_size = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_SZ_ACCOM_U32_U32_U32_U32,
 };
@@ -823,7 +823,7 @@ qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	QB_SZ_ACCOM_DIM_U32_U32_U32_U32_U32_U32,
 };
@@ -4475,7 +4475,7 @@ qb_basic_op_factory factory_array_diff_count = {
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_diff,
 	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
+	0,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_SZ_ADIFF_F64_F64_U32_U32,	QB_SZ_ADIFF_F32_F32_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I64_I64_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I32_I32_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I16_I16_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32,	QB_SZ_ADIFF_I08_I08_U32_U32	},
 };
@@ -4536,7 +4536,7 @@ qb_basic_op_factory factory_array_intersect_count = {
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_diff,
 	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
+	0,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_SZ_AISECT_F64_F64_U32_U32,	QB_SZ_AISECT_F32_F32_U32_U32,	QB_SZ_AISECT_I64_I64_U32_U32,	QB_SZ_AISECT_I64_I64_U32_U32,	QB_SZ_AISECT_I32_I32_U32_U32,	QB_SZ_AISECT_I32_I32_U32_U32,	QB_SZ_AISECT_I16_I16_U32_U32,	QB_SZ_AISECT_I16_I16_U32_U32,	QB_SZ_AISECT_I08_I08_U32_U32,	QB_SZ_AISECT_I08_I08_U32_U32	},
 };
@@ -4702,7 +4702,7 @@ qb_basic_op_factory factory_array_unique_count = {
 	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_array_reverse,
 	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
+	0,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_SZ_AUNIQ_F64_U32_U32,	QB_SZ_AUNIQ_F32_U32_U32,	QB_SZ_AUNIQ_I64_U32_U32,	QB_SZ_AUNIQ_I64_U32_U32,	QB_SZ_AUNIQ_I32_U32_U32,	QB_SZ_AUNIQ_I32_U32_U32,	QB_SZ_AUNIQ_I16_U32_U32,	QB_SZ_AUNIQ_I16_U32_U32,	QB_SZ_AUNIQ_I08_U32_U32,	QB_SZ_AUNIQ_I08_U32_U32	},
 };
@@ -4806,7 +4806,7 @@ qb_simple_op_factory factory_array_pad_count = {
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
+	0,
 	QB_ADDRESS_TEMPORARY,
 	QB_SZ_APAD_U32_S32_U32,
 };
@@ -4862,7 +4862,7 @@ qb_basic_op_factory factory_range_count = {
 	qb_select_opcode_basic,
 	qb_transfer_operands_range,
 	0,
-	QB_RESULT_FROM_PURE_FUNCTION,
+	0,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_SZ_RANGE_F64_F64_F64_U32,	QB_SZ_RANGE_F32_F32_F32_U32,	QB_SZ_RANGE_U64_U64_S64_U32,	QB_SZ_RANGE_S64_S64_S64_U32,	QB_SZ_RANGE_U32_U32_S32_U32,	QB_SZ_RANGE_S32_S32_S32_U32,	QB_SZ_RANGE_U16_U16_S16_U32,	QB_SZ_RANGE_S16_S16_S16_U32,	QB_SZ_RANGE_U08_U08_S08_U32,	QB_SZ_RANGE_S08_S08_S08_U32	},
 };

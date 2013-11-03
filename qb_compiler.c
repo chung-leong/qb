@@ -732,7 +732,7 @@ qb_address * qb_obtain_array_alias(qb_compiler_context *cxt, qb_address *address
 	return alias;
 }
 
-static qb_address * qb_create_constant_scalar(qb_compiler_context *cxt, qb_primitive_type element_type) {
+qb_address * qb_create_constant_scalar(qb_compiler_context *cxt, qb_primitive_type element_type) {
 	qb_address *address = qb_allocate_address(cxt->pool);
 	address->mode = QB_ADDRESS_MODE_SCA;
 	address->type = element_type;
@@ -2996,8 +2996,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 			}
 		}
 
-		if(result && (result->type == QB_OPERAND_ADDRESS) && CONSTANT(result->address) && FALSE) {
-			// TODO: fix qb_execute_op()
+		if(result && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT) && (result->type == QB_OPERAND_ADDRESS) && CONSTANT(result->address)) {
 			// evalulate the expression at compile-time if it's constant and side-effect-free
 			qb_execute_op(cxt, qop);
 
@@ -3314,12 +3313,13 @@ void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
 	qfunc->in_use = FALSE;
 	
 	qb_resolve_address_modes(compiler_cxt);
-	qb_initialize_encoder_context(encoder_cxt, cxt, FALSE TSRMLS_CC);
+	qb_initialize_encoder_context(encoder_cxt, compiler_cxt, FALSE TSRMLS_CC);
+	qb_set_instruction_offsets(encoder_cxt);
 	qb_encode_instruction_stream(encoder_cxt, instructions);
 	qb_free_encoder_context(encoder_cxt);
 
 	qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
-	qb_execute_internal(interpreter_cxt);
+	qb_main(interpreter_cxt);
 	qb_free_interpreter_context(interpreter_cxt);
 }
 

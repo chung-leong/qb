@@ -390,6 +390,7 @@ qb_address * qb_retrieve_binary_op_result(qb_compiler_context *cxt, void *factor
 
 qb_address * qb_create_writable_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t *dimensions, uint32_t dimension_count);
 qb_address * qb_create_constant_array(qb_compiler_context *cxt, qb_primitive_type element_type, uint32_t *dimensions, uint32_t dimension_count);
+qb_address * qb_create_constant_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *address);
 
 void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
