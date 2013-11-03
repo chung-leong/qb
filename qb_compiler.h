@@ -83,6 +83,7 @@ struct qb_compiler_context {
 
 	zend_op_array *zend_op_array;
 
+	qb_function *compiled_function;
 	qb_function function_prototype;
 	qb_function_declaration *function_declaration;
 	uint32_t function_flags;

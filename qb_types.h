@@ -303,8 +303,6 @@ struct qb_data_pool {
 
 	char * const *op_names;
 	char * const *op_actions;
-	char * const *op_result_size_codes;
-	char * const *op_result_size_variables;
 	int32_t * const *op_function_usages;
 	char * const *function_prototypes;
 	char * const *zend_op_names;

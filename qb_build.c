@@ -277,15 +277,14 @@ void qb_generate_executables(qb_build_context *cxt) {
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 		qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
-		qb_function *qfunc;
 
 		qb_initialize_encoder_context(encoder_cxt, compiler_cxt, TRUE TSRMLS_CC);
 
 		// encode the instruction stream
-		qfunc = qb_encode_function(encoder_cxt);
+		compiler_cxt->compiled_function = qb_encode_function(encoder_cxt);
 
 		// attach the function to the op array
-		qb_attach_compiled_function(qfunc, compiler_cxt->zend_op_array);
+		qb_attach_compiled_function(compiler_cxt->compiled_function, compiler_cxt->zend_op_array);
 
 		if(compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE) {
 			native_compile = TRUE;
@@ -296,14 +295,17 @@ void qb_generate_executables(qb_build_context *cxt) {
 	// compile all functions inside build in one go
 	if(native_compile) {
 		if(QB_G(allow_native_compilation)) {
-			qb_native_compile(cxt TSRMLS_C);
+			qb_native_compiler_context _native_compiler_cxt, *native_compiler_cxt = &_native_compiler_cxt;
+			qb_initialize_native_compiler_context(native_compiler_cxt, cxt TSRMLS_CC);
+			qb_compile_to_native_code(native_compiler_cxt);
+			qb_free_native_compiler_context(native_compiler_cxt);
 		}
 	}
 	if(!QB_G(allow_bytecode_interpretation)) {
 		for(i = 0; i < cxt->compiler_context_count; i++) {
-			compiler_cxt = cxt->compiler_contexts[i];
-			if(!compiler_cxt->native_proc) {
-				qb_abort("unable to compile to native code");
+			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
+			if(!compiler_cxt->compiled_function->native_proc) {
+				qb_abort("Unable to compile to native code");
 			}
 		}
 	}

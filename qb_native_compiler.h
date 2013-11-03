@@ -36,17 +36,19 @@ struct qb_native_compiler_context {
 	FILE *read_stream;
 	FILE *error_stream;
 
+	qb_compiler_context **compiler_contexts;
+	uint32_t compiler_context_count;
+	qb_data_pool *pool;
+
 	qb_op **ops;
 	qb_op *current_op;
 	uint32_t op_count;
 	qb_variable **variables;
 	uint32_t variable_count;
-	qb_address **scalars;
-	uint32_t scalar_count;
-	qb_address **arrays;
-	uint32_t array_count;
+
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
+
 	uint64_t instruction_crc64;
 	uint32_t options;
 	qb_storage *storage;
@@ -54,15 +56,9 @@ struct qb_native_compiler_context {
 
 	char * const *op_names;
 	char * const *op_actions;
-	char * const *op_result_size_codes;
-	char * const *op_result_size_variables;
 	int32_t * const *op_function_usages;
 	char * const *function_prototypes;
-
-	qb_compiler_context *compiler_contexts;
-	uint32_t compiler_context_count;
-	qb_data_pool *pool;
-
+	
 	char *cache_folder_path;
 	char *obj_file_path;
 	char *c_file_path;
@@ -90,6 +86,10 @@ struct qb_native_compiler_context {
 
 extern qb_native_symbol global_native_symbols[];
 extern uint32_t global_native_symbol_count;
+
+void qb_compile_to_native_code(qb_native_compiler_context *cxt);
+void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC);
+void qb_free_native_compiler_context(qb_native_compiler_context *cxt);
 
 #endif
 

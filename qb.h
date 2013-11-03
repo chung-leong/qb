@@ -81,7 +81,6 @@
 	#define NO_RETURN	__attribute__ ((noreturn))
 #endif
 
-/*
 #ifdef __GNUC__
 	#ifdef __linux__
 		#if defined(__i386__) || defined(__x86_64__)
@@ -94,13 +93,10 @@
 		#endif
 	#endif
 #endif
-*/
 
-/*
 #ifdef _MSC_VER
 	#define NATIVE_COMPILE_ENABLED	1
 #endif
-*/
 
 #define QB_EXTNAME	"qb"
 
@@ -124,10 +120,10 @@
 #include "qb_encoder.h"
 #include "qb_thread.h"
 #include "qb_interpreter.h"
+#include "qb_build.h"
 #include "qb_native_compiler.h"
 #include "qb_printer.h"
 #include "qb_extractor.h"
-#include "qb_build.h"
 
 enum {
 	QB_SCAN_FILE				= 0,
