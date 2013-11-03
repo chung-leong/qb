@@ -393,14 +393,10 @@ class CodeGenerator {
 		
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
-		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, true, true);
-		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, true, false);
 		fwrite($handle, "#else\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, false, true);
-		$this->writeCompressTable($handle, "compressed_table_native_result_size_calculations", $resultSizeCalculations, false, true);
-		$this->writeCompressTable($handle, "compressed_table_native_result_size_possibilities", $resultSizePossibilities, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, false, true);
 		$this->writeCompressTable($handle, "compressed_table_native_references", $references, false, false);
 		fwrite($handle, "#endif\n");
