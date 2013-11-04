@@ -62,6 +62,7 @@ struct qb_zend_argument_stack {
 enum qb_vm_exit_type { 
 	QB_VM_RETURN = 0,
 	QB_VM_BAILOUT,
+	QB_VM_TIMEOUT,
 	QB_VM_FORK,
 	QB_VM_SPOON,
 	QB_VM_EXCEPTION,

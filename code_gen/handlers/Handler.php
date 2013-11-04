@@ -338,6 +338,15 @@ class Handler {
 		return false;
 	}
 
+	public function needsInstructionStructure() {
+		if($this->isMultipleData() && $this->isMultithreaded()) {
+			return true;
+		} else if($this->runsInMainThread()) {
+			return true;
+		}
+		return false;
+	}
+
 	public function getMultithreadingThreshold() {
 		return 4096;
 	}

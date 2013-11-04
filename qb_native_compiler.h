@@ -25,7 +25,7 @@
 
 typedef struct qb_native_compiler_context	qb_native_compiler_context;
 
-#define QB_NATIVE_FUNCTION_RET 			int32_t
+#define QB_NATIVE_FUNCTION_RET 			void
 #define QB_NATIVE_FUNCTION_ATTR
 #define QB_NATIVE_FUNCTION_ARGS 		qb_interpreter_context *__restrict cxt
 
@@ -41,7 +41,6 @@ struct qb_native_compiler_context {
 	qb_data_pool *pool;
 
 	qb_op **ops;
-	qb_op *current_op;
 	uint32_t op_count;
 	qb_variable **variables;
 	uint32_t variable_count;
@@ -63,10 +62,8 @@ struct qb_native_compiler_context {
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
 
-	uint64_t instruction_crc64;
-	uint32_t options;
+	qb_function *compiled_function;
 	qb_storage *storage;
-	const char *function_name;
 
 	char * const *op_names;
 	char * const *op_actions;

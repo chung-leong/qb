@@ -457,9 +457,7 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #ifdef NATIVE_COMPILE_ENABLED
 	if(cxt->function->native_proc) {
 		qb_native_proc proc = cxt->function->native_proc;
-		if(proc(cxt) == FAILURE) {
-			qb_abort("Unable to run compiled procedure");
-		}
+		proc(cxt);
 	} else {
 		qb_main(cxt);
 	}

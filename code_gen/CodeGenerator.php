@@ -214,6 +214,9 @@ class CodeGenerator {
 			if($handler->performsWrapAround()) {
 				$flags[] = "QB_OP_PERFORM_WRAP_AROUND";
 			}
+			if($handler->needsInstructionStructure()) {
+				$flags[] = "QB_OP_NEED_INSTRUCTION_STRUCT";
+			}
 			$combined = ($flags) ? implode(" | ", $flags) : "0";
 			
 			$instr = $handler->getInstructionStructure();
