@@ -25,6 +25,22 @@
 
 typedef struct qb_native_compiler_context	qb_native_compiler_context;
 
+typedef enum qb_access_method				qb_access_method; 
+
+enum qb_scalar_access_method {
+	QB_SCALAR_LITERAL = 0,
+	QB_SCALAR_CONSTANT_VARIABLE,
+	QB_SCALAR_LOCAL_VARIABLE,
+	QB_SCALAR_POINTER,
+	QB_SCALAR_ELEMENT,
+	QB_ARRAY_POINTER,
+	QB_ARRAY_POINTER_PLUS_OFFSET,
+	QB_ARRAY_POINTER_POINTER,
+	QB_ARRAY_POINTER_POINTER_PLUS_OFFSET,
+	QB_ARRAY_CONSTANT_POINTER,
+	QB_ARRAY_CONSTANT_POINTER_PLUS_OFFSET,
+};
+
 #define QB_NATIVE_FUNCTION_RET 			void
 #define QB_NATIVE_FUNCTION_ATTR
 #define QB_NATIVE_FUNCTION_ARGS 		qb_interpreter_context *__restrict cxt

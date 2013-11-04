@@ -509,6 +509,73 @@ static qb_address * qb_get_root_container(qb_native_compiler_context *cxt, qb_ad
 	return address;
 }
 
+
+static qb_access_method qb_get_scalar_access_method(qb_native_compiler_context *cxt, qb_address *address) {
+	switch(address->segment_selector) {
+		case QB_SELECTOR_CONSTANT_ARRAY:
+		case QB_SELECTOR_CONSTANT_SCALAR: return QB_SCALAR_LITERAL;
+		case QB_SELECTOR_CLASS_SCALAR:
+		case QB_SELECTOR_OBJECT_SCALAR:
+		case QB_SELECTOR_GLOBAL_SCALAR:
+		case QB_SELECTOR_STATIC_SCALAR:
+		case QB_SELECTOR_SHARED_SCALAR: return QB_SCALAR_POINTER;
+		case QB_SELECTOR_LOCAL_SCALAR:
+		case QB_SELECTOR_TEMPORARY_SCALAR: {
+			if(address->flags & QB_ADDRESS_DIMENSION) {
+				return QB_SCALAR_POINTER;
+			} else {
+				return QB_SCALAR_LOCAL_VARIABLE;
+			}
+		}
+		default: return QB_SCALAR_ELEMENT;
+	}
+}
+
+static qb_access_method qb_get_array_access_method(qb_native_compiler_context *cxt, qb_address *address) {
+	switch(address->segment_selector) {
+		case QB_SELECTOR_CONSTANT_SCALAR: return QB_SCALAR_CONSTANT_VARIABLE;
+		case QB_SELECTOR_CLASS_SCALAR:
+		case QB_SELECTOR_OBJECT_SCALAR:
+		case QB_SELECTOR_GLOBAL_SCALAR:
+		case QB_SELECTOR_STATIC_SCALAR:
+		case QB_SELECTOR_SHARED_SCALAR: return QB_SCALAR_POINTER;
+		case QB_SELECTOR_LOCAL_SCALAR:
+		case QB_SELECTOR_TEMPORARY_SCALAR: {
+			if(address->flags & QB_ADDRESS_DIMENSION) {
+				return QB_SCALAR_POINTER;
+			} else {
+				return QB_SCALAR_LOCAL_VARIABLE;
+			}
+		}
+		case QB_SELECTOR_CONSTANT_ARRAY: {
+			if(address->array_index_address == cxt->zero_address) {
+				return QB_ARRAY_CONSTANT_POINTER;
+			} else {
+				return QB_ARRAY_CONSTANT_POINTER_PLUS_OFFSET;
+			}
+		}
+		case QB_SELECTOR_CLASS_ARRAY:
+		case QB_SELECTOR_OBJECT_ARRAY:
+		case QB_SELECTOR_GLOBAL_ARRAY:
+		case QB_SELECTOR_SHARED_ARRAY: 
+		case QB_SELECTOR_LOCAL_ARRAY:
+		case QB_SELECTOR_TEMPORARY_ARRAY: {
+			if(address->array_index_address == cxt->zero_address) {
+				return QB_ARRAY_POINTER;
+			} else {
+				return QB_ARRAY_POINTER_PLUS_OFFSET;
+			}
+		}
+		default: {
+			if(address->array_index_address == cxt->zero_address) {
+				return QB_ARRAY_POINTER_POINTER;
+			} else {
+				return QB_ARRAY_POINTER_POINTER_PLUS_OFFSET;
+			}
+		}
+	}
+}
+
 static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address);
 
 static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
@@ -518,9 +585,9 @@ static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *a
 		const char *scalar = qb_get_scalar(cxt, address->source_address);
 		snprintf(buffer, 128, "((%s) %s)", ctype, scalar);
 	} else {
-		switch(address->segment_selector) {
-			case QB_SELECTOR_CONSTANT_ARRAY:
-			case QB_SELECTOR_CONSTANT_SCALAR: {
+		qb_access_method method = qb_get_scalar_access_method(cxt, address);
+		switch(method) {
+			case QB_SCALAR_LITERAL: {
 				// scalar is a constant
 				switch(address->type) {
 					case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
@@ -536,20 +603,15 @@ static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *a
 					default: break;
 				}
 			}	break;
-			case QB_SELECTOR_CLASS_SCALAR:
-			case QB_SELECTOR_OBJECT_SCALAR:
-			case QB_SELECTOR_GLOBAL_SCALAR:
-			case QB_SELECTOR_STATIC_SCALAR:
-			case QB_SELECTOR_SHARED_SCALAR: {
+			case QB_SCALAR_POINTER: {
 				// scalar is referenced by pointer
 				snprintf(buffer, 128, "(*var_ptr_%d_%d)", address->segment_selector, address->segment_offset);
 			}	break;
-			case QB_SELECTOR_LOCAL_SCALAR:
-			case QB_SELECTOR_TEMPORARY_SCALAR: {
+			case QB_SCALAR_LOCAL_VARIABLE: {
 				// scalar is a local variable
 				snprintf(buffer, 128, "var_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
-			default: {
+			case QB_SCALAR_ELEMENT: {
 				// array elements 
 				qb_address *base_address = qb_get_root_container(cxt, address);
 				const char *container = qb_get_pointer(cxt, base_address);
@@ -563,6 +625,8 @@ static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *a
 					snprintf(buffer, 128, "(%s[%s])", container, index);
 				}
 			}	break;
+			default: {
+			}	break;
 		}
 	}
 	return buffer;
@@ -575,36 +639,42 @@ static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *
 		const char *pointer = qb_get_pointer(cxt, address->source_address);
 		snprintf(buffer, 128, "((%s *) %s)", ctype, pointer);
 	} else {
-		switch(address->segment_selector) {
-			case QB_SELECTOR_CONSTANT_SCALAR: {
+		qb_access_method method = qb_get_array_access_method(cxt, address);
+		switch(method) {
+			case QB_SCALAR_CONSTANT_VARIABLE: {
 				snprintf(buffer, 128, "&const_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
-			case QB_SELECTOR_CLASS_SCALAR:
-			case QB_SELECTOR_OBJECT_SCALAR:
-			case QB_SELECTOR_GLOBAL_SCALAR:
-			case QB_SELECTOR_STATIC_SCALAR:
-			case QB_SELECTOR_SHARED_SCALAR:
-			case QB_SELECTOR_LOCAL_SCALAR:
-			case QB_SELECTOR_TEMPORARY_SCALAR: {
-				// scalar is a local variable
-				const char *scalar = qb_get_scalar(cxt, address);
-				snprintf(buffer, 128, "&%s", scalar);
+			case QB_SCALAR_POINTER: {
+				snprintf(buffer, 128, "var_ptr_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
-			case QB_SELECTOR_CONSTANT_ARRAY: {
+			case QB_SCALAR_LOCAL_VARIABLE: {
+				snprintf(buffer, 128, "&var_%d_%d", address->segment_selector, address->segment_offset);
+			}	break;
+			case QB_ARRAY_CONSTANT_POINTER: {
+				// constant array
 				snprintf(buffer, 128, "const_ptr_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
-			case QB_SELECTOR_CLASS_ARRAY:
-			case QB_SELECTOR_OBJECT_ARRAY:
-			case QB_SELECTOR_GLOBAL_ARRAY:
-			case QB_SELECTOR_SHARED_ARRAY: 
-			case QB_SELECTOR_LOCAL_ARRAY:
-			case QB_SELECTOR_TEMPORARY_ARRAY: {
+			case QB_ARRAY_CONSTANT_POINTER_PLUS_OFFSET: {
+				const char *offset = qb_get_scalar(cxt, address->array_index_address);
+				snprintf(buffer, 128, "(const_ptr_%d_%d + %s)", address->segment_selector, address->segment_offset, offset);
+			}	break;
+			case QB_ARRAY_POINTER: {
 				// fixed-length array
 				snprintf(buffer, 128, "var_ptr_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
-			default: {
+			case QB_ARRAY_POINTER_PLUS_OFFSET: {
+				const char *offset = qb_get_scalar(cxt, address->array_index_address);
+				snprintf(buffer, 128, "(var_ptr_%d_%d + %s)", address->segment_selector, address->segment_offset, offset);
+			}	break;
+			case QB_ARRAY_POINTER_POINTER: {
 				// a variable-length array--dereference the pointer to pointer
 				snprintf(buffer, 128, "(*var_ptr_ptr_%d)", address->segment_selector);
+			}	break;
+			case QB_ARRAY_POINTER_POINTER_PLUS_OFFSET: {
+				const char *offset = qb_get_scalar(cxt, address->array_index_address);
+				snprintf(buffer, 128, "(*var_ptr_ptr_%d + %s)", address->segment_selector, offset);
+			}	break;
+			default: {
 			}	break;
 		}
 	}
@@ -638,22 +708,40 @@ static const char * qb_get_op_name(qb_native_compiler_context *cxt, uint32_t opc
 	return cxt->pool->op_names[opcode];
 }
 
+static void qb_copy_scalar_to_storage(qb_native_compiler_context *cxt, qb_address *address) {
+	qb_access_method method = qb_get_scalar_access_method(cxt, address);
+	if(method == QB_SCALAR_LOCAL_VARIABLE) {
+		const char *c_type = type_cnames[address->type];
+		qb_printf(cxt, "*((%s *) (storage->segments[%d].memory + %d)) = var_%d_%d;\n", c_type, address->segment_selector, address->segment_offset, address->segment_selector, address->segment_offset);
+	}
+}
+
 static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, qb_op *qop) {
 	uint32_t i;
 	for(i = 0; i < qop->operand_count; i++) {
 		qb_operand *operand = &qop->operands[i];
 		if(operand->type == QB_OPERAND_ADDRESS) {
 			qb_address *address = operand->address;
-			if(address->mode == QB_ADDRESS_MODE_SCA) {
-				switch(address->segment_selector) {
-					case QB_SELECTOR_LOCAL_SCALAR:
-					case QB_SELECTOR_TEMPORARY_SCALAR: {
-						const char *c_type = type_cnames[address->type];
-						qb_printf(cxt, "*((%s *) (storage->segments[%d].memory + %d)) = var_%d_%d;\n", c_type, address->segment_selector, address->segment_offset, address->segment_selector, address->segment_offset);
-					}	break;
-				}
+			switch(address->mode) {
+				case QB_ADDRESS_MODE_SCA: {
+					qb_copy_scalar_to_storage(cxt, address);
+				}	break;
+				case QB_ADDRESS_MODE_ELE: {
+					qb_copy_scalar_to_storage(cxt, address->array_index_address);
+				}	break;
+				case QB_ADDRESS_MODE_ARR: {
+					qb_copy_scalar_to_storage(cxt, address->array_index_address);
+				}	break;
 			}
 		}
+	}
+}
+
+static void qb_copy_scalar_from_storage(qb_native_compiler_context *cxt, qb_address *address) {
+	qb_access_method method = qb_get_scalar_access_method(cxt, address);
+	if(method == QB_SCALAR_LOCAL_VARIABLE) {
+		const char *c_type = type_cnames[address->type];
+		qb_printf(cxt, "var_%d_%d = *((%s *) (storage->segments[%d].memory + %d));\n", address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
 	}
 }
 
@@ -664,14 +752,16 @@ static void qb_copy_local_variables_from_storage(qb_native_compiler_context *cxt
 		if(operand->type == QB_OPERAND_ADDRESS) {
 			if(qb_is_operand_write_target(qop->opcode, i)) {
 				qb_address *address = operand->address;
-				if(address->mode == QB_ADDRESS_MODE_SCA) {
-					switch(address->segment_selector) {
-						case QB_SELECTOR_LOCAL_SCALAR:
-						case QB_SELECTOR_TEMPORARY_SCALAR: {
-							const char *c_type = type_cnames[address->type];
-							qb_printf(cxt, "var_%d_%d = *((%s *) (storage->segments[%d].memory + %d));\n", address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
-						}	break;
-					}
+				switch(address->mode) {
+					case QB_ADDRESS_MODE_SCA: {
+						qb_copy_scalar_from_storage(cxt, address);
+					}	break;
+					case QB_ADDRESS_MODE_ELE: {
+						qb_copy_scalar_from_storage(cxt, address->array_index_address);
+					}	break;
+					case QB_ADDRESS_MODE_ARR: {
+						qb_copy_scalar_from_storage(cxt, address->array_index_address);
+					}	break;
 				}
 			}
 		}
@@ -726,13 +816,18 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		if(qop->flags & QB_OP_NEED_INSTRUCTION_STRUCT) {
 			qb_copy_local_variables_to_storage(cxt, qop);
 			qb_printf(cxt, "ip = cxt->function->instructions + %d;\n", qop->instruction_offset);
-			qb_copy_local_variables_from_storage(cxt, qop);
+			qb_print(cxt, "\n");
 		}
 
 		// print code that actually performs the action
 		action = qb_get_op_action(cxt, qop->opcode);
 		if(action) {
 			qb_print(cxt, action);
+			qb_print(cxt, "\n");
+		}
+
+		if(qop->flags & QB_OP_NEED_INSTRUCTION_STRUCT) {
+			qb_copy_local_variables_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
 		}
 
@@ -777,20 +872,15 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 	for(i = 0; i < cxt->writable_scalar_count; i++) {
 		qb_address *address = cxt->writable_scalars[i];
 		const char *c_type = type_cnames[address->type];
-		switch(address->segment_selector) {
-			case QB_SELECTOR_CLASS_SCALAR:
-			case QB_SELECTOR_OBJECT_SCALAR:
-			case QB_SELECTOR_GLOBAL_SCALAR:
-			case QB_SELECTOR_STATIC_SCALAR:
-			case QB_SELECTOR_SHARED_SCALAR: {
+		qb_access_method method = qb_get_scalar_access_method(cxt, address);
+		switch(method) {
+			case QB_SCALAR_POINTER: {
 				// create pointers to the value in the storage
 				qb_printf(cxt, "%s *var_ptr_%d_%d = (%s *) (storage->segments[%d].memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
 			}	break;
-			case QB_SELECTOR_LOCAL_SCALAR:
-			case QB_SELECTOR_TEMPORARY_SCALAR: {
+			case QB_SCALAR_LOCAL_VARIABLE: {
 				// create local variables
 				qb_printf(cxt, "%s var_%d_%d = *((%s *) (storage->segments[%d].memory + %d));\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
-
 			}	break;
 		}
 	}
@@ -800,19 +890,17 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 	for(i = 0; i < cxt->writable_array_count; i++) {
 		qb_address *address = cxt->writable_arrays[i];
 		const char *c_type = type_cnames[address->type];
-		switch(address->segment_selector) {
-			case QB_SELECTOR_CLASS_ARRAY:
-			case QB_SELECTOR_OBJECT_ARRAY:
-			case QB_SELECTOR_GLOBAL_ARRAY:
-			case QB_SELECTOR_SHARED_ARRAY: 
-			case QB_SELECTOR_LOCAL_ARRAY:
-			case QB_SELECTOR_TEMPORARY_ARRAY: {
+		qb_access_method method = qb_get_array_access_method(cxt, address);
+		switch(method) {
+			case QB_ARRAY_POINTER: {
 				// create pointers to the value in the storage
 				qb_printf(cxt, "%s *var_ptr_%d_%d = (%s *) (storage->segments[%d].memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
 			}	break;
-			default: {
+			case QB_ARRAY_POINTER_POINTER: {
 				// create pointers to pointers in the storage, as the realocation can occur for variable-length arrays
 				qb_printf(cxt, "%s **var_ptr_ptr_%d = (%s **) &storage->segments[%d].memory;\n", c_type, address->segment_selector, c_type, address->segment_selector);
+			}	break;
+			default: {
 			}	break;
 		}
 	}
@@ -992,7 +1080,7 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	}
 
 	// delete the temporary c file
-	DeleteFile(cxt->c_file_path);
+	//DeleteFile(cxt->c_file_path);
 	return TRUE;
 }
 #endif	// _MSC_VER
