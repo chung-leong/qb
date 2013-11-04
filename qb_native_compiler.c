@@ -788,14 +788,29 @@ static void qb_copy_local_arguments_from_storage(qb_native_compiler_context *cxt
 	USE_TSRM
 	uint32_t symbol_index = VALUE(U32, qop->operands[0].address);
 	qb_external_symbol *symbol = &QB_G(external_symbols)[symbol_index];
-	qb_function *callee = symbol->pointer;
+	zend_function *zfunc = symbol->pointer;
+	qb_function *qfunc = qb_get_compiled_function(zfunc);
 	uint32_t *var_indices = ARRAY(U32, qop->operands[1].address);
 	uint32_t arg_count = ARRAY_SIZE(qop->operands[1].address);
 	uint32_t retval_index = VALUE(U32, qop->operands[2].address);
 	uint32_t i;
 	for(i = 0; i < arg_count; i++) {
-		qb_variable *arg = callee->variables[i];
-		if(arg->flags & QB_VARIABLE_BY_REF) {
+		int32_t by_ref;
+		if(qfunc) {
+			if(i < qfunc->argument_count ) {
+				qb_variable *arg = qfunc->variables[i];
+				by_ref = (arg->flags & QB_VARIABLE_BY_REF);
+			} else {
+				by_ref = FALSE;
+			}
+		} else {
+			if(zfunc->common.arg_info && i < zfunc->common.num_args) {
+				by_ref = zfunc->common.arg_info[i].pass_by_reference;
+			} else {
+				by_ref = TRUE;
+			}
+		}
+		if(by_ref) {
 			qb_variable *qvar = cxt->variables[var_indices[i]];
 			qb_address *address = qvar->address;
 			switch(address->mode) {

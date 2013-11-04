@@ -120,7 +120,7 @@ qb_op_factory factory_assign_ref = {
 
 qb_derived_op_factory factory_assign_branching = {
 	NULL,
-	qb_resolve_expression_lvalue,
+	qb_resolve_expression_type_lvalue,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_preliminary_result_assign_branching,
@@ -410,7 +410,7 @@ void *factories_fetch_class[] = { &factory_fetch_class_self, &factory_fetch_clas
 
 qb_op_factory factory_fetch_constant = {
 	NULL,
-	qb_resolve_expression_lvalue,
+	qb_resolve_expression_type_lvalue,
 	NULL,
 	NULL,
 	qb_set_result_fetch_constant,
@@ -493,7 +493,7 @@ qb_derived_op_factory factory_assign_temporary = {
 
 qb_op_factory factory_array_init = {
 	NULL,
-	qb_resolve_expression_lvalue,
+	qb_resolve_expression_type_lvalue,
 	qb_link_results_array_init,
 	NULL,
 	qb_set_result_prototype,
@@ -3447,7 +3447,7 @@ qb_minmax_decomposer factory_max = {
 
 qb_basic_op_factory factory_rand = {
 	NULL,
-	qb_resolve_expression_type_highest_rank,
+	qb_resolve_expression_type_rand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
@@ -3464,7 +3464,7 @@ qb_basic_op_factory factory_rand = {
 
 qb_basic_op_factory factory_mt_rand = {
 	NULL,
-	qb_resolve_expression_type_highest_rank,
+	qb_resolve_expression_type_rand,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
@@ -3481,7 +3481,7 @@ qb_basic_op_factory factory_mt_rand = {
 
 qb_float_op_factory factory_lcg = {
 	NULL,
-	qb_resolve_expression_lvalue,
+	qb_resolve_expression_type_lvalue,
 	NULL,
 	NULL,
 	qb_set_result_prototype,

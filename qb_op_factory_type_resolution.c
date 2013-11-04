@@ -44,7 +44,7 @@ static qb_primitive_type qb_resolve_expression_type_highest_rank(qb_compiler_con
 }
 
 // the expression will have the same type as the l-value
-static qb_primitive_type qb_resolve_expression_lvalue(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+static qb_primitive_type qb_resolve_expression_type_lvalue(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return QB_TYPE_ANY;
 }
 
@@ -131,6 +131,14 @@ static qb_primitive_type qb_resolve_expression_type_fetch_class(qb_compiler_cont
 		return qvar->address->type;
 	}
 	return QB_TYPE_VOID;
+}
+
+static qb_primitive_type qb_resolve_expression_type_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	if(operand_count == 2) {
+		return qb_resolve_expression_type_highest_rank(cxt, f, operands, operand_count);
+	} else {
+		return qb_resolve_expression_type_lvalue(cxt, f, operands, operand_count);
+	}
 }
 
 static qb_primitive_type qb_resolve_expression_type_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
