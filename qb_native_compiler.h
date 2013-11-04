@@ -58,6 +58,8 @@ struct qb_native_compiler_context {
 	qb_address **writable_arrays;
 	uint32_t writable_array_count;
 
+	qb_address *zero_address;
+
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
 

@@ -274,7 +274,6 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 #else
 	qb_print(cxt, "#define QB_BIG_ENDIAN\n");
 #endif
-	qb_print(cxt, "#define QB_STORAGE_STATIC_INITIALIZED	0x0002\n");
 	qb_print(cxt, "#define TSRMLS_C		"STRING(TSRMLS_C)"\n");
 	qb_print(cxt, "#define TSRMLS_CC	"STRING(TSRMLS_CC)"\n");
 	qb_print(cxt, "#define TSRMLS_D		"STRING(TSRMLS_D)"\n");
@@ -335,9 +334,7 @@ static void qb_print_typedefs(qb_native_compiler_context *cxt) {
 
 	qb_print(cxt, "typedef struct qb_address\tqb_address;\n");
 	qb_print(cxt, "typedef struct qb_variable\tqb_variable;\n");
-	qb_print(cxt, "typedef struct qb_variable_import\tqb_variable_import;\n");
-	qb_print(cxt, "typedef struct qb_call_stack_item\tqb_call_stack_item;\n");
-	qb_print(cxt, "typedef struct zend_function\tzend_function;\n");
+	qb_print(cxt, "typedef struct zend_op_array\tzend_op_array;\n");
 	qb_print(cxt, "typedef struct zval\tzval;\n");
 	qb_print(cxt, "typedef struct php_stream\tphp_stream;\n");
 	qb_print(cxt, "typedef struct qb_index_alias_scheme\tqb_index_alias_scheme;\n");
@@ -346,21 +343,18 @@ static void qb_print_typedefs(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "typedef struct qb_function\tqb_function;\n");
 	qb_print(cxt, "typedef struct qb_interpreter_context\tqb_interpreter_context;\n");
 	qb_print(cxt, "typedef struct qb_external_symbol\tqb_external_symbol;\n");
+	qb_print(cxt, "typedef struct qb_thread_worker\tqb_thread_worker;\n");
+	
+	qb_print(cxt, "typedef enum qb_vm_exit_type\tqb_vm_exit_type;\n");
 
 	qb_print(cxt, "\
-struct qb_address {\
-	uint32_t mode;\
-	uint32_t type;\
-	uint32_t flags;\
-	uint32_t dimension_count;\
-	uint32_t segment_selector;\
-	uint32_t segment_offset;\
-	qb_address *array_index_address;\
-	qb_address *array_size_address;\
-	qb_address **dimension_addresses;\
-	qb_address **array_size_addresses;\
-	qb_address *source_address;\
-	qb_index_alias_scheme **index_alias_schemes;\
+enum qb_vm_exit_type {\
+	QB_VM_RETURN = 0,\
+	QB_VM_BAILOUT,\
+	QB_VM_FORK,\
+	QB_VM_SPOON,\
+	QB_VM_EXCEPTION,\
+	QB_VM_YIELD,\
 };\
 \n");
 
@@ -368,85 +362,78 @@ struct qb_address {\
 struct qb_memory_segment {\
 	int8_t *memory;\
 	uint32_t flags;\
-	uint32_t type;\
-	uint32_t element_count;\
+	uint32_t byte_count;\
 	uint32_t current_allocation;\
-	uint32_t *array_size_pointer;\
-	uint32_t *dimension_pointer;\
-	uint32_t *increment_pointer;\
 	php_stream *stream;\
-	int8_t *restrict *stack_ref_memory;\
-	uint32_t *stack_ref_element_count;\
+	qb_memory_segment *imported_segment;\
+	qb_memory_segment *next_dependent;\
+	uintptr_t **references;\
+	uint32_t reference_count;\
 };\
 \n");
 
 	qb_print(cxt, "\
 struct qb_storage {\
+	uint32_t size;\
 	qb_memory_segment *segments;\
 	uint32_t segment_count;\
-	uint32_t size;\
 	uint32_t flags;\
 };\
 \n");
 
 	qb_print(cxt, "\
 struct qb_external_symbol {\
-	uint32_t type;\
+	long hash_value;\
 	const char *name;\
-	uint32_t name_length;\
-	void *pointer;\
+	void *address;\
 };\
 \n");
 
 	qb_print(cxt, "\
 struct qb_function {\
 	int8_t *instructions;\
-	uint32_t instruction_length;\
+	int8_t *instruction_start;\
 	uint64_t instruction_crc64;\
+	uint32_t instruction_length;\
+	uint16_t *instruction_opcodes;\
+	uint32_t instruction_opcode_count;\
 	uint32_t flags;\
 	qb_variable *return_variable;\
 	qb_variable **variables;\
 	uint32_t variable_count;\
 	uint32_t argument_count;\
-	uint32_t required_argument_count;\
-	qb_external_symbol **external_symbols;\
-	uint32_t external_symbol_count;\
 	qb_storage *local_storage;\
 	const char *name;\
 	const char *filename;\
 	void *native_proc;\
-	zend_function *zend_function;\
+	uintptr_t instruction_base_address;\
+	uintptr_t local_storage_base_address;\
+	zend_op_array *zend_op_array;\
+	qb_function *next_reentrance_copy;\
+	qb_function *next_forked_copy;\
+	volatile int32_t in_use;\
 };\
 \n");
 
 	qb_print(cxt, "\
 struct qb_interpreter_context {\
-	qb_storage *storage;\
 	qb_function *function;\
-	uint32_t flags;\
-	qb_call_stack_item *call_stack;\
-	uint32_t call_stack_height;\
-	qb_variable_import *variable_imports;\
-	uint32_t variable_import_count;\
-	int32_t exception_encountered;\
-	uint32_t function_call_line_number;\
-	uint32_t *line_number_pointer;\
+	int8_t *instruction_pointer;\
+	qb_interpreter_context *caller_context;\
+	qb_thread_worker *worker;\
+	uint32_t worker_count;\
+	uint32_t fork_id;\
+	uint32_t fork_count;\
+	uint32_t *argument_indices;\
+	uint32_t argument_count;\
+	uint32_t result_index;\
+	uint32_t line_number;\
+	uint32_t call_depth;\
+	qb_vm_exit_type exit_type;\
+	int32_t exit_status_code;\
 	volatile unsigned char *windows_timed_out_pointer;\
 	int floating_point_precision;\
 	void ***tsrm_ls;\
-	zend_function *zend_function;\
-	uint32_t argument_count;\
-	zval **zend_arguments;\
-	zval ***zend_argument_pointers;\
-	uint32_t zend_argument_buffer_size;\
-	zval *this_object;\
-	qb_address *argument_address;\
-	qb_address value_address;\
-	qb_address array_address;\
-	qb_address *dimension_addresse_pointers[MAX_DIMENSION];\
-	qb_address *array_size_address_pointers[MAX_DIMENSION];\
-	qb_address dimension_addresses[MAX_DIMENSION];\
-	qb_address array_size_addresses[MAX_DIMENSION];\
 };\
 \n");
 
@@ -513,109 +500,110 @@ static qb_address * qb_get_root_container(qb_native_compiler_context *cxt, qb_ad
 	return address;
 }
 
-static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address);
 static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address);
-static const char * qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_address *address);
 
 static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
 	char *buffer = qb_get_buffer(cxt);
-	switch(address->segment_selector) {
-		case QB_SELECTOR_CONSTANT_SCALAR: {
-
-		}	break;
-		case QB_SELECTOR_TEMPORARY_SCALAR:{ 
-
-		}	break;
-	}
-	if(CONSTANT(address)) {
-		switch(address->type) {
-			case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
-			case QB_TYPE_U08: snprintf(buffer, 128, "%" PRIu8"U", VALUE(U08, address)); break;
-			case QB_TYPE_S16: snprintf(buffer, 128, "%" PRId16, VALUE(S16, address)); break;
-			case QB_TYPE_U16: snprintf(buffer, 128, "%" PRIu16"U", VALUE(U16, address)); break;
-			case QB_TYPE_S32: snprintf(buffer, 128, "%" PRId32, VALUE(S32, address)); break;
-			case QB_TYPE_U32: snprintf(buffer, 128, "%" PRIu32"U", VALUE(U32, address)); break;
-			case QB_TYPE_S64: snprintf(buffer, 128, "%" PRId64"LL", VALUE(S64, address)); break;
-			case QB_TYPE_U64: snprintf(buffer, 128, "%" PRIu64"ULL", VALUE(U64, address)); break;
-			case QB_TYPE_F32: snprintf(buffer, 128, isnan(VALUE(F32, address)) ? "%.11f" : "%.11ff", VALUE(F32, address)); break;
-			case QB_TYPE_F64: snprintf(buffer, 128, "%.17f", VALUE(F64, address)); break;
-			default: break;
-		}
-	} else if(ARRAY_MEMBER(address)) {
-		snprintf(buffer, 128, "%s[0]", qb_get_segment_pointer(cxt, address));
-	} else if(CAST(address)) {
+	if(CAST(address)) {
 		const char *ctype = type_cnames[address->type];
-		snprintf(buffer, 128, "((%s) %s)", ctype, qb_get_scalar(cxt, address->source_address));
+		const char *scalar = qb_get_scalar(cxt, address->source_address);
+		snprintf(buffer, 128, "((%s) %s)", ctype, scalar);
 	} else {
-		const char *type = type_names[address->type];
-		uint32_t id = address->segment_offset / 4;
-		snprintf(buffer, 128, "var_%s_%d", type, id);
-	}
-	return buffer;
-}
-
-static const char * qb_get_segment_pointer(qb_native_compiler_context *cxt, qb_address *address) {
-	const char *ctype = type_cnames[address->type];
-	char *buffer = qb_get_buffer(cxt);
-	if(address->array_index_address) {
-		// note: the cast is applied to the pointer first, and then the index is added
-		snprintf(buffer, 128, "((%s *) segment%d + %s)", ctype, address->segment_selector, qb_get_scalar(cxt, address->array_index_address));
-	} else if(address->segment_offset) {
-		// note: the offset is added before the cast is applied
-		snprintf(buffer, 128, "((%s *) (segment%d + %d))", ctype, address->segment_selector, address->segment_offset);
-	} else {
-		snprintf(buffer, 128, "((%s *) segment%d)", ctype, address->segment_selector);
+		switch(address->segment_selector) {
+			case QB_SELECTOR_CONSTANT_ARRAY:
+			case QB_SELECTOR_CONSTANT_SCALAR: {
+				// scalar is a constant
+				switch(address->type) {
+					case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
+					case QB_TYPE_U08: snprintf(buffer, 128, "%" PRIu8"U", VALUE(U08, address)); break;
+					case QB_TYPE_S16: snprintf(buffer, 128, "%" PRId16, VALUE(S16, address)); break;
+					case QB_TYPE_U16: snprintf(buffer, 128, "%" PRIu16"U", VALUE(U16, address)); break;
+					case QB_TYPE_S32: snprintf(buffer, 128, "%" PRId32, VALUE(S32, address)); break;
+					case QB_TYPE_U32: snprintf(buffer, 128, "%" PRIu32"U", VALUE(U32, address)); break;
+					case QB_TYPE_S64: snprintf(buffer, 128, "%" PRId64"LL", VALUE(S64, address)); break;
+					case QB_TYPE_U64: snprintf(buffer, 128, "%" PRIu64"ULL", VALUE(U64, address)); break;
+					case QB_TYPE_F32: snprintf(buffer, 128, isnan(VALUE(F32, address)) ? "%.11f" : "%.11ff", VALUE(F32, address)); break;
+					case QB_TYPE_F64: snprintf(buffer, 128, "%.17f", VALUE(F64, address)); break;
+					default: break;
+				}
+			}	break;
+			case QB_SELECTOR_CLASS_SCALAR:
+			case QB_SELECTOR_OBJECT_SCALAR:
+			case QB_SELECTOR_GLOBAL_SCALAR:
+			case QB_SELECTOR_STATIC_SCALAR:
+			case QB_SELECTOR_SHARED_SCALAR: {
+				// scalar is referenced by pointer
+				snprintf(buffer, 128, "(*var_ptr_%d_%d)", address->segment_selector, address->segment_offset);
+			}	break;
+			case QB_SELECTOR_LOCAL_SCALAR:
+			case QB_SELECTOR_TEMPORARY_SCALAR: {
+				// scalar is a local variable
+				snprintf(buffer, 128, "var_%d_%d", address->segment_selector, address->segment_offset);
+			}	break;
+			default: {
+				// array elements 
+				qb_address *base_address = qb_get_root_container(cxt, address);
+				const char *container = qb_get_pointer(cxt, base_address);
+				if(address->array_index_address == cxt->zero_address) {
+					// referenced by a fixed index
+					uint32_t index = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
+					snprintf(buffer, 128, "(%s[%d])", container, index);
+				} else {
+					// variable index
+					const char *index = qb_get_scalar(cxt, address->array_index_address);
+					snprintf(buffer, 128, "(%s[%s])", container, index);
+				}
+			}	break;
+		}
 	}
 	return buffer;
 }
 
 static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address) {
-	if(SCALAR(address) && !CONSTANT(address)) {
-		char *buffer = qb_get_buffer(cxt);
-		if(CAST(address)) {
-			const char *ctype = type_cnames[address->type];
-			snprintf(buffer, 128, "((%s *) &%s)", ctype, qb_get_scalar(cxt, address->source_address));
-		} else {
-			snprintf(buffer, 128, "&%s", qb_get_scalar(cxt, address));
-		}
-		return buffer;
+	char *buffer = qb_get_buffer(cxt);
+	if(CAST(address)) {
+		const char *ctype = type_cnames[address->type];
+		const char *pointer = qb_get_pointer(cxt, address->source_address);
+		snprintf(buffer, 128, "((%s *) %s)", ctype, pointer);
 	} else {
-		return qb_get_segment_pointer(cxt, address);
+		switch(address->segment_selector) {
+			case QB_SELECTOR_CONSTANT_SCALAR: {
+				snprintf(buffer, 128, "&const_%d_%d", address->segment_selector, address->segment_offset);
+			}	break;
+			case QB_SELECTOR_CLASS_SCALAR:
+			case QB_SELECTOR_OBJECT_SCALAR:
+			case QB_SELECTOR_GLOBAL_SCALAR:
+			case QB_SELECTOR_STATIC_SCALAR:
+			case QB_SELECTOR_SHARED_SCALAR:
+			case QB_SELECTOR_LOCAL_SCALAR:
+			case QB_SELECTOR_TEMPORARY_SCALAR: {
+				// scalar is a local variable
+				const char *scalar = qb_get_scalar(cxt, address);
+				snprintf(buffer, 128, "&%s", scalar);
+			}	break;
+			case QB_SELECTOR_CONSTANT_ARRAY: {
+				snprintf(buffer, 128, "const_ptr_%d_%d", address->segment_selector, address->segment_offset);
+			}	break;
+			case QB_SELECTOR_CLASS_ARRAY:
+			case QB_SELECTOR_OBJECT_ARRAY:
+			case QB_SELECTOR_GLOBAL_ARRAY:
+			case QB_SELECTOR_SHARED_ARRAY: 
+			case QB_SELECTOR_LOCAL_ARRAY:
+			case QB_SELECTOR_TEMPORARY_ARRAY: {
+				// fixed-length array
+				snprintf(buffer, 128, "var_ptr_%d_%d", address->segment_selector, address->segment_offset);
+			}	break;
+			default: {
+				// a variable-length array--dereference the pointer to pointer
+				snprintf(buffer, 128, "(*var_ptr_ptr_%d)", address->segment_selector);
+			}	break;
+		}
 	}
+	return buffer;
 }
 
 static const char * qb_get_array_size(qb_native_compiler_context *cxt, qb_address *address) {
-	if(address->array_size_address) {
-		return qb_get_scalar(cxt, address->array_size_address);
-	} else {
-		return "1";
-	}
-}
-
-static const char * qb_get_segment_index(qb_native_compiler_context *cxt, qb_address *address) {
-	if(address->array_index_address) {
-		return qb_get_scalar(cxt, address->array_index_address);
-	} else if(address->segment_offset) {
-		char *buffer = qb_get_buffer(cxt);
-		snprintf(buffer, 128, "%d", ELEMENT_COUNT(address->segment_offset, address->type));
-		return buffer;
-	} else {
-		return "0";
-	}
-}
-
-static const char * qb_get_segment_offset(qb_native_compiler_context *cxt, qb_address *address) {
-	if(address->array_index_address) {
-		char *buffer = qb_get_buffer(cxt);
-		snprintf(buffer, 128, "%s << %d", qb_get_scalar(cxt, address->array_index_address), type_size_shifts[address->type]);
-		return buffer;
-	} else if(address->segment_offset) {
-		char *buffer = qb_get_buffer(cxt);
-		snprintf(buffer, 128, "%d", address->segment_offset);
-		return buffer;
-	} else {
-		return "0";
-	}
+	return qb_get_scalar(cxt, address->array_size_address);
 }
 
 static const char * qb_get_jump_label(qb_native_compiler_context *cxt, uint32_t jump_target_index) {
@@ -640,10 +628,6 @@ static const char * qb_get_op_name(qb_native_compiler_context *cxt, uint32_t opc
 	}
 	return cxt->pool->op_names[opcode];
 }
-
-#define POST_OP_ACTION			1
-#define POST_FUNCTION_CALL		2
-#define POST_ARRAY_RESIZE		3
 
 static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
 	if(qop->flags & QB_OP_JUMP_TARGET) {
@@ -733,41 +717,63 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 }
 
 static void qb_print_local_variables(qb_native_compiler_context *cxt) {
-	uint32_t i, j, need_pointer[QB_TYPE_COUNT][6];
+	uint32_t i, j;
 
-	// print local variables, declarations first
-	for(i = 0; i < cxt->storage->segment_count; i++) {
-		qb_printf(cxt, "int8_t *restrict segment%d = cxt->storage->segments[%d].memory;\n", i, i);
-	}
-	for(i = 0; i < cxt->storage->segment_count; i++) {
-		qb_printf(cxt, "uint32_t segment_element_count%d = *cxt->storage->segments[%d].array_size_pointer;\n", i, i);
-	}
-	qb_print(cxt, "\n");
+	// create variables for writable scalars
+	for(i = 0; i < cxt->writable_scalar_count; i++) {
+		qb_address *address = cxt->writable_scalars[i];
+		const char *c_type = type_cnames[address->type];
+		switch(address->segment_selector) {
+			case QB_SELECTOR_CLASS_SCALAR:
+			case QB_SELECTOR_OBJECT_SCALAR:
+			case QB_SELECTOR_GLOBAL_SCALAR:
+			case QB_SELECTOR_STATIC_SCALAR:
+			case QB_SELECTOR_SHARED_SCALAR: {
+				// create pointers to the value in the storage
+				qb_printf(cxt, "%s *var_ptr_%d_%d = (%s *) (storage->segments[%d]->memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
+			}	break;
+			case QB_SELECTOR_LOCAL_SCALAR:
+			case QB_SELECTOR_TEMPORARY_SCALAR: {
+				// create local variables
+				qb_printf(cxt, "%s var_%d_%d = *((%s *) (storage->segments[%d]->memory + %d));\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
 
-	qb_print(cxt, "\n");
-
-	// print the loop pointers
-	for(i = 0; i < QB_TYPE_COUNT; i++) {
-		uint32_t var_printed = 0;
-		for(j = 0; j < 6; j++) {
-			if(need_pointer[i][j]) {
-				const char *type = type_names[i];
-				if(var_printed == 0) {
-					const char *ctype = type_cnames[i];
-					qb_printf(cxt, "%s *op%d_ptr_%s", ctype, j + 1, type);
-				} else {
-					qb_printf(cxt, ", *op%d_ptr_%s", j + 1, type);
-				}
-				var_printed++;
-			}
-		}
-		if(var_printed) {
-			qb_printf(cxt, ";\n");
+			}	break;
 		}
 	}
 	qb_print(cxt, "\n");
+
+	// create variables for writable arrays
+	for(i = 0; i < cxt->writable_array_count; i++) {
+		qb_address *address = cxt->writable_arrays[i];
+		const char *c_type = type_cnames[address->type];
+		switch(address->segment_selector) {
+			case QB_SELECTOR_CLASS_ARRAY:
+			case QB_SELECTOR_OBJECT_ARRAY:
+			case QB_SELECTOR_GLOBAL_ARRAY:
+			case QB_SELECTOR_SHARED_ARRAY: 
+			case QB_SELECTOR_LOCAL_ARRAY:
+			case QB_SELECTOR_TEMPORARY_ARRAY: {
+				// create pointers to the value in the storage
+				qb_printf(cxt, "%s *var_ptr_%d_%d = (%s *) (storage->segments[%d]->memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
+			}	break;
+			default: {
+				// create pointers to pointers in the storage, as the realocation can occur for variable-length arrays
+				qb_printf(cxt, "%s **var_ptr_ptr_%d = (%s **) &storage->segments[%d]->memory;\n", c_type, address->segment_selector, c_type, address->segment_selector);
+			}	break;
+		}
+	}
+	qb_print(cxt, "\n");
+
+	// create variables for constant arrays
+	for(i = 0; i < cxt->constant_array_count; i++) {
+		qb_address *address = cxt->constant_arrays[i];
+		const char *c_type = type_cnames[address->type];
+		qb_printf(cxt, "%s *const_ptr_%d_%d = (%s *) (storage->segments[%d]->memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
+	}
+	qb_print(cxt, "\n");
+
 #ifdef ZTS
-		qb_print(cxt, STRING(USE_TSRM)"\n");
+	qb_print(cxt, STRING(USE_TSRM)"\n");
 #endif
 	qb_print(cxt, "\n");
 }
@@ -822,7 +828,6 @@ static void qb_print_functions(qb_native_compiler_context *cxt) {
 				cxt->op_count = compiler_cxt->op_count;
 				cxt->variables = compiler_cxt->variables;
 				cxt->variable_count = compiler_cxt->variable_count;
-
 				cxt->constant_scalars = compiler_cxt->constant_scalars;
 				cxt->constant_scalar_count = compiler_cxt->constant_scalar_count;
 				cxt->writable_scalars = compiler_cxt->writable_scalars;
@@ -831,7 +836,7 @@ static void qb_print_functions(qb_native_compiler_context *cxt) {
 				cxt->constant_array_count = compiler_cxt->constant_array_count;
 				cxt->writable_arrays = compiler_cxt->writable_arrays;
 				cxt->writable_array_count = compiler_cxt->writable_array_count;
-
+				cxt->zero_address = compiler_cxt->zero_address;
 				cxt->storage = compiler_cxt->storage;
 
 				// print the function
