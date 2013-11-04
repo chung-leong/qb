@@ -92,7 +92,7 @@ class Handler {
 			$lines[] = $this->getSetHandlerCode("INSTR->next_handler");
 		} else if($targetCount == 2) {
 			// assume the first branch will be taken
-			$lines[] = "int32_t condition;";
+			$lines[] = "int condition;";
 			$lines[] = $this->getSetHandlerCode("INSTR->next_handler1");
 		}
 				

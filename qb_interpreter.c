@@ -442,6 +442,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	cxt->worker_count = qb_get_thread_count(TSRMLS_C);
 	cxt->exit_type = QB_VM_RETURN;
 	cxt->exit_status_code = 0;
+	cxt->exception_encountered = FALSE;
 	cxt->floating_point_precision = EG(precision);
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
@@ -706,6 +707,7 @@ static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function
 }
 
 static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+	USE_TSRM
 	zval **arguments, ***argument_pointers, *retval;
 	uint32_t i;
 	ALLOCA_FLAG(use_heap1)
@@ -748,6 +750,7 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 	if(retval) {
 		zval_ptr_dtor(&retval);
 	}
+	cxt->exception_encountered = (EG(exception) != NULL);
 
 	free_alloca(arguments, use_heap1);
 	free_alloca(argument_pointers, use_heap2);
@@ -762,6 +765,7 @@ static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *q
 		cxt->argument_count = argument_count;
 		cxt->result_index = result_index;
 		cxt->line_number = line_number;
+		cxt->exception_encountered = FALSE;
 
 		qb_initialize_interpreter_context(new_cxt, qfunc, cxt TSRMLS_CC);
 		qb_execute(new_cxt);

@@ -440,6 +440,7 @@ struct qb_interpreter_context {\
 	uint32_t call_depth;\
 	qb_vm_exit_type exit_type;\
 	int32_t exit_status_code;\
+	int32_t exception_encountered;\
 	volatile unsigned char *windows_timed_out_pointer;\
 	int floating_point_precision;\
 	void ***tsrm_ls;\
@@ -687,7 +688,7 @@ static const char * qb_get_array_size(qb_native_compiler_context *cxt, qb_addres
 
 static const char * qb_get_jump_label(qb_native_compiler_context *cxt, uint32_t jump_target_index) {
 	char *buffer = qb_get_buffer(cxt);
-	snprintf(buffer, 128, "goto L%04d", jump_target_index);
+	snprintf(buffer, 128, "L%04d", jump_target_index);
 	return buffer;
 }
 
@@ -708,7 +709,7 @@ static const char * qb_get_op_name(qb_native_compiler_context *cxt, uint32_t opc
 	return cxt->pool->op_names[opcode];
 }
 
-static void qb_copy_scalar_to_storage(qb_native_compiler_context *cxt, qb_address *address) {
+static void qb_copy_local_scalar_to_storage(qb_native_compiler_context *cxt, qb_address *address) {
 	qb_access_method method = qb_get_scalar_access_method(cxt, address);
 	if(method == QB_SCALAR_LOCAL_VARIABLE) {
 		const char *c_type = type_cnames[address->type];
@@ -724,20 +725,35 @@ static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, 
 			qb_address *address = operand->address;
 			switch(address->mode) {
 				case QB_ADDRESS_MODE_SCA: {
-					qb_copy_scalar_to_storage(cxt, address);
+					qb_copy_local_scalar_to_storage(cxt, address);
 				}	break;
 				case QB_ADDRESS_MODE_ELE: {
-					qb_copy_scalar_to_storage(cxt, address->array_index_address);
+					qb_copy_local_scalar_to_storage(cxt, address->array_index_address);
 				}	break;
 				case QB_ADDRESS_MODE_ARR: {
-					qb_copy_scalar_to_storage(cxt, address->array_index_address);
+					qb_copy_local_scalar_to_storage(cxt, address->array_index_address);
 				}	break;
 			}
 		}
 	}
 }
 
-static void qb_copy_scalar_from_storage(qb_native_compiler_context *cxt, qb_address *address) {
+static void qb_copy_local_arguments_to_storage(qb_native_compiler_context *cxt, qb_op *qop) {
+	uint32_t *var_indices = ARRAY(U32, qop->operands[1].address);
+	uint32_t arg_count = ARRAY_SIZE(qop->operands[1].address);
+	uint32_t i;
+	for(i = 0; i < arg_count; i++) {
+		qb_variable *qvar = cxt->variables[var_indices[i]];
+		qb_address *address = qvar->address;
+		switch(address->mode) {
+			case QB_ADDRESS_MODE_SCA: {
+				qb_copy_local_scalar_to_storage(cxt, address);
+			}	break;
+		}
+	}
+}
+
+static void qb_copy_local_scalar_from_storage(qb_native_compiler_context *cxt, qb_address *address) {
 	qb_access_method method = qb_get_scalar_access_method(cxt, address);
 	if(method == QB_SCALAR_LOCAL_VARIABLE) {
 		const char *c_type = type_cnames[address->type];
@@ -754,13 +770,13 @@ static void qb_copy_local_variables_from_storage(qb_native_compiler_context *cxt
 				qb_address *address = operand->address;
 				switch(address->mode) {
 					case QB_ADDRESS_MODE_SCA: {
-						qb_copy_scalar_from_storage(cxt, address);
+						qb_copy_local_scalar_from_storage(cxt, address);
 					}	break;
 					case QB_ADDRESS_MODE_ELE: {
-						qb_copy_scalar_from_storage(cxt, address->array_index_address);
+						qb_copy_local_scalar_from_storage(cxt, address->array_index_address);
 					}	break;
 					case QB_ADDRESS_MODE_ARR: {
-						qb_copy_scalar_from_storage(cxt, address->array_index_address);
+						qb_copy_local_scalar_from_storage(cxt, address->array_index_address);
 					}	break;
 				}
 			}
@@ -768,9 +784,42 @@ static void qb_copy_local_variables_from_storage(qb_native_compiler_context *cxt
 	}
 }
 
+static void qb_copy_local_arguments_from_storage(qb_native_compiler_context *cxt, qb_op *qop) {
+	USE_TSRM
+	uint32_t symbol_index = VALUE(U32, qop->operands[0].address);
+	qb_external_symbol *symbol = &QB_G(external_symbols)[symbol_index];
+	qb_function *callee = symbol->pointer;
+	uint32_t *var_indices = ARRAY(U32, qop->operands[1].address);
+	uint32_t arg_count = ARRAY_SIZE(qop->operands[1].address);
+	uint32_t retval_index = VALUE(U32, qop->operands[2].address);
+	uint32_t i;
+	for(i = 0; i < arg_count; i++) {
+		qb_variable *arg = callee->variables[i];
+		if(arg->flags & QB_VARIABLE_BY_REF) {
+			qb_variable *qvar = cxt->variables[var_indices[i]];
+			qb_address *address = qvar->address;
+			switch(address->mode) {
+				case QB_ADDRESS_MODE_SCA: {
+					qb_copy_local_scalar_from_storage(cxt, address);
+				}	break;
+			}
+		}
+	}
+	if(retval_index != INVALID_INDEX) {
+		qb_variable *qvar = cxt->variables[retval_index];
+		qb_address *address = qvar->address;
+		switch(address->mode) {
+			case QB_ADDRESS_MODE_SCA: {
+				qb_copy_local_scalar_from_storage(cxt, address);
+			}	break;
+		}
+	}
+}
+
 static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qop_index) {
 	if(qop->flags & QB_OP_JUMP_TARGET) {
-		qb_printf(cxt, "L%04d:\n", qop_index);
+		const char *label = qb_get_jump_label(cxt, qop_index);
+		qb_printf(cxt, "%s:\n", label);
 	}
 	if(qop->opcode != QB_NOP) {
 		const char *name;
@@ -803,10 +852,15 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 						qb_printf(cxt, "#define %s	%s\n", name, scalar);
 					}	break;
 					case QB_ADDRESS_MODE_ARR: {
-						const char *count = qb_get_array_size(cxt, address);
-						const char *pointer = qb_get_pointer(cxt, address);
-						qb_printf(cxt, "#define %s_ptr	%s\n", name, pointer);
-						qb_printf(cxt, "#define %s_count	%s\n", name, count);
+						if(address->array_size_address != cxt->zero_address) {
+							const char *count = qb_get_array_size(cxt, address);
+							const char *pointer = qb_get_pointer(cxt, address);
+							qb_printf(cxt, "#define %s_ptr	%s\n", name, pointer);
+							qb_printf(cxt, "#define %s_count	%s\n", name, count);
+						} else {
+							qb_printf(cxt, "#define %s_ptr	NULL\n", name);
+							qb_printf(cxt, "#define %s_count	0U\n", name);
+						}
 					}	break;
 				}
 			}
@@ -816,6 +870,16 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		if(qop->flags & QB_OP_NEED_INSTRUCTION_STRUCT) {
 			qb_copy_local_variables_to_storage(cxt, qop);
 			qb_printf(cxt, "ip = cxt->function->instructions + %d;\n", qop->instruction_offset);
+			qb_print(cxt, "\n");
+		} else if(qop->opcode == QB_RET) {
+			if(cxt->compiled_function->return_variable->address) {
+				if(SCALAR(cxt->compiled_function->return_variable->address)) {
+					qb_copy_local_scalar_to_storage(cxt, cxt->compiled_function->return_variable->address);
+					qb_print(cxt, "\n");
+				}
+			}
+		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
+			qb_copy_local_arguments_to_storage(cxt, qop);
 			qb_print(cxt, "\n");
 		}
 
@@ -828,6 +892,9 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 
 		if(qop->flags & QB_OP_NEED_INSTRUCTION_STRUCT) {
 			qb_copy_local_variables_from_storage(cxt, qop);
+			qb_print(cxt, "\n");
+		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
+			qb_copy_local_arguments_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
 		}
 
@@ -846,18 +913,20 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		if(qop->flags & QB_OP_BRANCH) {
 			if(qop->jump_target_indices[1] == qop_index + 1) {
 				const char *jump_target = qb_get_jump_label(cxt, qop->jump_target_indices[0]);
-				qb_printf(cxt, "if(condition) %s;\n", jump_target);
+				qb_printf(cxt, "if(condition) goto %s;\n", jump_target);
 			} else if(qop->jump_target_indices[0] == qop_index + 1) {
 				const char *jump_target = qb_get_jump_label(cxt, qop->jump_target_indices[1]);
-				qb_printf(cxt, "if(!condition) %s;\n", jump_target);
+				qb_printf(cxt, "if(!condition) goto %s;\n", jump_target);
 			} else {
 				const char *jump_target1 = qb_get_jump_label(cxt, qop->jump_target_indices[0]);
 				const char *jump_target2 = qb_get_jump_label(cxt, qop->jump_target_indices[1]);
-				qb_printf(cxt, "if(condition) %s; else %s;\n", jump_target1, jump_target2);
+				qb_printf(cxt, "if(condition) goto %s; else goto %s;\n", jump_target1, jump_target2);
 			}
+			qb_print(cxt, "\n");
 		} else if(qop->flags & QB_OP_JUMP) {
 			const char *jump_target = qb_get_jump_label(cxt, qop->jump_target_indices[0]);
 			qb_printf(cxt, "goto %s;\n", jump_target);
+			qb_print(cxt, "\n");
 		}
 	}
 }
@@ -866,6 +935,7 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 	uint32_t i, j;
 
 	qb_print(cxt, "int8_t *ip;\n");
+	qb_print(cxt, "int condition;\n");
 	qb_print(cxt, "qb_storage *storage = cxt->function->local_storage;\n");
 
 	// create variables for writable scalars

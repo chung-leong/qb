@@ -37,7 +37,7 @@ class FunctionCall extends Handler {
 	public function getActionOnUnitData() {
 		$lines = array();
 		$lines[] = "qb_dispatch_function_call(cxt, op1, op2_ptr, op2_count, op3, line_number);";
-		$lines[] = "if(UNEXPECTED(EG(exception) != NULL)) {";
+		$lines[] = "if(UNEXPECTED(cxt->exception_encountered)) {";
 		$lines[] =		"cxt->exit_type = QB_VM_EXCEPTION;";
 		$lines[] =		"return;";
 		$lines[] = "}";

@@ -110,7 +110,6 @@ struct qb_address {
 enum qb_operand_type {
 	QB_OPERAND_NONE					= 0,
 	QB_OPERAND_ADDRESS,
-	QB_OPERAND_EXTERNAL_SYMBOL,
 	QB_OPERAND_ARRAY_INITIALIZER,
 	QB_OPERAND_ZEND_CLASS,
 	QB_OPERAND_ZEND_STATIC_CLASS,
@@ -134,7 +133,6 @@ struct qb_operand {
 	qb_operand_type type;
 	union {
 		qb_address *address;
-		uint32_t symbol_index;
 		int32_t number;
 		zval *constant;
 		zend_class_entry *zend_class;

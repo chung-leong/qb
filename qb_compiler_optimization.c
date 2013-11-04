@@ -122,7 +122,7 @@ static int32_t qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t ind
 
 						// transfer the jump targets to the previous op and make the current one NOP
 						prev_qop->opcode = new_opcode;
-						prev_qop->flags |= QB_OP_JUMP;
+						prev_qop->flags |= QB_OP_BRANCH;
 						prev_qop->jump_target_indices = qop->jump_target_indices;
 						prev_qop->jump_target_count = qop->jump_target_count;
 						prev_qop->operand_count = 2;
