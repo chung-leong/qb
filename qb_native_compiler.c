@@ -505,13 +505,26 @@ static char * qb_get_buffer(qb_native_compiler_context *cxt) {
 	return cxt->string_buffers[cxt->string_buffer_index++];
 }
 
-static qb_address * qb_get_root_container(qb_native_compiler_context *cxt, qb_address *address) {
+static qb_address * qb_get_root_address(qb_native_compiler_context *cxt, qb_address *address) {
 	while(address->source_address) {
 		address = address->source_address;
 	}
 	return address;
 }
 
+static int32_t qb_cast_required(qb_native_compiler_context *cxt, qb_address *address) {
+	qb_address *base_address = qb_get_root_address(cxt, address);
+	return (base_address->type != address->type);
+}
+
+static int32_t qb_offset_required(qb_native_compiler_context *cxt, qb_address *address) {
+	if(address->array_index_address != cxt->zero_address) {
+		return TRUE;
+	} else {
+		qb_address *base_address = qb_get_root_address(cxt, address);
+		return (base_address->segment_offset != address->segment_offset);
+	}
+}
 
 static qb_access_method qb_get_scalar_access_method(qb_native_compiler_context *cxt, qb_address *address) {
 	switch(address->segment_selector) {
@@ -550,28 +563,22 @@ static qb_access_method qb_get_array_access_method(qb_native_compiler_context *c
 				return QB_SCALAR_LOCAL_VARIABLE;
 			}
 		}
-		case QB_SELECTOR_CONSTANT_ARRAY: {
-			if(address->array_index_address == cxt->zero_address) {
-				return QB_ARRAY_POINTER;
-			} else {
-				return QB_ARRAY_POINTER_PLUS_OFFSET;
-			}
-		}
+		case QB_SELECTOR_CONSTANT_ARRAY:
 		case QB_SELECTOR_CLASS_ARRAY:
 		case QB_SELECTOR_OBJECT_ARRAY:
 		case QB_SELECTOR_GLOBAL_ARRAY:
 		case QB_SELECTOR_SHARED_ARRAY: 
 		case QB_SELECTOR_LOCAL_ARRAY:
 		case QB_SELECTOR_TEMPORARY_ARRAY: {
-			if(ARRAY_MEMBER(address)) {
-				return QB_ARRAY_POINTER_PLUS_OFFSET;
+			if(qb_offset_required(cxt, address)) {
+				return QB_ARRAY_SLICE;
 			} else {
 				return QB_ARRAY_POINTER;
 			}
 		}
 		default: {
-			if(ARRAY_MEMBER(address)) {
-				return QB_ARRAY_POINTER_POINTER_PLUS_OFFSET;
+			if(qb_offset_required(cxt, address)) {
+				return QB_ARRAY_SLICE;
 			} else {
 				return QB_ARRAY_POINTER_POINTER;
 			}
@@ -583,104 +590,125 @@ static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *
 
 static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *address) {
 	char *buffer = qb_get_buffer(cxt);
-	if(CAST(address)) {
-		const char *ctype = type_cnames[address->type];
-		const char *scalar = qb_get_scalar(cxt, address->source_address);
-		snprintf(buffer, 128, "((%s) %s)", ctype, scalar);
-	} else {
-		qb_access_method method = qb_get_scalar_access_method(cxt, address);
-		switch(method) {
-			case QB_SCALAR_LITERAL: {
-				// scalar is a constant
-				switch(address->type) {
-					case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
-					case QB_TYPE_U08: snprintf(buffer, 128, "%" PRIu8"U", VALUE(U08, address)); break;
-					case QB_TYPE_S16: snprintf(buffer, 128, "%" PRId16, VALUE(S16, address)); break;
-					case QB_TYPE_U16: snprintf(buffer, 128, "%" PRIu16"U", VALUE(U16, address)); break;
-					case QB_TYPE_S32: snprintf(buffer, 128, "%" PRId32, VALUE(S32, address)); break;
-					case QB_TYPE_U32: snprintf(buffer, 128, "%" PRIu32"U", VALUE(U32, address)); break;
-					case QB_TYPE_S64: snprintf(buffer, 128, "%" PRId64"LL", VALUE(S64, address)); break;
-					case QB_TYPE_U64: snprintf(buffer, 128, "%" PRIu64"ULL", VALUE(U64, address)); break;
-					case QB_TYPE_F32: snprintf(buffer, 128, isnan(VALUE(F32, address)) ? "%.11f" : "%.11ff", VALUE(F32, address)); break;
-					case QB_TYPE_F64: snprintf(buffer, 128, "%.17f", VALUE(F64, address)); break;
-					default: break;
-				}
-			}	break;
-			case QB_SCALAR_POINTER: {
-				// scalar is referenced by pointer
+	const char *ctype = qb_cast_required(cxt, address) ? type_cnames[address->type] : NULL;
+	qb_access_method method = qb_get_scalar_access_method(cxt, address);
+	switch(method) {
+		case QB_SCALAR_LITERAL: {
+			// scalar is a constant
+			switch(address->type) {
+				case QB_TYPE_S08: snprintf(buffer, 128, "%" PRId8, VALUE(S08, address)); break;
+				case QB_TYPE_U08: snprintf(buffer, 128, "%" PRIu8"U", VALUE(U08, address)); break;
+				case QB_TYPE_S16: snprintf(buffer, 128, "%" PRId16, VALUE(S16, address)); break;
+				case QB_TYPE_U16: snprintf(buffer, 128, "%" PRIu16"U", VALUE(U16, address)); break;
+				case QB_TYPE_S32: snprintf(buffer, 128, "%" PRId32, VALUE(S32, address)); break;
+				case QB_TYPE_U32: snprintf(buffer, 128, "%" PRIu32"U", VALUE(U32, address)); break;
+				case QB_TYPE_S64: snprintf(buffer, 128, "%" PRId64"LL", VALUE(S64, address)); break;
+				case QB_TYPE_U64: snprintf(buffer, 128, "%" PRIu64"ULL", VALUE(U64, address)); break;
+				case QB_TYPE_F32: snprintf(buffer, 128, isnan(VALUE(F32, address)) ? "%.11f" : "%.11ff", VALUE(F32, address)); break;
+				case QB_TYPE_F64: snprintf(buffer, 128, "%.17f", VALUE(F64, address)); break;
+				default: break;
+			}
+		}	break;
+		case QB_SCALAR_POINTER: {
+			// scalar is referenced by pointer
+			if(ctype) {
+				snprintf(buffer, 128, "((%s) (*var_ptr_%d_%d))", ctype, address->segment_selector, address->segment_offset);
+			} else {
 				snprintf(buffer, 128, "(*var_ptr_%d_%d)", address->segment_selector, address->segment_offset);
-			}	break;
-			case QB_SCALAR_LOCAL_VARIABLE: {
-				// scalar is a local variable
+			}
+		}	break;
+		case QB_SCALAR_LOCAL_VARIABLE: {
+			// scalar is a local variable
+			if(ctype) {
+				snprintf(buffer, 128, "((%s) var_%d_%d)", ctype, address->segment_selector, address->segment_offset);
+			} else {
 				snprintf(buffer, 128, "var_%d_%d", address->segment_selector, address->segment_offset);
-			}	break;
-			case QB_SCALAR_ELEMENT: {
-				// array elements 
-				qb_address *base_address = qb_get_root_container(cxt, address);
-				const char *container = qb_get_pointer(cxt, base_address);
-				if(address->array_index_address == cxt->zero_address) {
-					// referenced by a fixed index
-					uint32_t index = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
-					snprintf(buffer, 128, "(%s[%d])", container, index);
+			}
+		}	break;
+		case QB_SCALAR_ELEMENT: {
+			// array elements 
+			qb_address *base_address = qb_get_root_address(cxt, address);
+			const char *container = qb_get_pointer(cxt, base_address);
+			if(address->array_index_address == cxt->zero_address) {
+				// referenced by a fixed index
+				uint32_t index = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
+				if(ctype) {
+					snprintf(buffer, 128, "((%s) %s[%d])", ctype, container, index);
 				} else {
-					// variable index
-					const char *index = qb_get_scalar(cxt, address->array_index_address);
+					snprintf(buffer, 128, "(%s[%d])", container, index);
+				}
+			} else {
+				// variable index
+				const char *index = qb_get_scalar(cxt, address->array_index_address);
+				if(ctype) {
+					snprintf(buffer, 128, "((%s) %s[%s])", ctype, container, index);
+				} else {
 					snprintf(buffer, 128, "(%s[%s])", container, index);
 				}
-			}	break;
-			default: {
-			}	break;
-		}
+			}
+		}	break;
+		default: {
+		}	break;
 	}
 	return buffer;
 }
 
 static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *address) {
 	char *buffer = qb_get_buffer(cxt);
-	if(CAST(address)) {
-		const char *ctype = type_cnames[address->type];
-		const char *pointer = qb_get_pointer(cxt, address->source_address);
-		snprintf(buffer, 128, "((%s *) %s)", ctype, pointer);
-	} else {
-		qb_access_method method = qb_get_array_access_method(cxt, address);
-		switch(method) {
-			case QB_SCALAR_POINTER: {
+	const char *ctype = qb_cast_required(cxt, address) ? type_cnames[address->type] : NULL;
+	qb_access_method method = qb_get_array_access_method(cxt, address);
+	switch(method) {
+		case QB_SCALAR_POINTER: {
+			if(ctype) {
+				snprintf(buffer, 128, "((%s *) var_ptr_%d_%d)", ctype, address->segment_selector, address->segment_offset);
+			} else {
 				snprintf(buffer, 128, "var_ptr_%d_%d", address->segment_selector, address->segment_offset);
-			}	break;
-			case QB_SCALAR_LOCAL_VARIABLE: {
+			}
+		}	break;
+		case QB_SCALAR_LOCAL_VARIABLE: {
+			if(ctype) {
+				snprintf(buffer, 128, "((%s *) &var_%d_%d)", ctype, address->segment_selector, address->segment_offset);
+			} else {
 				snprintf(buffer, 128, "&var_%d_%d", address->segment_selector, address->segment_offset);
-			}	break;
-			case QB_ARRAY_POINTER: {
-				// fixed-length array
+			}
+		}	break;
+		case QB_ARRAY_POINTER: {
+			// fixed-length array
+			if(ctype) {
+				snprintf(buffer, 128, "((%s *) var_ptr_%d_%d)", ctype, address->segment_selector, address->segment_offset);
+			} else {
 				snprintf(buffer, 128, "var_ptr_%d_%d", address->segment_selector, address->segment_offset);
-			}	break;
-			case QB_ARRAY_POINTER_PLUS_OFFSET: {
-				if(address->array_index_address == cxt->zero_address) {
-					qb_address *base_address = qb_get_root_container(cxt, address);
-					uint32_t offset = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
-					snprintf(buffer, 128, "(var_ptr_%d_%d + %d)", base_address->segment_selector, base_address->segment_offset, offset);
-				} else {
-					const char *offset = qb_get_scalar(cxt, address->array_index_address);
-					snprintf(buffer, 128, "(var_ptr_%d_%d + %s)", address->segment_selector, address->segment_offset, offset);
-				}
-			}	break;
-			case QB_ARRAY_POINTER_POINTER: {
-				// a variable-length array--dereference the pointer to pointer
+			}
+		}	break;
+		case QB_ARRAY_POINTER_POINTER: {
+			// a variable-length array--dereference the pointer to pointer
+			if(ctype) {
+				snprintf(buffer, 128, "((%s *) (*var_ptr_ptr_%d))", ctype, address->segment_selector);
+			} else {
 				snprintf(buffer, 128, "(*var_ptr_ptr_%d)", address->segment_selector);
-			}	break;
-			case QB_ARRAY_POINTER_POINTER_PLUS_OFFSET: {
-				if(address->array_index_address == cxt->zero_address) {
-					qb_address *base_address = qb_get_root_container(cxt, address);
-					uint32_t offset = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
-					snprintf(buffer, 128, "(*var_ptr_ptr_%d + %d)", base_address->segment_selector, offset);
+			}
+		}	break;
+		case QB_ARRAY_SLICE: {
+			qb_address *base_address = qb_get_root_address(cxt, address);
+			const char *container = qb_get_pointer(cxt, base_address);
+			if(address->array_index_address == cxt->zero_address) {
+				uint32_t offset = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
+				if(ctype) {
+					snprintf(buffer, 128, "(((%s *) %s) + %d)", ctype, container, offset);
 				} else {
-					const char *offset = qb_get_scalar(cxt, address->array_index_address);
-					snprintf(buffer, 128, "(*var_ptr_ptr_%d + %s)", address->segment_selector, offset);
+					snprintf(buffer, 128, "(%s + %d)", container, offset);
 				}
-			}	break;
-			default: {
-			}	break;
-		}
+			} else {
+				const char *offset = qb_get_scalar(cxt, address->array_index_address);
+				if(ctype) {
+					snprintf(buffer, 128, "(((%s *) %s) + %s)", ctype, container, offset);
+				} else {
+					snprintf(buffer, 128, "(%s + %s)", container, offset);
+				}
+			}
+		}	break;
+		default: {
+		}	break;
 	}
 	return buffer;
 }
