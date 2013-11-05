@@ -104,7 +104,15 @@ static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *q
 		qb_abort("illegal opcode");
 	}
 #endif
+#ifndef _MSC_VER
+	if(cxt->position_independent) {
+		return (void *) ((uintptr_t) qop->opcode);
+	} else {
+		return op_handlers[qop->opcode];
+	}
+#else
 	return (void *) ((uintptr_t) qop->opcode);
+#endif
 }
 
 static void qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
