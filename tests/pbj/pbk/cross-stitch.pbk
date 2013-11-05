@@ -24,7 +24,9 @@ kernel CrossStitch
         float2 cPos = outCoord();
         
         // get the pixel at the top-left of the square
-        float2 tlPos = floor(cPos / float2(size, size));
+        float2 tlPos;
+        tlPos.x = floor(cPos.x / float(size));
+        tlPos.y = floor(cPos.y / float(size));
         tlPos *= float(size);
         
         int remX = int(mod(cPos.x, float(size)));

@@ -905,14 +905,14 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		}
 		for(i = 0; i < qop->operand_count; i++) {
 			qb_operand *operand = &qop->operands[i];
+			qb_address *address = operand->address;
+			char name[4];
+			if(i == qop->operand_count - 1 && qb_is_operand_write_target(qop->opcode, i)) {
+				sprintf(name, "res");
+			} else {
+				sprintf(name, "op%d", i + 1);
+			}
 			if(operand->type == QB_OPERAND_ADDRESS) {
-				qb_address *address = operand->address;
-				char name[4];
-				if(i == qop->operand_count - 1 && qb_is_operand_write_target(qop->opcode, i)) {
-					sprintf(name, "res");
-				} else {
-					sprintf(name, "op%d", i + 1);
-				}
 				switch(address->mode) {
 					case QB_ADDRESS_MODE_SCA:
 					case QB_ADDRESS_MODE_ELE: {
@@ -933,6 +933,8 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 						}
 					}	break;
 				}
+			} else if(operand->type == QB_OPERAND_NUMBER) {
+				qb_printf(cxt, "#define %s	%d\n", name, operand->number);
 			}
 		}
 		qb_print(cxt, "\n");
