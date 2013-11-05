@@ -135,7 +135,7 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	const char *current_filename;
 	uint32_t current_line_number;
 
-	int thread_count;
+	long thread_count;
 
 	zend_bool allow_bytecode_interpretation;
 	zend_bool allow_native_compilation;
