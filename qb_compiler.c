@@ -175,19 +175,25 @@ int32_t qb_is_source_op_translated(qb_compiler_context *cxt, uint32_t source_ind
 
 uint32_t qb_set_source_op_index(qb_compiler_context *cxt, uint32_t source_index, uint32_t line_number) {
 	USE_TSRM
-	if(source_index >= cxt->op_translation_table_size) {
-		// expand the table
-		uint32_t original_size = cxt->op_translation_table_size;
-		uint32_t addition = (source_index + 1) - original_size;
-		uint32_t *new_entries = qb_enlarge_array((void **) &cxt->op_translation_table, addition);
-		uint32_t i;
-		for(i = 0; i < addition; i++) {
-			new_entries[i] = INVALID_INDEX;
+	uint32_t op_index;
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		if(source_index >= cxt->op_translation_table_size) {
+			// expand the table
+			uint32_t original_size = cxt->op_translation_table_size;
+			uint32_t addition = (source_index + 1) - original_size;
+			uint32_t *new_entries = qb_enlarge_array((void **) &cxt->op_translation_table, addition);
+			uint32_t i;
+			for(i = 0; i < addition; i++) {
+				new_entries[i] = INVALID_INDEX;
+			}
 		}
+		cxt->op_translation_table[source_index] = op_index = cxt->op_count;
+	} else {
+		op_index = INVALID_INDEX;
 	}
 	QB_G(current_line_number) = cxt->line_number = line_number;
 	cxt->source_op_index = source_index;
-	return cxt->op_translation_table[source_index] = cxt->op_count;
+	return op_index;
 }
 
 static uint32_t qb_get_translated_op_index(qb_compiler_context *cxt, uint32_t jump_target_index) {
@@ -3178,7 +3184,9 @@ void qb_resolve_jump_targets(qb_compiler_context *cxt) {
 			uint32_t qop_index = qb_get_translated_op_index(cxt, qop->jump_target_indices[j]);
 			// skip to the next op if it's pointing to a NOP
 			while(cxt->ops[qop_index]->opcode == QB_NOP) {
+				cxt->ops[qop_index]->flags &= ~QB_OP_JUMP_TARGET;
 				qop_index++;
+				cxt->ops[qop_index]->flags |= QB_OP_JUMP_TARGET;
 			}
 			qop->jump_target_indices[j] = qop_index;
 		}

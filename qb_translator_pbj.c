@@ -1504,54 +1504,42 @@ static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
 static void qb_perform_assignment(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address) {
 	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, dst_address }, { QB_OPERAND_ADDRESS, src_address } };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_assign, operands, 2, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_subtraction(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address) {
 	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, dst_address }, { QB_OPERAND_ADDRESS, src_address } };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, factories_subtract_assign[0], operands, 2, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_increment(qb_pbj_translator_context *cxt, qb_address *dst_address) {
 	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_increment_pre, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_alpha_premultication(qb_pbj_translator_context *cxt, qb_address *dst_address) {
 	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
 	qb_operand result = { QB_OPERAND_ADDRESS, dst_address };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_apply_premult, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_alpha_premultiplication_removal(qb_pbj_translator_context *cxt, qb_address *dst_address) {
 	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
 	qb_operand result = { QB_OPERAND_ADDRESS, dst_address };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_remove_premult, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_return(qb_pbj_translator_context *cxt) {
 	qb_operand operand = { QB_OPERAND_NONE, NULL };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_return, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
@@ -1559,9 +1547,7 @@ static void qb_perform_loop(qb_pbj_translator_context *cxt, qb_address *index_ad
 	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, limit_address } };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
 	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(target_op_index, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + 1, 0) };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_loop, operands, 2, &result, target_indices, 2, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
@@ -1569,25 +1555,19 @@ static void qb_perform_branch(qb_pbj_translator_context *cxt, qb_address *condit
 	qb_operand operand = { QB_OPERAND_ADDRESS, condition_address };
 	qb_operand result = { QB_OPERAND_NONE, NULL };
 	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(target_op_index, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op_index + 1, 0) };
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_branch_on_true, &operand, 1, &result, target_indices, 2, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_jump(qb_pbj_translator_context *cxt, uint32_t target_op_index) {
 	qb_operand result = { QB_OPERAND_NONE, NULL };
 	uint32_t target_indices[1] = { JUMP_TARGET_INDEX(target_op_index, 0) }; 
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_jump, NULL, 0, &result, target_indices, 1, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_nop(qb_pbj_translator_context *cxt) {
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_create_op(cxt->compiler_context, &factory_nop, QB_TYPE_VOID, NULL, 0, NULL, NULL, 0, FALSE);
 }
 
@@ -1595,9 +1575,7 @@ static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_ad
 	qb_operand operands[3] = { { QB_OPERAND_ADDRESS, dst_address}, { QB_OPERAND_ADDRESS, src_address }, { QB_OPERAND_NUMBER, NULL } };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
 	operands[2].number = mask;
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_gather, operands, 3, &result, NULL, 0, NULL);
 }
 
@@ -1605,9 +1583,7 @@ static void qb_perform_scatter(qb_pbj_translator_context *cxt, qb_address *src_a
 	qb_operand operands[3] = { { QB_OPERAND_ADDRESS, dst_address}, { QB_OPERAND_ADDRESS, src_address }, { QB_OPERAND_NUMBER, NULL } };
 	qb_operand result = { QB_OPERAND_EMPTY, NULL };
 	operands[2].number = mask;
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	}
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_scatter, operands, 3, &result, NULL, 0, NULL);
 }
 
@@ -1696,6 +1672,7 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	qb_start_pbj_filter_loop(cxt);
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
+		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index + cxt->pbj_op_index, cxt->pbj_op_index);
 		qb_translate_current_pbj_instruction(cxt);
 	}
 	qb_end_pbj_filter_loop(cxt);

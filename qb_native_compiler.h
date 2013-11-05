@@ -29,7 +29,6 @@ typedef enum qb_access_method				qb_access_method;
 
 enum qb_scalar_access_method {
 	QB_SCALAR_LITERAL = 0,
-	QB_SCALAR_CONSTANT_VARIABLE,
 	QB_SCALAR_LOCAL_VARIABLE,
 	QB_SCALAR_POINTER,
 	QB_SCALAR_ELEMENT,
@@ -37,8 +36,6 @@ enum qb_scalar_access_method {
 	QB_ARRAY_POINTER_PLUS_OFFSET,
 	QB_ARRAY_POINTER_POINTER,
 	QB_ARRAY_POINTER_POINTER_PLUS_OFFSET,
-	QB_ARRAY_CONSTANT_POINTER,
-	QB_ARRAY_CONSTANT_POINTER_PLUS_OFFSET,
 };
 
 #define QB_NATIVE_FUNCTION_RET 			void
@@ -74,6 +71,7 @@ struct qb_native_compiler_context {
 	uint32_t writable_array_count;
 
 	qb_address *zero_address;
+	qb_address *one_address;
 
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;

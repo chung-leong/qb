@@ -296,6 +296,8 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define SWAP_LE_I16(v)	"STRING(SWAP_LE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_LE_I32(v)	"STRING(SWAP_LE_I32(v))"\n");
 	qb_print(cxt, "#define SWAP_LE_I64(v)	"STRING(SWAP_LE_I64(v))"\n");
+	qb_print(cxt, "#define TRUE	"STRING(TRUE)"\n");
+	qb_print(cxt, "#define FALSE	"STRING(FALSE)"\n");
 
 #ifdef __GNUC__
 #ifndef __builtin_bswap16
@@ -534,7 +536,7 @@ static qb_access_method qb_get_scalar_access_method(qb_native_compiler_context *
 
 static qb_access_method qb_get_array_access_method(qb_native_compiler_context *cxt, qb_address *address) {
 	switch(address->segment_selector) {
-		case QB_SELECTOR_CONSTANT_SCALAR: return QB_SCALAR_CONSTANT_VARIABLE;
+		case QB_SELECTOR_CONSTANT_SCALAR:
 		case QB_SELECTOR_CLASS_SCALAR:
 		case QB_SELECTOR_OBJECT_SCALAR:
 		case QB_SELECTOR_GLOBAL_SCALAR:
@@ -550,9 +552,9 @@ static qb_access_method qb_get_array_access_method(qb_native_compiler_context *c
 		}
 		case QB_SELECTOR_CONSTANT_ARRAY: {
 			if(address->array_index_address == cxt->zero_address) {
-				return QB_ARRAY_CONSTANT_POINTER;
+				return QB_ARRAY_POINTER;
 			} else {
-				return QB_ARRAY_CONSTANT_POINTER_PLUS_OFFSET;
+				return QB_ARRAY_POINTER_PLUS_OFFSET;
 			}
 		}
 		case QB_SELECTOR_CLASS_ARRAY:
@@ -561,17 +563,17 @@ static qb_access_method qb_get_array_access_method(qb_native_compiler_context *c
 		case QB_SELECTOR_SHARED_ARRAY: 
 		case QB_SELECTOR_LOCAL_ARRAY:
 		case QB_SELECTOR_TEMPORARY_ARRAY: {
-			if(address->array_index_address == cxt->zero_address) {
-				return QB_ARRAY_POINTER;
-			} else {
+			if(ARRAY_MEMBER(address)) {
 				return QB_ARRAY_POINTER_PLUS_OFFSET;
+			} else {
+				return QB_ARRAY_POINTER;
 			}
 		}
 		default: {
-			if(address->array_index_address == cxt->zero_address) {
-				return QB_ARRAY_POINTER_POINTER;
-			} else {
+			if(ARRAY_MEMBER(address)) {
 				return QB_ARRAY_POINTER_POINTER_PLUS_OFFSET;
+			} else {
+				return QB_ARRAY_POINTER_POINTER;
 			}
 		}
 	}
@@ -642,38 +644,39 @@ static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *
 	} else {
 		qb_access_method method = qb_get_array_access_method(cxt, address);
 		switch(method) {
-			case QB_SCALAR_CONSTANT_VARIABLE: {
-				snprintf(buffer, 128, "&const_%d_%d", address->segment_selector, address->segment_offset);
-			}	break;
 			case QB_SCALAR_POINTER: {
 				snprintf(buffer, 128, "var_ptr_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
 			case QB_SCALAR_LOCAL_VARIABLE: {
 				snprintf(buffer, 128, "&var_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
-			case QB_ARRAY_CONSTANT_POINTER: {
-				// constant array
-				snprintf(buffer, 128, "const_ptr_%d_%d", address->segment_selector, address->segment_offset);
-			}	break;
-			case QB_ARRAY_CONSTANT_POINTER_PLUS_OFFSET: {
-				const char *offset = qb_get_scalar(cxt, address->array_index_address);
-				snprintf(buffer, 128, "(const_ptr_%d_%d + %s)", address->segment_selector, address->segment_offset, offset);
-			}	break;
 			case QB_ARRAY_POINTER: {
 				// fixed-length array
 				snprintf(buffer, 128, "var_ptr_%d_%d", address->segment_selector, address->segment_offset);
 			}	break;
 			case QB_ARRAY_POINTER_PLUS_OFFSET: {
-				const char *offset = qb_get_scalar(cxt, address->array_index_address);
-				snprintf(buffer, 128, "(var_ptr_%d_%d + %s)", address->segment_selector, address->segment_offset, offset);
+				if(address->array_index_address == cxt->zero_address) {
+					qb_address *base_address = qb_get_root_container(cxt, address);
+					uint32_t offset = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
+					snprintf(buffer, 128, "(var_ptr_%d_%d + %d)", base_address->segment_selector, base_address->segment_offset, offset);
+				} else {
+					const char *offset = qb_get_scalar(cxt, address->array_index_address);
+					snprintf(buffer, 128, "(var_ptr_%d_%d + %s)", address->segment_selector, address->segment_offset, offset);
+				}
 			}	break;
 			case QB_ARRAY_POINTER_POINTER: {
 				// a variable-length array--dereference the pointer to pointer
 				snprintf(buffer, 128, "(*var_ptr_ptr_%d)", address->segment_selector);
 			}	break;
 			case QB_ARRAY_POINTER_POINTER_PLUS_OFFSET: {
-				const char *offset = qb_get_scalar(cxt, address->array_index_address);
-				snprintf(buffer, 128, "(*var_ptr_ptr_%d + %s)", address->segment_selector, offset);
+				if(address->array_index_address == cxt->zero_address) {
+					qb_address *base_address = qb_get_root_container(cxt, address);
+					uint32_t offset = ELEMENT_COUNT(address->segment_offset - base_address->segment_offset, address->type);
+					snprintf(buffer, 128, "(*var_ptr_ptr_%d + %d)", base_address->segment_selector, offset);
+				} else {
+					const char *offset = qb_get_scalar(cxt, address->array_index_address);
+					snprintf(buffer, 128, "(*var_ptr_ptr_%d + %s)", address->segment_selector, offset);
+				}
 			}	break;
 			default: {
 			}	break;
@@ -947,7 +950,9 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 }
 
 static void qb_print_local_variables(qb_native_compiler_context *cxt) {
-	uint32_t i, j;
+	uint32_t i, j, k;
+	int32_t *constant_as_pointer;
+	ALLOCA_FLAG(use_heap);
 
 	qb_print(cxt, "int8_t *ip;\n");
 	qb_print(cxt, "int condition;\n");
@@ -991,11 +996,39 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 	}
 	qb_print(cxt, "\n");
 
+	// see if any constant scalar is referenced as arrays
+	constant_as_pointer = do_alloca(cxt->constant_scalar_count * sizeof(int32_t), use_heap);
+	memset(constant_as_pointer, 0, cxt->constant_scalar_count * sizeof(int32_t));
+	for(i = 0; i < cxt->op_count; i++) {
+		qb_op *op = cxt->ops[i];
+		for(j = 0; j < op->operand_count; j++) {
+			qb_operand *operand = &op->operands[j];
+			if(operand->type == QB_OPERAND_ADDRESS) {
+				if(operand->address->mode == QB_ADDRESS_MODE_ARR && operand->address->segment_selector == QB_SELECTOR_CONSTANT_SCALAR) {
+					for(k = 0; k < cxt->constant_scalar_count; k++) {
+						if(operand->address->segment_offset == cxt->constant_scalars[k]->segment_offset) {
+							constant_as_pointer[k] = TRUE;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	for(i = 0; i < cxt->constant_scalar_count; i++) {
+		if(constant_as_pointer[i]) {
+			qb_address *address = cxt->constant_scalars[i];
+			const char *c_type = type_cnames[address->type];
+			qb_printf(cxt, "%s *var_ptr_%d_%d = (%s *) (storage->segments[%d].memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
+		}
+	}
+	free_alloca(constant_as_pointer, use_heap);
+
 	// create variables for constant arrays
 	for(i = 0; i < cxt->constant_array_count; i++) {
 		qb_address *address = cxt->constant_arrays[i];
 		const char *c_type = type_cnames[address->type];
-		qb_printf(cxt, "%s *const_ptr_%d_%d = (%s *) (storage->segments[%d].memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
+		qb_printf(cxt, "%s *var_ptr_%d_%d = (%s *) (storage->segments[%d].memory + %d);\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
 	}
 	qb_print(cxt, "\n");
 
@@ -1008,7 +1041,7 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 static void qb_print_function(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	if(cxt->print_source) {
-		qb_printf(cxt, "\n// Handle for %s()\n", cxt->compiled_function->name);
+		qb_printf(cxt, "\n// Handler for %s()\n", cxt->compiled_function->name);
 	}
 	qb_printf(cxt, STRING(QB_NATIVE_FUNCTION_RET QB_NATIVE_FUNCTION_ATTR) " QBN_%" PRIX64 "(" STRING(QB_NATIVE_FUNCTION_ARGS) ")\n{\n", cxt->compiled_function->instruction_crc64);
 	qb_print_local_variables(cxt);
@@ -1050,6 +1083,7 @@ static void qb_print_functions(qb_native_compiler_context *cxt) {
 				cxt->writable_arrays = compiler_cxt->writable_arrays;
 				cxt->writable_array_count = compiler_cxt->writable_array_count;
 				cxt->zero_address = compiler_cxt->zero_address;
+				cxt->one_address = compiler_cxt->one_address;
 				cxt->storage = compiler_cxt->storage;
 				cxt->compiled_function = compiler_cxt->compiled_function;
 
