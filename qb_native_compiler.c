@@ -844,7 +844,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		const char *action;
 		uint32_t i, j;
 
-		if(cxt->print_source) {
+		if(cxt->print_source || TRUE) {
 			name = qb_get_op_name(cxt, qop->opcode);
 			qb_printf(cxt, "// %s (line #%d)\n", name, qop->line_number);
 		}
@@ -899,6 +899,8 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
 			qb_copy_local_arguments_to_storage(cxt, qop);
 			qb_print(cxt, "\n");
+		} else if(qop->opcode == QB_END_STATIC) {
+			qb_printf(cxt, "ip = cxt->function->instructions + %d;\n", qop->instruction_offset);
 		}
 
 		// print code that actually performs the action
@@ -914,6 +916,11 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
 			qb_copy_local_arguments_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
+		} else if(qop->opcode == QB_END_STATIC) {
+			if(!(cxt->ops[qop_index]->flags & QB_OP_JUMP_TARGET)) {
+				const char *jump_target = qb_get_jump_label(cxt, qop_index + 1);
+				qb_printf(cxt, "%s:\n", jump_target);
+			}
 		}
 
 #ifdef ZEND_WIN32				
@@ -1038,6 +1045,32 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "\n");
 }
 
+static void qb_print_reentry_switch(qb_native_compiler_context *cxt) {
+	int32_t started = FALSE;
+	uint32_t i;
+	for(i = 0; i < cxt->op_count; i++) {
+		qb_op *qop = cxt->ops[i];
+		uint32_t restore_op_index = INVALID_INDEX;
+		switch(qop->opcode) {
+			case QB_END_STATIC: {
+				restore_op_index = i + 1;
+			}	break;
+		}
+		if(restore_op_index != INVALID_INDEX) {
+			const char *jump_target = qb_get_jump_label(cxt, restore_op_index);
+			if(!started) {
+				qb_print(cxt, "switch(cxt->function->instruction_start - cxt->function->instructions) {\n");
+				started = TRUE;
+			}
+			qb_printf(cxt,	"case %d: goto %s;\n", qop->instruction_offset, jump_target);
+		}
+	}
+	if(started) {
+		qb_print(cxt, "}\n");
+		qb_print(cxt, "\n");
+	}
+}
+
 static void qb_print_function(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	if(cxt->print_source) {
@@ -1045,6 +1078,7 @@ static void qb_print_function(qb_native_compiler_context *cxt) {
 	}
 	qb_printf(cxt, STRING(QB_NATIVE_FUNCTION_RET QB_NATIVE_FUNCTION_ATTR) " QBN_%" PRIX64 "(" STRING(QB_NATIVE_FUNCTION_ARGS) ")\n{\n", cxt->compiled_function->instruction_crc64);
 	qb_print_local_variables(cxt);
+	qb_print_reentry_switch(cxt);
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_print_op(cxt, cxt->ops[i], i);
 	}
