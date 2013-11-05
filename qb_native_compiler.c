@@ -604,8 +604,34 @@ static const char * qb_get_scalar(qb_native_compiler_context *cxt, qb_address *a
 				case QB_TYPE_U32: snprintf(buffer, 128, "%" PRIu32"U", VALUE(U32, address)); break;
 				case QB_TYPE_S64: snprintf(buffer, 128, "%" PRId64"LL", VALUE(S64, address)); break;
 				case QB_TYPE_U64: snprintf(buffer, 128, "%" PRIu64"ULL", VALUE(U64, address)); break;
-				case QB_TYPE_F32: snprintf(buffer, 128, isnan(VALUE(F32, address)) ? "%.11f" : "%.11ff", VALUE(F32, address)); break;
-				case QB_TYPE_F64: snprintf(buffer, 128, "%.17f", VALUE(F64, address)); break;
+				case QB_TYPE_F32: {
+					float32_t number = VALUE(F32, address);
+					if(isnan(number)) {
+						snprintf(buffer, 128, "NAN");
+					} else if(zend_finite(number)) {
+						snprintf(buffer, 128, "%.11ff", number); 
+					} else {
+						if(number > 0) {
+							snprintf(buffer, 128, "INF");
+						} else {
+							snprintf(buffer, 128, "-INF");
+						}
+					}
+				}	break;
+				case QB_TYPE_F64: {
+					float64_t number = VALUE(F64, address);
+					if(isnan(number)) {
+						snprintf(buffer, 128, "NAN");
+					} else if(zend_finite(number)) {
+						snprintf(buffer, 128, "%.17f", number); 
+					} else {
+						if(number > 0) {
+							snprintf(buffer, 128, "INF");
+						} else {
+							snprintf(buffer, 128, "-INF");
+						}
+					}
+				}	break;
 				default: break;
 			}
 		}	break;
@@ -711,10 +737,6 @@ static const char * qb_get_pointer(qb_native_compiler_context *cxt, qb_address *
 		}	break;
 	}
 	return buffer;
-}
-
-static const char * qb_get_array_size(qb_native_compiler_context *cxt, qb_address *address) {
-	return qb_get_scalar(cxt, address->array_size_address);
 }
 
 static const char * qb_get_jump_label(qb_native_compiler_context *cxt, uint32_t jump_target_index) {
@@ -899,10 +921,12 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 					}	break;
 					case QB_ADDRESS_MODE_ARR: {
 						if(address->array_size_address != cxt->zero_address) {
-							const char *count = qb_get_array_size(cxt, address);
+							const char *count = qb_get_scalar(cxt, address->array_size_address);
 							const char *pointer = qb_get_pointer(cxt, address);
+							const char *count_pointer = qb_get_pointer(cxt, address->array_size_address);
 							qb_printf(cxt, "#define %s_ptr	%s\n", name, pointer);
 							qb_printf(cxt, "#define %s_count	%s\n", name, count);
+							qb_printf(cxt, "#define %s_count_ptr	%s\n", name, count_pointer);
 						} else {
 							qb_printf(cxt, "#define %s_ptr	NULL\n", name);
 							qb_printf(cxt, "#define %s_count	0U\n", name);
