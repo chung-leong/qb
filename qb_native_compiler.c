@@ -781,9 +781,11 @@ static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, 
 					qb_copy_local_scalar_to_storage(cxt, address);
 				}	break;
 				case QB_ADDRESS_MODE_ELE: {
+					qb_copy_local_scalar_to_storage(cxt, address);
 					qb_copy_local_scalar_to_storage(cxt, address->array_index_address);
 				}	break;
 				case QB_ADDRESS_MODE_ARR: {
+					qb_copy_local_scalar_to_storage(cxt, address);
 					qb_copy_local_scalar_to_storage(cxt, address->array_index_address);
 				}	break;
 			}
@@ -826,9 +828,11 @@ static void qb_copy_local_variables_from_storage(qb_native_compiler_context *cxt
 						qb_copy_local_scalar_from_storage(cxt, address);
 					}	break;
 					case QB_ADDRESS_MODE_ELE: {
+						qb_copy_local_scalar_from_storage(cxt, address);
 						qb_copy_local_scalar_from_storage(cxt, address->array_index_address);
 					}	break;
 					case QB_ADDRESS_MODE_ARR: {
+						qb_copy_local_scalar_from_storage(cxt, address);
 						qb_copy_local_scalar_from_storage(cxt, address->array_index_address);
 					}	break;
 				}
