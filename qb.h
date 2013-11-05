@@ -89,7 +89,6 @@
 	#elif defined(__MACH__)
 		#if defined(__i386__) || defined(__x86_64__)
 			#define NATIVE_COMPILE_ENABLED	1
-
 		#endif
 	#endif
 #endif

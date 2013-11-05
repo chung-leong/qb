@@ -27,7 +27,7 @@ typedef struct qb_native_compiler_context	qb_native_compiler_context;
 
 typedef enum qb_access_method				qb_access_method; 
 
-enum qb_scalar_access_method {
+enum qb_access_method {
 	QB_SCALAR_LITERAL = 0,
 	QB_SCALAR_LOCAL_VARIABLE,
 	QB_SCALAR_POINTER,

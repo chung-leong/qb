@@ -92,6 +92,7 @@ if test "$PHP_QB" != "no"; then
 	qb_interpreter.c \
 	qb_interpreter_functions_gcc.c \
 	qb_interpreter_loop_gcc.c \
+	qb_native_compiler.c \
 	qb_op.c \
 	qb_op_factories.c \
 	qb_parser.c \
