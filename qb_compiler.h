@@ -24,7 +24,6 @@
 typedef struct qb_compiler_context			qb_compiler_context;
 typedef struct qb_diagnostics				qb_diagnostics;
 typedef struct qb_variable_dimensions		qb_variable_dimensions;
-typedef struct qb_temporary_variable		qb_temporary_variable;
 typedef struct qb_jump_target				qb_jump_target;
 
 typedef enum qb_stage						qb_stage;
@@ -39,11 +38,6 @@ struct qb_variable_dimensions {
 	qb_address *array_size_address;
 	qb_address *dimension_addresses[64];
 	qb_address *array_size_addresses[64];
-};
-
-struct qb_temporary_variable {
-	qb_operand operand;
-	uint32_t last_access_op_index;
 };
 
 struct qb_jump_target {

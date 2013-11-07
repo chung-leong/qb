@@ -931,11 +931,10 @@ static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions,
 		if(dimensions[0] == 0 && zero_means_unknown) {
 			// if it's zero, it's unknown at compile time
 			address->array_size_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+			address->array_size_address->flags |= QB_ADDRESS_DIMENSION;
 			address->flags |= QB_ADDRESS_RESIZABLE;
 		} else {
-			qb_address *array_size_address = qb_obtain_constant_U32(cxt, dimensions[0]);
-			array_size_address->flags |= QB_ADDRESS_DIMENSION;
-			address->array_size_address = array_size_address;
+			address->array_size_address = qb_obtain_constant_U32(cxt, dimensions[0]);
 		}
 		address->dimension_addresses = &address->array_size_address;
 		address->array_size_addresses = &address->array_size_address;
@@ -961,9 +960,9 @@ static void qb_attach_dimensions(qb_compiler_context *cxt, uint32_t *dimensions,
 				array_size_address = dimension_address;
 			} else if(dimension == 0 && zero_means_unknown) {
 				array_size_address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+				array_size_address->flags |= QB_ADDRESS_DIMENSION;
 			} else {
 				array_size_address = qb_obtain_constant_U32(cxt, array_size);
-				array_size_address->flags |= QB_ADDRESS_RESIZABLE;
 			}
 			address->dimension_addresses[i] = dimension_address;
 			address->array_size_addresses[i] = array_size_address;
@@ -3006,7 +3005,7 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 			}
 		}
 
-		if(result && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT) && (result->type == QB_OPERAND_ADDRESS) && CONSTANT(result->address)) {
+		if(result && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT) && !(qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT)) && (result->type == QB_OPERAND_ADDRESS) && CONSTANT(result->address)) {
 			// evalulate the expression at compile-time if it's constant and side-effect-free
 			qb_execute_op(cxt, qop);
 

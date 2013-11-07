@@ -68,7 +68,7 @@ static void qb_retire_operand(qb_php_translator_context *cxt, uint32_t zoperand_
 				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 					temp_variable->operand = *operand;
 				} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-					if(temp_variable->last_access_op_index == cxt->zend_op_index && FALSE) {
+					if(temp_variable->last_access_op_index == cxt->zend_op_index) {
 						// unlock the operand if the current op is the last to access it
 						qb_unlock_operand(cxt->compiler_context, operand);
 						temp_variable->operand.type = QB_OPERAND_EMPTY;

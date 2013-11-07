@@ -73,7 +73,6 @@ static int32_t qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t ind
 				// combine the comparison op with the branch op
 				// (only if no arrays are involved since the combined instructions aren't implemented for them)
 				if(!qb_find_array_address(prev_qop)) {
-					// TODO: get rid of this switch loop
 					switch(prev_qop->opcode) {
 						case QB_EQ_I08_I08_I32:	new_opcode = QB_IF_EQ_I08_I08; break;
 						case QB_EQ_I16_I16_I32:	new_opcode = QB_IF_EQ_I16_I16; break;
