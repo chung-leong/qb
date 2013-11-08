@@ -45,6 +45,12 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, uint32_t zope
 				*operand = temp_variable->operand;
 				if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
 					temp_variable->last_access_op_index = cxt->zend_op_index;
+				} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+#ifdef ZEND_DEBUG
+					if(temp_variable->freed) {
+						qb_abort("Op %d is accessing temporary varaible #%d which was freed by op %d", cxt->zend_op_index, temp_var_index, temp_variable->last_access_op_index);
+					}
+#endif
 				}
 				break;
 			}
@@ -73,8 +79,11 @@ static void qb_retire_operand(qb_php_translator_context *cxt, uint32_t zoperand_
 						qb_unlock_operand(cxt->compiler_context, operand);
 						temp_variable->operand.type = QB_OPERAND_EMPTY;
 						temp_variable->operand.generic_pointer = NULL;
+#ifdef ZEND_DEBUG
+						temp_variable->freed = TRUE;
+#endif
 					} else {
-						if(memcmp(&temp_variable->operand, operand, sizeof(qb_operand)) != 0) {
+						if(temp_variable->operand.type != operand->type || temp_variable->operand.address != operand->address) {
 							// unlock what was there before if it's different
 							qb_unlock_operand(cxt->compiler_context, &temp_variable->operand);
 							temp_variable->operand = *operand;
@@ -442,6 +451,10 @@ static void qb_translate_branch(qb_php_translator_context *cxt, void *op_factory
 	zend_op *target_op1 = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
 	uint32_t target_indices[2];
 
+	// start down the next instruction first before going down the branch
+	cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
+	cxt->next_op_index2 = cxt->zend_op_index + 1;
+
 	// coerce the condition to boolean here so we can check whether a branch can be eliminated
 	qb_perform_boolean_coercion(cxt->compiler_context, condition);
 
@@ -450,20 +463,14 @@ static void qb_translate_branch(qb_php_translator_context *cxt, void *op_factory
 		int32_t is_true = VALUE_IN(cxt->compiler_context->storage, I32, condition->address);
 		if((is_true && op_factory == &factory_branch_on_true) || (!is_true && op_factory == &factory_branch_on_false)) {
 			// the branch always occurs--jump to it
-			cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
-
 			target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
 			qb_produce_op(cxt->compiler_context, &factory_jump, NULL, 0, result, target_indices, 1, result_prototype);
+			cxt->next_op_index2 = 0;
 		} else {
-			// the branch is not reachable, just go to the next op
-			cxt->next_op_index2 = cxt->zend_op_index + 1;
+			// just go to the next op
+			cxt->next_op_index1 = 0;
 		}
 	} else {
-
-		// start down the next instruction first before going down the branch
-		cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
-		cxt->next_op_index2 = cxt->zend_op_index + 1;
-
 		target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
 		target_indices[1] = JUMP_TARGET_INDEX(cxt->next_op_index2, 0);
 		qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, target_indices, 2, result_prototype);
@@ -1009,13 +1016,12 @@ static void qb_translate_instruction_range(qb_php_translator_context *cxt, uint3
 	cxt->zend_op = ZEND_OP(start_index);
 	for(;;) {
 		if(cxt->compiler_context->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-			if(cxt->result_prototypes[cxt->zend_op_index].preliminary_type != QB_TYPE_UNKNOWN) {
+			if(cxt->op_processed[cxt->zend_op_index]) {
 				// the result prototype has been built already
 				break;
 			}
-			qb_translate_current_instruction(cxt);
 		} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-			if(qb_is_source_op_translated(cxt->compiler_context, cxt->zend_op_index)) {
+			if(cxt->op_processed[cxt->zend_op_index]) {
 				// instruction has already been translated--do a jump there and exit
 				qb_invalidate_all_on_demand_expressions(cxt->compiler_context);
 				qb_create_op(cxt->compiler_context, &factory_jump, QB_TYPE_VOID, NULL, 0, NULL, &cxt->zend_op_index, 1, FALSE);
@@ -1027,11 +1033,12 @@ static void qb_translate_instruction_range(qb_php_translator_context *cxt, uint3
 				// the result of on-demand expressions might no longer be valid
 				qb_invalidate_all_on_demand_expressions(cxt->compiler_context);
 			}
-
-			// translate the current instruction
-			qb_set_source_op_index(cxt->compiler_context, cxt->zend_op_index, cxt->zend_op->lineno);
-			qb_translate_current_instruction(cxt);
 		}
+
+		// translate the current instruction
+		qb_set_source_op_index(cxt->compiler_context, cxt->zend_op_index, cxt->zend_op->lineno);
+		qb_translate_current_instruction(cxt);
+		cxt->op_processed[cxt->zend_op_index] = TRUE;
 
 		// see if it was a branch or a jump
 		if(cxt->next_op_index1) {
@@ -1042,14 +1049,14 @@ static void qb_translate_instruction_range(qb_php_translator_context *cxt, uint3
 			if(op_index1 == INVALID_INDEX) {
 				break;
 			} else if(op_index2) {
-				qb_translate_instruction_range(cxt, op_index1, op_index2);
+				if(op_index1) {
+					qb_translate_instruction_range(cxt, op_index1, op_index2);
+				}
+				cxt->zend_op = ZEND_OP(op_index2);
+				cxt->zend_op_index = op_index2;
 			} else {
 				cxt->zend_op = ZEND_OP(op_index1);
 				cxt->zend_op_index = op_index1;
-			}
-			if(op_index2) {
-				cxt->zend_op = ZEND_OP(op_index2);
-				cxt->zend_op_index = op_index2;
 			}
 		} else {
 			cxt->zend_op++;
@@ -1072,6 +1079,9 @@ void qb_survey_instructions(qb_php_translator_context *cxt) {
 	for(i = 0; i < cxt->temp_variable_count; i++) {
 		qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
 		temp_variable->operand.type = QB_OPERAND_EMPTY;
+#ifdef ZEND_DEBUG
+		temp_variable->freed = FALSE;
+#endif
 	}
 
 	for(i = 0; i < cxt->result_prototype_count; i++) {
@@ -1085,6 +1095,7 @@ void qb_survey_instructions(qb_php_translator_context *cxt) {
 
 	// scan through the opcodes to determine the type of each expression
 	cxt->compiler_context->stage = QB_STAGE_RESULT_TYPE_RESOLUTION;
+	memset(cxt->op_processed, 0, cxt->zend_op_array->last);
 	qb_translate_instruction_range(cxt, 0, cxt->zend_op_array->last);
 }
 
@@ -1097,6 +1108,7 @@ void qb_translate_instructions(qb_php_translator_context *cxt) {
 	}
 
 	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
+	memset(cxt->op_processed, 0, cxt->zend_op_array->last);
 	qb_translate_instruction_range(cxt, 0, cxt->zend_op_array->last);
 
 	// make sure there's always a RET at the end
@@ -1143,6 +1155,8 @@ void qb_initialize_php_translator_context(qb_php_translator_context *cxt, qb_com
 	qb_attach_new_array(cxt->pool, (void **) &cxt->result_prototypes, &cxt->result_prototype_count, sizeof(qb_result_prototype), cxt->zend_op_array->last);
 	qb_enlarge_array((void **) &cxt->result_prototypes, cxt->zend_op_array->last);
 
+	cxt->op_processed = emalloc(cxt->zend_op_array->last);
+
 	SAVE_TSRMLS
 }
 
@@ -1150,4 +1164,5 @@ void qb_free_php_translator_context(qb_php_translator_context *cxt) {
 	if(cxt->stack_items) {
 		efree(cxt->stack_items);
 	}
+	efree(cxt->op_processed);
 }

@@ -46,6 +46,8 @@ struct qb_php_translator_context {
 	qb_compiler_context *compiler_context;
 	qb_data_pool *pool;
 
+	int8_t *op_processed;
+
 	zend_op_array *zend_op_array;
 	zend_op *zend_op;
 	uint32_t zend_op_index;
