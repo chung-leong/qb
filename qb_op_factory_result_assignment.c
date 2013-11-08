@@ -28,19 +28,6 @@ static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, 
 	}
 }
 
-static int32_t qb_all_constant(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
-	uint32_t i;
-	for(i = 0; i < operand_count; i++) {
-		qb_operand *operand = &operands[i];
-		if(operand->type == QB_OPERAND_ADDRESS) {
-			if(!CONSTANT(operand->address)) {
-				return FALSE;
-			}
-		}
-	}
-	return TRUE;
-}
-
 static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// if an address is provided and it isn't a constant value, then use that address
 	// a constant can show up here if one clause of a short-circuited logical statement is constant
@@ -51,7 +38,8 @@ static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factor
 		if(f->set_dimensions) {
 			f->set_dimensions(cxt, f, operands, operand_count, &dim);
 		}
-		if((f->result_flags & QB_RESULT_FROM_PURE_FUNCTION) && qb_all_constant(cxt, operands, operand_count) && CONSTANT(dim.array_size_address)) {
+
+		if(result_prototype && result_prototype->address_flags & QB_ADDRESS_CONSTANT) {
 			if(dim.dimension_count > 0) {
 				uint32_t dimensions[MAX_DIMENSION], i;
 				for(i = 0; i < dim.dimension_count; i++) {

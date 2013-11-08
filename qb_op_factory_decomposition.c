@@ -55,11 +55,12 @@ static void qb_decompose_pairwise_op_series(qb_compiler_context *cxt, void *fact
 
 static void qb_decompose_fetch_do_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_fetch_do_op_decomposer *d = factory;
-	qb_operand fetch_result;
+	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL };
 	qb_result_prototype fetch_result_prototype;
 	qb_operand do_operands[2];
 	
 	// do the fetch first
+	memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, d->fetch_factory, operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
 
 	// perform whatever action
@@ -75,6 +76,7 @@ static void qb_decompose_branch_set(qb_compiler_context *cxt, void *factory, qb_
 	qb_result_prototype branch_result_prototype;
 
 	// do the branch first
+	memset(&branch_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, jump_target_indices, jump_target_count, &branch_result_prototype);
 
 	// do the assignment
@@ -99,12 +101,14 @@ static void qb_decompose_select(qb_compiler_context *cxt, void *factory, qb_oper
 	uint32_t jump_indices[1] = { JUMP_TARGET_INDEX(cxt->source_op_index, 4) };
 
 	// branch to assignment to first value on true (offset = 0)
+	memset(&branch_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, d->factory, &branch_condition, 1, &branch_result, branch_indices, 2, &branch_result_prototype);
 
 	// perform assignment to second value (offset = 1)
 	qb_produce_op(cxt, &factory_assign_select, &operands[2], 1, result, NULL, 0, result_prototype);
 
 	// jump over assignment to the first value (offset = 2)
+	memset(&jump_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, &factory_jump, NULL, 0, &jump_result, jump_indices, 1, &jump_result_prototype);
 
 	// perform assignment to first value (offset = 3)
@@ -126,9 +130,11 @@ static void qb_decompose_fork(qb_compiler_context *cxt, void *factory, qb_operan
 	qb_result_prototype init_result_prototype, resume_result_prototype;
 
 	// do the fork 
+	memset(&init_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, d->init_factory, operands, operand_count, &init_result, NULL, 0, &init_result_prototype);
 
 	// add resumption point (empty op that holds the next_handler pointer)
+	memset(&resume_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, d->resume_factory, NULL, 0, &resume_result, NULL, 0, &resume_result_prototype);
 
 	// add result op
@@ -142,10 +148,12 @@ static void qb_decompose_array_pop(qb_compiler_context *cxt, void *factory, qb_o
 	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL }, unset_result = { QB_OPERAND_EMPTY, NULL };
 	qb_result_prototype fetch_result_prototype, unset_result_prototype;
 
+	memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, &factory_fetch_array_element_read, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
 
 	qb_produce_op(cxt, &factory_assign_temporary, &fetch_result, 1, result, NULL, 0, result_prototype);
 
+	memset(&unset_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, &factory_unset_array_element, fetch_operands, 2, &unset_result, NULL, 0, &unset_result_prototype);
 }
 
@@ -156,10 +164,12 @@ static void qb_decompose_array_shift(qb_compiler_context *cxt, void *factory, qb
 	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL }, unset_result = { QB_OPERAND_EMPTY, NULL };
 	qb_result_prototype fetch_result_prototype, unset_result_prototype;
 
+	memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, &factory_fetch_array_element_read, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
 
 	qb_produce_op(cxt, &factory_assign_temporary, &fetch_result, 1, result, NULL, 0, result_prototype);
 
+	memset(&unset_result_prototype, 0, sizeof(qb_result_prototype));
 	qb_produce_op(cxt, &factory_unset_array_element, fetch_operands, 2, &unset_result, NULL, 0, &unset_result_prototype);
 }
 
@@ -174,6 +184,7 @@ static void qb_decompose_array_push(qb_compiler_context *cxt, void *factory, qb_
 		qb_result_prototype fetch_result_prototype;
 		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, NULL };
 
+		memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
 		qb_produce_op(cxt, &factory_fetch_array_element_write, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
 		assign_operands[0] = fetch_result;
 		assign_operands[1] = operands[i];
@@ -194,6 +205,7 @@ static void qb_decompose_array_unshift(qb_compiler_context *cxt, void *factory, 
 		qb_result_prototype fetch_result_prototype;
 		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, NULL };
 
+		memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
 		qb_produce_op(cxt, &factory_fetch_array_element_insert, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
 		assign_operands[0] = fetch_result;
 		assign_operands[1] = operands[i];
@@ -206,8 +218,11 @@ static void qb_decompose_array_unshift(qb_compiler_context *cxt, void *factory, 
 static void qb_decompose_in_array(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand search_result = { QB_OPERAND_EMPTY, NULL };
 	qb_operand comparison_operands[2];
+	qb_result_prototype search_result_prototype;
 
-	qb_produce_op(cxt, &factory_array_search, operands, operand_count, &search_result, NULL, 0, NULL);
+	memset(&search_result_prototype, 0, sizeof(qb_result_prototype));
+	search_result_prototype.preliminary_type = search_result_prototype.final_type = QB_TYPE_I32;
+	qb_produce_op(cxt, &factory_array_search, operands, operand_count, &search_result, NULL, 0, &search_result_prototype);
 	comparison_operands[0] = search_result;
 	comparison_operands[1].address = qb_obtain_constant_U32(cxt, -1);
 	comparison_operands[1].type = QB_OPERAND_ADDRESS;

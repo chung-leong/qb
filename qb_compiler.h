@@ -51,6 +51,7 @@ struct qb_jump_target {
 enum qb_stage {
 	QB_STAGE_VARIABLE_INITIALIZATION,
 	QB_STAGE_RESULT_TYPE_RESOLUTION,
+	QB_STAGE_CONSTANT_EXPRESSION_EVALUATION,
 	QB_STAGE_OPCODE_TRANSLATION,
 };
 
@@ -400,7 +401,7 @@ int32_t qb_is_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index);
 
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
-void qb_execute_op(qb_compiler_context *cxt, qb_op *op);
+void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
 void qb_add_variables(qb_compiler_context *cxt);
 void qb_initialize_function_prototype(qb_compiler_context *cxt);

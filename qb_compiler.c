@@ -3005,28 +3005,73 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 			}
 		}
 
-		if(result && !(f->result_flags & QB_RESULT_HAS_SIDE_EFFECT) && !(qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT)) && (result->type == QB_OPERAND_ADDRESS) && CONSTANT(result->address)) {
-			// evalulate the expression at compile-time if it's constant and side-effect-free
-			qb_execute_op(cxt, qop);
-
-			// make it a nop
-			qop->opcode = QB_NOP;
-			qop->operand_count = 0;
-			qop->operands = NULL;
-		} else {
-			for(i = 0; i < qop->operand_count; i++) {
-				// mark result address as writable
-				if(qb_is_operand_write_target(qop->opcode, i)) {
-					qb_address *address = qop->operands[i].address;
-					qb_mark_as_writable(cxt, address);
-					qb_invalidate_on_demand_expressions(cxt, address);
-				}
+		for(i = 0; i < qop->operand_count; i++) {
+			// mark result address as writable
+			if(qb_is_operand_write_target(qop->opcode, i)) {
+				qb_address *address = qop->operands[i].address;
+				qb_mark_as_writable(cxt, address);
+				qb_invalidate_on_demand_expressions(cxt, address);
 			}
 		}
 	} else {
 		// it's a nop
 		qb_add_op(cxt, qop);
 	}
+}
+
+void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	USE_TSRM
+	int8_t instructions[256];
+	qb_op *ops[2], target_op, ret_op;
+	qb_function _qfunc, *qfunc = &_qfunc;
+	qb_compiler_context _compiler_cxt, *compiler_cxt = &_compiler_cxt;
+	qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
+	qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
+	qb_op_factory *f = factory;
+	ALLOCA_FLAG(use_heap);
+
+	target_op.opcode = f->select_opcode(cxt, f, expr_type, operands, operand_count, result);
+	target_op.flags = qb_get_op_flags(target_op.opcode);
+	target_op.operand_count = qb_get_operand_count(target_op.opcode);
+	target_op.operands = do_alloca(sizeof(qb_operand) * target_op.operand_count, use_heap);
+	target_op.jump_target_indices = NULL;
+	target_op.jump_target_count = 0;
+	target_op.instruction_offset = 0;
+	target_op.line_number = 0;
+
+	if(f->transfer_operands) {
+		f->transfer_operands(cxt, f, operands, operand_count, result, target_op.operands, target_op.operand_count);
+	}
+
+	ret_op.opcode = QB_RET;
+	ret_op.flags = QB_OP_EXIT;
+	ret_op.operand_count = 0;
+	ret_op.operands = NULL;
+	ret_op.jump_target_indices = NULL;
+	ret_op.jump_target_count = 0;
+	ret_op.instruction_offset = 0;
+	ret_op.line_number = 0;
+
+	*compiler_cxt = *cxt;
+	ops[0] = &target_op;
+	ops[1] = &ret_op;
+	compiler_cxt->ops = ops;
+	compiler_cxt->op_count = 2;
+	*qfunc = cxt->function_prototype;
+	qfunc->instructions = qfunc->instruction_start = instructions;
+	qfunc->in_use = FALSE;
+	
+	qb_resolve_address_modes(compiler_cxt);
+	qb_initialize_encoder_context(encoder_cxt, compiler_cxt, FALSE TSRMLS_CC);
+	qb_set_instruction_offsets(encoder_cxt);
+	qb_encode_instruction_stream(encoder_cxt, instructions);
+	qb_free_encoder_context(encoder_cxt);
+
+	qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
+	qb_main(interpreter_cxt);
+	qb_free_interpreter_context(interpreter_cxt);
+
+	free_alloca(target_op.operands, use_heap);
 }
 
 static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address) {
@@ -3049,6 +3094,27 @@ void qb_create_on_demand_op(qb_compiler_context *cxt, qb_operand *operand) {
 	} 
 }
 
+static int32_t qb_is_constant_expression(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type == QB_OPERAND_ADDRESS) {
+			if(!CONSTANT(operand->address)) {
+				return FALSE;
+			}
+		} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
+			if(operand->array_initializer->flags & QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS) {
+				return FALSE;
+			}
+		} else if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
+			if(!(operand->result_prototype->address_flags & QB_ADDRESS_CONSTANT)) {
+				return FALSE;
+			}
+		}
+	}
+	return TRUE;
+}
+
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_factory *f = factory;
 	if(f->produce_composite) {
@@ -3058,104 +3124,145 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 		int32_t result_used = (result->type != QB_OPERAND_NONE);
 		uint32_t i;
 
-		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-			// determine the expression type
-			if(f->resolve_type) {
-				expr_type = f->resolve_type(cxt, f, operands, operand_count);
-
-				if(result_prototype) {
-					// indicate in the prototype that the expression has this type
-					result_prototype->preliminary_type = expr_type;
-					if(!(f->coercion_flags & QB_COERCE_TO_LVALUE_TYPE) || result->type == QB_OPERAND_NONE) {
-						// as the result doesn't depend on the context (or there is no context at all)
-						// we're certain about the type 
-						result_prototype->final_type = expr_type;
-					}
-					result_prototype->coercion_flags = f->coercion_flags;
-					result_prototype->address_flags = f->address_flags;
-				}
-			} else {
-				// the translation loop depends on the type getting set to something other than QB_TYPE_UNKNOWN
-				if(result_prototype) {
-					result_prototype->preliminary_type = QB_TYPE_ANY;
-				}
-			}
-		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-			// use the result from the previous stage if it's available 
-			if(result_prototype) {
-				// finalize it first
-				qb_finalize_result_prototype(cxt, result_prototype);
-				expr_type = result_prototype->final_type;
-			} else {
+		switch(cxt->stage) {
+			case QB_STAGE_VARIABLE_INITIALIZATION: {
 				if(f->resolve_type) {
 					expr_type = f->resolve_type(cxt, f, operands, operand_count);
 				}
-			}
-		} else if(cxt->stage == QB_STAGE_VARIABLE_INITIALIZATION) {
-			if(f->resolve_type) {
-				expr_type = f->resolve_type(cxt, f, operands, operand_count);
-			}
-		}
 
-		// perform type coercion on operand
-		if(f->coerce_operands) {
-			// note that the handler might not necessarily convert all the operands to expr_type
-			f->coerce_operands(cxt, f, expr_type, operands, operand_count);
-		}
+				if(f->coerce_operands) {
+					f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+				}
 
-		if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-			// do validation
-			if(f->validate_operands) {
-				f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype) ? result_prototype->destination : NULL);
-			}
-		}
+				if(f->set_final_result) {
+					f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+				}
 
-		// then, assign result to result object
-		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-			if(f->link_results) {
-				f->link_results(cxt, f, operands, operand_count, result_prototype);
-			}
-			if(f->set_preliminary_result) {
-				f->set_preliminary_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
-			}
-		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-			if(f->set_final_result) {
-				if(expr_type == QB_TYPE_ANY) {
-					// couldn't figure it out the first time around
-					// after type coercion, we should know what the expresion is
+				qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
+			}	break;
+			case QB_STAGE_RESULT_TYPE_RESOLUTION: {
+				// determine the expression type
+				if(f->resolve_type) {
+					expr_type = f->resolve_type(cxt, f, operands, operand_count);
+
+					if(result_prototype) {
+						// indicate in the prototype that the expression has this type
+						result_prototype->preliminary_type = expr_type;
+						if(!(f->coercion_flags & QB_COERCE_TO_LVALUE_TYPE) || result->type == QB_OPERAND_NONE) {
+							// as the result doesn't depend on the context (or there is no context at all)
+							// we're certain about the type 
+							result_prototype->final_type = expr_type;
+						}
+						result_prototype->coercion_flags = f->coercion_flags;
+						result_prototype->address_flags = f->address_flags;
+					}
+				}
+
+				if(f->coerce_operands) {
+					f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+				}
+
+				if(f->link_results) {
+					f->link_results(cxt, f, operands, operand_count, result_prototype);
+				}
+
+				if(f->set_preliminary_result) {
+					f->set_preliminary_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+				}
+
+				if(result_prototype) {
+					if(f->result_flags & QB_RESULT_FROM_PURE_FUNCTION) {
+						// see if the expression is constant
+						if(qb_is_constant_expression(cxt, operands, operand_count)) {
+							result_prototype->address_flags &= ~QB_ADDRESS_TEMPORARY;
+							result_prototype->address_flags |= QB_ADDRESS_CONSTANT;
+						}
+					}
+				}
+
+				// mark the jump targets
+				for(i = 0; i < jump_target_count; i++) {
+					qb_add_jump_target(cxt, jump_target_indices[i]);
+				}
+			}	break;
+			case QB_STAGE_CONSTANT_EXPRESSION_EVALUATION: {
+				if(result_prototype && (result_prototype->address_flags & QB_ADDRESS_CONSTANT)) {
+					qb_finalize_result_prototype(cxt, result_prototype);
+					expr_type = result_prototype->final_type;
+					
+					if(f->coerce_operands) {
+						f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+					}
+
+					if(f->validate_operands) {
+						f->validate_operands(cxt, f, expr_type, operands, operand_count, result_prototype->destination);
+					}
+
+					if(f->set_final_result) {
+						f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+					}
+
+					if(result->type == QB_OPERAND_ADDRESS) {
+						qb_execute_op(cxt, f, expr_type, operands, operand_count, result);
+						result_prototype->constant_result_address = result->address;
+					}
+				}
+			}	break;
+			case QB_STAGE_OPCODE_TRANSLATION: {
+				// use the result from the previous stage if it's available 
+				if(result_prototype) {
+					if(result_prototype->constant_result_address) {
+						// the result is a constant expression evaluated earlier
+						result->address = result_prototype->constant_result_address;
+						result->type = QB_OPERAND_ADDRESS;
+						return;
+					} else {
+						qb_finalize_result_prototype(cxt, result_prototype);
+						expr_type = result_prototype->final_type;
+					}
+				} else {
 					if(f->resolve_type) {
 						expr_type = f->resolve_type(cxt, f, operands, operand_count);
 					}
 				}
-				f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
-			}
-		} else if(cxt->stage == QB_STAGE_VARIABLE_INITIALIZATION) {
-			if(f->set_final_result) {
-				f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
-			}
-		}
 
-		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-			// mark the jump targets
-			for(i = 0; i < jump_target_count; i++) {
-				qb_add_jump_target(cxt, jump_target_indices[i]);
-			}
-		} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-			// create the op
-			qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, result_used);
-
-			// unlock the operands after the op is created
-			for(i = 0; i < operand_count; i++) {
-				qb_operand *operand = &operands[i];
-				if(operand->type == QB_OPERAND_ADDRESS) {
-					qb_unlock_address(cxt, operand->address);
+				// perform type coercion on operands
+				if(f->coerce_operands) {
+					// note that the handler might not necessarily convert all the operands to expr_type
+					f->coerce_operands(cxt, f, expr_type, operands, operand_count);
 				}
-			}
-			if(result && result->type == QB_OPERAND_ADDRESS) {
-				qb_unlock_address(cxt, result->address);
-			}
-		} else if(cxt->stage == QB_STAGE_VARIABLE_INITIALIZATION) {
-			qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
+
+				// perform validation
+				if(f->validate_operands) {
+					f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype) ? result_prototype->destination : NULL);
+				}
+
+				// then, assign result to result object
+				if(f->set_final_result) {
+					if(expr_type == QB_TYPE_ANY) {
+						// couldn't figure it out the first time around
+						// after type coercion, we should know what the expresion is
+						if(f->resolve_type) {
+							expr_type = f->resolve_type(cxt, f, operands, operand_count);
+						}
+					}
+					f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+				}
+
+				// create the op
+				qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, result_used);
+
+				// unlock the operands after the op is created
+				for(i = 0; i < operand_count; i++) {
+					qb_operand *operand = &operands[i];
+					if(operand->type == QB_OPERAND_ADDRESS) {
+						qb_unlock_address(cxt, operand->address);
+					}
+				}
+				if(result && result->type == QB_OPERAND_ADDRESS) {
+					qb_unlock_address(cxt, result->address);
+				}
+			}	break;
 		}
 	}
 }
@@ -3206,8 +3313,7 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 
 		if(qop->opcode != QB_NOP) {
 			int32_t operands_are_valid = TRUE;
-			uint32_t op_flags = qb_get_op_flags(qop->opcode);
-			if(op_flags & (QB_OP_VERSION_AVAILABLE_ELE | QB_OP_VERSION_AVAILABLE_MIO)) {
+			if(qop->flags & (QB_OP_VERSION_AVAILABLE_ELE | QB_OP_VERSION_AVAILABLE_MIO)) {
 				qb_address_mode required_address_mode = QB_ADDRESS_MODE_SCA;
 				for(j = 0; j < qop->operand_count; j++) {
 					qb_operand *operand = &qop->operands[j];
@@ -3222,13 +3328,13 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 
 				if(required_address_mode != QB_ADDRESS_MODE_SCA) {
 					if(required_address_mode == QB_ADDRESS_MODE_ELE) {
-						if(op_flags & QB_OP_VERSION_AVAILABLE_ELE) {
+						if(qop->flags & QB_OP_VERSION_AVAILABLE_ELE) {
 							// opcode is one away
 							qop->opcode += 1;
 						}
 					} else if(required_address_mode == QB_ADDRESS_MODE_ARR) {
-						if(op_flags & QB_OP_VERSION_AVAILABLE_MIO) {
-							if(op_flags & QB_OP_VERSION_AVAILABLE_ELE) {
+						if(qop->flags & QB_OP_VERSION_AVAILABLE_MIO) {
+							if(qop->flags & QB_OP_VERSION_AVAILABLE_ELE) {
 								// opcode is two away
 								qop->opcode += 2;
 							} else {
@@ -3238,8 +3344,7 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 						}
 					}
 					// get new set of flags
-					op_flags = qb_get_op_flags(qop->opcode);
-					qop->flags = op_flags | (qop->flags & QB_OP_COMPILE_TIME_FLAGS);
+					qop->flags = qb_get_op_flags(qop->opcode) | (qop->flags & QB_OP_COMPILE_TIME_FLAGS);
 				}
 			}
 
@@ -3303,35 +3408,6 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 			}
 		}
 	}
-}
-
-void qb_execute_op(qb_compiler_context *cxt, qb_op *op) {
-	USE_TSRM
-	int8_t instructions[256];
-	qb_op *ops[2], ret_op = { QB_RET, QB_OP_EXIT, 0 };
-	qb_function _qfunc, *qfunc = &_qfunc;
-	qb_compiler_context _compiler_cxt, *compiler_cxt = &_compiler_cxt;
-	qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
-	qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
-
-	*compiler_cxt = *cxt;
-	ops[0] = op;
-	ops[1] = &ret_op;
-	compiler_cxt->ops = ops;
-	compiler_cxt->op_count = 2;
-	*qfunc = cxt->function_prototype;
-	qfunc->instructions = qfunc->instruction_start = instructions;
-	qfunc->in_use = FALSE;
-	
-	qb_resolve_address_modes(compiler_cxt);
-	qb_initialize_encoder_context(encoder_cxt, compiler_cxt, FALSE TSRMLS_CC);
-	qb_set_instruction_offsets(encoder_cxt);
-	qb_encode_instruction_stream(encoder_cxt, instructions);
-	qb_free_encoder_context(encoder_cxt);
-
-	qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
-	qb_main(interpreter_cxt);
-	qb_free_interpreter_context(interpreter_cxt);
 }
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC) {

@@ -370,7 +370,7 @@ qb_op_factory factory_fetch_class_self = {
 	NULL,
 	NULL,
 	0,
-	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
 	0,
 };
 
@@ -386,7 +386,7 @@ qb_op_factory factory_fetch_class_parent = {
 	NULL,
 	NULL,
 	0,
-	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
 	0,
 };
 
@@ -402,7 +402,7 @@ qb_op_factory factory_fetch_class_static = {
 	NULL,
 	NULL,
 	0,
-	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
 	0,
 };
 
@@ -420,7 +420,7 @@ qb_op_factory factory_fetch_constant = {
 	NULL,
 	NULL,
 	0,
-	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
 	0,
 };
 
@@ -4845,7 +4845,7 @@ qb_basic_op_factory factory_range = {
 	qb_select_opcode_basic,
 	qb_transfer_operands_range,
 	QB_COERCE_TO_LVALUE_TYPE,
-	QB_RESULT_FROM_PURE_FUNCTION,
+	0,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_RANGE_F64_F64_F64_F64,	QB_RANGE_F32_F32_F32_F32,	QB_RANGE_U64_U64_S64_U64,	QB_RANGE_S64_S64_S64_S64,	QB_RANGE_U32_U32_S32_U32,	QB_RANGE_S32_S32_S32_S32,	QB_RANGE_U16_U16_S16_U16,	QB_RANGE_S16_S16_S16_S16,	QB_RANGE_U08_U08_S08_U08,	QB_RANGE_S08_S08_S08_S08	},
 };
