@@ -910,7 +910,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		for(i = 0; i < qop->operand_count; i++) {
 			qb_operand *operand = &qop->operands[i];
 			qb_address *address = operand->address;
-			char name[4];
+			char name[8];
 			if(i == qop->operand_count - 1 && qb_is_operand_write_target(qop->opcode, i)) {
 				sprintf(name, "res");
 			} else {
