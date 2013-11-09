@@ -439,9 +439,9 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 						for(i = 0; i < undefined_dimension_count; i++) {
 							operands[i * 4 + 0].address = dim->array_size_addresses[i];
 							operands[i * 4 + 0].type = QB_OPERAND_ADDRESS;
-							operands[i * 4 + 1].address = address->array_size_addresses[i];
+							operands[i * 4 + 1].address = dim->dimension_addresses[i];
 							operands[i * 4 + 1].type = QB_OPERAND_ADDRESS;
-							operands[i * 4 + 2].address = dim->dimension_addresses[i];
+							operands[i * 4 + 2].address = address->array_size_addresses[i];
 							operands[i * 4 + 2].type = QB_OPERAND_ADDRESS;
 							operands[i * 4 + 3].address = address->dimension_addresses[i];
 							operands[i * 4 + 3].type = QB_OPERAND_ADDRESS;

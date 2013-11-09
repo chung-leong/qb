@@ -1262,7 +1262,11 @@ class CodeGenerator {
 			$this->handlers[] = new ArrayIntersect("AISECT", $elementTypeNoSign);
 			$this->handlers[] = new ArrayIntersectCount("SZ_AISECT", $elementTypeNoSign);
 			$this->handlers[] = new Shuffle("SHUFFLE", $elementTypeNoSign);
-			//$this->handlers[] = new ArrayResize("ARESIZE", $elementTypeNoSign);
+			
+			for($i = 1; $i <= 8; $i++) {
+				$this->handlers[] = new ArrayResize("ARESIZE$i", $elementTypeNoSign, $i);
+			}
+			
 			$this->handlers[] = new ArrayPad("APAD", $elementTypeNoSign);
 		}
 		if($elementType == 'U32') {

@@ -27,7 +27,7 @@ class AccommodateSizeCopyDimension extends Handler {
 		if($i <= $this->dimensionCount * 4) {
 			$j = $i % 4; 
 			switch($j) {
-				case 2:	return true;		// destination array size
+				case 3:	return true;		// destination array size
 				case 0:	return true;		// destination dimension
 			}
 		}
@@ -43,8 +43,8 @@ class AccommodateSizeCopyDimension extends Handler {
 			$j = $i % 4; 
 			switch($j) {
 				case 1:	return "U32";		// source array size
-				case 2:	return "U32";		// destination array size
-				case 3:	return "U32";		// source dimension
+				case 2:	return "U32";		// source dimension
+				case 3:	return "U32";		// destination array size
 				case 0:	return "U32";		// destination dimension
 			}
 		} else {
@@ -61,8 +61,8 @@ class AccommodateSizeCopyDimension extends Handler {
 			$j = $i % 4; 
 			switch($j) {
 				case 1:	return "SCA";		// source array size
-				case 2:	return "SCA";		// destination array size
-				case 3:	return "SCA";		// source dimension
+				case 2:	return "SCA";		// source dimension
+				case 3:	return "SCA";		// destination array size
 				case 0:	return "SCA";		// destination dimension
 			}
 		} else {
@@ -84,8 +84,9 @@ class AccommodateSizeCopyDimension extends Handler {
 		$segmentSelector = "op" . ($this->dimensionCount * 4 + 1);
 		$elementSize = "op" . ($this->dimensionCount * 4 + 2);
 		$lines = array();
-		for($i = 1, $j = 2; $i < $this->dimensionCount * 4; $i += 2, $j += 2) {
-			$lines[] =	"op$j = op$i;";
+		for($i = 1, $j = 2, $k = 3, $m = 4; $i < $this->dimensionCount * 4; $i += 4, $j += 4, $k += 4, $m += 4) {
+			$lines[] =	"op$k = op$i;";
+			$lines[] =	"op$m = op$j;";
 		}
 		$lines[] = 		"qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], op1 * $elementSize);";
 		return $lines;

@@ -2,23 +2,86 @@
 
 class ArrayResize extends Handler {
 
-	public function getOperandType($i) {
-		switch($i) {
-			case 1: return $this->operandType;
-			default: return "U32";
-		}
+	use MainThreadExecution;
+	
+	protected $dimensionCount;
+	
+	public function __construct($baseName, $operandType, $dimensionCount) {
+		$this->baseName = $baseName;
+		$this->operandType = $operandType;
+		$this->operandSize = 1;
+		$this->addressMode = "ARR";
+		$this->multipleData = false;
+		$this->dimensionCount = $dimensionCount;
+	}
+	
+	public function getInputOperandCount() {
+		return ($this->dimensionCount * 3 + 1);
+	}
+	
+	public function getOutputOperandCount() {
+		return 1;
 	}
 
-	public function getOperandAddressMode($i) {
-		switch($i) {
-			case 1: return "ARR";
-			default: return "SCA";
+	public function changesOperand($i) {
+		if($i <= $this->dimensionCount * 3) {
+			$j = $i % 3; 
+			switch($j) {
+				case 2:	return true;		// destination array size
+				case 0:	return true;		// destination dimension
+			}
+		}
+		return false;
+	}
+	
+	public function needsInterpreterContext() {
+		return true;
+	}
+	
+	public function getOperandType($i) {
+		if($i <= $this->dimensionCount * 3) {
+			$j = $i % 3; 
+			switch($j) {
+				case 1:	return "U32";		// source dimension
+				case 2:	return "U32";		// destination array size
+				case 0:	return "U32";		// destination dimension
+			}
+		} else {
+			$j = $i - $this->dimensionCount * 3;
+			switch($j) {
+				case 1: return "U32";				// segment selector
+				case 2: return $this->operandType;	// the array being resized
+			}
 		}
 	}
 	
+	public function getOperandAddressMode($i) {
+		if($i <= $this->dimensionCount * 3) {
+			$j = $i % 3; 
+			switch($j) {
+				case 1:	return "SCA";		// source dimension
+				case 2:	return "SCA";		// destination array size
+				case 0:	return "SCA";		// destination dimension
+			}
+		} else {
+			$j = $i - $this->dimensionCount * 3;
+			switch($j) {
+				case 1: return "CON";		// segment selector
+				case 2: return "ARR";		// the array being resized
+			}
+		}
+	}
+
+	protected function getFunctionNameComponents($prefix) {
+		$parts = parent::getFunctionNameComponents($prefix);
+		array_splice($parts, -1, 0, $this->dimensionCount);
+		return $parts;
+	}
+	
 	public function getHelperFunctions() {
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
+		$opCount = $this->getOperandCount();
+		$type = $this->getOperandType($opCount);
+		$cType = $this->getOperandCType($opCount);
 		$functions = array(
 			array(
 				"void qb_relocate_elements_{$type}($cType *elements, uint32_t *old_dims, uint32_t *new_dims, uint32_t dimension_count) {",
@@ -136,56 +199,61 @@ class ArrayResize extends Handler {
 		return $functions;
 	}
 	
-	public function getAction() {
+	public function getActionOnUnitData() {
+		$opCount = $this->getOperandCount();
+		$type = $this->getOperandType($opCount);
+		$cType = $this->getOperandCType($opCount);
+		
+		$changed = array();
+		$newDims = array();
+		$oldDims = array();
+		for($i = 0, $j = 1, $k = 3; $i < $this->dimensionCount; $i++, $j += 3, $k += 3) {
+			$newDims[] = "op$j";
+			$oldDims[] = "op$k";
+			$changed[] = "op$j != op$k";
+		}
+		
+		$newLengths = array();
+		for($i = 0, $m = 2; $i < $this->dimensionCount; $i++, $m += 3) {
+			$newLengths[] = implode(" * ", array_slice($newDims, $i));
+			$oldLengths[] = "op$m";
+		}
+		$newLength = $newLengths[0];
+		$oldLength = $oldLengths[0];
+		$changed = implode(" || ", $changed);
+		
+		$segmentSelector = "op" . ($this->dimensionCount * 3 + 1);
+		$elementSize = "sizeof($cType)";
+		
 		$lines = array();
-		$name = $this->getName();
-		$type = $this->getOperandType(1);
-		$cType = $this->getOperandCType(1);
-		$instr = $this->getInstructionStructure();
-		$lines[] =		"uint32_t dimension_count = (($instr *) instruction_pointer)->argument_count;";
-		$lines[] = 		"uint32_t *operands = (($instr *) instruction_pointer)->operands;";
-		$lines[] =		"uint32_t old_dims[MAX_DIMENSION], new_dims[MAX_DIMENSION];";
-		$lines[] =		"uint32_t *dim_ptr, *new_dim_ptr, *size_ptr;";
-		$lines[] =		"uint32_t old_length, new_length = 1, i;";
-		$lines[] =		"int32_t changed = FALSE;";
-		$lines[] = 		"$cType *res_ptr;";
-		$lines[] =		"";
-		$lines[] = 		"selector = (($instr *) instruction_pointer)->operand1 & 0x00FF;";
-		$lines[] = 		"index_index = ((($instr *) instruction_pointer)->operand1 >> 8) & 0x03FF;";
-		$lines[] = 		"size_index = (($instr *) instruction_pointer)->operand1 >> 20;";
-		$lines[] = 		"res_start_index = ((uint32_t *) segment0)[index_index];";
-		$lines[] = 		"res_count = ((uint32_t *) segment0)[size_index];";				
-		$lines[] =		"old_length = res_count;";
-		$lines[] =		"for(i = dimension_count - 1; (int32_t) i >= 0; i--) {";
-		$lines[] =			"size_ptr = ((uint32_t *) segment0) + operands[i * 3 + 0];";
-		$lines[] = 			"dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 1];";
-		$lines[] = 			"new_dim_ptr = ((uint32_t *) segment0) + operands[i * 3 + 2];";
-		$lines[] =			"old_dims[i] = *dim_ptr;";
-		$lines[] =			"new_dims[i] = *new_dim_ptr;";
-		$lines[] = 			"if(*dim_ptr != *new_dim_ptr) {";
-		$lines[] = 				"changed = TRUE;";
-		$lines[] =				"*dim_ptr = *new_dim_ptr;";
-		$lines[] = 			"}";
-		$lines[] =			"new_length *= *new_dim_ptr;";
-		$lines[] =			"*size_ptr = new_length;";
-		$lines[] = 		"}";
-		$lines[] =		"if(EXPECTED(changed)) {";
+		$lines[] =		"if(EXPECTED($changed)) {";
+		$lines[] =			"uint32_t old_dims[$this->dimensionCount] = {";
+		$lines[] =				implode(", ", $oldDims);
+		$lines[] =			"};";
+		$lines[] =			"uint32_t new_dims[$this->dimensionCount] = {";
+		$lines[] =				 implode(", ", $newDims);
+		$lines[] =			"};";
+		$lines[] =			"uint32_t old_length = $oldLength, new_length = $newLength;";
+		$lines[] =			"";
+		for($i = 0; $i < $this->dimensionCount; $i++) {
+			$lines[] =		"{$oldLengths[$i]} = {$newLengths[$i]};";
+			$lines[] =		"{$oldDims[$i]} = {$newDims[$i]};";
+		}
+		$lines[] =			"";
 		$lines[] =			"if(new_length > old_length) {";
-		$lines[] = 				"qb_enlarge_segment(cxt, &cxt->storage->segments[selector], new_length);";
+		$lines[] =				"((int8_t *) res_ptr) += qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize);";
 		$lines[] =				"if(old_length > 0) {";
-		$lines[] = 					"res_ptr = (($cType *) segments[selector]) + res_start_index;";
-		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, dimension_count);";
+		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, $this->dimensionCount);";
 		$lines[] =				"}";
 		$lines[] =			"} else if(old_length < new_length) {";
 		$lines[] =				"if(new_length > 0) {";
-		$lines[] = 					"res_ptr = (($cType *) segments[selector]) + res_start_index;";
-		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, dimension_count);";
+		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, $this->dimensionCount);";
 		$lines[] =				"}";
-		$lines[] =				"qb_shrink_segment(cxt, &cxt->storage->segments[selector], 0, new_length);";
+		$lines[] =				"qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize);";
 		$lines[] =			"} else {";
+		$lines[] =				"((int8_t *) res_ptr) += qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize);";
 		$lines[] =				"if(old_length > 0) {";
-		$lines[] = 					"res_ptr = (($cType *) segments[selector]) + res_start_index;";
-		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, dimension_count);";
+		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, $this->dimensionCount);";
 		$lines[] =				"}";
 		$lines[] =			"}";
 		$lines[] =		"}";

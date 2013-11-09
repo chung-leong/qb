@@ -547,6 +547,23 @@ static void qb_transfer_operands_array_rand(qb_compiler_context *cxt, qb_op_fact
 	dest[2] = *result;
 }
 
+static void qb_transfer_operands_array_resize(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0];
+	uint32_t i; 
+	for(i = 0; i < container->address->dimension_count; i++) {
+		qb_address *new_dimension_address = (i + 1 < operand_count) ? operands[i + 1].address : container->address->dimension_addresses[i];
+		dest[i * 3 + 0].address = new_dimension_address;
+		dest[i * 3 + 0].type = QB_OPERAND_ADDRESS;
+		dest[i * 3 + 1].address = container->address->array_size_addresses[i];
+		dest[i * 3 + 1].type = QB_OPERAND_ADDRESS;
+		dest[i * 3 + 2].address = container->address->dimension_addresses[i];
+		dest[i * 3 + 2].type = QB_OPERAND_ADDRESS;
+	}
+	dest[i * 3 + 0].address = container->address;
+	dest[i * 3 + 0].type = QB_OPERAND_SEGMENT_SELECTOR;
+	dest[i * 3 + 1] = *container;
+}
+
 static void qb_transfer_operands_array_reverse(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0];
 	dest[0] = *container;

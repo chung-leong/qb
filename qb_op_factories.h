@@ -44,6 +44,7 @@ typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
 typedef struct qb_gather_op_factory				qb_gather_op_factory;
 typedef struct qb_insert_op_factory				qb_insert_op_factory;
+typedef struct qb_array_resize_op_factory		qb_array_resize_op_factory;
 
 typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
 
@@ -198,6 +199,11 @@ struct qb_utf8_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode ucs16_opcode;
 	qb_opcode ucs32_opcode;
+};
+
+struct qb_array_resize_op_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	qb_opcode opcodes[8][10];
 };
 
 struct qb_intrinsic_op_factory {
@@ -527,6 +533,7 @@ extern qb_basic_op_factory factory_array_pos;
 extern qb_basic_op_factory factory_array_product;
 extern qb_op_decomposer factory_array_push;
 extern qb_simple_op_factory factory_array_rand;
+extern qb_array_resize_op_factory factory_array_resize;
 extern qb_basic_op_factory factory_array_reverse;
 extern qb_basic_op_factory factory_array_rpos;
 extern qb_basic_op_factory factory_array_search;
