@@ -114,6 +114,9 @@ static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *ad
 }
 
 static qb_address * qb_obtain_larger_of_two(qb_compiler_context *cxt, qb_address *size_address1, qb_address *value_address1, qb_address *size_address2, qb_address *value_address2) {
+	if(value_address1 == value_address2) {
+		return value_address1;
+	} 
 	if(size_address1 == value_address1 && size_address2 == value_address2) {
 		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, size_address1 }, { QB_OPERAND_ADDRESS, size_address2 } };
 		return qb_obtain_on_demand_value(cxt, &factory_choose_size_of_larger_array_top_level, operands, 2);

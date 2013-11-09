@@ -2,7 +2,7 @@
 
 class AlphaBlend extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, FloatingPointOnly;
+	use ArrayAddressMode, BinaryOperator, FloatingPointOnly, FixedOperandSize, Multithreaded;
 
 	public function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);

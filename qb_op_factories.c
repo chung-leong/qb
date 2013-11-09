@@ -4317,7 +4317,7 @@ qb_derived_op_factory factory_sample_bilinear_vector = {
 	&factory_sample_bilinear,
 };
 
-qb_float_op_factory factory_alpha_blend = {
+qb_pixel_op_factory factory_alpha_blend = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -4326,12 +4326,15 @@ qb_float_op_factory factory_alpha_blend = {
 	qb_validate_operands_rgba,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
-	qb_select_opcode_basic,
+	qb_select_opcode_pixel,
 	qb_transfer_operands_all,
 	QB_COERCE_TO_FLOATING_POINT,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
-	{	QB_BLEND_F64_F64_F64,		QB_BLEND_F32_F32_F32,	},
+	{
+		{	0,							0						},
+		{	QB_BLEND_F64_F64_F64,		QB_BLEND_F32_F32_F32,	},
+	}
 };
 
 qb_pixel_op_factory factory_apply_premult = {

@@ -2,8 +2,6 @@
 
 class ArrayResize extends Handler {
 
-	use ArrayAddressMode, VariableLength;
-	
 	public function getOperandType($i) {
 		switch($i) {
 			case 1: return $this->operandType;
@@ -191,25 +189,6 @@ class ArrayResize extends Handler {
 		$lines[] =				"}";
 		$lines[] =			"}";
 		$lines[] =		"}";
-		return $lines;
-	}
-	
-	public function getInstructionStructure() {		
-		return "qb_instruction_array_resize";
-	}
-	
-	public function getInstructionStructureDefinition() {
-		$instr = $this->getInstructionStructure();
-		$targetCount = $this->getJumpTargetCount();
-		$opCount = $this->getOperandCount();
-		$lines = array();
-		$lines[] = "typedef struct $instr {";
-		$lines[] = "void *next_handler;";
-		$lines[] = "uint16_t operand_size;";
-		$lines[] = "uint16_t argument_count;";
-		$lines[] = "uint32_t operand1;";
-		$lines[] = "uint32_t operands[1];";
-		$lines[] = "} $instr;";
 		return $lines;
 	}
 }

@@ -502,7 +502,7 @@ extern qb_matrix_op_factory factory_determinant;
 extern qb_matrix_op_factory factory_inverse;
 extern qb_matrix_op_factory factory_transpose;
 
-extern qb_float_op_factory factory_alpha_blend;
+extern qb_pixel_op_factory factory_alpha_blend;
 extern qb_pixel_op_factory factory_apply_premult;
 extern qb_pixel_op_factory factory_remove_premult;
 extern qb_pixel_op_factory factory_hsl2rgb;

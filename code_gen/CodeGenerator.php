@@ -1290,7 +1290,8 @@ class CodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
-			$this->handlers[] = new AlphaBlend("BLEND", $elementType);
+			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 4);
+			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 4, true);
 			$this->handlers[] = new ApplyPremultiplication("PREMULT", $elementType, 4);
 			$this->handlers[] = new ApplyPremultiplication("PREMULT", $elementType, 4, true);
 			$this->handlers[] = new RemovePremultiplication("UNPREMULT", $elementType, 4);

@@ -432,7 +432,7 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 						qb_operand operands[MAX_DIMENSION * 4 + 2];
 						uint32_t i;
 						for(i = undefined_dimension_count; i < address->dimension_count; i++) {
-							if(address->dimension_addresses[0] != dim->dimension_addresses[0]) {
+							if(address->dimension_addresses[i] != dim->dimension_addresses[i]) {
 								qb_abort("Dimension mismatch");
 							}
 						}
