@@ -20,7 +20,7 @@ function test_function() {
 			array(77, 1 + $b, $b, round(sin($b) * 10))
 		),
 	);
-	//echo $a;
+	echo $a;
 }
 
 test_function();

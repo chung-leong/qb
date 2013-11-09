@@ -348,6 +348,13 @@ static qb_opcode qb_select_opcode_scatter(qb_compiler_context *cxt, qb_op_factor
 	return opcode;
 }
 
+static qb_opcode qb_select_opcode_copy_dimension(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
+	uint32_t dimension_count = (operand_count - 2) / 4;
+	qb_opcode opcode = bf->opcodes[dimension_count - 2];
+	return opcode;
+}
+
 static qb_opcode qb_select_opcode_add_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_string_op_factory *sf = (qb_string_op_factory *) f;
 	qb_address *address = operands[1].address;

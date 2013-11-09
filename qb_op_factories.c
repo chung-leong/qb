@@ -828,6 +828,31 @@ qb_simple_op_factory factory_accommodate_array_size_update_dimension = {
 	QB_SZ_ACCOM_DIM_U32_U32_U32_U32_U32_U32,
 };
 
+qb_basic_op_factory factory_accommodate_array_size_copy_dimension = {
+	NULL,
+	qb_resolve_expression_type_first_operand,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_first_operand,
+	NULL,
+	qb_select_opcode_copy_dimension,
+	qb_transfer_operands_all,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	{
+		QB_SZ_ACCOM_DIM2_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32,
+		QB_SZ_ACCOM_DIM3_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32,
+		QB_SZ_ACCOM_DIM4_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32,
+		QB_SZ_ACCOM_DIM5_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32,
+		QB_SZ_ACCOM_DIM6_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32,
+		QB_SZ_ACCOM_DIM7_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32,
+		QB_SZ_ACCOM_DIM8_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32_U32,
+	},
+};
+
 qb_simple_op_factory factory_accommodate_array_insert = {
 	NULL,
 	qb_resolve_expression_type_first_operand,

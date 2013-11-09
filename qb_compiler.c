@@ -393,6 +393,18 @@ static qb_address * qb_obtain_on_demand_greater_than(qb_compiler_context *cxt, q
 	return qb_obtain_on_demand_value(cxt, &factory_less_than, operands, 2);
 }
 
+static uint32_t qb_get_undefined_dimension_count(qb_compiler_context *cxt, qb_address *address) {
+	uint32_t i;
+	uint32_t count = 0;
+	for(i = 0; i < address->dimension_count; i++) {
+		qb_address *dimension_address = DIMENSION_ADDRESS(address, i);
+		if(!CONSTANT(dimension_address)) {
+			count++;
+		}
+	}
+	return count;
+}
+
 void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *address, qb_variable_dimensions *dim, int32_t resizing) {
 	qb_expression *expr;
 	if(address->array_size_address == dim->array_size_address) {
@@ -411,8 +423,38 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 			// accommodate the input by resizing the array
 			// if it's multidimensional, the dimension has to be updated as well
 			if(address->dimension_count > 1) {
-				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, dim->array_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_ADDRESS, address->dimension_addresses[0] }, { QB_OPERAND_ADDRESS, address->array_size_addresses[1] }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
-				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
+				uint32_t undefined_dimension_count = qb_get_undefined_dimension_count(cxt, address);
+				if(undefined_dimension_count == 1) {
+					qb_operand operands[6] = { { QB_OPERAND_ADDRESS, dim->array_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_ADDRESS, address->dimension_addresses[0] }, { QB_OPERAND_ADDRESS, address->array_size_addresses[1] }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
+					expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
+				} else {
+					if(address->dimension_count == dim->dimension_count) {
+						qb_operand operands[MAX_DIMENSION * 4 + 2];
+						uint32_t i;
+						for(i = undefined_dimension_count; i < address->dimension_count; i++) {
+							if(address->dimension_addresses[0] != dim->dimension_addresses[0]) {
+								qb_abort("Dimension mismatch");
+							}
+						}
+						for(i = 0; i < undefined_dimension_count; i++) {
+							operands[i * 4 + 0].address = dim->array_size_addresses[i];
+							operands[i * 4 + 0].type = QB_OPERAND_ADDRESS;
+							operands[i * 4 + 1].address = address->array_size_addresses[i];
+							operands[i * 4 + 1].type = QB_OPERAND_ADDRESS;
+							operands[i * 4 + 2].address = dim->dimension_addresses[i];
+							operands[i * 4 + 2].type = QB_OPERAND_ADDRESS;
+							operands[i * 4 + 3].address = address->dimension_addresses[i];
+							operands[i * 4 + 3].type = QB_OPERAND_ADDRESS;
+						}
+						operands[undefined_dimension_count * 4 + 0].address = address;
+						operands[undefined_dimension_count * 4 + 0].type = QB_OPERAND_SEGMENT_SELECTOR;
+						operands[undefined_dimension_count * 4 + 1].address = address;
+						operands[undefined_dimension_count * 4 + 1].type = QB_OPERAND_ELEMENT_SIZE;
+						expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_copy_dimension, operands, undefined_dimension_count * 4 + 2);
+					} else {
+						qb_abort("Dimension mismatch");
+					}
+				}
 			} else {
 				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, dim->array_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
 				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size, operands, 4);

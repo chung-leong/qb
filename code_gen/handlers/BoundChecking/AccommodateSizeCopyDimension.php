@@ -16,7 +16,7 @@ class AccommodateSizeCopyDimension extends Handler {
 	}
 	
 	public function getInputOperandCount() {
-		return (2 + $this->dimensionCount * 2 + 2);
+		return ($this->dimensionCount * 4 + 2);
 	}
 	
 	public function getOutputOperandCount() {
@@ -24,11 +24,11 @@ class AccommodateSizeCopyDimension extends Handler {
 	}
 
 	public function changesOperand($i) {
-		if($i == 2) {
-			return true;
-		} else if($i <= 2 + $this->dimensionCount * 2) {
-			if(!($i & 1)) {
-				return true;
+		if($i <= $this->dimensionCount * 4) {
+			$j = $i % 4; 
+			switch($j) {
+				case 2:	return true;		// destination array size
+				case 0:	return true;		// destination dimension
 			}
 		}
 		return false;
@@ -39,41 +39,37 @@ class AccommodateSizeCopyDimension extends Handler {
 	}
 	
 	public function getOperandType($i) {
-		if($i == 1) {
-			return "U32";		// source size
-		} else if($i == 2) {
-			return "U32";		// destination size
-		} else if($i <= 2 + $this->dimensionCount * 2) {
-			if($i & 1) {
-				return "U32";		// source dimension
-			} else {
-				return "U32";		// destination dimension
+		if($i <= $this->dimensionCount * 4) {
+			$j = $i % 4; 
+			switch($j) {
+				case 1:	return "U32";		// source array size
+				case 2:	return "U32";		// destination array size
+				case 3:	return "U32";		// source dimension
+				case 0:	return "U32";		// destination dimension
 			}
-		} else if($i <= 2 + $this->dimensionCount * 2 + 2) {
-			if($i & 1) {
-				return "U32";		// segment selector
-			} else {
-				return "U32";		// element byte-count
+		} else {
+			$j = $i - $this->dimensionCount * 4;
+			switch($j) {
+				case 1: return "U32";		// segment selector
+				case 2: return "U32";		// element byte-count
 			}
 		}
 	}
 	
 	public function getOperandAddressMode($i) {
-		if($i == 1) {
-			return "SCA";
-		} else if($i == 2) {
-			return "SCA";
-		} else if($i <= 2 + $this->dimensionCount * 2) {
-			if($i & 1) {
-				return "SCA";
-			} else {
-				return "SCA";
+		if($i <= $this->dimensionCount * 4) {
+			$j = $i % 4; 
+			switch($j) {
+				case 1:	return "SCA";		// source array size
+				case 2:	return "SCA";		// destination array size
+				case 3:	return "SCA";		// source dimension
+				case 0:	return "SCA";		// destination dimension
 			}
-		} else if($i <= 2 + $this->dimensionCount * 2 + 2) {
-			if($i & 1) {
-				return "CON";
-			} else {
-				return "CON";
+		} else {
+			$j = $i - $this->dimensionCount * 4;
+			switch($j) {
+				case 1: return "CON";		// segment selector
+				case 2: return "CON";		// element byte-count
 			}
 		}
 	}
@@ -85,11 +81,10 @@ class AccommodateSizeCopyDimension extends Handler {
 	}
 	
 	protected function getActionOnUnitData() {
-		$segmentSelector = "op" . (2 + $this->dimensionCount * 2 + 1);
-		$elementSize = "op" . (2 + $this->dimensionCount * 2 + 2);
+		$segmentSelector = "op" . ($this->dimensionCount * 4 + 1);
+		$elementSize = "op" . ($this->dimensionCount * 4 + 2);
 		$lines = array();
-		$lines[] =		"op2 = op1;";
-		for($i = 3, $j = 4; $i < 2 + $this->dimensionCount * 2; $i += 2, $j += 2) {
+		for($i = 1, $j = 2; $i < $this->dimensionCount * 4; $i += 2, $j += 2) {
 			$lines[] =	"op$j = op$i;";
 		}
 		$lines[] = 		"qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], op1 * $elementSize);";

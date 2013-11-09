@@ -802,7 +802,7 @@ static void qb_initialize_zval_array(qb_storage *storage, qb_address *element_ad
 	}
 }
 
-static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *zvalue);
+static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *container, zval *zvalue);
 
 static void qb_copy_elements_to_array(qb_storage *storage, qb_address *address, zval *zarray) {
 	qb_address _element_address, *element_address = &_element_address;
@@ -822,7 +822,7 @@ static void qb_copy_elements_to_array(qb_storage *storage, qb_address *address, 
 			SEPARATE_ZVAL_TO_MAKE_IS_REF(p_element);
 			element = *p_element;
 			if(element_address->dimension_count > 0) {
-				qb_copy_elements_to_zval(storage, element_address, element);
+				qb_copy_elements_to_zval(storage, element_address, zarray, element);
 			} else {
 				qb_copy_element_to_zval(storage, element_address, element);
 			}
@@ -842,7 +842,7 @@ static void qb_copy_elements_to_array(qb_storage *storage, qb_address *address, 
 			zend_hash_index_update(ht, index, (void **) &element, sizeof(zval *), NULL);
 		}
 		if(element_address->dimension_count > 0) {
-			qb_copy_elements_to_zval(storage, element_address, element);
+			qb_copy_elements_to_zval(storage, element_address, zarray, element);
 		} else {
 			qb_copy_element_to_zval(storage, element_address, element);
 		}
@@ -880,7 +880,7 @@ static void qb_copy_elements_to_object(qb_storage *storage, qb_address *address,
 			ALLOC_INIT_ZVAL(element);
 		}
 		if(element_address->dimension_count > 0) {
-			qb_copy_elements_to_zval(storage, element_address, element);
+			qb_copy_elements_to_zval(storage, element_address, NULL, element);
 		} else {
 			qb_copy_element_to_zval(storage, element_address, element);
 		}
@@ -909,7 +909,7 @@ static void qb_copy_elements_to_string(qb_storage *storage, qb_address *address,
 	memcpy(memory, ARRAY_IN(storage, I08, address), byte_count);
 }
 
-static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
+static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *container, zval *zvalue) {
 	switch(Z_TYPE_P(zvalue)) {
 		case IS_ARRAY:	{
 			qb_copy_elements_to_array(storage, address, zvalue);
@@ -935,9 +935,9 @@ static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, z
 			if(address->flags & QB_ADDRESS_STRING) {
 				ZVAL_EMPTY_STRING(zvalue);
 			} else {
-				qb_initialize_zval_array(storage, address, NULL, zvalue);
+				qb_initialize_zval_array(storage, address, container, zvalue);
 			}
-			qb_copy_elements_to_zval(storage, address, zvalue);
+			qb_copy_elements_to_zval(storage, address, container, zvalue);
 		}	break;
 	}
 }
@@ -1261,7 +1261,7 @@ void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *z
 				return;
 			}
 		}
-		qb_copy_elements_to_zval(storage, address, zvalue);
+		qb_copy_elements_to_zval(storage, address, NULL, zvalue);
 	}
 }
 
