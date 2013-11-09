@@ -393,15 +393,15 @@ static qb_address * qb_obtain_on_demand_greater_than(qb_compiler_context *cxt, q
 	return qb_obtain_on_demand_value(cxt, &factory_less_than, operands, 2);
 }
 
-void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *src_size_address, qb_address *address, int32_t resizing) {
+void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *address, qb_variable_dimensions *dim, int32_t resizing) {
 	qb_expression *expr;
-	if(address->array_size_address == src_size_address) {
+	if(address->array_size_address == dim->array_size_address) {
 		// size match: no bound-checking needed
 		return;
 	} else {
-		if(CONSTANT(address->array_size_address) && CONSTANT(src_size_address)) {
+		if(CONSTANT(address->array_size_address) && CONSTANT(dim->array_size_address)) {
 			uint32_t dst_size = VALUE(U32, address->array_size_address);
-			uint32_t src_size = VALUE(U32, src_size_address);
+			uint32_t src_size = VALUE(U32, dim->array_size_address);
 			// the destination is large enough
 			if(dst_size > src_size) {
 				return;
@@ -411,19 +411,19 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *s
 			// accommodate the input by resizing the array
 			// if it's multidimensional, the dimension has to be updated as well
 			if(address->dimension_count > 1) {
-				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_ADDRESS, address->dimension_addresses[0] }, { QB_OPERAND_ADDRESS, address->array_size_addresses[1] }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
+				qb_operand operands[6] = { { QB_OPERAND_ADDRESS, dim->array_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_ADDRESS, address->dimension_addresses[0] }, { QB_OPERAND_ADDRESS, address->array_size_addresses[1] }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
 				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
 			} else {
-				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
+				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, dim->array_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address }, { QB_OPERAND_SEGMENT_SELECTOR, address }, { QB_OPERAND_ELEMENT_SIZE, address } };
 				expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size, operands, 4);
 			}
 		} else {
 			// a scalar will not cause overrun
-			if(cxt->one_address == src_size_address) {
+			if(cxt->one_address == dim->array_size_address) {
 				return;
 			} else {
 				// need to guard against overrun
-				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, src_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address } };
+				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, dim->array_size_address }, { QB_OPERAND_ADDRESS, address->array_size_address } };
 				expr = qb_get_on_demand_expression(cxt, &factory_guard_array_size, operands, 2);
 			}
 		}
@@ -1618,7 +1618,7 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 
 	if(RESIZABLE(target_address) && resizing) {
 		// attach an expression to make it expand/contract
-		qb_attach_bound_checking_expression(cxt, dim->array_size_address, target_address, TRUE);
+		qb_attach_bound_checking_expression(cxt, target_address, dim, TRUE);
 	}
 	if(TEMPORARY(target_address)) {
 		if(dim->dimension_count > 1) {

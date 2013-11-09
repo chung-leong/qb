@@ -227,7 +227,9 @@ static void qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory 
 	if(cxt->return_variable && cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS && cxt->return_variable->address != value->address) {
 		qb_operand assigment_operands[2];
 		qb_operand assignment_result;
-		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, cxt->return_variable->address, TRUE);
+		qb_variable_dimensions dim;
+		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
+		qb_attach_bound_checking_expression(cxt, cxt->return_variable->address, &dim, TRUE);
 		assigment_operands[0].type = QB_OPERAND_ADDRESS;
 		assigment_operands[0].address = cxt->return_variable->address;
 		assigment_operands[1].type = QB_OPERAND_ADDRESS;

@@ -363,7 +363,7 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *container_address, zval *name, uint32_t bound_check_flags);
 qb_address * qb_obtain_array_slice(qb_compiler_context *cxt, qb_address *container_address, qb_address *offset_address, qb_address *length_address, uint32_t bound_check_flags);
 
-void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *address, qb_address *size_address, int32_t resizing);
+void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *address, qb_variable_dimensions *dim, int32_t resizing);
 void qb_invalidate_all_on_demand_expressions(qb_compiler_context *cxt);
 
 qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count);

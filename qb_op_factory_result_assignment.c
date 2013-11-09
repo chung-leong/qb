@@ -114,7 +114,9 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 		result->type = QB_OPERAND_ADDRESS;
 		// no bound-checking if the assignment doesn't happen
 		if(expr_type != QB_TYPE_VOID) {
-			qb_attach_bound_checking_expression(cxt, value->address->array_size_address, variable->address, TRUE);
+			qb_variable_dimensions dim;
+			qb_copy_address_dimensions(cxt, value->address, 0, &dim);
+			qb_attach_bound_checking_expression(cxt, variable->address, &dim, TRUE);
 		}
 	} else {
 		// no variable to assign to
@@ -138,7 +140,9 @@ static void qb_set_final_result_assign_branching(qb_compiler_context *cxt, qb_op
 		// write to the same address as the other branch
 		// with bound checking, naturally
 		qb_operand *value = &operands[0];
-		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, result->address, TRUE);
+		qb_variable_dimensions dim;
+		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
+		qb_attach_bound_checking_expression(cxt, result->address, &dim, TRUE);
 	} else {
 		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 	}
@@ -175,7 +179,9 @@ static void qb_set_result_assign_array_element(qb_compiler_context *cxt, qb_op_f
 	result->address = result_address;
 	result->type = QB_OPERAND_ADDRESS;
 	if(expr_type != QB_TYPE_VOID) {
-		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, result_address, TRUE);
+		qb_variable_dimensions dim;
+		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
+		qb_attach_bound_checking_expression(cxt, result_address, &dim, TRUE);
 	}
 }
 
@@ -199,7 +205,9 @@ static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op
 	result->address = result_address;
 	result->type = QB_OPERAND_ADDRESS;
 	if(expr_type != QB_TYPE_VOID) {
-		qb_attach_bound_checking_expression(cxt, value->address->array_size_address, result_address, TRUE);
+		qb_variable_dimensions dim;
+		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
+		qb_attach_bound_checking_expression(cxt, result_address, &dim, TRUE);
 	}
 }
 
