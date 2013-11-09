@@ -773,6 +773,9 @@ class CodeGenerator {
 			
 			$this->handlers[] = new AccommodateSize("SZ_ACCOM", $elementType);
 			$this->handlers[] = new AccommodateSizeUpdateDimension("SZ_ACCOM_DIM", $elementType);
+			for($i = 2; $i <= 8; $i++) {
+				$this->handlers[] = new AccommodateSizeCopyDimension("SZ_ACCOM_DIM$i", $elementType, $i);
+			}
 			
 			$this->handlers[] = new ChooseSizeLargerOfTwo("SZ_CHOOSE_2", $elementType);
 			$this->handlers[] = new ChooseSizeLargerOfTwoTopLevel("SZ_CHOOSE_2_TOP", $elementType);
