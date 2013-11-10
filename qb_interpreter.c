@@ -44,7 +44,6 @@ static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb
 						zend_hash_quick_find(&ce->constants_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_value);
 					} else {
 						zend_class_entry *ce = scope->zend_class;
-						zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
 						p_zvalue = Z_CLASS_GET_PROP(ce, ivar->name, ivar->name_length);
 						if(p_zvalue) {
 							SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
@@ -143,7 +142,6 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 			} else {
 				const char *space;
 				const char *class_name;
-				zend_execute_data *ptr = EG(current_execute_data)->prev_execute_data;
 
 				if (EG(active_op_array)->scope) {
 					class_name = EG(active_op_array)->scope->name;
@@ -490,6 +488,8 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 		case QB_VM_FORK: {
 			break;
 		}
+		default: {
+		}	break;
 	}
 }
 
@@ -547,7 +547,10 @@ static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 					// go back into the vm
 				}
 			}	break;
-			case QB_VM_SPOON: break;	// go back into the vm
+			case QB_VM_SPOON: {
+			}	break;	// go back into the vm
+			default: {
+			}	break;
 		}
 	}
 	return TRUE;
@@ -581,7 +584,7 @@ static void qb_initialize_local_variables(qb_interpreter_context *cxt) {
 	// relocate large fixed-length local arrays
 	for(i = QB_SELECTOR_ARRAY_START; i < cxt->function->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &cxt->function->local_storage->segments[i];
-		if(!segment->flags & QB_SEGMENT_REALLOCATE_ON_CALL) {
+		if(!(segment->flags & QB_SEGMENT_REALLOCATE_ON_CALL)) {
 			qb_allocate_segment_memory(segment, segment->byte_count);
 			if(segment->flags & QB_SEGMENT_CLEAR_ON_CALL) {
 				memset(segment->memory, 0, segment->current_allocation);

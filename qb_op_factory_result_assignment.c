@@ -299,7 +299,7 @@ static void qb_set_result_add_string(qb_compiler_context *cxt, qb_op_factory *f,
 	if(augend->type == QB_OPERAND_ADDRESS) {
 		*result = *augend;
 	} else {
-		qb_operand es_result = { QB_OPERAND_EMPTY, NULL };
+		qb_operand es_result = { QB_OPERAND_EMPTY, { NULL } };
 		qb_produce_op(cxt, &factory_empty_string, NULL, 0, &es_result, NULL, 0, NULL);
 		result->address = es_result.address;
 		result->type = QB_OPERAND_ADDRESS;
@@ -312,8 +312,8 @@ static void qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_
 		// append to the augend
 		*result = *augend;
 	} else {
-		qb_operand av_operands[2] = { { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_ADDRESS, augend->address } };
-		qb_operand av_result = { QB_OPERAND_EMPTY, NULL };
+		qb_operand av_operands[2] = { { QB_OPERAND_EMPTY, { NULL } }, { QB_OPERAND_ADDRESS, { augend->address } } };
+		qb_operand av_result = { QB_OPERAND_EMPTY, { NULL } };
 		qb_produce_op(cxt, &factory_add_variable, av_operands, 2, &av_result, NULL, 0, NULL);
 		*result = av_result;
 	}
@@ -334,8 +334,8 @@ static void qb_set_result_string_cast(qb_compiler_context *cxt, qb_op_factory *f
 	if(value->address->flags & QB_ADDRESS_STRING) {
 		result->address = value->address;
 	} else {
-		qb_operand av_operands[2] = { { QB_OPERAND_EMPTY, NULL }, { QB_OPERAND_ADDRESS, value->address } };
-		qb_operand av_result = { QB_OPERAND_EMPTY, NULL };
+		qb_operand av_operands[2] = { { QB_OPERAND_EMPTY, { NULL } }, { QB_OPERAND_ADDRESS, { value->address } } };
+		qb_operand av_result = { QB_OPERAND_EMPTY, { NULL } };
 		qb_produce_op(cxt, &factory_add_variable, av_operands, 2, &av_result, NULL, 0, NULL);
 		*result = av_result;
 	}

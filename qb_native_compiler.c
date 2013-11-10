@@ -788,6 +788,8 @@ static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, 
 					qb_copy_local_scalar_to_storage(cxt, address);
 					qb_copy_local_scalar_to_storage(cxt, address->array_index_address);
 				}	break;
+				default: {
+				}	break;
 			}
 		}
 	}
@@ -803,6 +805,8 @@ static void qb_copy_local_arguments_to_storage(qb_native_compiler_context *cxt, 
 		switch(address->mode) {
 			case QB_ADDRESS_MODE_SCA: {
 				qb_copy_local_scalar_to_storage(cxt, address);
+			}	break;
+			default: {
 			}	break;
 		}
 	}
@@ -834,6 +838,8 @@ static void qb_copy_local_variables_from_storage(qb_native_compiler_context *cxt
 					case QB_ADDRESS_MODE_ARR: {
 						qb_copy_local_scalar_from_storage(cxt, address);
 						qb_copy_local_scalar_from_storage(cxt, address->array_index_address);
+					}	break;
+					default: {
 					}	break;
 				}
 			}
@@ -874,6 +880,8 @@ static void qb_copy_local_arguments_from_storage(qb_native_compiler_context *cxt
 				case QB_ADDRESS_MODE_SCA: {
 					qb_copy_local_scalar_from_storage(cxt, address);
 				}	break;
+				default: {
+				}	break;
 			}
 		}
 	}
@@ -883,6 +891,8 @@ static void qb_copy_local_arguments_from_storage(qb_native_compiler_context *cxt
 		switch(address->mode) {
 			case QB_ADDRESS_MODE_SCA: {
 				qb_copy_local_scalar_from_storage(cxt, address);
+			}	break;
+			default: {
 			}	break;
 		}
 	}
@@ -896,7 +906,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 	if(qop->opcode != QB_NOP) {
 		const char *name;
 		const char *action;
-		uint32_t i, j;
+		uint32_t i;
 
 		if(cxt->print_source || TRUE) {
 			name = qb_get_op_name(cxt, qop->opcode);
@@ -935,6 +945,8 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 							qb_printf(cxt, "#define %s_ptr	NULL\n", name);
 							qb_printf(cxt, "#define %s_count	0U\n", name);
 						}
+					}	break;
+					default: {
 					}	break;
 				}
 			} else if(operand->type == QB_OPERAND_NUMBER) {
@@ -1037,6 +1049,8 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 				// create local variables
 				qb_printf(cxt, "%s var_%d_%d = *((%s *) (storage->segments[%d].memory + %d));\n", c_type, address->segment_selector, address->segment_offset, c_type, address->segment_selector, address->segment_offset);
 			}	break;
+			default: {
+			}	break;
 		}
 	}
 	qb_print(cxt, "\n");
@@ -1112,6 +1126,8 @@ static void qb_print_reentry_switch(qb_native_compiler_context *cxt) {
 		switch(qop->opcode) {
 			case QB_END_STATIC: {
 				restore_op_index = i + 1;
+			}	break;
+			default: {
 			}	break;
 		}
 		if(restore_op_index != INVALID_INDEX) {

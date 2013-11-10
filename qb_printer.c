@@ -265,6 +265,7 @@ static uint32_t qb_get_pbj_channel_offset(qb_printer_context *cxt, qb_pbj_channe
 				case PBJ_CHANNEL_B:
 				case PBJ_CHANNEL_BA: return 2;
 				case PBJ_CHANNEL_A: return 3;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_GBA: {
@@ -275,6 +276,7 @@ static uint32_t qb_get_pbj_channel_offset(qb_printer_context *cxt, qb_pbj_channe
 				case PBJ_CHANNEL_B:
 				case PBJ_CHANNEL_BA: return 1;
 				case PBJ_CHANNEL_A: return 2;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_RGB: {
@@ -284,49 +286,34 @@ static uint32_t qb_get_pbj_channel_offset(qb_printer_context *cxt, qb_pbj_channe
 				case PBJ_CHANNEL_G:
 				case PBJ_CHANNEL_GB: return 1;
 				case PBJ_CHANNEL_B: return 2;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_BA: {
 			switch(channel_id) {
 				case PBJ_CHANNEL_B: return 0;
 				case PBJ_CHANNEL_A: return 1;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_GB: {
 			switch(channel_id) {
 				case PBJ_CHANNEL_G: return 0;
 				case PBJ_CHANNEL_B: return 1;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_RG: {
 			switch(channel_id) {
 				case PBJ_CHANNEL_R: return 0;
 				case PBJ_CHANNEL_G: return 1;
+				default: break;
 			}
+		}	break;
+		default: {
 		}	break;
 	}
 	return -1;
-}
-
-static qb_pbj_parameter * qb_find_pbj_parameter_by_address(qb_printer_context *cxt, qb_pbj_address *address) {
-	qb_pbj_translator_context *translator_cxt = cxt->compiler_context->translator_context;
-	uint32_t i;
-	for(i = 0; i < translator_cxt->parameter_count; i++) {
-		qb_pbj_parameter *parameter = &translator_cxt->parameters[i];
-		qb_pbj_address *destination = &parameter->destination;
-		if(destination->register_id == address->register_id) {
-			if(destination->dimension > 1) {
-				return parameter;
-			} else {
-				if(destination->channel_id == address->channel_id) {
-					return parameter;
-				} else if(qb_get_pbj_channel_offset(cxt, destination->channel_id, address->channel_id) != INVALID_INDEX) {
-					return parameter;
-				}
-			}
-		}
-	}
-	return NULL;
 }
 
 static qb_pbj_texture * qb_find_pbj_texture_by_id(qb_printer_context *cxt, uint32_t image_id) {

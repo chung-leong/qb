@@ -30,7 +30,7 @@ static void qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, qb_
 			qb_abort("%s() expects %d to %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count->number);
 		}
 	}
-	qb_produce_op(cxt, func->intrinsic_function->extra, arguments->arguments, argument_count->number, result, NULL, 0, result_prototype);
+	qb_produce_op(cxt, ff, arguments->arguments, argument_count->number, result, NULL, 0, result_prototype);
 	cxt->function_name = NULL;
 }
 
@@ -55,7 +55,7 @@ static void qb_decompose_pairwise_op_series(qb_compiler_context *cxt, void *fact
 
 static void qb_decompose_fetch_do_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_fetch_do_op_decomposer *d = factory;
-	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand fetch_result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_result_prototype fetch_result_prototype;
 	qb_operand do_operands[2];
 	
@@ -72,7 +72,7 @@ static void qb_decompose_fetch_do_op(qb_compiler_context *cxt, void *factory, qb
 static void qb_decompose_branch_set(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_decomposer *d = factory;
 	qb_operand branch_condition = operands[0];
-	qb_operand branch_result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand branch_result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_result_prototype branch_result_prototype;
 
 	// do the branch first
@@ -95,7 +95,7 @@ static void qb_decompose_minmax(qb_compiler_context *cxt, void *factory, qb_oper
 static void qb_decompose_select(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_decomposer *d = factory;
 	qb_operand branch_condition = operands[0];
-	qb_operand branch_result = { QB_OPERAND_NONE, NULL }, jump_result = { QB_OPERAND_NONE, NULL };
+	qb_operand branch_result = { QB_OPERAND_NONE, { NULL } }, jump_result = { QB_OPERAND_NONE, { NULL } };
 	qb_result_prototype branch_result_prototype, jump_result_prototype;
 	uint32_t branch_indices[3] = { JUMP_TARGET_INDEX(cxt->source_op_index, 3), JUMP_TARGET_INDEX(cxt->source_op_index, 1) };
 	uint32_t jump_indices[1] = { JUMP_TARGET_INDEX(cxt->source_op_index, 4) };
@@ -126,7 +126,7 @@ static void qb_choose_set_or_scalar_op(qb_compiler_context *cxt, void *factory, 
 
 static void qb_decompose_fork(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_fork_decomposer *d = factory;
-	qb_operand init_result = { QB_OPERAND_NONE, NULL }, resume_result = { QB_OPERAND_NONE, NULL };
+	qb_operand init_result = { QB_OPERAND_NONE, { NULL } }, resume_result = { QB_OPERAND_NONE, { NULL } };
 	qb_result_prototype init_result_prototype, resume_result_prototype;
 
 	// do the fork 
@@ -144,8 +144,8 @@ static void qb_decompose_fork(qb_compiler_context *cxt, void *factory, qb_operan
 static void qb_decompose_array_pop(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_address *index_address = (cxt->stage == QB_STAGE_OPCODE_TRANSLATION) ? qb_retrieve_binary_op_result(cxt, &factory_subtract, DIMENSION_ADDRESS(container->address, 0), cxt->one_address) : cxt->zero_address;
-	qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, container->address }, { QB_OPERAND_ADDRESS, index_address } };
-	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL }, unset_result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, { container->address } }, { QB_OPERAND_ADDRESS, { index_address } } };
+	qb_operand fetch_result = { QB_OPERAND_EMPTY, { NULL } }, unset_result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_result_prototype fetch_result_prototype, unset_result_prototype;
 
 	memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
@@ -160,8 +160,8 @@ static void qb_decompose_array_pop(qb_compiler_context *cxt, void *factory, qb_o
 static void qb_decompose_array_shift(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_address *index_address = cxt->zero_address;
-	qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, container->address }, { QB_OPERAND_ADDRESS, index_address } };
-	qb_operand fetch_result = { QB_OPERAND_EMPTY, NULL }, unset_result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, { container->address } }, { QB_OPERAND_ADDRESS, { index_address } } };
+	qb_operand fetch_result = { QB_OPERAND_EMPTY, { NULL } }, unset_result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_result_prototype fetch_result_prototype, unset_result_prototype;
 
 	memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
@@ -176,13 +176,13 @@ static void qb_decompose_array_shift(qb_compiler_context *cxt, void *factory, qb
 static void qb_decompose_array_push(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_address *dimension_address = container->address->dimension_addresses[0];
-	qb_operand length = { QB_OPERAND_ADDRESS, dimension_address };
+	qb_operand length = { QB_OPERAND_ADDRESS, { dimension_address } };
 	uint32_t i;
 
 	for(i = 1; i < operand_count; i++) {
-		qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, container->address }, { QB_OPERAND_ADDRESS, dimension_address } }, fetch_result = { QB_OPERAND_EMPTY, NULL };
+		qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, { container->address } }, { QB_OPERAND_ADDRESS, { dimension_address } } }, fetch_result = { QB_OPERAND_EMPTY, { NULL } };
 		qb_result_prototype fetch_result_prototype;
-		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, NULL };
+		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, { NULL } };
 
 		memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
 		qb_produce_op(cxt, &factory_fetch_array_element_write, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
@@ -197,13 +197,13 @@ static void qb_decompose_array_push(qb_compiler_context *cxt, void *factory, qb_
 static void qb_decompose_array_unshift(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	qb_address *dimension_address = container->address->dimension_addresses[0];
-	qb_operand length = { QB_OPERAND_ADDRESS, dimension_address };
+	qb_operand length = { QB_OPERAND_ADDRESS, { dimension_address } };
 	uint32_t i;
 
 	for(i = operand_count - 1; i >= 1; i--) {
-		qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, container->address }, { QB_OPERAND_ADDRESS, cxt->zero_address } }, fetch_result = { QB_OPERAND_EMPTY, NULL };
+		qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, { container->address } }, { QB_OPERAND_ADDRESS, { cxt->zero_address } } }, fetch_result = { QB_OPERAND_EMPTY, { NULL } };
 		qb_result_prototype fetch_result_prototype;
-		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, NULL };
+		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, { NULL } };
 
 		memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
 		qb_produce_op(cxt, &factory_fetch_array_element_insert, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
@@ -216,7 +216,7 @@ static void qb_decompose_array_unshift(qb_compiler_context *cxt, void *factory, 
 }
 
 static void qb_decompose_in_array(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
-	qb_operand search_result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand search_result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_operand comparison_operands[2];
 	qb_result_prototype search_result_prototype;
 

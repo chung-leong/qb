@@ -26,7 +26,7 @@ static intptr_t qb_relocate_segment_memory(qb_memory_segment *segment, int8_t *n
 		uint32_t i;
 		intptr_t diff = new_location - segment->memory;
 		for(i = 0; i < segment->reference_count; i++) {
-			intptr_t *p_ref = segment->references[i];
+			uintptr_t *p_ref = segment->references[i];
 			*p_ref += diff;
 		}
 		segment->memory = new_location;
@@ -1255,7 +1255,7 @@ void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *z
 				}
 				if(Z_STRVAL_P(zvalue) != (char *) memory) {
 					efree(Z_STRVAL_P(zvalue));
-					Z_STRVAL_P(zvalue) = memory;
+					Z_STRVAL_P(zvalue) = (char *) memory;
 				}
 				Z_STRLEN_P(zvalue) = segment->byte_count;
 				return;

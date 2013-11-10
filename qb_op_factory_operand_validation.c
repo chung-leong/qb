@@ -104,7 +104,7 @@ static void qb_validate_operands_minmax_array(qb_compiler_context *cxt, qb_op_fa
 }
 
 static void qb_validate_array_append(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *value = &operands[0], *index = &operands[1];
+	qb_operand *index = &operands[1];
 
 	if(index->type == QB_OPERAND_ZVAL) {
 		switch(Z_TYPE_P(index->constant)) {
@@ -220,8 +220,6 @@ static void qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_op_f
 }
 
 static void qb_validate_operands_one_array_variable(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *operand = &operands[0];
-
 	qb_validate_operands_referenceable(cxt, f, expr_type, operands, operand_count, result_destination);
 	qb_validate_operands_one_array(cxt, f, expr_type, operands, operand_count, result_destination);
 }
@@ -252,7 +250,7 @@ static void qb_validate_operands_matching_vector_width(qb_compiler_context *cxt,
 }
 
 static void qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *operand1 = &operands[0], *operand2 = &operands[1], *operand3 = &operands[2];
+	qb_operand *operand3 = &operands[2];
 
 	qb_validate_operands_matching_vector_width(cxt, f, expr_type, operands, operand_count, result_destination);
 
@@ -319,7 +317,7 @@ static void qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *
 }
 
 static void qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+	qb_operand *operand1 = &operands[0];
 
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
@@ -575,7 +573,7 @@ static void qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_facto
 			uint32_t element_size = VALUE(U32, element_size_address);
 			uint32_t value_size = VALUE(U32, value_size_address);
 			if(element_size != value_size) {
-				qb_abort("%s() expects the third parameter to have the same size as the elements in the input array");
+				qb_abort("%s() expects the third parameter to have the same size as the elements in the input array", cxt->function_name);
 			}
 		} else {
 			// TODO: add runtime  check
@@ -725,7 +723,7 @@ static void qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_f
 					qb_abort("%s expects parameter %d to be a variable", qfunc->name, i + 1);
 				}
 				if(!STORAGE_TYPE_MATCH(val->address->type, arg->address->type)) {
-					qb_abort("%s expects parameter %d to be %s and a variable of the type %s is given", type_names[arg->address->type], type_names[val->address->type]);
+					qb_abort("%s expects parameter %d to be %s and a variable of the type %s is given", cxt->function_name, i + 1, type_names[arg->address->type], type_names[val->address->type]);
 				}
 			}
 			if(SCALAR(arg->address) && !SCALAR(val->address)) {
@@ -744,6 +742,8 @@ static void qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_f
 				case QB_RESULT_DESTINATION_PRINT:
 					// TODO: warn about void
 					break;
+				default: {
+				}	break;
 			}
 		}
 	}

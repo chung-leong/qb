@@ -91,7 +91,7 @@ static qb_opcode qb_select_opcode_object_property_isset(qb_compiler_context *cxt
 	qb_primitive_type operand_type = container->address->type;
 
 	if(SCALAR(address)) {
-		qb_operand operand = { QB_OPERAND_ADDRESS, address };
+		qb_operand operand = { QB_OPERAND_ADDRESS, { address } };
 		return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type);
 	} else {
 		return bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
@@ -216,7 +216,7 @@ static qb_opcode qb_select_opcode_nullary_arithmetic_object_property(qb_compiler
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
 	qb_address *address = (result->type == QB_OPERAND_ADDRESS) ? result->address : qb_obtain_object_property(cxt, container, name, 0);
-	qb_operand operand = { QB_OPERAND_ADDRESS, address };
+	qb_operand operand = { QB_OPERAND_ADDRESS, { address } };
 	qb_opcode opcode = qb_select_vectorized_nullary_opcode(cxt, af->vector_opcodes, &operand);
 	if(opcode == QB_NOP) {
 		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, expr_type);

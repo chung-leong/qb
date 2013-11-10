@@ -241,7 +241,7 @@ class ArrayResize extends Handler {
 		}
 		$lines[] =			"";
 		$lines[] =			"if(new_length > old_length) {";
-		$lines[] =				"((int8_t *) res_ptr) += qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize);";
+		$lines[] =				"res_ptr = ($cType *) (((int8_t *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize));";
 		$lines[] =				"if(old_length > 0) {";
 		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, $this->dimensionCount);";
 		$lines[] =				"}";
@@ -251,7 +251,7 @@ class ArrayResize extends Handler {
 		$lines[] =				"}";
 		$lines[] =				"qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize);";
 		$lines[] =			"} else {";
-		$lines[] =				"((int8_t *) res_ptr) += qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize);";
+		$lines[] =				"res_ptr = ($cType *) (((int8_t *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[$segmentSelector], new_length * $elementSize));";
 		$lines[] =				"if(old_length > 0) {";
 		$lines[] =					"qb_relocate_elements_{$type}(res_ptr, old_dims, new_dims, $this->dimensionCount);";
 		$lines[] =				"}";

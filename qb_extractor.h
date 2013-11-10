@@ -44,4 +44,4 @@ void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type);
 void qb_initialize_extractor_context(qb_extractor_context *cxt, zval *input, zval *return_value TSRMLS_DC);
 void qb_free_extractor_context(qb_extractor_context *cxt);
 
-#endif;
+#endif

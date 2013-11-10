@@ -371,8 +371,6 @@ qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_i
 		ivar = scope->variables[i];
 		if(ivar->hash_value == var->hash_value && ivar->name_length == var->name_length) {
 			if(strcmp(ivar->name, var->name) == 0) {
-				int32_t match = TRUE;
-				
 				if(qb_check_address_compatibility(scope->storage, ivar->address, storage, var->address)) {
 					if(!(var->flags & QB_ADDRESS_READ_ONLY)) {
 						ivar->flags &= ~QB_ADDRESS_READ_ONLY;
@@ -543,7 +541,6 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 	TSRMLS_FETCH();
 	const char *doc_comment = CG(doc_comment);
-	uint32_t doc_comment_len = CG(doc_comment_len);
 	if(doc_comment && qb_find_engine_tag(doc_comment)) {
 		zend_op *user_op;
 		qb_build_context *build_cxt;

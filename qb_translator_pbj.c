@@ -206,6 +206,7 @@ static uint32_t qb_get_pbj_channel_count(qb_pbj_translator_context *cxt, qb_pbj_
 		case PBJ_CHANNEL_RGB:
 		case PBJ_CHANNEL_GBA: return 3;
 		case PBJ_CHANNEL_RGBA: return 4;
+		default: break;
 	}
 	return 1;
 }
@@ -218,6 +219,7 @@ static qb_pbj_channel_id qb_get_first_pbj_channel(qb_pbj_translator_context *cxt
 		case PBJ_CHANNEL_GB:
 		case PBJ_CHANNEL_GBA: return PBJ_CHANNEL_G;
 		case PBJ_CHANNEL_BA: return PBJ_CHANNEL_B;
+		default: break;
 	}
 	return channel_id;
 }
@@ -235,6 +237,7 @@ static uint32_t qb_get_pbj_channel_offset(qb_pbj_translator_context *cxt, qb_pbj
 				case PBJ_CHANNEL_B:
 				case PBJ_CHANNEL_BA: return 2;
 				case PBJ_CHANNEL_A: return 3;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_GBA: {
@@ -245,6 +248,7 @@ static uint32_t qb_get_pbj_channel_offset(qb_pbj_translator_context *cxt, qb_pbj
 				case PBJ_CHANNEL_B:
 				case PBJ_CHANNEL_BA: return 1;
 				case PBJ_CHANNEL_A: return 2;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_RGB: {
@@ -254,25 +258,31 @@ static uint32_t qb_get_pbj_channel_offset(qb_pbj_translator_context *cxt, qb_pbj
 				case PBJ_CHANNEL_G:
 				case PBJ_CHANNEL_GB: return 1;
 				case PBJ_CHANNEL_B: return 2;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_BA: {
 			switch(channel_id) {
 				case PBJ_CHANNEL_B: return 0;
 				case PBJ_CHANNEL_A: return 1;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_GB: {
 			switch(channel_id) {
 				case PBJ_CHANNEL_G: return 0;
 				case PBJ_CHANNEL_B: return 1;
+				default: break;
 			}
 		}	break;
 		case PBJ_CHANNEL_RG: {
 			switch(channel_id) {
 				case PBJ_CHANNEL_R: return 0;
 				case PBJ_CHANNEL_G: return 1;
+				default: break;
 			}
+		}	break;
+		default: {
 		}	break;
 	}
 	return -1;
@@ -315,11 +325,13 @@ static qb_pbj_channel_id qb_get_pbj_channel_extent(qb_pbj_translator_context *cx
 			case PBJ_CHANNEL_R: return PBJ_CHANNEL_RG;
 			case PBJ_CHANNEL_G: return PBJ_CHANNEL_GB;
 			case PBJ_CHANNEL_B: return PBJ_CHANNEL_BA;
+			default: break;
 		}
 	} else if(width == 3) {
 		switch(start) {
 			case PBJ_CHANNEL_R: return PBJ_CHANNEL_RGB;
 			case PBJ_CHANNEL_G: return PBJ_CHANNEL_GBA;
+			default: break;
 		}
 	}
 	return PBJ_CHANNEL_RGBA;
@@ -805,7 +817,6 @@ static qb_pbj_register * qb_create_pbj_register(qb_pbj_translator_context *cxt, 
 	end = id + reg_required - 1;
 
 	if(end >= *p_count) {
-		uint32_t original_count = *p_count;
 		uint32_t addition = end - *p_count + 1;
 		qb_enlarge_array((void **) p_regs, addition);
 	}
@@ -1134,6 +1145,8 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 					new_reg_address.channel_id = PBJ_CHANNEL_BA;
 				}
 			}	break;
+			default: {
+			}	break;
 		}
 	}
 	if(new_reg_address.channel_id <= PBJ_CHANNEL_A) {
@@ -1186,6 +1199,7 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 				switch(expr_type) {
 					case QB_TYPE_S32: ARRAY(S32, value->address)[j] = pop->constant.int_value; break;
 					case QB_TYPE_F32: ARRAY(F32, value->address)[j] = pop->constant.float_value; break;
+					default: break;
 				}
 				pop++;
 			}
@@ -1502,65 +1516,65 @@ static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
 }
 
 static void qb_perform_assignment(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address) {
-	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, dst_address }, { QB_OPERAND_ADDRESS, src_address } };
-	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { dst_address } }, { QB_OPERAND_ADDRESS, { src_address } } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_assign, operands, 2, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_subtraction(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address) {
-	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, dst_address }, { QB_OPERAND_ADDRESS, src_address } };
-	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { dst_address } }, { QB_OPERAND_ADDRESS, { src_address } } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, factories_subtract_assign[0], operands, 2, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_increment(qb_pbj_translator_context *cxt, qb_address *dst_address) {
-	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
-	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand operand = { QB_OPERAND_ADDRESS, { dst_address } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_increment_pre, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_alpha_premultication(qb_pbj_translator_context *cxt, qb_address *dst_address) {
-	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
-	qb_operand result = { QB_OPERAND_ADDRESS, dst_address };
+	qb_operand operand = { QB_OPERAND_ADDRESS, { dst_address } };
+	qb_operand result = { QB_OPERAND_ADDRESS, { dst_address } };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_apply_premult, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_alpha_premultiplication_removal(qb_pbj_translator_context *cxt, qb_address *dst_address) {
-	qb_operand operand = { QB_OPERAND_ADDRESS, dst_address };
-	qb_operand result = { QB_OPERAND_ADDRESS, dst_address };
+	qb_operand operand = { QB_OPERAND_ADDRESS, { dst_address } };
+	qb_operand result = { QB_OPERAND_ADDRESS, { dst_address } };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_remove_premult, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_return(qb_pbj_translator_context *cxt) {
-	qb_operand operand = { QB_OPERAND_NONE, NULL };
-	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand operand = { QB_OPERAND_NONE, { NULL } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_return, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_loop(qb_pbj_translator_context *cxt, qb_address *index_address, qb_address *limit_address, uint32_t target_op_index) {
-	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, index_address }, { QB_OPERAND_ADDRESS, limit_address } };
-	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { limit_address } } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(target_op_index, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + 1, 0) };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_loop, operands, 2, &result, target_indices, 2, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_branch(qb_pbj_translator_context *cxt, qb_address *condition_address, uint32_t target_op_index) {
-	qb_operand operand = { QB_OPERAND_ADDRESS, condition_address };
-	qb_operand result = { QB_OPERAND_NONE, NULL };
+	qb_operand operand = { QB_OPERAND_ADDRESS, { condition_address } };
+	qb_operand result = { QB_OPERAND_NONE, { NULL } };
 	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(target_op_index, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op_index + 1, 0) };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_branch_on_true, &operand, 1, &result, target_indices, 2, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_jump(qb_pbj_translator_context *cxt, uint32_t target_op_index) {
-	qb_operand result = { QB_OPERAND_NONE, NULL };
+	qb_operand result = { QB_OPERAND_NONE, { NULL } };
 	uint32_t target_indices[1] = { JUMP_TARGET_INDEX(target_op_index, 0) }; 
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_jump, NULL, 0, &result, target_indices, 1, &cxt->result_prototypes[cxt->loop_op_index++]);
@@ -1572,16 +1586,16 @@ static void qb_perform_nop(qb_pbj_translator_context *cxt) {
 }
 
 static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask) {
-	qb_operand operands[3] = { { QB_OPERAND_ADDRESS, dst_address}, { QB_OPERAND_ADDRESS, src_address }, { QB_OPERAND_NUMBER, NULL } };
-	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { dst_address } }, { QB_OPERAND_ADDRESS, { src_address } }, { QB_OPERAND_NUMBER, { NULL } } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	operands[2].number = mask;
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_gather, operands, 3, &result, NULL, 0, NULL);
 }
 
 static void qb_perform_scatter(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask) {
-	qb_operand operands[3] = { { QB_OPERAND_ADDRESS, dst_address}, { QB_OPERAND_ADDRESS, src_address }, { QB_OPERAND_NUMBER, NULL } };
-	qb_operand result = { QB_OPERAND_EMPTY, NULL };
+	qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { dst_address } }, { QB_OPERAND_ADDRESS, { src_address } }, { QB_OPERAND_NUMBER, { NULL } } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	operands[2].number = mask;
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
 	qb_produce_op(cxt->compiler_context, &factory_scatter, operands, 3, &result, NULL, 0, NULL);
@@ -1728,6 +1742,7 @@ static uint32_t qb_pbj_get_channel_mask(qb_pbj_translator_context *cxt, qb_pbj_a
 			case PBJ_CHANNEL_RGB: mask = 0x0001 | 0x0002 | 0x0004; break;
 			case PBJ_CHANNEL_GBA: mask = 0x0002 | 0x0004 | 0x0008; break;
 			case PBJ_CHANNEL_RGBA: mask = 0x0001 | 0x0002 | 0x0004 | 0x0008; break;
+			default: break;
 		}
 	} else if(reg_address->dimension == 2) {
 		mask = 0x0000000F;	// 4 bits set
