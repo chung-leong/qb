@@ -116,6 +116,7 @@ struct qb_compiler_context {
 	qb_address *one_address;
 	qb_address *false_address;
 	qb_address *true_address;
+	qb_address *empty_array;
 
 	const char *function_name;
 	uint32_t argument_offset;

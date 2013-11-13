@@ -4611,6 +4611,23 @@ qb_op_decomposer factory_array_push = {
 	qb_decompose_array_push,
 };
 
+qb_basic_op_factory factory_array_replace = {
+	NULL,
+	NULL,
+	NULL,
+	qb_coerce_operands_array_replace,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_basic_first_operand,
+	qb_transfer_operands_array_replace,
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_AREPLACE_F64_S32_S32_U32_U32_U32_F64,	QB_AREPLACE_F32_S32_S32_U32_U32_U32_F32,	QB_AREPLACE_I64_S32_S32_U32_U32_U32_I64,	QB_AREPLACE_I64_S32_S32_U32_U32_U32_I64,	QB_AREPLACE_I32_S32_S32_U32_U32_U32_I32,	QB_AREPLACE_I32_S32_S32_U32_U32_U32_I32,	QB_AREPLACE_I16_S32_S32_U32_U32_U32_I16,	QB_AREPLACE_I16_S32_S32_U32_U32_U32_I16,	QB_AREPLACE_I08_S32_S32_U32_U32_U32_I08,	QB_AREPLACE_I08_S32_S32_U32_U32_U32_I08	},
+};
+
 qb_basic_op_factory factory_array_reverse = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
@@ -4698,6 +4715,10 @@ qb_simple_op_factory factory_array_slice_count = {
 	0,
 	QB_ADDRESS_TEMPORARY,
 	QB_SZ_ASLICE_S32_S32_U32_U32,
+};
+
+qb_op_decomposer factory_array_splice = {
+	qb_decompose_array_splice,
 };
 
 qb_basic_op_factory factory_array_sum = {

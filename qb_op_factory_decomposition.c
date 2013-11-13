@@ -228,3 +228,12 @@ static void qb_decompose_in_array(qb_compiler_context *cxt, void *factory, qb_op
 	comparison_operands[1].type = QB_OPERAND_ADDRESS;
 	qb_produce_op(cxt, &factory_not_equal, comparison_operands, 2, result, NULL, 0, result_prototype);
 }
+
+static void qb_decompose_array_splice(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_operand replace_result = { QB_OPERAND_EMPTY, { NULL } };
+
+	if(!result_prototype->destination || result_prototype->destination->type != QB_RESULT_DESTINATION_FREE) {
+		qb_produce_op(cxt, &factory_array_slice, operands, (operand_count > 3) ? 3 : operand_count, result, NULL, 0, result_prototype);
+	}
+	qb_produce_op(cxt, &factory_array_replace, operands, operand_count, &replace_result, NULL, 0, NULL);
+}

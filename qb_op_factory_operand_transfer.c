@@ -547,6 +547,30 @@ static void qb_transfer_operands_array_rand(qb_compiler_context *cxt, qb_op_fact
 	dest[2] = *result;
 }
 
+static void qb_transfer_operands_array_replace(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	qb_operand *container = &operands[0], *offset = &operands[1], *length = (operand_count >= 3) ? &operands[2] : NULL, *replacement = (operand_count >= 4) ? &operands[3] : NULL;
+	if(replacement && replacement->type == QB_OPERAND_ADDRESS) {
+		dest[0] = *replacement;
+	} else {
+		dest[0].address = cxt->empty_array;
+		dest[0].type = QB_OPERAND_ADDRESS;
+	}
+	dest[1] = *offset;
+	if(length && length->type == QB_OPERAND_ADDRESS) {
+		dest[2] = *length;
+	} else {
+		dest[2].address = qb_obtain_constant_S32(cxt, INT32_MAX);
+		dest[2].type = QB_OPERAND_ADDRESS;
+	}
+	dest[3].address = container->address->dimension_addresses[0];
+	dest[3].type = QB_OPERAND_ADDRESS;
+	dest[4].address = (container->address->dimension_count > 1) ? container->address->dimension_addresses[1] : cxt->one_address;
+	dest[4].type = QB_OPERAND_ADDRESS;
+	dest[5].address = container->address;
+	dest[5].type = QB_OPERAND_SEGMENT_SELECTOR;
+	dest[6] = *container;
+}
+
 static void qb_transfer_operands_array_resize(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0];
 	uint32_t i; 
@@ -575,7 +599,7 @@ static void qb_transfer_operands_array_reverse(qb_compiler_context *cxt, qb_op_f
 static void qb_transfer_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = (operand_count >= 3) ? &operands[2] : NULL;
 	dest[0] = *offset;
-	if(length) {
+	if(length && length->type == QB_OPERAND_ADDRESS) {
 		dest[1] = *length;
 	} else {
 		dest[1].address = qb_obtain_constant_S32(cxt, INT32_MAX);
@@ -592,7 +616,7 @@ static void qb_transfer_operands_array_slice(qb_compiler_context *cxt, qb_op_fac
 static void qb_transfer_operands_array_slice_count(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = (operand_count >= 3) ? &operands[2] : NULL;
 	dest[0] = *offset;
-	if(length) {
+	if(length && length->type == QB_OPERAND_ADDRESS) {
 		dest[1] = *length;
 	} else {
 		dest[1].address = qb_obtain_constant_S32(cxt, INT32_MAX);

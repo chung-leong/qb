@@ -1464,6 +1464,9 @@ static qb_address * qb_obtain_multidimensional_alias(qb_compiler_context *cxt, q
 					}
 				}
 				if(match) {
+					if(address->expression) {
+						alias->expression = address->expression;
+					}
 					return alias;
 				}
 			}
@@ -3391,6 +3394,8 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 }
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC) {
+	uint32_t zero = 0;
+
 	memset(cxt, 0, sizeof(qb_compiler_context));
 	cxt->pool = pool;
 	if(function_decl) {
@@ -3448,6 +3453,7 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	cxt->false_address->flags |= QB_ADDRESS_BOOLEAN;
 	cxt->true_address = qb_obtain_constant_S32(cxt, 1);
 	cxt->true_address->flags |= QB_ADDRESS_BOOLEAN;
+	cxt->empty_array = qb_create_constant_array(cxt, QB_TYPE_I08, &zero, 1);
 
 	cxt->dependency_index = dependency_index;
 	if(max_dependency_index > 1) {

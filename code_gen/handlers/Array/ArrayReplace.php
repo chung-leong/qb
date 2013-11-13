@@ -16,6 +16,21 @@ class ArrayReplace extends Handler {
 		}
 	}
 	
+	public function changesOperand($i) {
+		switch($i) {
+			case 4:
+			case 7: return true;
+			default: return FALSE;
+		}
+	}
+	
+	public function changesOperandSize($i) {
+		switch($i) {
+			case 7: return true;
+			default: return FALSE;
+		}
+	}
+	
 	public function getOperandAddressMode($i) {
 		switch($i) {
 			case 1: return "ARR";		// source array
@@ -65,7 +80,21 @@ class ArrayReplace extends Handler {
 		$lines[] = "}";
 		$lines[] = "extraction_len = (end_index - start_index) * op5;";
 		$lines[] = "if(extraction_len != replacement_len) {";
-		$lines[] =		"res_ptr = ($cType *) (((int8_t *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op6], (res_count + (replacement_len - extraction_len)) * sizeof($cType)));";
+		$lines[] =		"uint32_t remaining_len = (op4 - end_index) * op5;";
+		$lines[] =		"int32_t change_len = replacement_len - extraction_len;";
+		$lines[] = 		"if(remaining_len != 0 && change_len < 0) {";
+		$lines[] =			"$cType *end_ptr = res_ptr + end_index * op5, *new_end_ptr = end_ptr + change_len;";
+		$lines[] =			"memmove(new_end_ptr, end_ptr, remaining_len * sizeof($cType));";
+		$lines[] = 		"}";
+		$lines[] =		"res_ptr = ($cType *) (((int8_t *) res_ptr) + qb_resize_segment(&cxt->function->local_storage->segments[op6], (res_count + change_len) * sizeof($cType)));";
+		$lines[] =		"if(remaining_len != 0 && change_len > 0) {";
+		$lines[] =			"$cType *end_ptr = res_ptr + end_index * op5, *new_end_ptr = end_ptr + change_len;";
+		$lines[] =			"memmove(new_end_ptr, end_ptr, remaining_len * sizeof($cType));";
+		$lines[] =		"}";
+		$lines[] =		"if(op4_ptr != res_count_ptr) {";
+		$lines[] =			"*op4_ptr += change_len / ((int32_t) op5);";
+		$lines[] =		"}";
+		$lines[] =		"res_count += change_len;";
 		$lines[] = "}";
 		$lines[] = "if(replacement_len > 0) {";
 		$lines[] =		"$cType *ptr = res_ptr + start_index * op5;";
