@@ -670,6 +670,12 @@ static void qb_set_result_dimensions_array_intersect(qb_compiler_context *cxt, q
 	qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
 }
 
+static void qb_set_result_dimensions_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0];
+	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_slice_count, operands, operand_count);
+	qb_append_address_dimensions(cxt, first_dimension_address, first->address, 1, dim);
+}
+
 static void qb_set_result_dimensions_array_unique(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	qb_address *first_dimension_address = qb_obtain_on_demand_value(cxt, &factory_array_unique_count, operands, operand_count);

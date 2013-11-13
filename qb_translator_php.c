@@ -916,7 +916,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"rsort",				1,		1,		&factory_rsort				},
 	{	0,	"shuffle",				1,		1,		&factory_shuffle			},
 	{	0,	"sort",					1,		1,		&factory_sort				},
-	{	0,	"substr",				2,		3,		&factory_array_slice		},
+	{	0,	"substr",				2,		3,		&factory_substr				},
 	{	0,	"strpos",				2,		3,		&factory_array_pos			},
 	{	0,	"strrpos",				2,		3,		&factory_array_rpos			},
 	{	0,	"pack_le",				1,		2,		&factory_pack_le			},

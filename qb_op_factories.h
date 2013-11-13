@@ -538,7 +538,8 @@ extern qb_basic_op_factory factory_array_reverse;
 extern qb_basic_op_factory factory_array_rpos;
 extern qb_basic_op_factory factory_array_search;
 extern qb_op_decomposer factory_array_shift;
-extern qb_op_factory factory_array_slice;
+extern qb_basic_op_factory factory_array_slice;
+extern qb_simple_op_factory factory_array_slice_count;
 extern qb_basic_op_factory factory_array_sum;
 extern qb_basic_op_factory factory_array_unique;
 extern qb_basic_op_factory factory_array_unique_count;
@@ -549,6 +550,7 @@ extern qb_basic_op_factory factory_range_count;
 extern qb_basic_op_factory factory_rsort;
 extern qb_basic_op_factory factory_shuffle;
 extern qb_basic_op_factory factory_sort;
+extern qb_derived_op_factory factory_substr;
 
 extern qb_utf8_op_factory factory_utf8_decode;
 extern qb_utf8_op_factory factory_utf8_decode_count;

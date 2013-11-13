@@ -276,7 +276,7 @@ qb_expression * qb_get_on_demand_expression(qb_compiler_context *cxt, void *op_f
 	// see if there's an existing expression
 	for(i = 0; i < cxt->on_demand_expression_count; i++) {
 		expr = cxt->on_demand_expressions[i];
-		if(expr->op_factory == op_factory) {
+		if(expr->op_factory == op_factory && expr->operand_count == operand_count) {
 			int32_t match = TRUE;
 			for(j = 0; j < expr->operand_count; j++) {
 				if(expr->operands[j].type != operands[j].type || expr->operands[j].address != operands[j].address) {
@@ -704,6 +704,10 @@ static qb_address * qb_obtain_alias_by_address_flag(qb_compiler_context *cxt, qb
 			alias = cxt->address_aliases[i];
 			if(alias->source_address == address) {
 				if(alias->flags & flag) {
+					if(address->expression) {
+						// attach the expression onto the alias
+						alias->expression = address->expression;
+					}
 					return alias;
 				}
 			}

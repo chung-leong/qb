@@ -214,7 +214,16 @@ static void qb_coerce_operands_array_resize(qb_compiler_context *cxt, qb_op_fact
 static void qb_coerce_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 	qb_perform_type_coercion(cxt, container, expr_type, f->coercion_flags);
-	qb_perform_type_coercion(cxt, offset, QB_TYPE_U32, 0);
+	qb_perform_type_coercion(cxt, offset, QB_TYPE_S32, 0);
+	if(length->type != QB_OPERAND_NONE) {
+		qb_perform_type_coercion(cxt, length, QB_TYPE_S32, 0);
+	}
+}
+
+static void qb_coerce_operands_substr(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
+	qb_perform_type_coercion(cxt, container, QB_TYPE_U08, f->coercion_flags);
+	qb_perform_type_coercion(cxt, offset, QB_TYPE_S32, 0);
 	if(length->type != QB_OPERAND_NONE) {
 		qb_perform_type_coercion(cxt, length, QB_TYPE_S32, 0);
 	}

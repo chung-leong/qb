@@ -34,10 +34,6 @@ class ArrayResize extends Handler {
 		return false;
 	}
 	
-	public function needsInterpreterContext() {
-		return true;
-	}
-	
 	public function getOperandType($i) {
 		if($i <= $this->dimensionCount * 3) {
 			$j = $i % 3; 

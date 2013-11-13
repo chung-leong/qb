@@ -994,17 +994,21 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		}
 
 #ifdef ZEND_WIN32				
-		// check for timed-out condition on any backward jump
-		for(j = 0; j < qop->jump_target_count; j++) {
-			if(qop->jump_target_indices[j] <= qop_index) {
-				qb_print(cxt, "if(*cxt->windows_timed_out_pointer) {\n");
-				qb_print(cxt,		"zend_timeout(1);\n");
-				qb_print(cxt,		"return QB_VM_TIMEOUT;\n");
-				qb_print(cxt, "}\n");
-				break;
+		if(qop->flags & (QB_OP_BRANCH | QB_OP_JUMP)) {
+			// check for timed-out condition on any backward jump
+			uint32_t j;
+			for(j = 0; j < qop->jump_target_count; j++) {
+				if(qop->jump_target_indices[j] <= qop_index) {
+					qb_print(cxt, "if(*cxt->windows_timed_out_pointer) {\n");
+					qb_print(cxt,		"zend_timeout(1);\n");
+					qb_print(cxt,		"return QB_VM_TIMEOUT;\n");
+					qb_print(cxt, "}\n");
+					break;
+				}
 			}
 		}
 #endif
+
 		if(qop->flags & QB_OP_BRANCH) {
 			if(qop->jump_target_indices[1] == qop_index + 1) {
 				const char *jump_target = qb_get_jump_label(cxt, qop->jump_target_indices[0]);

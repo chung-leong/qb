@@ -1263,6 +1263,18 @@ class CodeGenerator {
 			$this->handlers[] = new ArrayIntersectCount("SZ_AISECT", $elementTypeNoSign);
 			$this->handlers[] = new Shuffle("SHUFFLE", $elementTypeNoSign);
 			
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new ArraySlice("ASLICE", $elementTypeNoSign, $addressMode);
+			}
+			if($elementTypeNoSign == "I32") {
+				foreach($this->scalarAddressModes as $addressMode) {
+					$this->handlers[] = new ArraySliceCount("SZ_ASLICE", $elementTypeNoSign, $addressMode);
+				}
+			}
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new ArrayReplace("AREPLACE", $elementTypeNoSign, $addressMode);
+			}
+			
 			for($i = 1; $i <= 8; $i++) {
 				$this->handlers[] = new ArrayResize("ARESIZE$i", $elementTypeNoSign, $i);
 			}
