@@ -2580,9 +2580,6 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 				qb_operand operands[5] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { index_limit_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } }, { QB_OPERAND_ADDRESS, { array_offset_address } }, { QB_OPERAND_ADDRESS, { predicate_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_check_array_index_multiply_add, operands, 5);
 			}
-		} else if(bound_check_flags & QB_ARRAY_BOUND_CHECK_INSERT) {
-			qb_operand operands[7] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { index_limit_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } }, { QB_OPERAND_ADDRESS, { container_address->array_size_address } }, { QB_OPERAND_ADDRESS, { cxt->one_address } }, { QB_OPERAND_SEGMENT_SELECTOR, { container_address } }, { QB_OPERAND_ELEMENT_SIZE, { container_address } } };
-			return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_insert_multidimensional, operands, 7);
 		} else if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
 			// a write operation and the array can expand
 			// enlarge the array to accommodate an index larger than the current size
@@ -2623,10 +2620,6 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 			qb_address *predicate_address = qb_obtain_predicate_address(cxt, container_address, TRUE);
 			qb_operand operands[4] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { index_limit_address } }, { QB_OPERAND_ADDRESS, { array_offset_address } }, { QB_OPERAND_ADDRESS, { predicate_address } } };
 			return qb_obtain_on_demand_value(cxt, &factory_check_array_index_add, operands, 4);
-		} else if(bound_check_flags & QB_ARRAY_BOUND_CHECK_INSERT) {
-			// accommodate an insertion at the index
-			qb_operand operands[5] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { index_limit_address } }, { QB_OPERAND_ADDRESS, { cxt->one_address } }, { QB_OPERAND_SEGMENT_SELECTOR, { container_address } }, { QB_OPERAND_ELEMENT_SIZE, { container_address } } };
-			return qb_obtain_on_demand_value(cxt, &factory_accommodate_array_insert, operands, 5);
 		} else if((bound_check_flags & QB_ARRAY_BOUND_CHECK_WRITE) && can_expand) {
 			if(index_address == index_limit_address) {
 				// done slightly differently, since we need to put the original size of the array in a temporary variable

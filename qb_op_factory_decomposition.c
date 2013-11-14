@@ -175,44 +175,43 @@ static void qb_decompose_array_shift(qb_compiler_context *cxt, void *factory, qb
 
 static void qb_decompose_array_push(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
-	qb_address *dimension_address = container->address->dimension_addresses[0];
-	qb_operand length = { QB_OPERAND_ADDRESS, { dimension_address } };
 	uint32_t i;
 
 	for(i = 1; i < operand_count; i++) {
-		qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, { container->address } }, { QB_OPERAND_ADDRESS, { dimension_address } } }, fetch_result = { QB_OPERAND_EMPTY, { NULL } };
-		qb_result_prototype fetch_result_prototype;
-		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, { NULL } };
-
-		memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
-		qb_produce_op(cxt, &factory_fetch_array_element_write, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
-		assign_operands[0] = fetch_result;
-		assign_operands[1] = operands[i];
-		qb_produce_op(cxt, &factory_assign, assign_operands, 2, &assign_result, NULL, 0, NULL);
+		qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
+		replace_operands[0].address = container->address;
+		replace_operands[0].type = QB_OPERAND_ADDRESS;
+		replace_operands[1].address = container->address->dimension_addresses[0];
+		replace_operands[1].type = QB_OPERAND_ADDRESS;
+		replace_operands[2].address = cxt->zero_address;
+		replace_operands[2].type = QB_OPERAND_ADDRESS;
+		replace_operands[3] = operands[i];
+		qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL);
 	}
-
-	qb_produce_op(cxt, &factory_assign_temporary, &length, 1, result, NULL, 0, result_prototype);
+	result->address = container->address->dimension_addresses[0];
+	result->type = QB_OPERAND_ADDRESS;
 }
 
 static void qb_decompose_array_unshift(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
-	qb_address *dimension_address = container->address->dimension_addresses[0];
-	qb_operand length = { QB_OPERAND_ADDRESS, { dimension_address } };
 	uint32_t i;
 
 	for(i = operand_count - 1; i >= 1; i--) {
-		qb_operand fetch_operands[2] = { { QB_OPERAND_ADDRESS, { container->address } }, { QB_OPERAND_ADDRESS, { cxt->zero_address } } }, fetch_result = { QB_OPERAND_EMPTY, { NULL } };
-		qb_result_prototype fetch_result_prototype;
-		qb_operand assign_operands[2], assign_result = { QB_OPERAND_EMPTY, { NULL } };
-
-		memset(&fetch_result_prototype, 0, sizeof(qb_result_prototype));
-		qb_produce_op(cxt, &factory_fetch_array_element_insert, fetch_operands, 2, &fetch_result, NULL, 0, &fetch_result_prototype);
-		assign_operands[0] = fetch_result;
-		assign_operands[1] = operands[i];
-		qb_produce_op(cxt, &factory_assign, assign_operands, 2, &assign_result, NULL, 0, NULL);
+		qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
+		replace_operands[0].address = container->address;
+		replace_operands[0].type = QB_OPERAND_ADDRESS;
+		replace_operands[1].address = cxt->zero_address;
+		replace_operands[1].type = QB_OPERAND_ADDRESS;
+		replace_operands[2].address = cxt->zero_address;
+		replace_operands[2].type = QB_OPERAND_ADDRESS;
+		replace_operands[3] = operands[i];
+		qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL);
 	}
+	result->address = container->address->dimension_addresses[0];
+	result->type = QB_OPERAND_ADDRESS;
+}
 
-	qb_produce_op(cxt, &factory_assign_temporary, &length, 1, result, NULL, 0, result_prototype);
+static void qb_decompose_array_merge(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 }
 
 static void qb_decompose_in_array(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
