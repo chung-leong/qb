@@ -18,10 +18,15 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
  * @import pbj/cubes-03.pbj
  *
  * @param image			$dst
+ * @param float32[2]	$center
+ * @param float32[3]	$spin
+ * @param float32		$plunge
+ * @param float32		$cellDensity
+ * @param float32		$radius
  */
-function filter(&$dst) {}
+function filter(&$dst, $center, $spin, $plunge, $cellDensity, $radius) {}
 
-filter($output);
+filter($output, array(240, 190), array(0.6, 1, 0.2), 1, 0.03, 180);
 
 ob_start();
 imagesavealpha($output, true);
