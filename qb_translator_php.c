@@ -74,7 +74,7 @@ static void qb_retire_operand(qb_php_translator_context *cxt, uint32_t zoperand_
 				if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
 					if(temp_variable->last_access_op_index == cxt->zend_op_index) {
 						// unlock the operand if the current op is the last to access it
-						qb_unlock_operand(cxt->compiler_context, operand);
+						qb_unlock_operand(cxt->compiler_context, &temp_variable->operand);
 						temp_variable->operand.type = QB_OPERAND_EMPTY;
 						temp_variable->operand.generic_pointer = NULL;
 #ifdef ZEND_DEBUG
@@ -125,20 +125,7 @@ static void qb_lock_temporary_variables(qb_php_translator_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < cxt->temp_variable_count; i++) {
 		qb_temporary_variable *temp_variable = &cxt->temp_variables[i];
-		if(temp_variable->operand.type == QB_OPERAND_ADDRESS) {
-			qb_address *address = temp_variable->operand.address;
-			if(address->source_address) {
-				qb_lock_address(cxt->compiler_context, address->source_address);
-			}
-			if(address->array_index_address) {
-				qb_lock_address(cxt->compiler_context, address->array_index_address);
-			}			
-		} else {
-			// lock temporary variables used to initialize an array as well
-			if(temp_variable->operand.type == QB_OPERAND_ARRAY_INITIALIZER) {
-				qb_lock_operand(cxt->compiler_context, &temp_variable->operand);
-			}
-		}
+		qb_lock_operand(cxt->compiler_context, &temp_variable->operand);
 	}
 	for(i = cxt->stack_item_offset, j = 0; j < cxt->stack_item_count; i++, j++) {
 		qb_operand *stack_item = cxt->stack_items[i];

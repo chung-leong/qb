@@ -844,7 +844,7 @@ class CodeGenerator {
 				$this->handlers[] = new Gather("GATH", $elementTypeNoSign, $i);
 			}
 			for($i = 2; $i <= 8; $i++) {
-				$this->handlers[] = new Gather("SCAT", $elementTypeNoSign, $i);
+				$this->handlers[] = new Scatter("SCAT", $elementTypeNoSign, $i);
 			}
 		}
 	}

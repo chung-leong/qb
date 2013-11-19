@@ -335,16 +335,17 @@ static qb_opcode qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory
 
 static qb_opcode qb_select_opcode_gather(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_gather_op_factory *gf = (qb_gather_op_factory *) f;
-	uint32_t width = DIMENSION(result->address, -1);
-	qb_opcode opcode = qb_select_type_dependent_opcode(cxt, gf->opcodes[width - 2], expr_type);
+	qb_operand *dest = &operands[0];
+	uint32_t width = DIMENSION(dest->address, -1);
+	qb_opcode opcode = qb_select_type_dependent_opcode(cxt, gf->opcodes[width - 2], dest->address->type);
 	return opcode;
 }
 
 static qb_opcode qb_select_opcode_scatter(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_gather_op_factory *gf = (qb_gather_op_factory *) f;
-	qb_operand *source = &operands[0];
+	qb_operand *source = &operands[1];
 	uint32_t width = DIMENSION(source->address, -1);
-	qb_opcode opcode = qb_select_type_dependent_opcode(cxt, gf->opcodes[width - 2], expr_type);
+	qb_opcode opcode = qb_select_type_dependent_opcode(cxt, gf->opcodes[width - 2], source->address->type);
 	return opcode;
 }
 

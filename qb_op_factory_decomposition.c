@@ -212,6 +212,30 @@ static void qb_decompose_array_unshift(qb_compiler_context *cxt, void *factory, 
 }
 
 static void qb_decompose_array_merge(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_operand *container1 = &operands[0];
+	uint32_t i;
+
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->final_type = result_prototype->preliminary_type = qb_get_highest_rank_type(cxt, operands, operand_count, 0);
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_variable_dimensions dim = { 1, NULL };
+		result->address = qb_obtain_temporary_variable(cxt, result_prototype->final_type, &dim);
+		result->type = QB_OPERAND_ADDRESS;
+
+		for(i = 0; i < operand_count; i++) {
+			qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
+			replace_operands[0].address = result->address;
+			replace_operands[0].type = QB_OPERAND_ADDRESS;
+			replace_operands[1].address = result->address->dimension_addresses[0];
+			replace_operands[1].type = QB_OPERAND_ADDRESS;
+			replace_operands[2].address = cxt->zero_address;
+			replace_operands[2].type = QB_OPERAND_ADDRESS;
+			replace_operands[3] = operands[i];
+			qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL);
+		}
+	}
 }
 
 static void qb_decompose_in_array(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {

@@ -54,7 +54,7 @@ static void qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op
 			qb_abort("no property by the name of '%s'", Z_STRVAL_P(name->constant));
 		}
 	} else if(container->type == QB_OPERAND_ADDRESS) {
-		int32_t index;
+		uint32_t index;
 		if(SCALAR(container->address)) {
 			qb_abort("illegal operation: not an array");
 		}
@@ -62,8 +62,14 @@ static void qb_validate_operands_object_property(qb_compiler_context *cxt, qb_op
 			qb_abort("array elements are not named");
 		}
 		index = qb_find_index_alias(cxt, container->address->index_alias_schemes[0], name->constant);
-		if(index == -1) {
-			qb_abort("no element by the name of '%s'", Z_STRVAL_P(name->constant));
+		if(index == INVALID_INDEX) {
+			uint32_t swizzle_mask = 0;
+			if(container->address->dimension_count == 1) {
+				swizzle_mask = qb_get_swizzle_mask(cxt, container->address->index_alias_schemes[0], name->constant);
+			}
+			if(swizzle_mask == INVALID_INDEX) {
+				qb_abort("no element by the name of '%s'", Z_STRVAL_P(name->constant));
+			}
 		}
 	} else {
 		qb_abort("cannot fetch property of objects other than $this");

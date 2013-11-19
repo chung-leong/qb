@@ -339,7 +339,8 @@ qb_address * qb_create_temporary_variable(qb_compiler_context *cxt, qb_primitive
 qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_operand * qb_expand_array_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, uint32_t required_index);
 
-int32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
+uint32_t qb_find_index_alias(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
+uint32_t qb_get_swizzle_mask(qb_compiler_context *cxt, qb_index_alias_scheme *scheme, zval *name);
 
 qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *class, zval *name, uint32_t type_mask);
 qb_variable * qb_get_local_variable(qb_compiler_context *cxt, zval *name);

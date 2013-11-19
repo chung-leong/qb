@@ -139,7 +139,7 @@ static int32_t qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t ind
 static int32_t qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t index) {
 	qb_op *qop = cxt->ops[index];
 
-	if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && (TEMPORARY(qop->operands[2].address))) {
+	if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && qop->operands[2].type == QB_OPERAND_ADDRESS && TEMPORARY(qop->operands[2].address)) {
 		qb_op *next_qop = qb_get_next_op(cxt, index);
 
 		if(next_qop && next_qop->operand_count == 3 && !(next_qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT))) {

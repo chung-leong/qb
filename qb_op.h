@@ -81,6 +81,8 @@ struct qb_index_alias_scheme {
 
 enum {
 	QB_EXPR_RESULT_IS_STILL_VALID	= 0x00000001,
+	QB_EXPR_EXECUTE_BEFORE			= 0x00000002,
+	QB_EXPR_EXECUTE_AFTER			= 0x00000004,
 };
 
 struct qb_expression {

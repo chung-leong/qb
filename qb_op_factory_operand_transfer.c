@@ -281,7 +281,7 @@ static void qb_transfer_operands_modify_assign(qb_compiler_context *cxt, qb_op_f
 static void qb_transfer_operands_gather(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[2];
 	dest[1] = operands[1];
-	dest[2] = *result;
+	dest[2] = operands[0];
 }
 
 static void qb_transfer_operands_fork(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
