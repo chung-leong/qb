@@ -2667,6 +2667,7 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { length_address } }, { QB_OPERAND_ADDRESS, { extent_limit_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_multiply, operands, 4);
 			} else {
+				qb_abort("Error");
 				// not implemented
 			}
 		} else {
@@ -2681,6 +2682,7 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { length_address } }, { QB_OPERAND_ADDRESS, { extent_limit_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent, operands, 3);
 			} else {
+				qb_abort("Error");
 				// not implemented
 			}
 		}
@@ -2700,6 +2702,7 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { extent_limit_address } }, { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_subtract_multiply, operands, 3);
 			} else {
+				qb_abort("Error");
 				// not implemented
 			}
 		} else {
@@ -2714,6 +2717,7 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { extent_limit_address } }, { QB_OPERAND_ADDRESS, { index_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_subtract, operands, 2);
 			} else {
+				qb_abort("Error");
 				// not implemented
 			}
 		}

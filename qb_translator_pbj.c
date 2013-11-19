@@ -1435,7 +1435,7 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 	if(reg_address->dimension > 1) {
 		if(!reg->matrix_address) {
 			uint32_t size = reg->span * 4;
-			uint32_t dimensions[2] = { size / reg_address->dimension, reg_address->dimension };
+			uint32_t dimensions[2] = { reg_address->dimension, size / reg_address->dimension };
 			reg->matrix_address = qb_create_writable_array(cxt->compiler_context, element_type, dimensions, 2);
 			qb_propagate_pbj_matrix_span(cxt, reg);
 		}
@@ -1481,6 +1481,15 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 				}
 			}
 			reg->channel_addresses[reg_address->channel_id] = channel_address;
+#ifdef ZEND_DEBUG
+			{
+				uint32_t expected_length = qb_get_pbj_channel_count(cxt, reg_address->channel_id);
+				uint32_t actual_length = ARRAY_SIZE(channel_address);
+				if(expected_length != actual_length) {
+					qb_abort("Error");
+				}
+			}
+#endif
 		}
 	}
 }

@@ -530,7 +530,7 @@ static qb_opcode qb_select_opcode_mm_mult_cm(qb_compiler_context *cxt, qb_op_fac
 		uint32_t m1_rows = DIMENSION(address1, -1);
 		uint32_t m2_cols = DIMENSION(address2, -2);
 		uint32_t m2_rows = DIMENSION(address2, -1);
-		if(cxt->matrix_padding && m1_rows == 3 && m1_cols == 4 && m2_rows == 3 && m2_cols == 4) {
+		if(cxt->matrix_padding && m1_rows == 4 && m1_cols == 3 && m2_rows == 4 && m2_cols == 3) {
 			opcode = mf->opcode_3x3_padded;
 		} else {
 			if(m1_rows == m1_cols && m2_rows == m2_cols) {
@@ -555,7 +555,7 @@ static qb_opcode qb_select_opcode_mv_mult_cm(qb_compiler_context *cxt, qb_op_fac
 	if(CONSTANT_DIMENSION(address1, -1) && CONSTANT_DIMENSION(address1, -2) && CONSTANT_DIMENSION(address2, -1)) {
 		uint32_t m_cols = DIMENSION(address1, -2);
 		uint32_t m_rows = DIMENSION(address1, -1);
-		if(cxt->matrix_padding && m_rows == 3 && m_cols == 4) {
+		if(cxt->matrix_padding && m_rows == 4 && m_cols == 3) {
 			opcode = mf->opcode_3x3_padded;
 		} else {
 			opcode = qb_select_fixed_size_matrix_opcode(cxt, mf->opcodes_fixed_size, expr_type, address1);
@@ -578,7 +578,7 @@ static qb_opcode qb_select_opcode_vm_mult_cm(qb_compiler_context *cxt, qb_op_fac
 	if(CONSTANT_DIMENSION(address1, -1) && CONSTANT_DIMENSION(address2, -1) && CONSTANT_DIMENSION(address2, -2)) {
 		uint32_t m_cols = DIMENSION(address2, -2);
 		uint32_t m_rows = DIMENSION(address2, -1);
-		if(cxt->matrix_padding && m_rows == 3 && m_cols == 4) {
+		if(cxt->matrix_padding && m_rows == 4 && m_cols == 3) {
 			opcode = mf->opcode_3x3_padded;
 		} else {
 			opcode = qb_select_fixed_size_matrix_opcode(cxt, mf->opcodes_fixed_size, expr_type, address2);
