@@ -821,7 +821,10 @@ static qb_pbj_register * qb_create_pbj_register(qb_pbj_translator_context *cxt, 
 		qb_enlarge_array((void **) p_regs, addition);
 	}
 	reg = &(*p_regs)[id];
-	reg->span = reg_required;
+
+	if(reg->span < reg_required) {
+		reg->span = reg_required;
+	}
 	return reg;
 }
 
@@ -1053,11 +1056,11 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 	}
 }
 
-static void qb_translate_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_process_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void qb_translate_pbj_copy(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_process_pbj_copy(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	operands[1] = operands[0];
 	operands[0] = *result;
 	qb_produce_op(cxt->compiler_context, t->extra, operands, 2, result, NULL, 0, result_prototype);
@@ -1067,7 +1070,7 @@ static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address
 static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *result, qb_result_prototype *result_prototype);
 static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand);
 
-static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_process_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
 	qb_pbj_constant *constant = &cxt->pbj_op->constant;
 	qb_pbj_register *reg = qb_get_pbj_register(cxt, &cxt->pbj_op->destination);
@@ -1210,23 +1213,23 @@ static void qb_translate_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pb
 	cxt->pbj_op_index += (constant_count - 1);
 
 	qb_fetch_pbj_write_target(cxt, &new_reg_address, result, result_prototype);
-	qb_translate_pbj_copy(cxt, t, value, 1, result, result_prototype);
+	qb_process_pbj_copy(cxt, t, value, 1, result, result_prototype);
 	qb_retire_pbj_write_target(cxt, &new_reg_address, result);
 }
 
-static void qb_translate_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_process_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// jump to the instruction immediately following the else or end-if if the condition is false
 	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op_index + 1, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op->branch_target_index + 1, 0) };
 	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, target_indices, 2, result_prototype);
 }
 
-static void qb_translate_pbj_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_process_pbj_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// jump over the else block
 	uint32_t target_indices[1] = { JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op->branch_target_index + 1, 0) };
 	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, target_indices, 1, result_prototype);
 }
 
-static void qb_translate_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_process_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// do nothing
 }
 
@@ -1242,69 +1245,69 @@ static void qb_translate_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_trans
 
 static qb_pbj_translator pbj_op_translators[] = {
 	{	NULL,										0,					NULL								},	// PBJ_NOP
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_add						},	// PBJ_ADD
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_subtract					},	// PBJ_SUBTRACT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_multiply					},	// PBJ_MULTIPLY
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_reciprocal					},	// PBJ_RECIPROCAL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_divide						},	// PBJ_DIVIDE
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_atan2						},	// PBJ_ATAN2
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_pow						},	// PBJ_POW
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_floor_modulo				},	// PBJ_MOD
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_min_two					},	// PBJ_MIN
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_max_two					},	// PBJ_MAX
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_step						},	// PBJ_STEP
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sin						},	// PBJ_SIN
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_cos						},	// PBJ_COS
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_tan						},	// PBJ_TAN
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_asin						},	// PBJ_ASIN
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_acos						},	// PBJ_ACOS
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_atan						},	// PBJ_ATAN
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp						},	// PBJ_EXP
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_exp2						},	// PBJ_EXP2
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log						},	// PBJ_LOG
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_log2						},	// PBJ_LOG2
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sqrt						},	// PBJ_SQRT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_rsqrt						},	// PBJ_RSQRT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_abs						},	// PBJ_ABS
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_sign						},	// PBJ_SIGN
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_floor						},	// PBJ_FLOOR
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_ceil						},	// PBJ_CEIL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_fract						},	// PBJ_FRACT
-	{	qb_translate_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_COPY
-	{	qb_translate_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_FLOAT_TO_INT
-	{	qb_translate_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_INT_TO_FLOAT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD2_WD,		&factory_mm_mult_cm					},	// PBJ_MATRIX_MATRIX_MULTIPLY
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_vm_mult_cm					},	// PBJ_VECTOR_MATRIX_MULTIPLY
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD2_WD,		&factory_mv_mult_cm					},	// PBJ_MATRIX_VECTOR_MULTIPLY
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_normalize					},	// PBJ_NORMALIZE
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_length						},	// PBJ_LENGTH
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WDS,		&factory_distance					},	// PBJ_DISTANCE
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WDS,		&factory_dot_product				},	// PBJ_DOT_PRODUCT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_cross_product				},	// PBJ_CROSS_PRODUCT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_equal						},	// PBJ_EQUAL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_not_equal					},	// PBJ_NOT_EQUAL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_or_scalar_less_than	},	// PBJ_LESS_THAN
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_or_scalar_less_equal	},	// PBJ_LESS_THAN_EQUAL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_logical_not				},	// PBJ_LOGICAL_NOT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_and				},	// PBJ_LOGICAL_AND
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_or					},	// PBJ_LOGICAL_OR
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_xor				},	// PBJ_LOGICAL_XOR
-	{	qb_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_nearest_vector		},	// PBJ_SAMPLE_NEAREST
-	{	qb_translate_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_bilinear_vector		},	// PBJ_SAMPLE_BILINEAR
-	{	qb_translate_pbj_load_constant,				0,					&factory_assign,					},	// PBJ_LOAD_CONSTANT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_select,					},	// PBJ_SELECT
-	{	qb_translate_pbj_if,						PBJ_RS,				&factory_branch_on_true,			},	// PBJ_IF
-	{	qb_translate_pbj_else,						0,					&factory_jump,						},	// PBJ_ELSE
-	{	qb_translate_pbj_end_if,					0,					NULL								},	// PBJ_END_IF
-	{	qb_translate_pbj_basic_op,					0,					&factory_not_equal					},	// PBJ_FLOAT_TO_BOOL
-	{	qb_translate_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_BOOL_TO_FLOAT
-	{	qb_translate_pbj_basic_op,					0,					&factory_not_equal					},	// PBJ_INT_TO_BOOL
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_add						},	// PBJ_ADD
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_subtract					},	// PBJ_SUBTRACT
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_multiply					},	// PBJ_MULTIPLY
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_reciprocal					},	// PBJ_RECIPROCAL
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_divide						},	// PBJ_DIVIDE
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_atan2						},	// PBJ_ATAN2
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_pow						},	// PBJ_POW
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_floor_modulo				},	// PBJ_MOD
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_min_two					},	// PBJ_MIN
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_max_two					},	// PBJ_MAX
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_step						},	// PBJ_STEP
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_sin						},	// PBJ_SIN
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_cos						},	// PBJ_COS
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_tan						},	// PBJ_TAN
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_asin						},	// PBJ_ASIN
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_acos						},	// PBJ_ACOS
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_atan						},	// PBJ_ATAN
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_exp						},	// PBJ_EXP
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_exp2						},	// PBJ_EXP2
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_log						},	// PBJ_LOG
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_log2						},	// PBJ_LOG2
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_sqrt						},	// PBJ_SQRT
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_rsqrt						},	// PBJ_RSQRT
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_abs						},	// PBJ_ABS
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_sign						},	// PBJ_SIGN
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_floor						},	// PBJ_FLOOR
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_ceil						},	// PBJ_CEIL
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_fract						},	// PBJ_FRACT
+	{	qb_process_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_COPY
+	{	qb_process_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_FLOAT_TO_INT
+	{	qb_process_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_INT_TO_FLOAT
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD2_WD,		&factory_mm_mult_cm					},	// PBJ_MATRIX_MATRIX_MULTIPLY
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_vm_mult_cm					},	// PBJ_VECTOR_MATRIX_MULTIPLY
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD2_WD,		&factory_mv_mult_cm					},	// PBJ_MATRIX_VECTOR_MULTIPLY
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_normalize					},	// PBJ_NORMALIZE
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_length						},	// PBJ_LENGTH
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WDS,		&factory_distance					},	// PBJ_DISTANCE
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WDS,		&factory_dot_product				},	// PBJ_DOT_PRODUCT
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_cross_product				},	// PBJ_CROSS_PRODUCT
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_equal						},	// PBJ_EQUAL
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_not_equal					},	// PBJ_NOT_EQUAL
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_or_scalar_less_than	},	// PBJ_LESS_THAN
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_or_scalar_less_equal	},	// PBJ_LESS_THAN_EQUAL
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_logical_not				},	// PBJ_LOGICAL_NOT
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_and				},	// PBJ_LOGICAL_AND
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_or					},	// PBJ_LOGICAL_OR
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WD,		&factory_logical_xor				},	// PBJ_LOGICAL_XOR
+	{	qb_process_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_nearest_vector		},	// PBJ_SAMPLE_NEAREST
+	{	qb_process_pbj_basic_op,					PBJ_RI_RS_WD,		&factory_sample_bilinear_vector		},	// PBJ_SAMPLE_BILINEAR
+	{	qb_process_pbj_load_constant,				0,					&factory_assign,					},	// PBJ_LOAD_CONSTANT
+	{	qb_process_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_select,					},	// PBJ_SELECT
+	{	qb_process_pbj_if,							PBJ_RS,				&factory_branch_on_true,			},	// PBJ_IF
+	{	qb_process_pbj_else,						0,					&factory_jump,						},	// PBJ_ELSE
+	{	qb_process_pbj_end_if,						0,					NULL								},	// PBJ_END_IF
+	{	qb_process_pbj_basic_op,					0,					&factory_not_equal					},	// PBJ_FLOAT_TO_BOOL
+	{	qb_process_pbj_copy,						PBJ_RS_WD,			&factory_assign						},	// PBJ_BOOL_TO_FLOAT
+	{	qb_process_pbj_basic_op,					0,					&factory_not_equal					},	// PBJ_INT_TO_BOOL
 	{	NULL,										0,					NULL								},	// PBJ_BOOL_TO_INT
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_equal					},	// PBJ_VECTOR_EQUAL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_not_equal				},	// PBJ_VECTOR_NOT_EQUAL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_any						},	// PBJ_ANY
-	{	qb_translate_pbj_basic_op,					PBJ_RS_WD,			&factory_all						},	// PBJ_ALL
-	{	qb_translate_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step				},	// PBJ_SMOOTH_STEP
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_equal					},	// PBJ_VECTOR_EQUAL
+	{	qb_process_pbj_basic_op,					PBJ_RS_RD1_WB,		&factory_set_not_equal				},	// PBJ_VECTOR_NOT_EQUAL
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_any						},	// PBJ_ANY
+	{	qb_process_pbj_basic_op,					PBJ_RS_WD,			&factory_all						},	// PBJ_ALL
+	{	qb_process_pbj_basic_op,					PBJ_RS_RS2_RS3_WD,	&factory_smooth_step				},	// PBJ_SMOOTH_STEP
 };
 
 static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask);
@@ -1354,7 +1357,7 @@ static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_ad
 	}
 }
 
-static void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt) {
+static void qb_process_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 	qb_pbj_op *pop = cxt->pbj_op;
 	if(pop->opcode != PBJ_OP_DATA && pop->opcode != PBJ_NOP) {
 		qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
@@ -1429,28 +1432,62 @@ static void qb_translate_current_pbj_instruction(qb_pbj_translator_context *cxt)
 	}
 }
 
-static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
-	qb_pbj_register *reg = qb_create_pbj_register(cxt, reg_address);
-	qb_primitive_type element_type = (reg_address->register_id & PBJ_REGISTER_INT) ? QB_TYPE_I32 : QB_TYPE_F32;
-	if(reg_address->dimension > 1) {
-		if(!reg->matrix_address) {
-			uint32_t size = reg->span * 4;
-			uint32_t dimensions[2] = { reg_address->dimension, size / reg_address->dimension };
-			reg->matrix_address = qb_create_writable_array(cxt->compiler_context, element_type, dimensions, 2);
-			qb_propagate_pbj_matrix_span(cxt, reg);
+static void qb_allocate_pbj_register_storage_space(qb_pbj_translator_context *cxt, qb_primitive_type element_type, qb_pbj_register *reg) {
+	qb_pbj_channel_id channel_id;
+
+	// deal with overlapping addresses
+	if((reg->channel_addresses[PBJ_CHANNEL_RGB] && reg->channel_addresses[PBJ_CHANNEL_GBA])
+	|| (reg->channel_addresses[PBJ_CHANNEL_RG] && reg->channel_addresses[PBJ_CHANNEL_GBA])
+	|| (reg->channel_addresses[PBJ_CHANNEL_RGB] && reg->channel_addresses[PBJ_CHANNEL_BA])) {
+		if(!reg->channel_addresses[PBJ_CHANNEL_RGBA]) {
+			reg->channel_addresses[PBJ_CHANNEL_RGBA] = (qb_address *) -1;
 		}
-	} else {
-		if(!reg->channel_addresses[reg_address->channel_id]) {
+	}
+	if(reg->channel_addresses[PBJ_CHANNEL_RG] && reg->channel_addresses[PBJ_CHANNEL_GB]) {
+		if(!reg->channel_addresses[PBJ_CHANNEL_RGB] && !reg->channel_addresses[PBJ_CHANNEL_RGBA]) {
+			reg->channel_addresses[PBJ_CHANNEL_RGB] = (qb_address *) -1;
+		}
+	}
+	if(reg->channel_addresses[PBJ_CHANNEL_GB] && reg->channel_addresses[PBJ_CHANNEL_BA]) {
+		if(!reg->channel_addresses[PBJ_CHANNEL_GBA] && !reg->channel_addresses[PBJ_CHANNEL_RGBA]) {
+			reg->channel_addresses[PBJ_CHANNEL_GBA] = (qb_address *) -1;
+		}
+	}
+
+	// allocate space for matrix 
+	if(reg->matrix_address == (qb_address *) -1) {
+		uint32_t dimensions[2];
+		switch(reg->span) {
+			case 4: {
+				dimensions[0] = 4;
+				dimensions[1] = 4;
+			}	break;
+			case 3: {
+				dimensions[0] = 3;
+				dimensions[1] = 4;
+			}	break;
+			case 1: {
+				dimensions[0] = 2;
+				dimensions[1] = 2;
+			}	break;
+		}
+		reg->matrix_address = qb_create_writable_array(cxt->compiler_context, element_type, dimensions, 2);
+		qb_propagate_pbj_matrix_span(cxt, reg);
+	}
+
+	// allocate space for channels
+	for(channel_id = PBJ_CHANNEL_RGBA; channel_id >= PBJ_CHANNEL_R; channel_id--) {
+		if(reg->channel_addresses[channel_id] == (qb_address *) -1) {
 			qb_address *channel_address, *src_address = NULL;
-			qb_pbj_channel_id first_channel = qb_get_first_pbj_channel(cxt, reg_address->channel_id);
+			qb_pbj_channel_id first_channel = qb_get_first_pbj_channel(cxt, channel_id);
 			qb_pbj_channel_id parent_channel;
 			uint32_t offset;
-			uint32_t channel_count;
+			uint32_t channel_count = qb_get_pbj_channel_count(cxt, channel_id);
 
 			// find a wider channel that contains this one
-			for(parent_channel = PBJ_CHANNEL_RGBA; parent_channel > reg_address->channel_id; parent_channel--) {
+			for(parent_channel = PBJ_CHANNEL_RGBA; parent_channel > channel_id; parent_channel--) {
 				if(reg->channel_addresses[parent_channel]) {
-					offset = qb_get_pbj_channel_offset(cxt, parent_channel, reg_address->channel_id);
+					offset = qb_get_pbj_channel_offset(cxt, parent_channel, channel_id);
 					if(offset != INVALID_INDEX) {
 						src_address = reg->channel_addresses[parent_channel];
 						break;
@@ -1458,70 +1495,61 @@ static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_addr
 				}
 			}
 
-			if(reg_address->channel_mask == INVALID_INDEX) {
-				channel_count = reg_address->channel_count;
-			} else {
-				channel_count = qb_get_pbj_channel_count(cxt, reg_address->channel_id);
-			}
-
 			if(src_address) {
 				qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, offset);
 				if(channel_count == 1) {
 					channel_address = qb_obtain_array_element(cxt->compiler_context, src_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
 				} else {
-					qb_address *length_address = qb_obtain_constant_U32(cxt->compiler_context, reg_address->channel_count);
+					qb_address *length_address = qb_obtain_constant_U32(cxt->compiler_context, channel_count);
 					channel_address = qb_obtain_array_slice(cxt->compiler_context, src_address, index_address, length_address, QB_ARRAY_BOUND_CHECK_NONE);
 				}
 			} else {
-				qb_primitive_type type = (reg_address->register_id & PBJ_REGISTER_INT) ? QB_TYPE_S32 : QB_TYPE_F32;
 				if(channel_count == 1) {
-					channel_address = qb_create_writable_scalar(cxt->compiler_context, type);
+					channel_address = qb_create_writable_scalar(cxt->compiler_context, element_type);
 				} else {
-					channel_address = qb_create_writable_array(cxt->compiler_context, type, &channel_count, 1);
+					channel_address = qb_create_writable_array(cxt->compiler_context, element_type, &channel_count, 1);
 				}
 			}
-			reg->channel_addresses[reg_address->channel_id] = channel_address;
-#ifdef ZEND_DEBUG
-			{
-				uint32_t expected_length = qb_get_pbj_channel_count(cxt, reg_address->channel_id);
-				uint32_t actual_length = ARRAY_SIZE(channel_address);
-				if(expected_length != actual_length) {
-					qb_abort("Error");
-				}
-			}
-#endif
+			reg->channel_addresses[channel_id] = channel_address;
 		}
 	}
 }
 
-static void qb_allocate_pbj_registers_in_range(qb_pbj_translator_context *cxt, qb_pbj_channel_id first, qb_pbj_channel_id last) {
-	uint32_t i;
-	for(i = 0; i < cxt->pbj_op_count; i++) {
-		qb_pbj_op *pop = &cxt->pbj_ops[i];
-		if(pop->flags & PBJ_SOURCE_IN_USE) {
-			if(first <= pop->source.channel_id && pop->source.channel_id <= last) {
-				qb_allocate_pbj_register(cxt, &pop->source);
-			}
+static void qb_allocate_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
+	qb_pbj_register *reg = qb_create_pbj_register(cxt, reg_address);
+
+	// indicate that the address is needed
+	if(reg_address->dimension > 1) {
+		if(!reg->matrix_address) {
+			reg->matrix_address = (qb_address *) -1;
 		}
-		if(pop->flags & PBJ_DESTINATION_IN_USE) {
-			if(first <= pop->destination.channel_id && pop->destination.channel_id <= last) {
-				qb_allocate_pbj_register(cxt, &pop->destination);
-			}
+	} else {
+		if(!reg->channel_addresses[reg_address->channel_id]) {
+			reg->channel_addresses[reg_address->channel_id] = (qb_address *) -1;
 		}
 	}
 }
 
 static void qb_allocate_pbj_registers(qb_pbj_translator_context *cxt) {
-	// allocate matrices first, since they can spill into multiple registers
-	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_MATRIX, PBJ_CHANNEL_MATRIX);
+	uint32_t i;
+	for(i = 0; i < cxt->pbj_op_count; i++) {
+		qb_pbj_op *pop = &cxt->pbj_ops[i];
+		if(pop->flags & PBJ_SOURCE_IN_USE) {
+			qb_allocate_pbj_register(cxt, &pop->source);
+		}
+		if(pop->flags & PBJ_DESTINATION_IN_USE) {
+			qb_allocate_pbj_register(cxt, &pop->destination);
+		}
+	}
 
-	// allocate vectors, starting from the largest
-	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_RGBA, PBJ_CHANNEL_RGBA);
-	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_RGB, PBJ_CHANNEL_GBA);
-	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_RG, PBJ_CHANNEL_BA);
-
-	// allocate scalars
-	qb_allocate_pbj_registers_in_range(cxt, PBJ_CHANNEL_R, PBJ_CHANNEL_A);
+	for(i = 0; i < cxt->int_register_count; i++) {
+		qb_pbj_register *reg = &cxt->int_registers[i];
+		qb_allocate_pbj_register_storage_space(cxt, QB_TYPE_I32, reg);
+	}
+	for(i = 0; i < cxt->float_register_count; i++) {
+		qb_pbj_register *reg = &cxt->float_registers[i];
+		qb_allocate_pbj_register_storage_space(cxt, QB_TYPE_F32, reg);
+	}
 }
 
 static void qb_perform_assignment(qb_pbj_translator_context *cxt, qb_address *dst_address, qb_address *src_address) {
@@ -1696,7 +1724,7 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index + cxt->pbj_op_index, cxt->pbj_op_index);
-		qb_translate_current_pbj_instruction(cxt);
+		qb_process_current_pbj_instruction(cxt);
 	}
 	qb_end_pbj_filter_loop(cxt);
 }
@@ -1711,7 +1739,7 @@ void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index + cxt->pbj_op_index, cxt->pbj_op_index);
-		qb_translate_current_pbj_instruction(cxt);
+		qb_process_current_pbj_instruction(cxt);
 	}
 	qb_end_pbj_filter_loop(cxt);
 }
