@@ -3523,6 +3523,7 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	cxt->empty_array = qb_create_constant_array(cxt, QB_TYPE_I08, &zero, 1);
 
 	cxt->dependency_index = dependency_index;
+	cxt->function_flags = QB_FUNCTION_INLINEABLE;
 	if(max_dependency_index > 1) {
 		cxt->dependencies = ecalloc(max_dependency_index, sizeof(int8_t));
 	}

@@ -29,6 +29,7 @@
 #include "qb_op_factory_opcode_selection.c"
 #include "qb_op_factory_operand_transfer.c"
 #include "qb_op_factory_decomposition.c"
+#include "qb_op_factory_function_inlining.c"
 
 qb_op_factory factory_nop = {
 	NULL,
@@ -927,6 +928,10 @@ qb_simple_op_factory factory_function_call = {
 	QB_FCALL_U32_U32_U32,
 };
 
+qb_op_decomposer factory_inline_function_call = {
+	qb_inline_function,
+};
+
 qb_simple_op_factory factory_zend_function_call = {
 	NULL,
 	qb_resolve_expression_type_zend_function_call,
@@ -944,7 +949,7 @@ qb_simple_op_factory factory_zend_function_call = {
 	QB_FCALL_U32_U32_U32,
 };
 
-void *factories_fcall[] = { &factory_intrinsic, &factory_function_call, &factory_zend_function_call };
+void *factories_fcall[] = { &factory_intrinsic, &factory_function_call, &factory_inline_function_call, &factory_zend_function_call };
 
 qb_cast_op_factory factory_cast_S08 = {
 	NULL,

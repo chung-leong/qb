@@ -21,6 +21,31 @@
 #ifndef QB_OP_FACTORIES_H_
 #define QB_OP_FACTORIES_H_
 
+#define QB_OP_FACTORY_VAR			0
+#define QB_OP_FACTORY_DIM			1
+#define QB_OP_FACTORY_OBJ			2
+
+#define QB_OP_FACTORY_INT32			0
+#define QB_OP_FACTORY_INT64			1
+#define QB_OP_FACTORY_DOUBLE		2
+#define QB_OP_FACTORY_BOOLEAN		3
+#define QB_OP_FACTORY_ARRAY			4
+#define QB_OP_FACTORY_STRING		5
+
+#define QB_OP_FACTORY_SELF			0
+#define QB_OP_FACTORY_PARENT		1
+#define QB_OP_FACTORY_STATIC		2
+
+#define QB_OP_FACTORY_LOCAL			0
+#define QB_OP_FACTORY_GLOBAL		1
+#define QB_OP_FACTORY_STATIC		2
+#define QB_OP_FACTORY_STATIC_MEMBER	3
+
+#define QB_OP_FACTORY_INTRINSIC		0
+#define QB_OP_FACTORY_NORMAL		1
+#define QB_OP_FACTORY_INLINE		2
+#define QB_OP_FACTORY_ZEND			3	
+
 typedef struct qb_op_factory					qb_op_factory; 
 typedef struct qb_derived_op_factory			qb_derived_op_factory; 
 typedef struct qb_basic_op_factory				qb_basic_op_factory; 
@@ -271,7 +296,7 @@ extern qb_gather_op_factory factory_scatter;
 extern qb_op_factory factory_array_init;
 extern qb_op_factory factory_array_append;
 
-extern void *factories_fcall[3];
+extern void *factories_fcall[4];
 
 extern qb_op_factory factory_free;
 
