@@ -215,7 +215,7 @@ static void qb_inline_function(qb_compiler_context *cxt, void *factory, qb_opera
 	}
 
 	substitution_count = other_cxt->constant_scalar_count + other_cxt->constant_array_count + other_cxt->writable_scalar_count + other_cxt->writable_array_count;
-	substitutions = do_alloca(sizeof(qb_address_substitution *) * substitution_count, use_heap);
+	substitutions = do_alloca(sizeof(qb_address_substitution) * substitution_count, use_heap);
 
 	// create the constants used by the function 
 	for(i = 0; i < other_cxt->constant_scalar_count; i++, j++) {
