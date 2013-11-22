@@ -41,7 +41,7 @@ static void qb_inline_function(qb_compiler_context *cxt, void *factory, qb_opera
 	qb_compiler_context *callee_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
 	qb_function_inliner_context _inliner_cxt, *inliner_cxt = &_inliner_cxt;
 
-	qb_initialize_function_inliner_context(inliner_cxt, cxt, callee_cxt, arguments->arguments, argument_count->number, result TSRMLS_CC);
+	qb_initialize_function_inliner_context(inliner_cxt, cxt, callee_cxt, arguments->arguments, argument_count->number, result, result_prototype TSRMLS_CC);
 	qb_transfer_inlined_function_ops(inliner_cxt);
 	qb_free_function_inliner_context(inliner_cxt);
 }
