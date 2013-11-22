@@ -645,6 +645,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_function_inliner.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_interpreter.c"
 				>
 			</File>
@@ -726,26 +730,6 @@
 			</File>
 			<File
 				RelativePath="..\qb_op_factory_dimension_calculation.c"
-				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\qb_op_factory_function_inlining.c"
 				>
 				<FileConfiguration
 					Name="Debug_TS|Win32"
@@ -1039,6 +1023,10 @@
 			</File>
 			<File
 				RelativePath="..\qb_function.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_function_inliner.h"
 				>
 			</File>
 			<File

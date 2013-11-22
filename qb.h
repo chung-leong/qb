@@ -113,6 +113,7 @@
 #include "qb_thread.h"
 #include "qb_parser.h"
 #include "qb_compiler.h"
+#include "qb_function_inliner.h"
 #include "qb_op_factories.h"
 #include "qb_translator_php.h"
 #include "qb_translator_pbj.h"

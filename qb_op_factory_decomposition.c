@@ -34,6 +34,18 @@ static void qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, qb_
 	cxt->function_name = NULL;
 }
 
+static void qb_inline_function(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	USE_TSRM
+	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	qb_compiler_context *callee_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
+	qb_function_inliner_context _inliner_cxt, *inliner_cxt = &_inliner_cxt;
+
+	qb_initialize_function_inliner_context(inliner_cxt, cxt, callee_cxt, arguments->arguments, argument_count->number, result TSRMLS_CC);
+	qb_transfer_inlined_function_ops(inliner_cxt);
+	qb_free_function_inliner_context(inliner_cxt);
+}
+
 static void qb_decompose_pairwise_op_series(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_decomposer *d = factory;
 	qb_operand pairwise_result;

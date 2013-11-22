@@ -29,7 +29,6 @@
 #include "qb_op_factory_opcode_selection.c"
 #include "qb_op_factory_operand_transfer.c"
 #include "qb_op_factory_decomposition.c"
-#include "qb_op_factory_function_inlining.c"
 
 qb_op_factory factory_nop = {
 	NULL,

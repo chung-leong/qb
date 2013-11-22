@@ -690,6 +690,7 @@ qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *addre
 	qb_address **p_alias = qb_enlarge_array((void **) &cxt->address_aliases, 1);
 	*alias = *address;
 	alias->source_address = address;
+	alias->flags |= QB_ADDRESS_ALIAS;
 	*p_alias = alias;
 	return alias;
 }
@@ -3350,8 +3351,7 @@ void qb_resolve_jump_targets(qb_compiler_context *cxt) {
 }
 
 static qb_address * qb_promote_address_mode(qb_compiler_context *cxt, qb_address_mode mode, qb_address *original_address) {
-	qb_address *address = qb_allocate_address(cxt->pool);
-	*address = *original_address;
+	qb_address *address = qb_create_address_alias(cxt, original_address);
 	address->mode = mode;
 	return address;
 }
