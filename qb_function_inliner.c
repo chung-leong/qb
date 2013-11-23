@@ -20,6 +20,17 @@
 
 #include "qb.h"
 
+static void qb_add_substitution(qb_function_inliner_context *cxt, qb_address *callee_address, qb_address *caller_address) {
+	qb_address_substitution *substitution = &cxt->substitutions[cxt->substitution_count++];
+	substitution->original = callee_address;
+	substitution->current = caller_address;
+	if(caller_address) {
+		if(!READ_ONLY(callee_address)) {
+			qb_mark_as_writable(cxt->caller_context, caller_address);
+		}
+	}
+}
+
 static qb_address * qb_find_substitution_address(qb_function_inliner_context *cxt, qb_address *callee_address) {
 	uint32_t i;
 	for(i = 0; i < cxt->substitution_count; i++) {
@@ -45,7 +56,6 @@ static qb_variable * qb_find_variable_with_address(qb_function_inliner_context *
 static void qb_add_constant_substitution(qb_function_inliner_context *cxt, qb_address *callee_address) {
 	qb_address *caller_address;
 	qb_primitive_type type = callee_address->type;
-	qb_address_substitution *substitution;
 	if(SCALAR(callee_address)) {
 		switch(type) {
 			case QB_TYPE_S08: {
@@ -94,57 +104,86 @@ static void qb_add_constant_substitution(qb_function_inliner_context *cxt, qb_ad
 		caller_address = qb_create_constant_array(cxt->caller_context, type, &dimension, 1);
 		memcpy(ARRAY_IN(cxt->caller_context->storage, I08, caller_address), ARRAY_IN(cxt->callee_context->storage, I08, callee_address), BYTE_COUNT(dimension, type));
 	}
-	substitution = &cxt->substitutions[cxt->substitution_count++];
-	substitution->original = callee_address;
-	substitution->current = caller_address;
+	qb_add_substitution(cxt, callee_address, caller_address);
 }
 
 static void	qb_copy_callee_address_dimensions(qb_function_inliner_context *cxt, qb_address *callee_address, qb_variable_dimensions *dim) {
 	uint32_t i;
 	dim->dimension_count = callee_address->dimension_count;
-	dim->array_size_address = qb_find_substitution_address(cxt, callee_address);
-	for(i = 0; i < dim->dimension_count; i++) {
-		dim->dimension_addresses[i] = qb_find_substitution_address(cxt, callee_address->dimension_addresses[i]);
-		dim->array_size_addresses[i] = qb_find_substitution_address(cxt, callee_address->array_size_addresses[i]);
+	if(callee_address->dimension_count > 0) {
+		dim->array_size_address = qb_find_substitution_address(cxt, callee_address);
+		for(i = 0; i < dim->dimension_count; i++) {
+			dim->dimension_addresses[i] = qb_find_substitution_address(cxt, callee_address->dimension_addresses[i]);
+			dim->array_size_addresses[i] = qb_find_substitution_address(cxt, callee_address->array_size_addresses[i]);
+		}
+		dim->array_size_address = dim->array_size_addresses[0];
+	} else {
+		dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->caller_context->one_address;
 	}
-	dim->array_size_address = dim->array_size_addresses[0];
+}
+
+static void qb_perform_assignment(qb_function_inliner_context *cxt, qb_address *dst_address, qb_address *src_address) {
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { dst_address } }, { QB_OPERAND_ADDRESS, { src_address } } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
+	qb_produce_op(cxt->caller_context, &factory_assign, operands, 2, &result, NULL, 0, NULL);
 }
 
 static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_address *callee_address) {
-	int32_t need_new_address;
+	int32_t need_new_address = TRUE;
 	qb_address *caller_address;
+	qb_address *argument_address = NULL;
 	qb_variable *callee_var = qb_find_variable_with_address(cxt, callee_address);
 	qb_primitive_type type = callee_address->type;
-	qb_address_substitution *substitution;
 
 	if(callee_var) {
 		if(callee_var->flags & QB_VARIABLE_ARGUMENT) {
 			uint32_t argument_index = qb_get_variable_index(cxt->callee_context, callee_var->address);
 			if(argument_index < cxt->argument_count) {
-				caller_address = cxt->arguments[argument_index].address;
+				// use the argument directly if the argument is passed by ref or read-only
+				// and if the size and type matches
+				argument_address = cxt->arguments[argument_index].address;				
+				if((callee_var->flags & QB_VARIABLE_BY_REF) || READ_ONLY(callee_address)) {
+					if(argument_address->type == callee_address->type) {
+						int32_t compatible = FALSE;
+						if(FIXED_LENGTH(argument_address)) {
+							if(FIXED_LENGTH(callee_address)) {
+								uint32_t length1 = ARRAY_SIZE_IN(cxt->caller_context->storage, argument_address);
+								uint32_t length2 = ARRAY_SIZE_IN(cxt->callee_context->storage, callee_address);
+								if(length1 == length2) {
+									compatible = TRUE;
+								}
+							} else if(READ_ONLY(callee_address->array_size_address)) {
+								// TODO: check granularity
+								// the function doesn't change the length
+								compatible = TRUE;
+							}
+						} else if(VARIABLE_LENGTH(argument_address) && VARIABLE_LENGTH(callee_address)) {
+							compatible = TRUE;
+						}
+						if(compatible) {
+							caller_address = argument_address;
+							need_new_address = FALSE;
+							argument_address = NULL;
+						}
+					}
+				}
 			} else {
 				caller_address = qb_obtain_constant_zval(cxt->caller_context, callee_var->default_value, callee_var->address->type);
+				need_new_address = FALSE;
 			}
-			need_new_address = FALSE;
 		} else if(callee_var->flags & QB_VARIABLE_RETURN_VALUE) {
 			if(cxt->result->type == QB_OPERAND_NONE) {
 				// the result isn't used--don't create an address for the return value
 				need_new_address = FALSE;
 				caller_address = NULL;
-			} else {
-				need_new_address = TRUE;
 			}
-		} else {
-			need_new_address = TRUE;
 		}
-	} else {
-		need_new_address = TRUE;
 	}
 
 	if(need_new_address) {
 		qb_variable_dimensions dim;
 		qb_copy_callee_address_dimensions(cxt, callee_address, &dim);
-		if(callee_var && !(callee_var->flags & QB_VARIABLE_RETURN_VALUE)) {
+		if(callee_var && !(callee_var->flags & (QB_VARIABLE_ARGUMENT | QB_VARIABLE_RETURN_VALUE))) {
 			qb_variable *new_var = qb_allocate_variable(cxt->caller_context->pool);
 			new_var->name = callee_var->name;
 			new_var->name_length = callee_var->name_length;
@@ -155,47 +194,36 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 			if(dim.dimension_count == 0) {
 				caller_address = qb_create_writable_scalar(cxt->caller_context, type);
 			} else {
-				// can't use qb_create_writable_array() here, since we want to use a specific address for the array length
-				caller_address = qb_allocate_address(cxt->caller_context->pool);
-				caller_address->mode = QB_ADDRESS_MODE_ARR;
-				caller_address->type = type;
-				caller_address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
-				caller_address->segment_selector = QB_SELECTOR_INVALID;
-				caller_address->segment_offset = QB_OFFSET_INVALID;
-				caller_address->array_index_address = cxt->caller_context->zero_address;
-				caller_address->array_size_address = qb_find_substitution_address(cxt, callee_address->array_size_address);
-				caller_address->array_size_addresses = caller_address->dimension_addresses = &caller_address->array_size_address;
-				caller_address->dimension_count = 1;
-				qb_add_writable_array(cxt->caller_context, caller_address);
+				uint32_t dimension = (dim.array_size_address && CONSTANT(dim.array_size_address)) ? VALUE_IN(cxt->caller_context->storage, U32, dim.array_size_address) : 0;
+				caller_address = qb_create_writable_array(cxt->caller_context, type, &dimension, 1);
 			}
 			caller_address->flags = callee_address->flags;
 			new_var->address = caller_address;
 		} else {
+			caller_address = qb_obtain_temporary_variable(cxt->caller_context, callee_address->type, &dim);
 			if(callee_var && (callee_var->flags & QB_VARIABLE_RETURN_VALUE)) {
-				caller_address = qb_obtain_write_target(cxt->caller_context, callee_address->type, &dim, callee_address->flags, cxt->result_prototype, TRUE);
 				cxt->result->address = caller_address;
 				cxt->result->type = QB_OPERAND_ADDRESS;
-			} else {
-				caller_address = qb_obtain_temporary_variable(cxt->caller_context, callee_address->type, &dim);
 			}
 		}
 	}
 	if(caller_address) {
-		//if(!READ_ONLY(callee_address)) {
-			qb_mark_as_writable(cxt->caller_context, caller_address);
-		//}
+		if(VARIABLE_LENGTH(caller_address)) {
+			// add a substitution for the address of the array length as well
+			qb_add_substitution(cxt, callee_address->array_size_address, caller_address->array_size_address);
+		}
+		if(argument_address) {
+			// copy the argument into the temporary variable
+			qb_perform_assignment(cxt, caller_address, argument_address);
+		}
 	}
-
-	substitution = &cxt->substitutions[cxt->substitution_count++];
-	substitution->original = callee_address;
-	substitution->current = caller_address;
+	qb_add_substitution(cxt, callee_address, caller_address);
 }
 
 static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_address *callee_alias) {
 	qb_address *caller_alias = qb_allocate_address(cxt->caller_context->pool);
 	qb_address **p_caller_alias = qb_enlarge_array((void **) &cxt->caller_context->address_aliases, 1);
 	qb_address *source_address = qb_find_substitution_address(cxt, callee_alias->source_address);
-	qb_address_substitution *substitution;
 
 	*caller_alias = *source_address;
 	caller_alias->source_address = source_address;
@@ -212,45 +240,39 @@ static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_addre
 			caller_alias->array_size_addresses[i] = qb_find_substitution_address(cxt, callee_alias->array_size_addresses[i]);
 		}
 	}
-	substitution = &cxt->substitutions[cxt->substitution_count++];
-	substitution->original = callee_alias;
-	substitution->current = caller_alias;
+	qb_add_substitution(cxt, callee_alias, caller_alias);
 }
 
 void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 	uint32_t i, j = 0;
 
-	// perform type coercion
-	for(i = 0; i < cxt->argument_count; i++) {
-		qb_primitive_type arg_type;
-		if(i < cxt->callee_context->argument_count) {
-			qb_variable *qvar = cxt->callee_context->variables[i];
-			arg_type = qvar->address->type;
-		} else {
-			arg_type = QB_TYPE_ANY;
-		}
-		qb_perform_type_coercion(cxt->caller_context, &cxt->arguments[i], arg_type, 0);
-	}
-
 	// create the constants used by the function 
 	for(i = 0; i < cxt->callee_context->constant_scalar_count; i++) {
-		qb_add_constant_substitution(cxt, cxt->callee_context->constant_scalars[i]);
+		qb_address *callee_address = cxt->callee_context->constant_scalars[i];
+		qb_add_constant_substitution(cxt, callee_address);
 	}
 	for(i = 0; i < cxt->callee_context->constant_array_count; i++) {
-		qb_add_constant_substitution(cxt, cxt->callee_context->constant_arrays[i]);
+		qb_address *callee_address = cxt->callee_context->constant_arrays[i];
+		qb_add_constant_substitution(cxt, callee_address);
 	}
 
-	// see how writable addresses should be mapped
-	for(i = 0; i < cxt->callee_context->writable_scalar_count; i++) {
-		qb_add_writable_substitution(cxt, cxt->callee_context->writable_scalars[i]);
-	}
+	// add the writable array first
 	for(i = 0; i < cxt->callee_context->writable_array_count; i++) {
-		qb_add_writable_substitution(cxt, cxt->callee_context->writable_arrays[i]);
+		qb_address *callee_address = cxt->callee_context->writable_arrays[i];
+		qb_add_writable_substitution(cxt, callee_address);
+	}
+	for(i = 0; i < cxt->callee_context->writable_scalar_count; i++) {
+		// add the scalar if it hasn't already been added as the length of an array
+		qb_address *callee_address = cxt->callee_context->writable_scalars[i];
+		if(callee_address->type != QB_TYPE_U32 || !qb_find_substitution_address(cxt, callee_address)) {
+			qb_add_writable_substitution(cxt, callee_address);
+		}
 	}
 
 	// create copies of aliases as well
 	for(i = 0; i < cxt->callee_context->address_alias_count; i++) {
-		qb_add_alias_substitution(cxt, cxt->callee_context->address_aliases[i]);
+		qb_address *callee_alias = cxt->callee_context->address_aliases[i];
+		qb_add_alias_substitution(cxt, callee_alias);
 	}
 
 	// copy the ops from the callee into the caller
@@ -284,6 +306,20 @@ void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 			}
 			if(!omit) {
 				qb_add_op(cxt->caller_context, caller_op);
+			}
+		}
+	}
+
+	// copy values into arguments where direct substitution wasn't possible
+	for(i = 0; i < cxt->callee_context->argument_count; i++) {
+		if(i < cxt->argument_count) {
+			qb_address *argument_address = cxt->arguments[i].address;
+			qb_variable *callee_var = cxt->callee_context->variables[i];
+			if(callee_var->flags & QB_VARIABLE_BY_REF) {
+				qb_address *caller_address = qb_find_substitution_address(cxt, callee_var->address);
+				if(caller_address != argument_address) {
+					qb_perform_assignment(cxt, argument_address, caller_address);
+				}
 			}
 		}
 	}
