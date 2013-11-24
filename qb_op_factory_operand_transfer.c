@@ -222,24 +222,6 @@ static void qb_transfer_operands_foreach_fetch(qb_compiler_context *cxt, qb_op_f
 	dest[1] = cxt->foreach_index;
 }
 
-static void qb_transfer_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
-	qb_operand *value = &operands[0];
-	if(cxt->return_variable && cxt->return_variable->address != NULL && value->type == QB_OPERAND_ADDRESS && cxt->return_variable->address != value->address) {
-		qb_operand assigment_operands[2];
-		qb_operand assignment_result;
-		qb_variable_dimensions dim;
-		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
-		qb_attach_bound_checking_expression(cxt, cxt->return_variable->address, &dim, TRUE);
-		assigment_operands[0].type = QB_OPERAND_ADDRESS;
-		assigment_operands[0].address = cxt->return_variable->address;
-		assigment_operands[1].type = QB_OPERAND_ADDRESS;
-		assigment_operands[1].address = value->address;
-		assignment_result.type = QB_OPERAND_ADDRESS;
-		assignment_result.address = cxt->return_variable->address;
-		qb_create_op(cxt, &factory_assign, value->address->type, assigment_operands, 2, &assignment_result, NULL, 0, TRUE);
-	}
-}
-
 static void qb_transfer_operands_increment(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *variable = &operands[0];
 

@@ -1135,6 +1135,7 @@ class CodeGenerator {
 			$this->handlers[] = new NOP("NOP");
 			$this->handlers[] = new Jump("JMP");
 			$this->handlers[] = new Leave("RET");
+			$this->handlers[] = new Interrupt("INTR");
 			$this->handlers[] = new Terminate("EXIT", "I32");
 			$this->handlers[] = new FunctionCall("FCALL");
 			$this->handlers[] = new StaticInitializationEnd("END_STATIC");

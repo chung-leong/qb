@@ -85,7 +85,7 @@ static void qb_link_results_object_property(qb_compiler_context *cxt, qb_op_fact
 }
 
 // link the value to the object property
-static void qb_link_results_return(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
+static void qb_link_results_assign_retval(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
 	if(value->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		qb_result_destination *destination = qb_allocate_result_destination(cxt->pool);

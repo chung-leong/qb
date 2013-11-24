@@ -118,6 +118,23 @@ qb_op_factory factory_assign_ref = {
 	0,
 };
 
+qb_derived_op_factory factory_assign_retval = {
+	NULL,
+	NULL,
+	qb_link_results_assign_retval,
+	qb_coerce_operands_assign_retval,
+	qb_set_result_prototype,
+	qb_validate_operands_assign_retval,
+	qb_set_result_assign_retval,
+	NULL,
+	qb_select_opcode_assign_retval,
+	qb_transfer_operands_assign,
+	0,
+	0,
+	0,
+	&factory_assign,
+};
+
 qb_derived_op_factory factory_assign_branching = {
 	NULL,
 	qb_resolve_expression_type_lvalue,
@@ -2430,21 +2447,48 @@ qb_derived_op_factory factory_echo = {
 	&factory_print,
 };
 
-qb_simple_op_factory factory_return = {
+qb_simple_op_factory factory_leave = {
 	NULL,
 	NULL,
-	qb_link_results_return,
-	qb_coerce_operands_return,
-	qb_set_result_prototype,
-	qb_validate_operands_return,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
-	qb_transfer_operands_return,
+	NULL,
 	0,
 	0,
 	0,
 	QB_RET,
+};
+
+qb_op_decomposer factory_return = {
+	qb_decompose_return,
+	&factory_leave,
+};
+
+qb_simple_op_factory factory_interrupt = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	0,
+	0,
+	0,
+	QB_INTR,
+};
+
+qb_op_decomposer factory_yield = {
+	qb_decompose_return,
+	&factory_interrupt,
 };
 
 qb_simple_op_factory factory_exit = {

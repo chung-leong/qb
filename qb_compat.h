@@ -350,8 +350,8 @@ PHPAPI uint32_t php_mt_rand(TSRMLS_D);
 
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	#define Z_OBJ_GET_PROP_PTR_PTR(zv, n)		Z_OBJ_HT_P(zv)->get_property_ptr_ptr(zv, n, BP_VAR_W, NULL TSRMLS_CC)
-	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zvalue)->write_property(zv, n, v, NULL TSRMLS_CC)
-	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zvalue)->read_property(zv, n, BP_VAR_R, NULL TSRMLS_CC)
+	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zv)->write_property(zv, n, v, NULL TSRMLS_CC)
+	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zv)->read_property(zv, n, BP_VAR_R, NULL TSRMLS_CC)
 
 	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, n, len, TRUE, NULL TSRMLS_CC)
 #elif !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
@@ -362,8 +362,8 @@ PHPAPI uint32_t php_mt_rand(TSRMLS_D);
 	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, n, len, TRUE, NULL TSRMLS_CC)
 #else
 	#define Z_OBJ_GET_PROP_PTR_PTR(zv, n)		Z_OBJ_HT_P(zv)->get_property_ptr_ptr(zv, n TSRMLS_CC)
-	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zvalue)->write_property(zv, n, v TSRMLS_CC)
-	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zvalue)->read_property(zv, n, BP_VAR_R TSRMLS_CC)
+	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zv)->write_property(zv, n, v TSRMLS_CC)
+	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zv)->read_property(zv, n, BP_VAR_R TSRMLS_CC)
 
 	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, (char *) n, len, TRUE TSRMLS_CC)
 #endif

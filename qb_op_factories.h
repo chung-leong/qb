@@ -272,6 +272,7 @@ extern qb_fetch_do_op_decomposer factory_assign_object_property;
 extern qb_derived_op_factory factory_assign_branching;
 extern qb_derived_op_factory factory_assign_select;
 extern qb_derived_op_factory factory_assign_temporary;
+extern qb_derived_op_factory factory_assign_retval;
 
 extern qb_op_factory factory_assign_ref;
 extern qb_op_decomposer factory_select;
@@ -416,7 +417,8 @@ extern qb_intrinsic_op_factory factory_intrinsic;
 extern qb_simple_op_factory factory_zend_function_call;
 extern qb_simple_op_factory factory_send_zend_argument;
 
-extern qb_simple_op_factory factory_return;
+extern qb_simple_op_factory factory_leave;
+extern qb_simple_op_factory factory_interrupt;
 extern qb_simple_op_factory factory_exit;
 extern qb_simple_op_factory factory_jump;
 extern qb_simple_op_factory factory_end_static;
@@ -426,6 +428,8 @@ extern qb_simple_op_factory factory_foreach_reset;
 extern qb_simple_op_factory factory_foreach_fetch;
 extern qb_simple_op_factory factory_loop;
 extern qb_simple_op_factory factory_ext;
+extern qb_op_decomposer factory_return;
+extern qb_op_decomposer factory_yield;
 extern qb_op_decomposer factory_branch_on_true_set;
 
 extern qb_fork_decomposer factory_fork;

@@ -124,6 +124,17 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 	}
 }
 
+static void qb_set_result_assign_retval(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(cxt->return_variable->address) {
+		qb_operand *value = &operands[0];
+		qb_variable_dimensions dim;
+		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
+		qb_attach_bound_checking_expression(cxt, cxt->return_variable->address, &dim, TRUE);
+		result->address = cxt->return_variable->address;
+		result->type = QB_OPERAND_ADDRESS;
+	}
+}
+
 static void qb_set_preliminary_result_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(result->type == QB_OPERAND_RESULT_PROTOTYPE) {
 		// link to the prototype in the other branch and keep it as the result 

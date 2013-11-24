@@ -18,6 +18,16 @@
 
 /* $Id$ */
 
+static void qb_decompose_return(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_op_decomposer *d = factory;
+	qb_operand *value = &operands[0];
+	if(value->type != QB_OPERAND_NONE) {
+		qb_operand assign_result = { QB_OPERAND_EMPTY, NULL };
+		qb_produce_op(cxt, &factory_assign_retval, operands, operand_count, &assign_result, NULL, 0, result_prototype);
+	}
+	qb_produce_op(cxt, d->factory, NULL, 0, result, NULL, 0, NULL);
+}
+
 static void qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_op_factory *ff = func->intrinsic_function->extra;

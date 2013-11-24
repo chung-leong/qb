@@ -333,6 +333,14 @@ static qb_opcode qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory
 	return opcode;
 }
 
+static qb_opcode qb_select_opcode_assign_retval(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	if(cxt->return_variable->address) {
+		return qb_select_opcode_derived(cxt, f, expr_type, operands, operand_count, result);
+	} else {
+		return QB_NOP;
+	}
+}
+
 static qb_opcode qb_select_opcode_gather(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_gather_op_factory *gf = (qb_gather_op_factory *) f;
 	qb_operand *dest = &operands[0];

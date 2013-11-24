@@ -124,7 +124,7 @@ static void qb_coerce_operands_print(qb_compiler_context *cxt, qb_op_factory *f,
 	qb_perform_type_coercion(cxt, value, QB_TYPE_ANY, f->coercion_flags);
 }
 
-static void qb_coerce_operands_return(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+static void qb_coerce_operands_assign_retval(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *value = &operands[0];
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS) {
 		qb_primitive_type retval_type;
