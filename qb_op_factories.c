@@ -120,7 +120,7 @@ qb_op_factory factory_assign_ref = {
 
 qb_derived_op_factory factory_assign_return_value = {
 	NULL,
-	NULL,
+	qb_resolve_expression_type_assign_return_value,
 	qb_link_results_assign_return_value,
 	qb_coerce_operands_assign_return_value,
 	qb_set_result_prototype,
@@ -137,7 +137,7 @@ qb_derived_op_factory factory_assign_return_value = {
 
 qb_derived_op_factory factory_assign_generator_key = {
 	NULL,
-	NULL,
+	qb_resolve_expression_type_assign_generator_key,
 	NULL,
 	qb_coerce_operands_assign_generator_key,
 	qb_set_result_prototype,
@@ -184,6 +184,22 @@ qb_derived_op_factory factory_assign_select = {
 	0,
 	QB_ADDRESS_TEMPORARY,
 	&factory_assign,
+};
+
+qb_op_factory factory_sent_value = {
+	NULL,
+	qb_resolve_expression_type_sent_value,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_sent_value,
+	qb_set_result_sent_value,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	0,
 };
 
 qb_op_decomposer factory_select = {
@@ -2656,7 +2672,7 @@ qb_simple_op_factory factory_jump = {
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_prototype,
+	NULL,
 	NULL,
 	NULL,
 	NULL,

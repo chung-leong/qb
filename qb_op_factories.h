@@ -274,19 +274,17 @@ extern qb_derived_op_factory factory_assign_select;
 extern qb_derived_op_factory factory_assign_temporary;
 extern qb_derived_op_factory factory_assign_return_value;
 extern qb_derived_op_factory factory_assign_generator_key;
-
+extern qb_op_factory factory_sent_value;
 extern qb_op_factory factory_assign_ref;
 extern qb_op_decomposer factory_select;
 
 extern qb_op_factory factory_fetch_array_size;
-
 extern qb_fetch_op_factory factory_fetch_array_element_read;
 extern qb_fetch_op_factory factory_fetch_array_element_write;
 extern qb_fetch_op_factory factory_fetch_array_element_isset;
 extern qb_fetch_op_factory factory_fetch_object_property_read;
 extern qb_fetch_op_factory factory_fetch_object_property_write;
 extern qb_fetch_op_factory factory_fetch_object_property_isset;
-
 extern qb_op_factory factory_fetch_constant;
 
 extern void *factories_fetch_variable[4];

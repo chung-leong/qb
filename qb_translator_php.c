@@ -743,7 +743,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_jump_set,				&factory_branch_on_true_set					},	// ZEND_JMP_SET_VAR
 	{	NULL,								NULL,										},	// ZEND_DISCARD_EXCEPTION
 	{	qb_process_basic_op,				&factory_yield,								},	// ZEND_YIELD
-	{	qb_process_basic_op,				&factory_return,							},	// ZEND_GENERATOR_RETURN
+	{	qb_process_basic_op,				&factory_leave,								},	// ZEND_GENERATOR_RETURN
 	{	NULL,								NULL,										},	// ZEND_FAST_CALL
 	{	NULL,								NULL,										},	// ZEND_FAST_RET
 };
@@ -1041,11 +1041,8 @@ static void qb_process_instruction_range(qb_php_translator_context *cxt, uint32_
 	cxt->zend_op = ZEND_OP(start_index);
 	for(;;) {
 		if(cxt->op_processed[cxt->zend_op_index]) {
-			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-				// instruction has already been translated--do a jump there and exit
-				qb_invalidate_all_on_demand_expressions(cxt->compiler_context);
-				qb_create_op(cxt->compiler_context, &factory_jump, QB_TYPE_VOID, NULL, 0, NULL, &cxt->zend_op_index, 1, FALSE);
-			}
+			// instruction has already been translated--do a jump there and exit
+			qb_produce_op(cxt->compiler_context, &factory_jump, NULL, 0, NULL, &cxt->zend_op_index, 1, NULL);
 			break;
 		}
 

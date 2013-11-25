@@ -35,6 +35,8 @@ enum qb_access_method {
 	QB_ARRAY_POINTER,
 	QB_ARRAY_POINTER_POINTER,
 	QB_ARRAY_SLICE,
+	QB_SCALAR_UNUSED = -1,
+	QB_ARRAY_UNUSED = -1,
 };
 
 #define QB_NATIVE_FUNCTION_RET 			void

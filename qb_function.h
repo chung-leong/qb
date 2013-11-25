@@ -44,6 +44,7 @@ enum {
 	QB_VARIABLE_CLASS_CONSTANT		= 0x00000100,
 	QB_VARIABLE_RETURN_VALUE		= 0x00000040,
 	QB_VARIABLE_RETURN_KEY_VALUE	= 0x00000200,
+	QB_VARIABLE_SENT_VALUE			= 0x00000400,
 	QB_VARIABLE_SHARED				= 0x00000080,
 	QB_VARIABLE_TYPES				= 0x0000FFFF,
 
@@ -100,6 +101,7 @@ struct qb_function {
 	uint32_t flags;
 	qb_variable *return_variable;
 	qb_variable *return_key_variable;
+	qb_variable *sent_variable;
 	qb_variable **variables;
 	uint32_t variable_count;
 	uint32_t argument_count;

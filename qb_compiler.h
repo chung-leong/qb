@@ -87,6 +87,7 @@ struct qb_compiler_context {
 
 	qb_variable *return_variable;
 	qb_variable *return_key_variable;
+	qb_variable *sent_variable;
 	qb_variable **variables;
 	uint32_t variable_count;
 	uint32_t argument_count;

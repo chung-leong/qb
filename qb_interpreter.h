@@ -85,6 +85,7 @@ struct qb_interpreter_context {
 	uint32_t result_index;
 	uint32_t line_number;
 	uint32_t call_depth;
+	void *send_target;
 
 	qb_vm_exit_type exit_type;
 	int32_t exit_status_code;

@@ -411,6 +411,7 @@ struct qb_function {\
 	uint32_t flags;\
 	qb_variable *return_variable;\
 	qb_variable *return_key_variable;\
+	qb_variable *sent_variable;\
 	qb_variable **variables;\
 	uint32_t variable_count;\
 	uint32_t argument_count;\
@@ -441,6 +442,7 @@ struct qb_interpreter_context {\
 	uint32_t result_index;\
 	uint32_t line_number;\
 	uint32_t call_depth;\
+	void *send_target;\
 	qb_vm_exit_type exit_type;\
 	int32_t exit_status_code;\
 	int32_t exception_encountered;\
@@ -544,6 +546,9 @@ static qb_access_method qb_get_scalar_access_method(qb_native_compiler_context *
 				return QB_SCALAR_LOCAL_VARIABLE;
 			}
 		}
+		case INVALID_INDEX: {
+			return QB_ARRAY_UNUSED;
+		}
 		default: return QB_SCALAR_ELEMENT;
 	}
 }
@@ -576,6 +581,9 @@ static qb_access_method qb_get_array_access_method(qb_native_compiler_context *c
 			} else {
 				return QB_ARRAY_POINTER;
 			}
+		}
+		case INVALID_INDEX: {
+			return QB_ARRAY_UNUSED;
 		}
 		default: {
 			if(qb_offset_required(cxt, address)) {

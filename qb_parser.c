@@ -24,7 +24,7 @@
 #define GROUP_OFFSET(group)		(offsets[group * 2])
 #define GROUP_LENGTH(group)		(offsets[group * 2 + 1] - offsets[group * 2])
 
-#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(shared)|(static|staticvar)|(global)|(var)|(property)|(return))\\s+(.*?)\\s*(?:\\*+\\/)?$"
+#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(shared)|(static|staticvar)|(global)|(var)|(property)|(return)|(receive))\\s+(.*?)\\s*(?:\\*+\\/)?$"
 
 enum {
 	FUNC_DECL_ENGINE = 1,
@@ -37,6 +37,7 @@ enum {
 	FUNC_DECL_VAR,
 	FUNC_DECL_PROPERTY,
 	FUNC_DECL_RETURN,
+	FUNC_DECL_RECEIVE,
 	FUNC_DECL_DATA,
 
 	FUNC_DECL_TOKEN_COUNT,
@@ -339,7 +340,7 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 			}
 		}
 
-		if(var_type && var_type != QB_VARIABLE_RETURN_VALUE) {
+		if(var_type && var_type != QB_VARIABLE_RETURN_VALUE && var_type != QB_VARIABLE_SENT_VALUE) {
 			const char *identifier = s + end_index;
 			uint32_t identifier_len = len - end_index;
 			matches = pcre_exec(identifier_regexp, NULL, identifier, identifier_len, 0, 0, offsets, sizeof(offsets) / sizeof(int));
@@ -499,6 +500,14 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 								error_zval = element;
 							}
 						}	break;
+						case FUNC_DECL_RECEIVE: {
+							decl = qb_parse_type_declaration(cxt, data, data_len, QB_VARIABLE_SENT_VALUE);
+							if(decl) {
+								qb_add_variable_declaration(function_decl, decl);
+							} else {
+								error_zval = element;
+							}
+						}	break;
 						default:
 							error_zval = element;
 					}
@@ -595,6 +604,8 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 					var_type = FUNC_DECL_PROPERTY;
 				} else if(FOUND_GROUP(FUNC_DECL_RETURN)) {
 					var_type = QB_VARIABLE_RETURN_VALUE;
+				} else if(FOUND_GROUP(FUNC_DECL_RECEIVE)) {
+					var_type = QB_VARIABLE_SENT_VALUE;
 				} else {
 					if(use_qb) {
 						qb_notice_doc_comment_unexpected_tag(cxt, doc_comment, doc_comment_len, matches, offsets);

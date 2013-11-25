@@ -1058,11 +1058,7 @@ NO_RETURN void qb_abort(const char *format, ...) {
 	} else {
 		filename = zend_get_executed_filename(TSRMLS_C);
 	}
-	if(QB_G(current_line_number)) {
-		lineno = QB_G(current_line_number);
-	} else {
-		lineno = zend_get_executed_lineno(TSRMLS_C);
-	}
+	lineno = QB_G(current_line_number);
 
 	va_start(args, format);
 	zend_error_cb(E_ERROR, filename, lineno, format, args);

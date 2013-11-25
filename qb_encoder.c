@@ -458,9 +458,10 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 
 		if(qfunc->variables[i]->flags & QB_VARIABLE_RETURN_VALUE) {
 			qfunc->return_variable = qfunc->variables[i];
-		}
-		if(qfunc->variables[i]->flags & QB_VARIABLE_RETURN_KEY_VALUE) {
+		} else if(qfunc->variables[i]->flags & QB_VARIABLE_RETURN_KEY_VALUE) {
 			qfunc->return_key_variable = qfunc->variables[i];
+		} else if(qfunc->variables[i]->flags & QB_VARIABLE_SENT_VALUE) {
+			qfunc->sent_variable = qfunc->variables[i];
 		}
 	}
 

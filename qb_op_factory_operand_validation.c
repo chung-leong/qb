@@ -94,6 +94,14 @@ static void qb_validate_operands_assign_return_value(qb_compiler_context *cxt, q
 	}
 }
 
+static void qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	if(!cxt->sent_variable->address) {
+		if(result_destination && result_destination->type != QB_RESULT_DESTINATION_FREE) {
+			qb_abort("missing type declaration for value from send()");
+		}
+	}
+}
+
 static void qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(operand_count != 0 && operand_count != 2) {
 		qb_abort("%s() expects either 0 or 2 arguments", cxt->function_name);

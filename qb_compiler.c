@@ -1640,8 +1640,10 @@ qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type 
 
 				if(lvalue_address) {
 					// indicate that the assignment won't be necessary
-					destination->prototype->final_type = QB_TYPE_VOID;
-					target_address = lvalue_address;
+					if(destination->prototype) {
+						destination->prototype->final_type = QB_TYPE_VOID;
+						target_address = lvalue_address;
+					}
 				}
 			}
 		}
@@ -1931,6 +1933,8 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 		} else if(qvar->flags & QB_VARIABLE_RETURN_KEY_VALUE) {
 			// keys are always U32
 			qvar->address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+		} else if(qvar->flags & QB_VARIABLE_SENT_VALUE) {
+			// yield does not produce a value by default
 		} else {
 			qb_abort("missing type declaration: %s", qvar->name);
 		}
@@ -2016,6 +2020,18 @@ void qb_add_variables(qb_compiler_context *cxt) {
 		qb_apply_type_declaration(cxt, qvar);
 		qb_add_variable(cxt, qvar);
 		cxt->return_key_variable = qvar;
+		if(qvar->address) {
+			qb_mark_as_shared(cxt, qvar->address);
+		}
+
+		qvar = qb_allocate_variable(cxt->pool);
+		qvar->name = NULL;
+		qvar->name_length = 0;
+		qvar->hash_value = 0;
+		qvar->flags = QB_VARIABLE_SENT_VALUE;
+		qb_apply_type_declaration(cxt, qvar);
+		qb_add_variable(cxt, qvar);
+		cxt->sent_variable = qvar;
 		if(qvar->address) {
 			qb_mark_as_shared(cxt, qvar->address);
 		}
@@ -3202,7 +3218,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 		f->produce_composite(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
 	} else {
 		qb_primitive_type expr_type = QB_TYPE_VOID;
-		int32_t result_used = (result->type != QB_OPERAND_NONE);
+		int32_t result_used = (!result || result->type != QB_OPERAND_NONE);
 		uint32_t i;
 
 		switch(cxt->stage) {

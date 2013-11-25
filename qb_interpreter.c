@@ -284,6 +284,18 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 }
 
 #ifdef ZEND_ACC_GENERATOR
+static void qb_transfer_arguments_from_generator(qb_interpreter_context *cxt) {
+	USE_TSRM
+	zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
+
+	if(cxt->function->sent_variable->address) {
+		if(generator->send_target) {
+			zval *value = &generator->send_target->tmp_var;
+			qb_transfer_value_from_zval(cxt->function->local_storage, cxt->function->sent_variable->address, value, QB_TRANSFER_CAN_BORROW_MEMORY);
+		}
+	}
+}
+
 static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 	USE_TSRM
 	zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
@@ -302,13 +314,18 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 	generator->value = ret;
 	generator->key = ret_key;
 
-	cxt->function->zend_op_array->fn_flags &= ~ZEND_ACC_GENERATOR;
-
 	if(cxt->function->return_variable->address) {
 		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
 	}
 	if(cxt->function->return_key_variable->address) {
 		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_key_variable->address, ret_key);
+	}
+	if(cxt->function->sent_variable->address) {
+		if(!generator->send_target) {
+			cxt->send_target = emalloc(sizeof(temp_variable));
+			memset(cxt->send_target, 0, sizeof(temp_variable));
+			generator->send_target = cxt->send_target;
+		}
 	}
 }
 #endif
@@ -473,6 +490,11 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	cxt->exit_status_code = 0;
 	cxt->exception_encountered = FALSE;
 	cxt->floating_point_precision = EG(precision);
+	cxt->send_target = NULL;
+	cxt->argument_indices = NULL;
+	cxt->argument_count = 0;
+	cxt->result_index = 0;
+	cxt->line_number = 0;
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
 #endif
@@ -481,6 +503,9 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 
 void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 	qb_unlock_function(cxt->function);
+	if(cxt->send_target) {
+		efree(cxt->send_target);
+	}
 }
 
 static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
@@ -665,6 +690,9 @@ int32_t qb_execute(qb_interpreter_context *cxt) {
 }
 
 int32_t qb_execute_resume(qb_interpreter_context *cxt) {
+	// copy variable passed by send()
+	qb_transfer_arguments_from_generator(cxt);
+
 	// enter the vm
 	if(!qb_execute_in_main_thread(cxt)) {
 		// there're more values still

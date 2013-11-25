@@ -74,6 +74,30 @@ static qb_primitive_type qb_resolve_expression_type_assign(qb_compiler_context *
 	}
 }
 
+static qb_primitive_type qb_resolve_expression_type_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	if(cxt->return_variable->address) {
+		return cxt->return_variable->address->type;
+	} else {
+		return QB_TYPE_VOID;
+	}
+}
+
+static qb_primitive_type qb_resolve_expression_type_assign_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	if(cxt->return_key_variable->address) {
+		return cxt->return_key_variable->address->type;
+	} else {
+		return QB_TYPE_VOID;
+	}
+}
+
+static qb_primitive_type qb_resolve_expression_type_sent_value(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	if(cxt->sent_variable->address) {
+		return cxt->sent_variable->address->type;
+	} else {
+		return QB_TYPE_VOID;
+	}
+}
+
 static qb_primitive_type qb_resolve_expression_type_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	qb_cast_op_factory *cf = (qb_cast_op_factory *) f;
 	return cf->type;
