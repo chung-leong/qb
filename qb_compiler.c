@@ -386,7 +386,7 @@ static uint32_t qb_get_undefined_dimension_count(qb_compiler_context *cxt, qb_ad
 }
 
 void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *address, qb_variable_dimensions *dim, int32_t resizing) {
-	qb_expression *expr;
+	qb_expression *expr = NULL;
 	if(address->array_size_address == dim->array_size_address) {
 		// size match: no bound-checking needed
 		return;
@@ -404,13 +404,14 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 			// if it's multidimensional, the dimension has to be updated as well
 			if(address->dimension_count > 1) {
 				uint32_t undefined_dimension_count = qb_get_undefined_dimension_count(cxt, address);
+				uint32_t defined_dimension_count = address->dimension_count - undefined_dimension_count;
 				if(undefined_dimension_count == 1) {
 					qb_operand operands[6] = { { QB_OPERAND_ADDRESS, { dim->array_size_address } }, { QB_OPERAND_ADDRESS, { address->array_size_address } }, { QB_OPERAND_ADDRESS, { address->dimension_addresses[0] } }, { QB_OPERAND_ADDRESS, { address->array_size_addresses[1] } }, { QB_OPERAND_SEGMENT_SELECTOR, { address } }, { QB_OPERAND_ELEMENT_SIZE, { address } } };
 					expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
 				} else {
+					uint32_t i, j;
 					if(address->dimension_count == dim->dimension_count) {
 						qb_operand operands[MAX_DIMENSION * 4 + 2];
-						uint32_t i;
 						for(i = undefined_dimension_count; i < address->dimension_count; i++) {
 							if(address->dimension_addresses[i] != dim->dimension_addresses[i]) {
 								qb_abort("Dimension mismatch");
@@ -431,6 +432,15 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 						operands[undefined_dimension_count * 4 + 1].address = address;
 						operands[undefined_dimension_count * 4 + 1].type = QB_OPERAND_ELEMENT_SIZE;
 						expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_copy_dimension, operands, undefined_dimension_count * 4 + 2);
+					} else if(dim->dimension_count == 0) {
+						// assignment from a scalar is okay
+					} else if(defined_dimension_count == dim->dimension_count) {
+						// no resizing
+						for(i = undefined_dimension_count, j = 0; i < address->dimension_count; i++, j++) {
+							if(address->dimension_addresses[i] != dim->dimension_addresses[j]) {
+								qb_abort("Dimension mismatch");
+							}
+						}
 					} else {
 						qb_abort("Dimension mismatch");
 					}
@@ -450,9 +460,11 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 			}
 		}
 	}
-	// don't attach it if the result of a previous check is still valid
-	if(!(expr->flags & QB_EXPR_RESULT_IS_STILL_VALID)) {
-		address->expression = expr;
+	if(expr) {
+		// don't attach it if the result of a previous check is still valid
+		if(!(expr->flags & QB_EXPR_RESULT_IS_STILL_VALID)) {
+			address->expression = expr;
+		}
 	}
 }
 
@@ -1918,9 +1930,10 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 			}
 			if(decl->flags & QB_TYPE_DECL_STRING) {
 				address->flags |= QB_ADDRESS_STRING;
-			}
-			if(decl->flags & QB_TYPE_DECL_BOOLEAN) {
+			} else if(decl->flags & QB_TYPE_DECL_BOOLEAN) {
 				address->flags |= QB_ADDRESS_BOOLEAN;
+			} else if(decl->flags & QB_TYPE_DECL_IMAGE) {
+				address->flags |= QB_ADDRESS_IMAGE;
 			}
 			if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
 				address->index_alias_schemes = decl->index_alias_schemes;

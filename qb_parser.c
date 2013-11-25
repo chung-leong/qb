@@ -311,6 +311,7 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 			} else {
 				decl->dimensions[2] = 4;
 			}
+			decl->flags |= QB_TYPE_DECL_IMAGE;
 		} else {
 			return NULL;
 		}

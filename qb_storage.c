@@ -934,6 +934,8 @@ static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, z
 			// create a string if the string flag is set, otherwise create an array (or possibly an object)
 			if(address->flags & QB_ADDRESS_STRING) {
 				ZVAL_EMPTY_STRING(zvalue);
+			} else if(address->flags & QB_ADDRESS_IMAGE) {
+				qb_initialize_zval_image(storage, address, zvalue);
 			} else {
 				qb_initialize_zval_array(storage, address, container, zvalue);
 			}

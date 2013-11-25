@@ -691,3 +691,30 @@ static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *addres
 		}
 	}
 }
+
+static void qb_initialize_zval_image(qb_storage *storage, qb_address *element_address, zval *element) {	
+	uint32_t height = VALUE_IN(storage, U32, element_address->dimension_addresses[0]);
+	uint32_t width = VALUE_IN(storage, U32, element_address->dimension_addresses[1]);
+	zval *z_width, *z_height, *z_function_name, *z_retval = NULL;
+	zval **params[2];
+	TSRMLS_FETCH();
+
+	ALLOC_INIT_ZVAL(z_width);
+	ALLOC_INIT_ZVAL(z_height);
+	ALLOC_INIT_ZVAL(z_function_name);
+	ZVAL_LONG(z_width, width);
+	ZVAL_LONG(z_height, height);
+	ZVAL_STRING(z_function_name, "imagecreatetruecolor", TRUE);
+	params[0] = &z_width;
+	params[1] = &z_height;
+	call_user_function_ex(CG(function_table), NULL, z_function_name, &z_retval, 2, params, TRUE, NULL TSRMLS_CC);
+	zval_ptr_dtor(&z_width);
+	zval_ptr_dtor(&z_height);
+	zval_ptr_dtor(&z_function_name);
+	if(Z_TYPE_P(z_retval) != IS_RESOURCE) {
+		qb_abort("Unable to create GD image resource");
+	}
+	*element = *z_retval;
+	Z_TYPE_P(z_retval) = IS_NULL;
+	zval_ptr_dtor(&z_retval);
+}
