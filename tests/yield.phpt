@@ -27,10 +27,23 @@ function test_function() {
 foreach(test_function() as $index => $num) {
 	echo "$index => $num\n";
 }
+foreach(test_function() as $index => $num) {
+	echo "$index => $num\n";
+}
 
 
 ?>
 --EXPECT--
+0 => 11
+1 => 21
+2 => 31
+3 => 41
+4 => 51
+5 => 61
+6 => 71
+7 => 81
+8 => 91
+9 => 101
 0 => 11
 1 => 21
 2 => 31

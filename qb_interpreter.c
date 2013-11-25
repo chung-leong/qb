@@ -441,7 +441,7 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 	}
 
 	// need to create a copy
-	if(cxt->worker) {
+	if(cxt && cxt->worker) {
 		// do it in the main thread
 		qb_run_in_main_thread(cxt->worker, qb_create_function_copy_in_main_thread, last, &f, reentrance);
 	} else {
@@ -451,6 +451,7 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 		} else {
 			last->next_forked_copy = f;
 		}
+		qb_lock_function(f);
 	}
 	return f;
 }
