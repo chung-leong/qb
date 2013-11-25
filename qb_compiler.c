@@ -2001,6 +2001,9 @@ void qb_add_variables(qb_compiler_context *cxt) {
 	qb_apply_type_declaration(cxt, qvar);
 	qb_add_variable(cxt, qvar);
 	cxt->return_variable = qvar;
+	if(qvar->address) {
+		qb_mark_as_shared(cxt, qvar->address);
+	}
 
 #ifdef ZEND_ACC_GENERATOR
 	// yield key (PHP 5.5 above)
@@ -2013,6 +2016,9 @@ void qb_add_variables(qb_compiler_context *cxt) {
 		qb_apply_type_declaration(cxt, qvar);
 		qb_add_variable(cxt, qvar);
 		cxt->return_key_variable = qvar;
+		if(qvar->address) {
+			qb_mark_as_shared(cxt, qvar->address);
+		}
 	}
 #endif
 
