@@ -118,8 +118,10 @@ extern void *op_handlers[];
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count);
 void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer);
 
-void qb_execute(qb_interpreter_context *cxt);
-void qb_execute_internal(qb_interpreter_context *cxt);
+int32_t qb_execute(qb_interpreter_context *cxt);
+int32_t qb_execute_internal(qb_interpreter_context *cxt);
+int32_t qb_execute_rewind(qb_interpreter_context *cxt);
+int32_t qb_execute_resume(qb_interpreter_context *cxt);
 
 void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
 

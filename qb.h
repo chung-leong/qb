@@ -49,6 +49,10 @@
 #include "php.h"
 #include "ext/standard/php_rand.h"
 
+#ifdef ZEND_ACC_GENERATOR
+	#include "zend_generators.h"
+#endif
+
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 1
 	#define ZEND_ENGINE_2_1		1
 #elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 2
@@ -132,6 +136,15 @@ enum {
 	QB_END_DEFERRAL				= 3,
 };
 
+#ifdef ZEND_ACC_GENERATOR
+typedef struct qb_generator_context			qb_generator_context;
+
+struct qb_generator_context {
+	zend_generator *generator;
+	qb_interpreter_context *interpreter_context;
+};
+#endif
+
 ZEND_BEGIN_MODULE_GLOBALS(qb)
 	const char *current_filename;
 	uint32_t current_line_number;
@@ -173,7 +186,14 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	uint32_t native_code_bundle_count;
 #endif
 
+#ifdef ZEND_ACC_GENERATOR
+	qb_generator_context *generator_contexts;
+	uint32_t generator_context_count;
+#endif
+
 	qb_thread_pool *thread_pool;
+
+	double execution_start_time;
 ZEND_END_MODULE_GLOBALS(qb)
 
 #ifdef ZTS

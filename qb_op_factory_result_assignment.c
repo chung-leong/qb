@@ -124,13 +124,31 @@ static void qb_set_result_assign(qb_compiler_context *cxt, qb_op_factory *f, qb_
 	}
 }
 
-static void qb_set_result_assign_retval(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	if(cxt->return_variable->address) {
 		qb_operand *value = &operands[0];
 		qb_variable_dimensions dim;
 		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
 		qb_attach_bound_checking_expression(cxt, cxt->return_variable->address, &dim, TRUE);
 		result->address = cxt->return_variable->address;
+		result->type = QB_OPERAND_ADDRESS;
+	}
+}
+
+static void qb_set_result_assign_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(cxt->return_key_variable->address) {
+		qb_operand *value = &operands[0];
+		qb_variable_dimensions dim;
+		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
+		qb_attach_bound_checking_expression(cxt, cxt->return_key_variable->address, &dim, TRUE);
+		result->address = cxt->return_key_variable->address;
+		result->type = QB_OPERAND_ADDRESS;
+	}
+}
+
+static void qb_set_result_increment_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(cxt->return_key_variable->address) {
+		result->address = cxt->return_key_variable->address;
 		result->type = QB_OPERAND_ADDRESS;
 	}
 }

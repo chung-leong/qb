@@ -283,6 +283,36 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 	}
 }
 
+#ifdef ZEND_ACC_GENERATOR
+static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
+	USE_TSRM
+	zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
+	zval *ret, *ret_key;
+
+	// destroy previous key and value
+	if(generator->value) {
+		zval_ptr_dtor(&generator->value);
+	}
+	if(generator->key) {
+		zval_ptr_dtor(&generator->key);
+	}
+
+	ALLOC_INIT_ZVAL(ret);
+	ALLOC_INIT_ZVAL(ret_key);
+	generator->value = ret;
+	generator->key = ret_key;
+
+	cxt->function->zend_op_array->fn_flags &= ~ZEND_ACC_GENERATOR;
+
+	if(cxt->function->return_variable->address) {
+		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
+	}
+	if(cxt->function->return_key_variable->address) {
+		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_key_variable->address, ret_key);
+	}
+}
+#endif
+
 static void qb_refresh_imported_variables(qb_interpreter_context *cxt) {
 	USE_TSRM
 	uint32_t i, j;
@@ -501,6 +531,7 @@ static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 		switch(cxt->exit_type) {
 			case QB_VM_EXCEPTION: return FALSE;
 			case QB_VM_RETURN: return TRUE;
+			case QB_VM_YIELD: return FALSE;
 			case QB_VM_BAILOUT: {
 				EG(exit_status) = cxt->exit_status_code;
 				zend_bailout();
@@ -609,7 +640,9 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
 }
 
-void qb_execute(qb_interpreter_context *cxt) {
+int32_t qb_execute(qb_interpreter_context *cxt) {
+	int32_t success = TRUE;
+
 	// clear local memory segments
 	qb_initialize_local_variables(cxt);
 
@@ -620,16 +653,47 @@ void qb_execute(qb_interpreter_context *cxt) {
 	if(qb_execute_in_main_thread(cxt)) {
 		// move values back into caller space
 		qb_transfer_variables_to_external_sources(cxt);
+	} else {
+		success = FALSE;
 	}
 
 	// release dynamically allocated segments
 	qb_finalize_variables(cxt);
+
+	return success;
 }
 
-void qb_execute_internal(qb_interpreter_context *cxt) {
+int32_t qb_execute_resume(qb_interpreter_context *cxt) {
+	// enter the vm
+	if(!qb_execute_in_main_thread(cxt)) {
+		// there're more values still
+		qb_transfer_variables_to_generator(cxt);
+		return FALSE;
+	} else {
+		// done running
+		qb_finalize_variables(cxt);
+		return TRUE;
+	}
+}
+
+int32_t qb_execute_rewind(qb_interpreter_context *cxt) {
+	// clear local memory segments
 	qb_initialize_local_variables(cxt);
-	qb_enter_vm(cxt);
+
+	// copy values from arguments, class variables, object variables, and global variables
+	qb_transfer_variables_from_external_sources(cxt);
+
+	return qb_execute_resume(cxt);
+}
+
+int32_t qb_execute_internal(qb_interpreter_context *cxt) {
+	int32_t success = TRUE;
+	qb_initialize_local_variables(cxt);
+	if(!qb_execute_in_main_thread(cxt)) {
+		success = FALSE;
+	}
 	qb_finalize_variables(cxt);
+	return success;
 }
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count) {

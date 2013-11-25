@@ -2,7 +2,15 @@
 
 class Leave extends Handler {
 
-	use NoOperands, ExitVM;
+	use NoOperands;
+	
+	public function getJumpTargetCount() {
+		return -1;
+	}
+	
+	public function getHandlerFunctionType() {
+		return null;
+	}
 	
 	public function getAction() {
 		$lines = array();

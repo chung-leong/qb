@@ -2,10 +2,14 @@
 
 class Spoon extends Handler {
 
-	use NoOperands, ExitVM;
+	use NoOperands;
 	
-	public function needsInterpreterContext() {
-		return true;
+	public function getJumpTargetCount() {
+		return -1;
+	}
+	
+	public function getHandlerFunctionType() {
+		return null;
 	}
 	
 	public function getAction() {

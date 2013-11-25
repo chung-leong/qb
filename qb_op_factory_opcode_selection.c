@@ -333,9 +333,28 @@ static qb_opcode qb_select_opcode_assign(qb_compiler_context *cxt, qb_op_factory
 	return opcode;
 }
 
-static qb_opcode qb_select_opcode_assign_retval(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static qb_opcode qb_select_opcode_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	if(cxt->return_variable->address) {
 		return qb_select_opcode_derived(cxt, f, expr_type, operands, operand_count, result);
+	} else {
+		return QB_NOP;
+	}
+}
+
+static qb_opcode qb_select_opcode_assign_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	if(cxt->return_key_variable->address) {
+		return qb_select_opcode_derived(cxt, f, expr_type, operands, operand_count, result);
+	} else {
+		return QB_NOP;
+	}
+}
+
+static qb_opcode qb_select_opcode_increment_generator_key(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	if(cxt->return_key_variable->address) {
+		qb_derived_op_factory *df = (qb_derived_op_factory *) f;
+		qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
+		qb_opcode opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, cxt->return_key_variable->address->type);
+		return opcode;
 	} else {
 		return QB_NOP;
 	}

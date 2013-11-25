@@ -742,7 +742,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_basic_op,				&factory_assign_branching					},	// ZEND_QM_ASSIGN_VAR
 	{	qb_process_jump_set,				&factory_branch_on_true_set					},	// ZEND_JMP_SET_VAR
 	{	NULL,								NULL,										},	// ZEND_DISCARD_EXCEPTION
-	{	NULL,								&factory_yield,								},	// ZEND_YIELD
+	{	qb_process_basic_op,				&factory_yield,								},	// ZEND_YIELD
 	{	qb_process_basic_op,				&factory_return,							},	// ZEND_GENERATOR_RETURN
 	{	NULL,								NULL,										},	// ZEND_FAST_CALL
 	{	NULL,								NULL,										},	// ZEND_FAST_RET

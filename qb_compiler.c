@@ -1928,6 +1928,9 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 	} else {
 		if(qvar->flags & QB_VARIABLE_RETURN_VALUE) {
 			// function returns void by default if declaration is missing
+		} else if(qvar->flags & QB_VARIABLE_RETURN_KEY_VALUE) {
+			// keys are always U32
+			qvar->address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
 		} else {
 			qb_abort("missing type declaration: %s", qvar->name);
 		}
@@ -1998,6 +2001,20 @@ void qb_add_variables(qb_compiler_context *cxt) {
 	qb_apply_type_declaration(cxt, qvar);
 	qb_add_variable(cxt, qvar);
 	cxt->return_variable = qvar;
+
+#ifdef ZEND_ACC_GENERATOR
+	// yield key (PHP 5.5 above)
+	if(cxt->zend_op_array->fn_flags & ZEND_ACC_GENERATOR) {
+		qvar = qb_allocate_variable(cxt->pool);
+		qvar->name = NULL;
+		qvar->name_length = 0;
+		qvar->hash_value = 0;
+		qvar->flags = QB_VARIABLE_RETURN_KEY_VALUE;
+		qb_apply_type_declaration(cxt, qvar);
+		qb_add_variable(cxt, qvar);
+		cxt->return_key_variable = qvar;
+	}
+#endif
 
 	if(cxt->op_count > 0) {
 		// there're static assignment--need to add the end static op
@@ -3476,6 +3493,12 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 
 		cxt->function_declaration = function_decl;
 		cxt->zend_op_array = function_decl->zend_op_array;
+
+#ifdef ZEND_ACC_GENERATOR
+		if(cxt->zend_op_array->fn_flags & ZEND_ACC_GENERATOR) {
+			cxt->function_flags |= QB_FUNCTION_GENERATOR;
+		}
+#endif
 	}
 	SAVE_TSRMLS
 
@@ -3523,7 +3546,7 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	cxt->empty_array = qb_create_constant_array(cxt, QB_TYPE_I08, &zero, 1);
 
 	cxt->dependency_index = dependency_index;
-	cxt->function_flags = QB_FUNCTION_INLINEABLE;
+	cxt->function_flags |= QB_FUNCTION_INLINEABLE;
 	if(max_dependency_index > 1) {
 		cxt->dependencies = ecalloc(max_dependency_index, sizeof(int8_t));
 	}

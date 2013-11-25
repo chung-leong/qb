@@ -272,7 +272,8 @@ extern qb_fetch_do_op_decomposer factory_assign_object_property;
 extern qb_derived_op_factory factory_assign_branching;
 extern qb_derived_op_factory factory_assign_select;
 extern qb_derived_op_factory factory_assign_temporary;
-extern qb_derived_op_factory factory_assign_retval;
+extern qb_derived_op_factory factory_assign_return_value;
+extern qb_derived_op_factory factory_assign_generator_key;
 
 extern qb_op_factory factory_assign_ref;
 extern qb_op_decomposer factory_select;
@@ -350,6 +351,7 @@ extern qb_fetch_do_op_decomposer factory_increment_object_property_pre;
 extern qb_fetch_do_op_decomposer factory_decrement_object_property_pre;
 extern qb_fetch_do_op_decomposer factory_increment_object_property_post;
 extern qb_fetch_do_op_decomposer factory_decrement_object_property_post;
+extern qb_derived_op_factory factory_increment_generator_key;
 
 extern qb_basic_op_factory factory_shift_left;
 extern qb_basic_op_factory factory_shift_right;

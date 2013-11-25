@@ -118,19 +118,36 @@ qb_op_factory factory_assign_ref = {
 	0,
 };
 
-qb_derived_op_factory factory_assign_retval = {
+qb_derived_op_factory factory_assign_return_value = {
 	NULL,
 	NULL,
-	qb_link_results_assign_retval,
-	qb_coerce_operands_assign_retval,
+	qb_link_results_assign_return_value,
+	qb_coerce_operands_assign_return_value,
 	qb_set_result_prototype,
-	qb_validate_operands_assign_retval,
-	qb_set_result_assign_retval,
+	qb_validate_operands_assign_return_value,
+	qb_set_result_assign_return_value,
 	NULL,
-	qb_select_opcode_assign_retval,
+	qb_select_opcode_assign_return_value,
 	qb_transfer_operands_assign,
 	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
+	&factory_assign,
+};
+
+qb_derived_op_factory factory_assign_generator_key = {
+	NULL,
+	NULL,
+	NULL,
+	qb_coerce_operands_assign_generator_key,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_assign_generator_key,
+	NULL,
+	qb_select_opcode_assign_generator_key,
+	qb_transfer_operands_assign,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
 	&factory_assign,
 };
@@ -1281,6 +1298,23 @@ qb_fetch_do_op_decomposer factory_decrement_object_property_post = {
 	qb_decompose_fetch_do_op,
 	&factory_fetch_object_property_write,
 	&factory_decrement_post,
+};
+
+qb_derived_op_factory factory_increment_generator_key = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_increment_generator_key,
+	NULL,
+	qb_select_opcode_increment_generator_key,
+	qb_transfer_operands_result_only,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_increment_pre,
 };
 
 qb_basic_op_factory factory_shift_left = {
@@ -2487,7 +2521,7 @@ qb_simple_op_factory factory_interrupt = {
 };
 
 qb_op_decomposer factory_yield = {
-	qb_decompose_return,
+	qb_decompose_yield,
 	&factory_interrupt,
 };
 

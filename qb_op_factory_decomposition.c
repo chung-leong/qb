@@ -22,10 +22,32 @@ static void qb_decompose_return(qb_compiler_context *cxt, void *factory, qb_oper
 	qb_op_decomposer *d = factory;
 	qb_operand *value = &operands[0];
 	if(value->type != QB_OPERAND_NONE) {
+		// assign return value
 		qb_operand assign_result = { QB_OPERAND_EMPTY, NULL };
-		qb_produce_op(cxt, &factory_assign_retval, operands, operand_count, &assign_result, NULL, 0, result_prototype);
+		qb_produce_op(cxt, &factory_assign_return_value, operands, operand_count, &assign_result, NULL, 0, result_prototype);
 	}
 	qb_produce_op(cxt, d->factory, NULL, 0, result, NULL, 0, NULL);
+}
+
+static void qb_decompose_yield(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_op_decomposer *d = factory;
+	qb_operand *value = &operands[0], *key = &operands[1];
+	qb_operand assign_result = { QB_OPERAND_EMPTY, NULL }, assign_key_result = { QB_OPERAND_EMPTY, NULL };
+
+	// assign the generated value
+	qb_produce_op(cxt, &factory_assign_return_value, value, 1, &assign_result, NULL, 0, result_prototype);
+
+	if(key->type != QB_OPERAND_NONE) {
+		// assign the key
+		qb_produce_op(cxt, &factory_assign_generator_key, key, 1, &assign_key_result, NULL, 0, result_prototype);
+	}
+
+	qb_produce_op(cxt, d->factory, NULL, 0, result, NULL, 0, NULL);
+
+	if(key->type == QB_OPERAND_NONE) {
+		// increment the auto key
+		qb_produce_op(cxt, &factory_increment_generator_key, NULL, 0, &assign_key_result, NULL, 0, result_prototype);
+	}
 }
 
 static void qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {

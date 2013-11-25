@@ -495,6 +495,70 @@ uint32_t qb_get_thread_count(TSRMLS_D) {
 	return thread_count;
 }
 
+static void qb_start_execution_timer(qb_function *qfunc TSRMLS_DC) {
+	if(QB_G(execution_log_path)[0]) {
+		QB_G(execution_start_time) = qb_get_high_res_timestamp();
+	}
+}
+
+static void qb_stop_execution_timer(qb_function *qfunc TSRMLS_DC) {
+	if(QB_G(execution_log_path)[0]) {
+		double end_time = qb_get_high_res_timestamp();
+		double duration = end_time - QB_G(execution_start_time);
+		if(duration > 0) {
+			if(qfunc->name[0] != '_') {
+				php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
+				if(stream) {
+					php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
+					php_stream_close(stream);
+				}
+			}
+		}
+	}
+}
+
+#ifdef ZEND_ACC_GENERATOR
+static qb_interpreter_context * qb_get_generator_context(zend_generator *generator TSRMLS_DC) {
+	uint32_t i;
+	for(i = 0; i < QB_G(generator_context_count); i++) {
+		qb_generator_context *g = &QB_G(generator_contexts)[i];
+		if(g->generator == generator) {
+			return g->interpreter_context;
+		}
+	}
+	return NULL;
+}
+
+static qb_interpreter_context * qb_add_generator_context(zend_generator *generator TSRMLS_DC) {
+	qb_generator_context *g;
+	uint32_t index = QB_G(generator_context_count)++;
+	QB_G(generator_contexts) = erealloc(QB_G(generator_contexts), sizeof(qb_generator_context) * QB_G(generator_context_count));
+	g = &QB_G(generator_contexts)[index];
+	g->generator = generator;
+	g->interpreter_context = emalloc(sizeof(qb_interpreter_context));
+	return g->interpreter_context;
+}
+
+static void qb_remove_generator_context(zend_generator *generator TSRMLS_DC) {
+	uint32_t i;
+	for(i = 0; i < QB_G(generator_context_count); i++) {
+		qb_generator_context *g = &QB_G(generator_contexts)[i];
+		if(g->generator == generator) {
+			efree(g->interpreter_context);
+			QB_G(generator_context_count)--;
+			if(i != QB_G(generator_context_count)) {
+				memmove(g, g + 1, sizeof(qb_generator_context) * (QB_G(generator_context_count) - i));
+			}
+			if(QB_G(generator_context_count) == 0) {
+				efree(QB_G(generator_contexts));
+				QB_G(generator_contexts) = NULL;
+			}
+			break;
+		}
+	}
+}
+#endif
+
 int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = GET_QB_POINTER(op_array);
@@ -507,29 +571,39 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 		}
 	}
 	if(qfunc) {
-		qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
-		double start_time, end_time, duration;
+		if(qfunc->flags & QB_FUNCTION_GENERATOR) {
+#ifdef ZEND_ACC_GENERATOR
+			zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
+			qb_interpreter_context *interpreter_cxt = qb_get_generator_context(generator TSRMLS_CC);
+			if(!interpreter_cxt) {
+				interpreter_cxt = qb_add_generator_context(generator TSRMLS_CC);
+				qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
+				if(qb_execute_rewind(interpreter_cxt)) {
+					// the function is returning nothing
+					qb_free_interpreter_context(interpreter_cxt);
+					qb_remove_generator_context(generator TSRMLS_CC);
+				} else {
+					// clear the flag so the generator doesn't get freed
+					// a somewhat nasty workaround
+					op_array->fn_flags &= ~ZEND_ACC_GENERATOR;
+				}
+			} else {
+				if(qb_execute_resume(interpreter_cxt)) {
+					qb_free_interpreter_context(interpreter_cxt);
+					qb_remove_generator_context(generator TSRMLS_CC);
 
-		if(UNEXPECTED(QB_G(execution_log_path)[0])) {
-			start_time = qb_get_high_res_timestamp();
-		}
-
-		qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
-		qb_execute(interpreter_cxt);
-		qb_free_interpreter_context(interpreter_cxt);
-
-		if(UNEXPECTED(QB_G(execution_log_path)[0])) {
-			end_time = qb_get_high_res_timestamp();
-			duration = end_time - start_time;
-			if(duration > 0) {
-				if(qfunc->name[0] != '_') {
-					php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
-					if(stream) {
-						php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
-						php_stream_close(stream);
-					}
+					// restore the flag
+					op_array->fn_flags |= ZEND_ACC_GENERATOR;
 				}
 			}
+#endif
+		} else {
+			qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
+			qb_start_execution_timer(qfunc TSRMLS_CC);
+			qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
+			qb_execute(interpreter_cxt);
+			qb_free_interpreter_context(interpreter_cxt);
+			qb_stop_execution_timer(qfunc TSRMLS_CC);
 		}
 		return ZEND_USER_OPCODE_RETURN;
 	} else {
@@ -813,6 +887,8 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(external_symbols) = NULL;
 	QB_G(external_symbol_count) = 0;
 	QB_G(thread_pool) = NULL;
+	QB_G(generator_contexts) = NULL;
+	QB_G(generator_context_count) = 0;
 #ifdef NATIVE_COMPILE_ENABLED
 	QB_G(native_code_bundles) = NULL;
 	QB_G(native_code_bundle_count) = 0;

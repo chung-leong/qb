@@ -2,7 +2,15 @@
 
 class Fork extends Handler {
 
-	use ScalarAddressMode, ExitVM;
+	use ScalarAddressMode;
+	
+	public function getJumpTargetCount() {
+		return -1;
+	}
+	
+	public function getHandlerFunctionType() {
+		return null;
+	}
 	
 	public function getInputOperandCount() {
 		return 1;
