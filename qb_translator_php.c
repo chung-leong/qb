@@ -1146,9 +1146,7 @@ void qb_translate_instructions(qb_php_translator_context *cxt) {
 
 	// make sure there's always a RET at the end
 	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
-		qb_operand operand = { QB_OPERAND_NONE, { NULL } };
-		qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
-		qb_produce_op(cxt->compiler_context, &factory_return, &operand, 1, &result, NULL, 0, NULL);
+		qb_produce_op(cxt->compiler_context, &factory_leave, NULL, 0, NULL, NULL, 0, NULL);
 	}
 }
 

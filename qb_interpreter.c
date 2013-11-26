@@ -554,6 +554,7 @@ static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 	for(;;) {
 		qb_enter_vm(cxt);
 
+label_exit:
 		switch(cxt->exit_type) {
 			case QB_VM_EXCEPTION: return FALSE;
 			case QB_VM_RETURN: return TRUE;
@@ -566,17 +567,19 @@ static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 				qb_thread_pool *pool = qb_get_thread_pool(TSRMLS_C);
 				if(pool->worker_count > 0) {
 					qb_interpreter_context *fork_contexts;
-					uint32_t i;
+					uint32_t i, fork_count;
 
 					if(cxt->fork_count == 0) {
-						cxt->fork_count = pool->worker_count;
+						fork_count = cxt->fork_count = pool->worker_count;
+					} else {
+						fork_count = cxt->fork_count;
 					}
 					cxt->fork_id = 0;
 
 					// the first fork reuses the same interpreter context
 					qb_schedule_task(pool, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->worker);
 
-					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (cxt->fork_count - 1));
+					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (fork_count - 1));
 					for(i = 1; i < cxt->fork_count; i++) {
 						qb_interpreter_context *fork_cxt = &fork_contexts[i - 1];
 						fork_cxt->function = NULL;
@@ -584,7 +587,7 @@ static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 						fork_cxt->caller_context = NULL;
 						fork_cxt->worker = NULL;
 						fork_cxt->fork_id = i;
-						fork_cxt->fork_count = cxt->fork_count;
+						fork_cxt->fork_count = fork_count;
 						fork_cxt->argument_indices = NULL;
 						fork_cxt->argument_count = 0;
 						fork_cxt->result_index = 0;
@@ -594,12 +597,21 @@ static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 						fork_cxt->exit_status_code = 0;
 						fork_cxt->windows_timed_out_pointer = cxt->windows_timed_out_pointer;
 						fork_cxt->floating_point_precision = cxt->floating_point_precision;
+						fork_cxt->send_target = NULL;
 #ifdef ZTS 
 						fork_cxt->tsrm_ls = tsrm_ls;
 #endif
 						qb_schedule_task(pool, qb_execute_in_worker_thread, fork_cxt, cxt->function, 0, &fork_cxt->worker);
 					}
 					qb_run_tasks(pool);
+					for(i = 1; i < fork_count; i++) {
+						qb_interpreter_context *fork_cxt = &fork_contexts[i - 1];
+						qb_free_interpreter_context(fork_cxt);
+					}
+					efree(fork_contexts);
+
+					cxt->worker = NULL;
+					goto label_exit;
 				} else {
 					// go back into the vm
 				}
@@ -689,6 +701,7 @@ int32_t qb_execute(qb_interpreter_context *cxt) {
 	return success;
 }
 
+#ifdef ZEND_ACC_GENERATOR
 int32_t qb_execute_resume(qb_interpreter_context *cxt) {
 	// copy variable passed by send()
 	qb_transfer_arguments_from_generator(cxt);
@@ -714,6 +727,7 @@ int32_t qb_execute_rewind(qb_interpreter_context *cxt) {
 
 	return qb_execute_resume(cxt);
 }
+#endif
 
 int32_t qb_execute_internal(qb_interpreter_context *cxt) {
 	int32_t success = TRUE;
@@ -752,6 +766,7 @@ static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcc;
 	int call_result;
+	zend_execute_data *ex = EG(current_execute_data);
 
 	fcc.calling_scope = EG(called_scope);
 	fcc.function_handler = zfunc;
@@ -790,6 +805,10 @@ static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function
 	fci.no_separation = 1;
 	fci.symbol_table = NULL;
 
+	// no good way of avoiding an extra item showing up in debug_print_backtrace()
+	// put it the function being called so at least it matches the line number
+	ex->function_state.function = zfunc;
+	
 	// set the qb user op's line number to the line number where the call occurs
 	// so that debug_backtrace() will get the right number
 	(*p_user_op)->lineno = line_number;
@@ -836,7 +855,7 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 		}
 	}
 
-	if(result_index != -1) {
+	if(result_index != INVALID_INDEX) {
 		qb_variable *retvar = cxt->function->variables[result_index];
 		qb_transfer_value_from_zval(cxt->function->local_storage, retvar->address, retval, QB_TRANSFER_CAN_SEIZE_MEMORY);
 	}
@@ -871,6 +890,21 @@ static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *q
 	}
 }
 
+static void qb_execute_function_call_thru_zend(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+	USE_TSRM
+	zval *retval;
+
+	cxt->argument_indices = variable_indices;
+	cxt->argument_count = argument_count;
+	cxt->result_index = result_index;
+	cxt->line_number = line_number;
+	cxt->exception_encountered = FALSE;
+
+	QB_G(caller_interpreter_context) = cxt;
+	qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, INVALID_INDEX, line_number);
+	QB_G(caller_interpreter_context) = NULL;
+}
+
 void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
 	USE_TSRM
 	qb_external_symbol *symbol = &QB_G(external_symbols)[symbol_index];
@@ -886,7 +920,11 @@ void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_inde
 
 	qfunc = qb_get_compiled_function(zfunc);
 	if(qfunc) {
-		qb_execute_function_call(cxt, qfunc, variable_indices, argument_count, result_index, line_number);
+		if(QB_G(allow_debug_backtrace)) {
+			qb_execute_function_call_thru_zend(cxt, zfunc, variable_indices, argument_count, result_index, line_number);
+		} else {
+			qb_execute_function_call(cxt, qfunc, variable_indices, argument_count, result_index, line_number);
+		}
 	} else {
 		qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, result_index, line_number);
 	}

@@ -1588,10 +1588,8 @@ static void qb_perform_alpha_premultiplication_removal(qb_pbj_translator_context
 }
 
 static void qb_perform_return(qb_pbj_translator_context *cxt) {
-	qb_operand operand = { QB_OPERAND_NONE, { NULL } };
-	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	qb_produce_op(cxt->compiler_context, &factory_return, &operand, 1, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
+	qb_produce_op(cxt->compiler_context, &factory_leave, NULL, 0, NULL, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_loop(qb_pbj_translator_context *cxt, qb_address *index_address, qb_address *limit_address, uint32_t target_op_index) {

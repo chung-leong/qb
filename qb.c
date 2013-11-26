@@ -562,6 +562,7 @@ static void qb_remove_generator_context(zend_generator *generator TSRMLS_DC) {
 int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = GET_QB_POINTER(op_array);
+	zend_execute_data *ex = EG(current_execute_data);
 	if(!qfunc) {
 		if(QB_G(build_context)) {
 			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
@@ -600,7 +601,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 		} else {
 			qb_interpreter_context _interpreter_cxt, *interpreter_cxt = &_interpreter_cxt;
 			qb_start_execution_timer(qfunc TSRMLS_CC);
-			qb_initialize_interpreter_context(interpreter_cxt, qfunc, NULL TSRMLS_CC);
+			qb_initialize_interpreter_context(interpreter_cxt, qfunc, QB_G(caller_interpreter_context) TSRMLS_CC);
 			qb_execute(interpreter_cxt);
 			qb_free_interpreter_context(interpreter_cxt);
 			qb_stop_execution_timer(qfunc TSRMLS_CC);
@@ -887,8 +888,11 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(external_symbols) = NULL;
 	QB_G(external_symbol_count) = 0;
 	QB_G(thread_pool) = NULL;
+	QB_G(caller_interpreter_context) = NULL;
+#ifdef ZEND_ACC_GENERATOR
 	QB_G(generator_contexts) = NULL;
 	QB_G(generator_context_count) = 0;
+#endif
 #ifdef NATIVE_COMPILE_ENABLED
 	QB_G(native_code_bundles) = NULL;
 	QB_G(native_code_bundle_count) = 0;
@@ -931,6 +935,13 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 	qb_destroy_array((void **) &QB_G(scopes));
 	qb_destroy_array((void **) &QB_G(external_symbols));
 
+#ifdef ZEND_ACC_GENERATOR
+	for(i = 0; i < QB_G(generator_context_count); i++) {
+		qb_generator_context *g = QB_G(generator_contexts)[i];
+		qb_free_interpreter_context(g->interpreter_cxt);
+		efree(g->interpreter_cxt);
+	}
+#endif
 #ifdef NATIVE_COMPILE_ENABLED
 	for(i = 0; i < QB_G(native_code_bundle_count); i++) {
 		qb_native_code_bundle *bundle = &QB_G(native_code_bundles)[i];

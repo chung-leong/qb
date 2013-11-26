@@ -2611,7 +2611,7 @@ qb_simple_op_factory factory_fork_resume = {
 
 qb_simple_op_factory factory_fork_result = {
 	NULL,
-	NULL,
+	qb_resolve_expression_type_search_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,

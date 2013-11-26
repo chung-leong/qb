@@ -178,6 +178,8 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
 
+	qb_interpreter_context *caller_interpreter_context;
+
 	zval static_zvals[8];
 	uint32_t static_zval_index;
 
