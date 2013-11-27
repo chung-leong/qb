@@ -2963,7 +2963,6 @@ qb_address * qb_obtain_named_element(qb_compiler_context *cxt, qb_address *conta
 				uint32_t swizzle_mask = qb_get_swizzle_mask(cxt, container_address->index_alias_schemes[0], name);
 				uint32_t len = Z_STRLEN_P(name);
 				qb_operand operands[3];
-				qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 				qb_variable_dimensions dim = { 1, qb_obtain_constant_U32(cxt, len) };
 				qb_address *value_address = qb_obtain_temporary_variable(cxt, container_address->type, &dim);				
 				if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {

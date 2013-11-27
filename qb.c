@@ -339,7 +339,7 @@ qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zva
 	if(var->flags & QB_VARIABLE_GLOBAL) {
 		scope_type = QB_IMPORT_SCOPE_GLOBAL;
 		associated_object = NULL;
-	} else if(var->flags & QB_VARIABLE_CLASS || var->flags & QB_VARIABLE_CLASS_CONSTANT) {
+	} else if((var->flags & QB_VARIABLE_CLASS) || (var->flags & QB_VARIABLE_CLASS_CONSTANT)) {
 		scope_type = QB_IMPORT_SCOPE_CLASS;
 		if(var->zend_class) {
 			associated_object = var->zend_class;
@@ -562,7 +562,6 @@ static void qb_remove_generator_context(zend_generator *generator TSRMLS_DC) {
 int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = GET_QB_POINTER(op_array);
-	zend_execute_data *ex = EG(current_execute_data);
 	if(!qfunc) {
 		if(QB_G(build_context)) {
 			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
@@ -937,9 +936,9 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 
 #ifdef ZEND_ACC_GENERATOR
 	for(i = 0; i < QB_G(generator_context_count); i++) {
-		qb_generator_context *g = QB_G(generator_contexts)[i];
-		qb_free_interpreter_context(g->interpreter_cxt);
-		efree(g->interpreter_cxt);
+		qb_generator_context *g = &QB_G(generator_contexts)[i];
+		qb_free_interpreter_context(g->interpreter_context);
+		efree(g->interpreter_context);
 	}
 #endif
 #ifdef NATIVE_COMPILE_ENABLED
