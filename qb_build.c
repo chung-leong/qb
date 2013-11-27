@@ -105,10 +105,9 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 	USE_TSRM
 	uint32_t i;
 
-	cxt->compiler_context_count = cxt->function_declaration_count;
-	cxt->compiler_contexts = emalloc(sizeof(qb_compiler_context *) * cxt->compiler_context_count);
+	cxt->compiler_contexts = emalloc(sizeof(qb_compiler_context *) * cxt->function_declaration_count);
 	for(i = 0; i < cxt->function_declaration_count; i++) {
-		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i] = emalloc(sizeof(qb_compiler_context));
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[cxt->compiler_context_count++] = emalloc(sizeof(qb_compiler_context));
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, cxt->function_declarations[i], i, cxt->function_declaration_count TSRMLS_CC);
 
 		QB_G(current_filename) = compiler_cxt->zend_op_array->filename;
