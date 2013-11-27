@@ -536,6 +536,7 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 		cxt->instruction_pointer += cxt->function->instruction_base_address;
 
 		// copy the original function state
+		qb_copy_storage_contents(qfunc->local_storage, cxt->function->local_storage);
 	}
 	qb_enter_vm(cxt);
 

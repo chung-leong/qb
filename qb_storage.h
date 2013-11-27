@@ -255,5 +255,6 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size);
 void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segment);
 
 qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift, int32_t reentrance);
+void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage);
 
 #endif

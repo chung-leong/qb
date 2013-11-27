@@ -252,6 +252,34 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 	return storage;
 }
 
+void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage) {
+	int8_t *range_start, range_end;
+	qb_memory_segment *src_segment_start, *src_segment_end, *dst_segment_start;
+	uint32_t i, byte_count;
+
+	// copy the preallocated segments
+	src_segment_start = &src_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
+	src_segment_end = &src_storage->segments[QB_SELECTOR_LOCAL_ARRAY];
+	dst_segment_start = &src_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
+	byte_count = (src_segment_end->memory + src_segment_end->byte_count) - src_segment_start->memory;
+	memcpy(dst_segment_start->memory, src_segment_start->memory, byte_count);
+
+	for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < src_storage->segment_count; i++) {
+		qb_memory_segment *src = &src_storage->segments[i];
+		qb_memory_segment *dst = &dst_storage->segments[i];
+		if(dst->memory != src->memory) {
+			// assume that the destination buffer is large enough
+#ifdef ZEND_DEBUG
+			if(dst->current_allocation < src->byte_count) {
+				qb_abort("Error");
+			}
+#endif
+			memcpy(dst->memory, src->memory, src->byte_count);
+			dst->byte_count = src->byte_count;
+		}
+	}
+}
+
 static uint32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_address *address, uint32_t byte_count) {
 	uint32_t element_count = ELEMENT_COUNT(byte_count, address->type);
 	uint32_t item_element_count, element_byte_count, dimension, dimension_expected;
