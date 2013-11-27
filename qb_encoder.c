@@ -133,7 +133,12 @@ static void qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, in
 }
 
 static zend_always_inline int8_t *qb_get_instruction_pointer(qb_encoder_context *cxt, qb_op *qop) {
-	int8_t *p = (void *) (cxt->instruction_base_address + qop->instruction_offset);
+	int8_t *p;
+	if(cxt->position_independent) {
+		p = (int8_t *) (cxt->instruction_base_address + qop->instruction_offset);
+	} else {
+		p = cxt->instructions + qop->instruction_offset;
+	}
 	return p;
 }
 
@@ -471,9 +476,6 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	qfunc->native_proc = NULL;
 	qfunc->zend_op_array = cxt->compiler_context->zend_op_array;
 	qfunc->flags = cxt->compiler_context->function_flags;
-	qfunc->instruction_base_address = cxt->instruction_base_address;
-	qfunc->instruction_start = (int8_t *) cxt->instruction_base_address;
-	qfunc->local_storage_base_address = cxt->storage_base_address;
 	qfunc->next_reentrance_copy = NULL;
 	qfunc->next_forked_copy = NULL;
 	qfunc->in_use = 0;
@@ -641,6 +643,18 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	qfunc->instruction_crc64 = qb_calculate_crc64((uint8_t *) qfunc->instructions, cxt->instruction_stream_length, 0);
 	qfunc->instruction_length = cxt->instruction_stream_length;
 
+	if(cxt->position_independent) {
+		// save the placeholder base address used to encode the instructions
+		qfunc->instruction_base_address = cxt->instruction_base_address;
+		qfunc->instruction_start = (int8_t *) cxt->instruction_base_address;
+		qfunc->local_storage_base_address = cxt->storage_base_address;
+	} else {
+		// everything is pointing to actual addresses already
+		qfunc->flags |= QB_FUNCTION_INITIALIZED | QB_FUNCTION_RELOCATED;
+		qfunc->instruction_start = cxt->instructions;
+		qfunc->instruction_base_address = (uintptr_t) cxt->instructions;
+		qfunc->local_storage_base_address = (uintptr_t) cxt->storage;
+	}
 	return qfunc;
 }
 

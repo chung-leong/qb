@@ -3656,11 +3656,11 @@ void qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 	iteration.type = QB_OPERAND_ADDRESS;
 	counter.address = qb_create_writable_scalar(cxt, QB_TYPE_U32);
 	counter.type = QB_OPERAND_ADDRESS;
-	jump_target_indices[0] = 0;
-	jump_target_indices[1] = JUMP_TARGET_INDEX(0, 0);
+	jump_target_indices[0] = JUMP_TARGET_INDEX(0, 0);
+	jump_target_indices[1] = JUMP_TARGET_INDEX(0, cxt->op_count + 1);
 
 	qb_create_op(cxt, &factory_loop, QB_TYPE_VOID, &iteration, 1, &counter, jump_target_indices, 2, FALSE);
-	qb_create_op(cxt, &factory_return, QB_TYPE_VOID, NULL, 0, NULL, NULL, 0, FALSE);
+	qb_create_op(cxt, &factory_leave, QB_TYPE_VOID, NULL, 0, NULL, NULL, 0, FALSE);
 }
 
 void qb_create_diagnostic_loop(qb_compiler_context *cxt, qb_diagnostic_type test_type) {
@@ -3755,14 +3755,14 @@ void qb_run_diagnostic_loop(qb_compiler_context *cxt) {
 
 int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 	qb_build_context _cxt, *cxt = &_cxt;
-	qb_compiler_context *compiler_cxt;
 	uint32_t i;
 
 	qb_initialize_build_context(cxt TSRMLS_CC);
+	cxt->compiler_contexts = emalloc(sizeof(qb_compiler_context *) * QB_DIAGNOSTIC_SPEED_TEST_COUNTS);
 
 	for(i = 0; i < QB_DIAGNOSTIC_SPEED_TEST_COUNTS; i++) {
 		double start_time, end_time, duration, instruction_per_sec;
-		compiler_cxt = qb_enlarge_array((void **) &cxt->compiler_contexts, 1);
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i] = emalloc(sizeof(qb_compiler_context));
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, NULL, 0, 0 TSRMLS_CC);
 		qb_create_diagnostic_loop(compiler_cxt, i);
 		
