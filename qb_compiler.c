@@ -543,7 +543,7 @@ void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, in
 			// it's a variable-length array or a big fixed-length array
 			selector = cxt->storage->segment_count;
 			if(TEMPORARY(address)) {
-				new_segment_flags = QB_SEGMENT_FREE_ON_RETURN;
+				new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_SEPARATE_ON_FORK | QB_SEGMENT_SEPARATE_ON_REENTRY;
 			} else if(STATIC(address)) {
 				new_segment_flags = 0;
 			} else if(SHARED(address)) {

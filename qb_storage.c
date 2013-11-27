@@ -198,7 +198,7 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 		qb_memory_segment *dst = &storage->segments[i];
 		int separation;
 
-		if(dst->flags & QB_SEGMENT_SEPARATE_ON_FORK) {
+		if(dst->flags & QB_SEGMENT_SEPARATE_ON_FORK && !reentrance) {
 			separation = TRUE;
 		} else if((dst->flags & QB_SEGMENT_SEPARATE_ON_REENTRY) && reentrance) {
 			separation = TRUE;

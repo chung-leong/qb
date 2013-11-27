@@ -523,17 +523,25 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 
 static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) {
 	qb_interpreter_context *cxt = param1;
-	qb_function *qfunc = param2;
-	if(qfunc) {
-		// acquire a copy of the function and calculate the entry point
-		intptr_t instr_offset = cxt->instruction_pointer - qfunc->instructions;
-		cxt->function = qb_acquire_function(cxt, qfunc, FALSE);
+
+	if(cxt->function) {
 		if(UNEXPECTED(!(cxt->function->flags & QB_FUNCTION_RELOCATED))) {
-			qb_relocate_function(cxt->function, TRUE);
+			cxt->instruction_pointer += qb_relocate_function(cxt->function, FALSE);
 		}
-		cxt->instruction_pointer = cxt->function->instructions + instr_offset;
+	} else {
+		// if we're acquiring the function now, then it's because there were more forks than workers
+		// a properly relocated function should be available
+		qb_function *qfunc = param2;
+		cxt->function = qb_acquire_function(cxt, qfunc, FALSE);
+		cxt->instruction_pointer += cxt->function->instruction_base_address;
+
+		// copy the original function state
 	}
 	qb_enter_vm(cxt);
+
+	// unlock the function
+	qb_unlock_function(cxt->function);
+
 	switch(cxt->exit_type) {
 		case QB_VM_EXCEPTION: {
 		}	break;
@@ -567,23 +575,38 @@ label_exit:
 				qb_thread_pool *pool = qb_get_thread_pool(TSRMLS_C);
 				if(pool->worker_count > 0) {
 					qb_interpreter_context *fork_contexts;
+					int32_t reused_original_cxt = 1;
 					uint32_t i, fork_count;
+					intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
 
 					if(cxt->fork_count == 0) {
 						fork_count = cxt->fork_count = pool->worker_count;
 					} else {
 						fork_count = cxt->fork_count;
+						if(cxt->fork_count > (uint32_t) pool->worker_count) {
+							// need to keep the original storage intact
+							reused_original_cxt = 0;
+						}
 					}
 					cxt->fork_id = 0;
 
-					// the first fork reuses the same interpreter context
-					qb_schedule_task(pool, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->worker);
+					if(reused_original_cxt) {
+						// schedule the first worker
+						qb_schedule_task(pool, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->worker);
+					}
 
-					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (fork_count - 1));
-					for(i = 1; i < cxt->fork_count; i++) {
-						qb_interpreter_context *fork_cxt = &fork_contexts[i - 1];
-						fork_cxt->function = NULL;
-						fork_cxt->instruction_pointer = cxt->instruction_pointer;
+					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (fork_count - reused_original_cxt));
+					for(i = reused_original_cxt; i < cxt->fork_count; i++) {
+						qb_interpreter_context *fork_cxt = &fork_contexts[i - reused_original_cxt];
+						if(i < (uint32_t) pool->worker_count) {
+							// acquire the function now to avoid context switching from the worker
+							fork_cxt->function = qb_acquire_function(cxt, cxt->function, FALSE);
+							fork_cxt->instruction_pointer = (int8_t *) (fork_cxt->function->instruction_base_address + instr_offset);
+						} else {
+							// let the worker acquire a copy relinquished by another that has finished
+							fork_cxt->function = NULL;
+							fork_cxt->instruction_pointer = (int8_t *) (instr_offset);
+						}
 						fork_cxt->caller_context = NULL;
 						fork_cxt->worker = NULL;
 						fork_cxt->fork_id = i;
@@ -601,16 +624,26 @@ label_exit:
 #ifdef ZTS 
 						fork_cxt->tsrm_ls = tsrm_ls;
 #endif
-						qb_schedule_task(pool, qb_execute_in_worker_thread, fork_cxt, cxt->function, 0, &fork_cxt->worker);
+						qb_schedule_task(pool, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0, &fork_cxt->worker);
 					}
 					qb_run_tasks(pool);
-					for(i = 1; i < fork_count; i++) {
-						qb_interpreter_context *fork_cxt = &fork_contexts[i - 1];
+					if(reused_original_cxt) {
+						cxt->worker = NULL;
+					} else {
+						// copy the exit state
+						qb_interpreter_context *first_cxt = &fork_contexts[0];
+						cxt->exit_type = first_cxt->exit_type;
+						if(cxt->exit_type == QB_VM_SPOON) {
+							// need to transfer states back into the original storage
+						}
+					} 
+
+					for(i = reused_original_cxt; i < fork_count; i++) {
+						qb_interpreter_context *fork_cxt = &fork_contexts[i - reused_original_cxt];
 						qb_free_interpreter_context(fork_cxt);
 					}
 					efree(fork_contexts);
 
-					cxt->worker = NULL;
 					goto label_exit;
 				} else {
 					// go back into the vm
@@ -892,7 +925,6 @@ static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *q
 
 static void qb_execute_function_call_thru_zend(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
 	USE_TSRM
-	zval *retval;
 
 	cxt->argument_indices = variable_indices;
 	cxt->argument_count = argument_count;
