@@ -415,7 +415,9 @@ static int32_t qb_lock_function(qb_function *f) {
 }
 
 static void qb_unlock_function(qb_function *f) {
-	f->in_use = 0;
+	if(f->in_use) {
+		InterlockedDecrement(&f->in_use);
+	}
 }
 
 static void qb_create_function_copy_in_main_thread(void *param1, void *param2, int param3) {
@@ -689,7 +691,7 @@ static void qb_initialize_local_variables(qb_interpreter_context *cxt) {
 	// relocate large fixed-length local arrays
 	for(i = QB_SELECTOR_ARRAY_START; i < cxt->function->local_storage->segment_count; i++) {
 		qb_memory_segment *segment = &cxt->function->local_storage->segments[i];
-		if(!(segment->flags & QB_SEGMENT_REALLOCATE_ON_CALL)) {
+		if(segment->flags & QB_SEGMENT_REALLOCATE_ON_CALL) {
 			qb_allocate_segment_memory(segment, segment->byte_count);
 			if(segment->flags & QB_SEGMENT_CLEAR_ON_CALL) {
 				memset(segment->memory, 0, segment->current_allocation);

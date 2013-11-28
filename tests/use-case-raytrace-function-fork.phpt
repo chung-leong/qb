@@ -1,5 +1,5 @@
 --TEST--
-Use case: Ray Tracer
+Use case: Ray Tracer (helper-function, multicore)
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';
@@ -83,6 +83,49 @@ class RayTracer {
 		}
 	}
 
+	/**
+     * shootRay():  fires a ray from origin, toward dir
+     *              returns first intersection
+	 *
+	 * @engine qb
+	 *
+	 * @param float32[x, y, z]	$origin
+	 * @param float32[x, y, z]	$dir
+	 * @param bool				$hit
+	 * @param float32[3]		$pos
+	 * @param float32			$t
+	 * @param uint32			$sphereNum
+	 *
+	 * @local uint32			$i
+	 * @local float32[3]		$sphereToOrigin
+	 * @local float32			$B
+	 * @local float32			$C
+	 * @local float32			$disc
+	 * @local float32 			$curT
+     */
+	protected function shootRay($origin, $dir, &$hit, &$pos, &$t, &$sphereNum) {
+		$hit = false;
+		$t = 99999.0;
+        
+        // cycle through all spheres and find the smallest t>0 that we hit
+		for($i = 0; $i < NUM_SPHERES; $i++) {
+			$sphereToOrigin = $origin - $this->spherePositions[$i];
+			$B = dot($sphereToOrigin, $dir);
+			$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
+		
+			$disc = $B * $B - $C;
+			if($disc > 0.0) {
+				$curT = -$B - sqrt($disc);
+				if($curT > 0.0 && $curT < $t) {
+					$sphereNum = $i;
+					$t = $curT;
+					$hit = true;
+				}
+			}
+		}        
+		$pos = $origin + $dir * $t;
+    }
+
 	/** 
 	 * generate():	generate raytraced image
 	 *
@@ -119,12 +162,8 @@ class RayTracer {
 	 * @local float32			$phi
 	 * @local float32			$u
 	 * @local float32			$v
-	 * @local float32 			$curT
-	 * @local float32			$B
-	 * @local float32			$C
-	 * @local float32			$disc
-	 * @local float32[3]		$sphereToOrigin
-	 * @local uint32			$i
+	 * @local float32[3]		$temp
+	 * @local uint32			$temp2
 	 * @local uint32			$fork_count
 	 */
 	public function generate(&$image) {
@@ -154,28 +193,9 @@ class RayTracer {
 	            
 				// INTERSECTION TEST
 				// find the first sphere we intersect with
-				$hit = false;
-				$t = 99999.0;
-		        
-		        // cycle through all spheres and find the smallest t>0 that we hit
-				for($i = 0; $i < NUM_SPHERES; $i++) {
-					$sphereToOrigin = $origin - $this->spherePositions[$i];
-					$B = dot($sphereToOrigin, $dir);
-					$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
-				
-					$disc = $B * $B - $C;
-					if($disc > 0.0) {
-						$curT = -$B - sqrt($disc);
-						if($curT > 0.0 && $curT < $t) {
-							$sphereNum = $i;
-							$t = $curT;
-							$hit = true;
-						}
-					}
-				}
+		        $this->shootRay($origin, $dir, $hit, $hitPoint, $t, $sphereNum);
 				
 				if($hit) {
-					$hitPoint = $origin + $dir * $t;
 	                $sphereColor = $this->sphereColors[$sphereNum];
 	                $sphereMaterial = $this->sphereMaterials[$sphereNum];
 					$sphereHit = $hitPoint - $this->spherePositions[$sphereNum];
@@ -186,23 +206,8 @@ class RayTracer {
 	                
 					// SHADOW TEST
 					// fire a ray from our hit position towards the light
-					$shadowTest = false;
-					$t = 99999.0;
-					for($i = 0; $i < NUM_SPHERES; $i++) {
-						$sphereToOrigin = $hitPoint - $this->spherePositions[$i];
-						$B = dot($sphereToOrigin, $l);
-						$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
-					
-						$disc = $B * $B - $C;
-						if($disc > 0.0) {
-							$curT = -$B - sqrt($disc);
-							if($curT > 0.0 && $curT < $t) {
-								$t = $curT;
-								$shadowTest = true;
-							}
-						}
-					}
-	                
+					$this->shootRay($hitPoint, $l, $shadowTest, $temp, $t, $temp2);
+
 					if(!$shadowTest) {					// if we didn't hit anything, we can see the light
 						$shadowTest = 1;
 					} else if($t < $lightVectorLen)	{	// if we hit something before the light, we are in shadow
@@ -261,7 +266,7 @@ ini_set("qb.allow_debugger_inspection", 0);
 $folder = dirname(__FILE__);
 $output = imagecreatetruecolor(512, 512);
 $correct_path = "$folder/output/raytrace.correct.png";
-$incorrect_path = "$folder/output/raytrace.fork.incorrect.png";
+$incorrect_path = "$folder/output/raytrace.function.fork.incorrect.png";
 
 $rayTracer = new RayTracer;
 $rayTracer->generate($output);

@@ -21,9 +21,9 @@ class Fork extends Handler {
 	}
 	
 	public function getAction() {
-		$instr = $this->getInstructionStructure();
 		$lines = array();
-		$lines[] = "cxt->instruction_pointer = ip + sizeof($instr);";
+		// use (void *) instead of instruction struct so we don't have to define it
+		$lines[] = "cxt->instruction_pointer = ip + sizeof(void *);";
 		$lines[] = "cxt->fork_count = op1;";
 		$lines[] = "cxt->exit_type = QB_VM_FORK;";
 		$lines[] = "return;";

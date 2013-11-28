@@ -974,7 +974,7 @@ qb_simple_op_factory factory_function_call = {
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	QB_FCALL_U32_U32_U32,
+	QB_FCALL_MT_U32_U32_U32,
 };
 
 qb_op_decomposer factory_inline_function_call = {
@@ -995,7 +995,7 @@ qb_simple_op_factory factory_zend_function_call = {
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	QB_FCALL_U32_U32_U32,
+	QB_FCALL_MT_U32_U32_U32,
 };
 
 void *factories_fcall[] = { &factory_intrinsic, &factory_function_call, &factory_inline_function_call, &factory_zend_function_call };

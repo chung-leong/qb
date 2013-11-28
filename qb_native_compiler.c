@@ -988,7 +988,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			qb_print(cxt, "\n");
 		} else if(qop->opcode == QB_END_STATIC) {
 			qb_printf(cxt, "ip = cxt->function->instructions + %d;\n", qop->instruction_offset);
-		} else if(qop->opcode == QB_INTR) {
+		} else if(qop->opcode == QB_INTR || qop->opcode == QB_FORK_U32) {
 			qb_printf(cxt, "ip = cxt->function->instructions + %d;\n", qop->instruction_offset);
 			qb_copy_all_local_variables_to_storage(cxt);
 		}
@@ -1006,7 +1006,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
 			qb_copy_local_arguments_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
-		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_INTR) {
+		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_INTR || qop->opcode == QB_RESUME) {
 			if(!(cxt->ops[qop_index]->flags & QB_OP_JUMP_TARGET)) {
 				const char *jump_target = qb_get_jump_label(cxt, qop_index + 1);
 				qb_printf(cxt, "%s:\n", jump_target);
@@ -1148,6 +1148,7 @@ static void qb_print_reentry_switch(qb_native_compiler_context *cxt) {
 		qb_op *qop = cxt->ops[i];
 		uint32_t restore_op_index = INVALID_INDEX;
 		switch(qop->opcode) {
+			case QB_RESUME:
 			case QB_INTR:
 			case QB_END_STATIC: {
 				restore_op_index = i + 1;

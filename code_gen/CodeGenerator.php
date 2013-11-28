@@ -1138,6 +1138,7 @@ class CodeGenerator {
 			$this->handlers[] = new Interrupt("INTR");
 			$this->handlers[] = new Terminate("EXIT", "I32");
 			$this->handlers[] = new FunctionCall("FCALL");
+			$this->handlers[] = new FunctionCall("FCALL_MT");
 			$this->handlers[] = new StaticInitializationEnd("END_STATIC");
 			$this->handlers[] = new Fork("FORK", "U32");
 			$this->handlers[] = new ForkResult("FORK_RES", "U32");
