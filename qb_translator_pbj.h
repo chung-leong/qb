@@ -325,6 +325,8 @@ struct qb_pbj_translator_context {
 	uint8_t *pbj_data;
 	uint8_t *pbj_data_end;
 
+	uint32_t thread_count;
+
 	void ***tsrm_ls;
 };
 

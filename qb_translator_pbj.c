@@ -1479,7 +1479,6 @@ static void qb_allocate_pbj_register_storage_space(qb_pbj_translator_context *cx
 	for(channel_id = PBJ_CHANNEL_RGBA; channel_id >= PBJ_CHANNEL_R; channel_id--) {
 		if(reg->channel_addresses[channel_id] == (qb_address *) -1) {
 			qb_address *channel_address, *src_address = NULL;
-			qb_pbj_channel_id first_channel = qb_get_first_pbj_channel(cxt, channel_id);
 			qb_pbj_channel_id parent_channel;
 			uint32_t offset;
 			uint32_t channel_count = qb_get_pbj_channel_count(cxt, channel_id);
@@ -1566,6 +1565,13 @@ static void qb_perform_subtraction(qb_pbj_translator_context *cxt, qb_address *d
 	qb_produce_op(cxt->compiler_context, factories_subtract_assign[0], operands, 2, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
+static void qb_perform_addition(qb_pbj_translator_context *cxt, qb_address *augend_address, qb_address *addend_address, qb_address *dst_address) {
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { augend_address } }, { QB_OPERAND_ADDRESS, { addend_address } } };
+	qb_operand result = { QB_OPERAND_ADDRESS, { dst_address } };
+	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
+	qb_produce_op(cxt->compiler_context, &factory_add, operands, 2, &result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
+}
+
 static void qb_perform_increment(qb_pbj_translator_context *cxt, qb_address *dst_address) {
 	qb_operand operand = { QB_OPERAND_ADDRESS, { dst_address } };
 	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
@@ -1600,24 +1606,19 @@ static void qb_perform_loop(qb_pbj_translator_context *cxt, qb_address *index_ad
 	qb_produce_op(cxt->compiler_context, &factory_loop, operands, 2, &result, target_indices, 2, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
-static void qb_perform_branch(qb_pbj_translator_context *cxt, qb_address *condition_address, uint32_t target_op_index) {
-	qb_operand operand = { QB_OPERAND_ADDRESS, { condition_address } };
-	qb_operand result = { QB_OPERAND_NONE, { NULL } };
-	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(target_op_index, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op_index + 1, 0) };
-	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	qb_produce_op(cxt->compiler_context, &factory_branch_on_true, &operand, 1, &result, target_indices, 2, &cxt->result_prototypes[cxt->loop_op_index++]);
+static void qb_perform_fork(qb_pbj_translator_context *cxt, qb_address *id_address, qb_address *count_address) {
+	qb_operand fork_operands[1] = { { QB_OPERAND_ADDRESS, { count_address } } };
+	qb_operand fetch_operands[2] = { { QB_OPERAND_EMPTY, { NULL } }, { QB_OPERAND_ADDRESS, { cxt->compiler_context->zero_address } } };
+	qb_operand assign_operands[2] = { { QB_OPERAND_ADDRESS, { id_address } }, { QB_OPERAND_EMPTY, { NULL } } };
+	qb_operand assign_result = { QB_OPERAND_EMPTY, { NULL } };
+	qb_produce_op(cxt->compiler_context, &factory_fork, fork_operands, 1, &fetch_operands[0], NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
+	qb_produce_op(cxt->compiler_context, &factory_fetch_array_element_read, fetch_operands, 2, &assign_operands[1], NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
+	qb_produce_op(cxt->compiler_context, &factory_assign, assign_operands, 2, &assign_result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
-static void qb_perform_jump(qb_pbj_translator_context *cxt, uint32_t target_op_index) {
-	qb_operand result = { QB_OPERAND_NONE, { NULL } };
-	uint32_t target_indices[1] = { JUMP_TARGET_INDEX(target_op_index, 0) }; 
+static void qb_perform_spoon(qb_pbj_translator_context *cxt) {
 	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	qb_produce_op(cxt->compiler_context, &factory_jump, NULL, 0, &result, target_indices, 1, &cxt->result_prototypes[cxt->loop_op_index++]);
-}
-
-static void qb_perform_nop(qb_pbj_translator_context *cxt) {
-	qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index, 0);
-	qb_create_op(cxt->compiler_context, &factory_nop, QB_TYPE_VOID, NULL, 0, NULL, NULL, 0, FALSE);
+	qb_produce_op(cxt->compiler_context, &factory_spoon, NULL, 0, NULL, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_gather(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address, uint32_t mask) {
@@ -1650,18 +1651,25 @@ static void qb_start_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 		}
 	}
 
-	// set y to zero, but _OutCoord.y to 0.5, as that's the center of the grid
+	// _OutCoord.x and .y start 0.5, as that's the center of the pixel
 	start_coord_address = qb_obtain_constant_F32(cxt->compiler_context, 0.5);
-	qb_perform_assignment(cxt, cxt->y_address, cxt->compiler_context->zero_address);
-	qb_perform_assignment(cxt, cxt->out_coord_y_address, start_coord_address);
 
-	// set x to zero, but _OutCoord.x to 0.5
-	// the outer loop starts here
+	if(cxt->thread_count > 1) {
+		// fork multiple copies of function if multiple CPUs are available
+		qb_perform_fork(cxt, cxt->y_address, cxt->output_image_height_address);
+		qb_perform_addition(cxt, cxt->y_address, start_coord_address, cxt->out_coord_y_address);
+	} else {
+		// set y to zero
+		qb_perform_assignment(cxt, cxt->y_address, cxt->compiler_context->zero_address);
+		qb_perform_assignment(cxt, cxt->out_coord_y_address, start_coord_address);
+	}
+
+	// set x to zero; the outer loop starts here
 	cxt->outer_loop_start_index = cxt->loop_op_index;
 	qb_perform_assignment(cxt, cxt->x_address, cxt->compiler_context->zero_address);
 	qb_perform_assignment(cxt, cxt->out_coord_x_address, start_coord_address);
 
-	// initialize the active pixel to zero--the inner loop starts here
+	// initialize the active pixel to zero; the inner loop starts here
 	cxt->inner_loop_start_index = cxt->loop_op_index;
 	qb_perform_subtraction(cxt, cxt->active_pixel_address, cxt->active_pixel_address);
 }
@@ -1681,11 +1689,16 @@ static void qb_end_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 	// jump to beginning of inner loop if x is less than width
 	qb_perform_loop(cxt, cxt->x_address, cxt->output_image_width_address, cxt->inner_loop_start_index);
 
-	// increment _OutCoord.y
-	qb_perform_increment(cxt, cxt->out_coord_y_address);
+	if(cxt->thread_count > 1) {
+		// reconverge forked copies
+		qb_perform_spoon(cxt);
+	} else {
+		// increment _OutCoord.y
+		qb_perform_increment(cxt, cxt->out_coord_y_address);
 
-	// jump to beginning of outer loop if y is less than height
-	qb_perform_loop(cxt, cxt->y_address, cxt->output_image_height_address, cxt->outer_loop_start_index);
+		// jump to beginning of outer loop if y is less than height
+		qb_perform_loop(cxt, cxt->y_address, cxt->output_image_height_address, cxt->outer_loop_start_index);
+	}
 
 	// remove premultiplication from output image if it has an alpha channel
 	if(DIMENSION(cxt->output_image_address, -1) == 4) {
@@ -1747,6 +1760,7 @@ void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_com
 	cxt->compiler_context = compiler_cxt;
 	cxt->pool = compiler_cxt->pool;
 	cxt->storage = compiler_cxt->storage;
+	cxt->thread_count = qb_get_thread_count();
 
 	qb_attach_new_array(cxt->pool, (void **) &cxt->conditionals, &cxt->conditional_count, sizeof(qb_pbj_op *), 8);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->parameters, &cxt->parameter_count, sizeof(qb_pbj_parameter), 8);
