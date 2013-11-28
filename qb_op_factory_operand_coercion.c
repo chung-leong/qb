@@ -96,13 +96,6 @@ static void qb_coerce_operands_assign_array_element(qb_compiler_context *cxt, qb
 	}
 }
 
-static void qb_coerce_operands_assign_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *value = &operands[2];
-	if(value->type != QB_OPERAND_ADDRESS || f != (void *) &factory_assign_object_property) {
-		qb_perform_type_coercion(cxt, value, expr, f->coercion_flags);
-	}
-}
-
 static void qb_coerce_operands_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *augend = &operands[0], *addend = &operands[1];
 	qb_perform_type_coercion(cxt, augend, QB_TYPE_ANY, f->coercion_flags);

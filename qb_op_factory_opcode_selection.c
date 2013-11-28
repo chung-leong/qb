@@ -259,16 +259,6 @@ static qb_opcode qb_select_opcode_unary_arithmetic(qb_compiler_context *cxt, qb_
 	return opcode;
 }
 
-static qb_opcode qb_select_opcode_unary_arithmetic_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
-	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;
-	qb_opcode opcode = qb_select_vectorized_unary_opcode(cxt, af->vector_opcodes, &operands[2], result);
-	if(opcode == QB_NOP) {
-		opcode = qb_select_type_dependent_opcode(cxt, af->regular_opcodes, expr_type);
-	}
-	return opcode;
-}
-
 static qb_opcode qb_select_opcode_reciprocal(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_derived_op_factory *df = (qb_derived_op_factory *) f;
 	qb_arithmetic_op_factory *af = (qb_arithmetic_op_factory *) df->parent;

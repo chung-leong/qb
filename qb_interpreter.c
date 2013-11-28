@@ -415,9 +415,7 @@ static int32_t qb_lock_function(qb_function *f) {
 }
 
 static void qb_unlock_function(qb_function *f) {
-	if(f->in_use) {
-		InterlockedDecrement(&f->in_use);
-	}
+	f->in_use = 0;
 }
 
 static void qb_create_function_copy_in_main_thread(void *param1, void *param2, int param3) {

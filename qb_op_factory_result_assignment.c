@@ -234,19 +234,6 @@ static void qb_set_result_fetch_object_property(qb_compiler_context *cxt, qb_op_
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void qb_set_result_assign_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *container = &operands[0], *name = &operands[1], *value = &operands[2];
-	qb_address *result_address = qb_obtain_object_property(cxt, container, name, QB_ARRAY_BOUND_CHECK_WRITE);
-
-	result->address = result_address;
-	result->type = QB_OPERAND_ADDRESS;
-	if(expr_type != QB_TYPE_VOID) {
-		qb_variable_dimensions dim;
-		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
-		qb_attach_bound_checking_expression(cxt, result_address, &dim, TRUE);
-	}
-}
-
 static void qb_set_result_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *name = &operands[0];
 	result->address = qb_obtain_local_variable(cxt, name->constant);
