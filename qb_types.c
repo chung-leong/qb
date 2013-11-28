@@ -395,7 +395,7 @@ double qb_get_high_res_timestamp(void) {
 double qb_get_high_res_timestamp(void) {
 	double seconds;
 	struct timespec t;
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t);
 	seconds = t.tv_sec + ((double) t.tv_nsec) / 1000000000;
 	return seconds;
 }

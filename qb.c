@@ -497,14 +497,16 @@ uint32_t qb_get_thread_count(TSRMLS_D) {
 
 static void qb_start_execution_timer(qb_function *qfunc TSRMLS_DC) {
 	if(QB_G(execution_log_path)[0]) {
-		QB_G(execution_start_time) = qb_get_high_res_timestamp();
+		double start_time = qb_get_high_res_timestamp();
+		QB_G(execution_start_time) = start_time;
 	}
 }
 
 static void qb_stop_execution_timer(qb_function *qfunc TSRMLS_DC) {
 	if(QB_G(execution_log_path)[0]) {
+		double start_time = QB_G(execution_start_time);
 		double end_time = qb_get_high_res_timestamp();
-		double duration = end_time - QB_G(execution_start_time);
+		double duration = end_time - start_time;
 		if(duration > 0) {
 			if(qfunc->name[0] != '_') {
 				php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
