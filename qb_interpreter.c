@@ -468,8 +468,8 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 		} else {
 			last->next_forked_copy = f;
 		}
-		qb_lock_function(f);
 	}
+	qb_lock_function(f);
 	return f;
 }
 
@@ -502,7 +502,9 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 }
 
 void qb_free_interpreter_context(qb_interpreter_context *cxt) {
-	qb_unlock_function(cxt->function);
+	if(cxt->function) {
+		qb_unlock_function(cxt->function);
+	}
 	if(cxt->send_target) {
 		efree(cxt->send_target);
 	}
@@ -542,6 +544,7 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 
 	// unlock the function
 	qb_unlock_function(cxt->function);
+	cxt->function = NULL;
 
 	switch(cxt->exit_type) {
 		case QB_VM_EXCEPTION: {

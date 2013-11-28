@@ -455,6 +455,7 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	// copy variables
 	qfunc->return_variable = NULL;
 	qfunc->return_key_variable = NULL;
+	qfunc->sent_variable = NULL;
 	qfunc->variables = (qb_variable **) p; p += sizeof(qb_variable *) * cxt->compiler_context->variable_count;
 	qfunc->variable_count = cxt->compiler_context->variable_count;
 	for(i = 0; i < cxt->compiler_context->variable_count; i++) {

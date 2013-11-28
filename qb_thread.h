@@ -72,8 +72,8 @@ struct qb_thread_pool {
 	qb_thread_worker *workers;
 	long worker_count;
 
-	qb_thread_task *worker_request;
-	qb_thread_worker *waiting_worker;
+	volatile qb_thread_task *worker_request;
+	volatile qb_thread_worker *waiting_worker;
 
 #ifndef WIN32
 	pthread_cond_t main_thread_resumption_condition;

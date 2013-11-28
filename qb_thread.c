@@ -99,28 +99,27 @@ void *qb_run_task(void *arg) {
 	long completion_count;
 	pthread_mutex_lock(&worker->resumption_mutex);
 	for(;;) {
-		uint32_t task_index = __sync_fetch_and_add(&pool->task_index, 1);
-		if(task_index < pool->task_count) {
-			qb_thread_task *task = &pool->tasks[task_index];
-			if(task->worker_pointer) {
-				*task->worker_pointer = worker;
-			}
-			task->proc(task->param1, task->param2, task->param3);
-
-			completion_count = __sync_add_and_fetch(&pool->task_completion_count, 1);
-			if(completion_count == pool->task_count) {
-				// every thing is done--wake up the main thread
-				pthread_mutex_lock(&pool->main_thread_resumption_mutex);
-				pool->stage = QB_POOL_COMPLETION;
-				pthread_cond_signal(&pool->main_thread_resumption_condition);
-				pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
-			}
+		pthread_cond_wait(&worker->resumption_condition, &worker->resumption_mutex);
+		if(pool->stage == QB_POOL_TERMINATION) {
+			break;
 		} else {
-			// nothing to do--start waiting again
-			pthread_cond_wait(&worker->resumption_condition, &worker->resumption_mutex);
-			if(pool->task_count == 0) {
-				// time to leave
-				break;
+			uint32_t task_index;
+			while(task_index = __sync_fetch_and_add(&pool->task_index, 1), task_index < pool->task_count) {
+				qb_thread_task *task = &pool->tasks[task_index];
+				if(task->worker_pointer) {
+					*task->worker_pointer = worker;
+				}
+				task->proc(task->param1, task->param2, task->param3);
+
+				completion_count = __sync_add_and_fetch(&pool->task_completion_count, 1);
+				if(completion_count == pool->task_count) {
+					// every thing is done--wake up the main thread
+					pthread_mutex_lock(&pool->main_thread_resumption_mutex);
+					pool->stage = QB_POOL_COMPLETION;
+					pthread_cond_signal(&pool->main_thread_resumption_condition);
+					pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
+					break;
+				}
 			}
 		}
 	}
