@@ -265,7 +265,7 @@ ini_set("qb.allow_debugger_inspection", 0);
 $folder = dirname(__FILE__);
 $output = imagecreatetruecolor(512, 512);
 $correct_path = "$folder/output/raytrace.correct.png";
-$incorrect_path = "$folder/output/raytrace.incorrect.png";
+$incorrect_path = "$folder/output/raytrace.function.incorrect.png";
 
 $rayTracer = new RayTracer;
 $rayTracer->generate($output);

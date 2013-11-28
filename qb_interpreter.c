@@ -574,32 +574,36 @@ label_exit:
 			}	break;
 			case QB_VM_FORK: {
 				qb_thread_pool *pool = qb_get_thread_pool(TSRMLS_C);
+				qb_interpreter_context *fork_contexts = NULL;
+				int32_t reused_original_cxt = 1;
+				uint32_t i, fork_count, function_copies;
+				intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
+
+				if(cxt->fork_count == 0) {
+					fork_count = cxt->fork_count = pool->worker_count;
+				} else {
+					fork_count = cxt->fork_count;
+					if(cxt->fork_count > (uint32_t) pool->worker_count) {
+						// need to keep the original storage intact
+						reused_original_cxt = 0;
+					}
+				}
+				cxt->fork_id = 0;
 				if(pool->worker_count > 0) {
-					qb_interpreter_context *fork_contexts;
-					int32_t reused_original_cxt = 1;
-					uint32_t i, fork_count;
-					intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
+					function_copies = pool->worker_count;
+				} else {
+					function_copies = 1;
+				}
 
-					if(cxt->fork_count == 0) {
-						fork_count = cxt->fork_count = pool->worker_count;
-					} else {
-						fork_count = cxt->fork_count;
-						if(cxt->fork_count > (uint32_t) pool->worker_count) {
-							// need to keep the original storage intact
-							reused_original_cxt = 0;
-						}
-					}
-					cxt->fork_id = 0;
-
-					if(reused_original_cxt) {
-						// schedule the first worker
-						qb_schedule_task(pool, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->worker);
-					}
-
+				if(reused_original_cxt) {
+					// schedule the first worker
+					qb_schedule_task(pool, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->worker);
+				}
+				if(fork_count - reused_original_cxt > 0) {
 					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (fork_count - reused_original_cxt));
 					for(i = reused_original_cxt; i < cxt->fork_count; i++) {
 						qb_interpreter_context *fork_cxt = &fork_contexts[i - reused_original_cxt];
-						if(i < (uint32_t) pool->worker_count) {
+						if(i < function_copies) {
 							// acquire the function now to avoid context switching from the worker
 							fork_cxt->function = qb_acquire_function(cxt, cxt->function, FALSE);
 							fork_cxt->instruction_pointer = (int8_t *) (fork_cxt->function->instruction_base_address + instr_offset);
@@ -627,29 +631,27 @@ label_exit:
 #endif
 						qb_schedule_task(pool, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0, &fork_cxt->worker);
 					}
-					qb_run_tasks(pool);
-					if(reused_original_cxt) {
-						cxt->worker = NULL;
-					} else {
-						// copy the exit state
-						qb_interpreter_context *first_cxt = &fork_contexts[0];
-						cxt->exit_type = first_cxt->exit_type;
-						if(cxt->exit_type == QB_VM_SPOON) {
-							// need to transfer states back into the original storage
-						}
-					} 
-
+				}
+				qb_run_tasks(pool);
+				if(reused_original_cxt) {
+					cxt->worker = NULL;
+				} else {
+					// copy the exit state
+					qb_interpreter_context *first_cxt = &fork_contexts[0];
+					cxt->exit_type = first_cxt->exit_type;
+					if(cxt->exit_type == QB_VM_SPOON) {
+						// need to transfer states back into the original storage
+					}
+				} 
+				if(fork_contexts) {
 					for(i = reused_original_cxt; i < fork_count; i++) {
 						qb_interpreter_context *fork_cxt = &fork_contexts[i - reused_original_cxt];
 						qb_free_interpreter_context(fork_cxt);
 					}
 					efree(fork_contexts);
-
-					goto label_exit;
-				} else {
-					// go back into the vm
 				}
-			}	break;
+				goto label_exit;
+			}
 			case QB_VM_SPOON: {
 			}	break;	// go back into the vm
 			default: {

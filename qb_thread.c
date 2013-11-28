@@ -51,41 +51,45 @@ void qb_schedule_task(qb_thread_pool *pool, qb_thread_proc proc, void *param1, v
 
 void qb_run_in_main_thread(qb_thread_worker *worker, qb_thread_proc proc, void *param1, void *param2, int param3) {
 	qb_thread_pool *pool = worker->pool;
-	qb_thread_task req;
-	req.proc = proc;
-	req.param1 = param1;
-	req.param2 = param2;
-	req.param3 = param3;
+	if(pool->worker_count > 0) {
+		qb_thread_task req;
+		req.proc = proc;
+		req.param1 = param1;
+		req.param2 = param2;
+		req.param3 = param3;
 
 #ifndef WIN32
-	// acquire mutex--only one worker may submit a request at a time
-	pthread_mutex_lock(&pool->main_thread_request_mutex);
+		// acquire mutex--only one worker may submit a request at a time
+		pthread_mutex_lock(&pool->main_thread_request_mutex);
 
-	// wake up the main thread to handle the request
-	pthread_mutex_lock(&pool->main_thread_resumption_mutex);
-	pool->worker_request = &req;
-	pool->waiting_worker = worker;
-	pthread_cond_signal(&pool->main_thread_resumption_condition);
-	pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
+		// wake up the main thread to handle the request
+		pthread_mutex_lock(&pool->main_thread_resumption_mutex);
+		pool->worker_request = &req;
+		pool->waiting_worker = worker;
+		pthread_cond_signal(&pool->main_thread_resumption_condition);
+		pthread_mutex_unlock(&pool->main_thread_resumption_mutex);
 
-	// wait for request to be handled
-	pthread_cond_wait(&worker->resumption_condition, &worker->resumption_mutex);
+		// wait for request to be handled
+		pthread_cond_wait(&worker->resumption_condition, &worker->resumption_mutex);
 
-	// release mutex
-	pthread_mutex_unlock(&pool->main_thread_request_mutex);
+		// release mutex
+		pthread_mutex_unlock(&pool->main_thread_request_mutex);
 #else
-	// acquire mutex--only one worker may submit a request at a time
-	WaitForSingleObject(pool->main_thread_request_mutex, INFINITE);
-	pool->worker_request = &req;
-	pool->waiting_worker = worker;
-	SetEvent(pool->main_thread_resumption_event);
+		// acquire mutex--only one worker may submit a request at a time
+		WaitForSingleObject(pool->main_thread_request_mutex, INFINITE);
+		pool->worker_request = &req;
+		pool->waiting_worker = worker;
+		SetEvent(pool->main_thread_resumption_event);
 
-	// wait for request to be handled
-	WaitForSingleObject(worker->resumption_event, INFINITE);
+		// wait for request to be handled
+		WaitForSingleObject(worker->resumption_event, INFINITE);
 
-	// release mutex
-	ReleaseMutex(pool->main_thread_request_mutex);
+		// release mutex
+		ReleaseMutex(pool->main_thread_request_mutex);
 #endif
+	} else {
+		proc(param1, param2, param3);
+	}
 }
 
 #ifndef WIN32
@@ -233,7 +237,6 @@ void qb_run_tasks(qb_thread_pool *pool) {
 			task->proc(task->param1, task->param2, task->param3);
 			pool->task_completion_count++;
 		}
-		pool->task_count = 0;
 	}
 	pool->task_count = 0;
 	pool->task_completion_count = 0;
