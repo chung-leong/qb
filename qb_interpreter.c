@@ -642,6 +642,7 @@ label_exit:
 					// copy the exit state
 					qb_interpreter_context *first_cxt = &fork_contexts[0];
 					cxt->exit_type = first_cxt->exit_type;
+					cxt->instruction_pointer = first_cxt->instruction_pointer;
 					if(cxt->exit_type == QB_VM_SPOON) {
 						// need to transfer states back into the original storage
 					}

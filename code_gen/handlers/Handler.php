@@ -363,7 +363,9 @@ class Handler {
 		$srcCount = $this->getInputOperandCount();
 		$opCount = $this->getOperandCount();
 		$lines = array();
-		$lines[] = "#define INSTR		(($instr * __restrict) ip)";
+		if($instr) {
+			$lines[] = "#define INSTR		(($instr * __restrict) ip)";
+		}
 		if($this->needsLineNumber()) {
 			$lines[] = "#define line_number		INSTR->line_number";
 		}
@@ -395,10 +397,13 @@ class Handler {
 	}
 	
 	protected function getMacroUndefinitions() {
+		$instr = $this->getInstructionStructure();
 		$srcCount = $this->getInputOperandCount();
 		$opCount = $this->getOperandCount();
 		$lines = array();
-		$lines[] = "#undef INSTR";
+		if($instr) {
+			$lines[] = "#undef INSTR";
+		}
 		if($this->needsLineNumber()) {
 			$lines[] = "#undef line_number";
 		}
