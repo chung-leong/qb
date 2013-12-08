@@ -209,8 +209,8 @@ void qb_run_tasks(qb_thread_pool *pool) {
 #endif
 			if(pool->worker_request) {
 				// handle request from a worker thread
-				qb_thread_task *task = pool->worker_request;
-				qb_thread_worker *worker = pool->waiting_worker;
+				qb_thread_task *task = (qb_thread_task *) pool->worker_request;
+				qb_thread_worker *worker = (qb_thread_worker *) pool->waiting_worker;
 				task->proc(task->param1, task->param2, task->param3);
 
 				pool->worker_request = NULL;

@@ -253,7 +253,6 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 }
 
 void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage) {
-	int8_t *range_start, range_end;
 	qb_memory_segment *src_segment_start, *src_segment_end, *dst_segment_start;
 	uint32_t i, byte_count;
 

@@ -1760,7 +1760,7 @@ void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_com
 	cxt->compiler_context = compiler_cxt;
 	cxt->pool = compiler_cxt->pool;
 	cxt->storage = compiler_cxt->storage;
-	cxt->thread_count = qb_get_thread_count();
+	cxt->thread_count = qb_get_thread_count(TSRMLS_C);
 
 	qb_attach_new_array(cxt->pool, (void **) &cxt->conditionals, &cxt->conditional_count, sizeof(qb_pbj_op *), 8);
 	qb_attach_new_array(cxt->pool, (void **) &cxt->parameters, &cxt->parameter_count, sizeof(qb_pbj_parameter), 8);

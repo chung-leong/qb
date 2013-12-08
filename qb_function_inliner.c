@@ -141,7 +141,11 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 			if(argument_index < cxt->argument_count) {
 				// use the argument directly if the argument is passed by ref or read-only
 				// and if the size and type matches
-				argument_address = cxt->arguments[argument_index].address;				
+				qb_operand *argument = &cxt->arguments[argument_index];
+				if(argument->type != QB_OPERAND_ADDRESS) {
+					qb_perform_type_coercion(cxt->caller_context, argument, callee_address->type, 0);
+				}
+				argument_address = argument->address;				
 				if((callee_var->flags & QB_VARIABLE_BY_REF) || READ_ONLY(callee_address)) {
 					if(argument_address->type == callee_address->type) {
 						int32_t compatible = FALSE;

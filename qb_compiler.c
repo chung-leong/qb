@@ -1885,6 +1885,8 @@ uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address) {
 	while(address->source_address) {
 		if(address->source_address->dimension_count == address->dimension_count) {
 			address = address->source_address;
+		} else {
+			break;
 		}
 	}
 	for(i = 0; i < cxt->variable_count; i++) {
