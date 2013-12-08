@@ -550,6 +550,7 @@ class QuaternionJulia {
 	 * @local float32[3][3]	$viewRotationX
 	 * @local float32[3][3]	$viewRotationY
 	 * @local float32[3][3]	$viewRotationZ
+	 * @local float32[2]	$coord
 	 *
 	 * @return void
 	 */
@@ -579,16 +580,16 @@ class QuaternionJulia {
 		$this->eye = vm_mult(array(0, 0, $this->camera[3]), $this->viewRotation);
         $this->lightSource = vm_mult($this->light, $this->viewRotation);
         
-        for ($y = 0; $y < $height; $y++) {
-	        for ($x = 0; $x < $width; $x++) {
+        for ($y = 0, $coord[1] = 0.5; $y < $height; $y++, $coord[1]++) {
+	        for ($x = 0, $coord[0] = 0.5; $x < $width; $x++, $coord[0]++) {
 		        if ($this->antialiasing) {
 					// Average detailSuperSample^2 points per pixel
 					$c = array(0, 0, 0, 0);
 		        	for ($i = 0.0; $i < 1.0; $i += 0.5)
 						for ($j = 0.0; $j < 1.0; $j += 0.5)
-							$c += 0.25 * $this->renderPoint(array($x + $i, $y + $j));
+							$c += 0.25 * $this->renderPoint(array($coord[0] + $i, $coord[1] + $j));
 		        } else {
-					$c = $this->renderPoint(array($x, $y));
+					$c = $this->renderPoint($coord);
 		        }
 				// Return the final color which is still the background color if we didn't hit anything.
 		        $dst[$y][$x] = $c;
