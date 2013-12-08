@@ -22,6 +22,13 @@
 
 #include "qb_compiler_optimization.c"
 
+static void qb_add_variable(qb_compiler_context *cxt, qb_variable *variable) {
+	qb_variable **p = qb_enlarge_array((void **) &cxt->variables, 1);
+	*p = variable;
+	cxt->function_prototype.variables = cxt->variables;
+	cxt->function_prototype.variable_count = cxt->variable_count;
+}
+
 void qb_mark_as_tagged(qb_compiler_context *cxt, qb_address *address) {
 	address->flags |= QB_ADDRESS_TAGGED;
 	if(address->source_address) {

@@ -289,11 +289,6 @@ static zend_always_inline qb_variable *qb_allocate_variables(qb_data_pool *pool,
 	return qb_allocate_items(&pool->variable_allocator, count);
 }
 
-static zend_always_inline void qb_add_variable(qb_compiler_context *cxt, qb_variable *variable) {
-	qb_variable **p = qb_enlarge_array((void **) &cxt->variables, 1);
-	*p = variable;
-}
-
 void qb_mark_as_constant(qb_compiler_context *cxt, qb_address *address);
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address);
 void qb_mark_as_temporary(qb_compiler_context *cxt, qb_address *address);

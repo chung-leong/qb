@@ -180,7 +180,11 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 
 	qb_interpreter_context *caller_interpreter_context;
 
+#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	zend_literal static_zvals[8];
+#else
 	zval static_zvals[8];
+#endif
 	uint32_t static_zval_index;
 
 #ifdef NATIVE_COMPILE_ENABLED

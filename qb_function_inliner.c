@@ -129,6 +129,7 @@ static void qb_perform_assignment(qb_function_inliner_context *cxt, qb_address *
 }
 
 static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_address *callee_address) {
+	USE_TSRM
 	int32_t need_new_address = TRUE;
 	qb_address *caller_address;
 	qb_address *argument_address = NULL;
@@ -181,6 +182,11 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 				need_new_address = FALSE;
 				caller_address = NULL;
 			}
+		} else if(callee_var->flags & QB_VARIABLE_CLASS_INSTANCE) {
+			zval *name = qb_string_to_zend_literal(callee_var->name, callee_var->name_length TSRMLS_CC);
+			qb_variable *caller_var = qb_get_instance_variable(cxt->caller_context, name);
+			need_new_address = FALSE;
+			caller_address = caller_var->address;
 		}
 	}
 

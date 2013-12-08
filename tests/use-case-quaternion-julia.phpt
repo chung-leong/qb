@@ -639,7 +639,6 @@ if(file_exists($correct_path)) {
 		// exact match
 		$match = true;
 	} else {
-		/*
 		$correct_output = imagecreatefrompng($correct_path);
 		$diff = _image_diff($output, $correct_output);
 		if($diff < 3) {
@@ -648,9 +647,6 @@ if(file_exists($correct_path)) {
 		} else {
 			$match = false;
 		}
-		*/
-		$match = false;
-		$diff = 0;
 	}
 	if($match) {
 		echo "CORRECT\n";

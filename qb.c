@@ -868,8 +868,8 @@ PHP_MSHUTDOWN_FUNCTION(qb)
 PHP_RINIT_FUNCTION(qb)
 {
 	uint32_t i;
-	for(i = 0; i < sizeof(QB_G(static_zvals)) / sizeof(zval); i++) {
-		zval *value = &QB_G(static_zvals)[i];
+	for(i = 0; i < sizeof(QB_G(static_zvals)) / sizeof(QB_G(static_zvals)[0]); i++) {
+		zval *value = (zval *) &QB_G(static_zvals)[i];
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1		
 		value->refcount__gc = 1;
 		value->is_ref__gc = 0;

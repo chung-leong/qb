@@ -167,6 +167,8 @@ int64_t qb_zval_array_to_int64(zval *zvalue);
 
 zval * qb_cstring_to_zval(const char *s TSRMLS_DC);
 zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC);
+zval * qb_cstring_to_zend_literal(const char *s TSRMLS_DC);
+zval * qb_string_to_zend_literal(const char *s, uint32_t len TSRMLS_DC);
 
 uint32_t qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type);
 

@@ -84,8 +84,8 @@ int64_t qb_zval_array_to_int64(zval *zvalue) {
 }
 
 zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {
-	zval *value = &QB_G(static_zvals)[ QB_G(static_zval_index)++ ];
-	if(QB_G(static_zval_index) >= sizeof(QB_G(static_zvals)) / sizeof(zval)) {
+	zval *value = (zval *) &QB_G(static_zvals)[ QB_G(static_zval_index)++ ];
+	if(QB_G(static_zval_index) >= sizeof(QB_G(static_zvals)) / sizeof(QB_G(static_zvals)[0])) {
 		QB_G(static_zval_index) = 0;
 	}
 	value->value.str.val = (char *) s;
@@ -95,6 +95,20 @@ zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {
 
 zval * qb_cstring_to_zval(const char *s TSRMLS_DC) {
 	return qb_string_to_zval(s, strlen(s) TSRMLS_CC);
+}
+
+zval * qb_string_to_zend_literal(const char *s, uint32_t len TSRMLS_DC) {
+	zval *value = qb_string_to_zval(s, len TSRMLS_CC);
+#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	// set the hash key as well, so Z_HASH_P() would get the correct value
+	zend_literal *lit = (zend_literal *) value;
+	lit->hash_value = zend_hash_func(s, len + 1);
+#endif
+	return value;
+}
+
+zval * qb_cstring_to_zend_literal(const char *s TSRMLS_DC) {
+	return qb_string_to_zend_literal(s, strlen(s) TSRMLS_CC);
 }
 
 uint32_t qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type) {
