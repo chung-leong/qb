@@ -172,14 +172,16 @@ static void qb_set_preliminary_result_assign_branching(qb_compiler_context *cxt,
 }
 
 static void qb_set_final_result_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *value = &operands[0];
 	if(result->type == QB_OPERAND_ADDRESS) {
 		// write to the same address as the other branch
 		// with bound checking, naturally
-		qb_operand *value = &operands[0];
 		qb_variable_dimensions dim;
 		qb_copy_address_dimensions(cxt, value->address, 0, &dim);
 		qb_attach_bound_checking_expression(cxt, result->address, &dim, TRUE);
 	} else {
+		// copy the address flags of the value (not a very elegant way of doing this)
+		f->address_flags = value->address->flags;
 		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 	}
 }

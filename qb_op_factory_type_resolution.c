@@ -74,6 +74,18 @@ static qb_primitive_type qb_resolve_expression_type_assign(qb_compiler_context *
 	}
 }
 
+static qb_primitive_type qb_resolve_expression_type_assign_branching(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *value = &operands[0];
+	qb_primitive_type expr_type;
+	uint32_t flags = 0;
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		// use the type of the value only when it's definite
+		flags = QB_RETRIEVE_DEFINITE_TYPE_ONLY;
+	}
+	expr_type = qb_get_operand_type(cxt, value, flags);
+	return expr_type;
+}
+
 static qb_primitive_type qb_resolve_expression_type_assign_return_value(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	if(cxt->return_variable->address) {
 		return cxt->return_variable->address->type;

@@ -154,7 +154,7 @@ qb_derived_op_factory factory_assign_generator_key = {
 
 qb_derived_op_factory factory_assign_branching = {
 	NULL,
-	qb_resolve_expression_type_lvalue,
+	qb_resolve_expression_type_assign_branching,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_preliminary_result_assign_branching,
