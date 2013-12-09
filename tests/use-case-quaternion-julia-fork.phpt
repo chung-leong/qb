@@ -619,7 +619,7 @@ $correct_path = "$folder/output/quaternion-julia.correct.png";
 $incorrect_path = "$folder/output/quaternion-julia.fork.incorrect.png";
 
 $rayTracer = new QuaternionJulia;
-$rayTracer->antialiasing = true;
+$rayTracer->antialiasing = false;
 $rayTracer->generate($output);
 
 ob_start();
