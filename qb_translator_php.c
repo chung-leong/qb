@@ -433,11 +433,6 @@ static void qb_process_jump_set(qb_php_translator_context *cxt, void *op_factory
 	zend_op *target_op1 = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
 	uint32_t target_indices[2];
 
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// no inlining when a jump occurs
-		cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
-	}
-
 	// process the zend ops beyond the ternary expression first
 	// before we process the false clause
 	cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
@@ -490,11 +485,6 @@ static void qb_process_for_loop(qb_php_translator_context *cxt, void *op_factory
 	qb_operand *condition = &operands[0];
 	uint32_t target_indices[2];
 	
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// no inlining when there's a loop
-		cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
-	}
-
 	cxt->next_op_index1 = cxt->zend_op->extended_value;
 	cxt->next_op_index2 = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);
 
@@ -542,11 +532,6 @@ static void qb_process_continue(qb_php_translator_context *cxt, void *op_factory
 static void qb_process_foreach_fetch(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *container = &operands[0];
 	uint32_t target_indices[2];
-
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// no inlining when there's a loop
-		cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
-	}
 
 	cxt->next_op_index1 = cxt->zend_op_index + 2;
 	cxt->next_op_index2 = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);

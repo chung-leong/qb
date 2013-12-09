@@ -104,6 +104,7 @@ static void qb_add_constant_substitution(qb_function_inliner_context *cxt, qb_ad
 		caller_address = qb_create_constant_array(cxt->caller_context, type, &dimension, 1);
 		memcpy(ARRAY_IN(cxt->caller_context->storage, I08, caller_address), ARRAY_IN(cxt->callee_context->storage, I08, callee_address), BYTE_COUNT(dimension, type));
 	}
+	caller_address->flags |= callee_address->flags & (QB_ADDRESS_BOOLEAN | QB_ADDRESS_STRING | QB_ADDRESS_IMAGE);
 	qb_add_substitution(cxt, callee_address, caller_address);
 }
 
