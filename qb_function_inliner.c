@@ -114,6 +114,50 @@ static void qb_perform_assignment(qb_function_inliner_context *cxt, qb_address *
 	qb_produce_op(cxt->caller_context, &factory_assign, operands, 2, &result, NULL, 0, NULL);
 }
 
+static int32_t qb_initialization_required(qb_function_inliner_context *cxt, qb_address *callee_address) {
+	uint32_t i, j;
+	if(VARIABLE_LENGTH(callee_address)) {
+		return TRUE;
+	}
+	for(i = 0; i < cxt->callee_context->op_count; i++) {
+		qb_op *callee_op = cxt->callee_context->ops[i];
+		if(callee_op->flags & (QB_OP_JUMP | QB_OP_BRANCH)) {
+			// branching occurs prior to address being access
+			return TRUE;
+		}
+		for(j = 0; j < callee_op->operand_count; j++) {
+			qb_operand *callee_operand = &callee_op->operands[j];
+			if(callee_operand->type == QB_OPERAND_ADDRESS) {
+				qb_address *address = callee_operand->address;
+				int32_t accessed = FALSE, partial = FALSE;
+				do {
+					if(address == callee_address) {
+						accessed = TRUE;
+						if(callee_operand->address->dimension_count < callee_address->dimension_count) {
+							// only part of the address is written to
+							partial = TRUE;
+						}
+						break;
+					}
+					address = address->source_address;
+				} while(address);
+				if(accessed) {
+					if(qb_is_operand_write_target(callee_op->opcode, j)) {
+						// if the address is fully written to before it's read, then there's no need to initialize it
+						if(!partial) {
+							return TRUE;
+						}
+					} else {
+						return TRUE;
+					}
+				}
+			}
+		}
+	}
+	// address is never read
+	return TRUE;
+}
+
 static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_address *callee_address) {
 	USE_TSRM
 	int32_t need_new_address = TRUE;
@@ -195,10 +239,11 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 			new_var->address = caller_address;
 
 			if(callee_var->flags & QB_VARIABLE_LOCAL) {
-				// local variables need to be initialized to zero
-				qb_operand clear_operands[2] = { { QB_OPERAND_ADDRESS, { caller_address } }, { QB_OPERAND_ADDRESS, { cxt->caller_context->zero_address } } };
-				qb_operand clear_result = { QB_OPERAND_EMPTY, { NULL } };
-				qb_produce_op(cxt->caller_context, &factory_assign, clear_operands, 2, &clear_result, NULL, 0, NULL);
+				// local variables might need to be initialized to zero
+				if(qb_initialization_required(cxt, callee_var->address)) {
+					qb_operand unset_operand = { QB_OPERAND_ADDRESS, { caller_address } };
+					qb_produce_op(cxt->caller_context, &factory_unset, &unset_operand, 1, NULL, NULL, 0, NULL);
+				}
 			}
 		} else {
 			qb_variable_dimensions dim;
