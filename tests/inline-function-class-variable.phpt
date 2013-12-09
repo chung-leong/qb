@@ -8,12 +8,17 @@ class TestClass {
 	/** @var float32 */
 	public $number = 14.5;
 
-	/** @engine qb */
+	/** 
+	 * @engine qb 
+	 */
 	public function test1() {
 		$this->test2();
 	}
 
-	/** @engine qb */
+	/**
+	 * @engine qb 
+	 * @inline always
+	 */
 	public function test2() {
 		echo "Value of number is $this->number\n";
 	}

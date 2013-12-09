@@ -14,6 +14,7 @@ class TestClass {
 
 	/** 
 	 * @engine qb 
+	 * @inline always
 	 *
 	 * @local float32[3]	$a
 	 * @local float32[3][3] $b

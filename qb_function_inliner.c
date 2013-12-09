@@ -274,6 +274,8 @@ static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_addre
 
 void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 	uint32_t i, j = 0;
+	uint32_t caller_op_offset = cxt->caller_context->op_count;
+	int32_t multiple_returns = FALSE;
 
 	// create the constants used by the function 
 	for(i = 0; i < cxt->callee_context->constant_scalar_count; i++) {
@@ -307,36 +309,69 @@ void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 	// copy the ops from the callee into the caller
 	for(i = 0; i < cxt->callee_context->op_count; i++) {
 		qb_op *callee_op = cxt->callee_context->ops[i];
+		qb_op *caller_op = qb_allocate_op(cxt->caller_context->pool);
 		if(callee_op->opcode == QB_RET) {
-			// don't need to worry about multiple return for now, since functions with branching are flagged as not-inlineable
-			break;
+			if(i == cxt->callee_context->op_count - 1) {
+				// the last op--insert a nop, 
+				caller_op->opcode = QB_NOP;
+				if(multiple_returns || callee_op->flags & QB_OP_JUMP_TARGET) {
+					caller_op->flags |= QB_OP_JUMP_TARGET;
+				}
+			} else {
+				// jump to the end, assuming the callee's last op is a RET
+				caller_op->opcode = QB_JMP;
+				caller_op->jump_target_count = 1;
+				caller_op->jump_target_indices = qb_allocate_indices(cxt->caller_context->pool, caller_op->jump_target_count);
+				caller_op->jump_target_indices[0] = caller_op_offset + cxt->callee_context->op_count - 1;
+				caller_op->flags = QB_OP_JUMP | QB_OP_JUMP_TARGETS_RESOLVED;
+
+				// marking it as a jump target is the RET was one
+				if(callee_op->flags & QB_OP_JUMP_TARGET) {
+					caller_op->flags |= QB_OP_JUMP_TARGET;
+				}
+
+				// need to mark the final NOP as a jump target
+				multiple_returns = TRUE;
+			}
 		} else {
 			int32_t omit = FALSE;
-			qb_op *caller_op = qb_allocate_op(cxt->caller_context->pool);
 			caller_op->flags = callee_op->flags;
 			caller_op->line_number = callee_op->line_number;
 			caller_op->opcode = callee_op->opcode;
-			caller_op->operand_count = callee_op->operand_count;
-			caller_op->operands = qb_allocate_operands(cxt->caller_context->pool, caller_op->operand_count);
 
-			for(j = 0; j < caller_op->operand_count; j++) {
-				qb_operand *callee_operand = &callee_op->operands[j];
-				qb_operand *caller_operand = &caller_op->operands[j];
-				if(callee_operand->type == QB_OPERAND_ADDRESS || callee_operand->type == QB_OPERAND_SEGMENT_SELECTOR || callee_operand->type == QB_OPERAND_ELEMENT_SIZE) {
-					caller_operand->address = qb_find_substitution_address(cxt, callee_operand->address);
-					caller_operand->type = callee_operand->type;
-					if(!caller_operand->address) {
-						// address is NULL--probably because the return value isn't used
-						omit = TRUE;
+			if(callee_op->operand_count > 0) {
+				caller_op->operand_count = callee_op->operand_count;
+				caller_op->operands = qb_allocate_operands(cxt->caller_context->pool, caller_op->operand_count);
+				for(j = 0; j < caller_op->operand_count; j++) {
+					qb_operand *callee_operand = &callee_op->operands[j];
+					qb_operand *caller_operand = &caller_op->operands[j];
+					if(callee_operand->type == QB_OPERAND_ADDRESS || callee_operand->type == QB_OPERAND_SEGMENT_SELECTOR || callee_operand->type == QB_OPERAND_ELEMENT_SIZE) {
+						caller_operand->address = qb_find_substitution_address(cxt, callee_operand->address);
+						caller_operand->type = callee_operand->type;
+						if(!caller_operand->address) {
+							// address is NULL--probably because the return value isn't used
+							omit = TRUE;
+						}
+					} else {
+						*caller_operand = *callee_operand;
 					}
-				} else {
-					*caller_operand = *callee_operand;
 				}
 			}
-			if(!omit) {
-				qb_add_op(cxt->caller_context, caller_op);
+			if(callee_op->jump_target_count > 0) {
+				caller_op->jump_target_count = callee_op->jump_target_count;
+				caller_op->jump_target_indices = qb_allocate_indices(cxt->caller_context->pool, caller_op->jump_target_count);
+				for(j = 0; j < caller_op->jump_target_count; j++) {
+					uint32_t jump_target_index = callee_op->jump_target_indices[j];
+					caller_op->jump_target_indices[j] = caller_op_offset + jump_target_index;
+				}
+			}
+			if(omit) {
+				caller_op->opcode = QB_NOP;
+				caller_op->operand_count = 0;
+				caller_op->operands = NULL;
 			}
 		}
+		qb_add_op(cxt->caller_context, caller_op);
 	}
 
 	// copy values into arguments where direct substitution wasn't possible

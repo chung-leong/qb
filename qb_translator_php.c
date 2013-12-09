@@ -289,7 +289,7 @@ static void qb_process_function_call_ex(qb_php_translator_context *cxt, void *op
 						}
 					} else {
 						if(other_compiler_cxt->function_flags & QB_FUNCTION_INLINE_ALWAYS) {
-							// TODO: throw a warning
+							qb_warn("%s() cannot be inlined", qfunc->name);
 						}
 					}
 				}
@@ -423,11 +423,6 @@ static void qb_process_jump(qb_php_translator_context *cxt, void *op_factory, qb
 	zend_op *target_op = Z_OPERAND_INFO(cxt->zend_op->op1, jmp_addr);
 	uint32_t target_indices[1];
 
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// no inlining when a jump occurs
-		cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
-	}
-
 	cxt->next_op_index1 = ZEND_OP_INDEX(target_op);
 
 	target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
@@ -470,11 +465,6 @@ static void qb_process_branch(qb_php_translator_context *cxt, void *op_factory, 
 	// coerce the condition to boolean here so we can check whether a branch can be eliminated
 	if(cxt->compiler_context->stage == QB_STAGE_CONSTANT_EXPRESSION_EVALUATION) {
 		qb_perform_boolean_coercion(cxt->compiler_context, condition);
-	}
-
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// no inlining when there's branching
-		cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
 	}
 
 	if(condition->type == QB_OPERAND_ADDRESS && CONSTANT(condition->address)) {
@@ -532,11 +522,6 @@ static void qb_process_break(qb_php_translator_context *cxt, void *op_factory, q
 	zend_brk_cont_element *jmp_to = qb_find_break_continue_element(cxt, Z_LVAL_P(nest_level), Z_OPERAND_INFO(cxt->zend_op->op1, opline_num));
 	uint32_t target_indices[1];
 
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// no inlining when there's jumping
-		cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
-	}
-
 	cxt->next_op_index1 = jmp_to->brk;
 
 	target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
@@ -547,11 +532,6 @@ static void qb_process_continue(qb_php_translator_context *cxt, void *op_factory
 	zval *nest_level = Z_OPERAND_ZV(cxt->zend_op->op2);
 	zend_brk_cont_element *jmp_to = qb_find_break_continue_element(cxt, Z_LVAL_P(nest_level), Z_OPERAND_INFO(cxt->zend_op->op1, opline_num));
 	uint32_t target_indices[1];
-
-	if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		// no inlining when there's jumping
-		cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
-	}
 
 	cxt->next_op_index1 = jmp_to->cont;
 

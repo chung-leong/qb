@@ -183,7 +183,8 @@ class QuaternionJulia {
 	 *
 	 * @return float32[4]
 	 */
-	 protected function quatMult($q1, $q2) {
+	 protected function quatMult($q1, $q2)
+	 {
 		$r[0] = $q1[0]*$q2[0] - $q1[1]*$q2[1] - $q1[2]*$q2[2] - $q1[3]*$q2[3];
 		$r[1] = $q1[0]*$q2[1] + $q1[1]*$q2[0] + $q1[2]*$q2[3] - $q1[3]*$q2[2];
 		$r[2] = $q1[0]*$q2[2] - $q1[1]*$q2[3] + $q1[2]*$q2[0] - $q1[3]*$q2[1];
@@ -204,7 +205,8 @@ class QuaternionJulia {
 	 *
 	 * @return float32[4]
 	 */
-	protected function quatSq($q) {
+	protected function quatSq($q)
+	{
 		$r[0] = $q[0]*$q[0] - $q[1]*$q[1] - $q[2]*$q[2] - $q[3]*$q[3];
 		$r[1] = 2.0*$q[0]*$q[1];
 		$r[2] = 2.0*$q[0]*$q[2];
@@ -274,7 +276,8 @@ class QuaternionJulia {
 	 *
 	 * @return float32[3]
 	 */
-	 protected function normEstimate($p, $c) {
+	 protected function normEstimate($p, $c)
+	 {
 		$qP = array($p[0], $p[1], $p[2], 0.0);
 
 		$gx1 = $qP - array(self::DEL, 0.0, 0.0, 0.0);
@@ -385,7 +388,8 @@ class QuaternionJulia {
 	 *
 	 * @return float32[3]
 	 */
-	protected function Phong($light, $eye, $pt, $N, $ao) {
+	protected function Phong($light, $eye, $pt, $N, $ao) 
+	{
 		$diffuse = $this->color;		// Base colour
 		$L = normalize($light - $pt);  	// find the vector to the light
 		$E = normalize($eye - $pt);  	// find the vector to the eye
@@ -420,7 +424,8 @@ class QuaternionJulia {
 	 *
 	 * @return float32[3]
 	 */
-	protected function intersectSphere($rO, $rD) {
+	protected function intersectSphere($rO, $rD) 
+	{
 		$B = 2.0 * dot($rO, $rD);
 		$C = dot($rO, $rO) - self::BOUNDING_RADIUS_2;
 		$d = sqrt($B*$B - 4.0 * $C) ;
@@ -443,7 +448,8 @@ class QuaternionJulia {
 	 *
 	 * @return float32[3]
 	 */
-	protected function rayDirection($p) {
+	protected function rayDirection($p) 
+	{
 		$direction[0] = 2.0 * $this->aspectRatio * $p[0] / $this->width - $this->aspectRatio;
 		$direction[1] = -2.0 * $p[1] / $this->height + 1.0;
 		$direction[2] = -2.0;
@@ -477,7 +483,8 @@ class QuaternionJulia {
 	 *
 	 * @return float32[4]
 	 */
-	 protected function renderPoint($p) {
+	 protected function renderPoint($p) 
+	 {
 		$color = $this->background;
 		$alpha = $this->backgroundTransparency;
 		$rO = $this->eye;
@@ -554,7 +561,8 @@ class QuaternionJulia {
 	 *
 	 * @return void
 	 */
-	public function generate(&$dst) {
+	public function generate(&$dst)
+	{
 		$height = count($dst);
 		$width = count($dst[0]);
 		

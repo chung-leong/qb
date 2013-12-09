@@ -7,6 +7,7 @@ class TestClass {
 
 	/** 
 	 * @engine qb 
+	 *
 	 * @local float32[4]	$p
 	 * @local float32[2][2] $q
 	 */
@@ -18,6 +19,8 @@ class TestClass {
 
 	/** 
 	 * @engine qb 
+	 * @inline always
+	 *
 	 * @param float32[4]	$p
 	 * @param float32[2][2] $q
 	 */

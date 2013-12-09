@@ -1076,11 +1076,29 @@ NO_RETURN void qb_abort(const char *format, ...) {
 	zend_error_cb(E_ERROR, filename, lineno, format, args);
 	va_end(args);
 #if __GNUC__
-	// just to silence the warning--zend_error_cb() doesn't return
+	// just to silence the warning--zend_error_cb() doesn't return when E_ERROR is passed
  	exit(0);
 #endif
 }
 
+ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
+void qb_warn(const char *format, ...) {
+	const char *filename;
+	uint32_t lineno;
+	va_list args;
+	TSRMLS_FETCH();
+
+	if(QB_G(current_filename)) {
+		filename = QB_G(current_filename);
+	} else {
+		filename = zend_get_executed_filename(TSRMLS_C);
+	}
+	lineno = QB_G(current_line_number);
+
+	va_start(args, format);
+	zend_error_cb(E_WARNING, filename, lineno, format, args);
+	va_end(args);
+}
 /*
  * Local variables:
  * tab-width: 4

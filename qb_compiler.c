@@ -3397,15 +3397,18 @@ void qb_resolve_jump_targets(qb_compiler_context *cxt) {
 	}
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
-		for(j = 0; j < qop->jump_target_count; j++) {
-			uint32_t qop_index = qb_get_translated_op_index(cxt, qop->jump_target_indices[j]);
-			// skip to the next op if it's pointing to a NOP
-			while(cxt->ops[qop_index]->opcode == QB_NOP) {
-				cxt->ops[qop_index]->flags &= ~QB_OP_JUMP_TARGET;
-				qop_index++;
-				cxt->ops[qop_index]->flags |= QB_OP_JUMP_TARGET;
+		if(!(qop->flags & QB_OP_JUMP_TARGETS_RESOLVED)) {
+			for(j = 0; j < qop->jump_target_count; j++) {
+				uint32_t qop_index = qb_get_translated_op_index(cxt, qop->jump_target_indices[j]);
+				// skip to the next op if it's pointing to a NOP
+				while(cxt->ops[qop_index]->opcode == QB_NOP) {
+					cxt->ops[qop_index]->flags &= ~QB_OP_JUMP_TARGET;
+					qop_index++;
+					cxt->ops[qop_index]->flags |= QB_OP_JUMP_TARGET;
+				}
+				qop->jump_target_indices[j] = qop_index;
 			}
-			qop->jump_target_indices[j] = qop_index;
+			qop->flags |= QB_OP_JUMP_TARGETS_RESOLVED;
 		}
 	}
 }
