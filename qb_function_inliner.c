@@ -193,6 +193,13 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 			}
 			caller_address->flags = callee_address->flags;
 			new_var->address = caller_address;
+
+			if(callee_var->flags & QB_VARIABLE_LOCAL) {
+				// local variables need to be initialized to zero
+				qb_operand clear_operands[2] = { { QB_OPERAND_ADDRESS, { caller_address } }, { QB_OPERAND_ADDRESS, { cxt->caller_context->zero_address } } };
+				qb_operand clear_result = { QB_OPERAND_EMPTY, { NULL } };
+				qb_produce_op(cxt->caller_context, &factory_assign, clear_operands, 2, &clear_result, NULL, 0, NULL);
+			}
 		} else {
 			qb_variable_dimensions dim;
 			if(SCALAR(callee_address)) {
@@ -275,7 +282,7 @@ static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_addre
 
 void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 	uint32_t i, j = 0;
-	uint32_t caller_op_offset = cxt->caller_context->op_count;
+	uint32_t caller_op_offset;
 	int32_t multiple_returns = FALSE;
 
 	// create the constants used by the function 
@@ -306,6 +313,8 @@ void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 		qb_address *callee_alias = cxt->callee_context->address_aliases[i];
 		qb_add_alias_substitution(cxt, callee_alias);
 	}
+
+	caller_op_offset = cxt->caller_context->op_count;
 
 	// copy the ops from the callee into the caller
 	for(i = 0; i < cxt->callee_context->op_count; i++) {

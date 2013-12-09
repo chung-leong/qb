@@ -243,7 +243,6 @@ class QuaternionJulia {
 	 * @param float32[4]	$c
 	 * @param int32			$maxIterations
 	 *
-	 * @local float32[4]	$r
 	 * @local int32			$i
 	 *
 	 * @return void
@@ -617,6 +616,7 @@ $correct_path = "$folder/output/quaternion-julia.correct.png";
 $incorrect_path = "$folder/output/quaternion-julia.incorrect.png";
 
 $rayTracer = new QuaternionJulia;
+$rayTracer->antialiasing = false;
 $rayTracer->generate($output);
 
 ob_start();
