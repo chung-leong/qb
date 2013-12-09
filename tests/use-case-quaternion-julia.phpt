@@ -579,7 +579,7 @@ class QuaternionJulia {
         
 		$this->eye = vm_mult(array(0, 0, $this->camera[3]), $this->viewRotation);
         $this->lightSource = vm_mult($this->light, $this->viewRotation);
-        
+        	
         for ($y = 0, $coord[1] = 0.5; $y < $height; $y++, $coord[1]++) {
 	        for ($x = 0, $coord[0] = 0.5; $x < $width; $x++, $coord[0]++) {
 		        if ($this->antialiasing) {
@@ -608,10 +608,7 @@ $output = imagecreatetruecolor(600, 400);
 $correct_path = "$folder/output/quaternion-julia.correct.png";
 $incorrect_path = "$folder/output/quaternion-julia.incorrect.png";
 
-qb_compile();
-
 $rayTracer = new QuaternionJulia;
-$rayTracer->antialiasing = true;
 $rayTracer->generate($output);
 
 ob_start();

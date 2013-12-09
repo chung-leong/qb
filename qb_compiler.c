@@ -793,7 +793,7 @@ qb_address * qb_create_constant_scalar(qb_compiler_context *cxt, qb_primitive_ty
 	qb_address *address = qb_allocate_address(cxt->pool);
 	address->mode = QB_ADDRESS_MODE_SCA;
 	address->type = element_type;
-	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT | QB_ADDRESS_ALWAYS_IN_BOUND;
+	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT;
 	address->array_index_address = cxt->zero_address;
 	address->array_size_address = cxt->one_address;
 	address->array_size_addresses =
@@ -1027,7 +1027,7 @@ qb_address * qb_create_constant_array(qb_compiler_context *cxt, qb_primitive_typ
 	qb_address *address = qb_allocate_address(cxt->pool);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
-	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT | QB_ADDRESS_ALWAYS_IN_BOUND;	
+	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_CONSTANT;	
 	address->array_index_address = cxt->zero_address;
 	qb_attach_dimensions(cxt, dimensions, dimension_count, address, FALSE);
 	qb_allocate_storage_space(cxt, address, TRUE);
@@ -1439,7 +1439,7 @@ qb_address * qb_create_writable_scalar(qb_compiler_context *cxt, qb_primitive_ty
 
 	// here "read-only" doesn't mean we're not supposed to write to this address
 	// it just means no operation has done so yet
-	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
+	address->flags = QB_ADDRESS_READ_ONLY;
 	qb_add_writable_scalar(cxt, address);
 	return address;
 }
@@ -1448,7 +1448,7 @@ qb_address * qb_create_writable_array(qb_compiler_context *cxt, qb_primitive_typ
 	qb_address *address = qb_allocate_address(cxt->pool);
 	address->mode = QB_ADDRESS_MODE_ARR;
 	address->type = element_type;
-	address->flags = QB_ADDRESS_READ_ONLY | QB_ADDRESS_ALWAYS_IN_BOUND;
+	address->flags = QB_ADDRESS_READ_ONLY;
 	address->segment_selector = QB_SELECTOR_INVALID;
 	address->segment_offset = QB_OFFSET_INVALID;
 	address->array_index_address = cxt->zero_address;

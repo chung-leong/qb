@@ -24,7 +24,7 @@
 #define GROUP_OFFSET(group)		(offsets[group * 2])
 #define GROUP_LENGTH(group)		(offsets[group * 2 + 1] - offsets[group * 2])
 
-#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(shared)|(static|staticvar)|(global)|(var)|(property)|(return)|(receive))\\s+(.*?)\\s*(?:\\*+\\/)?$"
+#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(shared)|(static|staticvar)|(global)|(var)|(property)|(return)|(receive)|(inline))\\s+(.*?)\\s*(?:\\*+\\/)?$"
 
 enum {
 	FUNC_DECL_ENGINE = 1,
@@ -38,6 +38,7 @@ enum {
 	FUNC_DECL_PROPERTY,
 	FUNC_DECL_RETURN,
 	FUNC_DECL_RECEIVE,
+	FUNC_DECL_INLINE,
 	FUNC_DECL_DATA,
 
 	FUNC_DECL_TOKEN_COUNT,
@@ -509,6 +510,15 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 								error_zval = element;
 							}
 						}	break;
+						case FUNC_DECL_INLINE: {
+							if(data_len == 5 && strncmp(data, "never", 5) == 0) {
+								function_decl->flags |= QB_FUNCTION_NEVER_INLINE;
+							} else if(data_len == 6 && strncmp(data, "always", 6) == 0) {
+								function_decl->flags |= QB_FUNCTION_INLINE_ALWAYS;
+							} else {
+								error_zval = element;
+							}
+						}	break;
 						default:
 							error_zval = element;
 					}
@@ -592,6 +602,12 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 			} else if(FOUND_GROUP(FUNC_DECL_IMPORT)) {
 				function_decl->import_path = qb_allocate_string(cxt->pool, data, data_len);
 				function_decl->import_path_length = data_len;
+			} else if(FOUND_GROUP(FUNC_DECL_INLINE)) {
+				if(data_len == 5 && strncmp(data, "never", 5) == 0) {
+					function_decl->flags |= QB_FUNCTION_NEVER_INLINE;
+				} else if(data_len == 6 && strncmp(data, "always", 6) == 0) {
+					function_decl->flags |= QB_FUNCTION_INLINE_ALWAYS;
+				}
 			} else {
 				if(FOUND_GROUP(FUNC_DECL_GLOBAL)) {
 					var_type = QB_VARIABLE_GLOBAL;

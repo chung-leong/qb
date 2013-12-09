@@ -243,6 +243,10 @@ typedef gdImage * gdImagePtr;
 #define VALUE(type, address)				VALUE_IN(cxt->storage, type, address)
 #define ARRAY_SIZE(address)					VALUE(U32, address->array_size_address)
 
+void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count);
+void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count);
+void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint32_t dest_type, int8_t *restrict dest_memory);
+
 void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags);
 void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address, uint32_t transfer_flags);
 void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue);

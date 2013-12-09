@@ -1,6 +1,6 @@
 --TEST--
 Inline function class variable test
---SKIPIF--
+--FILE--
 <?php
 
 class TestClass {
@@ -21,6 +21,10 @@ class TestClass {
 
 $object = new TestClass;
 $object->test1();
+$object->number = 15.6;
 $object->test2();
 
 ?>
+--EXPECT--
+Value of number is 14.5
+Value of number is 15.6

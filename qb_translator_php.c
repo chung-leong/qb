@@ -282,8 +282,16 @@ static void qb_process_function_call_ex(qb_php_translator_context *cxt, void *op
 			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
 				USE_TSRM
 				qb_compiler_context *other_compiler_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
-				if(other_compiler_cxt && (other_compiler_cxt->function_flags & QB_FUNCTION_INLINEABLE)) {
-					use_inlining = TRUE;
+				if(other_compiler_cxt) {
+					if(other_compiler_cxt->function_flags & QB_FUNCTION_INLINEABLE) {
+						if(!(other_compiler_cxt->function_flags & QB_FUNCTION_NEVER_INLINE)) {
+							use_inlining = TRUE;
+						}
+					} else {
+						if(other_compiler_cxt->function_flags & QB_FUNCTION_INLINE_ALWAYS) {
+							// TODO: throw a warning
+						}
+					}
 				}
 			}
 			if(use_inlining) {

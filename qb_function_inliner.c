@@ -107,21 +107,6 @@ static void qb_add_constant_substitution(qb_function_inliner_context *cxt, qb_ad
 	qb_add_substitution(cxt, callee_address, caller_address);
 }
 
-static void	qb_copy_callee_address_dimensions(qb_function_inliner_context *cxt, qb_address *callee_address, qb_variable_dimensions *dim) {
-	uint32_t i;
-	dim->dimension_count = callee_address->dimension_count;
-	if(callee_address->dimension_count > 0) {
-		dim->array_size_address = qb_find_substitution_address(cxt, callee_address);
-		for(i = 0; i < dim->dimension_count; i++) {
-			dim->dimension_addresses[i] = qb_find_substitution_address(cxt, callee_address->dimension_addresses[i]);
-			dim->array_size_addresses[i] = qb_find_substitution_address(cxt, callee_address->array_size_addresses[i]);
-		}
-		dim->array_size_address = dim->array_size_addresses[0];
-	} else {
-		dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->caller_context->one_address;
-	}
-}
-
 static void qb_perform_assignment(qb_function_inliner_context *cxt, qb_address *dst_address, qb_address *src_address) {
 	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { dst_address } }, { QB_OPERAND_ADDRESS, { src_address } } };
 	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
@@ -191,8 +176,6 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 	}
 
 	if(need_new_address) {
-		qb_variable_dimensions dim;
-		qb_copy_callee_address_dimensions(cxt, callee_address, &dim);
 		if(callee_var && !(callee_var->flags & (QB_VARIABLE_ARGUMENT | QB_VARIABLE_RETURN_VALUE))) {
 			qb_variable *new_var = qb_allocate_variable(cxt->caller_context->pool);
 			new_var->name = callee_var->name;
@@ -201,15 +184,30 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 			new_var->flags = callee_var->flags;
 			new_var->hash_value = callee_var->hash_value;
 
-			if(dim.dimension_count == 0) {
+			if(callee_address->dimension_count == 0) {
 				caller_address = qb_create_writable_scalar(cxt->caller_context, type);
 			} else {
-				uint32_t dimension = (dim.array_size_address && CONSTANT(dim.array_size_address)) ? VALUE_IN(cxt->caller_context->storage, U32, dim.array_size_address) : 0;
+				uint32_t dimension = FIXED_LENGTH(callee_address) ? ARRAY_SIZE_IN(cxt->callee_context->storage, callee_address) : 0;
 				caller_address = qb_create_writable_array(cxt->caller_context, type, &dimension, 1);
 			}
 			caller_address->flags = callee_address->flags;
 			new_var->address = caller_address;
 		} else {
+			qb_variable_dimensions dim;
+			if(SCALAR(callee_address)) {
+				dim.array_size_address =  NULL;
+				dim.dimension_count = 0;
+			} else {
+				// base address of arrays always point to linear arrays
+				dim.dimension_count = 1;
+				if(FIXED_LENGTH(callee_address)) {
+					// find equivalent constant address in the caller storage
+					dim.array_size_address = qb_find_substitution_address(cxt, callee_address->array_size_address);
+				} else {
+					// it's variable length
+					dim.array_size_address = NULL;
+				}
+			}
 			caller_address = qb_obtain_temporary_variable(cxt->caller_context, callee_address->type, &dim);
 			if(callee_var && (callee_var->flags & QB_VARIABLE_RETURN_VALUE)) {
 				cxt->result->address = caller_address;
@@ -235,20 +233,41 @@ static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_addre
 	qb_address **p_caller_alias = qb_enlarge_array((void **) &cxt->caller_context->address_aliases, 1);
 	qb_address *source_address = qb_find_substitution_address(cxt, callee_alias->source_address);
 
-	*caller_alias = *source_address;
+	*p_caller_alias = caller_alias;
+	caller_alias->type = source_address->type;
+	caller_alias->segment_selector = INVALID_INDEX;
+	caller_alias->segment_offset = INVALID_INDEX;
 	caller_alias->source_address = source_address;
 	caller_alias->flags = callee_alias->flags;
-	*p_caller_alias = caller_alias;
-	if(callee_alias->dimension_count > 1) {
-		// copy the dimensions over 
-		uint32_t i;
-		caller_alias->dimension_count = callee_alias->dimension_count;
-		caller_alias->dimension_addresses = qb_allocate_address_pointers(cxt->caller_context->pool, caller_alias->dimension_count);
-		caller_alias->array_size_addresses = qb_allocate_address_pointers(cxt->caller_context->pool, caller_alias->dimension_count);
-		for(i = 0; i < caller_alias->dimension_count; i++) {
-			caller_alias->dimension_addresses[i] = qb_find_substitution_address(cxt, callee_alias->dimension_addresses[i]);
-			caller_alias->array_size_addresses[i] = qb_find_substitution_address(cxt, callee_alias->array_size_addresses[i]);
+	caller_alias->dimension_count = callee_alias->dimension_count;
+	caller_alias->mode = callee_alias->mode;
+
+	if(SCALAR(callee_alias)) {
+		caller_alias->array_size_address = cxt->caller_context->one_address;
+	} else {
+		if(callee_alias->dimension_count > 1) {
+			// copy the dimensions over 
+			uint32_t i;
+			caller_alias->dimension_addresses = qb_allocate_address_pointers(cxt->caller_context->pool, caller_alias->dimension_count);
+			caller_alias->array_size_addresses = qb_allocate_address_pointers(cxt->caller_context->pool, caller_alias->dimension_count);
+			for(i = 0; i < caller_alias->dimension_count; i++) {
+				caller_alias->dimension_addresses[i] = qb_find_substitution_address(cxt, callee_alias->dimension_addresses[i]);
+				caller_alias->array_size_addresses[i] = qb_find_substitution_address(cxt, callee_alias->array_size_addresses[i]);
+			}
 		}
+		caller_alias->array_size_address = qb_find_substitution_address(cxt, callee_alias->array_size_address);
+	}
+	if(callee_alias->array_index_address == cxt->callee_context->zero_address) {
+		if(callee_alias->segment_offset == callee_alias->source_address->segment_offset) {
+			caller_alias->array_index_address = cxt->caller_context->zero_address;
+		} else {
+			// it's a constant index, which has been resolved
+			uint32_t offset = callee_alias->segment_offset - callee_alias->source_address->segment_offset;
+			uint32_t index = ELEMENT_COUNT(offset, callee_alias->type);
+			caller_alias->array_index_address = qb_obtain_constant_U32(cxt->caller_context, index);
+		}
+	} else {
+		caller_alias->array_index_address = qb_find_substitution_address(cxt, callee_alias->array_index_address);
 	}
 	qb_add_substitution(cxt, callee_alias, caller_alias);
 }

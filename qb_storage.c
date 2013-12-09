@@ -1010,150 +1010,325 @@ static uint32_t qb_set_array_dimensions_at_storage_location(qb_storage *storage,
 
 void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count) {
 	uint32_t i, count = min(source_count, dest_count);
-	switch(dest_type) {
-		case QB_TYPE_S08: {
-			switch(source_type) {
-				case QB_TYPE_S08:
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_S16:
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_S32:
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_U08: {
-			switch(source_type) {
-				case QB_TYPE_S08:
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16:
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_S32:
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_S16: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16:
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_S32:
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_U16: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16:
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(U16) *) source_memory)[i]; break;
-				case QB_TYPE_S32:
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_S32: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(U16) *) source_memory)[i]; break;
-				case QB_TYPE_S32:
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_U32: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(U16) *) source_memory)[i]; break;
-				case QB_TYPE_S32:
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(U32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_S64: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(U16) *) source_memory)[i]; break;
-				case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(U32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_U64: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U16) *) source_memory)[i]; break;
-				case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U32) *) source_memory)[i]; break;
-				case QB_TYPE_S64:
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_F32: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U16) *) source_memory)[i]; break;
-				case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U32) *) source_memory)[i]; break;
-				case QB_TYPE_S64: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
-		case QB_TYPE_F64: {
-			switch(source_type) {
-				case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S08) *) source_memory)[i]; break;
-				case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U08) *) source_memory)[i]; break;
-				case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S16) *) source_memory)[i]; break;
-				case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U16) *) source_memory)[i]; break;
-				case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S32) *) source_memory)[i]; break;
-				case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U32) *) source_memory)[i]; break;
-				case QB_TYPE_S64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S64) *) source_memory)[i]; break;
-				case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U64) *) source_memory)[i]; break;
-				case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(F32) *) source_memory)[i]; break;
-				case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(F64) *) source_memory)[i]; break;
-			}
-		}	break;
+	if(EXPECTED(dest_type == source_type)) {
+		switch(dest_type) {
+			case QB_TYPE_S08:
+			case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = ((CTYPE(U08) *) source_memory)[i]; break;
+			case QB_TYPE_S16: 
+			case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = ((CTYPE(U16) *) source_memory)[i]; break;
+			case QB_TYPE_S32:
+			case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = ((CTYPE(U32) *) source_memory)[i]; break;
+			case QB_TYPE_S64:
+			case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = ((CTYPE(U64) *) source_memory)[i]; break;
+			case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = ((CTYPE(F32) *) source_memory)[i]; break;
+			case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = ((CTYPE(F64) *) source_memory)[i]; break;
+		}
+	} else {
+		switch(dest_type) {
+			case QB_TYPE_S08: {
+				switch(source_type) {
+					case QB_TYPE_S08:
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S08) *) dest_memory)[i] = (CTYPE(S08)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_U08: {
+				switch(source_type) {
+					case QB_TYPE_S08:
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U08) *) dest_memory)[i] = (CTYPE(U08)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_S16: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S16) *) dest_memory)[i] = (CTYPE(S16)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_U16: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(U16) *) source_memory)[i]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U16) *) dest_memory)[i] = (CTYPE(U16)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_S32: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(U16) *) source_memory)[i]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S32) *) dest_memory)[i] = (CTYPE(S32)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_U32: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(U16) *) source_memory)[i]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(U32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U32) *) dest_memory)[i] = (CTYPE(U32)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_S64: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(U16) *) source_memory)[i]; break;
+					case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(U32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(S64) *) dest_memory)[i] = (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_U64: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U16) *) source_memory)[i]; break;
+					case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U32) *) source_memory)[i]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(U64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(U64) *) dest_memory)[i] = (CTYPE(U64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_F32: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U16) *) source_memory)[i]; break;
+					case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U32) *) source_memory)[i]; break;
+					case QB_TYPE_S64: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(U64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(F32) *) dest_memory)[i] = (CTYPE(F32)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+			case QB_TYPE_F64: {
+				switch(source_type) {
+					case QB_TYPE_S08: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S08) *) source_memory)[i]; break;
+					case QB_TYPE_U08: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U08) *) source_memory)[i]; break;
+					case QB_TYPE_S16: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S16) *) source_memory)[i]; break;
+					case QB_TYPE_U16: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U16) *) source_memory)[i]; break;
+					case QB_TYPE_S32: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S32) *) source_memory)[i]; break;
+					case QB_TYPE_U32: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U32) *) source_memory)[i]; break;
+					case QB_TYPE_S64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(S64) *) source_memory)[i]; break;
+					case QB_TYPE_U64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(U64) *) source_memory)[i]; break;
+					case QB_TYPE_F32: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(F32) *) source_memory)[i]; break;
+					case QB_TYPE_F64: for(i = 0; i < count; i++) ((CTYPE(F64) *) dest_memory)[i] = (CTYPE(F64)) ((CTYPE(F64) *) source_memory)[i]; break;
+				}
+			}	break;
+		}
 	}
-	if(source_count < dest_count) {
+	if(UNEXPECTED(source_count < dest_count)) {
 		qb_copy_wrap_around(dest_memory, BYTE_COUNT(source_count, dest_type), BYTE_COUNT(dest_count, dest_type));
+	}
+}
+
+void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint32_t dest_type, int8_t *restrict dest_memory) {
+	if(EXPECTED(dest_type == source_type)) {
+		switch(dest_type) {
+			case QB_TYPE_S08:
+			case QB_TYPE_U08: ((CTYPE(U08) *) dest_memory)[0] = ((CTYPE(U08) *) source_memory)[0]; break;
+			case QB_TYPE_S16: 
+			case QB_TYPE_U16: ((CTYPE(U16) *) dest_memory)[0] = ((CTYPE(U16) *) source_memory)[0]; break;
+			case QB_TYPE_S32:
+			case QB_TYPE_U32: ((CTYPE(U32) *) dest_memory)[0] = ((CTYPE(U32) *) source_memory)[0]; break;
+			case QB_TYPE_S64:
+			case QB_TYPE_U64: ((CTYPE(U64) *) dest_memory)[0] = ((CTYPE(U64) *) source_memory)[0]; break;
+			case QB_TYPE_F32: ((CTYPE(F32) *) dest_memory)[0] = ((CTYPE(F32) *) source_memory)[0]; break;
+			case QB_TYPE_F64: ((CTYPE(F64) *) dest_memory)[0] = ((CTYPE(F64) *) source_memory)[0]; break;
+		}
+	} else {
+		switch(dest_type) {
+			case QB_TYPE_S08: {
+				switch(source_type) {
+					case QB_TYPE_S08:
+					case QB_TYPE_U08: ((CTYPE(S08) *) dest_memory)[0] = (CTYPE(S08)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: ((CTYPE(S08) *) dest_memory)[0] = (CTYPE(S08)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: ((CTYPE(S08) *) dest_memory)[0] = (CTYPE(S08)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(S08) *) dest_memory)[0] = (CTYPE(S08)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(S08) *) dest_memory)[0] = (CTYPE(S08)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(S08) *) dest_memory)[0] = (CTYPE(S08)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_U08: {
+				switch(source_type) {
+					case QB_TYPE_S08:
+					case QB_TYPE_U08: ((CTYPE(U08) *) dest_memory)[0] = (CTYPE(U08)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: ((CTYPE(U08) *) dest_memory)[0] = (CTYPE(U08)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: ((CTYPE(U08) *) dest_memory)[0] = (CTYPE(U08)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(U08) *) dest_memory)[0] = (CTYPE(U08)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(U08) *) dest_memory)[0] = (CTYPE(U08)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(U08) *) dest_memory)[0] = (CTYPE(U08)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_S16: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(S16) *) dest_memory)[0] = (CTYPE(S16)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(S16) *) dest_memory)[0] = (CTYPE(S16)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: ((CTYPE(S16) *) dest_memory)[0] = (CTYPE(S16)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: ((CTYPE(S16) *) dest_memory)[0] = (CTYPE(S16)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(S16) *) dest_memory)[0] = (CTYPE(S16)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(S16) *) dest_memory)[0] = (CTYPE(S16)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(S16) *) dest_memory)[0] = (CTYPE(S16)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_U16: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(U16) *) dest_memory)[0] = (CTYPE(U16)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(U16) *) dest_memory)[0] = (CTYPE(U16)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16:
+					case QB_TYPE_U16: ((CTYPE(U16) *) dest_memory)[0] = (CTYPE(U16)) ((CTYPE(U16) *) source_memory)[0]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: ((CTYPE(U16) *) dest_memory)[0] = (CTYPE(U16)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(U16) *) dest_memory)[0] = (CTYPE(U16)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(U16) *) dest_memory)[0] = (CTYPE(U16)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(U16) *) dest_memory)[0] = (CTYPE(U16)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_S32: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_U16: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) ((CTYPE(U16) *) source_memory)[0]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(S32) *) dest_memory)[0] = (CTYPE(S32)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_U32: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_U16: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) ((CTYPE(U16) *) source_memory)[0]; break;
+					case QB_TYPE_S32:
+					case QB_TYPE_U32: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) ((CTYPE(U32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(U32) *) dest_memory)[0] = (CTYPE(U32)) (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_S64: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_U16: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(U16) *) source_memory)[0]; break;
+					case QB_TYPE_S32: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_U32: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(U32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(S64) *) dest_memory)[0] = (CTYPE(S64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_U64: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_U16: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(U16) *) source_memory)[0]; break;
+					case QB_TYPE_S32: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_U32: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(U32) *) source_memory)[0]; break;
+					case QB_TYPE_S64:
+					case QB_TYPE_U64: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(U64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(U64) *) dest_memory)[0] = (CTYPE(U64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_F32: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_U16: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(U16) *) source_memory)[0]; break;
+					case QB_TYPE_S32: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_U32: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(U32) *) source_memory)[0]; break;
+					case QB_TYPE_S64: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_U64: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(U64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(F32) *) dest_memory)[0] = (CTYPE(F32)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+			case QB_TYPE_F64: {
+				switch(source_type) {
+					case QB_TYPE_S08: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(S08) *) source_memory)[0]; break;
+					case QB_TYPE_U08: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(U08) *) source_memory)[0]; break;
+					case QB_TYPE_S16: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(S16) *) source_memory)[0]; break;
+					case QB_TYPE_U16: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(U16) *) source_memory)[0]; break;
+					case QB_TYPE_S32: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(S32) *) source_memory)[0]; break;
+					case QB_TYPE_U32: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(U32) *) source_memory)[0]; break;
+					case QB_TYPE_S64: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(S64) *) source_memory)[0]; break;
+					case QB_TYPE_U64: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(U64) *) source_memory)[0]; break;
+					case QB_TYPE_F32: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(F32) *) source_memory)[0]; break;
+					case QB_TYPE_F64: ((CTYPE(F64) *) dest_memory)[0] = (CTYPE(F64)) ((CTYPE(F64) *) source_memory)[0]; break;
+				}
+			}	break;
+		}
 	}
 }
 

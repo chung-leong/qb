@@ -154,13 +154,6 @@ extern const char *type_cnames[];
 extern int64_t integer_lower_bounds[];
 extern uint64_t integer_upper_bounds[];
 
-void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count);
-void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count);
-
-static zend_always_inline void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint32_t dest_type, int8_t *restrict dest_memory) {
-	qb_copy_elements(source_type, source_memory, 1, dest_type, dest_memory, 1);
-}
-
 int64_t qb_zval_to_long(zval *zvalue);
 double qb_zval_to_double(zval *zvalue);
 int64_t qb_zval_array_to_int64(zval *zvalue);
