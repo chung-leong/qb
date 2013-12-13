@@ -873,7 +873,7 @@ class Handler {
 			$lines[] = "if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {";
 			$lines[] =		"windows_timeout_check_counter = 0;";
 			$lines[] = 		"if(*windows_timed_out_pointer) {";
-			$lines[] =			"zend_timeout(1);";
+			$lines[] =			"cxt->exit_type = QB_VM_TIMEOUT;";
 			$lines[] = 			"return;";
 			$lines[] =		"}";
 			$lines[] = "}";

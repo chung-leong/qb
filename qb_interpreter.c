@@ -554,8 +554,9 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 		case QB_VM_SPOON: {
 		}	break;
 		case QB_VM_FORK: {
-			break;
-		}
+		}	break;
+		case QB_VM_TIMEOUT: {
+		}	break;
 		default: {
 		}	break;
 	}
@@ -571,6 +572,9 @@ label_exit:
 			case QB_VM_EXCEPTION: return FALSE;
 			case QB_VM_RETURN: return TRUE;
 			case QB_VM_YIELD: return FALSE;
+			case QB_VM_TIMEOUT: {
+				zend_timeout(1);
+			}	break;
 			case QB_VM_BAILOUT: {
 				EG(exit_status) = cxt->exit_status_code;
 				zend_bailout();
