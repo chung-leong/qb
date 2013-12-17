@@ -261,7 +261,7 @@ static void qb_process_function_call_ex(qb_php_translator_context *cxt, void *op
 	}
 
 	// copy the arguments
-	arguments = do_alloca(sizeof(qb_operand *) * max_operand_count, use_heap);
+	arguments = do_alloca(sizeof(qb_operand) * max_operand_count, use_heap);
 	for(i = 0; i < max_operand_count; i++) {
 		if(i < argument_count) {
 			arguments[i] = *stack_pointer[i];

@@ -483,7 +483,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 		cxt->thread = caller_cxt->thread;
 	} else {
 		cxt->call_depth = 1;
-		cxt->thread = qb_get_main_thread(TSRMLS_C);
+		cxt->thread = (qb_main_thread *) qb_get_main_thread(TSRMLS_C);
 	}
 
 	cxt->thread_count = qb_get_thread_count(TSRMLS_C);
@@ -507,6 +507,7 @@ void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 		qb_unlock_function(cxt->function);
 	}
 	if(cxt->send_target) {
+		// this should not happen inside a worker thread
 		efree(cxt->send_target);
 	}
 }
@@ -522,6 +523,161 @@ static zend_always_inline void qb_enter_vm(qb_interpreter_context *cxt) {
 #else
 	qb_main(cxt);
 #endif
+}
+
+static void qb_execute_in_worker_thread(void *param1, void *param2, int param3);
+
+static void qb_fork_execution(qb_interpreter_context *cxt) {
+	qb_interpreter_context *fork_contexts;
+	qb_task_group _group, *group = &_group;
+	qb_thread *original_thread = cxt->thread;
+	uint32_t original_fork_id = cxt->fork_id;
+	uint32_t i, fork_count, function_copies, new_context_count;
+	intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
+	int32_t reusing_original_cxt = 1;
+
+	if(cxt->thread_count > 0) {
+		// we'll create one copy of the function per thread
+		function_copies = cxt->thread_count;
+	} else {
+		function_copies = 1;
+	}
+
+	if(cxt->fork_count == 0) {
+		fork_count = cxt->fork_count = cxt->thread_count;
+	} else {
+		fork_count = cxt->fork_count;
+		if(cxt->fork_count > (uint32_t) cxt->thread_count) {
+			// if there're more forks than functions, we need to keep the original storage intact,
+			// so we can restore a context to the state at the point of the fork
+			reusing_original_cxt = 0;
+		}
+	}
+	new_context_count = fork_count - reusing_original_cxt;
+
+	// initialize the group, allocating extra memory for new interpreter contexts
+	qb_initialize_task_group(group, original_thread, fork_count, sizeof(qb_interpreter_context) * new_context_count);
+	fork_contexts = group->extra_memory;
+
+	if(reusing_original_cxt) {
+		// schedule the first worker
+		cxt->fork_id = 0;
+		cxt->thread = NULL;
+		qb_add_task(group, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->thread);
+	}
+
+	// initialize new interpreter contexts
+	if(new_context_count > 0) {
+		for(i = reusing_original_cxt; i < cxt->fork_count; i++) {
+			qb_interpreter_context *fork_cxt = &fork_contexts[i - reusing_original_cxt];
+			if(i < function_copies && cxt->thread->type == QB_THREAD_MAIN) {
+				// acquire the function in the main thread now to avoid context switching from the worker
+				// (since emalloc() does not work inside worker threads)
+				fork_cxt->function = qb_acquire_function(cxt, cxt->function, FALSE);
+				fork_cxt->instruction_pointer = (int8_t *) (fork_cxt->function->instruction_base_address + instr_offset);
+			} else {
+				// let the worker acquire a copy relinquished by another that has finished
+				fork_cxt->function = NULL;
+				fork_cxt->instruction_pointer = (int8_t *) (instr_offset);
+			}
+			fork_cxt->caller_context = NULL;
+			fork_cxt->thread = NULL;
+			fork_cxt->fork_id = i;
+			fork_cxt->fork_count = fork_count;
+			fork_cxt->argument_indices = NULL;
+			fork_cxt->argument_count = 0;
+			fork_cxt->result_index = 0;
+			fork_cxt->line_number = 0;
+			fork_cxt->call_depth = cxt->call_depth;
+			fork_cxt->exit_type = QB_VM_RETURN;
+			fork_cxt->exit_status_code = 0;
+			fork_cxt->windows_timed_out_pointer = cxt->windows_timed_out_pointer;
+			fork_cxt->floating_point_precision = cxt->floating_point_precision;
+			fork_cxt->send_target = NULL;
+#ifdef ZTS
+			fork_cxt->tsrm_ls = tsrm_ls;
+#endif
+			// pass the function as a parameter to qb_execute_in_worker_thread() if a copy has not been acquired yet
+			qb_add_task(group, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0, &fork_cxt->thread);
+		}
+	}
+
+	// run the tasks and wait for completion
+	qb_run_task_group(group);
+
+	if(reusing_original_cxt) {
+		// restore variables in the original context
+		cxt->fork_id = original_fork_id;
+		cxt->thread = original_thread;
+	} else {
+		// transfer the execution state to the original context
+		qb_interpreter_context *first_cxt = &fork_contexts[0];
+		cxt->exit_type = first_cxt->exit_type;
+		cxt->instruction_pointer = first_cxt->instruction_pointer;
+
+		if(cxt->exit_type == QB_VM_SPOON) {
+			// need to transfer non-shared segments back into the original storage
+			// since the execution will resume
+		}
+	}
+
+	if(new_context_count > 0) {
+		// free the new interpreter contexts
+		for(i = reusing_original_cxt; i < fork_count; i++) {
+			qb_interpreter_context *fork_cxt = &fork_contexts[i - reusing_original_cxt];
+			if(fork_cxt->exit_type == QB_VM_EXCEPTION) {
+				// an exception occurred in one of the fork
+				cxt->exit_type = QB_VM_EXCEPTION;
+			}
+			qb_free_interpreter_context(fork_cxt);
+		}
+	}
+	qb_free_task_group(group);
+}
+
+static void qb_handle_execution(qb_interpreter_context *cxt) {
+	int32_t continue_execution = FALSE;
+	int32_t fork_execution = FALSE;
+
+	do {
+		if(fork_execution) {
+			qb_fork_execution(cxt);
+		} else {
+			qb_enter_vm(cxt);
+		}
+
+		switch(cxt->exit_type) {
+			case QB_VM_EXCEPTION: {
+				continue_execution = FALSE;
+			}	break;
+			case QB_VM_YIELD: {
+				continue_execution = FALSE;
+			}	break;
+			case QB_VM_RETURN: {
+				continue_execution = FALSE;
+			}	break;
+			case QB_VM_SPOON: {
+				// go back into the vm
+				continue_execution = TRUE;
+				fork_execution = FALSE;
+			}	break;
+			case QB_VM_FORK: {
+				// fork the vm
+				continue_execution = TRUE;
+				fork_execution = TRUE;
+			}	break;
+			case QB_VM_BAILOUT: {
+				qb_signal_bailout(cxt->thread);
+				continue_execution = FALSE;
+			}	break;
+			case QB_VM_TIMEOUT: {
+				qb_signal_timeout(cxt->thread);
+				continue_execution = FALSE;
+			}	break;
+			default: {
+			}	break;
+		}
+	} while(continue_execution);
 }
 
 static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) {
@@ -541,139 +697,25 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 		// copy the original function state
 		qb_copy_storage_contents(qfunc->local_storage, cxt->function->local_storage);
 	}
-	qb_enter_vm(cxt);
+
+	// resume execution
+	qb_handle_execution(cxt);
 
 	// unlock the function
 	qb_unlock_function(cxt->function);
 	cxt->function = NULL;
-
-	switch(cxt->exit_type) {
-		case QB_VM_EXCEPTION: {
-		}	break;
-		case QB_VM_RETURN: {
-		}	break;
-		case QB_VM_SPOON: {
-		}	break;
-		case QB_VM_FORK: {
-		}	break;
-		case QB_VM_TIMEOUT: {
-		}	break;
-		default: {
-		}	break;
-	}
 }
 
 static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
-	USE_TSRM
-	for(;;) {
-		qb_enter_vm(cxt);
+	qb_handle_execution(cxt);
 
-label_exit:
-		switch(cxt->exit_type) {
-			case QB_VM_EXCEPTION: return FALSE;
-			case QB_VM_RETURN: return TRUE;
-			case QB_VM_YIELD: return FALSE;
-			case QB_VM_TIMEOUT: {
-				zend_timeout(1);
-			}	break;
-			case QB_VM_BAILOUT: {
-				EG(exit_status) = cxt->exit_status_code;
-				zend_bailout();
-			}	break;
-			case QB_VM_FORK: {
-				qb_interpreter_context *fork_contexts = NULL;
-				qb_task_group _group, *group = &_group;
-				qb_task task_buffer[1024];
-				int32_t reused_original_cxt = 1;
-				uint32_t i, fork_count, function_copies;
-				intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
-				qb_thread *owner_thread = cxt->thread;
-
-				if(cxt->fork_count == 0) {
-					fork_count = cxt->fork_count = cxt->thread_count;
-				} else {
-					fork_count = cxt->fork_count;
-					if(cxt->fork_count > (uint32_t) cxt->thread_count) {
-						// need to keep the original storage intact
-						reused_original_cxt = 0;
-					}
-				}
-				cxt->fork_id = 0;
-				if(cxt->thread_count > 0) {
-					function_copies = cxt->thread_count;
-				} else {
-					function_copies = 1;
-				}
-
-				qb_initialize_task_group(group, owner_thread, task_buffer, sizeof(task_buffer) / sizeof(task_buffer[0]), fork_count - reused_original_cxt);
-
-				if(reused_original_cxt) {
-					// schedule the first worker
-					cxt->thread = NULL;
-					qb_add_task(group, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->thread);
-				}
-				if(fork_count - reused_original_cxt > 0) {
-					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (fork_count - reused_original_cxt));
-					for(i = reused_original_cxt; i < cxt->fork_count; i++) {
-						qb_interpreter_context *fork_cxt = &fork_contexts[i - reused_original_cxt];
-						if(i < function_copies) {
-							// acquire the function now to avoid context switching from the worker
-							fork_cxt->function = qb_acquire_function(cxt, cxt->function, FALSE);
-							fork_cxt->instruction_pointer = (int8_t *) (fork_cxt->function->instruction_base_address + instr_offset);
-						} else {
-							// let the worker acquire a copy relinquished by another that has finished
-							fork_cxt->function = NULL;
-							fork_cxt->instruction_pointer = (int8_t *) (instr_offset);
-						}
-						fork_cxt->caller_context = NULL;
-						fork_cxt->thread = NULL;
-						fork_cxt->fork_id = i;
-						fork_cxt->fork_count = fork_count;
-						fork_cxt->argument_indices = NULL;
-						fork_cxt->argument_count = 0;
-						fork_cxt->result_index = 0;
-						fork_cxt->line_number = 0;
-						fork_cxt->call_depth = cxt->call_depth;
-						fork_cxt->exit_type = QB_VM_RETURN;
-						fork_cxt->exit_status_code = 0;
-						fork_cxt->windows_timed_out_pointer = cxt->windows_timed_out_pointer;
-						fork_cxt->floating_point_precision = cxt->floating_point_precision;
-						fork_cxt->send_target = NULL;
-#ifdef ZTS 
-						fork_cxt->tsrm_ls = tsrm_ls;
-#endif
-						qb_add_task(group, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0, &fork_cxt->thread);
-					}
-				}
-				qb_run_task_group(group);
-				if(reused_original_cxt) {
-					cxt->thread = owner_thread;
-				} else {
-					// copy the exit state
-					qb_interpreter_context *first_cxt = &fork_contexts[0];
-					cxt->exit_type = first_cxt->exit_type;
-					cxt->instruction_pointer = first_cxt->instruction_pointer;
-					if(cxt->exit_type == QB_VM_SPOON) {
-						// need to transfer states back into the original storage
-					}
-				} 
-				if(fork_contexts) {
-					for(i = reused_original_cxt; i < fork_count; i++) {
-						qb_interpreter_context *fork_cxt = &fork_contexts[i - reused_original_cxt];
-						qb_free_interpreter_context(fork_cxt);
-					}
-					efree(fork_contexts);
-				}
-				qb_free_task_group(group);
-				goto label_exit;
-			}
-			case QB_VM_SPOON: {
-			}	break;	// go back into the vm
-			default: {
-			}	break;
-		}
+	if(cxt->exit_type == QB_VM_EXCEPTION) {
+		return FALSE;
+	} else if(cxt->exit_type == QB_VM_YIELD) {
+		return FALSE;
+	} else {
+		return TRUE;
 	}
-	return TRUE;
 }
 
 static void qb_initialize_local_variables(qb_interpreter_context *cxt) {

@@ -422,26 +422,21 @@ static void qb_free_worker_thread(qb_worker_thread *thread) {
 	}
 }
 
-void qb_initialize_task_group(qb_task_group *group, qb_thread *owner, qb_task *task_buffer, long task_buffer_size, long task_count) {
+void qb_initialize_task_group(qb_task_group *group, qb_thread *owner, long task_count, long extra_bytes) {
+	// emalloc() isn't thread-safe, so we're using malloc(), which hopefully is
+	long memory_required = sizeof(qb_task) * task_count + extra_bytes;
+	group->tasks = malloc(memory_required);
 	group->completion_count = 0;
 	group->task_count = 0;
 	group->task_index = 0;
 	group->owner = owner;
-	if(task_buffer_size > task_count) {
-		group->tasks = task_buffer;
-		group->buffer_allocated = FALSE;
-	} else {
-		group->tasks = malloc(sizeof(qb_task) * task_count);
-		group->buffer_allocated = TRUE;
-	}
+	group->extra_memory = (extra_bytes) ? &group->tasks[task_count] : NULL;
 	group->previous_group = NULL;
 	group->next_group = NULL;
 }
 
 void qb_free_task_group(qb_task_group *group) {
-	if(group->buffer_allocated) {
-		free(group->tasks);
-	}
+	free(group->tasks);
 }
 
 void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread) {

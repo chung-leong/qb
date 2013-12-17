@@ -417,9 +417,8 @@ static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *addr
 			TSRMLS_FETCH();
 			int8_t *p = ARRAY_IN(storage, I08, address);
 			qb_task_group _group, *group = &_group;
-			qb_task task_buffer[4096];
 			qb_main_thread *main_thread = qb_get_main_thread(TSRMLS_C);
-			qb_initialize_task_group(group, (qb_thread *) main_thread, task_buffer, sizeof(task_buffer) / sizeof(task_buffer[0]), image->sy);
+			qb_initialize_task_group(group, (qb_thread *) main_thread, image->sy, 0);
 			for(i = 0; i < (uint32_t) image->sy; i++) {
 				qb_add_task(group, proc, p, image->tpixels[i], image->sx, NULL);
 				p += image->sx * pixel_size;
@@ -608,9 +607,8 @@ static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *addres
 			TSRMLS_FETCH();
 			int8_t *p = ARRAY_IN(storage, I08, address);
 			qb_task_group _group, *group = &_group;
-			qb_task task_buffer[4096];
 			qb_main_thread *main_thread = qb_get_main_thread(TSRMLS_C);
-			qb_initialize_task_group(group, (qb_thread *) main_thread, task_buffer, sizeof(task_buffer) / sizeof(task_buffer[0]), image->sy);
+			qb_initialize_task_group(group, (qb_thread *) main_thread, image->sy, 0);
 			for(i = 0; i < (uint32_t) image->sy; i++) {
 				qb_add_task(group, proc, p, image->tpixels[i], image->sx, NULL);
 				p += image->sx * pixel_size;

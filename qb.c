@@ -814,6 +814,8 @@ int zend_shutdown_strtod(void);
  */
 PHP_MINIT_FUNCTION(qb)
 {
+	qb_main_thread main_thread;
+
 	ZEND_INIT_MODULE_GLOBALS(qb, php_qb_init_globals, NULL);
 
 	REGISTER_INI_ENTRIES();
@@ -834,6 +836,9 @@ PHP_MINIT_FUNCTION(qb)
 	qb_install_user_opcode_handler();
 
 	qb_initialize_thread_pool();
+	qb_initialize_main_thread(&main_thread);
+	qb_add_workers(&main_thread);
+	qb_free_main_thread(&main_thread);
 
 #if ZEND_ENGINE_2_1
 	zend_startup_strtod();

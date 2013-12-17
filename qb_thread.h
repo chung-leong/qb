@@ -108,9 +108,9 @@ struct qb_task_group {
 	long task_index;
 	long completion_count;
 	qb_thread *owner;
+	void *extra_memory;
 	qb_task_group *previous_group;
 	qb_task_group *next_group;
-	int buffer_allocated;
 };
 
 struct qb_thread {
@@ -177,7 +177,7 @@ long qb_get_cpu_count(void);
 int qb_initialize_main_thread(qb_main_thread *thread);
 void qb_free_main_thread(qb_main_thread *thread);
 
-void qb_initialize_task_group(qb_task_group *group, qb_thread *owner, qb_task *task_buffer, long task_buffer_size, long task_count);
+void qb_initialize_task_group(qb_task_group *group, qb_thread *owner, long task_count, long extra_bytes);
 void qb_free_task_group(qb_task_group *group);
 void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread);
 void qb_run_task_group(qb_task_group *group);
