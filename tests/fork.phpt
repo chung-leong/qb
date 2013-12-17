@@ -19,11 +19,13 @@ function test_function($c) {
 
 test_function(6);
 
+// as the forks won't necessarily run in order, regex is needed for the expected output
+
 ?>
---EXPECT--
-Hello: 88, 8, 6, 0, 6
-Hello: 88, 8, 6, 1, 6
-Hello: 88, 8, 6, 2, 6
-Hello: 88, 8, 6, 3, 6
-Hello: 88, 8, 6, 4, 6
-Hello: 88, 8, 6, 5, 6
+--EXPECTREGEX--
+Hello: 88, 8, 6, [0-5], 6
+Hello: 88, 8, 6, [0-5], 6
+Hello: 88, 8, 6, [0-5], 6
+Hello: 88, 8, 6, [0-5], 6
+Hello: 88, 8, 6, [0-5], 6
+Hello: 88, 8, 6, [0-5], 6

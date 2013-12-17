@@ -353,7 +353,7 @@ static void qb_print_typedefs(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "typedef struct qb_function\tqb_function;\n");
 	qb_print(cxt, "typedef struct qb_interpreter_context\tqb_interpreter_context;\n");
 	qb_print(cxt, "typedef struct qb_external_symbol\tqb_external_symbol;\n");
-	qb_print(cxt, "typedef struct qb_thread_worker\tqb_thread_worker;\n");
+	qb_print(cxt, "typedef struct qb_thread\tqb_thread;\n");
 	
 	qb_print(cxt, "typedef enum qb_vm_exit_type\tqb_vm_exit_type;\n");
 
@@ -433,8 +433,8 @@ struct qb_interpreter_context {\
 	qb_function *function;\
 	int8_t *instruction_pointer;\
 	qb_interpreter_context *caller_context;\
-	qb_thread_worker *worker;\
-	uint32_t worker_count;\
+	qb_thread *thread;\
+	uint32_t thread_count;\
 	uint32_t fork_id;\
 	uint32_t fork_count;\
 	uint32_t *argument_indices;\

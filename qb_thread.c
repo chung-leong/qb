@@ -736,7 +736,7 @@ void qb_run_task_group(qb_task_group *group) {
 	}
 }
 
-void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1, void *param2, int param3) {
+void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread) {
 	qb_main_thread *main_thread = qb_get_thread_owner(thread);
 	if(thread != (qb_thread *) main_thread) {
 		qb_worker_thread *worker = (qb_worker_thread *) thread;
@@ -746,7 +746,7 @@ void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1,
 		task.param2 = param2;
 		task.param3 = param3;
 		task.group = NULL;
-		task.thread_pointer = NULL;
+		task.thread_pointer = p_thread;
 		worker->request = &task;
 
 		// disable termination so threads aren't kill in the middle of pthread functions
@@ -757,6 +757,11 @@ void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1,
 
 		// wait for request to be handled
 		qb_handle_worker_events(worker, QB_EVENT_REQUEST_PROCESSED);
+
+		if(p_thread) {
+			// restore the thread pointer
+			*p_thread = thread;
+		}
 
 		qb_enable_termination(worker);
 	} else {

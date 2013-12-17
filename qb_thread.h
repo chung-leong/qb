@@ -181,7 +181,7 @@ void qb_initialize_task_group(qb_task_group *group, qb_thread *owner, long task_
 void qb_free_task_group(qb_task_group *group);
 void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread);
 void qb_run_task_group(qb_task_group *group);
-void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1, void *param2, int param3);
+void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread);
 
 void qb_signal_timeout(qb_thread *thread);
 void qb_signal_bailout(qb_thread *thread);
