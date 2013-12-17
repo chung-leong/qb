@@ -663,7 +663,7 @@ class Handler {
 			$lines[] =		"if(op{$opCount}_count >= threshold * operand{$opCount}_size) {";
 			$lines[] =			"USE_TSRM";
 			$lines[] =			"uint32_t res_unit_count = op{$opCount}_count / operand{$opCount}_size;";
-			$lines[] =			"uint32_t thread_count = (cxt->worker_count * threshold <= res_unit_count) ? cxt->worker_count : res_unit_count / threshold + 1;";
+			$lines[] =			"uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;";
 			$lines[] =			"uint32_t chunk_size = res_unit_count / thread_count;";
 			for($i = 1; $i < $opCount; $i++) {
 				$addressMode = $this->getOperandAddressMode($i);
@@ -758,7 +758,7 @@ class Handler {
 			$lines = array();
 			$lines[] = "$controllerTypeDecl $controllerFunction($controllerParameterList) {";
 			$lines[] =		$this->getMacroDefinitions();
-			$lines[] =		"if(cxt->worker || (cxt->worker_count <= 1) || !$dispatcherFunction($dispatcherParameterList)) {";
+			$lines[] =		"if(!cxt->thread_count || !$dispatcherFunction($dispatcherParameterList)) {";
 			$lines[] = 			"$handlerFunction($handlerParameterList);";
 			$lines[] =		"}";
 			$lines[] =		$this->getMacroUndefinitions();
@@ -773,7 +773,7 @@ class Handler {
 			$lines = array();
 			$lines[] = "$controllerTypeDecl $controllerFunction($controllerParameterList) {";
 			$lines[] =		$this->getMacroDefinitions();
-			$lines[] =		"if(cxt->worker) {";
+			$lines[] =		"if(cxt->thread->type == QB_THREAD_WORKER) {";
 			$lines[] = 			"qb_dispatch_instruction_to_main_thread(cxt, $controllerFunction, ip);";
 			$lines[] =		"} else {";
 			$lines[] = 			"$handlerFunction($handlerParameterList);";

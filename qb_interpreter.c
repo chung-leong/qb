@@ -458,9 +458,9 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 	}
 
 	// need to create a copy
-	if(cxt && cxt->worker) {
+	if(cxt && cxt->thread->type == QB_THREAD_WORKER) {
 		// do it in the main thread
-		qb_run_in_main_thread(cxt->worker, qb_create_function_copy_in_main_thread, last, &f, reentrance);
+		qb_run_in_main_thread(cxt->thread, qb_create_function_copy_in_main_thread, last, &f, reentrance);
 	} else {
 		f = qb_create_function_copy(last, reentrance);
 		if(reentrance) {
@@ -480,12 +480,13 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 
 	if(caller_cxt) {
 		cxt->call_depth = caller_cxt->call_depth + 1;
+		cxt->thread = caller_cxt->thread;
 	} else {
 		cxt->call_depth = 1;
+		cxt->thread = qb_get_main_thread(TSRMLS_C);
 	}
 
-	cxt->worker = NULL;
-	cxt->worker_count = qb_get_thread_count(TSRMLS_C);
+	cxt->thread_count = qb_get_thread_count(TSRMLS_C);
 	cxt->exit_type = QB_VM_RETURN;
 	cxt->exit_status_code = 0;
 	cxt->exception_encountered = FALSE;
@@ -580,31 +581,36 @@ label_exit:
 				zend_bailout();
 			}	break;
 			case QB_VM_FORK: {
-				qb_thread_pool *pool = qb_get_thread_pool(TSRMLS_C);
 				qb_interpreter_context *fork_contexts = NULL;
+				qb_task_group _group, *group = &_group;
+				qb_task task_buffer[1024];
 				int32_t reused_original_cxt = 1;
 				uint32_t i, fork_count, function_copies;
 				intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
+				qb_thread *owner_thread = cxt->thread;
 
 				if(cxt->fork_count == 0) {
-					fork_count = cxt->fork_count = pool->worker_count;
+					fork_count = cxt->fork_count = cxt->thread_count;
 				} else {
 					fork_count = cxt->fork_count;
-					if(cxt->fork_count > (uint32_t) pool->worker_count) {
+					if(cxt->fork_count > (uint32_t) cxt->thread_count) {
 						// need to keep the original storage intact
 						reused_original_cxt = 0;
 					}
 				}
 				cxt->fork_id = 0;
-				if(pool->worker_count > 0) {
-					function_copies = pool->worker_count;
+				if(cxt->thread_count > 0) {
+					function_copies = cxt->thread_count;
 				} else {
 					function_copies = 1;
 				}
 
+				qb_initialize_task_group(group, owner_thread, task_buffer, sizeof(task_buffer) / sizeof(task_buffer[0]), fork_count - reused_original_cxt);
+
 				if(reused_original_cxt) {
 					// schedule the first worker
-					qb_schedule_task(pool, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->worker);
+					cxt->thread = NULL;
+					qb_add_task(group, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->thread);
 				}
 				if(fork_count - reused_original_cxt > 0) {
 					fork_contexts = emalloc(sizeof(qb_interpreter_context) * (fork_count - reused_original_cxt));
@@ -620,7 +626,7 @@ label_exit:
 							fork_cxt->instruction_pointer = (int8_t *) (instr_offset);
 						}
 						fork_cxt->caller_context = NULL;
-						fork_cxt->worker = NULL;
+						fork_cxt->thread = NULL;
 						fork_cxt->fork_id = i;
 						fork_cxt->fork_count = fork_count;
 						fork_cxt->argument_indices = NULL;
@@ -636,12 +642,12 @@ label_exit:
 #ifdef ZTS 
 						fork_cxt->tsrm_ls = tsrm_ls;
 #endif
-						qb_schedule_task(pool, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0, &fork_cxt->worker);
+						qb_add_task(group, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0, &fork_cxt->thread);
 					}
 				}
-				qb_run_tasks(pool);
+				qb_run_task_group(group);
 				if(reused_original_cxt) {
-					cxt->worker = NULL;
+					cxt->thread = owner_thread;
 				} else {
 					// copy the exit state
 					qb_interpreter_context *first_cxt = &fork_contexts[0];
@@ -658,6 +664,7 @@ label_exit:
 					}
 					efree(fork_contexts);
 				}
+				qb_free_task_group(group);
 				goto label_exit;
 			}
 			case QB_VM_SPOON: {
@@ -784,23 +791,13 @@ int32_t qb_execute_internal(qb_interpreter_context *cxt) {
 }
 
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count) {
-	USE_TSRM
-	uint32_t i;
-	qb_thread_pool *pool = qb_get_thread_pool(TSRMLS_C);
-
-	for(i = 0; i < thread_count; i++)  {
-		int8_t *ip = instruction_pointers[i];
-		qb_schedule_task(pool, control_func, cxt, ip, 0, &cxt->worker);
-	}
-	qb_run_tasks(pool);
-	cxt->worker = NULL;
+	/*
+	*/
 }
 
 void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer) {
-	qb_thread_worker *worker = cxt->worker;
-	cxt->worker = NULL;
-	qb_run_in_main_thread(worker, control_func, cxt, instruction_pointer, 0);
-	cxt->worker = worker;
+	/*
+	*/
 }
 
 static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_number) {

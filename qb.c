@@ -430,24 +430,6 @@ static void qb_discard_current_build(TSRMLS_D) {
 	}
 }
 
-qb_thread_pool * qb_get_thread_pool(TSRMLS_D) {
-	qb_thread_pool *pool = QB_G(thread_pool);
-	if(!pool) {
-		pool = emalloc(sizeof(qb_thread_pool));
-		qb_initialize_thread_pool(pool TSRMLS_CC);
-		QB_G(thread_pool) = pool;
-	}
-	return pool;
-}
-
-void qb_destroy_thread_pool(TSRMLS_D) {
-	qb_thread_pool *pool = QB_G(thread_pool);
-	if(pool) {
-		qb_free_thread_pool(pool);
-		efree(pool);
-	}
-}
-
 qb_function * qb_find_compiled_function(zend_function *zfunc) {
 	uint32_t i;
 	qb_function *qfunc = qb_get_compiled_function(zfunc);
@@ -493,6 +475,14 @@ uint32_t qb_get_thread_count(TSRMLS_D) {
 		thread_count = qb_get_cpu_count();
 	}
 	return thread_count;
+}
+
+qb_main_thread * qb_get_main_thread(TSRMLS_D) {
+	qb_main_thread *thread = &QB_G(main_thread);
+	if(thread->type == -1) {
+		qb_initialize_main_thread(thread);
+	}
+	return thread;
 }
 
 static void qb_start_execution_timer(qb_function *qfunc TSRMLS_DC) {
@@ -843,6 +833,8 @@ PHP_MINIT_FUNCTION(qb)
 
 	qb_install_user_opcode_handler();
 
+	qb_initialize_thread_pool();
+
 #if ZEND_ENGINE_2_1
 	zend_startup_strtod();
 #endif
@@ -855,6 +847,8 @@ PHP_MINIT_FUNCTION(qb)
 PHP_MSHUTDOWN_FUNCTION(qb)
 {
 	UNREGISTER_INI_ENTRIES();
+
+	qb_free_thread_pool();
 
 #if ZEND_ENGINE_2_1
 	zend_shutdown_strtod();
@@ -879,16 +873,15 @@ PHP_RINIT_FUNCTION(qb)
 #endif
 		value->type = IS_STRING;
 	}
+	QB_G(main_thread).type = -1;
 	QB_G(static_zval_index) = 0;
 	QB_G(current_filename) = NULL;
 	QB_G(current_line_number) = 0;
 	QB_G(build_context) = NULL;
-	QB_G(thread_pool) = NULL;
 	QB_G(scopes) = NULL;
 	QB_G(scope_count) = 0;
 	QB_G(external_symbols) = NULL;
 	QB_G(external_symbol_count) = 0;
-	QB_G(thread_pool) = NULL;
 	QB_G(caller_interpreter_context) = NULL;
 #ifdef ZEND_ACC_GENERATOR
 	QB_G(generator_contexts) = NULL;
@@ -909,7 +902,9 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 	uint32_t i, j;
 	qb_discard_current_build(TSRMLS_C);
 
-	qb_destroy_thread_pool(TSRMLS_C);
+	if(QB_G(main_thread).type != -1) {
+		qb_free_main_thread(&QB_G(main_thread));
+	}
 
 	for(i = 0; i < QB_G(scope_count); i++) {
 		qb_import_scope *scope = QB_G(scopes)[i];
@@ -1079,6 +1074,10 @@ NO_RETURN void qb_abort(const char *format, ...) {
 	// just to silence the warning--zend_error_cb() doesn't return when E_ERROR is passed
  	exit(0);
 #endif
+}
+
+NO_RETURN void qb_bailout(void) {
+	qb_abort("Error");
 }
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)

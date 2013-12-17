@@ -368,10 +368,10 @@ static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *addr
 	uint32_t i, j;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
 	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
-	uint32_t cpu_count = qb_get_cpu_count();
 
 	if(image->trueColor) {
-		int tpixel;
+		qb_thread_proc proc = NULL;
+		uint32_t pixel_size;
 
 		switch(pixel_type) {
 			case QB_PIXEL_I08_4:
@@ -380,92 +380,61 @@ static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *addr
 
 				for(i = 0; i < (uint32_t) image->sy; i++) {
 					for(j = 0; j < (uint32_t) image->sx; j++) {
-						tpixel = gdImageTrueColorPixel(image, j, i);
-						p[0] = tpixel;
+						p[0] = gdImageTrueColorPixel(image, j, i);
 						p += 1;
 					}
 				}
 			}	break;
 			case QB_PIXEL_F32_4: {
-				float32_t *p = ARRAY_IN(storage, F32, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgba_pixel_from_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 4;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgba_pixel_from_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 4;
 			}	break;
 			case QB_PIXEL_F32_3: {
-				float32_t *p = ARRAY_IN(storage, F32, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgb_pixel_from_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 3;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgb_pixel_from_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 3;
 			}	break;
 			case QB_PIXEL_F32_1: {
-				float32_t *p = ARRAY_IN(storage, F32, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_monochrome_pixel_from_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 1;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_monochrome_pixel_from_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 1;
 			}	break;
 			case QB_PIXEL_F64_4: {
-				float64_t *p = ARRAY_IN(storage, F64, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgba_pixel_from_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 4;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgba_pixel_from_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 4;
 			}	break;
 			case QB_PIXEL_F64_3: {
-				float64_t *p = ARRAY_IN(storage, F64, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgb_pixel_from_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 3;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgb_pixel_from_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 3;
 			}	break;
 			case QB_PIXEL_F64_1: {
-				float64_t *p = ARRAY_IN(storage, F64, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_monochrome_pixel_from_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 1;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_monochrome_pixel_from_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 1;
 			}	break;
 			default: {
 			}	break;
 		}
-	} else {
-		unsigned char pixel;
 
+		if(proc) {
+			TSRMLS_FETCH();
+			int8_t *p = ARRAY_IN(storage, I08, address);
+			qb_task_group _group, *group = &_group;
+			qb_task task_buffer[4096];
+			qb_main_thread *main_thread = qb_get_main_thread(TSRMLS_C);
+			qb_initialize_task_group(group, (qb_thread *) main_thread, task_buffer, sizeof(task_buffer) / sizeof(task_buffer[0]), image->sy);
+			for(i = 0; i < (uint32_t) image->sy; i++) {
+				qb_add_task(group, proc, p, image->tpixels[i], image->sx, NULL);
+				p += image->sx * pixel_size;
+			}
+			qb_run_task_group(group);
+			qb_free_task_group(group);
+		}
+	} else {
 		switch(pixel_type) {
 			case QB_PIXEL_I08_1: {
 				int8_t *p = ARRAY_IN(storage, I08, address);
 
 				for(i = 0; i < (uint32_t) image->sy; i++) {
 					for(j = 0; j < (uint32_t) image->sx; j++) {
-						pixel = gdImagePalettePixel(image, j, i);
-						p[0] = pixel;
+						p[0] = gdImagePalettePixel(image, j, i);
 						p += 1;
 					}
 				}
@@ -592,6 +561,9 @@ static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *addres
 	}
 
 	if(image->trueColor) {
+		qb_thread_proc proc = NULL;
+		uint32_t pixel_size;
+
 		switch(pixel_type) {
 			case QB_PIXEL_I08_4:
 			case QB_PIXEL_I32_1: {
@@ -605,73 +577,46 @@ static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *addres
 				}
 			}	break;
 			case QB_PIXEL_F32_4: {
-				float32_t *p = ARRAY_IN(storage, F32, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgba_pixel_to_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 4;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgba_pixel_to_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 4;
 			}	break;
 			case QB_PIXEL_F32_3: {
-				float32_t *p = ARRAY_IN(storage, F32, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgb_pixel_to_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 3;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgb_pixel_to_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 3;
 			}	break;
 			case QB_PIXEL_F32_1: {
-				float32_t *p = ARRAY_IN(storage, F32, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_monochrome_pixel_to_gd_image_scanline_F32, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 1;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_monochrome_pixel_to_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 1;
 			}	break;
 			case QB_PIXEL_F64_4: {
-				float64_t *p = ARRAY_IN(storage, F64, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgba_pixel_to_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 4;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgba_pixel_to_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 4;
 			}	break;
 			case QB_PIXEL_F64_3: {
-				float64_t *p = ARRAY_IN(storage, F64, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_rgb_pixel_to_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 3;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_rgb_pixel_to_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 3;
 			}	break;
 			case QB_PIXEL_F64_1: {
-				float64_t *p = ARRAY_IN(storage, F64, address);
-				qb_thread_pool *pool;
-				TSRMLS_FETCH();
-				pool = qb_get_thread_pool(TSRMLS_C);
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					qb_schedule_task(pool, qb_copy_monochrome_pixel_to_gd_image_scanline_F64, p, image->tpixels[i], image->sx, NULL);
-					p += image->sx * 1;
-				}
-				qb_run_tasks(pool);
+				proc = qb_copy_monochrome_pixel_to_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 1;
 			}	break;
 			default: {
 			}	break;
+		}
+
+		if(proc) {
+			TSRMLS_FETCH();
+			int8_t *p = ARRAY_IN(storage, I08, address);
+			qb_task_group _group, *group = &_group;
+			qb_task task_buffer[4096];
+			qb_main_thread *main_thread = qb_get_main_thread(TSRMLS_C);
+			qb_initialize_task_group(group, (qb_thread *) main_thread, task_buffer, sizeof(task_buffer) / sizeof(task_buffer[0]), image->sy);
+			for(i = 0; i < (uint32_t) image->sy; i++) {
+				qb_add_task(group, proc, p, image->tpixels[i], image->sx, NULL);
+				p += image->sx * pixel_size;
+			}
+			qb_run_task_group(group);
+			qb_free_task_group(group);
 		}
 	} else {
 		switch(pixel_type) {

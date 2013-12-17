@@ -149,6 +149,8 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	const char *current_filename;
 	uint32_t current_line_number;
 
+	qb_main_thread main_thread;
+
 	long thread_count;
 
 	zend_bool allow_bytecode_interpretation;
@@ -197,8 +199,6 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	uint32_t generator_context_count;
 #endif
 
-	qb_thread_pool *thread_pool;
-
 	double execution_start_time;
 ZEND_END_MODULE_GLOBALS(qb)
 
@@ -224,8 +224,7 @@ uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *nam
 
 qb_build_context * qb_get_current_build(TSRMLS_D);
 
-qb_thread_pool * qb_get_thread_pool(TSRMLS_D);
-
+qb_main_thread * qb_get_main_thread(TSRMLS_D);
 uint32_t qb_get_thread_count(TSRMLS_D);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
@@ -233,6 +232,8 @@ void qb_abort(const char *format, ...);
 
 ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
 void qb_warn(const char *format, ...);
+
+NO_RETURN void qb_bailout(void);
 
 extern int qb_user_opcode;
 extern int qb_reserved_offset;
