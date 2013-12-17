@@ -112,6 +112,8 @@ struct qb_native_compiler_context {
 
 extern qb_native_symbol global_native_symbols[];
 extern uint32_t global_native_symbol_count;
+extern qb_native_symbol global_intrinsic_symbols[];
+extern uint32_t global_intrinsic_symbol_count;
 
 void qb_free_native_code(qb_native_code_bundle *bundle);
 void qb_compile_to_native_code(qb_native_compiler_context *cxt);

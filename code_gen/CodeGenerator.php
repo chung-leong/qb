@@ -385,13 +385,6 @@ class CodeGenerator {
 		// parse for declaration of helper functions 
 		$functionDeclarations = $this->getFunctionDeclarations();
 		
-		// add intrinsics
-		$folder = dirname(__FILE__);
-		$intrinsic = file(($compiler == "MSVC") ? "$folder/listings/intrinsic_functions_msvc.txt" : "$folder/listings/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
-		foreach($intrinsic as $decl) {
-			$functionDeclarations[] = $decl;
-		}
-
 		// figure out what the symbols are
 		$symbols = array();
 		foreach($functionDeclarations as $decl) {
@@ -457,12 +450,6 @@ class CodeGenerator {
 			$symbols["floor"] = "(void*) -1";
 		}
 	
-		// print out prototypes of intrinsics
-		foreach($intrinsic as $line) {
-			fwrite($handle, "$line\n");
-		}
-		fwrite($handle, "\n");
-		
 		fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
 		foreach($symbols as $name => $symbol) {
 			fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
@@ -470,6 +457,17 @@ class CodeGenerator {
 		fwrite($handle, "};\n\n");
 		$count = count($symbols);
 		fwrite($handle, "uint32_t global_native_symbol_count = $count;\n\n");
+		
+		// load list of intrinsic functions
+		$folder = dirname(__FILE__);
+		$intrinsics = file(($compiler == "MSVC") ? "$folder/listings/intrinsic_functions_msvc.txt" : "$folder/listings/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+		fwrite($handle, "qb_native_symbol global_intrinsic_symbols[] = {\n");
+		foreach($intrinsics as $name) {
+			fwrite($handle, "	{	0,	\"$name\",	NULL	},\n");
+		}
+		fwrite($handle, "};\n\n");
+		$count = count($intrinsics);
+		fwrite($handle, "uint32_t global_intrinsic_symbol_count = $count;\n\n");
 	}
 
 	public function writeNativeDebugStub($handle) {

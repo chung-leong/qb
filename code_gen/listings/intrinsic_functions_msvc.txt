@@ -1,16 +1,48 @@
-void _CIacos(void);
-void _CIasin(void);
-void _CIatan(void);
-void _CIatan2(void);
-void _CIcos(void);
-void _CIcosh(void);
-void _CIexp(void);
-void _CIfmod(void);
-void _CIlog(void);
-void _CIlog10(void);
-void _CIpow(void);
-void _CIsin(void);
-void _CIsinh(void);
-void _CIsqrt(void);
-void _CItan(void);
-void _CItanh(void);
+_CIacos
+_CIasin
+_CIatan
+_CIatan2
+_CIcos
+_CIcosh
+_CIexp
+_CIfmod
+_CIlog
+_CIlog10
+_CIpow
+_CIsin
+_CIsinh
+_CIsqrt
+_CItan
+_CItanh
+__libm_sse2_acos
+__libm_sse2_acosf
+__libm_sse2_asin
+__libm_sse2_asinf
+__libm_sse2_atan
+__libm_sse2_atan2
+__libm_sse2_atanf
+__libm_sse2_cos
+__libm_sse2_cosf
+__libm_sse2_exp
+__libm_sse2_expf
+__libm_sse2_log
+__libm_sse2_log10
+__libm_sse2_log10f
+__libm_sse2_logf
+__libm_sse2_pow
+__libm_sse2_powf
+__libm_sse2_sin
+__libm_sse2_sinf
+__libm_sse2_tan
+__libm_sse2_tanf
+_libm_sse2_acos_precise
+_libm_sse2_asin_precise
+_libm_sse2_atan_precise
+_libm_sse2_cos_precise
+_libm_sse2_exp_precise
+_libm_sse2_log10_precise
+_libm_sse2_log_precise
+_libm_sse2_pow_precise
+_libm_sse2_sin_precise
+_libm_sse2_sqrt_precise
+_libm_sse2_tan_precise

@@ -1242,9 +1242,56 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "};\n");
 }
 
+static void * qb_get_c_library_proc_address(const char *name) {
+	void *address = NULL;
+#if defined(_MSC_VER)
+#ifdef ZEND_DEBUG
+	static const char *dll_names[] = { "msvcr110.dll", "msvcr110d.dll", "msvcr100.dll", "msvcr100d.dll", "msvcr90.dll", "msvcr90d.dll" };
+#else
+	static const char *dll_names[] = { "msvcr110.dll", "msvcr100.dll", "msvcr90.dll" };
+#endif
+	static HMODULE c_lib_handle = 0;
+	static const char *c_lib_dll_name = NULL;
+	if(!c_lib_handle) {
+		// see which of these DLL's is loaded
+		uint32_t i;
+		for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
+			c_lib_handle = GetModuleHandle(dll_names[i]);
+			if(c_lib_handle) {
+				c_lib_dll_name = dll_names[i];
+				break;
+			}
+		}
+	}
+	if(c_lib_handle) {
+		address = GetProcAddress(c_lib_handle, name);
+	}
+	if(!address) {
+		// try loading a more recent version of the runtime
+		static HMODULE newer_c_lib_handle = 0;
+		if(!newer_c_lib_handle) {
+			uint32_t i;
+			for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
+				if(dll_names[i] != c_lib_dll_name) {
+					newer_c_lib_handle = LoadLibrary(dll_names[i]);
+					if(newer_c_lib_handle) {
+						break;
+					}
+				}
+			}
+		}
+		if(newer_c_lib_handle) {
+			address = GetProcAddress(newer_c_lib_handle, name);
+		}
+	}
+#endif
+	return address;
+}
+
 static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
 	long hash_value;
 	uint32_t i, name_len = strlen(name);
+	const char *proc_name = name;
 #if defined(_MSC_VER)
 	char name_buffer[256];
 	if(name_len > sizeof(name_buffer) - 1) {
@@ -1273,6 +1320,19 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) 
 		if(symbol->hash_value == hash_value) {
 			if(strcmp(symbol->name, name) == 0) {
 				return symbol->address;
+			}
+		}
+	}
+	for(i = 0; i < global_intrinsic_symbol_count; i++) {
+		qb_native_symbol *symbol = &global_intrinsic_symbols[i];
+		if(symbol->hash_value == hash_value) {
+			if(strcmp(symbol->name, name) == 0) {
+				if(!symbol->address) {
+					symbol->address = qb_get_c_library_proc_address(name);
+				}
+				if(symbol->address) {
+					return symbol->address;
+				}
 			}
 		}
 	}
@@ -2265,6 +2325,10 @@ void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_b
 		// calculate hash for faster lookup
 		for(i = 0; i < global_native_symbol_count; i++) {
 			qb_native_symbol *symbol = &global_native_symbols[i];
+			symbol->hash_value = zend_hash_func(symbol->name, strlen(symbol->name) + 1);
+		}
+		for(i = 0; i < global_intrinsic_symbol_count; i++) {
+			qb_native_symbol *symbol = &global_intrinsic_symbols[i];
 			symbol->hash_value = zend_hash_func(symbol->name, strlen(symbol->name) + 1);
 		}
 		hashes_initialized = TRUE;
