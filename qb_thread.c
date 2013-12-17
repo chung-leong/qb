@@ -88,9 +88,9 @@ static int qb_lock_mutex(qb_mutex *mutex, int non_blocking) {
 #else
 	DWORD result;
 	if(non_blocking) {
-		WaitForSingleObject(mutex->mutex, 0);
+		result = WaitForSingleObject(mutex->mutex, 0);
 	} else {
-		WaitForSingleObject(mutex->mutex, INFINITE);
+		result = WaitForSingleObject(mutex->mutex, INFINITE);
 	}
 	return (result == WAIT_OBJECT_0);
 #endif
@@ -133,7 +133,7 @@ static int qb_wait_for_condition(qb_condition *condition, qb_mutex *mutex) {
 #else
 	DWORD result;
 	HANDLE objects[2] = { condition->event, mutex->mutex };
-	ReleaseMutex(sink->mutex);
+	ReleaseMutex(mutex->mutex);
 	result = WaitForMultipleObjects(2, objects, TRUE, INFINITE);
 	return (result == WAIT_OBJECT_0);
 #endif
@@ -144,7 +144,7 @@ static int qb_signal_condition(qb_condition *condition) {
 	int result = pthread_cond_signal(&condition->condition);
 	return (result == 0);
 #else
-	BOOL result = SetEvent(&condition->event);
+	BOOL result = SetEvent(condition->event);
 	return result;
 #endif
 }
@@ -873,8 +873,8 @@ void qb_signal_bailout(qb_thread *thread) {
 	}
 }
 
-void qb_initialize_thread_pool(void) {
-	pool->per_request_thread_limit = qb_get_thread_count();
+void qb_initialize_thread_pool(TSRMLS_D) {
+	pool->per_request_thread_limit = qb_get_thread_count(TSRMLS_C);
 	if(pool->per_request_thread_limit > 1) {
 		pool->global_thread_limit = pool->per_request_thread_limit * QB_GLOBAL_THREAD_COUNT_MULTIPLIER;
 	} else {

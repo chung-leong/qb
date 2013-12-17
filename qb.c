@@ -835,7 +835,7 @@ PHP_MINIT_FUNCTION(qb)
 
 	qb_install_user_opcode_handler();
 
-	qb_initialize_thread_pool();
+	qb_initialize_thread_pool(TSRMLS_C);
 	qb_initialize_main_thread(&main_thread);
 	qb_add_workers(&main_thread);
 	qb_free_main_thread(&main_thread);

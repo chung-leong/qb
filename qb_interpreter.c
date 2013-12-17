@@ -576,6 +576,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 
 	// initialize new interpreter contexts
 	if(new_context_count > 0) {
+		USE_TSRM
 		for(i = reusing_original_cxt; i < cxt->fork_count; i++) {
 			qb_interpreter_context *fork_cxt = &fork_contexts[i - reusing_original_cxt];
 			if(i < function_count && cxt->thread->type == QB_THREAD_MAIN) {

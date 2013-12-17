@@ -186,7 +186,7 @@ void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1,
 void qb_signal_timeout(qb_thread *thread);
 void qb_signal_bailout(qb_thread *thread);
 
-void qb_initialize_thread_pool(void);
+void qb_initialize_thread_pool(TSRMLS_D);
 void qb_add_workers(qb_main_thread *thread);
 void qb_free_thread_pool(void);
 
