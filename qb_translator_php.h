@@ -104,7 +104,7 @@ enum {
 	#define Z_OPERAND_TMP_INDEX(op)			(Z_OPERAND_INFO(*op, var) / sizeof(temp_variable))
 #endif
 
-#define ZEND_OP_INDEX(zop)						(((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op)
+#define ZEND_OP_INDEX(zop)						((uint32_t) (((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op))
 #define ZEND_OP(index)							&cxt->zend_op_array->opcodes[index]
 
 void qb_initialize_php_translator_context(qb_php_translator_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);

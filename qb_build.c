@@ -45,7 +45,7 @@ static zend_op_array *qb_find_zend_op_array(qb_build_context *cxt, qb_function_t
 	USE_TSRM
 	HashTable *ft;
 	zend_function *zfunc = NULL;
-	uint32_t name_len = strlen(tag->function_name);
+	uint32_t name_len = (uint32_t) strlen(tag->function_name);
 	char *name;
 	ALLOCA_FLAG(use_heap)
 

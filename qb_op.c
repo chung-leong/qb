@@ -31,7 +31,7 @@ uint32_t qb_get_op_flags(qb_opcode opcode) {
 uint32_t qb_get_operand_count(qb_opcode opcode) {
 	const qb_op_info *op = &global_op_info[opcode];
 	const char *codes = op->instruction_format;
-	return strlen(codes);
+	return (uint32_t) strlen(codes);
 }
 
 uint32_t qb_get_instruction_length(qb_opcode opcode) {

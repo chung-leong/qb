@@ -632,7 +632,7 @@ static void qb_transfer_operands_function_call(qb_compiler_context *cxt, qb_op_f
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	const char *func_name = func->zend_function->common.function_name;
 	qb_external_symbol_type symbol_type = (func->type == QB_OPERAND_STATIC_ZEND_FUNCTION) ? QB_EXT_SYM_STATIC_ZEND_FUNCTION : QB_EXT_SYM_ZEND_FUNCTION;
-	uint32_t func_name_len = strlen(func_name);
+	uint32_t func_name_len = (uint32_t) strlen(func_name);
 	uint32_t func_index = qb_import_external_symbol(symbol_type, func_name, func_name_len, func->zend_function TSRMLS_CC);
 	uint32_t *var_indices, ret_index = INVALID_INDEX;
 	uint32_t i;

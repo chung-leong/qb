@@ -1032,7 +1032,7 @@ void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_inde
 	if(symbol->type == QB_EXT_SYM_STATIC_ZEND_FUNCTION) {
 		zend_class_entry *called_scope = EG(called_scope);
 		if(zfunc->common.scope != called_scope) {
-			zend_hash_find(&called_scope->function_table, zfunc->common.function_name, strlen(zfunc->common.function_name) + 1, (void **) &zfunc);
+			zend_hash_find(&called_scope->function_table, zfunc->common.function_name, (uint32_t) strlen(zfunc->common.function_name) + 1, (void **) &zfunc);
 		}
 	}
 

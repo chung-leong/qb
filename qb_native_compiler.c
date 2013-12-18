@@ -64,7 +64,7 @@ static void qb_printf(qb_native_compiler_context *cxt, const char *format, ...) 
 
 static void qb_print(qb_native_compiler_context *cxt, const char *s) {
 	USE_TSRM
-	uint32_t len = strlen(s);
+	uint32_t len = (uint32_t) strlen(s);
 	if(cxt->print_source) {
 		php_write((char *) s, len TSRMLS_CC);
 	}
@@ -1290,7 +1290,7 @@ static void * qb_get_c_library_proc_address(const char *name) {
 
 static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
 	long hash_value;
-	uint32_t i, name_len = strlen(name);
+	uint32_t i, name_len = (uint32_t) strlen(name);
 	const char *proc_name = name;
 #if defined(_MSC_VER)
 	char name_buffer[256];
@@ -1369,7 +1369,7 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	USE_TSRM
 	char buffer[256];
-	int count;
+	size_t count;
 	DWORD time_limit = EG(timeout_seconds) ? EG(timeout_seconds) * 1000000 : INFINITE;
 
 	// close the write stream
@@ -1383,7 +1383,7 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	// read output from stderr
 	while((count = fread(buffer, 1, sizeof(buffer), cxt->error_stream))) {
 		if(cxt->print_errors) {
-			php_write(buffer, count TSRMLS_CC);
+			php_write(buffer, (uint32_t) count TSRMLS_CC);
 		}
 	}
 
@@ -2146,7 +2146,7 @@ void qb_free_native_code(qb_native_code_bundle *bundle) {
 }
 
 static void qb_create_cache_folder(qb_native_compiler_context *cxt) {
-	int len = strlen(cxt->cache_folder_path);
+	uint32_t len = (uint32_t) strlen(cxt->cache_folder_path);
 	if(len == 0) {
 		// use the system temp folder when no cache folder is specified
 #ifdef __GNUC__
@@ -2325,11 +2325,11 @@ void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_b
 		// calculate hash for faster lookup
 		for(i = 0; i < global_native_symbol_count; i++) {
 			qb_native_symbol *symbol = &global_native_symbols[i];
-			symbol->hash_value = zend_hash_func(symbol->name, strlen(symbol->name) + 1);
+			symbol->hash_value = zend_hash_func(symbol->name, (uint32_t) strlen(symbol->name) + 1);
 		}
 		for(i = 0; i < global_intrinsic_symbol_count; i++) {
 			qb_native_symbol *symbol = &global_intrinsic_symbols[i];
-			symbol->hash_value = zend_hash_func(symbol->name, strlen(symbol->name) + 1);
+			symbol->hash_value = zend_hash_func(symbol->name, (uint32_t) strlen(symbol->name) + 1);
 		}
 		hashes_initialized = TRUE;
 	}

@@ -1,3 +1,6 @@
+_ftol2
+_allshr
+_allshl
 _CIacos
 _CIasin
 _CIatan

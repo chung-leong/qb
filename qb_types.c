@@ -94,7 +94,7 @@ zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {
 }
 
 zval * qb_cstring_to_zval(const char *s TSRMLS_DC) {
-	return qb_string_to_zval(s, strlen(s) TSRMLS_CC);
+	return qb_string_to_zval(s, (uint32_t) strlen(s) TSRMLS_CC);
 }
 
 zval * qb_string_to_zend_literal(const char *s, uint32_t len TSRMLS_DC) {
@@ -108,7 +108,7 @@ zval * qb_string_to_zend_literal(const char *s, uint32_t len TSRMLS_DC) {
 }
 
 zval * qb_cstring_to_zend_literal(const char *s TSRMLS_DC) {
-	return qb_string_to_zend_literal(s, strlen(s) TSRMLS_CC);
+	return qb_string_to_zend_literal(s, (uint32_t) strlen(s) TSRMLS_CC);
 }
 
 uint32_t qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type) {

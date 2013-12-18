@@ -40,7 +40,7 @@ static uint32_t qb_set_array_dimensions_from_file(qb_storage *storage, qb_addres
 	php_stream_seek(stream, 0, SEEK_END);		
 	size = php_stream_tell(stream);
 	php_stream_seek(stream, position, SEEK_SET);
-	return qb_set_array_dimensions_from_byte_count(storage, address, size);
+	return qb_set_array_dimensions_from_byte_count(storage, address, (uint32_t) size);
 }
 
 static void qb_copy_elements_to_file(qb_storage *storage, qb_address *address, php_stream *stream) {

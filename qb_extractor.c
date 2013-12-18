@@ -26,12 +26,12 @@ static zval * qb_add_string(zval *array, const char *name, const char *s, int32_
 	ALLOC_INIT_ZVAL(zvalue);
 	if(s) {
 		if(len == -1) {
-			len = strlen(s);
+			len = (int32_t) strlen(s);
 		}
 		ZVAL_STRINGL(zvalue, s, len, TRUE);
 	}
 	if(name) {
-		zend_hash_update(ht, name, strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
+		zend_hash_update(ht, name, (uint32_t) strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
 	} else {
 		zend_hash_next_index_insert(ht, &zvalue, sizeof(zval *), NULL);
 	}
@@ -44,7 +44,7 @@ static zval * qb_add_int(zval *array, const char *name, long value) {
 	ALLOC_INIT_ZVAL(zvalue);
 	ZVAL_LONG(zvalue, value);
 	if(name) {
-		zend_hash_update(ht, name, strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
+		zend_hash_update(ht, name, (uint32_t) strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
 	} else {
 		zend_hash_next_index_insert(ht, &zvalue, sizeof(zval *), NULL);
 	}
@@ -57,7 +57,7 @@ static zval * qb_add_float(zval *array, const char *name, double value) {
 	ALLOC_INIT_ZVAL(zvalue);
 	ZVAL_DOUBLE(zvalue, value);
 	if(name) {
-		zend_hash_update(ht, name, strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
+		zend_hash_update(ht, name, (uint32_t) strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
 	} else {
 		zend_hash_next_index_insert(ht, &zvalue, sizeof(zval *), NULL);
 	}
@@ -70,7 +70,7 @@ static zval * qb_add_array(zval *array, const char *name) {
 	ALLOC_INIT_ZVAL(zvalue);
 	array_init(zvalue);
 	if(name) {
-		zend_hash_update(ht, name, strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
+		zend_hash_update(ht, name, (uint32_t) strlen(name) + 1, &zvalue, sizeof(zval *), NULL);
 	} else {
 		zend_hash_next_index_insert(ht, &zvalue, sizeof(zval *), NULL);
 	}

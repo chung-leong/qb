@@ -260,7 +260,7 @@ void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage) 
 	src_segment_start = &src_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
 	src_segment_end = &src_storage->segments[QB_SELECTOR_LOCAL_ARRAY];
 	dst_segment_start = &src_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
-	byte_count = (src_segment_end->memory + src_segment_end->byte_count) - src_segment_start->memory;
+	byte_count = (uint32_t) ((src_segment_end->memory + src_segment_end->byte_count) - src_segment_start->memory);
 	memcpy(dst_segment_start->memory, src_segment_start->memory, byte_count);
 
 	for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < src_storage->segment_count; i++) {

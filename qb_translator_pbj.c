@@ -523,7 +523,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 
 			if(!cxt->pbj_ops) {				
 				// each op is 8 bytes long 
-				uint32_t bytes_remaining = (cxt->pbj_data_end - cxt->pbj_data) + 1;
+				uint32_t bytes_remaining = (uint32_t) (cxt->pbj_data_end - cxt->pbj_data) + 1;
 				uint32_t op_count = bytes_remaining / 8;
 				if(op_count == 0) {
 					return;

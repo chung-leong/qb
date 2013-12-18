@@ -574,7 +574,7 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, zend_op_array *op_array) {
 	qb_function_declaration *function_decl = NULL;
 	const char *doc_comment = op_array->doc_comment;
-	size_t doc_comment_len = op_array->doc_comment_len;
+	uint32_t doc_comment_len = op_array->doc_comment_len;
 	int offsets[48], matches;
 	uint32_t start_index = 0;
 	int32_t use_qb = FALSE;
@@ -650,7 +650,7 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_class_entry *ce) {
 	qb_class_declaration *class_decl;
 	const char *doc_comment = Z_CLASS_INFO(ce, doc_comment);
-	size_t doc_comment_len = Z_CLASS_INFO(ce, doc_comment_len);
+	uint32_t doc_comment_len = Z_CLASS_INFO(ce, doc_comment_len);
 	int offsets[48], matches;
 	uint32_t start_index = 0;
 	Bucket *p;
@@ -690,7 +690,7 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 	for(p = ce->properties_info.pListHead; p; p = p->pListNext) {
 		zend_property_info *prop = p->pData;
 		const char *doc_comment = prop->doc_comment;
-		size_t doc_comment_len = prop->doc_comment_len;
+		uint32_t doc_comment_len = (uint32_t) prop->doc_comment_len;
 		int offsets[48], matches;
 		uint32_t start_index = 0;
 

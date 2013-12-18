@@ -3636,7 +3636,7 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 
 		if(len > 0) {
 			cxt->external_code = data;
-			cxt->external_code_length = len;
+			cxt->external_code_length = (uint32_t) len;
 		}
 	}
 	if(!cxt->external_code && target_op_array) {
