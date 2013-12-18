@@ -471,6 +471,9 @@ typedef struct qb_native_proc_record {\
 
 #define PROTOTYPE_COUNT		2000
 
+extern uint32_t illegal_vc11_intrinsic_indices[];
+extern uint32_t illegal_vc11_intrinsic_count;
+
 static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
 	int32_t *prototype_indices, index;
@@ -491,9 +494,16 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 					required[index] = TRUE;
 				}
 			}
-
 		}
 	}
+
+#ifdef _WIN64
+	for(i = 0; i < illegal_vc11_intrinsic_count; i++) {
+		uint32_t illegal_index = illegal_vc11_intrinsic_indices[i];
+		const char *illegal_prototype = cxt->function_prototypes[illegal_index];
+		required[illegal_index] = FALSE;
+	}
+#endif
 
 	// print prototypes, maintaining correct order
 	for(i = 0; i < PROTOTYPE_COUNT; i++) {
@@ -1293,7 +1303,7 @@ static void * qb_get_c_library_proc_address(const char *name) {
 	return address;
 }
 
-static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
+static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, int32_t find_inlined_function) {
 	long hash_value;
 	uint32_t i, name_len = (uint32_t) strlen(name);
 	const char *proc_name = name;
@@ -1324,6 +1334,12 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) 
 		qb_native_symbol *symbol = &global_native_symbols[i];
 		if(symbol->hash_value == hash_value) {
 			if(strcmp(symbol->name, name) == 0) {
+				if(symbol->address == (void *) -1) {
+					if(find_inlined_function) {
+						// the function is supposed to be inline
+						symbol->address = qb_get_c_library_proc_address(name);
+					}
+				}
 				return symbol->address;
 			}
 		}
@@ -1592,8 +1608,8 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 		if(symbol_bind == STB_LOCAL) {
 			symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
 		} else if(symbol_bind == STB_GLOBAL) {
-			symbol_address = qb_find_symbol(cxt, symbol_name);
-			if(!symbol_address || symbol_address == (void *) -1) {
+			symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+			if(!symbol_address) {
 				qb_abort("missing symbol: %s\n", symbol_name);
 			}
 		} else {
@@ -1638,7 +1654,7 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					if(!qb_find_symbol(cxt, symbol_name)) {
+					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
 						return FALSE;
 					}
 				}
@@ -1721,8 +1737,8 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 		if(symbol_bind == STB_LOCAL) {
 			symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
 		} else if(symbol_bind == STB_GLOBAL) {
-			symbol_address = qb_find_symbol(cxt, symbol_name);
-			if(!symbol_address || symbol_address == (void *) -1) {
+			symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+			if(!symbol_address) {
 				qb_abort("missing symbol: %s\n", symbol_name);
 			}
 		} else {
@@ -1761,7 +1777,7 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					if(!qb_find_symbol(cxt, symbol_name)) {
+					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
 						return FALSE;
 					}
 				}
@@ -1853,8 +1869,8 @@ static int32_t qb_parse_macho64(qb_native_compiler_context *cxt) {
 			if(reloc->r_extern) {
 				struct nlist_64 *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
-				symbol_address = qb_find_symbol(cxt, symbol_name);
-				if(!symbol_address || symbol_address == (void *) -1) {
+				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+				if(!symbol_address) {
 					qb_abort("missing symbol: %s\n", symbol_name);
 					return FALSE;
 				}
@@ -1975,8 +1991,8 @@ static int32_t qb_parse_macho32(qb_native_compiler_context *cxt) {
 			if(reloc->r_extern) {
 				struct nlist *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
-				symbol_address = qb_find_symbol(cxt, symbol_name);
-				if(!symbol_address || symbol_address == (void *) -1) {
+				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+				if(!symbol_address) {
 					qb_abort("missing symbol: %s\n", symbol_name);
 					return FALSE;
 				}
@@ -2062,11 +2078,11 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 				char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : string_section + symbol->N.Name.Long;
 				void *symbol_address;
 				void *target_address = cxt->binary + section->PointerToRawData + reloc->VirtualAddress;
-				int64_t A, S, P; 
+				int64_t A, S, P, R; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
-					symbol_address = qb_find_symbol(cxt, symbol_name);
-					if(!symbol_address || symbol_address == (void *) -1) {
+					symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+					if(!symbol_address) {
 						qb_abort("missing symbol: %s\n", symbol_name);
 					}
 				} else {
@@ -2083,7 +2099,12 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 					case IMAGE_REL_AMD64_ABSOLUTE:
 						break;
 					case IMAGE_REL_AMD64_REL32:
-						*((int32_t *) target_address) = S + A - P;
+						R = S + A - P;
+						if((R & 0xFFFFFFFF00000000) && ((R ^ 0xFFFFFFFF00000000) & 0xFFFFFFFF00000000)) {
+							// the symbol is too far away
+							return FALSE;
+						}
+						*((uint32_t *) target_address) = R;
 						break;
 					default:
 						return FALSE;
@@ -2103,7 +2124,7 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					if(!qb_find_symbol(cxt, symbol_name)) {
+					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
 						return FALSE;
 					}
 				}
@@ -2155,8 +2176,8 @@ static int32_t qb_parse_coff32(qb_native_compiler_context *cxt) {
 				int32_t A, S, P; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
-					symbol_address = qb_find_symbol(cxt, symbol_name);
-					if(!symbol_address || symbol_address == (void *) -1) {
+					symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+					if(!symbol_address) {
 						if(strcmp(symbol_name, "_floor") == 0) {
 							symbol_address = floor;
 						} else {
@@ -2198,7 +2219,7 @@ static int32_t qb_parse_coff32(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					if(!qb_find_symbol(cxt, symbol_name)) {
+					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
 						return FALSE;
 					}
 				}

@@ -367,6 +367,21 @@ class CodeGenerator {
 		}
 		unset($decl);
 		
+		if($compiler == "MSVC") {
+			// these functions cannot be declared in VC11
+			$folder = dirname(__FILE__);
+			$illegalIntrinsics = file("$folder/listings/intrinsic_functions_msvc11.txt", FILE_IGNORE_NEW_LINES);
+			$illegalIntrinsicIndices = array();
+			foreach($illegalIntrinsics as $illegalIntrinsic) {
+				$illegalIntrinsicIndices[] = $functionIndices[$illegalIntrinsic];
+			}
+			$illegalIntrinsicCount = count($illegalIntrinsicIndices);
+			$illegalIntrinsicIndices = implode(", ", $illegalIntrinsicIndices);
+			fwrite($handle, "uint32_t illegal_vc11_intrinsic_indices[] = { $illegalIntrinsicIndices };\n");
+			fwrite($handle, "uint32_t illegal_vc11_intrinsic_count = $illegalIntrinsicCount;\n");
+			fwrite($handle, "\n");
+		}
+		
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
 		$this->writeCompressTable($handle, "compressed_table_native_prototypes", $functionDeclarations, true, true);
