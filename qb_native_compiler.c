@@ -1456,7 +1456,16 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 	if(file != INVALID_HANDLE_VALUE) {
 		mapping = CreateFileMapping(file, NULL, PAGE_EXECUTE_WRITECOPY, 0, 0, NULL);
 		if(mapping != INVALID_HANDLE_VALUE) {
+#ifdef _WIN64
+			// load the object at an address within 4G of the DLL's base address
+			char *base_address = (char *) 0x00007FFF00000000;
+			do {
+				base_address += 0x100000;
+				cxt->binary = MapViewOfFileEx(mapping, FILE_MAP_EXECUTE | FILE_MAP_COPY, 0, 0, 0, base_address);
+			} while(!cxt->binary && base_address < (char *) 0x800000000000);
+#else
 			cxt->binary = MapViewOfFileEx(mapping, FILE_MAP_EXECUTE | FILE_MAP_COPY, 0, 0, 0, NULL);
+#endif
 			cxt->binary_size = GetFileSize(file, NULL);
 		}
 	}
@@ -2053,7 +2062,7 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 				char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : string_section + symbol->N.Name.Long;
 				void *symbol_address;
 				void *target_address = cxt->binary + section->PointerToRawData + reloc->VirtualAddress;
-				int32_t A, S, P; 
+				int64_t A, S, P; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 					symbol_address = qb_find_symbol(cxt, symbol_name);
@@ -2067,16 +2076,14 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 				}
 
 				A = *((int32_t *) target_address);
-				S = (int32_t) symbol_address;
-				P = ((int32_t) target_address);
+				S = (int64_t) symbol_address;
+				P = ((int64_t) target_address) + sizeof(int32_t);
 
 				switch(reloc->Type) {
-					case IMAGE_REL_I386_DIR32:
-						*((uint32_t *) target_address) = S + A;
+					case IMAGE_REL_AMD64_ABSOLUTE:
 						break;
-					case IMAGE_REL_I386_REL32:
 					case IMAGE_REL_AMD64_REL32:
-						*((uint32_t *) target_address) = S + A - P;
+						*((int32_t *) target_address) = S + A - P;
 						break;
 					default:
 						return FALSE;
