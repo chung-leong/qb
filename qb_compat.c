@@ -89,17 +89,6 @@ float log2f(float x) {
 
 #endif
 
-#ifdef __GNUC__
-#ifndef HAVE_SINCOS
-// gcc intrinsic functions--just make the symbols available if they doesn't exist
-void sincos() {
-}
-
-void sincosf() {
-}
-#endif
-#endif
-
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 /* {{{ php_intlog10abs
    Returns floor(log10(fabs(val))), uses fast binary search */

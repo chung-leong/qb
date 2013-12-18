@@ -1001,7 +1001,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
 			qb_copy_local_arguments_to_storage(cxt, qop);
 			qb_print(cxt, "\n");
-		} else if(qop->opcode == QB_END_STATIC) {
+		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_RESUME || qop->opcode == QB_SPOON) {
 			qb_printf(cxt, "ip = cxt->function->instructions + %d;\n", qop->instruction_offset);
 		} else if(qop->opcode == QB_INTR || qop->opcode == QB_FORK_U32) {
 			qb_printf(cxt, "ip = cxt->function->instructions + %d;\n", qop->instruction_offset);
@@ -1021,8 +1021,8 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
 			qb_copy_local_arguments_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
-		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_INTR || qop->opcode == QB_RESUME) {
-			if(!(cxt->ops[qop_index]->flags & QB_OP_JUMP_TARGET)) {
+		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_INTR || qop->opcode == QB_RESUME || qop->opcode == QB_SPOON) {
+			if(!(cxt->ops[qop_index + 1]->flags & QB_OP_JUMP_TARGET)) {
 				const char *jump_target = qb_get_jump_label(cxt, qop_index + 1);
 				qb_printf(cxt, "%s:\n", jump_target);
 			}
@@ -1062,6 +1062,41 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			qb_printf(cxt, "goto %s;\n", jump_target);
 			qb_print(cxt, "\n");
 		}
+
+#ifdef ZEND_DEBUG
+		for(i = 0; i < qop->operand_count; i++) {
+			qb_operand *operand = &qop->operands[i];
+			qb_address *address = operand->address;
+			char name[8];
+			if(i == qop->operand_count - 1 && qb_is_operand_write_target(qop->opcode, i)) {
+				sprintf(name, "res");
+			} else {
+				sprintf(name, "op%d", i + 1);
+			}
+			if(operand->type == QB_OPERAND_ADDRESS) {
+				switch(address->mode) {
+					case QB_ADDRESS_MODE_SCA:
+					case QB_ADDRESS_MODE_ELE: {
+						qb_printf(cxt, "#undef %s\n", name);
+					}	break;
+					case QB_ADDRESS_MODE_ARR: {
+						if(address->array_size_address != cxt->zero_address) {
+							qb_printf(cxt, "#undef %s_ptr\n", name);
+							qb_printf(cxt, "#undef %s_count\n", name);
+							qb_printf(cxt, "#undef %s_count_ptr\n", name);
+						} else {
+							qb_printf(cxt, "#undef %s_ptr\n", name);
+							qb_printf(cxt, "#undef %s_count\n", name);
+						}
+					}	break;
+					default: {
+					}	break;
+				}
+			} else if(operand->type == QB_OPERAND_NUMBER) {
+				qb_printf(cxt, "#undef %s\n", name);
+			}
+		}
+#endif
 	}
 }
 
@@ -1161,18 +1196,8 @@ static void qb_print_reentry_switch(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
-		uint32_t restore_op_index = INVALID_INDEX;
-		switch(qop->opcode) {
-			case QB_RESUME:
-			case QB_INTR:
-			case QB_END_STATIC: {
-				restore_op_index = i + 1;
-			}	break;
-			default: {
-			}	break;
-		}
-		if(restore_op_index != INVALID_INDEX) {
-			const char *jump_target = qb_get_jump_label(cxt, restore_op_index);
+		if(qop->opcode == QB_END_STATIC || qop->opcode == QB_INTR || qop->opcode == QB_RESUME || qop->opcode == QB_SPOON) {
+			const char *jump_target = qb_get_jump_label(cxt, i + 1);
 			if(!started) {
 				qb_print(cxt, "switch(cxt->instruction_pointer - cxt->function->instructions) {\n");
 				started = TRUE;
@@ -1257,9 +1282,12 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "};\n");
 }
 
-static void * qb_get_c_library_proc_address(const char *name) {
+static void * qb_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #if defined(_MSC_VER)
+	// intrinsics employed by MSVC are located in the runtime DLL
+	// since the QB DLL might be used compiled using the same version of MSVC
+	// we'll look for the function dynamically
 #ifdef ZEND_DEBUG
 	static const char *dll_names[] = { "msvcr110.dll", "msvcr110d.dll", "msvcr100.dll", "msvcr100d.dll", "msvcr90.dll", "msvcr90d.dll" };
 #else
@@ -1299,6 +1327,14 @@ static void * qb_get_c_library_proc_address(const char *name) {
 			address = GetProcAddress(newer_c_lib_handle, name);
 		}
 	}
+#else
+#ifdef HAVE_SINCOS
+	if(strcmp(name, "sincos") == 0) {
+		address = sincos;
+	} else if(strcmp(name, "sincosf") == 0) {
+		address = sincosf;
+	}
+#endif
 #endif
 	return address;
 }
@@ -1336,8 +1372,8 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, 
 			if(strcmp(symbol->name, name) == 0) {
 				if(symbol->address == (void *) -1) {
 					if(find_inlined_function) {
-						// the function is supposed to be inline
-						symbol->address = qb_get_c_library_proc_address(name);
+						// the function is supposed to be inline but might be an intrinsic (this is for VC11)
+						symbol->address = qb_intrinsic_function_address(name);
 					}
 				}
 				return symbol->address;
@@ -1349,7 +1385,7 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, 
 		if(symbol->hash_value == hash_value) {
 			if(strcmp(symbol->name, name) == 0) {
 				if(!symbol->address) {
-					symbol->address = qb_get_c_library_proc_address(name);
+					symbol->address = qb_intrinsic_function_address(name);
 				}
 				if(symbol->address) {
 					return symbol->address;

@@ -29,9 +29,6 @@ set_time_limit(0);
 
 $copyright = file_get_contents("$scriptFolder/listings/copyright.txt");
 $include = <<<INCLUDE
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include "qb.h"
 
 INCLUDE;

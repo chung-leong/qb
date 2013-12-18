@@ -98,6 +98,8 @@ static void qb_add_constant_substitution(qb_function_inliner_context *cxt, qb_ad
 				CTYPE(F64) value = VALUE_IN(cxt->callee_context->storage, F64, callee_address);
 				caller_address = qb_obtain_constant_F64(cxt->caller_context, value);
 			}	break;
+			default: {
+			}	break;
 		}
 	} else {
 		uint32_t dimension = ARRAY_SIZE_IN(cxt->callee_context->storage, callee_address);

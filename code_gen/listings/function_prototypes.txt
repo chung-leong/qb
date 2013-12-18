@@ -46,3 +46,5 @@ float qb_fast_rsqrtf(float x);
 double qb_fast_rsqrt(double x);
 float qb_fast_sqrtf(float x);
 double qb_fast_sqrt(double x);
+void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count);
+void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer);

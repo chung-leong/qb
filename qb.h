@@ -21,6 +21,12 @@
 #ifndef QB_H_
 #define QB_H_
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#define _GNU_SOURCE		1
+
 #include <limits.h>
 #include <stdlib.h>
 #include <stddef.h>

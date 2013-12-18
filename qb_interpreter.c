@@ -623,8 +623,9 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	} else {
 		// transfer the execution state to the original context
 		qb_interpreter_context *first_cxt = &fork_contexts[0];
+		instr_offset = (intptr_t) first_cxt->instruction_pointer;
 		cxt->exit_type = first_cxt->exit_type;
-		cxt->instruction_pointer = first_cxt->instruction_pointer;
+		cxt->instruction_pointer = cxt->function->instructions + instr_offset;
 
 		if(cxt->exit_type == QB_VM_SPOON) {
 			// need to transfer non-shared segments back into the original storage
@@ -717,6 +718,9 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 
 	// resume execution
 	qb_handle_execution(cxt, TRUE);
+
+	// adjust instruction offset
+	cxt->instruction_pointer = (int8_t *) (cxt->instruction_pointer - cxt->function->instructions);
 
 	// unlock the function
 	qb_unlock_function(cxt->function);
@@ -876,6 +880,10 @@ void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *contr
 	// restore variables
 	cxt->thread = original_thread;
 	cxt->thread_count = original_thread_count;
+}
+
+void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer) {
+	qb_run_in_main_thread(cxt->thread, control_func, cxt, instruction_pointer, 0, &cxt->thread);
 }
 
 static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_number) {

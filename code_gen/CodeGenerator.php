@@ -476,6 +476,7 @@ class CodeGenerator {
 		// load list of intrinsic functions
 		$folder = dirname(__FILE__);
 		$intrinsics = file(($compiler == "MSVC") ? "$folder/listings/intrinsic_functions_msvc.txt" : "$folder/listings/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+
 		fwrite($handle, "qb_native_symbol global_intrinsic_symbols[] = {\n");
 		foreach($intrinsics as $name) {
 			fwrite($handle, "	{	0,	\"$name\",	NULL	},\n");
@@ -573,7 +574,7 @@ class CodeGenerator {
 		$compilerSpecific = file(($this->compiler == "MSVC") ? "$folder/listings/function_prototypes_msvc.txt" : "$folder/listings/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
 		foreach(array_merge($common, $compilerSpecific) as $line) {
 			array_unshift($functionDefinitions, array($line));
-		}						
+		}
 
 		// declare non-inlined functions first
 		$inlinePattern = '/\b(inline|zend_always_inline)\b/';
