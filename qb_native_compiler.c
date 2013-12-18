@@ -202,6 +202,10 @@ static int32_t qb_launch_cl(qb_native_compiler_context *cxt) {
 	// stop the appearance of pop up warnings
 	error_mode_before = SetErrorMode(0);
 
+#ifdef  _WIN64
+	// SSE2 is always available in x64 
+	sse_option = "";
+#else
 	// see if the CPU supports SSE
 	__cpuid(cpu_flags, 0x00000001);
 	if(cpu_flags[2] & (1 << 20) || cpu_flags[2] & (1 << 19) || cpu_flags[2] & (1 << 0) || cpu_flags[3] & (1 << 26)) {
@@ -211,6 +215,7 @@ static int32_t qb_launch_cl(qb_native_compiler_context *cxt) {
 	} else {
 		sse_option = "";
 	}
+#endif
 
 	// /O2		maximize speed
 	// /Oy		enable frame pointer omission
@@ -2014,7 +2019,8 @@ static int32_t qb_parse_macho32(qb_native_compiler_context *cxt) {
 #endif 	// __MACH__
 
 #ifdef _MSC_VER
-static int32_t qb_parse_coff(qb_native_compiler_context *cxt) {
+	#ifdef _WIN64
+static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 	IMAGE_FILE_HEADER *header;
 	IMAGE_SECTION_HEADER *sections;
 	IMAGE_SYMBOL *symbols;
@@ -2027,7 +2033,99 @@ static int32_t qb_parse_coff(qb_native_compiler_context *cxt) {
 	}
 
 	header = (IMAGE_FILE_HEADER *) cxt->binary;
-	if(header->Machine != IMAGE_FILE_MACHINE_I386 && header->Machine != IMAGE_FILE_MACHINE_IA64) {
+	if(header->Machine != IMAGE_FILE_MACHINE_AMD64) {
+		return FALSE;
+	}
+	sections = (IMAGE_SECTION_HEADER *) (((char *) header) + sizeof(IMAGE_FILE_HEADER));
+	symbols = (IMAGE_SYMBOL *) (cxt->binary + header->PointerToSymbolTable);
+	string_section = (char *) (symbols) + sizeof(IMAGE_SYMBOL) * header->NumberOfSymbols;
+
+	// perform relocation
+	for(i = 0; i < header->NumberOfSections; i++) {
+		IMAGE_SECTION_HEADER *section = &sections[i];
+		if(memcmp(section->Name, ".text", 6) == 0) {
+			IMAGE_RELOCATION *relocations = (IMAGE_RELOCATION *) (cxt->binary + section->PointerToRelocations);
+			uint32_t relocation_count = section->NumberOfRelocations;
+
+			for(j = 0; j < relocation_count; j++) {
+				IMAGE_RELOCATION *reloc = &relocations[j];
+				IMAGE_SYMBOL *symbol = &symbols[reloc->SymbolTableIndex];
+				char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : string_section + symbol->N.Name.Long;
+				void *symbol_address;
+				void *target_address = cxt->binary + section->PointerToRawData + reloc->VirtualAddress;
+				int32_t A, S, P; 
+
+				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
+					symbol_address = qb_find_symbol(cxt, symbol_name);
+					if(!symbol_address || symbol_address == (void *) -1) {
+						qb_abort("missing symbol: %s\n", symbol_name);
+					}
+				} else {
+					// probably something in the data segment (e.g. a string literal)
+					IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
+					symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
+				}
+
+				A = *((int32_t *) target_address);
+				S = (int32_t) symbol_address;
+				P = ((int32_t) target_address);
+
+				switch(reloc->Type) {
+					case IMAGE_REL_I386_DIR32:
+						*((uint32_t *) target_address) = S + A;
+						break;
+					case IMAGE_REL_I386_REL32:
+					case IMAGE_REL_AMD64_REL32:
+						*((uint32_t *) target_address) = S + A - P;
+						break;
+					default:
+						return FALSE;
+				}
+			}
+		}
+	}
+
+	// find the compiled functions
+	for(i = 0; i < header->NumberOfSymbols; i++) {
+		IMAGE_SYMBOL *symbol = &symbols[i];
+		if(symbol->SectionNumber > 0) {
+			IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
+			char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : (string_section + symbol->N.Name.Long);
+			void *symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
+			if(ISFCN(symbol->Type)) {
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
+				if(!attached) {
+					// error out if there's an unrecognized function
+					if(!qb_find_symbol(cxt, symbol_name)) {
+						return FALSE;
+					}
+				}
+				count += attached;
+			} else if(symbol->StorageClass == IMAGE_SYM_CLASS_EXTERNAL) {
+				if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
+					uint32_t *p_version = symbol_address;
+					cxt->qb_version = *p_version;
+				}
+			}
+		}
+	}
+	return (count > 0);
+}
+	#else
+static int32_t qb_parse_coff32(qb_native_compiler_context *cxt) {
+	IMAGE_FILE_HEADER *header;
+	IMAGE_SECTION_HEADER *sections;
+	IMAGE_SYMBOL *symbols;
+	char *string_section;
+	uint32_t count = 0;
+	uint32_t i, j;
+
+	if(cxt->binary_size < sizeof(IMAGE_FILE_HEADER)) {
+		return FALSE;
+	}
+
+	header = (IMAGE_FILE_HEADER *) cxt->binary;
+	if(header->Machine != IMAGE_FILE_MACHINE_I386) {
 		return FALSE;
 	}
 	sections = (IMAGE_SECTION_HEADER *) (((char *) header) + sizeof(IMAGE_FILE_HEADER));
@@ -2108,6 +2206,7 @@ static int32_t qb_parse_coff(qb_native_compiler_context *cxt) {
 	}
 	return (count > 0);
 }
+	#endif // _WIN64
 #endif	// _MSC_VER
 
 static zend_always_inline int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
@@ -2126,7 +2225,11 @@ static zend_always_inline int32_t qb_parse_object_file(qb_native_compiler_contex
 	#endif
 #endif
 #ifdef _MSC_VER
-	return qb_parse_coff(cxt);
+	#ifdef _WIN64
+	return qb_parse_coff64(cxt);
+	#else
+	return qb_parse_coff32(cxt);
+	#endif
 #endif
 }
 
