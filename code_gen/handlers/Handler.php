@@ -161,8 +161,8 @@ class Handler {
 			$instr .= "_{$addressMode}";
 		}
 		
-		if($this->needsLineNumber()) {
-			$instr .= "_lineno";
+		if($this->needsLineIdentifier()) {
+			$instr .= "_line_id";
 		}
 		return $instr;
 	}
@@ -201,8 +201,8 @@ class Handler {
 			}
 		}
 		
-		if($this->needsLineNumber()) {
-			$lines[] = "uint32_t line_number;";
+		if($this->needsLineIdentifier()) {
+			$lines[] = "uint32_t line_id;";
 		}
 		$lines[] = "} $instr;";
 		return $lines;
@@ -316,7 +316,7 @@ class Handler {
 		return false;
 	}
 	
-	public function needsLineNumber() {
+	public function needsLineIdentifier() {
 		return false;
 	}
 
@@ -366,8 +366,8 @@ class Handler {
 		if($instr) {
 			$lines[] = "#define INSTR		(($instr * __restrict) ip)";
 		}
-		if($this->needsLineNumber()) {
-			$lines[] = "#define line_number		INSTR->line_number";
+		if($this->needsLineIdentifier()) {
+			$lines[] = "#define line_id		INSTR->line_id";
 		}
 		for($i = 1; $i <= $opCount; $i++) {
 			$cType = $this->getOperandCType($i);
@@ -404,8 +404,8 @@ class Handler {
 		if($instr) {
 			$lines[] = "#undef INSTR";
 		}
-		if($this->needsLineNumber()) {
-			$lines[] = "#undef line_number";
+		if($this->needsLineIdentifier()) {
+			$lines[] = "#undef line_id";
 		}
 		for($i = 1; $i <= $opCount; $i++) {
 			$addressMode = $this->getOperandAddressMode($i);
@@ -594,11 +594,11 @@ class Handler {
 					break;
 			}
 		}
-		if($this->needsLineNumber()) {
+		if($this->needsLineIdentifier()) {
 			if($forDeclaration) {
-				$params[] = "uint32_t line_number";
+				$params[] = "uint32_t line_id";
 			} else {
-				$params[] = "line_number";
+				$params[] = "line_id";
 			}
 		} 
 		return implode(", ", $params);

@@ -225,8 +225,8 @@ static void qb_print_op(qb_printer_context *cxt, qb_op *qop, uint32_t index) {
 		uint32_t jump_target_index = qop->jump_target_indices[i];
 		php_printf("<%04d> ", jump_target_index);
 	}
-	if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
-		php_printf("(line %d)", qop->line_number);
+	if(qop->flags & QB_OP_NEED_LINE_IDENTIFIER) {
+		php_printf("(line %d)", qop->line_id);
 	}
 	php_printf("\n");
 }
@@ -413,7 +413,7 @@ static void qb_print_pbj_op(qb_printer_context *cxt, qb_pbj_op *pop, uint32_t po
 	/*
 	for(i = 0; i < cxt->compiler_context->op_count; i++) {
 		qb_op *qop = cxt->compiler_context->ops[i];
-		if(qop->line_number == pop_index) {
+		if(qop->line_id == pop_index) {
 			qb_print_op(cxt, qop, i);
 		}
 	}

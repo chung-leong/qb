@@ -161,8 +161,8 @@ static void qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index
 	*p_ip += sizeof(int8_t *);
 }
 
-static void qb_encode_line_number(qb_encoder_context *cxt, uint32_t line_number, int8_t **p_ip) {
-	*((uint32_t *) *p_ip) = line_number; 
+static void qb_encode_line_id(qb_encoder_context *cxt, uint32_t line_id, int8_t **p_ip) {
+	*((uint32_t *) *p_ip) = line_id; 
 	*p_ip += sizeof(uint32_t);
 }
 
@@ -242,8 +242,8 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 			}
 
 			// put the line number at the end if it's needed
-			if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
-				qb_encode_line_number(cxt, qop->line_number, &ip);
+			if(qop->flags & QB_OP_NEED_LINE_IDENTIFIER) {
+				qb_encode_line_id(cxt, qop->line_id, &ip);
 			}
 		}
 	}
@@ -781,7 +781,7 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 				}
 			}
 
-			if(op_flags & QB_OP_NEED_LINE_NUMBER) {
+			if(op_flags & QB_OP_NEED_LINE_IDENTIFIER) {
 				ip += sizeof(uint32_t);
 			}
 		}

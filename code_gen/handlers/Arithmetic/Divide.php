@@ -11,34 +11,24 @@ class Divide extends Handler {
 		}
 	}
 	
-	public function needsLineNumber($where = null) {
+	public function needsLineIdentifier($where = null) {
 		$type = $this->getOperandType(1);
 		if($type[0] != 'F') {
 			return true;
 		} else {
-			return parent::needsLineNumber($where);
+			return parent::needsLineIdentifier($where);
 		}
 	}
 	
-	public function getHelperFunctions() {
-		$functions = array(
-			array(
-				"NO_RETURN void qb_abort_divide_by_zero_error(qb_interpreter_context *restrict cxt, uint32_t line_number) {",
-					"USE_TSRM",
-					"QB_G(current_line_number) = line_number;",
-					"qb_abort(\"Division by zero\");",
-				"}",
-			),
-		);
-		return $functions;
-	}
-
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$lines = array();
 		if($type[0] != 'F') {
 			$lines[] = "if(UNEXPECTED(op2 == 0)) {";
-			$lines[] = 		"qb_abort_divide_by_zero_error(cxt, line_number);";
+			$lines[] =		"USE_TSRM";
+			$lines[] = 		"qb_record_divide_by_zero_exception(op1, line_id TSRMLS_CC);";
+			$lines[] =		"cxt->exit_type = QB_VM_BAILOUT;";
+			$lines[] =		"return;";
 			$lines[] = "}";
 		}
 		$lines[] = "res = op1 / op2;";

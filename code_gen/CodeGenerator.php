@@ -207,9 +207,9 @@ class CodeGenerator {
 					default: $flags[] = "QB_OP_EXIT"; break;
 				}
 			}
-			if($handler->needsLineNumber()) {
+			if($handler->needsLineIdentifier()) {
 				// the line number needs to be packed into the instruction (for error reporting)
-				$flags[] = "QB_OP_NEED_LINE_NUMBER";
+				$flags[] = "QB_OP_NEED_LINE_IDENTIFIER";
 			}
 			if($handler->performsWrapAround()) {
 				$flags[] = "QB_OP_PERFORM_WRAP_AROUND";

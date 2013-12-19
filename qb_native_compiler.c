@@ -445,7 +445,7 @@ struct qb_interpreter_context {\
 	uint32_t *argument_indices;\
 	uint32_t argument_count;\
 	uint32_t result_index;\
-	uint32_t line_number;\
+	uint32_t line_id;\
 	uint32_t call_depth;\
 	void *send_target;\
 	qb_vm_exit_type exit_type;\
@@ -942,12 +942,12 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 
 		if(cxt->print_source || TRUE) {
 			name = qb_get_op_name(cxt, qop->opcode);
-			qb_printf(cxt, "// %s (line #%d)\n", name, qop->line_number);
+			qb_printf(cxt, "// %s (line #%d)\n", name, qop->line_id);
 		}
 
 		// define the operands
-		if(qop->flags & QB_OP_NEED_LINE_NUMBER) {
-			qb_printf(cxt, "#define line_number	%d\n", qop->line_number);
+		if(qop->flags & QB_OP_NEED_LINE_IDENTIFIER) {
+			qb_printf(cxt, "#define line_id	%d\n", qop->line_id);
 		}
 		for(i = 0; i < qop->operand_count; i++) {
 			qb_operand *operand = &qop->operands[i];

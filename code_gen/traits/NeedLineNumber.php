@@ -2,7 +2,7 @@
 
 trait NeedLineNumber {
 
-	public function needsLineNumber() {
+	public function needsLineIdentifier() {
 		return true;
 	}
 }	

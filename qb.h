@@ -117,6 +117,7 @@
 #include "qb_compat.h"
 #include "qb_opcodes.h"
 #include "qb_types.h"
+#include "qb_exceptions.h"
 #include "qb_op.h"
 #include "qb_storage.h"
 #include "qb_function.h"

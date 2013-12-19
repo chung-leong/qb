@@ -208,7 +208,7 @@ struct qb_result_destination {
 
 enum {
 	// intrinsic properties of an op
-	QB_OP_NEED_LINE_NUMBER			= 0x8000,
+	QB_OP_NEED_LINE_IDENTIFIER			= 0x8000,
 	QB_OP_BRANCH					= 0x4000,
 	QB_OP_EXIT 						= 0x2000,
 	QB_OP_JUMP 						= 0x1000,
@@ -233,7 +233,7 @@ struct qb_op {
 	uint32_t jump_target_count;
 	uint32_t *jump_target_indices;
 	uint32_t instruction_offset;
-	uint32_t line_number;
+	uint32_t line_id;
 };
 
 struct qb_op_info {

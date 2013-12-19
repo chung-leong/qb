@@ -6,7 +6,7 @@ trait MayEmitError {
 		return true;
 	}
 	
-	public function needsLineNumber($where = null) {
+	public function needsLineIdentifier($where = null) {
 		return true;
 	}
 }

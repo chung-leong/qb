@@ -13,7 +13,7 @@ class ExtensionOp extends Handler {
 	}
 
 	public function getAction() {
-		return "qb_run_zend_extension_op(cxt, op1, line_number);";
+		return "qb_run_zend_extension_op(cxt, op1, line_id);";
 	}
 }
 

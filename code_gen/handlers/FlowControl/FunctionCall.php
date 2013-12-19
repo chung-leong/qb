@@ -30,13 +30,13 @@ class FunctionCall extends Handler {
 		return true;
 	}
 	
-	public function needsLineNumber() {
+	public function needsLineIdentifier() {
 		return true;
 	}
 	
 	public function getActionOnUnitData() {
 		$lines = array();
-		$lines[] = "qb_dispatch_function_call(cxt, op1, op2_ptr, op2_count, op3, line_number);";
+		$lines[] = "qb_dispatch_function_call(cxt, op1, op2_ptr, op2_count, op3, line_id);";
 		$lines[] = "if(UNEXPECTED(cxt->exception_encountered)) {";
 		$lines[] =		"cxt->exit_type = QB_VM_EXCEPTION;";
 		$lines[] =		"return;";

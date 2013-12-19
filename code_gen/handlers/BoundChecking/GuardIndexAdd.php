@@ -17,7 +17,10 @@ class GuardIndexAdd extends Handler {
 		$lines = array();
 		$lines[] = "res = op1 + op3;";
 		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
-		$lines[] =		"qb_trigger_out_of_bound_exception(cxt, op1, op2, FALSE, line_number);";
+		$lines[] =		"USE_TSRM";
+		$lines[] =		"qb_record_out_of_bound_exception(op1, op2, FALSE, line_id TSRMLS_CC);";
+		$lines[] =		"cxt->exit_type = QB_VM_BAILOUT;";
+		$lines[] =		"return;";
 		$lines[] = "}";
 		return $lines;
 	}
