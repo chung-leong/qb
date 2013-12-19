@@ -762,6 +762,11 @@ static void qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_f
 			}
 		}
 	}
+
+	// don't inline functions that make calls
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+	}
 }
 
 static void qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -777,5 +782,10 @@ static void qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb
 				qb_abort("The return value from a regular PHP function must be either saved to a variable or ignored");
 				break;
 		}
+	}
+
+	// don't inline functions that make calls
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
 	}
 }

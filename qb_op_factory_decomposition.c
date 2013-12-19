@@ -37,6 +37,11 @@ static void qb_decompose_yield(qb_compiler_context *cxt, void *factory, qb_opera
 	// assign the generated value
 	qb_produce_op(cxt, &factory_assign_return_value, value, 1, &assign_result, NULL, 0, NULL);
 
+	// don't inline functions that yields
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+	}
+
 	if(key->type != QB_OPERAND_NONE) {
 		// assign the key
 		qb_produce_op(cxt, &factory_assign_generator_key, key, 1, &assign_key_result, NULL, 0, NULL);
@@ -176,6 +181,11 @@ static void qb_decompose_fork(qb_compiler_context *cxt, void *factory, qb_operan
 	qb_fork_decomposer *d = factory;
 	qb_operand init_result = { QB_OPERAND_NONE, { NULL } }, resume_result = { QB_OPERAND_NONE, { NULL } };
 	qb_result_prototype init_result_prototype, resume_result_prototype;
+
+	// don't inline functions that forks
+	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+	}
 
 	// do the fork 
 	memset(&init_result_prototype, 0, sizeof(qb_result_prototype));

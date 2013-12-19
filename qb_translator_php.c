@@ -283,7 +283,7 @@ static void qb_process_function_call_ex(qb_php_translator_context *cxt, void *op
 				USE_TSRM
 				qb_compiler_context *other_compiler_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
 				if(other_compiler_cxt) {
-					if(other_compiler_cxt->function_flags & QB_FUNCTION_INLINEABLE) {
+					if(other_compiler_cxt->function_flags & QB_FUNCTION_INLINEABLE && other_compiler_cxt != cxt->compiler_context) {
 						if(!(other_compiler_cxt->function_flags & QB_FUNCTION_NEVER_INLINE)) {
 							use_inlining = TRUE;
 						}
@@ -320,11 +320,6 @@ static void qb_process_function_call_ex(qb_php_translator_context *cxt, void *op
 			if(other_compiler_cxt) {
 				cxt->compiler_context->dependencies[other_compiler_cxt->dependency_index] = TRUE;
 			}
-		}
-	} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(external_call) {
-			// don't inline functions that make calls
-			cxt->compiler_context->function_flags &= ~QB_FUNCTION_INLINEABLE;
 		}
 	}
 

@@ -3233,6 +3233,32 @@ static int32_t qb_is_constant_expression(qb_compiler_context *cxt, qb_operand *o
 	return TRUE;
 }
 
+#ifdef ZEND_DEBUG
+void qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
+	if(address->dimension_count > 0) {
+		int32_t i;
+		if(!address->dimension_addresses) {
+			qb_abort("Array address doesn't have dimensions");
+		}
+		if(!address->array_size_addresses) {
+			qb_abort("Array address doesn't have sizes");
+		}
+		if(!address->array_size_address) {
+			qb_abort("Array address doesn't have a size");
+		}
+		qb_validate_address(cxt, address->array_size_address);
+		for(i = 0; i < address->dimension_count; i++) {
+			qb_validate_address(cxt, address->dimension_addresses[i]);
+			qb_validate_address(cxt, address->array_size_addresses[i]);
+		}
+	} else {
+		if(address->array_size_address != cxt->one_address) {
+			qb_abort("Scalar address has incorrect size");
+		}
+	}
+}
+#endif
+
 void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_factory *f = factory;
 	if(f->produce_composite) {
@@ -3365,6 +3391,12 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 						}
 					}
 					f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+#ifdef ZEND_DEBUG
+					// validate the address here so it's easily to see who's producing an invalid one
+					if(result->type == QB_OPERAND_ADDRESS) {
+						qb_validate_address(cxt, result->address);
+					}
+#endif
 				}
 
 				// create the op

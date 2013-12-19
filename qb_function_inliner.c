@@ -309,6 +309,8 @@ static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_addre
 				caller_alias->dimension_addresses[i] = qb_find_substitution_address(cxt, callee_alias->dimension_addresses[i]);
 				caller_alias->array_size_addresses[i] = qb_find_substitution_address(cxt, callee_alias->array_size_addresses[i]);
 			}
+		} else {
+			caller_alias->array_size_addresses = caller_alias->dimension_addresses = &caller_alias->array_size_address;
 		}
 		caller_alias->array_size_address = qb_find_substitution_address(cxt, callee_alias->array_size_address);
 	}
