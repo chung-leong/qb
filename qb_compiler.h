@@ -120,7 +120,7 @@ struct qb_compiler_context {
 	qb_address *true_address;
 	qb_address *empty_array;
 
-	const char *function_name;
+	qb_intrinsic_function *intrinsic_function;
 	uint32_t argument_offset;
 	qb_operand foreach_index;
 

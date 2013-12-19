@@ -134,9 +134,11 @@ static zend_always_inline void qb_add_class_variable_declaration(qb_class_declar
 static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, uint32_t len, qb_type_declaration *decl, uint32_t dimension_index) {
 	int offsets[64], matches;
 	uint32_t dimension = 0;
+	int next_offset = -1;
 
 	matches = pcre_exec(type_dim_regexp, NULL, s, len, 0, 0, offsets, sizeof(offsets) / sizeof(int));
 	if(matches > 0) {
+		next_offset = offsets[1];
 		if(FOUND_GROUP(TYPE_DIM_INT)) {
 			const char *number = s + GROUP_OFFSET(TYPE_DIM_INT);
 			dimension = strtol(number, NULL, 0);
@@ -162,8 +164,9 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 				if(Z_TYPE_P(constant) == IS_LONG) {
 					long const_value = Z_LVAL_P(constant);
 					if(const_value <= 0) {
-						qb_notice_doc_comment_issue(cxt, "Constant '%s' is not a positive integer", name);
-						return -1;
+						qb_record_illegal_dimension_declaration_exception(const_value TSRMLS_CC);
+						free_alloca(name, use_heap);
+						next_offset = -1;
 					}
 					dimension = const_value;
 				} else if(Z_TYPE_P(constant) == IS_STRING) {
@@ -171,14 +174,15 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 					uint32_t expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
 					int32_t processed = qb_parse_type_dimension(cxt, expanded, expanded_len, decl, dimension_index);
 					efree(expanded);
-					free_alloca(name, use_heap);
-					return (processed == -1) ? -1 : offsets[1];
+					if(processed) {
+						next_offset = offsets[1];
+					}
 				} else {
 					decl = NULL;
 				}
 			} else {
-				qb_notice_doc_comment_issue(cxt, "Undefined constant '%s'", name);
-				return -1;
+				qb_record_undefined_constant_in_dimension_declaration_exception(name TSRMLS_CC);
+				next_offset = -1;
 			}
 			free_alloca(name, use_heap);
 		} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
@@ -233,11 +237,11 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 			decl->index_alias_schemes[dimension_index] = scheme;
 			decl->flags |= QB_TYPE_DECL_HAS_ALIAS_SCHEMES;
 		} else {
-			return -1;
+			next_offset = -1;
 		}
 	}
 	decl->dimensions[dimension_index] = dimension;
-	return offsets[1];
+	return next_offset;
 }
 
 static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, const char *s, uint32_t len, uint32_t var_type) {

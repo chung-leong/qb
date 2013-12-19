@@ -25,4 +25,8 @@ void qb_record_out_of_bound_exception(uint32_t index, uint32_t limit, int32_t in
 void qb_record_missing_column_exception(uint32_t column_offset, uint32_t column_count, uint32_t line_id TSRMLS_DC);
 void qb_record_divide_by_zero_exception(uint32_t numerator, uint32_t line_id TSRMLS_DC);
 
+void qb_record_dimension_mismatch_exception(uint32_t dimension1, uint32_t dimesion2, uint32_t line_id TSRMLS_DC);
+void qb_record_dimension_count_mismatch_exception(uint32_t dimension_count1, uint32_t dimesion_count2, uint32_t line_id TSRMLS_DC);
+
+
 #endif

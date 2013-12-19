@@ -84,7 +84,7 @@ typedef qb_primitive_type (*qb_resolve_expression_type_proc)(qb_compiler_context
 
 typedef void (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
 
-typedef void (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination);
+typedef int32_t (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination);
 
 typedef void (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
 

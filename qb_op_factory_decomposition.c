@@ -62,8 +62,7 @@ static void qb_decompose_yield(qb_compiler_context *cxt, void *factory, qb_opera
 static void qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_op_factory *ff = func->intrinsic_function->extra;
-	qb_intrinsic_function *ifunc = func->intrinsic_function;
-	cxt->function_name = ifunc->name;
+	qb_intrinsic_function *ifunc = cxt->intrinsic_function = func->intrinsic_function;
 	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
 		if(ifunc->argument_count_min == ifunc->argument_count_max) {
 			qb_abort("%s() expects %d arguments but %d was passed", ifunc->name, ifunc->argument_count_min, argument_count->number);

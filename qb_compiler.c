@@ -422,6 +422,10 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 						for(i = undefined_dimension_count; i < address->dimension_count; i++) {
 							if(address->dimension_addresses[i] != dim->dimension_addresses[i]) {
 								qb_abort("Dimension mismatch");
+								uint32_t dimension1 = VALUE(U32, address->dimension_addresses[i]);
+								uint32_t dimension2 = VALUE(U32, dim->dimension_addresses[i]);
+								qb_record_dimension_mismatch_exception(dimension1, dimesion2, cxt->line_id);
+								qb_bailout();
 							}
 						}
 						for(i = 0; i < undefined_dimension_count; i++) {
@@ -445,11 +449,15 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 						// no resizing
 						for(i = undefined_dimension_count, j = 0; i < address->dimension_count; i++, j++) {
 							if(address->dimension_addresses[i] != dim->dimension_addresses[j]) {
-								qb_abort("Dimension mismatch");
+								uint32_t dimension1 = VALUE(U32, address->dimension_addresses[i]);
+								uint32_t dimension2 = VALUE(U32, dim->dimension_addresses[i]);
+								qb_record_dimension_mismatch_exception(dimension1, dimesion2, cxt->line_id);
+								qb_bailout();
 							}
 						}
 					} else {
-						qb_abort("Dimension mismatch");
+						qb_record_dimension_count_mismatch_exception(address->dimension_count, dim->dimension_count, cxt->line_id);
+						qb_bailout();
 					}
 				}
 			} else {
@@ -1073,14 +1081,16 @@ static uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval
 			uint32_t sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, *p_element, element_type);
 			if(overall_sub_array_dimension_count) {
 				if(overall_sub_array_dimension_count != sub_array_dimension_count) {
-					qb_abort("Array has irregular structure");
+					qb_record_illegal_array_structure_exception(overall_sub_array_dimension_count + 1 TSRMLS_CC);
+					qb_bailout();
 				}
 			} else {
 				overall_sub_array_dimension_count = sub_array_dimension_count;
 			}
 		}
 		if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
-			qb_abort("Array initializer has too many dimensions");
+			qb_record_illegal_dimension_count_exception(overall_sub_array_dimension_count + 1 TSRMLS_CC);
+			qb_bailout();
 		}
 		return overall_sub_array_dimension_count + 1;
 	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
@@ -1118,7 +1128,8 @@ static void qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue,
 		uint32_t byte_count = Z_STRLEN_P(zvalue);
 		uint32_t dimension = byte_count >> type_size_shifts[element_type];
 		if(byte_count != dimension * type_sizes[element_type]) {
-			qb_abort("Number of bytes in string (%d) is not divisible by %d", byte_count, type_sizes[element_type]);
+			qb_record_binary_string_size_mismatch_exception(byte_count, element_type TSRMLS_CC);
+			qb_bailout();
 		}
 		if(dimension > dimensions[0]) {
 			dimensions[0] = dimension;
@@ -1162,7 +1173,8 @@ static void qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb
 		uint32_t string_len = Z_STRLEN_P(zvalue);
 		const char *string = Z_STRVAL_P(zvalue);
 		if(type_size != string_len) {
-			qb_abort("cannot convert string to %s due to size mismatch", type_names[address->type]);
+			qb_record_binary_string_size_mismatch_exception(string_len, address->type TSRMLS_CC);
+			qb_bailout();
 		}
 		switch(address->type) {
 			case QB_TYPE_S08: VALUE(S08, address) = *((CTYPE(S08) *) string); break;
@@ -1183,8 +1195,10 @@ static void qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb
 			case QB_TYPE_U64: {
 				VALUE(I64, address) = qb_zval_array_to_int64(zvalue);
 			}	break;
-			default:
-				qb_abort("Cannot convert an array to %s", type_names[address->type]);
+			default: {
+				qb_record_illegal_array_conversion_exception(address->type TSRMLS_CC);
+				qb_bailout();
+			}
 		}
 	}
 }
@@ -1409,7 +1423,6 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 			default: break;
 		}
 	}
-	qb_abort("unable to convert constant");
 	return NULL;
 }
 
@@ -1719,14 +1732,16 @@ static uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cx
 		}
 		if(overall_sub_array_dimension_count) {
 			if(overall_sub_array_dimension_count != sub_array_dimension_count) {
-				qb_abort("array has irregular structure");
+				qb_record_illegal_array_structure_exception(TSRMLS_C);
+				qb_bailout();
 			}
 		} else {
 			overall_sub_array_dimension_count = sub_array_dimension_count;
 		}
 	}
 	if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
-		qb_abort("array initializer has too many dimensions");
+		qb_record_illegal_dimension_count_exception(overall_sub_array_dimension_count + 1 TSRMLS_CC);
+		qb_bailout();
 	}
 	return overall_sub_array_dimension_count + 1;
 }
@@ -1933,7 +1948,7 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 				address = qb_create_writable_scalar(cxt, decl->type);
 			} else {
 				address = qb_create_writable_array(cxt, decl->type, decl->dimensions, decl->dimension_count);
-				if(decl->flags & QB_TYPE_DECL_EXPANDABLE) {
+				if(decl->flags & QB_TYqb_record_missing_type_declaration_exceptionPE_DECL_EXPANDABLE) {
 					address->flags |= QB_ADDRESS_AUTO_EXPAND;
 				}
 			}
@@ -1958,7 +1973,8 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 		} else if(qvar->flags & QB_VARIABLE_SENT_VALUE) {
 			// yield does not produce a value by default
 		} else {
-			qb_abort("missing type declaration: %s", qvar->name);
+			qb_record_missing_type_declaration_exception(qvar TSRMLS_CC);
+			qb_bailout();
 		}
 	}
 }
@@ -3674,7 +3690,8 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 	if(!cxt->external_code && target_op_array) {
 		QB_G(current_filename) = target_op_array->filename;
 		QB_G(current_line_number) = target_op_array->line_start;
-		qb_abort("unable to load file containing external code");
+		qb_record_external_code_load_failure_exception(import_path TSRMLS_CC);
+		qb_bailout();
 	}
 }
 
