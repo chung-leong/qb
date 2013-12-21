@@ -21,6 +21,7 @@ if (PHP_QB != "no") {
 	qb_compiler.c\
 	qb_data_tables_msvc.c\
 	qb_encoder.c\
+	qb_exceptions.c\
 	qb_extractor.c\
 	qb_function_inliner.c\
 	qb_interpreter.c\
