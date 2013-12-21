@@ -329,7 +329,7 @@ static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_addre
 	qb_add_substitution(cxt, callee_alias, caller_alias);
 }
 
-void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
+int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 	uint32_t i, j = 0;
 	uint32_t caller_op_offset;
 	int32_t multiple_returns = FALSE;
@@ -454,6 +454,7 @@ void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 			qb_unlock_address(cxt->caller_context, substitution->current);
 		}
 	}
+	return TRUE;
 }
 
 void qb_initialize_function_inliner_context(qb_function_inliner_context *cxt, qb_compiler_context *caller_cxt, qb_compiler_context *callee_cxt, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype TSRMLS_DC) {

@@ -71,7 +71,7 @@ struct qb_compiler_context {
 	uint32_t *op_translation_table;
 	uint32_t op_translation_table_size;
 	uint32_t source_op_index;
-	uint32_t line_number;
+	uint32_t line_id;
 
 	qb_stage stage;
 	qb_data_pool *pool;
@@ -397,7 +397,7 @@ uint32_t qb_set_source_op_index(qb_compiler_context *cxt, uint32_t source_index,
 void qb_add_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index);
 int32_t qb_is_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index);
 
-void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
+int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
 void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 

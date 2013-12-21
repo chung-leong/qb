@@ -421,10 +421,9 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 						qb_operand operands[MAX_DIMENSION * 4 + 2];
 						for(i = undefined_dimension_count; i < address->dimension_count; i++) {
 							if(address->dimension_addresses[i] != dim->dimension_addresses[i]) {
-								qb_abort("Dimension mismatch");
 								uint32_t dimension1 = VALUE(U32, address->dimension_addresses[i]);
 								uint32_t dimension2 = VALUE(U32, dim->dimension_addresses[i]);
-								qb_record_dimension_mismatch_exception(dimension1, dimesion2, cxt->line_id);
+								qb_record_dimension_mismatch_exception(NULL, cxt->line_id, dimension1, dimesion2);
 								qb_bailout();
 							}
 						}
@@ -451,12 +450,12 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 							if(address->dimension_addresses[i] != dim->dimension_addresses[j]) {
 								uint32_t dimension1 = VALUE(U32, address->dimension_addresses[i]);
 								uint32_t dimension2 = VALUE(U32, dim->dimension_addresses[i]);
-								qb_record_dimension_mismatch_exception(dimension1, dimesion2, cxt->line_id);
+								qb_record_dimension_mismatch_exception(NULL, cxt->line_id, dimension1, dimesion2);
 								qb_bailout();
 							}
 						}
 					} else {
-						qb_record_dimension_count_mismatch_exception(address->dimension_count, dim->dimension_count, cxt->line_id);
+						qb_record_dimension_count_mismatch_exception(NULL, cxt->line_id, address->dimension_count, dim->dimension_count);
 						qb_bailout();
 					}
 				}
@@ -1081,7 +1080,7 @@ static uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval
 			uint32_t sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, *p_element, element_type);
 			if(overall_sub_array_dimension_count) {
 				if(overall_sub_array_dimension_count != sub_array_dimension_count) {
-					qb_record_illegal_array_structure_exception(overall_sub_array_dimension_count + 1 TSRMLS_CC);
+					qb_record_illegal_array_structure_exception(NULL, cxt->line_id, overall_sub_array_dimension_count + 1);
 					qb_bailout();
 				}
 			} else {
@@ -1089,7 +1088,7 @@ static uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval
 			}
 		}
 		if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
-			qb_record_illegal_dimension_count_exception(overall_sub_array_dimension_count + 1 TSRMLS_CC);
+			qb_record_illegal_dimension_count_exception(NULL, cxt->line_id, overall_sub_array_dimension_count + 1);
 			qb_bailout();
 		}
 		return overall_sub_array_dimension_count + 1;
@@ -1128,7 +1127,7 @@ static void qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue,
 		uint32_t byte_count = Z_STRLEN_P(zvalue);
 		uint32_t dimension = byte_count >> type_size_shifts[element_type];
 		if(byte_count != dimension * type_sizes[element_type]) {
-			qb_record_binary_string_size_mismatch_exception(byte_count, element_type TSRMLS_CC);
+			qb_record_binary_string_size_mismatch_exception(NULL, cxt->line_id, byte_count, element_type);
 			qb_bailout();
 		}
 		if(dimension > dimensions[0]) {
@@ -1173,7 +1172,7 @@ static void qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb
 		uint32_t string_len = Z_STRLEN_P(zvalue);
 		const char *string = Z_STRVAL_P(zvalue);
 		if(type_size != string_len) {
-			qb_record_binary_string_size_mismatch_exception(string_len, address->type TSRMLS_CC);
+			qb_record_binary_string_size_mismatch_exception(NULL, cxt->line_id, string_len, address->type);
 			qb_bailout();
 		}
 		switch(address->type) {
@@ -1196,7 +1195,7 @@ static void qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue, qb
 				VALUE(I64, address) = qb_zval_array_to_int64(zvalue);
 			}	break;
 			default: {
-				qb_record_illegal_array_conversion_exception(address->type TSRMLS_CC);
+				qb_record_illegal_array_conversion_exception(NULL, cxt->line_id, address->type);
 				qb_bailout();
 			}
 		}
@@ -1732,7 +1731,7 @@ static uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cx
 		}
 		if(overall_sub_array_dimension_count) {
 			if(overall_sub_array_dimension_count != sub_array_dimension_count) {
-				qb_record_illegal_array_structure_exception(TSRMLS_C);
+				qb_record_illegal_array_structure_exception(NULL, cxt->line_id);
 				qb_bailout();
 			}
 		} else {
@@ -1740,7 +1739,7 @@ static uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cx
 		}
 	}
 	if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
-		qb_record_illegal_dimension_count_exception(overall_sub_array_dimension_count + 1 TSRMLS_CC);
+		qb_record_illegal_dimension_count_exception(NULL, cxt->line_id, overall_sub_array_dimension_count + 1);
 		qb_bailout();
 	}
 	return overall_sub_array_dimension_count + 1;
@@ -1948,7 +1947,7 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 				address = qb_create_writable_scalar(cxt, decl->type);
 			} else {
 				address = qb_create_writable_array(cxt, decl->type, decl->dimensions, decl->dimension_count);
-				if(decl->flags & QB_TYqb_record_missing_type_declaration_exceptionPE_DECL_EXPANDABLE) {
+				if(decl->flags & QB_TYPE_DECL_EXPANDABLE) {
 					address->flags |= QB_ADDRESS_AUTO_EXPAND;
 				}
 			}
@@ -1973,7 +1972,7 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 		} else if(qvar->flags & QB_VARIABLE_SENT_VALUE) {
 			// yield does not produce a value by default
 		} else {
-			qb_record_missing_type_declaration_exception(qvar TSRMLS_CC);
+			qb_record_missing_type_declaration_exception(NULL, cxt->line_id, qvar);
 			qb_bailout();
 		}
 	}
@@ -3275,7 +3274,7 @@ void qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
 }
 #endif
 
-void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_factory *f = factory;
 	if(f->produce_composite) {
 		f->produce_composite(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
@@ -3355,7 +3354,9 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 					}
 
 					if(f->validate_operands) {
-						f->validate_operands(cxt, f, expr_type, operands, operand_count, result_prototype->destination);
+						if(!f->validate_operands(cxt, f, expr_type, operands, operand_count, result_prototype->destination)) {
+							return FALSE;
+						}
 					}
 
 					if(f->set_final_result) {
@@ -3431,6 +3432,7 @@ void qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands
 			}	break;
 		}
 	}
+	return TRUE;
 }
 
 void qb_resolve_jump_targets(qb_compiler_context *cxt) {
@@ -3690,7 +3692,7 @@ void qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {
 	if(!cxt->external_code && target_op_array) {
 		QB_G(current_filename) = target_op_array->filename;
 		QB_G(current_line_number) = target_op_array->line_start;
-		qb_record_external_code_load_failure_exception(import_path TSRMLS_CC);
+		qb_record_external_code_load_failure_exception(NULL, cxt->line_id, import_path);
 		qb_bailout();
 	}
 }

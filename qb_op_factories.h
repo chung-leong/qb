@@ -78,7 +78,7 @@ typedef struct qb_fetch_do_op_decomposer		qb_fetch_do_op_decomposer;
 typedef struct qb_set_op_chooser				qb_set_op_chooser;
 typedef struct qb_fork_decomposer				qb_fork_decomposer;
 
-typedef void (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
+typedef int32_t (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
 typedef qb_primitive_type (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count);
 

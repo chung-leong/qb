@@ -44,7 +44,7 @@ struct qb_function_inliner_context {
 	void ***tsrm_ls;
 };
 
-void qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt);
+int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt);
 
 void qb_initialize_function_inliner_context(qb_function_inliner_context *cxt, qb_compiler_context *caller_cxt, qb_compiler_context *callee_cxt, qb_operand *arguments, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype TSRMLS_DC);
 void qb_free_function_inliner_context(qb_function_inliner_context *cxt);

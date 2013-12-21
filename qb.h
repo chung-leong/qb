@@ -117,11 +117,11 @@
 #include "qb_compat.h"
 #include "qb_opcodes.h"
 #include "qb_types.h"
-#include "qb_exceptions.h"
 #include "qb_op.h"
 #include "qb_storage.h"
 #include "qb_function.h"
 #include "qb_thread.h"
+#include "qb_exceptions.h"
 #include "qb_parser.h"
 #include "qb_compiler.h"
 #include "qb_function_inliner.h"
@@ -188,6 +188,8 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	uint32_t external_symbol_count;
 
 	qb_interpreter_context *caller_interpreter_context;
+
+	qb_exception *first_exception;
 
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	zend_literal static_zvals[8];

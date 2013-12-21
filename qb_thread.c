@@ -737,7 +737,7 @@ void qb_run_task_group(qb_task_group *group) {
 }
 
 void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread) {
-	qb_main_thread *main_thread = qb_get_thread_owner(thread);
+	qb_main_thread *main_thread = (thread) ? qb_get_thread_owner(thread) : NULL;
 	if(thread != (qb_thread *) main_thread) {
 		qb_worker_thread *worker = (qb_worker_thread *) thread;
 		qb_task task;

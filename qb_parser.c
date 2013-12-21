@@ -164,7 +164,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 				if(Z_TYPE_P(constant) == IS_LONG) {
 					long const_value = Z_LVAL_P(constant);
 					if(const_value <= 0) {
-						qb_record_illegal_dimension_declaration_exception(const_value TSRMLS_CC);
+						qb_record_illegal_dimension_declaration_exception(NULL, const_value);
 						free_alloca(name, use_heap);
 						next_offset = -1;
 					}
@@ -181,7 +181,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 					decl = NULL;
 				}
 			} else {
-				qb_record_undefined_constant_in_dimension_declaration_exception(name TSRMLS_CC);
+				qb_record_undefined_constant_in_dimension_declaration_exception(NULL, name);
 				next_offset = -1;
 			}
 			free_alloca(name, use_heap);

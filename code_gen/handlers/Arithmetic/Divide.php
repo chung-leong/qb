@@ -26,7 +26,7 @@ class Divide extends Handler {
 		if($type[0] != 'F') {
 			$lines[] = "if(UNEXPECTED(op2 == 0)) {";
 			$lines[] =		"USE_TSRM";
-			$lines[] = 		"qb_record_divide_by_zero_exception(op1, line_id TSRMLS_CC);";
+			$lines[] = 		"qb_record_divide_by_zero_exception(cxt->thread, op1, line_id TSRMLS_CC);";
 			$lines[] =		"cxt->exit_type = QB_VM_BAILOUT;";
 			$lines[] =		"return;";
 			$lines[] = "}";
