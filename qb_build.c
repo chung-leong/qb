@@ -110,7 +110,7 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[cxt->compiler_context_count++] = emalloc(sizeof(qb_compiler_context));
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, cxt->function_declarations[i], i, cxt->function_declaration_count TSRMLS_CC);
 
-		QB_G(current_filename) = compiler_cxt->zend_op_array->filename;
+		//QB_G(current_filename) = compiler_cxt->zend_op_array->filename;
 
 		// add variables used within function
 		qb_add_variables(compiler_cxt);
@@ -264,8 +264,8 @@ void qb_perform_translation(qb_build_context *cxt) {
 			qb_print_ops(printer_cxt);
 		}
 
-		QB_G(current_filename) = NULL;
-		QB_G(current_line_number) = 0;
+		//QB_G(current_filename) = NULL;
+		//QB_G(current_line_number) = 0;
 	}
 }
 

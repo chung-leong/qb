@@ -395,7 +395,7 @@ int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 		} else {
 			int32_t omit = FALSE;
 			caller_op->flags = callee_op->flags;
-			caller_op->line_number = callee_op->line_number;
+			caller_op->line_id = callee_op->line_id;
 			caller_op->opcode = callee_op->opcode;
 
 			if(callee_op->operand_count > 0) {

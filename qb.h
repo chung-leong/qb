@@ -153,11 +153,7 @@ struct qb_generator_context {
 #endif
 
 ZEND_BEGIN_MODULE_GLOBALS(qb)
-	const char *current_filename;
-	uint32_t current_line_number;
-
 	qb_main_thread main_thread;
-
 	long thread_count;
 
 	zend_bool allow_bytecode_interpretation;

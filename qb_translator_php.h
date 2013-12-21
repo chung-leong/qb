@@ -27,7 +27,7 @@ typedef struct qb_temporary_variable		qb_temporary_variable;
 
 int qb_initialize_php_translator(TSRMLS_D);
 
-typedef void (*qb_php_op_translator_proc)(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef int32_t (*qb_php_op_translator_proc)(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 struct qb_php_op_translator {
 	qb_php_op_translator_proc translate;
@@ -109,8 +109,8 @@ enum {
 
 void qb_initialize_php_translator_context(qb_php_translator_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void qb_free_php_translator_context(qb_php_translator_context *cxt);
-void qb_survey_instructions(qb_php_translator_context *cxt);
-void qb_translate_instructions(qb_php_translator_context *cxt);
+int32_t qb_survey_instructions(qb_php_translator_context *cxt);
+int32_t qb_translate_instructions(qb_php_translator_context *cxt);
 
 qb_intrinsic_function * qb_find_intrinsic_function(qb_php_translator_context *cxt, zval *callable);
 

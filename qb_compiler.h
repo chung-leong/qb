@@ -71,6 +71,8 @@ struct qb_compiler_context {
 	uint32_t *op_translation_table;
 	uint32_t op_translation_table_size;
 	uint32_t source_op_index;
+	uint32_t source_file_id;
+	uint32_t source_file_line_number;
 	uint32_t line_id;
 
 	qb_stage stage;

@@ -109,7 +109,7 @@ static int32_t qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_f
 
 static int32_t qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(operand_count != 0 && operand_count != 2) {
-		qb_record_incorrect_argument_count_exception(NULL, cxt->intrinsic_function, operand_count);
+		qb_record_incorrect_argument_count_exception(NULL, cxt->line_id, cxt->intrinsic_function, operand_count);
 		return FALSE;
 	}
 	return TRUE;
@@ -293,7 +293,8 @@ static int32_t qb_validate_operands_matching_vector_width(qb_compiler_context *c
 		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
 		uint32_t vector_width2 = DIMENSION(operand2->address, -1);
 		if(vector_width1 != vector_width2) {
-			qb_abort("%s() expects the dimension of the first parameter to match the dimension of the second parameter", cxt->function_name);
+			qb_record_vector_width_mismatch_exception(NULL, cxt->line_id, vector_width1, vector_width2);
+			return FALSE;
 		}
 	} else {
 		// TODO: runtime check
@@ -310,28 +311,49 @@ static int32_t qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_fact
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "scalar");
 		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+	uint32_t i;
 
-	qb_validate_operands_matching_vector_width(cxt, f, expr_type, operands, operand_count, result_destination);
-
-	if(CONSTANT_DIMENSION(operand1->address, -1)) {
-		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
-		if(!(2 <= vector_width1 && vector_width1 <= 4)) {
-			qb_abort("%s() can only handle two, three, or four-dimensional vectors", cxt->function_name);
-		}
-		if(vector_width1 == 4) {
-			if(operand_count != 3) {
-				qb_abort("%s() requires a third parameter when given four-dimensional vectors", cxt->function_name);
-			}
-		} else {
-			if(operand_count != 2) {
-				qb_abort("%s() only accepts a third parameter when given four-dimensional vectors", cxt->function_name);
-			}
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[0];
+		if(SCALAR(operand->address)) {
+			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "array");
+			return FALSE;
 		}
 	}
+
+	if(operand_count == 3) {
+		qb_operand *operand1 = &operands[0], *operand2 = &operands[1], *operand3 = &operands[2];
+		if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1) && CONSTANT_DIMENSION(operand3->address, -1)) {
+			uint32_t vector_width1 = DIMENSION(operand1->address, -1);
+			uint32_t vector_width2 = DIMENSION(operand2->address, -1);
+			uint32_t vector_width3 = DIMENSION(operand3->address, -1);
+
+			if(!(vector_width1 == vector_width2 && vector_width2 == vector_width3 && 2 <= vector_width1 && vector_width1 <= 3)) {
+				qb_record_invalid_4d_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2, vector_width3);
+				return FALSE;
+			}
+		} else {
+			// TODO: runtime check
+		} 
+	} else {
+		qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+		if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1)) {
+			uint32_t vector_width1 = DIMENSION(operand1->address, -1);
+			uint32_t vector_width2 = DIMENSION(operand2->address, -1);
+
+			if(!(vector_width1 == vector_width2 && 2 <= vector_width1 && vector_width1 <= 3)) {
+				qb_record_invalid_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2);
+				return FALSE;
+			}
+		} else {
+			// TODO: runtime check
+		} 
+	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -341,6 +363,7 @@ static int32_t qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_f
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
 		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -353,8 +376,10 @@ static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_o
 		uint32_t col = DIMENSION(operand1->address, -2);
 		if(row != col) {
 			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "square matrix");
+			return FALSE;
 		}
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -363,11 +388,14 @@ static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factor
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
 		if(!(3 <= channel_count && channel_count <= 4)) {
-			qb_abort("%s() expects an array whose last dimension is 3 or 4", cxt->function_name);
+			qb_record_invalid_pixel_format_exception(NULL, cxt->line_id, cxt->intrinsic_function, channel_count);
+			return FALSE;
 		}
 	} else {
-		qb_abort("%s() can only handle fixed-length arrays", cxt->function_name);
+		qb_record_variable_pixel_width_exception(NULL, cxt->line_id, cxt->intrinsic_function);
+		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -376,11 +404,14 @@ static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
 		if(channel_count != 4) {
-			qb_abort("%s() expects an array whose last dimension is 4", cxt->function_name);
+			qb_record_missing_alpha_channel_exception(NULL, cxt->line_id, cxt->intrinsic_function, channel_count);
+			return FALSE;
 		}
 	} else {
-		qb_abort("%s() can only handle fixed-length arrays", cxt->function_name);
+		qb_record_variable_pixel_width_exception(NULL, cxt->line_id, cxt->intrinsic_function);
+		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -403,6 +434,7 @@ static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 		qb_record_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "image data to be in floating-point representation");
 		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -415,6 +447,7 @@ static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
+	return TRUE;
 }
 
 static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_factory *f) {
@@ -466,6 +499,7 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 			// TODO: add run time checks
 		}
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -493,6 +527,7 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 			}
 		}
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -522,6 +557,7 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 	} else {
 		// TODO: do runtime validation
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -555,11 +591,9 @@ static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_fa
 		uint32_t m1_row_count = VALUE(U32, m1_row_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(!(m2_row_count >= 2 && m2_row_count <= 4)) {
-			qb_abort("%s() can only handle vectors with 2, 3, or 4 elements", cxt->function_name);
-		}
-		if(m1_col_count != m2_row_count + 1 || m1_row_count != m2_row_count) {
-			qb_abort("%s() expects a %dx%d matrix when given a vector with %d elements", cxt->function_name, m2_row_count, m2_row_count + 1, m2_row_count);
+		if(!(m2_row_count >= 2 && m2_row_count <= 4 && m1_col_count == m2_row_count + 1 && m1_row_count != m2_row_count)) {
+			qb_report_invalid_transform_exception(NULL, cxt->line_id, m1_col_count, m1_row_count, m2_row_count);
+			return FALSE;
 		}
 	} else {
 		// TODO: do runtime check
@@ -638,6 +672,7 @@ static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_f
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -740,10 +775,12 @@ static int32_t qb_validate_operands_range(qb_compiler_context *cxt, qb_op_factor
 
 static int32_t qb_validate_operands_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_validate_operands_one_array(cxt, f, expr_type, operands, operand_count, result_destination);
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	// nothing
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -794,6 +831,7 @@ static int32_t qb_validate_operands_defined(qb_compiler_context *cxt, qb_op_fact
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
 		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
@@ -830,11 +868,11 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 			if(arg->flags & QB_VARIABLE_BY_REF) {
 				// TODO: check size
 				if(val->type != QB_OPERAND_ADDRESS || TEMPORARY(val->address)) {
-					qb_abort("%s expects parameter %d to be a variable", qfunc->name, i + 1);
+					qb_record_unexpected_value_as_function_argument_exception(NULL, cxt->line_id, qfunc, i);
 					return FALSE;
 				}
 				if(!STORAGE_TYPE_MATCH(val->address->type, arg->address->type)) {
-					qb_abort("%s expects parameter %d to be %s and a variable of the type %s is given", cxt->function_name, i + 1, type_names[arg->address->type], type_names[val->address->type]);
+					qb_record_unexpected_function_argument_type_exception(NULL, cxt->line_id, qfunc, i, val->address->type, arg->address->type);
 					return FALSE;
 				}
 			}

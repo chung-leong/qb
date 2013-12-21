@@ -18,7 +18,7 @@ class GuardIndexMultiply extends Handler {
 		$lines[] = "res = op1 * op3;";
 		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
 		$lines[] =		"USE_TSRM";
-		$lines[] =		"qb_record_out_of_bound_exception(cxt->thread, op1, op2, FALSE, line_id TSRMLS_CC);";
+		$lines[] =		"qb_record_out_of_bound_exception(cxt->thread, line_id, op1, op2, FALSE);";
 		$lines[] =		"cxt->exit_type = QB_VM_BAILOUT;";
 		$lines[] =		"return;";
 		$lines[] = "}";

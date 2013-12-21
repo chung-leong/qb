@@ -31,6 +31,7 @@ static int32_t qb_decompose_return(qb_compiler_context *cxt, void *factory, qb_o
 	if(!qb_produce_op(cxt, d->factory, NULL, 0, result, NULL, 0, NULL)) {
 		return FALSE;
 	}
+	return TRUE;
 }
 
 static int32_t qb_decompose_yield(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
@@ -78,7 +79,7 @@ static int32_t qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, 
 	qb_intrinsic_function *ifunc = cxt->intrinsic_function = func->intrinsic_function;
 
 	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
-		qb_record_incorrect_argument_count_exception(NULL, ifunc, argument_count->number);
+		qb_record_incorrect_argument_count_exception(NULL, cxt->line_id, ifunc, argument_count->number);
 		return FALSE;
 	}
 	if(!qb_produce_op(cxt, ff, arguments->arguments, argument_count->number, result, NULL, 0, result_prototype)) {

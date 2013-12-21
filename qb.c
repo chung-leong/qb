@@ -880,14 +880,13 @@ PHP_RINIT_FUNCTION(qb)
 	}
 	QB_G(main_thread).type = -1;
 	QB_G(static_zval_index) = 0;
-	QB_G(current_filename) = NULL;
-	QB_G(current_line_number) = 0;
 	QB_G(build_context) = NULL;
 	QB_G(scopes) = NULL;
 	QB_G(scope_count) = 0;
 	QB_G(external_symbols) = NULL;
 	QB_G(external_symbol_count) = 0;
 	QB_G(caller_interpreter_context) = NULL;
+	QB_G(first_exception) = NULL;
 #ifdef ZEND_ACC_GENERATOR
 	QB_G(generator_contexts) = NULL;
 	QB_G(generator_context_count) = 0;
@@ -1065,12 +1064,8 @@ NO_RETURN void qb_abort(const char *format, ...) {
 	va_list args;
 	TSRMLS_FETCH();
 
-	if(QB_G(current_filename)) {
-		filename = QB_G(current_filename);
-	} else {
-		filename = zend_get_executed_filename(TSRMLS_C);
-	}
-	lineno = QB_G(current_line_number);
+	filename = zend_get_executed_filename(TSRMLS_C);
+	lineno = 0;
 
 	va_start(args, format);
 	zend_error_cb(E_ERROR, filename, lineno, format, args);
@@ -1092,12 +1087,8 @@ void qb_warn(const char *format, ...) {
 	va_list args;
 	TSRMLS_FETCH();
 
-	if(QB_G(current_filename)) {
-		filename = QB_G(current_filename);
-	} else {
-		filename = zend_get_executed_filename(TSRMLS_C);
-	}
-	lineno = QB_G(current_line_number);
+	filename = zend_get_executed_filename(TSRMLS_C);
+	lineno = 0;
 
 	va_start(args, format);
 	zend_error_cb(E_WARNING, filename, lineno, format, args);
