@@ -36,6 +36,7 @@ void qb_record_vector_width_mismatch_exception(qb_thread *thread, uint32_t line_
 void qb_record_invalid_cross_product_exception(qb_thread *thread, uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2);
 void qb_record_invalid_4d_cross_product_exception(qb_thread *thread, uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2, uint32_t vector_width3);
 void qb_report_invalid_transform_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row, uint32_t vector_width);
+void qb_record_invalid_matrix_multiplication_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix1_column, uint32_t matrix2_row, uint32_t matrix_flags);
 
 void qb_record_dimension_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
 void qb_record_dimension_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
@@ -48,10 +49,22 @@ void qb_record_missing_type_declaration_exception(qb_thread *thread, uint32_t li
 
 void qb_record_illegal_dimension_declaration_exception(qb_thread *thread, uint32_t line_id, long const_value);
 void qb_record_undefined_constant_in_dimension_declaration_exception(qb_thread *thread, uint32_t line_id, const char *name);
+
 void qb_record_missing_scope_exception(qb_thread *thread, uint32_t line_id, const char *scope_accessed);
 void qb_record_missing_parent_scope_exception(qb_thread *thread, uint32_t line_id, const char *scope_accessed);
 void qb_record_undefined_constant_exception(qb_thread *thread, uint32_t line_id, zend_class_entry *ce, const char *name);
 void qb_record_reference_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_not_an_array_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_illegal_array_index_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_associative_array_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_fixed_length_array_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_variable_variable_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_missing_property_exception(qb_thread *thread, uint32_t line_id, zend_class_entry *scope, const char *name);
+void qb_record_missing_named_element_exception(qb_thread *thread, uint32_t line_id, const char *name);
+void qb_record_elements_not_named_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_return_void_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_type_mismatch_exception(qb_thread *thread, uint32_t line_id, qb_primitive_type type1, qb_primitive_type type2);
+void qb_record_missing_send_declaration(qb_thread *thread, uint32_t line_id);
 
 void qb_record_external_code_load_failure_exception(qb_thread *thread, uint32_t line_id, const char *import_path);
 

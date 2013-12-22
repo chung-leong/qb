@@ -80,6 +80,16 @@ void qb_report_invalid_transform_exception(qb_thread *thread, uint32_t line_id, 
 	}
 }
 
+void qb_record_invalid_matrix_multiplication_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix1_column, uint32_t matrix2_row, uint32_t matrix_flags) {
+	if((matrix_flags & 1) && (matrix_flags & 2)) {
+		qb_record_exception(thread, line_id, "The number of columns in the first matrix (%d) does not match the number of rows in the second matrix (%d)", matrix1_column, matrix2_row);
+	} else if(matrix_flags & 1) {
+		qb_record_exception(thread, line_id, "The number of columns in the matrix (%d) does not match the vector's dimension (%d)", matrix1_column, matrix2_row);
+	} else if(matrix_flags & 2) {
+		qb_record_exception(thread, line_id, "The number of rows in the matrix (%d) does not match the vector's dimension (%d)", matrix1_column, matrix2_row);
+	}
+}
+
 void qb_record_dimension_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2) {
 }
 
@@ -133,6 +143,54 @@ void qb_record_undefined_constant_exception(qb_thread *thread, uint32_t line_id,
 
 void qb_record_reference_exception(qb_thread *thread, uint32_t line_id) {
 	qb_record_exception(thread, line_id, "No support for reference");
+}
+
+void qb_record_not_an_array_exception(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "Cannot retrieve element from non-array");
+}
+
+void qb_record_illegal_array_index_exception(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "An array cannot be used as an array index");
+}
+
+void qb_record_associative_array_exception(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "No support for associative array");
+}
+
+void qb_record_fixed_length_array_exception(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "Cannot change the size of a fixed-length array");
+}
+
+void qb_record_variable_variable_exception(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "No support for variable variable-names");
+}
+
+void qb_record_missing_property_exception(qb_thread *thread, uint32_t line_id, zend_class_entry *scope, const char *name) {
+	if(scope) {
+		qb_record_exception(thread, line_id, "Undefined property: %s::$%s", scope->name, name);
+	} else {
+		qb_record_exception(thread, line_id, "Using $this when not in object context");
+	}
+}
+
+void qb_record_missing_named_element_exception(qb_thread *thread, uint32_t line_id, const char *name) {
+	qb_record_exception(thread, line_id, "Undefined element: '%s'", name);
+}
+
+void qb_record_elements_not_named_exception(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "Array elements are not named");
+}
+
+void qb_record_return_void_exception(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "Returning a value in a function with return type declared to be void");
+}
+
+void qb_record_type_mismatch_exception(qb_thread *thread, uint32_t line_id, qb_primitive_type type1, qb_primitive_type type2) {
+	qb_record_exception(thread, line_id, "Type mismatch: %s != %s", type_names[type1], type_names[type2]);
+}
+
+void qb_record_missing_send_declaration(qb_thread *thread, uint32_t line_id) {
+	qb_record_exception(thread, line_id, "Missing type declaration for value from send()");
 }
 
 void qb_record_incorrect_argument_count_exception(qb_thread *thread, uint32_t line_id, qb_intrinsic_function *ifunc, uint32_t argument_count) {

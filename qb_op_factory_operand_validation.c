@@ -23,21 +23,26 @@ static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_o
 	qb_operand *index = &operands[1];
 
 	if(container->type != QB_OPERAND_ADDRESS) {
-		qb_abort("cannot retrieve element from non-array");
+		qb_record_not_an_array_exception(NULL, cxt->line_id);
+		return FALSE;
 	}
 
 	if((index->type == QB_OPERAND_ADDRESS && !SCALAR(index->address)) || (index->type == QB_OPERAND_ARRAY_INITIALIZER)) {
-		qb_abort("an array cannot be used as an array index");
+		qb_record_illegal_array_index_exception(NULL, cxt->line_id);
+		return FALSE;
 	} else if(index->type == QB_OPERAND_ZVAL) {
 		if(index->constant->type == IS_STRING) {
-			qb_abort("no support for associative array");
+			qb_record_associative_array_exception(NULL, cxt->line_id);
+			return FALSE;
 		} else if(index->constant->type != IS_BOOL && index->constant->type != IS_LONG && index->constant->type != IS_DOUBLE) {
-			qb_abort("invalid index type");
+			qb_record_illegal_array_index_exception(NULL, cxt->line_id);
+			return FALSE;
 		}
 	} else if(index->type == QB_OPERAND_NONE) {
 		// an append operation
 		if(!RESIZABLE(container->address)) {
-			qb_abort("cannot append element to a fixed-length array");
+			qb_record_fixed_length_array_exception(NULL, cxt->line_id);
+			return FALSE;
 		}
 	}
 	return TRUE;
@@ -48,19 +53,24 @@ static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb
 	qb_operand *name = &operands[1];
 
 	if(name->type != QB_OPERAND_ZVAL) {
-		qb_abort("no support for variable variable-names");
+		qb_record_variable_variable_exception(NULL, cxt->line_id);
+		return FALSE;
 	}
 	if(container->type == QB_OPERAND_NONE) {
 		if(!qb_get_instance_variable(cxt, name->constant)) {
-			qb_abort("no property by the name of '%s'", Z_STRVAL_P(name->constant));
+			zend_class_entry *scope = cxt->zend_op_array->scope;
+			qb_record_missing_property_exception(NULL, cxt->line_id, scope, Z_STRVAL_P(name->constant));
+			return FALSE;
 		}
 	} else if(container->type == QB_OPERAND_ADDRESS) {
 		uint32_t index;
 		if(SCALAR(container->address)) {
-			qb_abort("illegal operation: not an array");
+			qb_record_not_an_array_exception(NULL, cxt->line_id);
+			return FALSE;
 		}
 		if(!container->address->index_alias_schemes || !container->address->index_alias_schemes[0]) {
-			qb_abort("array elements are not named");
+			qb_record_elements_not_named_exception(NULL, cxt->line_id);
+			return FALSE;
 		}
 		index = qb_find_index_alias(cxt, container->address->index_alias_schemes[0], name->constant);
 		if(index == INVALID_INDEX) {
@@ -69,11 +79,10 @@ static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb
 				swizzle_mask = qb_get_swizzle_mask(cxt, container->address->index_alias_schemes[0], name->constant);
 			}
 			if(swizzle_mask == INVALID_INDEX) {
-				qb_abort("no element by the name of '%s'", Z_STRVAL_P(name->constant));
+				qb_record_missing_named_element_exception(NULL, cxt->line_id, Z_STRVAL_P(name->constant));
+				return FALSE;
 			}
 		}
-	} else {
-		qb_abort("cannot fetch property of objects other than $this");
 	}
 	return TRUE;
 }
@@ -82,7 +91,8 @@ static int32_t qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_o
 	uint32_t i;
 	for(i = 1; i < operand_count; i++) {
 		if(operands[0].address->type != operands[i].address->type) {
-			qb_abort("type mismatch");
+			qb_record_type_mismatch_exception(NULL, cxt->line_id, operands[0].address->type, operands[i].address->type);
+			return FALSE;
 		}
 	}
 	return TRUE;
@@ -92,7 +102,8 @@ static int32_t qb_validate_operands_assign_return_value(qb_compiler_context *cxt
 	if(!cxt->return_variable->address) {
 		qb_operand *value = &operands[0];
 		if(value->type != QB_OPERAND_NONE && !(value->type == QB_OPERAND_ZVAL && value->constant->type == IS_NULL)) {
-			qb_abort("returning a value in a function with return type declared to be void");
+			qb_record_return_void_exception(NULL, cxt->line_id);
+			return FALSE;
 		}
 	}
 	return TRUE;
@@ -101,7 +112,8 @@ static int32_t qb_validate_operands_assign_return_value(qb_compiler_context *cxt
 static int32_t qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(!cxt->sent_variable->address) {
 		if(result_destination && result_destination->type != QB_RESULT_DESTINATION_FREE) {
-			qb_abort("missing type declaration for value from send()");
+			qb_record_missing_send_declaration(NULL, cxt->line_id);
+			return FALSE;
 		}
 	}
 	return TRUE;
@@ -491,7 +503,8 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 
 		if(!cxt->matrix_padding) {
 			if(m1_col_count != m2_row_count) {
-				qb_abort("The number of columns in the first matrix (%d) does not match the number of rows in the second matrix (%d)", m1_col_count, m2_row_count);
+				qb_record_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1 | 2);
+				return FALSE;
 			}
 		}
 	} else {
@@ -504,6 +517,9 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 
 static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+	qb_matrix_order order = qb_get_matrix_order(cxt, f);
+	qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
+	qb_address *m2_row_address = DIMENSION_ADDRESS(matrix2->address, -1);
 
 	if(matrix1->address->dimension_count < 2) {
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
@@ -515,16 +531,18 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 	}
 
 	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -1)) {
-		qb_matrix_order order = qb_get_matrix_order(cxt, f);
-		qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
-		qb_address *m2_row_address = DIMENSION_ADDRESS(matrix2->address, -1);
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
 		if(!cxt->matrix_padding) {
 			if(m1_col_count != m2_row_count) {
-				qb_abort("The number of columns in the matrix (%d) does not match the vector's dimension (%d)", m1_col_count, m2_row_count);
+				qb_record_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1);
+				return FALSE;
 			}
+		}
+	} else {
+		if(m1_col_address != m2_row_address) {
+			// TODO: add run time checks
 		}
 	}
 	return TRUE;
@@ -532,6 +550,9 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 
 static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
+	qb_matrix_order order = qb_get_matrix_order(cxt, f);
+	qb_address *m1_col_address = DIMENSION_ADDRESS(matrix1->address, -1);
+	qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
 
 	if(matrix1->address->dimension_count < 1) {
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "vector");
@@ -543,19 +564,19 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 	}
 
 	if(CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -2) && CONSTANT_DIMENSION(matrix2->address, -1)) {
-		qb_matrix_order order = qb_get_matrix_order(cxt, f);
-		qb_address *m1_col_address = DIMENSION_ADDRESS(matrix1->address, -1);
-		qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
 		uint32_t m1_col_count = VALUE(U32, m1_col_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
 		if(!cxt->matrix_padding) {
 			if(m1_col_count != m2_row_count) {
-				qb_abort("The number of rows in the matrix (%d) does not match the vector's dimension (%d)", m2_row_count, m1_col_count);
+				qb_record_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 2);
+				return FALSE;
 			}
 		}
 	} else {
-		// TODO: do runtime validation
+		if(m1_col_address != m2_row_address) {
+			// TODO: add run time checks
+		}
 	}
 	return TRUE;
 }
@@ -846,12 +867,6 @@ static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_facto
 	if(!(value->type == QB_OPERAND_ZVAL || (value->type == QB_OPERAND_ADDRESS && CONSTANT(value->address) && SCALAR(value->address)))) {
 		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant expression");
 		return FALSE;
-	}
-
-	name_str = Z_STRVAL_P(name->constant);
-	name_len = Z_STRLEN_P(name->constant);
-	if(zend_memnstr(name_str, "::", sizeof("::") - 1, name_str + name_len)) {
-		qb_abort("Class constants cannot be defined or redefined");
 	}
 	return TRUE;
 }
