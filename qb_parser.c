@@ -203,6 +203,8 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 			uint32_t alias_count, alias_start, alias_len, i;
 			qb_index_alias_scheme *scheme;						
 
+			next_offset = offsets[1];
+
 			// count the number of commas
 			for(i = 0, dimension = 1; i < names_len; i++) {
 				if(names[i] == ',') {
@@ -238,8 +240,6 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 			decl->dimensions[dimension_index] = dimension;
 			decl->index_alias_schemes[dimension_index] = scheme;
 			decl->flags |= QB_TYPE_DECL_HAS_ALIAS_SCHEMES;
-		} else {
-			next_offset = -1;
 		}
 	}
 	decl->dimensions[dimension_index] = dimension;

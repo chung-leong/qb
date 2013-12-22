@@ -144,7 +144,7 @@ void qb_record_incorrect_argument_count_exception(qb_thread *thread, uint32_t li
 		} else {
 			// function is being called because either argument count can be the min or the max
 			// and not something in between
-			qb_abort("%s() expects either %d or %d arguments", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max);
+			qb_record_exception(thread, line_id, "%s() expects either %d or %d arguments", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max);
 		}
 	}
 }
