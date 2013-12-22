@@ -165,7 +165,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 					long const_value = Z_LVAL_P(constant);
 					if(const_value <= 0) {
 						// TODO: pass the correct line id
-						qb_record_illegal_dimension_declaration_exception(NULL, 0, const_value);
+						qb_report_illegal_dimension_declaration_exception(NULL, 0, const_value);
 						free_alloca(name, use_heap);
 						next_offset = -1;
 					}
@@ -183,7 +183,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 				}
 			} else {
 				// TODO: pass the correct line id
-				qb_record_undefined_constant_in_dimension_declaration_exception(NULL, 0, name);
+				qb_report_undefined_constant_in_dimension_declaration_exception(NULL, 0, name);
 				next_offset = -1;
 			}
 			free_alloca(name, use_heap);

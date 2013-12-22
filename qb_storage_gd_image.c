@@ -72,7 +72,7 @@ static gdImagePtr qb_get_gd_image(zval *resource) {
 	return NULL;
 }
 
-static void qb_set_image_dimensions(qb_storage *storage, qb_address *address, gdImagePtr image) {
+static int32_t qb_set_image_dimensions(qb_storage *storage, qb_address *address, gdImagePtr image) {
 	qb_address *width_address = address->dimension_addresses[1];
 	qb_address *height_address = address->dimension_addresses[0];
 	uint32_t width_expected = VALUE_IN(storage, U32, width_address);
@@ -94,9 +94,10 @@ static void qb_set_image_dimensions(qb_storage *storage, qb_address *address, gd
 		}
 		VALUE_IN(storage, U32, height_address) = image->sy;
 	}
+	return TRUE;
 }
 
-static void qb_set_image_linear_size(qb_storage *storage, qb_address *address, gdImagePtr image) {
+static int32_t qb_set_image_linear_size(qb_storage *storage, qb_address *address, gdImagePtr image) {
 	qb_address *length_address = address->dimension_addresses[0];
 	uint32_t pixel_count = image->sx * image->sy;
 	uint32_t length_expected = VALUE_IN(storage, U32, length_address);
@@ -108,6 +109,7 @@ static void qb_set_image_linear_size(qb_storage *storage, qb_address *address, g
 		}
 	}
 	VALUE_IN(storage, U32, length_address) = pixel_count;
+	return TRUE;
 }
 
 static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_address *address, int32_t true_color) {
@@ -187,7 +189,7 @@ static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_ad
 	return pixel_format;
 }
 
-static uint32_t qb_set_array_dimensions_from_image(qb_storage *storage, qb_address *address, gdImagePtr image) {
+static int32_t qb_set_array_dimensions_from_image(qb_storage *storage, qb_address *address, gdImagePtr image, uint32_t *p_array_size) {
 	uint32_t array_size, i;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
 
@@ -219,7 +221,8 @@ static uint32_t qb_set_array_dimensions_from_image(qb_storage *storage, qb_addre
 		array_size *= VALUE_IN(storage, U32, dimension_address);
 		VALUE_IN(storage, U32, array_size_address) = array_size;
 	}
-	return array_size;
+	*p_array_size = array_size;
+	return TRUE;
 }
 
 static void qb_reallocate_gd_image(gdImagePtr image, int width, int height) {

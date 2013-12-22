@@ -256,7 +256,7 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 		if(zfunc) {
 			qfunc = qb_find_compiled_function(zfunc);
 		} else {
-			qb_record_missing_function_exception(NULL, cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
+			qb_report_missing_function_exception(NULL, cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
 			return FALSE;
 		}
 	}
@@ -291,7 +291,7 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 					} else {
 						if(other_compiler_cxt->function_flags & QB_FUNCTION_INLINE_ALWAYS) {
 							zend_class_entry *ce = zfunc->common.scope;
-							qb_record_inline_function_exception(NULL, cxt->compiler_context->line_id, (ce) ? ce->name : NULL, Z_STRVAL_P(name->constant));
+							qb_report_inline_function_exception(NULL, cxt->compiler_context->line_id, (ce) ? ce->name : NULL, Z_STRVAL_P(name->constant));
 						}
 					}
 				}

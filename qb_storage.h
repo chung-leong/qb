@@ -247,9 +247,9 @@ void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t re
 void qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count);
 void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint32_t dest_type, int8_t *restrict dest_memory);
 
-void qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags);
+int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags);
 void qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address, uint32_t transfer_flags);
-void qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue);
+int32_t qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval *zvalue);
 void qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address);
 
 void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count);

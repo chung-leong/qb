@@ -23,25 +23,25 @@ static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_o
 	qb_operand *index = &operands[1];
 
 	if(container->type != QB_OPERAND_ADDRESS) {
-		qb_record_not_an_array_exception(NULL, cxt->line_id);
+		qb_report_not_an_array_exception(NULL, cxt->line_id);
 		return FALSE;
 	}
 
 	if((index->type == QB_OPERAND_ADDRESS && !SCALAR(index->address)) || (index->type == QB_OPERAND_ARRAY_INITIALIZER)) {
-		qb_record_illegal_array_index_exception(NULL, cxt->line_id);
+		qb_report_illegal_array_index_exception(NULL, cxt->line_id);
 		return FALSE;
 	} else if(index->type == QB_OPERAND_ZVAL) {
 		if(index->constant->type == IS_STRING) {
-			qb_record_associative_array_exception(NULL, cxt->line_id);
+			qb_report_associative_array_exception(NULL, cxt->line_id);
 			return FALSE;
 		} else if(index->constant->type != IS_BOOL && index->constant->type != IS_LONG && index->constant->type != IS_DOUBLE) {
-			qb_record_illegal_array_index_exception(NULL, cxt->line_id);
+			qb_report_illegal_array_index_exception(NULL, cxt->line_id);
 			return FALSE;
 		}
 	} else if(index->type == QB_OPERAND_NONE) {
 		// an append operation
 		if(!RESIZABLE(container->address)) {
-			qb_record_fixed_length_array_exception(NULL, cxt->line_id);
+			qb_report_fixed_length_array_exception(NULL, cxt->line_id);
 			return FALSE;
 		}
 	}
@@ -53,23 +53,23 @@ static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb
 	qb_operand *name = &operands[1];
 
 	if(name->type != QB_OPERAND_ZVAL) {
-		qb_record_variable_variable_exception(NULL, cxt->line_id);
+		qb_report_variable_variable_exception(NULL, cxt->line_id);
 		return FALSE;
 	}
 	if(container->type == QB_OPERAND_NONE) {
 		if(!qb_get_instance_variable(cxt, name->constant)) {
 			zend_class_entry *scope = cxt->zend_op_array->scope;
-			qb_record_missing_property_exception(NULL, cxt->line_id, scope, Z_STRVAL_P(name->constant));
+			qb_report_missing_property_exception(NULL, cxt->line_id, scope, Z_STRVAL_P(name->constant));
 			return FALSE;
 		}
 	} else if(container->type == QB_OPERAND_ADDRESS) {
 		uint32_t index;
 		if(SCALAR(container->address)) {
-			qb_record_not_an_array_exception(NULL, cxt->line_id);
+			qb_report_not_an_array_exception(NULL, cxt->line_id);
 			return FALSE;
 		}
 		if(!container->address->index_alias_schemes || !container->address->index_alias_schemes[0]) {
-			qb_record_elements_not_named_exception(NULL, cxt->line_id);
+			qb_report_elements_not_named_exception(NULL, cxt->line_id);
 			return FALSE;
 		}
 		index = qb_find_index_alias(cxt, container->address->index_alias_schemes[0], name->constant);
@@ -79,7 +79,7 @@ static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb
 				swizzle_mask = qb_get_swizzle_mask(cxt, container->address->index_alias_schemes[0], name->constant);
 			}
 			if(swizzle_mask == INVALID_INDEX) {
-				qb_record_missing_named_element_exception(NULL, cxt->line_id, Z_STRVAL_P(name->constant));
+				qb_report_missing_named_element_exception(NULL, cxt->line_id, Z_STRVAL_P(name->constant));
 				return FALSE;
 			}
 		}
@@ -91,7 +91,7 @@ static int32_t qb_validate_operands_matching_type(qb_compiler_context *cxt, qb_o
 	uint32_t i;
 	for(i = 1; i < operand_count; i++) {
 		if(operands[0].address->type != operands[i].address->type) {
-			qb_record_type_mismatch_exception(NULL, cxt->line_id, operands[0].address->type, operands[i].address->type);
+			qb_report_type_mismatch_exception(NULL, cxt->line_id, operands[0].address->type, operands[i].address->type);
 			return FALSE;
 		}
 	}
@@ -102,7 +102,7 @@ static int32_t qb_validate_operands_assign_return_value(qb_compiler_context *cxt
 	if(!cxt->return_variable->address) {
 		qb_operand *value = &operands[0];
 		if(value->type != QB_OPERAND_NONE && !(value->type == QB_OPERAND_ZVAL && value->constant->type == IS_NULL)) {
-			qb_record_return_void_exception(NULL, cxt->line_id);
+			qb_report_return_void_exception(NULL, cxt->line_id);
 			return FALSE;
 		}
 	}
@@ -112,7 +112,7 @@ static int32_t qb_validate_operands_assign_return_value(qb_compiler_context *cxt
 static int32_t qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(!cxt->sent_variable->address) {
 		if(result_destination && result_destination->type != QB_RESULT_DESTINATION_FREE) {
-			qb_record_missing_send_declaration(NULL, cxt->line_id);
+			qb_report_missing_send_declaration(NULL, cxt->line_id);
 			return FALSE;
 		}
 	}
@@ -121,7 +121,7 @@ static int32_t qb_validate_operands_sent_value(qb_compiler_context *cxt, qb_op_f
 
 static int32_t qb_validate_operands_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	if(operand_count != 0 && operand_count != 2) {
-		qb_record_incorrect_argument_count_exception(NULL, cxt->line_id, cxt->intrinsic_function, operand_count);
+		qb_report_incorrect_argument_count_exception(NULL, cxt->line_id, cxt->intrinsic_function, operand_count);
 		return FALSE;
 	}
 	return TRUE;
@@ -132,7 +132,7 @@ static int32_t qb_validate_operands_minmax_array(qb_compiler_context *cxt, qb_op
 
 	if(operand_count == 1) {
 		if(SCALAR(container->address)) {
-			qb_record_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "an array as parameter when only one parameter is given");
+			qb_report_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "an array as parameter when only one parameter is given");
 			return FALSE;
 		}
 	}
@@ -187,7 +187,7 @@ static zval * qb_get_special_constant(qb_compiler_context *cxt, const char *name
 static int32_t qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
-		qb_record_missing_scope_exception(NULL, cxt->line_id, "self");
+		qb_report_missing_scope_exception(NULL, cxt->line_id, "self");
 		return FALSE;
 	}
 	return TRUE;
@@ -196,11 +196,11 @@ static int32_t qb_validate_operands_fetch_class_self(qb_compiler_context *cxt, q
 static int32_t qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
-		qb_record_missing_scope_exception(NULL, cxt->line_id, "parent");
+		qb_report_missing_scope_exception(NULL, cxt->line_id, "parent");
 		return FALSE;
 	}
 	if(!ce->parent) {
-		qb_record_missing_parent_scope_exception(NULL, cxt->line_id, "parent");
+		qb_report_missing_parent_scope_exception(NULL, cxt->line_id, "parent");
 		return FALSE;
 	}
 	return TRUE;
@@ -209,7 +209,7 @@ static int32_t qb_validate_operands_fetch_class_parent(qb_compiler_context *cxt,
 static int32_t qb_validate_operands_fetch_class_static(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	zend_class_entry *ce = cxt->zend_op_array->scope;
 	if(!ce) {
-		qb_record_missing_scope_exception(NULL, cxt->line_id, "static");
+		qb_report_missing_scope_exception(NULL, cxt->line_id, "static");
 		return FALSE;
 	}
 	return TRUE;
@@ -234,7 +234,7 @@ static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_
 			ht = EG(zend_constants);
 		}
 		if(!zend_hash_exists(ht, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
-			qb_record_undefined_constant_exception(NULL, cxt->line_id, ce, Z_STRVAL_P(name->constant));
+			qb_report_undefined_constant_exception(NULL, cxt->line_id, ce, Z_STRVAL_P(name->constant));
 			return FALSE;
 		}
 	}
@@ -245,7 +245,7 @@ static int32_t qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_f
 	qb_operand *variable = &operands[0], *value = &operands[1];
 	// global and static assign ref to bring variables into the local scope
 	if(variable->address != value->address) {
-		qb_record_reference_exception(NULL, cxt->line_id);
+		qb_report_reference_exception(NULL, cxt->line_id);
 		return FALSE;
 	}
 	return TRUE;
@@ -255,7 +255,7 @@ static int32_t qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_fa
 	qb_operand *operand = &operands[0];
 
 	if(SCALAR(operand->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
 	return TRUE;
@@ -265,7 +265,7 @@ static int32_t qb_validate_operands_referenceable(qb_compiler_context *cxt, qb_o
 	qb_operand *operand = &operands[0];
 
 	if(operand->type != QB_OPERAND_ADDRESS) {
-		qb_record_unexpected_value_as_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0);
+		qb_report_unexpected_value_as_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0);
 	}
 	return TRUE;
 }
@@ -284,11 +284,11 @@ static int32_t qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_f
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
 	if(SCALAR(operand1->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
 	if(SCALAR(operand2->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "array");
 		return FALSE;
 	}
 	return TRUE;
@@ -305,7 +305,7 @@ static int32_t qb_validate_operands_matching_vector_width(qb_compiler_context *c
 		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
 		uint32_t vector_width2 = DIMENSION(operand2->address, -1);
 		if(vector_width1 != vector_width2) {
-			qb_record_vector_width_mismatch_exception(NULL, cxt->line_id, vector_width1, vector_width2);
+			qb_report_vector_width_mismatch_exception(NULL, cxt->line_id, vector_width1, vector_width2);
 			return FALSE;
 		}
 	} else {
@@ -320,7 +320,7 @@ static int32_t qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_fact
 	qb_validate_operands_matching_vector_width(cxt, f, expr_type, operands, operand_count, result_destination);
 
 	if(!SCALAR(operand3->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "scalar");
 		return FALSE;
 	}
 	return TRUE;
@@ -332,7 +332,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 	for(i = 0; i < operand_count; i++) {
 		qb_operand *operand = &operands[0];
 		if(SCALAR(operand->address)) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "array");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "array");
 			return FALSE;
 		}
 	}
@@ -345,7 +345,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 			uint32_t vector_width3 = DIMENSION(operand3->address, -1);
 
 			if(!(vector_width1 == vector_width2 && vector_width2 == vector_width3 && 2 <= vector_width1 && vector_width1 <= 3)) {
-				qb_record_invalid_4d_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2, vector_width3);
+				qb_report_invalid_4d_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2, vector_width3);
 				return FALSE;
 			}
 		} else {
@@ -358,7 +358,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 			uint32_t vector_width2 = DIMENSION(operand2->address, -1);
 
 			if(!(vector_width1 == vector_width2 && 2 <= vector_width1 && vector_width1 <= 3)) {
-				qb_record_invalid_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2);
+				qb_report_invalid_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2);
 				return FALSE;
 			}
 		} else {
@@ -372,7 +372,7 @@ static int32_t qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_f
 	qb_operand *operand1 = &operands[0];
 
 	if(operand1->address->dimension_count < 2) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
 		return FALSE;
 	}
 	return TRUE;
@@ -387,7 +387,7 @@ static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_o
 		uint32_t row = DIMENSION(operand1->address, -1);
 		uint32_t col = DIMENSION(operand1->address, -2);
 		if(row != col) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "square matrix");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "square matrix");
 			return FALSE;
 		}
 	}
@@ -400,11 +400,11 @@ static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factor
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
 		if(!(3 <= channel_count && channel_count <= 4)) {
-			qb_record_invalid_pixel_format_exception(NULL, cxt->line_id, cxt->intrinsic_function, channel_count);
+			qb_report_invalid_pixel_format_exception(NULL, cxt->line_id, cxt->intrinsic_function, channel_count);
 			return FALSE;
 		}
 	} else {
-		qb_record_variable_pixel_width_exception(NULL, cxt->line_id, cxt->intrinsic_function);
+		qb_report_variable_pixel_width_exception(NULL, cxt->line_id, cxt->intrinsic_function);
 		return FALSE;
 	}
 	return TRUE;
@@ -416,11 +416,11 @@ static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
 		if(channel_count != 4) {
-			qb_record_missing_alpha_channel_exception(NULL, cxt->line_id, cxt->intrinsic_function, channel_count);
+			qb_report_missing_alpha_channel_exception(NULL, cxt->line_id, cxt->intrinsic_function, channel_count);
 			return FALSE;
 		}
 	} else {
-		qb_record_variable_pixel_width_exception(NULL, cxt->line_id, cxt->intrinsic_function);
+		qb_report_variable_pixel_width_exception(NULL, cxt->line_id, cxt->intrinsic_function);
 		return FALSE;
 	}
 	return TRUE;
@@ -431,19 +431,19 @@ static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 	uint32_t channel_count;
 
 	if(image->address->dimension_count != 3) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "three-dimensional array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "three-dimensional array");
 	}
 	if(CONSTANT_DIMENSION(image->address, -1)) {
 		channel_count = DIMENSION(image->address, -1);
 		if(!(3 <= channel_count && channel_count <= 4)) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array whose last dimension is 3 or 4");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array whose last dimension is 3 or 4");
 			return FALSE;
 		}
 	} else {
 		// TODO: do check at runtime
 	}
 	if(!(image->address->type >= QB_TYPE_F32)) {
-		qb_record_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "image data to be in floating-point representation");
+		qb_report_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "image data to be in floating-point representation");
 		return FALSE;
 	}
 	return TRUE;
@@ -452,11 +452,11 @@ static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *column_index = &operands[1];
 	if(container->address->dimension_count < 2) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "multidimensional array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "multidimensional array");
 		return FALSE;
 	}
 	if(!SCALAR(column_index->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
 	return TRUE;
@@ -489,11 +489,11 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 	qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
 
 	if(matrix1->address->dimension_count < 2) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
 		return FALSE;
 	}
 	if(matrix2->address->dimension_count < 2) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "matrix");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "matrix");
 		return FALSE;
 	}
 
@@ -503,7 +503,7 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 
 		if(!cxt->matrix_padding) {
 			if(m1_col_count != m2_row_count) {
-				qb_record_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1 | 2);
+				qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1 | 2);
 				return FALSE;
 			}
 		}
@@ -522,11 +522,11 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 	qb_address *m2_row_address = DIMENSION_ADDRESS(matrix2->address, -1);
 
 	if(matrix1->address->dimension_count < 2) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
 		return FALSE;
 	}
 	if(matrix2->address->dimension_count < 1) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "vector");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "vector");
 		return FALSE;
 	}
 
@@ -536,7 +536,7 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 
 		if(!cxt->matrix_padding) {
 			if(m1_col_count != m2_row_count) {
-				qb_record_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1);
+				qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1);
 				return FALSE;
 			}
 		}
@@ -555,11 +555,11 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 	qb_address *m2_row_address = qb_obtain_matrix_row_address(cxt, matrix2->address, order);
 
 	if(matrix1->address->dimension_count < 1) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "vector");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "vector");
 		return FALSE;
 	}
 	if(matrix2->address->dimension_count < 2) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "matrix");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "matrix");
 		return FALSE;
 	}
 
@@ -569,7 +569,7 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 
 		if(!cxt->matrix_padding) {
 			if(m1_col_count != m2_row_count) {
-				qb_record_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 2);
+				qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 2);
 				return FALSE;
 			}
 		}
@@ -595,11 +595,11 @@ static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_fa
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 
 	if(matrix1->address->dimension_count < 2) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "matrix");
 		return FALSE;
 	}
 	if(matrix2->address->dimension_count < 1) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "vector");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "vector");
 		return FALSE;
 	}
 
@@ -628,15 +628,15 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 	uint32_t i, container_element_size = 0;
 
 	if(TEMPORARY(container->address)) {
-		qb_record_unexpected_value_as_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0);
+		qb_report_unexpected_value_as_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0);
 		return FALSE;
 	}
 	if(SCALAR(container->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
 	if(FIXED_LENGTH(container->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "variable-length array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "variable-length array");
 		return FALSE;
 	}
 
@@ -664,7 +664,7 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 			}
 			if(value_size != 0) {
 				if(value_size > container_element_size) {
-					qb_record_out_of_bound_exception(NULL, cxt->line_id, value_size, container_element_size, TRUE);
+					qb_report_out_of_bound_exception(NULL, cxt->line_id, value_size, container_element_size, TRUE);
 					return FALSE;
 				}
 			}
@@ -677,7 +677,7 @@ static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_f
 	qb_operand *value = &operands[0];
 	if(cxt->argument_offset == 0) {
 		if(SCALAR(value->address)) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 			return FALSE;
 		} 
 	}
@@ -687,11 +687,11 @@ static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_f
 static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *start_index = &operands[0], *number = &operands[1], *value = &operands[2];
 	if(!SCALAR(start_index->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
 	if(!SCALAR(number->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
 	return TRUE;
@@ -701,7 +701,7 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 	qb_operand *input = &operands[0], *size = &operands[1], *value = &operands[2];
 
 	if(SCALAR(input->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
 
@@ -712,7 +712,7 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 			uint32_t element_size = VALUE(U32, element_size_address);
 			uint32_t value_size = VALUE(U32, value_size_address);
 			if(element_size != value_size) {
-				qb_record_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "the third parameter to have the same size as the elements in the input array");
+				qb_report_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "the third parameter to have the same size as the elements in the input array");
 				return FALSE;
 			}
 		} else {
@@ -720,7 +720,7 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 		}
 	} else {
 		if(!SCALAR(value->address)) {
-			qb_record_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "the third parameter to be a scalar when the input array is not multidimensional");
+			qb_report_unmet_intrinsic_condition_exception(NULL, cxt->line_id, cxt->intrinsic_function, "the third parameter to be a scalar when the input array is not multidimensional");
 			return FALSE;
 		}
 	}
@@ -731,7 +731,7 @@ static int32_t qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_fa
 	qb_operand *operand = &operands[0];
 
 	if(SCALAR(operand->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
 	return TRUE;
@@ -741,12 +741,12 @@ static int32_t qb_validate_operands_array_rand(qb_compiler_context *cxt, qb_op_f
 	qb_operand *container = &operands[0], *count = &operands[1];
 
 	if(SCALAR(container->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
 	if(count->type == QB_OPERAND_ADDRESS) {
 		if(!SCALAR(count->address)) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 			return FALSE;
 		}
 	}
@@ -761,16 +761,16 @@ static int32_t qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 
 	if(SCALAR(container->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	} 
 	if(!SCALAR(offset->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
 	if(length->type == QB_OPERAND_ADDRESS) {
 		if(!SCALAR(length->address)) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "scalar");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "scalar");
 			return FALSE;
 		}
 	}
@@ -781,15 +781,15 @@ static int32_t qb_validate_operands_range(qb_compiler_context *cxt, qb_op_factor
 	qb_operand *start = &operands[0], *end = &operands[1], *interval = &operands[2];
 
 	if(!SCALAR(start->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
 	if(!SCALAR(end->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
 	if(interval->type == QB_OPERAND_ADDRESS && !SCALAR(interval->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "scalar");
 		return FALSE;
 	}
 	return TRUE;
@@ -810,14 +810,14 @@ static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory
 	if(value->type != QB_OPERAND_ADDRESS) {
 		// type coercion had failed earlier
 		if(index->type != QB_OPERAND_NONE) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "constant indicating the type");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "constant indicating the type");
 		} else {
-			qb_record_missing_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "the type cannot be determined from context");
+			qb_report_missing_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "the type cannot be determined from context");
 		}
 		return FALSE;
 	}
 	if(!SCALAR(value->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "scalar");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
 	return TRUE;
@@ -826,21 +826,21 @@ static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory
 static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *value = &operands[0], *index = &operands[1], *type = &operands[2];
 	if(SCALAR(value->address)) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array of bytes");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array of bytes");
 		return FALSE;
 	}
 	if(index->type == QB_OPERAND_ADDRESS) {
 		if(!SCALAR(index->address)) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "index value");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "index value");
 			return FALSE;
 		}
 	}
 	if(expr_type == QB_TYPE_UNKNOWN || expr_type == QB_TYPE_ANY) {
 		if(type->type != QB_OPERAND_NONE) {
-			qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "constant indicating the type");
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 1, "constant indicating the type");
 			return FALSE;
 		} else {
-			qb_record_missing_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "the type cannot be determined from context");
+			qb_report_missing_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 2, "the type cannot be determined from context");
 			return FALSE;
 		}
 	}
@@ -850,7 +850,7 @@ static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_facto
 static int32_t qb_validate_operands_defined(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *name = &operands[0];
 	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
 		return FALSE;
 	}
 	return TRUE;
@@ -858,15 +858,13 @@ static int32_t qb_validate_operands_defined(qb_compiler_context *cxt, qb_op_fact
 
 static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *name = &operands[0], *value = &operands[1];
-	char *name_str;
-	uint32_t name_len;
 
 	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
 		return FALSE;
 	}
 	if(!(value->type == QB_OPERAND_ZVAL || (value->type == QB_OPERAND_ADDRESS && CONSTANT(value->address) && SCALAR(value->address)))) {
-		qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant expression");
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant expression");
 		return FALSE;
 	}
 	return TRUE;
@@ -884,16 +882,16 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 			if(arg->flags & QB_VARIABLE_BY_REF) {
 				// TODO: check size
 				if(val->type != QB_OPERAND_ADDRESS || TEMPORARY(val->address)) {
-					qb_record_unexpected_value_as_function_argument_exception(NULL, cxt->line_id, qfunc, i);
+					qb_report_unexpected_value_as_function_argument_exception(NULL, cxt->line_id, qfunc, i);
 					return FALSE;
 				}
 				if(!STORAGE_TYPE_MATCH(val->address->type, arg->address->type)) {
-					qb_record_unexpected_function_argument_type_exception(NULL, cxt->line_id, qfunc, i, val->address->type, arg->address->type);
+					qb_report_unexpected_function_argument_type_exception(NULL, cxt->line_id, qfunc, i, val->address->type, arg->address->type);
 					return FALSE;
 				}
 			}
 			if(SCALAR(arg->address) && !SCALAR(val->address)) {
-				qb_record_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "scalar");
+				qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "scalar");
 				return FALSE;
 			}
 		}
@@ -931,7 +929,7 @@ static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt,
 			case QB_RESULT_DESTINATION_ELEMENT:
 			case QB_RESULT_DESTINATION_PROPERTY: break;
 			default: {
-				qb_record_ambiguous_return_value_exception(NULL, cxt->line_id);
+				qb_report_ambiguous_return_value_exception(NULL, cxt->line_id);
 				return FALSE;
 			}
 		}
