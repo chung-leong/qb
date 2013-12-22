@@ -24,12 +24,12 @@ static void qb_record_exception_in_main_thread(void *param1, void *param2, int p
 	TSRMLS_FETCH();
 	uint32_t line_id = param3;
 	const char *format = param1;
-	va_list args = param2;
+	va_list *args = param2;
 	qb_exception *exception = emalloc(sizeof(qb_exception));
 	qb_exception *last_exception = QB_G(first_exception);
 	char *message = NULL;
 
-	vspprintf(&message, 0, format, args);
+	vspprintf(&message, 0, format, *args);
 	exception->message = message;
 	if(last_exception) {
 		do {
@@ -45,7 +45,7 @@ ZEND_ATTRIBUTE_FORMAT(printf, 3, 4)
 static void qb_record_exception(qb_thread *thread, uint32_t line_id, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
-	qb_run_in_main_thread(thread, qb_record_exception_in_main_thread, (void *) format, args, line_id, NULL);
+	qb_run_in_main_thread(thread, qb_record_exception_in_main_thread, (void *) format, &args, line_id, NULL);
 	va_end(args);
 }
 

@@ -88,6 +88,7 @@ if test "$PHP_QB" != "no"; then
 	qb_compiler.c\
 	qb_data_tables_gcc.c\
 	qb_encoder.c\
+	qb_exceptions.c\
 	qb_extractor.c\
 	qb_function_inliner.c\
 	qb_interpreter.c\
