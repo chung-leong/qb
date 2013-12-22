@@ -286,9 +286,9 @@ THREAD_PROC_RETURN_TYPE qb_signal_thread_proc(void *arg) {
 	}
 	return THREAD_PROC_RETURN_VALUE;
 }
-
 #endif
-int qb_initialize_main_thread(qb_main_thread *thread) {
+
+int qb_initialize_main_thread(qb_main_thread *thread TSRMLS_DC) {
 	thread->type = QB_THREAD_MAIN;
 	thread->worker_count = 0;
 	if(!qb_initialize_event_sink(&thread->event_sink)) {
@@ -299,6 +299,11 @@ int qb_initialize_main_thread(qb_main_thread *thread) {
 #else
 	thread->thread = GetCurrentThread();
 #endif
+
+#ifdef ZTS
+	thread->tsrm_ls = tsrm_ls;
+#endif
+
 	qb_lock_event_sink(&thread->event_sink);
 	return TRUE;
 }
@@ -338,6 +343,18 @@ static qb_main_thread * qb_get_thread_owner(qb_thread *thread) {
 	}
 	return NULL;
 }
+
+#ifdef ZTS
+void ***qb_get_tsrm_ls(qb_thread *thread) {
+	if(thread) {
+		qb_main_thread *main_thread = qb_get_thread_owner(thread);
+		return main_thread->tsrm_ls;
+	} else {
+		TSRMLS_FETCH();
+		return tsrm_ls;
+	}
+}
+#endif
 
 static void qb_wait_for_worker_termination(qb_worker_thread *thread) {
 	if(thread->thread) {

@@ -25,8 +25,16 @@ typedef struct qb_exception				qb_exception;
 
 struct qb_exception {
 	char *message;
-	qb_exception *next_exception;
+	const char *source_file;
+	uint32_t line_number;
+	int32_t type;
 };
+
+uint32_t qb_get_source_file_id(const char *file_path TSRMLS_DC);
+
+void qb_dispatch_exceptions(TSRMLS_D);
+
+void qb_record_external_code_load_failure_exception(qb_thread *thread, uint32_t line_id, const char *import_path);
 
 // these functions may be called at runtime
 void qb_record_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive);
@@ -65,8 +73,9 @@ void qb_record_elements_not_named_exception(qb_thread *thread, uint32_t line_id)
 void qb_record_return_void_exception(qb_thread *thread, uint32_t line_id);
 void qb_record_type_mismatch_exception(qb_thread *thread, uint32_t line_id, qb_primitive_type type1, qb_primitive_type type2);
 void qb_record_missing_send_declaration(qb_thread *thread, uint32_t line_id);
-
-void qb_record_external_code_load_failure_exception(qb_thread *thread, uint32_t line_id, const char *import_path);
+void qb_record_ambiguous_return_value_exception(qb_thread *thread, uint32_t line_id);
+void qb_record_missing_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *name);
+void qb_record_inline_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *name);
 
 void qb_record_incorrect_argument_count_exception(qb_thread *thread, uint32_t line_id, qb_intrinsic_function *ifunc, uint32_t argument_count);
 void qb_record_unexpected_intrinsic_argument_exception(qb_thread *thread, uint32_t line_id, qb_intrinsic_function *ifunc, uint32_t param_index, const char *expected_object);

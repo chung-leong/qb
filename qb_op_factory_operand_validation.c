@@ -651,7 +651,7 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 
 	if(container_element_size != 0) {
 		// the size of the container's elements is known
-		// make sure the values pushed in aren'ttoo  big
+		// make sure the values pushed in aren't too big
 		for(i = 1; i < operand_count; i++) {
 			uint32_t value_size = 0;
 			value = &operands[i];
@@ -664,7 +664,8 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 			}
 			if(value_size != 0) {
 				if(value_size > container_element_size) {
-					qb_abort("parameter %d is too big for the array", i + 1);
+					qb_record_out_of_bound_exception(NULL, cxt->line_id, value_size, container_element_size, TRUE);
+					return FALSE;
 				}
 			}
 		}
@@ -930,7 +931,7 @@ static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt,
 			case QB_RESULT_DESTINATION_ELEMENT:
 			case QB_RESULT_DESTINATION_PROPERTY: break;
 			default: {
-				qb_abort("The return value from a regular PHP function must be either saved to a variable or ignored");
+				qb_record_ambiguous_return_value_exception(NULL, cxt->line_id);
 				return FALSE;
 			}
 		}

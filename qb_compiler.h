@@ -138,7 +138,9 @@ struct qb_compiler_context {
 	qb_translation_type translation;
 	void *translator_context;
 
+#ifdef ZTS
 	void ***tsrm_ls;
+#endif
 };
 
 enum qb_diagnostic_type {

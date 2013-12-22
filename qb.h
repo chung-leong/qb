@@ -185,7 +185,11 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 
 	qb_interpreter_context *caller_interpreter_context;
 
-	qb_exception *first_exception;
+	qb_exception *exceptions;
+	uint32_t exception_count;
+
+	const char **source_files;
+	uint32_t source_file_count;
 
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	zend_literal static_zvals[8];

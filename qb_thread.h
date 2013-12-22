@@ -153,6 +153,10 @@ struct qb_main_thread {
 #ifndef WIN32
 	sigset_t signal_mask;
 #endif
+
+#ifdef ZTS
+	void ***tsrm_ls;
+#endif
 };
 
 struct qb_thread_pool {
@@ -174,8 +178,12 @@ struct qb_thread_pool {
 
 long qb_get_cpu_count(void);
 
-int qb_initialize_main_thread(qb_main_thread *thread);
+int qb_initialize_main_thread(qb_main_thread *thread TSRMLS_DC);
 void qb_free_main_thread(qb_main_thread *thread);
+
+#ifdef ZTS
+void ***qb_get_tsrm_ls(qb_thread *);
+#endif
 
 void qb_initialize_task_group(qb_task_group *group, qb_thread *owner, long task_count, long extra_bytes);
 void qb_free_task_group(qb_task_group *group);

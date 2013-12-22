@@ -35,6 +35,7 @@ zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
 	int error_reporting_before;
 #endif
 	zend_fcall_info_cache fcc;
+	zend_function *zfunc = NULL;
 
 	if(class_name) {
 		HashTable ht;
@@ -50,34 +51,34 @@ zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
 		zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
 
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(!zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-			qb_abort("%s", error);
+		if(zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
 		}
 #else
 		// suppress the non-static function being called as static warning message
 		error_reporting_before = EG(error_reporting);
 		EG(error_reporting) = 0;
-		if(!zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		if(zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
 		}
 		EG(error_reporting) = error_reporting_before;
 #endif
 		zend_hash_destroy(&ht);
 	} else {
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		if(!zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
-			qb_abort("%s", error);
+		if(zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
 		}
 #else
-		if(!zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
-			qb_abort("Cannot find function: %s", Z_STRVAL_P(name));
+		if(zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
 		}
 #endif
 	}
 	if(error) {
 		efree(error);
 	}
-	return fcc.function_handler;
+	return zfunc;
 }
 
 qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC) {
@@ -380,7 +381,7 @@ qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_i
 					if(READ_ONLY(ivar->address) && READ_ONLY(var->address)) {
 						// permit a variable to be imported differently if it's not modified 
 					} else {
-						qb_abort("Error message");
+						return NULL;
 					}
 				}
 			}
@@ -480,7 +481,7 @@ uint32_t qb_get_thread_count(TSRMLS_D) {
 qb_main_thread * qb_get_main_thread(TSRMLS_D) {
 	qb_main_thread *thread = &QB_G(main_thread);
 	if(thread->type == -1) {
-		qb_initialize_main_thread(thread);
+		qb_initialize_main_thread(thread TSRMLS_CC);
 	}
 	return thread;
 }
@@ -836,7 +837,7 @@ PHP_MINIT_FUNCTION(qb)
 	qb_install_user_opcode_handler();
 
 	qb_initialize_thread_pool(TSRMLS_C);
-	qb_initialize_main_thread(&main_thread);
+	qb_initialize_main_thread(&main_thread TSRMLS_CC);
 	qb_add_workers(&main_thread);
 	qb_free_main_thread(&main_thread);
 
@@ -886,7 +887,10 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(external_symbols) = NULL;
 	QB_G(external_symbol_count) = 0;
 	QB_G(caller_interpreter_context) = NULL;
-	QB_G(first_exception) = NULL;
+	QB_G(exceptions) = NULL;
+	QB_G(exception_count) = 0;
+	QB_G(source_files) = NULL;
+	QB_G(source_file_count) = 0;
 #ifdef ZEND_ACC_GENERATOR
 	QB_G(generator_contexts) = NULL;
 	QB_G(generator_context_count) = 0;
@@ -934,6 +938,8 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 	}
 	qb_destroy_array((void **) &QB_G(scopes));
 	qb_destroy_array((void **) &QB_G(external_symbols));
+	qb_destroy_array((void **) &QB_G(exceptions));
+	qb_destroy_array((void **) &QB_G(source_files));
 
 #ifdef ZEND_ACC_GENERATOR
 	for(i = 0; i < QB_G(generator_context_count); i++) {
