@@ -299,7 +299,11 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 			if(use_inlining) {
 				op_factory = list[QB_OP_FACTORY_INLINE];
 			} else {
-				op_factory = list[QB_OP_FACTORY_NORMAL];
+				if(qfunc->flags & QB_FUNCTION_RUN_IN_MAIN_THREAD) {
+					op_factory = list[QB_OP_FACTORY_MAIN_THREAD];
+				} else {
+					op_factory = list[QB_OP_FACTORY_NORMAL];
+				}
 			}
 		} else {
 			op_factory = list[QB_OP_FACTORY_ZEND];

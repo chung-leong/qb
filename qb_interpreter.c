@@ -415,6 +415,7 @@ static int32_t qb_lock_function(qb_function *f) {
 }
 
 static void qb_unlock_function(qb_function *f) {
+	f->local_storage->current_owner = NULL;
 	f->in_use = 0;
 }
 
@@ -444,47 +445,50 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 	if(reentrance) {
 		for(f = base; f; f = f->next_reentrance_copy) {
 			if(!f->in_use && qb_lock_function(f)) {
-				return f;
+				break;
 			}
 			last = f;
 		}
 	} else {
 		for(f = base; f; f = f->next_forked_copy) {
 			if(!f->in_use && qb_lock_function(f)) {
-				return f;
+				break;
 			}
 			last = f;
 		}
 	}
 
-	// need to create a copy
-	if(cxt && cxt->thread->type == QB_THREAD_WORKER) {
-		// do it in the main thread
-		qb_run_in_main_thread(cxt->thread, qb_create_function_copy_in_main_thread, last, &f, reentrance, NULL);
-	} else {
-		f = qb_create_function_copy(last, reentrance);
-		if(reentrance) {
-			last->next_reentrance_copy = f;
+	if(!f) {
+		// need to create a copy
+		if(cxt->thread->type == QB_THREAD_WORKER) {
+			// do it in the main thread
+			qb_run_in_main_thread(cxt->thread, qb_create_function_copy_in_main_thread, last, &f, reentrance, NULL);
 		} else {
-			last->next_forked_copy = f;
+			f = qb_create_function_copy(last, reentrance);
+			if(reentrance) {
+				last->next_reentrance_copy = f;
+			} else {
+				last->next_forked_copy = f;
+			}
 		}
+		qb_lock_function(f);
 	}
-	qb_lock_function(f);
+	f->local_storage->current_owner = cxt->thread;
 	return f;
 }
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC) {
-	cxt->function = qb_acquire_function(caller_cxt, qfunc, TRUE);
-	cxt->instruction_pointer = cxt->function->instruction_start;
-	cxt->caller_context = caller_cxt;
-
 	if(caller_cxt) {
 		cxt->call_depth = caller_cxt->call_depth + 1;
 		cxt->thread = caller_cxt->thread;
+		cxt->caller_context = NULL;
 	} else {
 		cxt->call_depth = 1;
 		cxt->thread = (qb_thread *) qb_get_main_thread(TSRMLS_C);
+		cxt->caller_context = caller_cxt;
 	}
+	cxt->function = qb_acquire_function(cxt, qfunc, TRUE);
+	cxt->instruction_pointer = cxt->function->instruction_start;
 
 	cxt->thread_count = qb_get_thread_count(TSRMLS_C);
 	if(cxt->thread_count == 1) {

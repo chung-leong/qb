@@ -912,11 +912,6 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 			}
 		}
 	}
-
-	// don't inline functions that make calls
-	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
-	}
 	return TRUE;
 }
 
@@ -933,11 +928,6 @@ static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt,
 				return FALSE;
 			}
 		}
-	}
-
-	// don't inline functions that make calls
-	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
 	}
 	return TRUE;
 }

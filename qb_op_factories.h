@@ -43,8 +43,9 @@
 
 #define QB_OP_FACTORY_INTRINSIC		0
 #define QB_OP_FACTORY_NORMAL		1
-#define QB_OP_FACTORY_INLINE		2
-#define QB_OP_FACTORY_ZEND			3	
+#define QB_OP_FACTORY_MAIN_THREAD	2
+#define QB_OP_FACTORY_INLINE		3
+#define QB_OP_FACTORY_ZEND			4	
 
 typedef struct qb_op_factory					qb_op_factory; 
 typedef struct qb_derived_op_factory			qb_derived_op_factory; 
@@ -96,6 +97,8 @@ typedef qb_opcode (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_facto
 
 typedef void (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
 
+typedef void (*qb_set_function_flags_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+
 #define OP_FACTORY_COMMON_ELEMENTS		\
 	qb_produce_composite_proc produce_composite;	\
 	qb_resolve_expression_type_proc resolve_type;	\
@@ -107,6 +110,7 @@ typedef void (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factor
 	qb_set_dimensions_proc set_dimensions;	\
 	qb_select_opcode_proc select_opcode;	\
 	qb_transfer_operands_proc transfer_operands;	\
+	qb_set_function_flags_proc set_function_flags;	\
 	uint32_t coercion_flags;	\
 	uint32_t result_flags;	\
 	uint32_t address_flags;	\
@@ -296,7 +300,7 @@ extern qb_gather_op_factory factory_scatter;
 extern qb_op_factory factory_array_init;
 extern qb_op_factory factory_array_append;
 
-extern void *factories_fcall[4];
+extern void *factories_fcall[5];
 
 extern qb_op_factory factory_free;
 

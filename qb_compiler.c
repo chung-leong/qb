@@ -3142,7 +3142,10 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 			}
 		}
 
-
+		// set function flags
+		if(f->set_function_flags) {
+			f->set_function_flags(cxt, f, operands, operand_count, result);
+		}
 	} else {
 		// it's a nop
 		qb_add_op(cxt, qop);
