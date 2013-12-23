@@ -572,9 +572,11 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 				} else if(opcode == PBJ_ELSE || opcode == PBJ_END_IF) {
 					// update the branch target index of the op at the top of the stack
 					qb_pbj_op *related_pop;
+#ifdef ZEND_DEBUG
 					if(cxt->conditional_count == 0) {
 						qb_abort("unexpected opcode: %02x", opcode);
 					}
+#endif
 					related_pop = cxt->conditionals[cxt->conditional_count - 1];
 					related_pop->branch_target_index = pop_index;
 					if(opcode == PBJ_ELSE) {

@@ -61,7 +61,8 @@ struct qb_zend_argument_stack {
 
 enum qb_vm_exit_type { 
 	QB_VM_RETURN = 0,
-	QB_VM_BAILOUT,
+	QB_VM_ERROR,
+	QB_VM_WARNING,
 	QB_VM_TIMEOUT,
 	QB_VM_FORK,
 	QB_VM_SPOON,
@@ -83,7 +84,7 @@ struct qb_interpreter_context {
 	uint32_t *argument_indices;
 	uint32_t argument_count;
 	uint32_t result_index;
-	uint32_t line_number;
+	uint32_t caller_line_id;
 	uint32_t call_depth;
 	void *send_target;
 
@@ -126,11 +127,7 @@ int32_t qb_execute_resume(qb_interpreter_context *cxt);
 
 void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number);
 
-ZEND_ATTRIBUTE_FORMAT(printf, 1, 3) NO_RETURN
-void qb_abort_at(const char *format, uint32_t line_number, ...);
-
-void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number);
-void qb_trigger_out_of_bound_exception(qb_interpreter_context *cxt, uint32_t index, uint32_t limit, int32_t inclusive, uint32_t line_number);
+int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number);
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC);
 void qb_free_interpreter_context(qb_interpreter_context *cxt);

@@ -502,7 +502,8 @@ static void qb_stop_execution_timer(qb_function *qfunc TSRMLS_DC) {
 			if(qfunc->name[0] != '_') {
 				php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
 				if(stream) {
-					php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", qfunc->filename, qfunc->name, duration);
+					const char *source_file = qb_get_source_file_path(qfunc->line_id TSRMLS_CC);
+					php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", source_file, qfunc->name, duration);
 					php_stream_close(stream);
 				}
 			}
@@ -911,6 +912,10 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 	qb_discard_current_build(TSRMLS_C);
 
 	if(QB_G(main_thread).type != -1) {
+		if(CG(unclean_shutdown)) {
+			// bailing out of script--make sure threads are shutdown
+			qb_terminate_associated_workers(&QB_G(main_thread));
+		}
 		qb_free_main_thread(&QB_G(main_thread));
 	}
 
@@ -1063,43 +1068,6 @@ PHP_FUNCTION(qb_extract)
 }
 /* }}} */
 
-ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
-NO_RETURN void qb_abort(const char *format, ...) {
-	const char *filename;
-	uint32_t lineno;
-	va_list args;
-	TSRMLS_FETCH();
-
-	filename = zend_get_executed_filename(TSRMLS_C);
-	lineno = 0;
-
-	va_start(args, format);
-	zend_error_cb(E_ERROR, filename, lineno, format, args);
-	va_end(args);
-#if __GNUC__
-	// just to silence the warning--zend_error_cb() doesn't return when E_ERROR is passed
- 	exit(0);
-#endif
-}
-
-NO_RETURN void qb_bailout(void) {
-	qb_abort("Error");
-}
-
-ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
-void qb_warn(const char *format, ...) {
-	const char *filename;
-	uint32_t lineno;
-	va_list args;
-	TSRMLS_FETCH();
-
-	filename = zend_get_executed_filename(TSRMLS_C);
-	lineno = 0;
-
-	va_start(args, format);
-	zend_error_cb(E_WARNING, filename, lineno, format, args);
-	va_end(args);
-}
 /*
  * Local variables:
  * tab-width: 4

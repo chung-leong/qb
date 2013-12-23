@@ -52,7 +52,7 @@ double qb_zval_to_double(zval *zvalue) {
 	}
 }
 
-int64_t qb_zval_array_to_int64(zval *zvalue) {
+int32_t qb_zval_array_to_int64(zval *zvalue, int64_t *p_integer) {
 	int32_t hi_dword_present = FALSE, lo_dword_present = FALSE;
 	int64_t hi_dword, lo_dword;
 	HashTable *ht = Z_ARRVAL_P(zvalue);
@@ -78,9 +78,10 @@ int64_t qb_zval_array_to_int64(zval *zvalue) {
 		}
 	}
 	if(!hi_dword_present || !lo_dword_present) {
-		qb_abort("unable to convert array to int64");
+		return FALSE;
 	}
-	return (hi_dword & 0xFFFFFFFF) << 32 | (lo_dword & 0xFFFFFFFF);
+	*p_integer = (hi_dword & 0xFFFFFFFF) << 32 | (lo_dword & 0xFFFFFFFF);
+	return FALSE;
 }
 
 zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {

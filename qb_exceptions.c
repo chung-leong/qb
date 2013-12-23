@@ -37,6 +37,11 @@ uint32_t qb_get_source_file_id(const char *file_path TSRMLS_DC) {
 	return QB_G(source_file_count);
 }
 
+const char *qb_get_source_file_path(uint32_t line_id TSRMLS_DC) {
+	uint32_t file_id = FILE_ID(line_id);
+	return (file_id) ? QB_G(source_files)[file_id - 1] : "";
+}
+
 static void qb_show_error(int32_t type, const char *filename, uint32_t line_number, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
@@ -77,7 +82,7 @@ static void qb_report_exception_in_main_thread(void *param1, void *param2, int p
 	vspprintf(&message, 0, params->format, params->arguments);
 	exception->message = message;
 	exception->line_number = line_number;
-	exception->source_file = (file_id) ? QB_G(source_files)[file_id - 1] : NULL;
+	exception->source_file = qb_get_source_file_path(file_id TSRMLS_CC);
 	exception->type = params->type;
 }
 
@@ -97,6 +102,13 @@ static void qb_report_exception(qb_thread *thread, uint32_t line_id, int32_t typ
 	va_end(params.arguments);
 }
 
+void qb_report_external_code_load_failure_exception(qb_thread *thread, uint32_t line_id, const char *import_path) {
+	qb_report_exception(thread, line_id, E_ERROR, "Unable to load file containing external code: %s", import_path);
+}
+
+void qb_report_native_compilation_exception(qb_thread *thread, uint32_t line_id, const char *function_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Unable to compile to native code: %s()", function_name);
+}
 
 void qb_report_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive) {
 
@@ -146,10 +158,6 @@ void qb_report_dimension_count_mismatch_exception(qb_thread *thread, uint32_t li
 
 void qb_report_missing_type_declaration_exception(qb_thread *thread, uint32_t line_id, qb_variable *qvar) {
 	qb_report_exception(thread, line_id, E_ERROR, "Missing type declaration: %s", qvar->name);
-}
-
-void qb_report_external_code_load_failure_exception(qb_thread *thread, uint32_t line_id, const char *import_path) {
-	qb_report_exception(thread, line_id, E_ERROR, "Unable to load file containing external code");
 }
 
 void qb_report_illegal_dimension_declaration_exception(qb_thread *thread, uint32_t line_id, long const_value) {
@@ -334,6 +342,17 @@ void qb_report_unexpected_function_argument_type_exception(qb_thread *thread, ui
 	}
 }
 
+void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name, uint32_t argument_index) {
+	const char *space;
+	if(class_name) {
+		space = "::";
+	} else {
+		class_name = "";
+		space = "";
+	}
+	qb_report_exception(thread, line_id, E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %d and defined", argument_index + 1, class_name, space, function_name);
+}
+
 void qb_report_missing_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name) {
 	const char *space;
 	if(class_name) {
@@ -364,8 +383,14 @@ void qb_report_illegal_array_structure_exception(qb_thread *thread, uint32_t lin
 	qb_report_exception(thread, line_id, E_ERROR, "Array has irregular structure");
 }
 
-void qb_report_binary_string_size_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t byte_count, uint32_t element_byte_count) {
-	qb_report_exception(thread, line_id, E_WARNING, "Number of bytes in string (%d) is not divisible by the size of each array element (%d)", byte_count, element_byte_count);
+void qb_report_binary_string_size_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t byte_count, qb_primitive_type type) {
+	uint32_t element_byte_count = BYTE_COUNT(1, type);
+	const char *type_name = type_names[type];
+	if(byte_count < element_byte_count) {
+		qb_report_exception(thread, line_id, E_WARNING, "Number of bytes in string (%d) is less than the size of (%s)", byte_count, type_name);
+	} else {
+		qb_report_exception(thread, line_id, E_WARNING, "Number of bytes in string (%d) is not divisible by the size of %s", byte_count, type_name);
+	}
 }
 
 void qb_report_memory_map_exception(qb_thread *thread, uint32_t line_id, const char *file_path) {
@@ -389,3 +414,26 @@ void qb_report_illegal_conversion_from_array_exception(qb_thread *thread, uint32
 	const char *article = qb_get_indefinite_article(object);
 	qb_report_exception(thread, line_id, E_ERROR, "Cannot convert an array to %s %s", article, object);
 }
+
+void qb_report_missing_class_exception(qb_thread *thread, uint32_t line_id, const char *class_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Class '%s' not found", class_name);
+}
+
+void qb_report_abstract_class_exception(qb_thread *thread, uint32_t line_id, const char *class_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Cannot instantiate interface or abstract class '%s'", class_name);
+}
+
+void qb_report_invalid_break_level_exception(qb_thread *thread, uint32_t line_id, uint32_t nest_levels) {
+	qb_report_exception(thread, line_id, E_ERROR, "Cannot break/continue %d level%s", nest_levels, (nest_levels == 1) ? "" : "s");
+}
+
+#ifdef ZEND_DEBUG
+ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
+void qb_debug_abort(char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	vprintf(format, args);
+	va_end(args);
+	exit(-1);
+}
+#endif

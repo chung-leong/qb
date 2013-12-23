@@ -261,6 +261,7 @@ static void qb_enable_time_out_signal(qb_main_thread *thread) {
 	pthread_sigmask(SIG_SETMASK, &thread->signal_mask, NULL);
 }
 
+// intercept timeout signal so we won't longjmp() out of a pthread call
 THREAD_PROC_RETURN_TYPE qb_signal_thread_proc(void *arg) {
 	sigset_t set;
 	sigemptyset(&set);
@@ -606,11 +607,8 @@ static void qb_handle_main_thread_events(qb_main_thread *thread, qb_event_type e
 				// wake up the worker again
 				qb_send_event(&worker->event_sink, (qb_thread *) thread, QB_EVENT_REQUEST_PROCESSED, FALSE);
 			}	break;
-			case QB_EVENT_BAILOUT: {
-				qb_signal_bailout((qb_thread *) thread);
-			}
 			case QB_EVENT_TIMEOUT: {
-				qb_signal_timeout((qb_thread *) thread);
+				zend_timeout(0);
 			}
 			case QB_EVENT_WORKER_ADDED:
 			case QB_EVENT_TASK_GROUP_PROCESSED:
@@ -787,7 +785,7 @@ void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1,
 	}
 }
 
-static void qb_clean_up_before_bailout(qb_main_thread *main_thread) {
+void qb_terminate_associated_workers(qb_main_thread *main_thread) {
 	qb_task_group *group, *queue_head = NULL, *queue_tail = NULL;
 	long i;
 	long workers_terminated = 0;
@@ -855,38 +853,6 @@ static void qb_clean_up_before_bailout(qb_main_thread *main_thread) {
 	// free the group
 	for(group = queue_head; group; group = group->next_group) {
 		qb_free_task_group(group);
-	}
-}
-
-void qb_signal_timeout(qb_thread *thread) {
-	if(thread) {
-		if(thread->type == QB_THREAD_MAIN) {
-			qb_clean_up_before_bailout((qb_main_thread *) thread);
-			zend_timeout(0);
-		} else {
-			// perform clean up in main thread
-			qb_main_thread *main_thread = qb_get_thread_owner(thread);
-			qb_send_event(&main_thread->event_sink, thread, QB_EVENT_TIMEOUT, FALSE);
-		}
-	} else {
-		zend_timeout(0);
-	}
-}
-
-void qb_signal_bailout(qb_thread *thread) {
-	if(thread) {
-		if(thread->type == QB_THREAD_MAIN) {
-			qb_clean_up_before_bailout((qb_main_thread *) thread);
-			qb_bailout();
-		} else {
-			qb_worker_thread *worker = (qb_worker_thread *) thread;
-			qb_main_thread *main_thread = qb_get_thread_owner(thread);
-			qb_disable_termination(worker);
-			qb_send_event(&main_thread->event_sink, thread, QB_EVENT_BAILOUT, FALSE);
-			qb_enable_termination(worker);
-		}
-	} else {
-		qb_bailout();
 	}
 }
 

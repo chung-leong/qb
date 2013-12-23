@@ -236,12 +236,6 @@ qb_build_context * qb_get_current_build(TSRMLS_D);
 qb_main_thread * qb_get_main_thread(TSRMLS_D);
 uint32_t qb_get_thread_count(TSRMLS_D);
 
-ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
-void qb_abort(const char *format, ...);
-
-ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
-void qb_warn(const char *format, ...);
-
 NO_RETURN void qb_bailout(void);
 
 extern int qb_user_opcode;

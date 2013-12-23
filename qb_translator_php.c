@@ -48,7 +48,7 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, uint32_t zope
 				} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
 #ifdef ZEND_DEBUG
 					if(temp_variable->freed) {
-						qb_abort("Op %d is accessing temporary varaible #%d which was freed by op %d", cxt->zend_op_index, temp_var_index, temp_variable->last_access_op_index);
+						qb_debug_abort("Op %d is accessing temporary varaible #%d which was freed by op %d", cxt->zend_op_index, temp_var_index, temp_variable->last_access_op_index);
 					}
 #endif
 				}
@@ -109,9 +109,11 @@ static qb_operand * qb_push_stack_item(qb_php_translator_context *cxt) {
 }
 
 static qb_operand ** qb_get_stack_items(qb_php_translator_context *cxt, int32_t index) {
+#ifdef ZEND_DEBUG
 	if(index < 0) {
-		qb_abort("stack underflow");
+		qb_debug_abort("stack underflow");
 	}
+#endif
 	return &cxt->stack_items[cxt->stack_item_offset + index];
 }
 
@@ -174,8 +176,10 @@ static int32_t qb_process_cast_op(qb_php_translator_context *cxt, void *op_facto
 		case IS_BOOL:	op_factory = list[QB_OP_FACTORY_BOOLEAN]; break;
 		case IS_ARRAY:	op_factory = list[QB_OP_FACTORY_ARRAY]; break;
 		case IS_STRING: op_factory = list[QB_OP_FACTORY_STRING]; break;
-		default:		
-			qb_abort("Illegal cast");
+		default: {		
+			qb_report_invalid_cast(NULL, cxt->compiler_context->line_id);
+			return FALSE;
+		}
 	}
 	return qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
@@ -502,7 +506,8 @@ static zend_brk_cont_element * qb_find_break_continue_element(qb_php_translator_
 	int32_t i;
 	for(i = 0; i < nest_levels; i++) {
 		if(array_offset == -1) {
-			qb_abort("Cannot break/continue %d level%s", nest_levels, (nest_levels == 1) ? "" : "s");
+			qb_report_invalid_break_level_exception(NULL, cxt->compiler_context->line_id, nest_levels);
+			return NULL;
 		}
 		jmp_to = &brk_cont_array[array_offset];
 		array_offset = jmp_to->parent;
@@ -516,6 +521,9 @@ static int32_t qb_process_break(qb_php_translator_context *cxt, void *op_factory
 	zend_brk_cont_element *jmp_to = qb_find_break_continue_element(cxt, Z_LVAL_P(nest_level), Z_OPERAND_INFO(cxt->zend_op->op1, opline_num));
 	uint32_t target_indices[1];
 
+	if(!jmp_to) {
+		return FALSE;
+	}
 	cxt->next_op_index1 = jmp_to->brk;
 
 	target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
@@ -527,6 +535,9 @@ static int32_t qb_process_continue(qb_php_translator_context *cxt, void *op_fact
 	zend_brk_cont_element *jmp_to = qb_find_break_continue_element(cxt, Z_LVAL_P(nest_level), Z_OPERAND_INFO(cxt->zend_op->op1, opline_num));
 	uint32_t target_indices[1];
 
+	if(!jmp_to) {
+		return FALSE;
+	}
 	cxt->next_op_index1 = jmp_to->cont;
 
 	target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);

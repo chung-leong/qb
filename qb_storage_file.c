@@ -43,24 +43,26 @@ static int32_t qb_set_array_dimensions_from_file(qb_storage *storage, qb_address
 	return qb_set_array_dimensions_from_byte_count(storage, address, (uint32_t) size, p_array_size);
 }
 
-static void qb_copy_elements_to_file(qb_storage *storage, qb_address *address, php_stream *stream) {
-	size_t position, byte_count;
+static int32_t qb_copy_elements_to_file(qb_storage *storage, qb_address *address, php_stream *stream) {
+	size_t position, byte_count, byte_written;
 	TSRMLS_FETCH();
 	position = php_stream_tell(stream);
 	byte_count = VALUE_IN(storage, U32, address->array_size_address);
 	php_stream_seek(stream, 0, SEEK_SET);
-	php_stream_write(stream, (char *) ARRAY_IN(storage, I08, address), byte_count);
+	byte_written = php_stream_write(stream, (char *) ARRAY_IN(storage, I08, address), byte_count);
 	php_stream_seek(stream, position, SEEK_SET);
+	return (byte_written == byte_count);
 }
 
-static void qb_copy_elements_from_file(qb_storage *storage, qb_address *address, php_stream *stream) {
-	size_t position, byte_count;
+static int32_t qb_copy_elements_from_file(qb_storage *storage, qb_address *address, php_stream *stream) {
+	size_t position, byte_count, byte_read;
 	TSRMLS_FETCH();
 	position = php_stream_tell(stream);
 	byte_count = VALUE_IN(storage, U32, address->array_size_address);
 	php_stream_seek(stream, 0, SEEK_SET);
-	php_stream_read(stream, (char *) ARRAY_IN(storage, I08, address), byte_count);
+	byte_read = php_stream_read(stream, (char *) ARRAY_IN(storage, I08, address), byte_count);
 	php_stream_seek(stream, position, SEEK_SET);
+	return (byte_read == byte_count);
 }
 
 static void * qb_map_file_to_memory(php_stream *stream, uint32_t byte_count, int32_t write_access TSRMLS_DC) {

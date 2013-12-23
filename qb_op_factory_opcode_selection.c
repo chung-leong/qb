@@ -22,7 +22,7 @@ static qb_opcode qb_select_type_dependent_opcode(qb_compiler_context *cxt, qb_op
 	qb_opcode opcode = opcodes[QB_TYPE_F64 - expr_type];
 #ifdef ZEND_DEBUG
 	if(expr_type >= QB_TYPE_COUNT) {
-		qb_abort("Invalid type");
+		qb_debug_abort("Invalid type");
 	}
 #endif
 	return opcode;

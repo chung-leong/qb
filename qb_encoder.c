@@ -93,15 +93,18 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 			qb_add_segment_reference(cxt, address->array_index_address, (void **) &p->index_pointer);
 			qb_add_segment_reference(cxt, address->array_size_address, (void **) &p->count_pointer);
 		}	break;
-		default:
-			qb_abort("invalid address type");
+		default: {
+#ifdef ZEND_DEBUG
+			qb_debug_abort("Invalid address type");
+#endif
+		}
 	}
 }
 
 static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *qop) {
 #ifdef ZEND_DEBUG
 	if(qop->opcode >= QB_OPCODE_COUNT) {
-		qb_abort("illegal opcode");
+		qb_debug_abort("Illegal opcode");
 	}
 #endif
 #ifndef _MSC_VER
@@ -120,7 +123,7 @@ static void qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, in
 
 #ifdef ZEND_DEBUG
 	if(target_index >= cxt->op_count) {
-		qb_abort("invalid op index");
+		qb_debug_abort("invalid op index");
 	}
 #endif
 
@@ -147,7 +150,7 @@ static void qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index
 
 #ifdef ZEND_DEBUG
 	if(target_index >= cxt->op_count) {
-		qb_abort("invalid jump target");
+		qb_debug_abort("invalid jump target");
 	}
 #endif
 	while(target_qop->opcode == QB_NOP) {
@@ -203,7 +206,7 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 				do {
 					prev_qop = cxt->ops[--i];
 				} while(prev_qop->opcode == QB_NOP);
-				qb_abort("the previous op was not correctly encoded");
+				qb_debug_abort("the previous op was not correctly encoded");
 			}
 #endif
 
@@ -236,7 +239,9 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 						qb_encode_number(cxt, operand->number, &ip);
 					}	break;
 					default: {
-						qb_abort("unknown operand type: %d", operand->type);
+#ifdef ZEND_DEBUG
+						qb_debug_abort("unknown operand type: %d", operand->type);
+#endif
 					}	break;
 				}
 			}
@@ -249,7 +254,7 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 	}
 #if ZEND_DEBUG
 	if(memory + cxt->instruction_stream_length != ip) {
-		qb_abort("length mismatch");
+		qb_debug_abort("length mismatch");
 	}
 #endif
 	return ip;
@@ -379,7 +384,7 @@ static int8_t * qb_copy_address(qb_address *address, int8_t *memory) {
 	}
 #if ZEND_DEBUG
 	if(memory + length != p) {
-		qb_abort("length mismatch");
+		qb_debug_abort("length mismatch");
 	}
 #endif
 	return p;
@@ -425,7 +430,7 @@ int8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory) {
 
 #if ZEND_DEBUG
 	if(memory + length != p) {
-		qb_abort("length mismatch");
+		qb_debug_abort("length mismatch");
 	}
 #endif
 	return p;
@@ -472,8 +477,8 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 	}
 
 	qfunc->argument_count = cxt->compiler_context->argument_count;
-	qfunc->name = (cxt->compiler_context->zend_op_array) ? cxt->compiler_context->zend_op_array->function_name : NULL;
-	qfunc->filename = (cxt->compiler_context->zend_op_array) ? cxt->compiler_context->zend_op_array->filename : NULL;
+	qfunc->name = cxt->compiler_context->function_prototype.name;
+	qfunc->line_id = cxt->compiler_context->function_prototype.line_id;
 	qfunc->native_proc = NULL;
 	qfunc->zend_op_array = cxt->compiler_context->zend_op_array;
 	qfunc->flags = cxt->compiler_context->function_flags;
@@ -483,7 +488,7 @@ static int8_t * qb_copy_function_structure(qb_encoder_context *cxt, int8_t *memo
 
 #if ZEND_DEBUG
 	if(memory + length != p) {
-		qb_abort("length mismatch");
+		qb_debug_abort("length mismatch");
 	}
 #endif
 	return p;
@@ -537,7 +542,7 @@ static int8_t * qb_copy_storage_structure(qb_encoder_context *cxt, int8_t * memo
 
 #if ZEND_DEBUG
 	if(memory + length != p) {
-		qb_abort("length mismatch");
+		qb_debug_abort("length mismatch");
 	}
 #endif
 	return p;

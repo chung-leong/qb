@@ -1197,7 +1197,10 @@ static int32_t qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue,
 		switch(address->type) {
 			case QB_TYPE_S64:
 			case QB_TYPE_U64: {
-				VALUE(I64, address) = qb_zval_array_to_int64(zvalue);
+				if(!qb_zval_array_to_int64(zvalue, &VALUE(I64, address))) {
+					qb_report_illegal_conversion_from_array_exception(NULL, cxt->line_id, type_names[address->type]);
+					return FALSE;
+				}
 			}	break;
 			default: {
 				qb_report_illegal_conversion_from_array_exception(NULL, cxt->line_id, type_names[address->type]);
@@ -1439,7 +1442,7 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 qb_address * qb_obtain_constant(qb_compiler_context *cxt, int64_t value, qb_primitive_type element_type) {
 #if ZEND_DEBUG
 	if(element_type >= QB_TYPE_COUNT) {
-		qb_abort("invalid type id");
+		qb_debug_abort("invalid type id");
 	}
 #endif
 	if(element_type >= QB_TYPE_F32) {
@@ -2227,12 +2230,15 @@ qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *nam
 }
 
 void qb_initialize_function_prototype(qb_compiler_context *cxt) {
+	USE_TSRM
+	uint32_t file_id = qb_get_source_file_id(cxt->zend_op_array->filename TSRMLS_CC);
+	uint32_t line_number = cxt->zend_op_array->line_start;
 	cxt->function_prototype.argument_count = cxt->argument_count;
 	cxt->function_prototype.variables = cxt->variables;
 	cxt->function_prototype.return_variable = cxt->return_variable;
 	cxt->function_prototype.zend_op_array = cxt->zend_op_array;
 	cxt->function_prototype.name = cxt->zend_op_array->function_name;
-	cxt->function_prototype.filename = cxt->zend_op_array->filename;
+	cxt->function_prototype.line_id = LINE_ID(file_id, line_number);
 	cxt->function_prototype.local_storage = cxt->storage;
 }
 
@@ -2754,9 +2760,10 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
 				qb_operand operands[4] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { length_address } }, { QB_OPERAND_ADDRESS, { extent_limit_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_multiply, operands, 4);
+#ifdef ZEND_DEBUG
 			} else {
-				qb_abort("Error");
-				// not implemented
+				qb_debug_abort("Not implemented");
+#endif
 			}
 		} else {
 			if(CONSTANT(index_address) && CONSTANT(extent_limit_address) && CONSTANT(length_address)) {
@@ -2769,9 +2776,10 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
 				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { length_address } }, { QB_OPERAND_ADDRESS, { extent_limit_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent, operands, 3);
+#ifdef ZEND_DEBUG
 			} else {
-				qb_abort("Error");
-				// not implemented
+				qb_debug_abort("Not implemented");
+#endif
 			}
 		}
 	} else {
@@ -2789,9 +2797,10 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
 				qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { extent_limit_address } }, { QB_OPERAND_ADDRESS, { index_address } }, { QB_OPERAND_ADDRESS, { sub_array_size_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_subtract_multiply, operands, 3);
+#ifdef ZEND_DEBUG
 			} else {
-				qb_abort("Error");
-				// not implemented
+				qb_debug_abort("Not implemented");
+#endif
 			}
 		} else {
 			if(CONSTANT(index_address) && CONSTANT(extent_limit_address)) {
@@ -2804,9 +2813,10 @@ qb_address * qb_obtain_bound_checked_array_extent(qb_compiler_context *cxt, qb_a
 			if(bound_check_flags & QB_ARRAY_BOUND_CHECK_READ) {
 				qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { extent_limit_address } }, { QB_OPERAND_ADDRESS, { index_address } } };
 				return qb_obtain_on_demand_value(cxt, &factory_guard_array_extent_subtract, operands, 2);
+#ifdef ZEND_DEBUG
 			} else {
-				qb_abort("Error");
-				// not implemented
+				qb_debug_abort("Not implemented");
+#endif
 			}
 		}
 	}
@@ -3267,13 +3277,13 @@ void qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
 	if(address->dimension_count > 0) {
 		uint32_t i;
 		if(!address->dimension_addresses) {
-			qb_abort("Array address doesn't have dimensions");
+			qb_debug_abort("Array address doesn't have dimensions");
 		}
 		if(!address->array_size_addresses) {
-			qb_abort("Array address doesn't have sizes");
+			qb_debug_abort("Array address doesn't have sizes");
 		}
 		if(!address->array_size_address) {
-			qb_abort("Array address doesn't have a size");
+			qb_debug_abort("Array address doesn't have a size");
 		}
 		qb_validate_address(cxt, address->array_size_address);
 		for(i = 0; i < address->dimension_count; i++) {
@@ -3282,7 +3292,7 @@ void qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
 		}
 	} else {
 		if(address->array_size_address != cxt->one_address) {
-			qb_abort("Scalar address has incorrect size");
+			qb_debug_abort("Scalar address has incorrect size");
 		}
 	}
 }
@@ -3547,11 +3557,11 @@ void qb_resolve_address_modes(qb_compiler_context *cxt) {
 					}
 				}
 			}
-
+#ifdef ZEND_DEBUG
 			if(!operands_are_valid) {
-				// shouldn't happen at runtime but we'll leave the error check in here just in case
-				qb_abort("invalid operands");
+				qb_debug_abort("invalid operands");
 			}
+#endif
 		}
 	}
 }

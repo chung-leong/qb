@@ -140,17 +140,8 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				}
 				qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 			} else {
-				const char *space;
-				const char *class_name;
-
-				if (EG(active_op_array)->scope) {
-					class_name = EG(active_op_array)->scope->name;
-					space = "::";
-				} else {
-					class_name = space = "";
-				}
-
-				zend_error(E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %d and defined", i + 1, class_name, space, cxt->function->name, cxt->caller_context->function->filename, cxt->caller_context->line_number);
+				const char *class_name = (EG(active_op_array)->scope) ? EG(active_op_array)->scope->name : NULL;
+				qb_report_missing_argument_exception(cxt->thread, cxt->function->line_id, class_name, cxt->function->name, i, cxt->caller_line_id);
 			}
 		}
 	}
@@ -502,7 +493,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	cxt->argument_indices = NULL;
 	cxt->argument_count = 0;
 	cxt->result_index = 0;
-	cxt->line_number = 0;
+	cxt->caller_line_id = 0;
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
 #endif
@@ -601,7 +592,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			fork_cxt->argument_indices = NULL;
 			fork_cxt->argument_count = 0;
 			fork_cxt->result_index = 0;
-			fork_cxt->line_number = 0;
+			fork_cxt->caller_line_id = 0;
 			fork_cxt->call_depth = cxt->call_depth;
 			fork_cxt->exit_type = QB_VM_RETURN;
 			fork_cxt->exit_status_code = 0;
@@ -688,12 +679,18 @@ static void qb_handle_execution(qb_interpreter_context *cxt, int32_t forked) {
 					fork_execution = FALSE;
 				}
 			}	break;
-			case QB_VM_BAILOUT: {
-				qb_signal_bailout(cxt->thread);
+			case QB_VM_ERROR: {
+				USE_TSRM
+				qb_dispatch_exceptions(TSRMLS_C);
 				continue_execution = FALSE;
 			}	break;
+			case QB_VM_WARNING: {
+				USE_TSRM
+				qb_dispatch_exceptions(TSRMLS_C);
+				continue_execution = TRUE;
+			}	break;
 			case QB_VM_TIMEOUT: {
-				qb_signal_timeout(cxt->thread);
+				zend_timeout(0);
 				continue_execution = FALSE;
 			}	break;
 			default: {
@@ -793,7 +790,7 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 	}
 }
 
-void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_number) {
+void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_id) {
 }
 
 int32_t qb_execute(qb_interpreter_context *cxt) {
@@ -890,9 +887,9 @@ void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *c
 	qb_run_in_main_thread(cxt->thread, control_func, cxt, instruction_pointer, 0, &cxt->thread);
 }
 
-static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_number) {
+static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_id) {
 	USE_TSRM
-	zval *retval;
+	zval *retval = NULL;
 	zend_op **p_user_op = EG(opline_ptr);
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcc;
@@ -942,17 +939,17 @@ static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function
 	
 	// set the qb user op's line number to the line number where the call occurs
 	// so that debug_backtrace() will get the right number
-	(*p_user_op)->lineno = line_number;
+	(*p_user_op)->lineno = LINE_NUMBER(line_id);
 	call_result = zend_call_function(&fci, &fcc TSRMLS_CC);
 	(*p_user_op)->lineno = 0;
 
 	if(call_result != SUCCESS) {
-		qb_abort("Internal error");
+		qb_report_zend_function_call_exception(cxt->thread, line_id, zfunc->common.function_name);
 	}
 	return retval;
 }
 
-static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+static int32_t qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id) {
 	USE_TSRM
 	zval **arguments, ***argument_pointers, *retval;
 	uint32_t i;
@@ -972,7 +969,10 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 
 	qb_sync_imported_variables(cxt);
 
-	retval = qb_invoke_zend_function(cxt, zfunc, argument_pointers, argument_count, line_number);
+	retval = qb_invoke_zend_function(cxt, zfunc, argument_pointers, argument_count, line_id);
+	if(!retval) {
+		return FALSE;
+	}
 
 	qb_refresh_imported_variables(cxt);
 
@@ -1002,40 +1002,45 @@ static void qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_func
 	free_alloca(argument_pointers, use_heap2);
 }
 
-static void qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+static int32_t qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id) {
 	if(cxt->call_depth < 1024) {
 		USE_TSRM
 		qb_interpreter_context _new_cxt, *new_cxt = &_new_cxt;
+		int32_t successful;
 
 		cxt->argument_indices = variable_indices;
 		cxt->argument_count = argument_count;
 		cxt->result_index = result_index;
-		cxt->line_number = line_number;
+		cxt->caller_line_id = line_id;
 		cxt->exception_encountered = FALSE;
 
 		qb_initialize_interpreter_context(new_cxt, qfunc, cxt TSRMLS_CC);
-		qb_execute(new_cxt);
+		successful = qb_execute(new_cxt);
 		qb_free_interpreter_context(new_cxt);
+		return successful;
 	} else {
-		qb_abort("Too much recursion");
+		qb_report_too_much_recursion_exception(cxt->thread, line_id);
+		return FALSE;
 	}
 }
 
-static void qb_execute_function_call_thru_zend(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+static int32_t qb_execute_function_call_thru_zend(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id) {
 	USE_TSRM
+	int32_t successful;
 
 	cxt->argument_indices = variable_indices;
 	cxt->argument_count = argument_count;
 	cxt->result_index = result_index;
-	cxt->line_number = line_number;
+	cxt->caller_line_id = line_id;
 	cxt->exception_encountered = FALSE;
 
 	QB_G(caller_interpreter_context) = cxt;
-	qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, INVALID_INDEX, line_number);
+	successful = qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, INVALID_INDEX, line_id);
 	QB_G(caller_interpreter_context) = NULL;
+	return successful;
 }
 
-void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number) {
+int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id) {
 	USE_TSRM
 	qb_external_symbol *symbol = &QB_G(external_symbols)[symbol_index];
 	zend_function *zfunc = symbol->pointer;
@@ -1051,11 +1056,11 @@ void qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_inde
 	qfunc = qb_get_compiled_function(zfunc);
 	if(qfunc) {
 		if(QB_G(allow_debug_backtrace)) {
-			qb_execute_function_call_thru_zend(cxt, zfunc, variable_indices, argument_count, result_index, line_number);
+			qb_execute_function_call_thru_zend(cxt, zfunc, variable_indices, argument_count, result_index, line_id);
 		} else {
-			qb_execute_function_call(cxt, qfunc, variable_indices, argument_count, result_index, line_number);
+			qb_execute_function_call(cxt, qfunc, variable_indices, argument_count, result_index, line_id);
 		}
 	} else {
-		qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, result_index, line_number);
+		qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, result_index, line_id);
 	}
 }

@@ -58,7 +58,6 @@ enum qb_event_type {
 	QB_EVENT_REQUEST_PROCESSED,
 	QB_EVENT_TERMINATION,
 	QB_EVENT_TIMEOUT,
-	QB_EVENT_BAILOUT,
 };
 
 enum qb_thread_type {
@@ -190,9 +189,7 @@ void qb_free_task_group(qb_task_group *group);
 void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread);
 void qb_run_task_group(qb_task_group *group);
 void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread);
-
-void qb_signal_timeout(qb_thread *thread);
-void qb_signal_bailout(qb_thread *thread);
+void qb_terminate_associated_workers(qb_main_thread *main_thread);
 
 void qb_initialize_thread_pool(TSRMLS_D);
 void qb_add_workers(qb_main_thread *thread);

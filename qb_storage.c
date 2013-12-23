@@ -166,7 +166,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 				// shouldn't really happen--we had managed to map it successfully after all
 				// can use NULL for the thread since this always run in the main thread
 				qb_report_memory_map_exception(NULL, 0, segment->stream->orig_path);
-				qb_signal_bailout(NULL);
+				qb_dispatch_exceptions(NULL);
 			}
 		} else {
 			memory = erealloc(segment->memory, new_allocation);
@@ -272,7 +272,7 @@ void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage) 
 			// assume that the destination buffer is large enough
 #ifdef ZEND_DEBUG
 			if(dst->current_allocation < src->byte_count) {
-				qb_abort("Error");
+				qb_debug_abort("Error");
 			}
 #endif
 			memcpy(dst->memory, src->memory, src->byte_count);
@@ -304,7 +304,7 @@ static int32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_a
 
 	// make sure the number of bytes is a multiple of the entry size
 	if(byte_count != dimension * element_byte_count) {
-		qb_report_binary_string_size_mismatch_exception(storage->current_owner, 0, byte_count, element_byte_count);
+		qb_report_binary_string_size_mismatch_exception(storage->current_owner, 0, byte_count, address->type);
 	}
 
 	dimension_address = address->dimension_addresses[0];
@@ -510,7 +510,7 @@ static int32_t qb_set_array_dimensions_from_zval(qb_storage *storage, qb_address
 	return FALSE;
 }
 
-static void qb_copy_element_from_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
+static int32_t qb_copy_element_from_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
 	switch(Z_TYPE_P(zvalue)) {
 		case IS_NULL:
 		case IS_LONG:
@@ -529,7 +529,7 @@ static void qb_copy_element_from_zval(qb_storage *storage, qb_address *address, 
 		case IS_STRING: {
 			uint32_t type_size = BYTE_COUNT(1, address->type);
 			if(type_size != Z_STRLEN_P(zvalue)) {
-				qb_abort("Cannot convert string to %s due to size mismatch", type_names[address->type]);
+				qb_report_binary_string_size_mismatch_exception(storage->current_owner, 0, (uint32_t) Z_STRLEN_P(zvalue), address->type);
 			}
 			qb_copy_elements(address->type, (int8_t *) Z_STRVAL_P(zvalue), 1, address->type, ARRAY_IN(storage, I08, address), 1);
 		}	break;
@@ -538,15 +538,20 @@ static void qb_copy_element_from_zval(qb_storage *storage, qb_address *address, 
 			switch(address->type) {
 				case QB_TYPE_S64:
 				case QB_TYPE_U64: {
-					VALUE_IN(storage, I64, address) = qb_zval_array_to_int64(zvalue);
+					if(!qb_zval_array_to_int64(zvalue, &VALUE_IN(storage, I64, address))) {
+						qb_report_illegal_conversion_from_array_exception(storage->current_owner, 0, type_names[address->type]);
+						return FALSE;
+					}
 				}	break;
-				default:
-					qb_abort("Cannot convert an array to %s", type_names[address->type]);
+				default: {
+					qb_report_illegal_conversion_from_array_exception(storage->current_owner, 0, type_names[address->type]);
+				}
 			}
 		}	break;
 		default: {
 		}	break;
 	}
+	return TRUE;
 }
 
 void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
@@ -683,35 +688,35 @@ static void qb_copy_elements_from_null(qb_storage *storage, qb_address *address,
 	memset(ARRAY_IN(storage, I08, address), 0, byte_count);
 }
 
-static void qb_copy_elements_from_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
+static int32_t qb_copy_elements_from_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
 	switch(Z_TYPE_P(zvalue)) {
 		case IS_CONSTANT_ARRAY:
 		case IS_ARRAY: {
-			qb_copy_elements_from_array(storage, address, zvalue);
+			return qb_copy_elements_from_array(storage, address, zvalue);
 		}	break;
 		case IS_OBJECT: {
-			qb_copy_elements_from_object(storage, address, zvalue);
+			return qb_copy_elements_from_object(storage, address, zvalue);
 		}	break;
 		case IS_STRING: {
-			qb_copy_elements_from_string(storage, address, zvalue);
+			return qb_copy_elements_from_string(storage, address, zvalue);
 		}	break;
 		case IS_NULL: {
-			qb_copy_elements_from_null(storage, address, zvalue);
+			return qb_copy_elements_from_null(storage, address, zvalue);
 		}	break;
 		case IS_LONG:
 		case IS_DOUBLE:
 		case IS_BOOL: {
-			qb_copy_elements_from_scalar(storage, address, zvalue);
+			return qb_copy_elements_from_scalar(storage, address, zvalue);
 		}	break;
 		case IS_RESOURCE: {
 			gdImagePtr image;
 			php_stream *stream;
 			if((stream = qb_get_file_stream(zvalue))) {
 				// copy the content from the file 
-				qb_copy_elements_from_file(storage, address, stream);
+				return qb_copy_elements_from_file(storage, address, stream);
 			} else if((image = qb_get_gd_image(zvalue))) {
 				// copy the content from the image
-				qb_copy_elements_from_gd_image(storage, address, image);
+				return qb_copy_elements_from_gd_image(storage, address, image);
 			}
 		}	break;
 		default:	{
@@ -719,7 +724,7 @@ static void qb_copy_elements_from_zval(qb_storage *storage, qb_address *address,
 	}
 }
 
-static void qb_copy_element_to_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
+static int32_t qb_copy_element_to_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
 	zval_dtor(zvalue);
 	switch(address->type) {
 		case QB_TYPE_S08: {
@@ -803,9 +808,10 @@ static void qb_copy_element_to_zval(qb_storage *storage, qb_address *address, zv
 		}	break;
 		default: break;
 	}
+	return TRUE;
 }
 
-static void qb_initialize_zval_array(qb_storage *storage, qb_address *element_address, zval *container, zval *element) {	
+static int32_t qb_initialize_zval_array(qb_storage *storage, qb_address *element_address, zval *container, zval *element) {	
 	zend_class_entry *ce = NULL;
 	TSRMLS_FETCH();
 	if(element_address->index_alias_schemes && element_address->index_alias_schemes[0]) {
@@ -814,9 +820,11 @@ static void qb_initialize_zval_array(qb_storage *storage, qb_address *element_ad
 			if(!scheme->zend_class) {
 				zend_class_entry **p_ce;
 				if(zend_lookup_class(scheme->class_name, scheme->class_name_length, &p_ce TSRMLS_CC) == FAILURE) {
-					qb_abort("Class '%s' not found", scheme->class_name);
+					qb_report_missing_class_exception(storage->current_owner, 0, scheme->class_name);
+					return FALSE;
 				} else if((*p_ce)->ce_flags & (ZEND_ACC_INTERFACE|ZEND_ACC_IMPLICIT_ABSTRACT_CLASS|ZEND_ACC_EXPLICIT_ABSTRACT_CLASS)) {
-					qb_abort("Cannot instantiate interface or abstract class '%s'", scheme->class_name);
+					qb_report_abstract_class_exception(storage->current_owner, 0, scheme->class_name);
+					return FALSE;
 				}
 				scheme->zend_class = *p_ce;
 			}
@@ -845,9 +853,9 @@ static void qb_initialize_zval_array(qb_storage *storage, qb_address *element_ad
 	}
 }
 
-static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *container, zval *zvalue);
+static int32_t qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *container, zval *zvalue);
 
-static void qb_copy_elements_to_array(qb_storage *storage, qb_address *address, zval *zarray) {
+static int32_t qb_copy_elements_to_array(qb_storage *storage, qb_address *address, zval *zarray) {
 	qb_address _element_address, *element_address = &_element_address;
 	HashTable *ht = Z_ARRVAL_P(zarray);
 	uint32_t dimension = VALUE_IN(storage, U32, address->dimension_addresses[0]);
@@ -865,9 +873,13 @@ static void qb_copy_elements_to_array(qb_storage *storage, qb_address *address, 
 			SEPARATE_ZVAL_TO_MAKE_IS_REF(p_element);
 			element = *p_element;
 			if(element_address->dimension_count > 0) {
-				qb_copy_elements_to_zval(storage, element_address, zarray, element);
+				if(!qb_copy_elements_to_zval(storage, element_address, zarray, element)) {
+					return FALSE;
+				}
 			} else {
-				qb_copy_element_to_zval(storage, element_address, element);
+				if(!qb_copy_element_to_zval(storage, element_address, element)) {
+					return FALSE;
+				}
 			}
 			index++;
 			element_address->segment_offset += element_byte_count;
@@ -885,9 +897,13 @@ static void qb_copy_elements_to_array(qb_storage *storage, qb_address *address, 
 			zend_hash_index_update(ht, index, (void **) &element, sizeof(zval *), NULL);
 		}
 		if(element_address->dimension_count > 0) {
-			qb_copy_elements_to_zval(storage, element_address, zarray, element);
+			if(!qb_copy_elements_to_zval(storage, element_address, zarray, element)) {
+				return FALSE;
+			}
 		} else {
-			qb_copy_element_to_zval(storage, element_address, element);
+			if(!qb_copy_element_to_zval(storage, element_address, element)) {
+				return FALSE;
+			}
 		}
 		index++;
 		element_address->segment_offset += element_byte_count;
@@ -900,9 +916,10 @@ static void qb_copy_elements_to_array(qb_storage *storage, qb_address *address, 
 		}
 		p = next;
 	}
+	return TRUE;
 }
 
-static void qb_copy_elements_to_object(qb_storage *storage, qb_address *address, zval *zobject) {
+static int32_t qb_copy_elements_to_object(qb_storage *storage, qb_address *address, zval *zobject) {
 	qb_address _element_address, *element_address = &_element_address;
 	qb_index_alias_scheme *scheme = address->index_alias_schemes[0];
 	uint32_t dimension = VALUE_IN(storage, U32, address->dimension_addresses[0]);
@@ -923,9 +940,13 @@ static void qb_copy_elements_to_object(qb_storage *storage, qb_address *address,
 			ALLOC_INIT_ZVAL(element);
 		}
 		if(element_address->dimension_count > 0) {
-			qb_copy_elements_to_zval(storage, element_address, NULL, element);
+			if(!qb_copy_elements_to_zval(storage, element_address, NULL, element)) {
+				return FALSE;
+			}
 		} else {
-			qb_copy_element_to_zval(storage, element_address, element);
+			if(!qb_copy_element_to_zval(storage, element_address, element)) {
+				return FALSE;
+			}
 		}
 		if(!p_element) {
 			Z_OBJ_WRITE_PROP(zobject, alias, element);
@@ -933,9 +954,10 @@ static void qb_copy_elements_to_object(qb_storage *storage, qb_address *address,
 		}
 		element_address->segment_offset += element_byte_count;
 	}
+	return TRUE;
 }
 
-static void qb_copy_elements_to_string(qb_storage *storage, qb_address *address, zval *zvalue) {
+static int32_t qb_copy_elements_to_string(qb_storage *storage, qb_address *address, zval *zvalue) {
 	// make sure the string is the right size
 	uint32_t element_count = VALUE_IN(storage, U32, address->array_size_address);
 	uint32_t byte_count = BYTE_COUNT(element_count, address->type);
@@ -950,27 +972,28 @@ static void qb_copy_elements_to_string(qb_storage *storage, qb_address *address,
 		Z_STRLEN_P(zvalue) = byte_count;
 	}
 	memcpy(memory, ARRAY_IN(storage, I08, address), byte_count);
+	return TRUE;
 }
 
-static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *container, zval *zvalue) {
+static int32_t qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, zval *container, zval *zvalue) {
 	switch(Z_TYPE_P(zvalue)) {
 		case IS_ARRAY:	{
-			qb_copy_elements_to_array(storage, address, zvalue);
+			return qb_copy_elements_to_array(storage, address, zvalue);
 		}	break;
 		case IS_OBJECT:	{
-			qb_copy_elements_to_object(storage, address, zvalue);
+			return qb_copy_elements_to_object(storage, address, zvalue);
 		}	break;
 		case IS_STRING:	{
-			qb_copy_elements_to_string(storage, address, zvalue);
+			return qb_copy_elements_to_string(storage, address, zvalue);
 		}	break;
 		case IS_RESOURCE:	{
 			gdImagePtr image;
 			php_stream *stream;
 			if((stream = qb_get_file_stream(zvalue))) {
 				// copy the content from the file 
-				qb_copy_elements_to_file(storage, address, stream);
+				return qb_copy_elements_to_file(storage, address, stream);
 			} else if((image = qb_get_gd_image(zvalue))) {
-				qb_copy_elements_to_gd_image(storage, address, image);
+				return qb_copy_elements_to_gd_image(storage, address, image);
 			}
 		}	break;
 		default:	{
@@ -978,11 +1001,15 @@ static void qb_copy_elements_to_zval(qb_storage *storage, qb_address *address, z
 			if(address->flags & QB_ADDRESS_STRING) {
 				ZVAL_EMPTY_STRING(zvalue);
 			} else if(address->flags & QB_ADDRESS_IMAGE) {
-				qb_initialize_zval_image(storage, address, zvalue);
+				if(!qb_initialize_zval_image(storage, address, zvalue)) {
+					return FALSE;
+				}
 			} else {
-				qb_initialize_zval_array(storage, address, container, zvalue);
+				if(!qb_initialize_zval_array(storage, address, container, zvalue)) {
+					return FALSE;
+				}
 			}
-			qb_copy_elements_to_zval(storage, address, container, zvalue);
+			return qb_copy_elements_to_zval(storage, address, container, zvalue);
 		}	break;
 	}
 }
@@ -1351,30 +1378,33 @@ void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint3
 	}
 }
 
-static void qb_copy_elements_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
+static int32_t qb_copy_elements_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
 	uint32_t src_element_count = SCALAR(src_address) ? 1 : ARRAY_SIZE_IN(src_storage, src_address);
 	uint32_t dst_element_count = SCALAR(address) ? 1 : ARRAY_SIZE_IN(storage, address);
 	qb_copy_elements(src_address->type, ARRAY_IN(src_storage, I08, src_address), src_element_count, address->type, ARRAY_IN(storage, I08, address), dst_element_count);
+	return TRUE;
 }
 
-static void qb_copy_element_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
+static int32_t qb_copy_element_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address) {
 	qb_copy_element(src_address->type, ARRAY_IN(src_storage, I08, src_address), address->type, ARRAY_IN(storage, I08, address));
+	return TRUE;
 }
 
-static void qb_copy_elements_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
+static int32_t qb_copy_elements_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
 	uint32_t src_element_count = SCALAR(address) ? 1 : ARRAY_SIZE_IN(storage, address);
 	uint32_t dst_element_count = SCALAR(dst_address) ? 1 : ARRAY_SIZE_IN(dst_storage, dst_address);
 	qb_copy_elements(address->type, ARRAY_IN(storage, I08, address), src_element_count, dst_address->type, ARRAY_IN(dst_storage, I08, dst_address), dst_element_count);
+	return TRUE;
 }
 
-static void qb_copy_element_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
+static int32_t qb_copy_element_to_storage_location(qb_storage *storage, qb_address *address, qb_storage *dst_storage, qb_address *dst_address) {
 	qb_copy_element(address->type, ARRAY_IN(storage, I08, address), dst_address->type, ARRAY_IN(dst_storage, I08, dst_address));
+	return TRUE;
 }
 
 int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags) {
 	if(SCALAR(address)) {
-		qb_copy_element_from_zval(storage, address, zvalue);
-		return TRUE;
+		return qb_copy_element_from_zval(storage, address, zvalue);
 	} else {
 		// determine the array's dimensions and check for out-of-bound condition
 		uint32_t element_count;
@@ -1408,8 +1438,7 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 			// make sure there's enough bytes in the segment
 			qb_allocate_segment_memory(segment, byte_count);
 		}
-		qb_copy_elements_from_zval(storage, address, zvalue);
-		return TRUE;
+		return qb_copy_elements_from_zval(storage, address, zvalue);
 	}
 }
 

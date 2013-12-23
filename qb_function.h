@@ -111,7 +111,7 @@ struct qb_function {
 	uint32_t argument_count;
 	qb_storage *local_storage;
 	const char *name;
-	const char *filename;
+	uint32_t line_id;
 	void *native_proc;
 	uintptr_t instruction_base_address;
 	uintptr_t local_storage_base_address;

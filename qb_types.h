@@ -155,7 +155,7 @@ extern uint64_t integer_upper_bounds[];
 
 int64_t qb_zval_to_long(zval *zvalue);
 double qb_zval_to_double(zval *zvalue);
-int64_t qb_zval_array_to_int64(zval *zvalue);
+int32_t qb_zval_array_to_int64(zval *zvalue, int64_t *p_integer);
 
 zval * qb_cstring_to_zval(const char *s TSRMLS_DC);
 zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC);

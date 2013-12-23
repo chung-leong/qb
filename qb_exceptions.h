@@ -31,10 +31,12 @@ struct qb_exception {
 };
 
 uint32_t qb_get_source_file_id(const char *file_path TSRMLS_DC);
+const char *qb_get_source_file_path(uint32_t line_id TSRMLS_DC);
 
 void qb_dispatch_exceptions(TSRMLS_D);
 
 void qb_report_external_code_load_failure_exception(qb_thread *thread, uint32_t line_id, const char *import_path);
+void qb_report_native_compilation_exception(qb_thread *thread, uint32_t line_id, const char *function_name);
 
 // these functions may be called at runtime
 void qb_report_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive);
@@ -97,5 +99,10 @@ void qb_report_illegal_conversion_from_array_exception(qb_thread *thread, uint32
 #define LINE_ID(file_id, line_no)		((file_id << 20) | line_no)
 #define LINE_NUMBER(line_id)			(line_id & 0x000FFFFF)
 #define FILE_ID(line_id)				(((uint32_t) line_id) >> 20)
+
+#ifdef ZEND_DEBUG
+ZEND_ATTRIBUTE_FORMAT(printf, 1, 2)
+void qb_debug_abort(char *format, ...);
+#endif
 
 #endif

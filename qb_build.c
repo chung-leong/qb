@@ -239,6 +239,9 @@ void qb_perform_translation(qb_build_context *cxt) {
 			}	break;
 		}
 
+		// display warning and bail out on fatal errors
+		qb_dispatch_exceptions(TSRMLS_C);
+
 		// make all jump target indices absolute
 		qb_resolve_jump_targets(compiler_cxt);
 
@@ -263,9 +266,6 @@ void qb_perform_translation(qb_build_context *cxt) {
 			qb_initialize_printer_context(printer_cxt, compiler_cxt TSRMLS_CC);
 			qb_print_ops(printer_cxt);
 		}
-
-		//QB_G(current_filename) = NULL;
-		//QB_G(current_line_number) = 0;
 	}
 }
 
@@ -304,7 +304,8 @@ void qb_generate_executables(qb_build_context *cxt) {
 		for(i = 0; i < cxt->compiler_context_count; i++) {
 			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 			if(!compiler_cxt->compiled_function->native_proc) {
-				qb_abort("Unable to compile to native code");
+				qb_report_native_compilation_exception(NULL, compiler_cxt->compiled_function->line_id, compiler_cxt->compiled_function->name);
+				qb_dispatch_exceptions(TSRMLS_C);
 			}
 		}
 	}

@@ -422,7 +422,7 @@ struct qb_function {\
 	uint32_t argument_count;\
 	qb_storage *local_storage;\
 	const char *name;\
-	const char *filename;\
+	uint32_t line_id;\
 	void *native_proc;\
 	uintptr_t instruction_base_address;\
 	uintptr_t local_storage_base_address;\
@@ -1646,7 +1646,8 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 			if(!symbol_address) {
-				qb_abort("missing symbol: %s\n", symbol_name);
+				qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+				return FALSE;
 			}
 		} else {
 			return FALSE;
@@ -1775,7 +1776,8 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 		} else if(symbol_bind == STB_GLOBAL) {
 			symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 			if(!symbol_address) {
-				qb_abort("missing symbol: %s\n", symbol_name);
+				qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+				return FALSE;
 			}
 		} else {
 			return FALSE;
@@ -1907,7 +1909,7 @@ static int32_t qb_parse_macho64(qb_native_compiler_context *cxt) {
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
 				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 				if(!symbol_address) {
-					qb_abort("missing symbol: %s\n", symbol_name);
+					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
 					return FALSE;
 				}
 			} else {
@@ -2029,7 +2031,7 @@ static int32_t qb_parse_macho32(qb_native_compiler_context *cxt) {
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
 				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 				if(!symbol_address) {
-					qb_abort("missing symbol: %s\n", symbol_name);
+					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
 					return FALSE;
 				}
 			} else {
@@ -2119,7 +2121,8 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 					symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 					if(!symbol_address) {
-						qb_abort("missing symbol: %s\n", symbol_name);
+						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+						return FALSE;
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)
@@ -2217,7 +2220,8 @@ static int32_t qb_parse_coff32(qb_native_compiler_context *cxt) {
 						if(strcmp(symbol_name, "_floor") == 0) {
 							symbol_address = floor;
 						} else {
-							qb_abort("missing symbol: %s\n", symbol_name);
+							qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+							return FALSE;
 						}
 					}
 				} else {
@@ -2370,7 +2374,7 @@ int32_t qb_decompress_code(qb_native_compiler_context *cxt) {
 		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &count, 0);
 #if ZEND_DEBUG
 		if(count > PROTOTYPE_COUNT) {
-			qb_abort("not enough space for the number of possible prototypes");
+			qb_debug_abort("not enough space for the number of possible prototypes");
 		}
 #endif
 	}

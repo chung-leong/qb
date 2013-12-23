@@ -536,7 +536,7 @@ static void qb_copy_monochrome_pixel_to_gd_image_scanline_F64(void *param1, void
 	}
 }
 
-static void qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *address, gdImagePtr image) {
+static int32_t qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *address, gdImagePtr image) {
 	int32_t width, height;
 	uint32_t i, j;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
