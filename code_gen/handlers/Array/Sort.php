@@ -78,14 +78,14 @@ class Sort extends Handler {
 		$dir = $this->direction;
 		$lines = array();
 		$lines[] = "if(op1 == 1) {";
-		$lines[] = 		"qsort(res_ptr, res_count, sizeof($cType) * 1, qb_compare_{$dir}_{$type});";
+		$lines[] = 		"qsort(res_ptr, res_count, sizeof($cType) * 1, (void *) qb_compare_{$dir}_{$type});";
 		$lines[] = "} else {";
 		$lines[] = "#if defined(__linux__)";
-		$lines[] = 		"qsort_r(res_ptr, res_count / op1, sizeof($cType) * op1, qb_compare_{$dir}_{$type}_array, &op1);";
+		$lines[] = 		"qsort_r(res_ptr, res_count / op1, sizeof($cType) * op1, (void *) qb_compare_{$dir}_{$type}_array, &op1);";
 		$lines[] = "#elif defined(_MSC_VER)";		
-		$lines[] = 		"qsort_s(res_ptr, res_count / op1, sizeof($cType) * op1, qb_compare_{$dir}_{$type}_array, &op1);";
+		$lines[] = 		"qsort_s(res_ptr, res_count / op1, sizeof($cType) * op1, (void *) qb_compare_{$dir}_{$type}_array, &op1);";
 		$lines[] = "#else";
-		$lines[] = 		"qsort_r(res_ptr, res_count / op1, sizeof($cType) * op1, &op1, qb_compare_{$dir}_{$type}_array);";
+		$lines[] = 		"qsort_r(res_ptr, res_count / op1, sizeof($cType) * op1, &op1, (void *) qb_compare_{$dir}_{$type}_array);";
 		$lines[] = "#endif";
 		$lines[] = "}";
 		return $lines;

@@ -85,7 +85,7 @@ static void qb_report_exception_in_main_thread(void *param1, void *param2, int p
 	exception->type = params->type;
 }
 
-ZEND_ATTRIBUTE_FORMAT(printf, 3, 4)
+ZEND_ATTRIBUTE_FORMAT(printf, 4, 5)
 static void qb_report_exception(qb_thread *thread, uint32_t line_id, int32_t type, const char *format, ...) {
 #ifdef ZTS
 	void ***tsrm_ls = qb_get_tsrm_ls(thread);
@@ -309,7 +309,7 @@ static const char * qb_get_parameter_name(uint32_t index, uint32_t max_param_cou
 static const char * qb_get_indefinite_article(const char *object) {
 	switch(object[0]) {
 		case 'a':
-		case 'e:':
+		case 'e':
 		case 'i':
 		case 'o':
 		case 'u': return "an";

@@ -166,7 +166,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 				// shouldn't really happen--we had managed to map it successfully after all
 				// can use NULL for the thread since this always run in the main thread
 				qb_report_memory_map_exception(NULL, 0, segment->stream->orig_path);
-				qb_dispatch_exceptions(NULL);
+				qb_dispatch_exceptions(TSRMLS_C);
 			}
 		} else {
 			memory = erealloc(segment->memory, new_allocation);
