@@ -1651,6 +1651,7 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 	}
 
 	// perform relocations
+	int missing_symbol_count = 0;
 	for(i = 0; i < relocation_count; i++) {
 		Elf64_Rela *relocation = &relocations[i];
 		int reloc_type = ELF64_R_TYPE(relocation->r_info);
@@ -1667,7 +1668,8 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 			symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 			if(!symbol_address) {
 				qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
-				return FALSE;
+				missing_symbol_count++;
+				continue;
 			}
 		} else {
 			return FALSE;
@@ -1697,6 +1699,10 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 				return FALSE;
 		}
 		#endif
+	}
+
+	if(missing_symbol_count > 0) {
+		return FALSE;
 	}
 
 	// find the compiled functions
