@@ -227,7 +227,7 @@ static int32_t qb_launch_cl(qb_native_compiler_context *cxt) {
 #ifdef ZEND_DEBUG
 	spprintf(&command_line, 0, "\"%s\" /O2 /Oy /GS- /w /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
 #else
-	//spprintf(&command_line, 0, "\"%s\" /O2 /Oy /GS- /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
+	spprintf(&command_line, 0, "\"%s\" /O2 /Oy /GS- /fp:precise %s /nologo /Fo\"%s\" /c \"%s\"", compiler_path, sse_option, cxt->obj_file_path, cxt->c_file_path);
 #endif
 
 	memset(&si, 0, sizeof(STARTUPINFO));
@@ -943,7 +943,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 
 		if(cxt->print_source || TRUE) {
 			name = qb_get_op_name(cxt, qop->opcode);
-			qb_printf(cxt, "// %s (line #%d)\n", name, qop->line_id);
+			qb_printf(cxt, "// %s (line #%d)\n", name, LINE_NUMBER(qop->line_id));
 		}
 
 		// define the operands
@@ -1065,6 +1065,9 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		}
 
 #ifdef ZEND_DEBUG
+		if(qop->flags & QB_OP_NEED_LINE_IDENTIFIER) {
+			qb_printf(cxt, "#undef line_id\n");
+		}
 		for(i = 0; i < qop->operand_count; i++) {
 			qb_operand *operand = &qop->operands[i];
 			qb_address *address = operand->address;
@@ -1283,7 +1286,7 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "};\n");
 }
 
-static void * qb_intrinsic_function_address(const char *name) {
+static void * qb_get_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #if defined(_MSC_VER)
 	// intrinsics employed by MSVC are located in the runtime DLL
@@ -1329,13 +1332,15 @@ static void * qb_intrinsic_function_address(const char *name) {
 		}
 	}
 #else
-#ifdef HAVE_SINCOS
-	if(strcmp(name, "sincos") == 0) {
-		address = sincos;
-	} else if(strcmp(name, "sincosf") == 0) {
-		address = sincosf;
+	#ifdef HAVE_SINCOS
+	if(!address) {
+		if(strcmp(name, "sincos") == 0) {
+			address = sincos;
+		} else if(strcmp(name, "sincosf") == 0) {
+			address = sincosf;
+		}
 	}
-#endif
+	#endif
 #endif
 	return address;
 }
@@ -1371,7 +1376,7 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, 
 				if(symbol->address == (void *) -1) {
 					if(find_inlined_function) {
 						// the function is supposed to be inline but might be an intrinsic (this is for VC11)
-						symbol->address = qb_intrinsic_function_address(name);
+						symbol->address = qb_get_intrinsic_function_address(name);
 					}
 				}
 				return symbol->address;
@@ -1383,7 +1388,7 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, 
 		if(symbol->hash_value == hash_value) {
 			if(strcmp(symbol->name, name) == 0) {
 				if(!symbol->address) {
-					symbol->address = qb_intrinsic_function_address(name);
+					symbol->address = qb_get_intrinsic_function_address(name);
 				}
 				if(symbol->address) {
 					return symbol->address;
@@ -1630,6 +1635,7 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 	int relocation_count = 0;
 	Elf64_Sym *symbols = NULL;
 	int symbol_count = 0;
+	int missing_symbol_count = 0;
 
 	// look up the relocation table, symbol table, string table, and text section,
 	for(i = 0; i < section_count; i++) {
@@ -1651,7 +1657,6 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 	}
 
 	// perform relocations
-	int missing_symbol_count = 0;
 	for(i = 0; i < relocation_count; i++) {
 		Elf64_Rela *relocation = &relocations[i];
 		int reloc_type = ELF64_R_TYPE(relocation->r_info);
@@ -1700,7 +1705,6 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 		}
 		#endif
 	}
-
 	if(missing_symbol_count > 0) {
 		return FALSE;
 	}
@@ -1778,6 +1782,7 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 	int relocation_count = 0;
 	Elf32_Sym *symbols = NULL;
 	int symbol_count = 0;
+	int missing_symbol_count = 0;
 
 	// look up the relocation table, symbol table, string table, and text section,
 	for(i = 0; i < section_count; i++) {
@@ -1815,7 +1820,8 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 			symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 			if(!symbol_address) {
 				qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
-				return FALSE;
+				missing_symbol_count++;
+				continue;
 			}
 		} else {
 			return FALSE;
@@ -1839,6 +1845,9 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 				return FALSE;
 		}
 		#endif
+	}
+	if(missing_symbol_count > 0) {
+		return FALSE;
 	}
 
 	// find the compiled functions
@@ -1892,6 +1901,7 @@ static int32_t qb_parse_macho64(qb_native_compiler_context *cxt) {
 	char *text_section = NULL;
 	uint32_t text_section_number = 0;
 	uint32_t i;
+	uint32_t missing_symbol_count = 0;
 
 	if(cxt->binary_size < sizeof(struct mach_header_64)) {
 		return FALSE;
@@ -1954,7 +1964,8 @@ static int32_t qb_parse_macho64(qb_native_compiler_context *cxt) {
 				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 				if(!symbol_address) {
 					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
-					return FALSE;
+					missing_symbol_count++;
+					continue;
 				}
 			} else {
 				struct section_64 *section = &sections[reloc->r_symbolnum - 1];
@@ -1974,6 +1985,9 @@ static int32_t qb_parse_macho64(qb_native_compiler_context *cxt) {
 				return FALSE;
 			}
 		}
+	}
+	if(missing_symbol_count > 0) {
+		return FALSE;
 	}
 
 	// find the compiled functions
@@ -2014,6 +2028,7 @@ static int32_t qb_parse_macho32(qb_native_compiler_context *cxt) {
 	char *text_section = NULL;
 	uint32_t text_section_number = 0;
 	uint32_t i;
+	int missing_symbol_count = 0;
 
 	if(cxt->binary_size < sizeof(struct mach_header)) {
 		return FALSE;
@@ -2076,7 +2091,8 @@ static int32_t qb_parse_macho32(qb_native_compiler_context *cxt) {
 				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 				if(!symbol_address) {
 					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
-					return FALSE;
+					missing_symbol_count++;
+					continue;
 				}
 			} else {
 				struct section *section = &sections[reloc->r_symbolnum - 1];
@@ -2096,6 +2112,9 @@ static int32_t qb_parse_macho32(qb_native_compiler_context *cxt) {
 				return FALSE;
 			}
 		}
+	}
+	if(missing_symbol_count > 0) {
+		return FALSE;
 	}
 
 	// find the compiled functions
@@ -2134,6 +2153,7 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 	char *string_section;
 	uint32_t count = 0;
 	uint32_t i, j;
+	uint32_t missing_symbol_count = 0;
 
 	if(cxt->binary_size < sizeof(IMAGE_FILE_HEADER)) {
 		return FALSE;
@@ -2166,7 +2186,8 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 					symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 					if(!symbol_address) {
 						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
-						return FALSE;
+						missing_symbol_count++;
+						continue;
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)
@@ -2194,6 +2215,9 @@ static int32_t qb_parse_coff64(qb_native_compiler_context *cxt) {
 				}
 			}
 		}
+	}
+	if(missing_symbol_count > 0) {
+		return FALSE;
 	}
 
 	// find the compiled functions
@@ -2230,6 +2254,7 @@ static int32_t qb_parse_coff32(qb_native_compiler_context *cxt) {
 	char *string_section;
 	uint32_t count = 0;
 	uint32_t i, j;
+	uint32_t missing_symbol_count = 0;
 
 	if(cxt->binary_size < sizeof(IMAGE_FILE_HEADER)) {
 		return FALSE;
@@ -2265,7 +2290,8 @@ static int32_t qb_parse_coff32(qb_native_compiler_context *cxt) {
 							symbol_address = floor;
 						} else {
 							qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
-							return FALSE;
+							missing_symbol_count++;
+							continue;
 						}
 					}
 				} else {
@@ -2290,6 +2316,9 @@ static int32_t qb_parse_coff32(qb_native_compiler_context *cxt) {
 				}
 			}
 		}
+	}
+	if(missing_symbol_count > 0) {
+		return FALSE;
 	}
 
 	// find the compiled functions
