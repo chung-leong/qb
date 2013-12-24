@@ -502,7 +502,8 @@ static void qb_stop_execution_timer(qb_function *qfunc TSRMLS_DC) {
 			if(qfunc->name[0] != '_') {
 				php_stream *stream = php_stream_open_wrapper_ex(QB_G(execution_log_path), "a", USE_PATH | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL, NULL);
 				if(stream) {
-					const char *source_file = qb_get_source_file_path(qfunc->line_id TSRMLS_CC);
+					uint32_t file_id = FILE_ID(qfunc->line_id);
+					const char *source_file = qb_get_source_file_path(file_id TSRMLS_CC);
 					php_stream_printf(stream TSRMLS_CC, "%s\t%s\t%f\n", source_file, qfunc->name, duration);
 					php_stream_close(stream);
 				}

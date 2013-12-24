@@ -56,9 +56,15 @@ struct qb_function_declaration {
 
 struct qb_parser_context {
 	qb_data_pool *pool;
-	zend_class_entry *zend_class;
+	zend_class_entry *zend_class;	
 	const char *file_path;
+	uint32_t file_id;
 	uint32_t line_number;
+	uint32_t line_id;
+
+#ifdef ZTS
+	void ***tsrm_ls;
+#endif
 };
 
 qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, zend_op_array *op_array);

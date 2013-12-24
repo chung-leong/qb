@@ -114,13 +114,6 @@ int32_t qb_find_engine_tag(const char *doc_comment) {
 	return FALSE;
 }
 
-static void qb_notice_doc_comment_issue(qb_parser_context *cxt, const char *format, ... ) {
-	va_list args;
-	va_start(args, format);
-	zend_error_cb(E_NOTICE, cxt->file_path, cxt->line_number, format, args);
-	va_end(args);
-}
-
 static zend_always_inline void qb_add_variable_declaration(qb_function_declaration *function_decl, qb_type_declaration *var_decl) {
 	qb_type_declaration **p = qb_enlarge_array((void **) &function_decl->declarations, 1);
 	*p = var_decl;
@@ -164,8 +157,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 				if(Z_TYPE_P(constant) == IS_LONG) {
 					long const_value = Z_LVAL_P(constant);
 					if(const_value <= 0) {
-						// TODO: pass the correct line id
-						qb_report_illegal_dimension_declaration_exception(NULL, 0, const_value);
+						qb_report_illegal_dimension_exception(NULL, cxt->line_id, const_value);
 						free_alloca(name, use_heap);
 						next_offset = -1;
 					}
@@ -183,8 +175,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 					decl = NULL;
 				}
 			} else {
-				// TODO: pass the correct line id
-				qb_report_undefined_constant_in_dimension_declaration_exception(NULL, 0, name);
+				qb_report_undefined_constant_exception(NULL, cxt->line_id, NULL, name);
 				next_offset = -1;
 			}
 			free_alloca(name, use_heap);
@@ -443,9 +434,10 @@ static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *
 		}
 	}
 	cxt->line_number = line_number;
+	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
 }
 
-static void qb_notice_doc_comment_unexpected_tag(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int matches, int *offsets) {
+static void qb_report_unexpected_doc_comment_tag(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int matches, int *offsets) {
 	int i;
 	TSRMLS_FETCH();
 	for(i = 1; i < matches; i++) {
@@ -455,15 +447,15 @@ static void qb_notice_doc_comment_unexpected_tag(qb_parser_context *cxt, const c
 			const char *tag = comment + start_index;
 
 			qb_find_doc_comment_line_number(cxt, comment, comment_length, start_index);
-			qb_notice_doc_comment_issue(cxt, "Unexpected use of @%.*s", tag_len, tag);
+			qb_report_unexpected_tag_in_doc_comment_exception(NULL, cxt->line_id, tag, tag_len);
 			break;
 		}
 	}
 }
 
-static void qb_notice_doc_comment_syntax_issue(qb_parser_context *cxt, const char *comment, uint32_t comment_length, uint32_t offset) {
+static void qb_report_doc_comment_syntax_issue(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int offset) {
 	qb_find_doc_comment_line_number(cxt, comment, comment_length, offset);
-	qb_notice_doc_comment_issue(cxt, "Syntax error encountered while parsing Doc Comments for type information");
+	qb_report_doc_comment_syntax_exception(NULL, cxt->line_id);
 }
 
 qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context *cxt, HashTable *ht) {
@@ -562,29 +554,40 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 					}
 				}
 				if(error_zval) {
+					const char *text;
 					if(Z_TYPE_P(error_zval) == IS_STRING) {
-						qb_notice_doc_comment_issue(cxt, "Error encountered while processing type information: '%s'", Z_STRVAL_P(error_zval));
+						text = Z_STRVAL_P(error_zval);
 					} else {
-						qb_notice_doc_comment_issue(cxt, "Unexpected %s encountered while processing type information", zend_get_type_by_const(Z_TYPE_P(error_zval)));
+						text = zend_get_type_by_const(Z_TYPE_P(error_zval));
 					}
+					qb_report_syntax_error_in_typedef_exception(NULL, cxt->line_id, text);
+					return NULL;
 				}
 			} else {
-				qb_notice_doc_comment_issue(cxt, "Unknown keyword '%s' encountered while processing type information", p->arKey);
+				qb_report_unknown_keyword_in_typedef_exception(NULL, cxt->line_id, p->arKey);
+				return NULL;
 			}
 		} else {
-			qb_notice_doc_comment_issue(cxt, "Numeric key encountered where a string is expected");
+			qb_report_unexpected_numeric_key_in_typedef_exception(NULL, cxt->line_id);
+			return NULL;
 		}
 	}
 	return function_decl;
 }
 
 qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, zend_op_array *op_array) {
+	USE_TSRM
 	qb_function_declaration *function_decl = NULL;
 	const char *doc_comment = op_array->doc_comment;
 	uint32_t doc_comment_len = op_array->doc_comment_len;
 	int offsets[48], matches;
 	uint32_t start_index = 0;
 	int32_t use_qb = FALSE;
+
+	cxt->file_path = op_array->filename;
+	cxt->line_number = op_array->line_start;
+	cxt->file_id = qb_get_source_file_id(cxt->file_path TSRMLS_CC);
+	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
 
 	function_decl = qb_allocate_function_declaration(cxt->pool);
 	function_decl->zend_op_array = op_array;
@@ -632,7 +635,7 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 					var_type = QB_VARIABLE_SENT_VALUE;
 				} else {
 					if(use_qb) {
-						qb_notice_doc_comment_unexpected_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
+						qb_report_unexpected_doc_comment_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
 					}
 				}
 				decl = qb_parse_type_declaration(cxt, data, data_len, var_type);
@@ -640,7 +643,7 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 					qb_add_variable_declaration(function_decl, decl);
 				} else {
 					if(use_qb) {
-						qb_notice_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
+						qb_report_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
 					}
 				}
 			}
@@ -655,6 +658,7 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 }
 
 qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_class_entry *ce) {
+	USE_TSRM
 	qb_class_declaration *class_decl;
 	const char *doc_comment = Z_CLASS_INFO(ce, doc_comment);
 	uint32_t doc_comment_len = Z_CLASS_INFO(ce, doc_comment_len);
@@ -664,6 +668,8 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 
 	cxt->file_path = Z_CLASS_INFO(ce, filename);
 	cxt->line_number = Z_CLASS_INFO(ce, line_start);
+	cxt->file_id = qb_get_source_file_id(cxt->file_path TSRMLS_CC);
+	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
 	class_decl = qb_allocate_class_declaration(cxt->pool);
 	class_decl->zend_class = ce;
 
@@ -679,14 +685,14 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 			} else if(FOUND_GROUP(FUNC_DECL_STATIC)) {
 				var_type = QB_VARIABLE_CLASS;
 			} else {
-				qb_notice_doc_comment_unexpected_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
+				qb_report_unexpected_doc_comment_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
 			} 
 			if(var_type) {
 				decl = qb_parse_type_declaration(cxt, data, data_len, var_type);
 				if(decl) {
 					qb_add_class_variable_declaration(class_decl, decl);
 				} else {
-					qb_notice_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
+					qb_report_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
 				}
 			}
 		} else {
@@ -722,10 +728,10 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 							}
 							qb_add_class_variable_declaration(class_decl, decl);
 						} else {
-							qb_notice_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
+							qb_report_doc_comment_syntax_issue(cxt, doc_comment, doc_comment_len, data_offset);
 						}
 					} else {
-						qb_notice_doc_comment_unexpected_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
+						qb_report_unexpected_doc_comment_tag(cxt, doc_comment, doc_comment_len, matches, offsets);
 					}
 				} else {
 					break;
@@ -768,6 +774,10 @@ void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, ze
 	cxt->zend_class = ce;
 	cxt->file_path = filename;
 	cxt->line_number = line_number;
+	cxt->file_id = qb_get_source_file_id(cxt->file_path TSRMLS_CC);
+	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
+
+	SAVE_TSRMLS
 }
 
 void qb_free_parser_context(qb_parser_context *cxt) {

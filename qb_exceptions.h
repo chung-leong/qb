@@ -56,9 +56,13 @@ void qb_report_gd_image_exception(qb_thread *thread, uint32_t line_id, uint32_t 
 void qb_report_dimension_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
 void qb_report_dimension_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
 void qb_report_illegal_dimension_count_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension_count);
+void qb_report_illegal_dimension_exception(qb_thread *thread, uint32_t line_id, long const_value);
 
-void qb_report_illegal_dimension_declaration_exception(qb_thread *thread, uint32_t line_id, long const_value);
-void qb_report_undefined_constant_in_dimension_declaration_exception(qb_thread *thread, uint32_t line_id, const char *name);
+void qb_report_unexpected_tag_in_doc_comment_exception(qb_thread *thread, uint32_t line_id, const char *tag, uint32_t tag_len);
+void qb_report_doc_comment_syntax_exception(qb_thread *thread, uint32_t line_id);
+void qb_report_syntax_error_in_typedef_exception(qb_thread *thread, uint32_t line_id, const char *text);
+void qb_report_unknown_keyword_in_typedef_exception(qb_thread *thread, uint32_t line_id, const char *keyword);
+void qb_report_unexpected_numeric_key_in_typedef_exception(qb_thread *thread, uint32_t line_id);
 
 void qb_report_missing_type_declaration_exception(qb_thread *thread, uint32_t line_id, qb_variable *qvar);
 
