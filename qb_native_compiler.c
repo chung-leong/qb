@@ -137,7 +137,7 @@ static int32_t qb_launch_gcc(qb_native_compiler_context *cxt) {
 		if(strlen(compiler_env_path) > 0) {
 			setenv("PATH", compiler_env_path, TRUE);
 		}
-		execvp("gcc", (char **) args);
+		execvp(args[0], (char **) args);
 		_exit(255);
 	}
 
@@ -365,7 +365,8 @@ static void qb_print_typedefs(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "\
 enum qb_vm_exit_type {\
 	QB_VM_RETURN = 0,\
-	QB_VM_BAILOUT,\
+	QB_VM_ERROR,\
+	QB_VM_WARNING,\
 	QB_VM_TIMEOUT,\
 	QB_VM_FORK,\
 	QB_VM_SPOON,\
