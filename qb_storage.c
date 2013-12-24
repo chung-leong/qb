@@ -77,7 +77,7 @@ static int32_t qb_connect_segment_to_memory(qb_memory_segment *segment, int8_t *
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
 		return qb_connect_segment_to_memory(segment->imported_segment, memory, byte_count, bytes_available, ownership);
 	} else {
-		if(byte_count < bytes_available) {
+		if(byte_count <= bytes_available) {
 			segment->byte_count = byte_count;
 			segment->current_allocation = bytes_available;
 			if(!ownership) {
@@ -105,12 +105,15 @@ static int32_t qb_connect_segment_to_file(qb_memory_segment *segment, php_stream
 		int8_t *memory;
 		if(!bytes_available) {
 			bytes_available = 1024;
-			// TODO: enlarge the file
 		}
 		memory = qb_map_file_to_memory(stream, bytes_available, write_access TSRMLS_CC);
 		if(memory) {
-			qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, FALSE);
+			if(!qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, FALSE)) {
+				qb_unmap_file_from_memory(stream TSRMLS_CC);
+				return FALSE;
+			}
 			segment->flags |= QB_SEGMENT_MAPPED;
+			segment->stream = stream;
 			return TRUE;
 		} else {
 			return FALSE;
@@ -1039,7 +1042,6 @@ static int32_t qb_set_array_dimensions_from_storage_location(qb_storage *storage
 
 			if(dimension > dimension_expected) {
 				if(CONSTANT(dimension_address)) {
-					// TODO: need to have the thread
 					qb_report_argument_size_mismatch_exception(storage->current_owner, 0, dimension, dimension_expected);
 					return FALSE;
 				} else {
@@ -1438,7 +1440,7 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 				} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
 					php_stream *stream = qb_get_file_stream(zvalue);
 					if(stream) {
-						if(qb_connect_segment_to_file(segment, stream, byte_count, READ_ONLY(address))) {
+						if(qb_connect_segment_to_file(segment, stream, byte_count, !READ_ONLY(address))) {
 							return TRUE;
 						}
 					}

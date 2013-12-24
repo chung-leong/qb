@@ -39,7 +39,6 @@ echo substr($contents, 0, 5);
 
 unlink($path);
 
-
 ?>
 --EXPECT--
 Length: 1000
