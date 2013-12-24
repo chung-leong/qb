@@ -2008,6 +2008,9 @@ int32_t qb_perform_static_initialization(qb_compiler_context *cxt, qb_variable *
 	}
 	qb_mark_as_static(cxt, qvar->address);
 
+	// function that uses static variables cannot be inlined
+	cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+
 	if(qvar->address->type == QB_TYPE_S64 || qvar->address->type == QB_TYPE_U64) {
 		// initializing 64-bit integer might require special handling
 		qb_primitive_type desired_type = qvar->address->type;
