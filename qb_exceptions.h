@@ -36,7 +36,10 @@ const char *qb_get_source_file_path(uint32_t line_id TSRMLS_DC);
 void qb_dispatch_exceptions(TSRMLS_D);
 
 void qb_report_external_code_load_failure_exception(qb_thread *thread, uint32_t line_id, const char *import_path);
+void qb_report_corrupted_pbj_exception(qb_thread *thread, uint32_t line_id);
+void qb_report_unsupported_pbj_exception(qb_thread *thread, uint32_t line_id);
 void qb_report_native_compilation_exception(qb_thread *thread, uint32_t line_id, const char *function_name);
+void qb_report_missing_native_symbol_exception(qb_thread *thread, uint32_t line_id, const char *symbol_name);
 
 // these functions may be called at runtime
 void qb_report_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive);
@@ -47,6 +50,8 @@ void qb_report_invalid_cross_product_exception(qb_thread *thread, uint32_t line_
 void qb_report_invalid_4d_cross_product_exception(qb_thread *thread, uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2, uint32_t vector_width3);
 void qb_report_invalid_transform_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row, uint32_t vector_width);
 void qb_report_invalid_matrix_multiplication_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix1_column, uint32_t matrix2_row, uint32_t matrix_flags);
+
+void qb_report_gd_image_exception(qb_thread *thread, uint32_t line_id, uint32_t width, uint32_t height);
 
 void qb_report_dimension_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
 void qb_report_dimension_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
@@ -87,14 +92,31 @@ void qb_report_missing_alpha_channel_exception(qb_thread *thread, uint32_t line_
 void qb_report_invalid_pixel_format_exception(qb_thread *thread, uint32_t line_id, qb_intrinsic_function *ifunc, uint32_t channel_count);
 void qb_report_unexpected_value_as_function_argument_exception(qb_thread *thread, uint32_t line_id, qb_function *qfunc, uint32_t param_index);
 void qb_report_unexpected_function_argument_type_exception(qb_thread *thread, uint32_t line_id, qb_function *qfunc, uint32_t param_index, qb_primitive_type value_type, qb_primitive_type param_type);
+void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name, uint32_t argument_index, uint32_t caller_line_id);
+void qb_report_function_call_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name);
+void qb_report_too_much_recursion_exception(qb_thread *thread, uint32_t line_id, uint32_t call_depth);
 
 void qb_report_illegal_array_structure_exception(qb_thread *thread, uint32_t line_id);
 void qb_report_binary_string_size_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t byte_count, qb_primitive_type type);
 void qb_report_memory_map_exception(qb_thread *thread, uint32_t line_id, const char *file_path);
 void qb_report_argument_size_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension, uint32_t dimension_expected);
+void qb_report_image_width_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t width, uint32_t width_expected);
+void qb_report_image_height_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t height, uint32_t height_expected);
+void qb_report_pixel_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t pixel_count, uint32_t pixel_count_expected);
 void qb_report_undefined_dimension_exception(qb_thread *thread, uint32_t line_id);
 void qb_report_illegal_conversion_to_array_exception(qb_thread *thread, uint32_t line_id, const char *object);
 void qb_report_illegal_conversion_from_array_exception(qb_thread *thread, uint32_t line_id, const char *object);
+void qb_report_missing_class_exception(qb_thread *thread, uint32_t line_id, const char *class_name);
+void qb_report_abstract_class_exception(qb_thread *thread, uint32_t line_id, const char *class_name);
+void qb_report_invalid_break_level_exception(qb_thread *thread, uint32_t line_id, uint32_t nest_levels);
+void qb_report_invalid_cast_exception(qb_thread *thread, uint32_t line_id, const char *type_name);
+void qb_report_unsupported_language_feature_exception(qb_thread *thread, uint32_t line_id, uint32_t zend_opcode);
+
+void qb_report_missing_pbj_output_image_parameter_exception(qb_thread *thread, uint32_t line_id);
+void qb_report_missing_pbj_input_image_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name);
+void qb_report_missing_pbj_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name);
+void qb_report_incorrect_pbj_parameter_type_exception(qb_thread *thread, uint32_t line_id, const char *param_name);
+void qb_report_extraneous_pbj_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name);
 
 #define LINE_ID(file_id, line_no)		((file_id << 20) | line_no)
 #define LINE_NUMBER(line_id)			(line_id & 0x000FFFFF)

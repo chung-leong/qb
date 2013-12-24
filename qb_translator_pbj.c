@@ -509,7 +509,7 @@ static void qb_substitute_ops(qb_pbj_translator_context *cxt) {
 	}
 }
 
-void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
+int32_t qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 	uint32_t opcode, prev_opcode, i;
 	cxt->pbj_data = (uint8_t *) cxt->compiler_context->external_code;
 	cxt->pbj_data_end = cxt->pbj_data + cxt->compiler_context->external_code_length;
@@ -526,7 +526,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 				uint32_t bytes_remaining = (uint32_t) (cxt->pbj_data_end - cxt->pbj_data) + 1;
 				uint32_t op_count = bytes_remaining / 8;
 				if(op_count == 0) {
-					return;
+					return FALSE;
 				}
 				qb_attach_new_array(cxt->pool, (void **) &cxt->pbj_ops, &cxt->pbj_op_count, sizeof(qb_pbj_op), op_count);
 			}
@@ -574,7 +574,7 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 					qb_pbj_op *related_pop;
 #ifdef ZEND_DEBUG
 					if(cxt->conditional_count == 0) {
-						qb_abort("unexpected opcode: %02x", opcode);
+						qb_debug_abort("unexpected opcode: %02x", opcode);
 					}
 #endif
 					related_pop = cxt->conditionals[cxt->conditional_count - 1];
@@ -697,7 +697,9 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 		} else if(opcode == PBJ_VERSION_DATA) {
 			qb_read_pbj_I32(cxt);
 		} else {
-			qb_abort("unknown opcode: %02x (previous opcode = %02x)", opcode, prev_opcode);
+#ifdef ZEND_DEBUG
+			qb_debug_abort("unknown opcode: %02x (previous opcode = %02x)", opcode, prev_opcode);
+#endif
 			break;
 		}
 		prev_opcode = opcode;
@@ -719,18 +721,15 @@ void qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 			}
 		}
 	}
-	if(!cxt->out_pixel) {
-		qb_abort("missing output pixel");
-	}
-	if(!cxt->out_coord) {
-		qb_abort("missing output pixel coordinates");
-	}
-	if(cxt->conditional_count > 0) {
-		qb_abort("missing end if");
+	if(!cxt->out_pixel || !cxt->out_coord || cxt->conditional_count > 0) {
+		qb_report_corrupted_pbj_exception(NULL, cxt->compiler_context->line_id);
+		return FALSE;
 	}
 	if(cxt->out_pixel->type != PBJ_TYPE_FLOAT3 && cxt->out_pixel->type != PBJ_TYPE_FLOAT4) {
-		qb_abort("output pixel is not float3 or float4");
+		qb_report_unsupported_pbj_exception(NULL, cxt->compiler_context->line_id);
+		return FALSE;
 	}
+	return TRUE;
 }
 
 static qb_pbj_register * qb_get_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address) {
@@ -913,7 +912,9 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 			float_values = value->float4x4;
 		}	break;
 		default:
-			qb_abort("invalid type id: %d", value->type);
+#ifdef ZEND_DEBUG
+			qb_debug_abort("invalid type id: %d", value->type);
+#endif
 	}
 
 	if(int_values) {
@@ -941,14 +942,13 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 	return address;
 }
 
-static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
+static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 	uint32_t i, dimension;
 	qb_variable *qvar;
 
 	// find the output image
 	qvar = qb_find_output(cxt);
 	if(!qvar) {
-		qb_abort("a parameter must be passed by reference to the function to receive the result");
 	} 
 	cxt->output_image_address = qvar->address;
 	cxt->output_image_width_address = cxt->output_image_address->dimension_addresses[1];
@@ -981,7 +981,8 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 			if(qb_is_image(cxt, qvar->address, texture->channel_count)) {
 				texture->address = qvar->address;
 			} else {
-				qb_abort("parameter '%s' is not of the correct type", qvar->name);
+				qb_report_incorrect_pbj_parameter_type_exception(NULL, cxt->compiler_context->line_id, qvar->name);
+				return FALSE;
 			} 
 		} else {
 			// if there's only one input image, then use that one
@@ -989,7 +990,8 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 			if(qvar) {
 				texture->address = qvar->address;
 			} else {
-				qb_abort("input image '%s' must be passed to the function", texture->name);
+				qb_report_missing_pbj_input_image_parameter_exception(NULL, cxt->compiler_context->line_id, texture->name);
+				return FALSE;
 			}
 		}
 		// premultiplication is applied to input images with alpha channel
@@ -1030,20 +1032,24 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 						if(element_count == parameter_size) {
 							parameter->address = qvar->address;
 						} else {
-							qb_abort("parameter '%s' is not of the correct size", qvar->name);
+							qb_report_incorrect_pbj_parameter_type_exception(NULL, cxt->compiler_context->line_id, qvar->name);
+							return FALSE;
 						}
 					} else {
-						qb_abort("parameter '%s' is not of the correct type", qvar->name);
+						qb_report_incorrect_pbj_parameter_type_exception(NULL, cxt->compiler_context->line_id, qvar->name);
+						return FALSE;
 					}
 				} else {
-					qb_abort("parameter '%s' is obtained from the input image and cannot be passed separately", parameter->name);
+					qb_report_extraneous_pbj_parameter_exception(NULL, cxt->compiler_context->line_id, parameter->name);
+					return FALSE;
 				}
 			} else {
 				// see if it has a default value
 				if(parameter->default_value.type) {
 					parameter->address = qb_create_pbj_constant(cxt->compiler_context, &parameter->default_value);
 				} else {
-					qb_abort("parameter '%s' does not have a default value and must be passed to the function", parameter->name);
+					qb_report_missing_pbj_parameter_exception(NULL, cxt->compiler_context->line_id, parameter->name);
+					return FALSE;
 				}
 			}
 		}
@@ -1056,23 +1062,24 @@ static void qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 			reg->channel_addresses[parameter->destination.channel_id] = parameter->address;
 		}
 	}
+	return TRUE;
 }
 
-static void qb_process_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, NULL, 0, result_prototype);
+static int32_t qb_process_pbj_basic_op(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	return qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, NULL, 0, result_prototype);
 }
 
-static void qb_process_pbj_copy(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static int32_t qb_process_pbj_copy(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	operands[1] = operands[0];
 	operands[0] = *result;
-	qb_produce_op(cxt->compiler_context, t->extra, operands, 2, result, NULL, 0, result_prototype);
+	return qb_produce_op(cxt->compiler_context, t->extra, operands, 2, result, NULL, 0, result_prototype);
 }
 
 static void qb_fetch_pbj_register(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand);
 static void qb_fetch_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *result, qb_result_prototype *result_prototype);
 static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_address *reg_address, qb_operand *operand);
 
-static void qb_process_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static int32_t qb_process_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
 	qb_pbj_constant *constant = &cxt->pbj_op->constant;
 	qb_pbj_register *reg = qb_get_pbj_register(cxt, &cxt->pbj_op->destination);
@@ -1215,24 +1222,28 @@ static void qb_process_pbj_load_constant(qb_pbj_translator_context *cxt, qb_pbj_
 	cxt->pbj_op_index += (constant_count - 1);
 
 	qb_fetch_pbj_write_target(cxt, &new_reg_address, result, result_prototype);
-	qb_process_pbj_copy(cxt, t, value, 1, result, result_prototype);
+	if(!qb_process_pbj_copy(cxt, t, value, 1, result, result_prototype)) {
+		return FALSE;
+	}
 	qb_retire_pbj_write_target(cxt, &new_reg_address, result);
+	return TRUE;
 }
 
-static void qb_process_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static int32_t qb_process_pbj_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// jump to the instruction immediately following the else or end-if if the condition is false
 	uint32_t target_indices[2] = { JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op_index + 1, 0), JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op->branch_target_index + 1, 0) };
-	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, target_indices, 2, result_prototype);
+	return qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, target_indices, 2, result_prototype);
 }
 
-static void qb_process_pbj_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static int32_t qb_process_pbj_else(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// jump over the else block
 	uint32_t target_indices[1] = { JUMP_TARGET_INDEX(cxt->loop_op_index + cxt->pbj_op->branch_target_index + 1, 0) };
-	qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, target_indices, 1, result_prototype);
+	return qb_produce_op(cxt->compiler_context, t->extra, operands, operand_count, result, target_indices, 1, result_prototype);
 }
 
-static void qb_process_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static int32_t qb_process_pbj_end_if(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	// do nothing
+	return TRUE;
 }
 
 #define PBJ_RS				PBJ_READ_SOURCE
@@ -1359,7 +1370,7 @@ static void qb_retire_pbj_write_target(qb_pbj_translator_context *cxt, qb_pbj_ad
 	}
 }
 
-static void qb_process_current_pbj_instruction(qb_pbj_translator_context *cxt) {
+static int32_t qb_process_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 	qb_pbj_op *pop = cxt->pbj_op;
 	if(pop->opcode != PBJ_OP_DATA && pop->opcode != PBJ_NOP) {
 		qb_pbj_translator *t = &pbj_op_translators[pop->opcode];
@@ -1425,13 +1436,16 @@ static void qb_process_current_pbj_instruction(qb_pbj_translator_context *cxt) {
 				qb_fetch_pbj_write_target(cxt, result_pbj_address, &result, result_prototype);
 			}
 
-			t->translate(cxt, t, operands, operand_count, &result, result_prototype);
+			if(!t->translate(cxt, t, operands, operand_count, &result, result_prototype)) {
+				return FALSE;
+			}
 
 			if(t->flags & (PBJ_WRITE_DESTINATION | PBJ_WRITE_BOOLEAN)) {
 				qb_retire_pbj_write_target(cxt, result_pbj_address, &result);
 			}
 		}
 	}
+	return TRUE;
 }
 
 static void qb_allocate_pbj_register_storage_space(qb_pbj_translator_context *cxt, qb_primitive_type element_type, qb_pbj_register *reg) {
@@ -1639,7 +1653,7 @@ static void qb_perform_scatter(qb_pbj_translator_context *cxt, qb_address *src_a
 	qb_produce_op(cxt->compiler_context, &factory_scatter, operands, 3, &result, NULL, 0, NULL);
 }
 
-static void qb_start_pbj_filter_loop(qb_pbj_translator_context *cxt) {
+static int32_t qb_start_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 	qb_address *start_coord_address;
 	uint32_t i;
 
@@ -1674,9 +1688,10 @@ static void qb_start_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 	// initialize the active pixel to zero; the inner loop starts here
 	cxt->inner_loop_start_index = cxt->loop_op_index;
 	qb_perform_subtraction(cxt, cxt->active_pixel_address, cxt->active_pixel_address);
+	return TRUE;
 }
 
-static void qb_end_pbj_filter_loop(qb_pbj_translator_context *cxt) {
+static int32_t qb_end_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 	qb_operand operand;
 
 	cxt->loop_op_index += cxt->pbj_op_count;
@@ -1708,15 +1723,18 @@ static void qb_end_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 	}
 
 	qb_perform_return(cxt);
+	return TRUE;
 }
 
 static void qb_remove_redundant_pbj_ops(qb_pbj_translator_context *cxt);
 
-void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
+int32_t qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 	uint32_t i;
 
 	// map function arguments to PB kernel parameters
-	qb_map_pbj_variables(cxt);
+	if(!qb_map_pbj_variables(cxt)) {
+		return FALSE;
+	}
 	
 	// allocate registers
 	qb_allocate_pbj_registers(cxt);
@@ -1733,28 +1751,42 @@ void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 
 	cxt->compiler_context->stage = QB_STAGE_RESULT_TYPE_RESOLUTION;
 
-	qb_start_pbj_filter_loop(cxt);
+	if(!qb_start_pbj_filter_loop(cxt)) {
+		return FALSE;
+	}
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index + cxt->pbj_op_index, cxt->pbj_op_index);
-		qb_process_current_pbj_instruction(cxt);
+		if(!qb_process_current_pbj_instruction(cxt)) {
+			return FALSE;
+		}
 	}
-	qb_end_pbj_filter_loop(cxt);
+	if(!qb_end_pbj_filter_loop(cxt)) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
-void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
+int32_t qb_translate_pbj_instructions(qb_pbj_translator_context *cxt) {
 	// interpret 3x4 matrix as 3x3 with padded element
 	cxt->compiler_context->matrix_padding = TRUE;
 	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
 
 	// translate the instructions
-	qb_start_pbj_filter_loop(cxt);
+	if(!qb_start_pbj_filter_loop(cxt)) {
+		return FALSE;
+	}
 	for(cxt->pbj_op_index = 0; cxt->pbj_op_index < cxt->pbj_op_count; cxt->pbj_op_index++) {
 		cxt->pbj_op = &cxt->pbj_ops[cxt->pbj_op_index];
 		qb_set_source_op_index(cxt->compiler_context, cxt->loop_op_index + cxt->pbj_op_index, cxt->pbj_op_index);
-		qb_process_current_pbj_instruction(cxt);
+		if(!qb_process_current_pbj_instruction(cxt)) {
+			return FALSE;
+		}
 	}
-	qb_end_pbj_filter_loop(cxt);
+	if(!qb_end_pbj_filter_loop(cxt)) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
 void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC) {

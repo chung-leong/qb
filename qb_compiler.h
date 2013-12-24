@@ -407,7 +407,7 @@ void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type ex
 
 void qb_add_variables(qb_compiler_context *cxt);
 void qb_initialize_function_prototype(qb_compiler_context *cxt);
-void qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
+int32_t qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
 void qb_free_external_code(qb_compiler_context *cxt);
 void qb_resolve_jump_targets(qb_compiler_context *cxt);
 void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass);

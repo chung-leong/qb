@@ -106,8 +106,20 @@ void qb_report_external_code_load_failure_exception(qb_thread *thread, uint32_t 
 	qb_report_exception(thread, line_id, E_ERROR, "Unable to load file containing external code: %s", import_path);
 }
 
+void qb_report_corrupted_pbj_exception(qb_thread *thread, uint32_t line_id) {
+	qb_report_exception(thread, line_id, E_ERROR, "Pixel Bender kernel has structural problems");
+}
+
+void qb_report_unsupported_pbj_exception(qb_thread *thread, uint32_t line_id) {
+	qb_report_exception(thread, line_id, E_ERROR, "Pixel Bender kernel uses unsupported pixel format");
+}
+
 void qb_report_native_compilation_exception(qb_thread *thread, uint32_t line_id, const char *function_name) {
 	qb_report_exception(thread, line_id, E_ERROR, "Unable to compile to native code: %s()", function_name);
+}
+
+void qb_report_missing_native_symbol_exception(qb_thread *thread, uint32_t line_id, const char *symbol_name) {
+	qb_report_exception(thread, line_id, E_WARNING, "Unable to find external symbol: %s", symbol_name);
 }
 
 void qb_report_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive) {
@@ -342,7 +354,12 @@ void qb_report_unexpected_function_argument_type_exception(qb_thread *thread, ui
 	}
 }
 
-void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name, uint32_t argument_index) {
+void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name, uint32_t argument_index, uint32_t caller_line_id) {
+#ifdef ZTS
+	void ***tsrm_ls = qb_get_tsrm_ls(thread);
+#endif
+	const char *caller_source_file = qb_get_source_file_path(caller_line_id TSRMLS_CC);
+	uint32_t caller_line_number = LINE_NUMBER(caller_line_id);
 	const char *space;
 	if(class_name) {
 		space = "::";
@@ -350,7 +367,18 @@ void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, c
 		class_name = "";
 		space = "";
 	}
-	qb_report_exception(thread, line_id, E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %d and defined", argument_index + 1, class_name, space, function_name);
+	qb_report_exception(thread, line_id, E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %d and defined", argument_index + 1, class_name, space, function_name, caller_source_file, caller_line_number);
+}
+
+void qb_report_function_call_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name) {
+	const char *space;
+	if(class_name) {
+		space = "::";
+	} else {
+		class_name = "";
+		space = "";
+	}
+	qb_report_exception(thread, line_id, E_ERROR, "Error encountered calling %s%s%s()", class_name, space, function_name);
 }
 
 void qb_report_missing_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name) {
@@ -373,6 +401,10 @@ void qb_report_inline_function_exception(qb_thread *thread, uint32_t line_id, co
 		space = "";
 	}
 	qb_report_exception(thread, line_id, E_WARNING, "Cannot inline function %s%s%s()", class_name, space, function_name);
+}
+
+void qb_report_too_much_recursion_exception(qb_thread *thread, uint32_t line_id, uint32_t call_depth) {
+	qb_report_exception(thread, line_id, E_ERROR, "Too much recursion");
 }
 
 void qb_report_illegal_dimension_count_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension_count) {
@@ -401,6 +433,22 @@ void qb_report_argument_size_mismatch_exception(qb_thread *thread, uint32_t line
 	qb_report_exception(thread, line_id, E_ERROR, "Number of element (%d) exceeds the declared size of the array (%d)", dimension, dimension_expected);
 }
 
+void qb_report_image_width_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t width, uint32_t width_expected) {
+	qb_report_exception(thread, line_id, E_ERROR, "Declared array size (%d) does not match the width of image (%d)", width, width_expected);
+}
+
+void qb_report_image_height_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t height, uint32_t height_expected) {
+	qb_report_exception(thread, line_id, E_ERROR, "Declared array size (%d) does not match the height of image (%d)", height, height_expected);
+}
+
+void qb_report_pixel_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t pixel_count, uint32_t pixel_count_expected) {
+	qb_report_exception(thread, line_id, E_ERROR, "Declared array size (%d) does not match the number of pixel in the image (%d)", pixel_count, pixel_count_expected);
+}
+
+void qb_report_gd_image_exception(qb_thread *thread, uint32_t line_id, uint32_t width, uint32_t height) {
+	qb_report_exception(thread, line_id, E_ERROR, "Unable to create a %ux%u GD image", width, height);
+}
+
 void qb_report_undefined_dimension_exception(qb_thread *thread, uint32_t line_id) {
 	qb_report_exception(thread, line_id, E_ERROR, "Cannot derived element count due to undefined lower dimension");
 }
@@ -425,6 +473,34 @@ void qb_report_abstract_class_exception(qb_thread *thread, uint32_t line_id, con
 
 void qb_report_invalid_break_level_exception(qb_thread *thread, uint32_t line_id, uint32_t nest_levels) {
 	qb_report_exception(thread, line_id, E_ERROR, "Cannot break/continue %d level%s", nest_levels, (nest_levels == 1) ? "" : "s");
+}
+
+void qb_report_invalid_cast_exception(qb_thread *thread, uint32_t line_id, const char *type_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Cannot typecast value to %s", type_name);
+}
+
+void qb_report_unsupported_language_feature_exception(qb_thread *thread, uint32_t line_id, uint32_t zend_opcode) {
+	qb_report_exception(thread, line_id, E_ERROR, "Unsupported language feature (%0x)", zend_opcode);
+}
+
+void qb_report_missing_pbj_output_image_parameter_exception(qb_thread *thread, uint32_t line_id) {
+	qb_report_exception(thread, line_id, E_ERROR, "A parameter must be passed by reference to the function to receive the result");
+}
+
+void qb_report_missing_pbj_input_image_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Input image '%s' must be passed to the function");
+}
+
+void qb_report_missing_pbj_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Parameter '%s' does not have a default value and must be passed to the function", param_name);
+}
+
+void qb_report_incorrect_pbj_parameter_type_exception(qb_thread *thread, uint32_t line_id, const char *param_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Parameter '%s' is not of the correct type", param_name);
+}
+
+void qb_report_extraneous_pbj_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name) {
+	qb_report_exception(thread, line_id, E_ERROR, "Parameter '%s' is obtained from the input image and cannot be passed separately", param_name);
 }
 
 #ifdef ZEND_DEBUG

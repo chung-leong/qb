@@ -37,7 +37,7 @@ typedef struct qb_pbj_register_slot			qb_pbj_register_slot;
 typedef enum qb_pbj_opcode					qb_pbj_opcode;
 typedef enum qb_pbj_channel_id				qb_pbj_channel_id;
 
-typedef void (*qb_pbj_translator_proc)(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef int32_t (*qb_pbj_translator_proc)(qb_pbj_translator_context *cxt, qb_pbj_translator *t, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
 enum qb_pbj_channel_id {
 	PBJ_CHANNEL_R			= 0,
@@ -361,8 +361,8 @@ enum {
 void qb_initialize_pbj_translator_context(qb_pbj_translator_context *cxt, qb_compiler_context *compiler_cxt TSRMLS_DC);
 void qb_free_pbj_translator_context(qb_pbj_translator_context *cxt);
 
-void qb_decode_pbj_binary(qb_pbj_translator_context *cxt);
-void qb_survey_pbj_instructions(qb_pbj_translator_context *cxt);
-void qb_translate_pbj_instructions(qb_pbj_translator_context *cxt);
+int32_t qb_decode_pbj_binary(qb_pbj_translator_context *cxt);
+int32_t qb_survey_pbj_instructions(qb_pbj_translator_context *cxt);
+int32_t qb_translate_pbj_instructions(qb_pbj_translator_context *cxt);
 
 #endif

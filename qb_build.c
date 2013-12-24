@@ -130,11 +130,11 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 			compiler_cxt->translation = QB_TRANSLATION_PBJ;
 			compiler_cxt->translator_context = translator_cxt;
 
-			// load the code into memory
-			qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path);
-
-			// decode the pbj data
-			qb_decode_pbj_binary(translator_cxt);
+			// load the code into memory and decode the pbj data
+			if(!qb_load_external_code(compiler_cxt, compiler_cxt->function_declaration->import_path)
+			|| !qb_decode_pbj_binary(translator_cxt)) {
+				qb_dispatch_exceptions(TSRMLS_C);
+			}
 		}
 
 		// show the zend/pbj opcodes if turned on

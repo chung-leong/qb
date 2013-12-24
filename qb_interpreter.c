@@ -944,7 +944,9 @@ static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function
 	(*p_user_op)->lineno = 0;
 
 	if(call_result != SUCCESS) {
-		qb_report_zend_function_call_exception(cxt->thread, line_id, zfunc->common.function_name);
+		const char *function_name = zfunc->common.function_name;
+		const char *class_name = (zfunc->common.scope) ? zfunc->common.scope->name : NULL;
+		qb_report_function_call_exception(cxt->thread, line_id, class_name, zfunc->common.function_name);
 	}
 	return retval;
 }
@@ -1000,6 +1002,7 @@ static int32_t qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_f
 
 	free_alloca(arguments, use_heap1);
 	free_alloca(argument_pointers, use_heap2);
+	return TRUE;
 }
 
 static int32_t qb_execute_function_call(qb_interpreter_context *cxt, qb_function *qfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id) {
@@ -1019,7 +1022,7 @@ static int32_t qb_execute_function_call(qb_interpreter_context *cxt, qb_function
 		qb_free_interpreter_context(new_cxt);
 		return successful;
 	} else {
-		qb_report_too_much_recursion_exception(cxt->thread, line_id);
+		qb_report_too_much_recursion_exception(cxt->thread, line_id, cxt->call_depth);
 		return FALSE;
 	}
 }
@@ -1056,11 +1059,11 @@ int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_i
 	qfunc = qb_get_compiled_function(zfunc);
 	if(qfunc) {
 		if(QB_G(allow_debug_backtrace)) {
-			qb_execute_function_call_thru_zend(cxt, zfunc, variable_indices, argument_count, result_index, line_id);
+			return qb_execute_function_call_thru_zend(cxt, zfunc, variable_indices, argument_count, result_index, line_id);
 		} else {
-			qb_execute_function_call(cxt, qfunc, variable_indices, argument_count, result_index, line_id);
+			return qb_execute_function_call(cxt, qfunc, variable_indices, argument_count, result_index, line_id);
 		}
 	} else {
-		qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, result_index, line_id);
+		return qb_execute_zend_function_call(cxt, zfunc, variable_indices, argument_count, result_index, line_id);
 	}
 }

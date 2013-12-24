@@ -79,18 +79,15 @@ static int32_t qb_set_image_dimensions(qb_storage *storage, qb_address *address,
 	uint32_t height_expected = VALUE_IN(storage, U32, height_address);
 	if(width_expected != image->sx) {
 		if(CONSTANT(width_address)) {
-			qb_abort("Declared array size (%d) does not match the width of image (%d)", width_expected, image->sy);
-		} else if(width_expected != 0) {
-			qb_abort("Current array size (%d) does not match the width of image (%d)", width_expected, image->sx);
+			qb_report_image_width_mismatch_exception(storage->current_owner, 0, image->sx, width_expected);
+			return FALSE;
 		}
 		VALUE_IN(storage, U32, width_address) = image->sx;
 	}
 
 	if(height_expected != image->sy) {
 		if(CONSTANT(height_address)) {
-			qb_abort("Declared array size (%d) does not match the height of image (%d)", height_expected, image->sy);
-		} else if(height_expected != 0) {
-			qb_abort("Current array size (%d) does not match the height of image (%d)", height_expected, image->sy);
+			qb_report_image_height_mismatch_exception(storage->current_owner, 0, image->sy, width_expected);
 		}
 		VALUE_IN(storage, U32, height_address) = image->sy;
 	}
@@ -103,9 +100,8 @@ static int32_t qb_set_image_linear_size(qb_storage *storage, qb_address *address
 	uint32_t length_expected = VALUE_IN(storage, U32, length_address);
 	if(length_expected != pixel_count) {
 		if(CONSTANT(length_address)) {
-			qb_abort("Declared array size (%d) does not match the size of image (%d)", length_expected, pixel_count);
-		} else if(length_expected != 0) {
-			qb_abort("Current array size (%d) does not match the size of image (%d)", length_expected, pixel_count);
+			qb_report_pixel_count_mismatch_exception(storage->current_owner, 0, pixel_count, length_expected);
+			return FALSE;
 		}
 	}
 	VALUE_IN(storage, U32, length_address) = pixel_count;
@@ -367,7 +363,7 @@ static void qb_copy_monochrome_pixel_from_gd_image_scanline_F64(void *param1, vo
 	}
 }
 
-static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *address, gdImagePtr image) {
+static int32_t qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *address, gdImagePtr image) {
 	uint32_t i, j;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
 	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
@@ -446,6 +442,7 @@ static void qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *addr
 			}	break;
 		}
 	}
+	return TRUE;
 }
 
 static void qb_copy_rgba_pixel_to_gd_image_scanline_F32(void *param1, void *param2, int param3) {
@@ -636,9 +633,10 @@ static int32_t qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *add
 			}	break;
 		}
 	}
+	return TRUE;
 }
 
-static void qb_initialize_zval_image(qb_storage *storage, qb_address *element_address, zval *element) {	
+static int32_t qb_initialize_zval_image(qb_storage *storage, qb_address *element_address, zval *element) {	
 	uint32_t height = VALUE_IN(storage, U32, element_address->dimension_addresses[0]);
 	uint32_t width = VALUE_IN(storage, U32, element_address->dimension_addresses[1]);
 	zval *z_width, *z_height, *z_function_name, *z_retval = NULL;
@@ -658,9 +656,11 @@ static void qb_initialize_zval_image(qb_storage *storage, qb_address *element_ad
 	zval_ptr_dtor(&z_height);
 	zval_ptr_dtor(&z_function_name);
 	if(Z_TYPE_P(z_retval) != IS_RESOURCE) {
-		qb_abort("Unable to create GD image resource");
+		qb_report_gd_image_exception(storage->current_owner, 0, width, height);
+		return FALSE;
 	}
 	*element = *z_retval;
 	Z_TYPE_P(z_retval) = IS_NULL;
 	zval_ptr_dtor(&z_retval);
+	return TRUE;
 }

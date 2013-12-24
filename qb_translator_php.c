@@ -177,7 +177,7 @@ static int32_t qb_process_cast_op(qb_php_translator_context *cxt, void *op_facto
 		case IS_ARRAY:	op_factory = list[QB_OP_FACTORY_ARRAY]; break;
 		case IS_STRING: op_factory = list[QB_OP_FACTORY_STRING]; break;
 		default: {		
-			qb_report_invalid_cast(NULL, cxt->compiler_context->line_id);
+			qb_report_invalid_cast_exception(NULL, cxt->compiler_context->line_id, zend_get_type_by_const(zend_type));
 			return FALSE;
 		}
 	}
@@ -552,7 +552,8 @@ static int32_t qb_process_foreach_fetch(qb_php_translator_context *cxt, void *op
 	cxt->next_op_index2 = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);
 
 	if(cxt->zend_op->extended_value & ZEND_FE_FETCH_BYREF) {
-		qb_abort("reference is currently not supported");
+		qb_report_reference_exception(NULL, cxt->compiler_context->line_id);
+		return FALSE;
 	}
 
 	target_indices[0] = JUMP_TARGET_INDEX(cxt->next_op_index1, 0);
@@ -807,7 +808,7 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 			// lock operands kept as temporary variables
 			qb_lock_temporary_variables(cxt);
 		} else {
-			qb_abort("Unsupported language feature");
+			qb_report_unsupported_language_feature_exception(NULL, cxt->compiler_context->line_id, zend_opcode);
 			return FALSE;
 		}
 	}
