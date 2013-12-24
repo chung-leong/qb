@@ -20,6 +20,13 @@ class Divide extends Handler {
 		}
 	}
 	
+	public function mayExitLoop() {
+		$type = $this->getOperandType(1);
+		if($type[0] != 'F') {
+			return true;
+		}
+	}
+	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
 		$lines = array();

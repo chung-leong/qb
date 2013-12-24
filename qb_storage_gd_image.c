@@ -268,7 +268,7 @@ static int32_t qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
 	}
 	image->sx = width;
 	image->sy = height;
-	return FALSE;
+	return TRUE;
 }
 
 static void qb_copy_rgba_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {

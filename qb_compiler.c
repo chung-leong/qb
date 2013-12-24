@@ -188,9 +188,9 @@ uint32_t qb_set_source_op_index(qb_compiler_context *cxt, uint32_t source_index,
 	} else {
 		op_index = INVALID_INDEX;
 	}
-	cxt->line_id = LINE_ID(cxt->source_file_id, cxt->source_file_line_number);
 	cxt->source_file_line_number = line_number;
 	cxt->source_op_index = source_index;
+	cxt->line_id = LINE_ID(cxt->source_file_id, cxt->source_file_line_number);
 	return op_index;
 }
 

@@ -452,12 +452,12 @@ static int32_t qb_set_array_dimensions_from_array(qb_storage *storage, qb_addres
 		array_size = dimension * element_size;
 		VALUE_IN(storage, U32, array_size_address) = array_size;
 		*p_array_size = array_size;
-		return array_size;
 	} else {
 		// don't need to calculate the array size here, as array_size_address
 		// is pointing to the same value as dimension_address
-		return dimension;
+		*p_array_size = dimension;
 	}
+	return TRUE;
 }
 
 static int32_t qb_set_array_dimensions_from_object(qb_storage *storage, qb_address *address, zval *zvalue, uint32_t *p_array_size) {

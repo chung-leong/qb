@@ -612,7 +612,7 @@ static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_fa
 		uint32_t m1_row_count = VALUE(U32, m1_row_address);
 		uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(!(m2_row_count >= 2 && m2_row_count <= 4 && m1_col_count == m2_row_count + 1 && m1_row_count != m2_row_count)) {
+		if(!(m2_row_count >= 2 && m2_row_count <= 4 && m1_col_count == m2_row_count + 1 && m1_row_count == m2_row_count)) {
 			qb_report_invalid_transform_exception(NULL, cxt->line_id, m1_col_count, m1_row_count, m2_row_count);
 			return FALSE;
 		}

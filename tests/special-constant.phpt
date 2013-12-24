@@ -19,10 +19,6 @@ function test_function() {
 	}
 }
 
-// prior to compilation
-//test_function();
-
-// after compilation
 test_function();
 
 ?>

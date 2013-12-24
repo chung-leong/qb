@@ -37,8 +37,7 @@ uint32_t qb_get_source_file_id(const char *file_path TSRMLS_DC) {
 	return QB_G(source_file_count);
 }
 
-const char *qb_get_source_file_path(uint32_t line_id TSRMLS_DC) {
-	uint32_t file_id = FILE_ID(line_id);
+const char *qb_get_source_file_path(uint32_t file_id TSRMLS_DC) {
 	return (file_id) ? QB_G(source_files)[file_id - 1] : "";
 }
 
@@ -359,8 +358,9 @@ void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, c
 #ifdef ZTS
 	void ***tsrm_ls = qb_get_tsrm_ls(thread);
 #endif
-	const char *caller_source_file = qb_get_source_file_path(caller_line_id TSRMLS_CC);
+	uint32_t caller_file_id = FILE_ID(caller_line_id);
 	uint32_t caller_line_number = LINE_NUMBER(caller_line_id);
+	const char *caller_source_file = qb_get_source_file_path(caller_file_id TSRMLS_CC);
 	const char *space;
 	if(class_name) {
 		space = "::";

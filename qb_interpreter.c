@@ -141,7 +141,7 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
 			} else {
 				const char *class_name = (EG(active_op_array)->scope) ? EG(active_op_array)->scope->name : NULL;
-				qb_report_missing_argument_exception(cxt->thread, cxt->function->line_id, class_name, cxt->function->name, i, cxt->caller_line_id);
+				qb_report_missing_argument_exception(cxt->thread, cxt->function->line_id, class_name, cxt->function->name, i, cxt->caller_context->line_id);
 			}
 		}
 	}
@@ -472,11 +472,11 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	if(caller_cxt) {
 		cxt->call_depth = caller_cxt->call_depth + 1;
 		cxt->thread = caller_cxt->thread;
-		cxt->caller_context = NULL;
+		cxt->caller_context = caller_cxt;
 	} else {
 		cxt->call_depth = 1;
 		cxt->thread = (qb_thread *) qb_get_main_thread(TSRMLS_C);
-		cxt->caller_context = caller_cxt;
+		cxt->caller_context = NULL;
 	}
 	cxt->function = qb_acquire_function(cxt, qfunc, TRUE);
 	cxt->instruction_pointer = cxt->function->instruction_start;
@@ -493,7 +493,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	cxt->argument_indices = NULL;
 	cxt->argument_count = 0;
 	cxt->result_index = 0;
-	cxt->caller_line_id = 0;
+	cxt->line_id = 0;
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
 #endif
@@ -592,7 +592,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			fork_cxt->argument_indices = NULL;
 			fork_cxt->argument_count = 0;
 			fork_cxt->result_index = 0;
-			fork_cxt->caller_line_id = 0;
+			fork_cxt->line_id = 0;
 			fork_cxt->call_depth = cxt->call_depth;
 			fork_cxt->exit_type = QB_VM_RETURN;
 			fork_cxt->exit_status_code = 0;
@@ -887,7 +887,7 @@ void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *c
 	qb_run_in_main_thread(cxt->thread, control_func, cxt, instruction_pointer, 0, &cxt->thread);
 }
 
-static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_id) {
+static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_id, zval **p_retval) {
 	USE_TSRM
 	zval *retval = NULL;
 	zend_op **p_user_op = EG(opline_ptr);
@@ -947,8 +947,10 @@ static zval * qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function
 		const char *function_name = zfunc->common.function_name;
 		const char *class_name = (zfunc->common.scope) ? zfunc->common.scope->name : NULL;
 		qb_report_function_call_exception(cxt->thread, line_id, class_name, zfunc->common.function_name);
+		return FALSE;
 	}
-	return retval;
+	*p_retval = retval;
+	return TRUE;
 }
 
 static int32_t qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_function *zfunc, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id) {
@@ -971,8 +973,7 @@ static int32_t qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_f
 
 	qb_sync_imported_variables(cxt);
 
-	retval = qb_invoke_zend_function(cxt, zfunc, argument_pointers, argument_count, line_id);
-	if(!retval) {
+	if(!qb_invoke_zend_function(cxt, zfunc, argument_pointers, argument_count, line_id, &retval)) {
 		return FALSE;
 	}
 
@@ -1013,8 +1014,8 @@ static int32_t qb_execute_function_call(qb_interpreter_context *cxt, qb_function
 
 		cxt->argument_indices = variable_indices;
 		cxt->argument_count = argument_count;
-		cxt->result_index = result_index;
-		cxt->caller_line_id = line_id;
+		cxt->result_index = result_index;		
+		cxt->line_id = line_id;
 		cxt->exception_encountered = FALSE;
 
 		qb_initialize_interpreter_context(new_cxt, qfunc, cxt TSRMLS_CC);
@@ -1034,7 +1035,7 @@ static int32_t qb_execute_function_call_thru_zend(qb_interpreter_context *cxt, z
 	cxt->argument_indices = variable_indices;
 	cxt->argument_count = argument_count;
 	cxt->result_index = result_index;
-	cxt->caller_line_id = line_id;
+	cxt->line_id = line_id;
 	cxt->exception_encountered = FALSE;
 
 	QB_G(caller_interpreter_context) = cxt;

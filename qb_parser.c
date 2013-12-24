@@ -173,11 +173,12 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 				} else if(Z_TYPE_P(constant) == IS_STRING) {
 					char *expanded;
 					uint32_t expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
-					int32_t processed = qb_parse_type_dimension(cxt, expanded, expanded_len, decl, dimension_index);
-					efree(expanded);
-					if(processed) {
+					if(qb_parse_type_dimension(cxt, expanded, expanded_len, decl, dimension_index)) {
 						next_offset = offsets[1];
 					}
+					efree(expanded);
+					free_alloca(name, use_heap);
+					return next_offset;
 				} else {
 					decl = NULL;
 				}

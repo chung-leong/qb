@@ -84,7 +84,7 @@ struct qb_interpreter_context {
 	uint32_t *argument_indices;
 	uint32_t argument_count;
 	uint32_t result_index;
-	uint32_t caller_line_id;
+	uint32_t line_id;
 	uint32_t call_depth;
 	void *send_target;
 
