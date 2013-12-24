@@ -59,8 +59,8 @@ struct qb_parser_context {
 	zend_class_entry *zend_class;	
 	const char *file_path;
 	uint32_t file_id;
-	uint32_t line_number;
 	uint32_t line_id;
+	uint32_t line_number_max;
 
 #ifdef ZTS
 	void ***tsrm_ls;

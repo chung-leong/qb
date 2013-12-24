@@ -234,8 +234,11 @@ static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_
 			ht = EG(zend_constants);
 		}
 		if(!zend_hash_exists(ht, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant) + 1)) {
-			qb_report_undefined_constant_exception(NULL, cxt->line_id, ce, Z_STRVAL_P(name->constant));
-			return FALSE;
+			// see if it's a special QB constant
+			if(!qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant))) {
+				qb_report_undefined_constant_exception(NULL, cxt->line_id, ce, Z_STRVAL_P(name->constant));
+				return FALSE;
+			}
 		}
 	}
 	return TRUE;

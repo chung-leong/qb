@@ -383,7 +383,6 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 
 static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *comment, uint32_t comment_length, uint32_t offset) {
 	// load the file
-	uint32_t line_number_max = cxt->line_number;
 	uint32_t line_number = 0;
 	TSRMLS_FETCH();
 	if(cxt->file_path) {
@@ -400,7 +399,7 @@ static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *
 				while(p < end) {
 					if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
 						current_line_number++;
-						if(current_line_number >= line_number_max) {
+						if(current_line_number >= cxt->line_number_max) {
 							break;
 						}
 					} else {
@@ -425,7 +424,7 @@ static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *
 		}
 	} else {
 		const char *p = comment + comment_length -1, *start = comment + offset;
-		line_number = line_number_max;
+		line_number = cxt->line_number_max;
 		while(p >= start) {
 			if(*p == '\n' || (*p == '\r' && (*(p+1) != '\n'))) {
 				line_number--;
@@ -433,8 +432,7 @@ static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *
 			p--;
 		}
 	}
-	cxt->line_number = line_number;
-	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
+	cxt->line_id = LINE_ID(cxt->file_id, line_number);
 }
 
 static void qb_report_unexpected_doc_comment_tag(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int matches, int *offsets) {
@@ -585,9 +583,8 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 	int32_t use_qb = FALSE;
 
 	cxt->file_path = op_array->filename;
-	cxt->line_number = op_array->line_start;
 	cxt->file_id = qb_get_source_file_id(cxt->file_path TSRMLS_CC);
-	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
+	cxt->line_number_max = op_array->line_start;
 
 	function_decl = qb_allocate_function_declaration(cxt->pool);
 	function_decl->zend_op_array = op_array;
@@ -667,9 +664,9 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 	Bucket *p;
 
 	cxt->file_path = Z_CLASS_INFO(ce, filename);
-	cxt->line_number = Z_CLASS_INFO(ce, line_start);
 	cxt->file_id = qb_get_source_file_id(cxt->file_path TSRMLS_CC);
-	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
+	cxt->line_number_max = Z_CLASS_INFO(ce, line_start);
+
 	class_decl = qb_allocate_class_declaration(cxt->pool);
 	class_decl->zend_class = ce;
 
@@ -699,6 +696,9 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 			break;
 		}
 	}
+
+	// look for the doc comment of the properties start from the end of the class
+	cxt->line_number_max = Z_CLASS_INFO(ce, line_end);
 
 	for(p = ce->properties_info.pListHead; p; p = p->pListNext) {
 		zend_property_info *prop = p->pData;
@@ -772,10 +772,10 @@ void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, ze
 
 	cxt->pool = pool;
 	cxt->zend_class = ce;
-	cxt->file_path = filename;
-	cxt->line_number = line_number;
-	cxt->file_id = qb_get_source_file_id(cxt->file_path TSRMLS_CC);
-	cxt->line_id = LINE_ID(cxt->file_id, cxt->line_number);
+	cxt->file_path = NULL;
+	cxt->line_number_max = 0;
+	cxt->file_id = 0;
+	cxt->line_id = 0;
 
 	SAVE_TSRMLS
 }
