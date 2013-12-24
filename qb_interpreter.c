@@ -22,7 +22,7 @@
 #include <math.h>
 #include "zend_variables.h"
 
-static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
+static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
 	if(!(ivar->flags & QB_VARIABLE_IMPORTED)) {
 		USE_TSRM
 		zval *zvalue = NULL, **p_zvalue = NULL;
@@ -69,7 +69,9 @@ static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb
 			zvalue = *p_zvalue;
 		}
 		if(zvalue) {
-			qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY);
+			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY)) {
+				return FALSE;
+			}
 			if(!p_zvalue) {
 				if(Z_REFCOUNT_P(zvalue) == 0) {
 					Z_ADDREF_P(zvalue);
@@ -77,14 +79,17 @@ static void qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb
 				}
 			}
 		} else {
-			qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY);
+			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY)) {
+				return FALSE;
+			}
 		}
 		ivar->value_pointer = p_zvalue;
 		ivar->flags |= QB_VARIABLE_IMPORTED;
 	}
+	return TRUE;
 }
 
-static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
+static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
 	if(ivar->flags & QB_VARIABLE_IMPORTED) {
 		USE_TSRM
 		if(!READ_ONLY(ivar->address)) {
@@ -98,7 +103,9 @@ static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_v
 					*ivar->value_pointer = zvalue;
 				}
 			}
-			qb_transfer_value_to_zval(scope->storage, ivar->address, zvalue);
+			if(!qb_transfer_value_to_zval(scope->storage, ivar->address, zvalue)) {
+				return FALSE;
+			}
 
 			if(!ivar->value_pointer) {
 				if(ivar->flags & QB_VARIABLE_GLOBAL) {
@@ -113,9 +120,10 @@ static void qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_v
 		}
 		ivar->flags &= ~QB_VARIABLE_IMPORTED;
 	}
+	return TRUE;
 }
 
-static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 	uint32_t received_argument_count = cxt->caller_context->argument_count;
 	uint32_t i;
 	for(i = 0; i < cxt->function->argument_count; i++) {
@@ -129,7 +137,9 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 			if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			}
-			qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags);
+			if(!qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags)) {
+				return FALSE;
+			}
 		} else {
 			USE_TSRM
 			if(qvar->default_value) {
@@ -138,16 +148,19 @@ static void qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				if(READ_ONLY(qvar->address)) {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 				}
-				qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
+				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
+					return FALSE;
+				}
 			} else {
 				const char *class_name = (EG(active_op_array)->scope) ? EG(active_op_array)->scope->name : NULL;
 				qb_report_missing_argument_exception(cxt->thread, cxt->function->line_id, class_name, cxt->function->name, i, cxt->caller_context->line_id);
 			}
 		}
 	}
+	return TRUE;
 }
 
-static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 	USE_TSRM
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
@@ -164,7 +177,9 @@ static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 				// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			}
-			qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
+			if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
+				return FALSE;
+			}
 		} else {
 			if(qvar->default_value) {
 				zval *zarg = qvar->default_value;
@@ -172,30 +187,26 @@ static void qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 				if(READ_ONLY(qvar->address)) {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 				}
-				qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags);
+				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
+					return FALSE;
+				}
 			} else {
-				const char *space;
-				const char *class_name;
+				const char *class_name = (EG(active_op_array)->scope) ? EG(active_op_array)->scope->name : NULL;
 				zend_execute_data *ptr = EG(current_execute_data)->prev_execute_data;
-
-				if (EG(active_op_array)->scope) {
-					class_name = EG(active_op_array)->scope->name;
-					space = "::";
-				} else {
-					class_name = space = "";
-				}
-
+				uint32_t caller_line_id = 0;
 				if(ptr && ptr->op_array) {
-					zend_error(E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %d and defined", i + 1, class_name, space, cxt->function->name, ptr->op_array->filename, ptr->opline->lineno);
-				} else {
-					zend_error(E_WARNING, "Missing argument %u for %s%s%s()", i + 1, class_name, space, cxt->function->name);
+					uint32_t caller_file_id = qb_get_source_file_id(ptr->op_array->filename TSRMLS_CC);
+					uint32_t caller_line_number = ptr->opline->lineno;
+					caller_line_id = LINE_ID(caller_file_id, caller_line_number);
 				}
+				qb_report_missing_argument_exception(cxt->thread, cxt->function->line_id, class_name, cxt->function->name, i, caller_line_id);
 			}
 		}
 	}
+	return TRUE;
 }
 
-static void qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
 	USE_TSRM
 	uint32_t i;
 	for(i = cxt->function->argument_count; i < cxt->function->variable_count; i++) {
@@ -233,18 +244,19 @@ static void qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
 			}
 		}
 	}
+	return TRUE;
 }
 
-static void qb_transfer_variables_from_external_sources(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_variables_from_external_sources(qb_interpreter_context *cxt) {
 	if(cxt->caller_context) {
-		qb_transfer_arguments_from_caller(cxt);
+		return qb_transfer_arguments_from_caller(cxt);
 	} else {
-		qb_transfer_arguments_from_php(cxt);
+		return qb_transfer_arguments_from_php(cxt);
 	}
-	qb_transfer_variables_from_php(cxt);
+	return qb_transfer_variables_from_php(cxt);
 }
 
-static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 	USE_TSRM
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
@@ -258,7 +270,9 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 			if(i < received_argument_count) {
 				zval **p_zarg = (zval**) p - received_argument_count + i;
 				zval *zarg = *p_zarg;
-				qb_transfer_value_to_zval(cxt->function->local_storage, qvar->address, zarg);
+				if(!qb_transfer_value_to_zval(cxt->function->local_storage, qvar->address, zarg)) {
+					return FALSE;
+				}
 			}
 		}
 	}
@@ -269,9 +283,12 @@ static void qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 		ALLOC_INIT_ZVAL(ret);
 		*EG(return_value_ptr_ptr) = ret;
 		if(cxt->function->return_variable->address) {
-			qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
+			if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {
+				return FALSE;
+			}
 		}
 	}
+	return TRUE;
 }
 
 #ifdef ZEND_ACC_GENERATOR
@@ -335,7 +352,7 @@ static void qb_refresh_imported_variables(qb_interpreter_context *cxt) {
 	}
 }
 
-static void qb_sync_imported_variables(qb_interpreter_context *cxt) {
+static int32_t qb_sync_imported_variables(qb_interpreter_context *cxt) {
 	USE_TSRM
 	uint32_t i, j;
 	for(i = 0; i < QB_G(scope_count); i++) {
@@ -343,17 +360,20 @@ static void qb_sync_imported_variables(qb_interpreter_context *cxt) {
 		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
 			for(j = 0; j < scope->variable_count; j++) {
 				qb_variable *ivar = scope->variables[j];
-				qb_transfer_value_to_import_source(cxt, ivar, scope);
+				if(!qb_transfer_value_to_import_source(cxt, ivar, scope)) {
+					return FALSE;
+				}
 			}
 		}
 	}
+	return TRUE;
 }
 
-static void qb_transfer_variables_to_php(qb_interpreter_context *cxt) {
-	qb_sync_imported_variables(cxt);
+static int32_t qb_transfer_variables_to_php(qb_interpreter_context *cxt) {
+	return qb_sync_imported_variables(cxt);
 }
 
-static void qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 	uint32_t received_argument_count = cxt->caller_context->argument_count;
 	uint32_t retval_index = cxt->caller_context->result_index;
 	uint32_t i;
@@ -365,7 +385,9 @@ static void qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			qb_variable *caller_qvar = cxt->caller_context->function->variables[argument_index];
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			if(qvar->flags & QB_VARIABLE_BY_REF) {
-				qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address);
+				if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
+					return FALSE;
+				}
 			}
 		}
 	}
@@ -375,19 +397,21 @@ static void qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			qb_variable *qvar = cxt->function->return_variable;
 			qb_variable *caller_qvar = cxt->caller_context->function->variables[retval_index];
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
-			qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address);
+			if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
+				return FALSE;
+			}
 		}
 	}
+	return TRUE;
 }
 
-static void qb_transfer_variables_to_external_sources(qb_interpreter_context *cxt) {
+static int32_t qb_transfer_variables_to_external_sources(qb_interpreter_context *cxt) {
 	USE_TSRM
 
 	if(cxt->caller_context) {
-		qb_transfer_arguments_to_caller(cxt);
+		return qb_transfer_arguments_to_caller(cxt);
 	} else {
-		qb_transfer_arguments_to_php(cxt);
-		qb_transfer_variables_to_php(cxt);
+		return qb_transfer_arguments_to_php(cxt) && qb_transfer_variables_to_php(cxt);
 	}
 }
 
@@ -740,7 +764,7 @@ static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 	}
 }
 
-static void qb_initialize_local_variables(qb_interpreter_context *cxt) {
+static int32_t qb_initialize_local_variables(qb_interpreter_context *cxt) {
 	qb_memory_segment *shared_scalar_segment, *local_scalar_segment, *local_array_segment, *shared_array_segment;
 	int8_t *memory_start, *memory_end;
 	uint32_t i;
@@ -775,6 +799,7 @@ static void qb_initialize_local_variables(qb_interpreter_context *cxt) {
 			}
 		}
 	}
+	return TRUE;
 }
 
 static void qb_finalize_variables(qb_interpreter_context *cxt) {
@@ -794,25 +819,26 @@ void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode,
 }
 
 int32_t qb_execute(qb_interpreter_context *cxt) {
-	int32_t success = TRUE;
+	USE_TSRM
+	int32_t success = FALSE;
 
 	// clear local memory segments
-	qb_initialize_local_variables(cxt);
-
-	// copy values from arguments, class variables, object variables, and global variables
-	qb_transfer_variables_from_external_sources(cxt);
-
-	// enter the vm
-	if(qb_execute_in_main_thread(cxt)) {
-		// move values back into caller space
-		qb_transfer_variables_to_external_sources(cxt);
-	} else {
-		success = FALSE;
+	if(qb_initialize_local_variables(cxt)) {
+		// copy values from arguments, class variables, object variables, and global variables
+		if(qb_transfer_variables_from_external_sources(cxt)) {
+			// enter the vm
+			if(qb_execute_in_main_thread(cxt)) {
+				// move values back into caller space
+				if(qb_transfer_variables_to_external_sources(cxt)) {
+					success = TRUE;
+				}
+			}
+		}
+		// release dynamically allocated segments
+		qb_finalize_variables(cxt);
 	}
 
-	// release dynamically allocated segments
-	qb_finalize_variables(cxt);
-
+	qb_dispatch_exceptions(TSRMLS_C);
 	return success;
 }
 

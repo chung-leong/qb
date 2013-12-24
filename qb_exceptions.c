@@ -378,9 +378,6 @@ void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, c
 #ifdef ZTS
 	void ***tsrm_ls = qb_get_tsrm_ls(thread);
 #endif
-	uint32_t caller_file_id = FILE_ID(caller_line_id);
-	uint32_t caller_line_number = LINE_NUMBER(caller_line_id);
-	const char *caller_source_file = qb_get_source_file_path(caller_file_id TSRMLS_CC);
 	const char *space;
 	if(class_name) {
 		space = "::";
@@ -388,7 +385,14 @@ void qb_report_missing_argument_exception(qb_thread *thread, uint32_t line_id, c
 		class_name = "";
 		space = "";
 	}
-	qb_report_exception(thread, line_id, E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %u and defined", argument_index + 1, class_name, space, function_name, caller_source_file, caller_line_number);
+	if(caller_line_id) {
+		uint32_t caller_file_id = FILE_ID(caller_line_id);
+		uint32_t caller_line_number = LINE_NUMBER(caller_line_id);
+		const char *caller_source_file = qb_get_source_file_path(caller_file_id TSRMLS_CC);
+		qb_report_exception(thread, line_id, E_WARNING, "Missing argument %u for %s%s%s(), called in %s on line %u and defined", argument_index + 1, class_name, space, function_name, caller_source_file, caller_line_number);
+	} else {
+		qb_report_exception(thread, line_id, E_WARNING, "Missing argument %u for %s%s%s()", argument_index + 1, class_name, space, function_name);
+	}
 }
 
 void qb_report_function_call_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name) {

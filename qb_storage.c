@@ -401,19 +401,6 @@ static int32_t qb_set_array_dimensions_from_array(qb_storage *storage, qb_addres
 		uint32_t dimension_expected = VALUE_IN(storage, U32, dimension_address);
 		if(dimension > dimension_expected) {
 			// dimension is defined
-			if(MULTIDIMENSIONAL(address) && FIXED_LENGTH(address)) {
-				// maybe we're trying to initialize a multidimensional array with a linear array
-				if(qb_is_linear_zval_array(zarray)) {
-					uint32_t array_size = Z_ARRVAL_P(zarray)->nNextFreeElement;
-					uint32_t array_size_expected = ARRAY_SIZE_IN(storage, address);
-					if(array_size > array_size_expected) {
-						qb_report_argument_size_mismatch_exception(storage->current_owner, 0, array_size, array_size_expected);
-						return FALSE;
-					}
-					*p_array_size = array_size_expected;
-					return TRUE;
-				}
-			}
 			qb_report_argument_size_mismatch_exception(storage->current_owner, 0, dimension, dimension_expected);
 			return FALSE;
 		}

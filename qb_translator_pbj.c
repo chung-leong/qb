@@ -1012,7 +1012,7 @@ static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 			qvar = qb_find_argument(cxt, parameter->name);
 			if(qvar) {
 				if(!parameter->input_size_name) {
-					uint32_t parameter_type = (parameter->destination.register_id & PBJ_REGISTER_INT) ? QB_TYPE_I32 : QB_TYPE_F32;
+					qb_primitive_type parameter_type = (parameter->destination.register_id & PBJ_REGISTER_INT) ? QB_TYPE_I32 : QB_TYPE_F32;
 					if(qvar->address->type == parameter_type) {
 						uint32_t parameter_size, element_count;
 						if(parameter->destination.dimension > 1) {
