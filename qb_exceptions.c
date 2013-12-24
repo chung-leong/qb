@@ -29,10 +29,10 @@ uint32_t qb_get_source_file_id(const char *file_path TSRMLS_DC) {
 			return i + 1;
 		}
 	}
-	if(!QB_G(exceptions)) {
+	if(!QB_G(source_files)) {
 		qb_create_array((void **) &QB_G(source_files), &QB_G(source_file_count), sizeof(const char *), 4);
 	}
-	p_source_file = qb_enlarge_array((void **) &QB_G(exceptions), 1);
+	p_source_file = qb_enlarge_array((void **) &QB_G(source_files), 1);
 	*p_source_file = file_path;
 	return QB_G(source_file_count);
 }
@@ -443,6 +443,15 @@ void qb_report_image_height_mismatch_exception(qb_thread *thread, uint32_t line_
 
 void qb_report_pixel_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t pixel_count, uint32_t pixel_count_expected) {
 	qb_report_exception(thread, line_id, E_ERROR, "Declared array size (%d) does not match the number of pixel in the image (%d)", pixel_count, pixel_count_expected);
+}
+
+void qb_report_invalid_variable_for_image_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension_count, int32_t true_color) {
+	if(dimension_count > 3) {
+		qb_report_exception(thread, line_id, E_ERROR, "Variable has too many dimensions for an image (%d)", dimension_count);
+	} else {
+		const char *type = (true_color) ? "true-color" : "paletted";
+		qb_report_exception(thread, line_id, E_ERROR, "Variable is not valid for a %s image", type);
+	}
 }
 
 void qb_report_gd_image_exception(qb_thread *thread, uint32_t line_id, uint32_t width, uint32_t height) {

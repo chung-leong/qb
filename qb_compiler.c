@@ -2237,15 +2237,12 @@ qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *nam
 }
 
 void qb_initialize_function_prototype(qb_compiler_context *cxt) {
-	USE_TSRM
-	uint32_t file_id = qb_get_source_file_id(cxt->zend_op_array->filename TSRMLS_CC);
-	uint32_t line_number = cxt->zend_op_array->line_start;
 	cxt->function_prototype.argument_count = cxt->argument_count;
 	cxt->function_prototype.variables = cxt->variables;
 	cxt->function_prototype.return_variable = cxt->return_variable;
 	cxt->function_prototype.zend_op_array = cxt->zend_op_array;
 	cxt->function_prototype.name = cxt->zend_op_array->function_name;
-	cxt->function_prototype.line_id = LINE_ID(file_id, line_number);
+	cxt->function_prototype.line_id = cxt->line_id;
 	cxt->function_prototype.local_storage = cxt->storage;
 }
 
@@ -3677,6 +3674,10 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	if(max_dependency_index > 1) {
 		cxt->dependencies = ecalloc(max_dependency_index, sizeof(int8_t));
 	}
+
+	cxt->source_file_id = qb_get_source_file_id(cxt->zend_op_array->filename TSRMLS_CC);
+	cxt->source_file_line_number = cxt->zend_op_array->line_start;
+	cxt->line_id = LINE_ID(cxt->source_file_id, cxt->source_file_line_number);
 }
 
 void qb_free_compiler_context(qb_compiler_context *cxt) {

@@ -103,6 +103,7 @@ void qb_report_argument_size_mismatch_exception(qb_thread *thread, uint32_t line
 void qb_report_image_width_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t width, uint32_t width_expected);
 void qb_report_image_height_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t height, uint32_t height_expected);
 void qb_report_pixel_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t pixel_count, uint32_t pixel_count_expected);
+void qb_report_invalid_variable_for_image_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension_count, int32_t true_color);
 void qb_report_undefined_dimension_exception(qb_thread *thread, uint32_t line_id);
 void qb_report_illegal_conversion_to_array_exception(qb_thread *thread, uint32_t line_id, const char *object);
 void qb_report_illegal_conversion_from_array_exception(qb_thread *thread, uint32_t line_id, const char *object);

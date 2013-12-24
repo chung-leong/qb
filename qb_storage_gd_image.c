@@ -190,16 +190,8 @@ static int32_t qb_set_array_dimensions_from_image(qb_storage *storage, qb_addres
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
 
 	if(pixel_format == QB_PIXEL_INVALID) {
-		// see what went wrong
-		if(address->dimension_count > 3) {
-			qb_abort("Variable has too many dimensions for an image (%d)", address->dimension_count);
-		} else {
-			if(image->trueColor) {
-				qb_abort("Variable is not invalid for an true-color image");
-			} else {
-				qb_abort("Variable is not invalid for an paletted image");
-			}
-		}
+		qb_report_invalid_variable_for_image_exception(storage->current_owner, 0, address->dimension_count, image->trueColor);
+		return FALSE;
 	}
 
 	// set the dimension(s)
@@ -221,12 +213,13 @@ static int32_t qb_set_array_dimensions_from_image(qb_storage *storage, qb_addres
 	return TRUE;
 }
 
-static void qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
+static int32_t qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
 	int i, scanline_size, pixel_size;
 	unsigned char ***p_scanlines;
 
 	if(width <= 0 || height <= 0 || width > INT_MAX / sizeof(int) || height > INT_MAX / sizeof(void *)) {
-		qb_abort("Illegal image size");
+		qb_report_gd_image_exception(NULL, 0, width, height);
+		return FALSE;
 	}
 
 	if(image->trueColor) {
@@ -275,6 +268,7 @@ static void qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
 	}
 	image->sx = width;
 	image->sy = height;
+	return FALSE;
 }
 
 static void qb_copy_rgba_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
@@ -556,7 +550,9 @@ static int32_t qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *add
 		width = VALUE_IN(storage, S32, width_address);
 	}
 	if(image->sy != height || image->sx != width) {
-		qb_reallocate_gd_image(image, width, height);
+		if(!qb_reallocate_gd_image(image, width, height)) {
+			return FALSE;
+		}
 	}
 
 	if(image->trueColor) {
