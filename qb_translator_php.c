@@ -20,7 +20,7 @@
 
 #include "qb.h"
 
-static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
+static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_type zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	switch(zoperand_type) {
 		case Z_OPERAND_CV: {
 			uint32_t var_index = Z_OPERAND_INFO(*zoperand, var);
@@ -28,7 +28,9 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, uint32_t zope
 			if(!qvar->address) {
 				// the variable type hasn't been set yet
 				qvar->flags |= QB_VARIABLE_LOCAL;
-				qb_apply_type_declaration(cxt->compiler_context, qvar);
+				if(!qb_apply_type_declaration(cxt->compiler_context, qvar)) {
+					return FALSE;
+				}
 			}
 			operand->address = qvar->address;
 			operand->type = QB_OPERAND_ADDRESS;
@@ -53,18 +55,19 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, uint32_t zope
 #endif
 				}
 				break;
+			} else {
+				return FALSE;
 			}
-		}	// fall through in case of invalid index
+		}	break;
 		default: {
 			operand->type = QB_OPERAND_NONE;
 			operand->generic_pointer = NULL;
-			return FALSE;
 		}
 	}
 	return TRUE;
 }
 
-static void qb_retire_operand(qb_php_translator_context *cxt, uint32_t zoperand_type, znode_op *zoperand, qb_operand *operand) {
+static void qb_retire_operand(qb_php_translator_context *cxt, zend_operand_type zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	switch(zoperand_type) {
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
@@ -741,36 +744,60 @@ static qb_php_op_translator op_translators[] = {
 
 static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 	if(cxt->zend_op->opcode != ZEND_OP_DATA && cxt->zend_op->opcode != qb_user_opcode) {
-		qb_operand operands[3], results[2];
+		qb_operand operands[3] = { { QB_OPERAND_NONE, { NULL } }, { QB_OPERAND_NONE, { NULL } }, { QB_OPERAND_NONE, { NULL } } };  
+		qb_operand results[2] = { { QB_OPERAND_NONE, { NULL } }, { QB_OPERAND_NONE, { NULL } } };
 		qb_result_prototype *result_prototype = &cxt->result_prototypes[cxt->zend_op_index];
 		qb_php_op_translator *t;
 		uint32_t operand_count = 0;
-		int32_t result_count = RETURN_VALUE_USED(cxt->zend_op);
+		int32_t result_count = 0;
+		int32_t has_data_op = (cxt->zend_op[1].opcode == ZEND_OP_DATA);
 		uint32_t zend_opcode = cxt->zend_op->opcode;
 
-		// retrieve operands 
-		if(qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0])) {
+		zend_operand_type operand_type1 = Z_OPERAND_TYPE(cxt->zend_op->op1);
+		zend_operand_type operand_type2 = Z_OPERAND_TYPE(cxt->zend_op->op2);
+		zend_operand_type operand_type3 = (has_data_op) ? Z_OPERAND_TYPE(cxt->zend_op[1].op1) : Z_OPERAND_UNUSED;
+		zend_operand_type result_type1 = Z_OPERAND_TYPE(cxt->zend_op->result);
+		zend_operand_type result_type2 = (has_data_op) ? Z_OPERAND_TYPE(cxt->zend_op->result) : Z_OPERAND_UNUSED;
+		znode_op *operand1 = &cxt->zend_op->op1;
+		znode_op *operand2 = &cxt->zend_op->op2;
+		znode_op *operand3 = (has_data_op) ? &cxt->zend_op[1].op1 : NULL;
+		znode_op *result1 = &cxt->zend_op->result;
+		znode_op *result2 = (has_data_op) ? &cxt->zend_op[1].result : NULL;
+
+		if(!RETURN_VALUE_USED(cxt->zend_op)) {
+			// in case the type isn't correctly set
+			result_type1 = Z_OPERAND_UNUSED;
+		}
+
+		// retrieve operands
+		if(operand_type1 != Z_OPERAND_UNUSED) {
 			operand_count = 1;
-		}
-		if(qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op2), &cxt->zend_op->op2, &operands[1])) {
-			operand_count = 2;
-		}
-
-		// see whether the op returns a value
-		if(result_count) {
-			qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->result), &cxt->zend_op->result, &results[0]);
-		} else {
-			results[0].type = QB_OPERAND_NONE;
-			results[0].address = NULL;
-		}
-
-		if(cxt->zend_op[1].opcode == ZEND_OP_DATA) {
-			// retrieve the extra data
-			if(qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op[1].op1), &cxt->zend_op[1].op1, &operands[2])) {
-				operand_count = 3;
+			if(!qb_retrieve_operand(cxt, operand_type1, operand1, &operands[0])) {
+				return FALSE;
 			}
-			if(qb_retrieve_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op[1].result), &cxt->zend_op[1].result, &results[1])) {
-				result_count = 2;
+		}
+		if(operand_type2 != Z_OPERAND_UNUSED) {
+			operand_count = 2;
+			if(!qb_retrieve_operand(cxt, operand_type2, operand2, &operands[1])) {
+				return FALSE;
+			}
+		}
+		if(operand_type3 != Z_OPERAND_UNUSED) {
+			operand_count = 3;
+			if(!qb_retrieve_operand(cxt, operand_type3, operand3, &operands[2])) {
+				return FALSE;
+			}
+		}
+		if(result_type1 != Z_OPERAND_UNUSED) {
+			result_count = 1;
+			if(!qb_retrieve_operand(cxt, result_type1, result1, &results[0])) {
+				return FALSE;
+			}
+		}
+		if(result_type2 != Z_OPERAND_UNUSED) {
+			result_count = 2;
+			if(!qb_retrieve_operand(cxt, result_type2, result2, &results[1])) {
+				return FALSE;
 			}
 		}
 
@@ -790,18 +817,18 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 #endif
 
 			if(operand_count >= 1) {
-				qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op1), &cxt->zend_op->op1, &operands[0]);
+				qb_retire_operand(cxt, operand_type1, operand1, &operands[0]);
 				if(operand_count >= 2) {
-					qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->op2), &cxt->zend_op->op2, &operands[1]);
+					qb_retire_operand(cxt, operand_type2, operand2, &operands[1]);
 					if(operand_count >= 3) {
-						qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op[1].op1), &cxt->zend_op[1].op1, &operands[0]);
+						qb_retire_operand(cxt, operand_type3, operand3, &operands[2]);
 					}
 				}
 			}
 			if(result_count >= 1) {
-				qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op->result), &cxt->zend_op->result, &results[0]);
+				qb_retire_operand(cxt, result_type1, result1, &results[0]);
 				if(result_count >= 2) {
-					qb_retire_operand(cxt, Z_OPERAND_TYPE(cxt->zend_op[1].result), &cxt->zend_op[1].result, &results[1]);
+					qb_retire_operand(cxt, result_type2, result2, &results[1]);
 				}
 			}
 

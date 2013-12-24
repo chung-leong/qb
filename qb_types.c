@@ -81,7 +81,7 @@ int32_t qb_zval_array_to_int64(zval *zvalue, int64_t *p_integer) {
 		return FALSE;
 	}
 	*p_integer = (hi_dword & 0xFFFFFFFF) << 32 | (lo_dword & 0xFFFFFFFF);
-	return FALSE;
+	return TRUE;
 }
 
 zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC) {

@@ -110,10 +110,10 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[cxt->compiler_context_count++] = emalloc(sizeof(qb_compiler_context));
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, cxt->function_declarations[i], i, cxt->function_declaration_count TSRMLS_CC);
 
-		//QB_G(current_filename) = compiler_cxt->zend_op_array->filename;
-
 		// add variables used within function
-		qb_add_variables(compiler_cxt);
+		if(!qb_add_variables(compiler_cxt)) {
+			qb_dispatch_exceptions(TSRMLS_C);
+		}
 
 		// set up function prototypes so the functions can resolved against each other
 		qb_initialize_function_prototype(compiler_cxt);

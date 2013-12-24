@@ -351,7 +351,7 @@ qb_variable * qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *
 qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name);
 uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address);
 
-void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar);
+int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar);
 
 enum {
 	QB_ARRAY_BOUND_CHECK_NONE	= 0x0000,
@@ -405,7 +405,7 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
 void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
-void qb_add_variables(qb_compiler_context *cxt);
+int32_t qb_add_variables(qb_compiler_context *cxt);
 void qb_initialize_function_prototype(qb_compiler_context *cxt);
 int32_t qb_load_external_code(qb_compiler_context *cxt, const char *import_path);
 void qb_free_external_code(qb_compiler_context *cxt);

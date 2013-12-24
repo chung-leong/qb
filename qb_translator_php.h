@@ -25,7 +25,7 @@ typedef struct qb_php_translator_context	qb_php_translator_context;
 typedef struct qb_php_op_translator			qb_php_op_translator;
 typedef struct qb_temporary_variable		qb_temporary_variable;
 
-int qb_initialize_php_translator(TSRMLS_D);
+typedef enum zend_operand_type				zend_operand_type;
 
 typedef int32_t (*qb_php_op_translator_proc)(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
@@ -71,7 +71,7 @@ struct qb_php_translator_context {
 	void ***tsrm_ls;
 };
 
-enum {
+enum zend_operand_type {
 	Z_OPERAND_CONST 				= 1,
 	Z_OPERAND_TMP_VAR				= 2,
 	Z_OPERAND_VAR					= 4,

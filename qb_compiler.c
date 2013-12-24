@@ -1407,9 +1407,8 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 		qb_address *address;
 
 		// figure out the dimensions of the array first
-		uint32_t dimensions[MAX_DIMENSION];
+		uint32_t dimensions[MAX_DIMENSION] = { 0 };
 		uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, zvalue, desired_type);
-		dimensions[0] = 0;
 		qb_get_zend_array_dimensions(cxt, zvalue, desired_type, dimensions, dimension_count);
 
 		// create a local array for it
@@ -1865,12 +1864,11 @@ static void qb_copy_elements_from_array_initializer(qb_compiler_context *cxt, qb
 
 static qb_address * qb_retrieve_array_from_initializer(qb_compiler_context *cxt, qb_array_initializer *initializer, qb_primitive_type element_type) {
 	qb_address *address;
-	uint32_t dimensions[MAX_DIMENSION];
+	uint32_t dimensions[MAX_DIMENSION] = { 0 };
 	uint32_t dimension_count;
 	
 	// figure out the dimensions of the array first
 	dimension_count = qb_get_array_initializer_dimension_count(cxt, initializer, element_type);
-	dimensions[0] = 0;
 	qb_get_array_initializer_dimensions(cxt, initializer, element_type, dimensions, dimension_count);
 
 	if(initializer->flags & QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS) {
@@ -1958,7 +1956,7 @@ static qb_type_declaration * qb_find_variable_declaration(qb_compiler_context *c
 	return decl;
 }
 
-void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
+int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 	qb_type_declaration *decl = qb_find_variable_declaration(cxt, qvar);
 	if(decl) {
 		if(decl->type != QB_TYPE_VOID) {
@@ -1992,14 +1990,63 @@ void qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 		} else if(qvar->flags & QB_VARIABLE_SENT_VALUE) {
 			// yield does not produce a value by default
 		} else {
-			USE_TSRM
 			qb_report_missing_type_declaration_exception(NULL, cxt->line_id, qvar);
-			qb_dispatch_exceptions(TSRMLS_C);
+			return FALSE;
 		}
 	}
+	return TRUE;
 }
 
-void qb_add_variables(qb_compiler_context *cxt) {
+int32_t qb_perform_static_initialization(qb_compiler_context *cxt, qb_variable *qvar, zval *initial_value) {
+	qb_operand assignment_operands[2];
+	qb_operand assignment_result = { QB_OPERAND_EMPTY, { NULL } };
+	qb_address *initial_value_address = NULL;
+
+	qvar->flags = QB_VARIABLE_STATIC;
+	if(!qb_apply_type_declaration(cxt, qvar)) {
+		return FALSE;
+	}
+	qb_mark_as_static(cxt, qvar->address);
+
+	if(qvar->address->type == QB_TYPE_S64 || qvar->address->type == QB_TYPE_U64) {
+		// initializing 64-bit integer might require special handling
+		qb_primitive_type desired_type = qvar->address->type;
+		uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, initial_value, desired_type);
+		if(qvar->address->dimension_count + 1 == dimension_count) {
+			// the array has one less dimension than the variable
+			uint32_t dimensions[MAX_DIMENSION] = { 0 };
+			qb_get_zend_array_dimensions(cxt, initial_value, desired_type, dimensions, dimension_count);
+			if(dimensions[dimension_count - 1] == 2) {
+				// treat the last level as scalars
+				dimension_count--;
+				if(dimension_count > 0) {
+					initial_value_address = qb_create_constant_array(cxt, desired_type, dimensions, dimension_count);
+					if(!qb_copy_elements_from_zend_array(cxt, initial_value, initial_value_address)) {
+						return FALSE;
+					}
+				} else {
+					initial_value_address = qb_create_constant_scalar(cxt, desired_type);
+					if(!qb_copy_element_from_zval(cxt, initial_value, initial_value_address)) {
+						return FALSE;
+					}
+				}
+			}
+		}
+	}
+
+	assignment_operands[0].address = qvar->address;
+	assignment_operands[0].type = QB_OPERAND_ADDRESS;
+	if(initial_value_address) {
+		assignment_operands[1].address = initial_value_address;
+		assignment_operands[1].type = QB_OPERAND_ADDRESS;
+	} else {
+		assignment_operands[1].constant = initial_value;
+		assignment_operands[1].type = QB_OPERAND_ZVAL;
+	}
+	return qb_produce_op(cxt, &factory_assign, assignment_operands, 2, &assignment_result, NULL, 0, NULL);
+}
+
+int32_t qb_add_variables(qb_compiler_context *cxt) {
 	zend_compiled_variable *zvars = cxt->zend_op_array->vars;
 	zend_arg_info *zargs = cxt->zend_op_array->arg_info;
 	HashTable *static_variable_table = cxt->zend_op_array->static_variables;
@@ -2024,7 +2071,9 @@ void qb_add_variables(qb_compiler_context *cxt) {
 			if(zarg->pass_by_reference) {
 				qvar->flags |= QB_VARIABLE_BY_REF;
 			}
-			qb_apply_type_declaration(cxt, qvar);
+			if(!qb_apply_type_declaration(cxt, qvar)) {
+				return FALSE;
+			}
 
 			// parameters are shared between forked copies of the function
 			qb_mark_as_shared(cxt, qvar->address);
@@ -2032,19 +2081,9 @@ void qb_add_variables(qb_compiler_context *cxt) {
 			// see if it's a static variable
 			zval **p_static_value;
 			if(static_variable_table && zend_hash_quick_find(static_variable_table, zvar->name, zvar->name_len + 1, zvar->hash_value, (void **) &p_static_value) == SUCCESS) {
-				qb_operand assignment_operands[2];
-				qb_operand assignment_result = { QB_OPERAND_EMPTY, { NULL } };
-
-				qvar->flags = QB_VARIABLE_STATIC;
-				qb_apply_type_declaration(cxt, qvar);
-				qb_mark_as_static(cxt, qvar->address);
-
-				assignment_operands[0].address = qvar->address;
-				assignment_operands[0].type = QB_OPERAND_ADDRESS;
-				assignment_operands[1].constant = *p_static_value;
-				assignment_operands[1].type = QB_OPERAND_ZVAL;
-				assignment_result.type = QB_OPERAND_EMPTY;
-				qb_produce_op(cxt, &factory_assign, assignment_operands, 2, &assignment_result, NULL, 0, NULL);
+				if(!qb_perform_static_initialization(cxt, qvar, *p_static_value)) {
+					return FALSE;
+				}
 			} else {
 				// we don't know whether it is a local or a global variable at this point
 				qvar->flags = 0;
@@ -2099,8 +2138,11 @@ void qb_add_variables(qb_compiler_context *cxt) {
 	if(cxt->op_count > 0) {
 		// there're static assignment--need to add the end static op
 		qb_operand end_static_result = { QB_OPERAND_EMPTY, { NULL } };
-		qb_produce_op(cxt, &factory_end_static, NULL, 0, &end_static_result, NULL, 0, NULL);
+		if(!qb_produce_op(cxt, &factory_end_static, NULL, 0, &end_static_result, NULL, 0, NULL)) {
+			return FALSE;
+		}
 	}
+	return TRUE;
 }
 
 qb_variable * qb_find_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name, uint32_t type_mask) {
@@ -2126,7 +2168,9 @@ qb_variable * qb_get_local_variable(qb_compiler_context *cxt, zval *name) {
 	if(qvar) {
 		if(!(qvar->flags & QB_VARIABLE_LOCAL)) {
 			qvar->flags |= QB_VARIABLE_LOCAL;
-			qb_apply_type_declaration(cxt, qvar);
+			if(!qb_apply_type_declaration(cxt, qvar)) {
+				return NULL;
+			}
 		}
 	}
 	return qvar;
@@ -2137,7 +2181,9 @@ qb_variable * qb_get_global_variable(qb_compiler_context *cxt, zval *name) {
 	if(qvar) {
 		if(!(qvar->flags & QB_VARIABLE_GLOBAL)) {
 			qvar->flags |= QB_VARIABLE_GLOBAL;
-			qb_apply_type_declaration(cxt, qvar);
+			if(!qb_apply_type_declaration(cxt, qvar)) {
+				return NULL;
+			}
 		}
 	}
 	return qvar;
@@ -2157,7 +2203,9 @@ qb_variable * qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *
 		qvar->name_length = Z_STRLEN_P(name);
 		qvar->hash_value = Z_HASH_P(name);
 		qvar->zend_class = ce;
-		qb_apply_type_declaration(cxt, qvar);
+		if(!qb_apply_type_declaration(cxt, qvar)) {
+			return NULL;
+		}
 		qb_add_variable(cxt, qvar);
 	}
 	return qvar;
@@ -2173,7 +2221,9 @@ qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name) {
 		qvar->name_length = Z_STRLEN_P(name);
 		qvar->hash_value = Z_HASH_P(name);
 		qvar->zend_class = ce;
-		qb_apply_type_declaration(cxt, qvar);
+		if(!qb_apply_type_declaration(cxt, qvar)) {
+			return NULL;
+		}
 		qb_add_variable(cxt, qvar);
 	}
 	return qvar;
@@ -2181,27 +2231,27 @@ qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name) {
 
 qb_address * qb_obtain_local_variable(qb_compiler_context *cxt, zval *name) {
 	qb_variable *qvar = qb_get_local_variable(cxt, name);
-	return qvar->address;
+	return (qvar) ? qvar->address : NULL;
 }
 
 qb_address * qb_obtain_global_variable(qb_compiler_context *cxt, zval *name) {
 	qb_variable *qvar = qb_get_global_variable(cxt, name);
-	return qvar->address;
+	return (qvar) ? qvar->address : NULL;
 }
 
 qb_address * qb_obtain_static_variable(qb_compiler_context *cxt, zval *name) {
 	qb_variable *qvar = qb_get_static_variable(cxt, name);
-	return qvar->address;
+	return (qvar) ? qvar->address : NULL;
 }
 
 qb_address * qb_obtain_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name) {
 	qb_variable *qvar = qb_get_class_variable(cxt, ce, name);
-	return qvar->address;
+	return (qvar) ? qvar->address : NULL;
 }
 
 qb_address * qb_obtain_instance_variable(qb_compiler_context *cxt, zval *name) {
 	qb_variable *qvar = qb_get_instance_variable(cxt, name);
-	return qvar->address;
+	return (qvar) ? qvar->address : NULL;
 }
 
 qb_address * qb_obtain_class_static_constant(qb_compiler_context *cxt, zval *name, qb_primitive_type type) {
