@@ -3675,9 +3675,11 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 		cxt->dependencies = ecalloc(max_dependency_index, sizeof(int8_t));
 	}
 
-	cxt->source_file_id = qb_get_source_file_id(cxt->zend_op_array->filename TSRMLS_CC);
-	cxt->source_file_line_number = cxt->zend_op_array->line_start;
-	cxt->line_id = LINE_ID(cxt->source_file_id, cxt->source_file_line_number);
+	if(cxt->zend_op_array) {
+		cxt->source_file_id = qb_get_source_file_id(cxt->zend_op_array->filename TSRMLS_CC);
+		cxt->source_file_line_number = cxt->zend_op_array->line_start;
+		cxt->line_id = LINE_ID(cxt->source_file_id, cxt->source_file_line_number);
+	}
 }
 
 void qb_free_compiler_context(qb_compiler_context *cxt) {
