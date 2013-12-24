@@ -23,4 +23,4 @@ test_function();
 
 ?>
 --EXPECTREGEX--
-Fatal error: missing type declaration: b in .+ \d+
+Fatal error: Missing type declaration: b in .+ \d+

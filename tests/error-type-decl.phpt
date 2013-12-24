@@ -16,7 +16,10 @@ Error reporting test (syntax error in type declaration)
 
  
 function test_function() {
+	echo "Hello";
 }
+
+test_function();
 
 ?>
 --EXPECTREGEX--
