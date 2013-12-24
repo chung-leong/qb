@@ -123,11 +123,12 @@ void qb_report_missing_native_symbol_exception(qb_thread *thread, uint32_t line_
 }
 
 void qb_report_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive) {
-
+	const char *comparison = (inclusive) ? ">" : ">=";
+	qb_report_exception(thread, line_id, E_ERROR, "Array out-of-bound condition: (%u %s %u)", index, comparison, limit);
 }
 
 void qb_report_missing_column_exception(qb_thread *thread, uint32_t line_id, uint32_t column_offset, uint32_t column_count) {
-
+	qb_report_exception(thread, line_id, E_ERROR, "Accessing non-existing column: (%u >= %u)", column_offset, column_count);
 }
 
 void qb_report_divide_by_zero_exception(qb_thread *thread, uint32_t line_id) {

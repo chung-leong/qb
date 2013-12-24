@@ -347,6 +347,10 @@ class Handler {
 		return false;
 	}
 
+	public function mayExitLoop() {
+		return false;
+	}
+	
 	public function getMultithreadingThreshold() {
 		return 4096;
 	}
@@ -495,9 +499,14 @@ class Handler {
 		$function = $this->getHandlerFunctionName();
 		$parameterList = $this->getHandlerFunctionParameterList(true);
 		$expressions = $this->getActionExpressions();
-		switch($functionType) {
-			case 'inline': $typeDecl = "static zend_always_inline void"; break;
-			case 'extern': $typeDecl = "void"; break;
+		$mayExit = $this->mayExitLoop();
+		if($mayExit) {
+			$typeDecl = "int32_t";
+		} else {
+			$typeDecl = "void";
+		}
+		if($functionType == "inline") {
+			$typeDecl = "static zend_always_inline $typeDecl";
 		}
 		
 		// replace op# with (*op#_ptr) and res with (*res_ptr) where it's necessary
@@ -521,6 +530,11 @@ class Handler {
 		}
 		$regExp = '/\b(' . implode('|', $needPointers) . ')\b/';
 		$expressions = preg_replace($regExp, '(*\1_ptr)', $expressions);
+		if($mayExit) {
+			// replace "return" with "return FALSE" and add return TRUE at the end
+			$expressions = preg_replace('/\breturn\b/', 'return FALSE', $expressions);
+			$expressions[] = "return TRUE;";
+		}
 		$lines = array();			
 		$lines[] = "$typeDecl $function($parameterList) {";
 		$lines[] = $expressions;
@@ -803,7 +817,15 @@ class Handler {
 				$function = $this->getHandlerFunctionName();
 				$parameterList = $this->getHandlerFunctionParameterList(false);
 			}
-			return "$function($parameterList);";
+			if($this->mayExitLoop()) {
+				$lines = array();
+				$lines[] = "if(!$function($parameterList)) {";
+				$lines[] =		"return;";
+				$lines[] = "}";
+				return $lines;
+			} else {
+				return "$function($parameterList);";
+			}
 		} else {
 			// just insert the code, expanding the operands
 			$lines = array();

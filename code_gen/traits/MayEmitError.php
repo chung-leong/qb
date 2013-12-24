@@ -9,6 +9,10 @@ trait MayEmitError {
 	public function needsLineIdentifier($where = null) {
 		return true;
 	}
+	
+	public function mayExitLoop() {
+		return true;
+	}
 }
 
 ?>
