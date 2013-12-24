@@ -1345,10 +1345,7 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, 
 	uint32_t i, name_len = (uint32_t) strlen(name);
 	const char *proc_name = name;
 #if defined(_MSC_VER)
-	char name_buffer[256];
-	if(name_len > sizeof(name_buffer) - 1) {
-		return NULL;
-	}
+	char *name_buffer = alloca(name_len + 1);
 	if(name[0] == '_') {
 		name_len--;
 		strncpy(name_buffer, name + 1, name_len);
@@ -1396,6 +1393,21 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, 
 	}
 	return NULL;
 }
+
+#ifdef __GNUC__
+static void *qb_find_symbol_strip_trailing_tag(qb_native_compiler_context *cxt, const char *name, int32_t find_inlined_function) {
+	// icc creates extra symbols ending in ..0, ..1, etc.
+	// don't know what they are
+	uint32_t name_len = 0;
+	while(name[name_len] != '\0' && name[name_len] != '.') {
+		name_len++;
+	}
+	char *new_name = alloca(name_len + 1);
+	memcpy(new_name, name, name_len + 1);
+	new_name[name_len] = '\0';
+	return qb_find_symbol(cxt, new_name, find_inlined_function);
+}
+#endif
 
 #ifdef __GNUC__
 static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
@@ -1579,6 +1591,8 @@ static void qb_detach_symbols(qb_native_compiler_context *cxt) {
 #ifdef __ELF__
 	#ifdef __LP64__
 static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
+	int icc = FALSE;
+
 	if(cxt->binary_size < sizeof(Elf64_Ehdr)) {
 		return FALSE;
 	}
@@ -1586,7 +1600,12 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 	// see if it's has the ELF signature (the fifth byte indicates whether it's 32 or 64 bit)
 	Elf64_Ehdr *header = (Elf64_Ehdr *) cxt->binary;
 	if(memcmp(header->e_ident, "\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16) != 0) {
-		return FALSE;
+		// icc sets the ABI (8th) byte to 0x03
+		if(memcmp(header->e_ident, "\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00", 16) != 0) {
+			return FALSE;
+		} else {
+			icc = TRUE;
+		}
 	}
 		#ifdef __x86_64__
 	if(header->e_machine != EM_X86_64) {
@@ -1693,7 +1712,13 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 				if(!attached) {
 					// error out if there's an unrecognized function
 					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
-						return FALSE;
+						if(icc) {
+							if(!qb_find_symbol_strip_trailing_tag(cxt, symbol_name, FALSE)) {
+								return FALSE;
+							}
+						} else {
+							return FALSE;
+						}
 					}
 				}
 				count += attached;
@@ -1709,6 +1734,8 @@ static int32_t qb_parse_elf64(qb_native_compiler_context *cxt) {
 }
 	#else
 static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
+	int icc = FALSE;
+
 	if(cxt->binary_size < sizeof(Elf32_Ehdr)) {
 		return FALSE;
 	}
@@ -1716,7 +1743,11 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 	// see if it's has the ELF signature
 	Elf32_Ehdr *header = (Elf32_Ehdr *) cxt->binary;
 	if(memcmp(header->e_ident, "\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16) != 0) {
-		return FALSE;
+		if(memcmp(header->e_ident, "\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00", 16) != 0) {
+			return FALSE;
+		} else {
+			icc = TRUE;
+		}
 	}
 		#ifdef __i386__
 	if(header->e_machine != EM_386) {
@@ -1817,7 +1848,13 @@ static int32_t qb_parse_elf32(qb_native_compiler_context *cxt) {
 				if(!attached) {
 					// error out if there's an unrecognized function
 					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
-						return FALSE;
+						if(icc) {
+							if(!qb_find_symbol_strip_trailing_tag(cxt, symbol_name, FALSE)) {
+								return FALSE;
+							}
+						} else {
+							return FALSE;
+						}
 					}
 				}
 				count += attached;
