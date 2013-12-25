@@ -249,11 +249,10 @@ static int32_t qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
 
 static int32_t qb_transfer_variables_from_external_sources(qb_interpreter_context *cxt) {
 	if(cxt->caller_context) {
-		return qb_transfer_arguments_from_caller(cxt);
+		return qb_transfer_arguments_from_caller(cxt) && qb_transfer_variables_from_php(cxt);
 	} else {
-		return qb_transfer_arguments_from_php(cxt);
+		return qb_transfer_arguments_from_php(cxt) && qb_transfer_variables_from_php(cxt);
 	}
-	return qb_transfer_variables_from_php(cxt);
 }
 
 static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
