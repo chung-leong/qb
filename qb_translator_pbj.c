@@ -900,8 +900,8 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 			float_values = value->float2x2;
 		}	break;
 		case PBJ_TYPE_FLOAT3X3: {
-			dimensions[0] = 4;
-			dimensions[1] = 3;
+			dimensions[0] = 3;
+			dimensions[1] = 4;
 			dimension_count = 2;
 			float_values = value->float3x3;
 		}	break;
@@ -925,7 +925,7 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 	} else if(float_values) {
 		uint32_t value_count = (dimension_count == 1) ? dimensions[0] : dimensions[1] * dimensions[0];
 		address = qb_create_constant_array(cxt, QB_TYPE_F32, dimensions, dimension_count);
-		if(value_count == 9) {
+		if(value_count == 12) {
 			// 3x3 matrices are padded
 			for(i = 0, j = 0; i < value_count; i++, j++) {
 				ARRAY(F32, address)[j] = float_values[i];
@@ -940,6 +940,39 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 		}
 	}
 	return address;
+}
+
+static int32_t qb_match_pbj_parameter_dimensions(qb_pbj_translator_context *cxt, qb_pbj_parameter *parameter, qb_address *address) {
+	qb_pbj_address *dest = &parameter->destination;
+	if(!FIXED_LENGTH(address)) {
+		return FALSE;
+	}
+	if(dest->dimension > 1) {
+		if(address->dimension_count != 2) {
+			return FALSE;
+		}
+		if(dest->dimension == 2) {
+			if(!(DIMENSION(address, 1) == 2 && DIMENSION(address, 0) == 2)) {
+				return FALSE;
+			}
+		} else if(dest->dimension == 3) {
+			if(!(DIMENSION(address, 1) == 3 && DIMENSION(address, 0) == 3)) {
+				return FALSE;
+			}
+		} else if(dest->dimension == 4) {
+			if(!(DIMENSION(address, 1) == 4 && DIMENSION(address, 0) == 4)) {
+				return FALSE;
+			}
+		}
+	} else {
+		if(address->dimension_count > 1) {
+			return FALSE;
+		}
+		if(ARRAY_SIZE(address) != dest->channel_count) {
+			return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
@@ -1014,23 +1047,15 @@ static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 				if(!parameter->input_size_name) {
 					qb_primitive_type parameter_type = (parameter->destination.register_id & PBJ_REGISTER_INT) ? QB_TYPE_I32 : QB_TYPE_F32;
 					if(qvar->address->type == parameter_type) {
-						uint32_t parameter_size, element_count;
-						if(parameter->destination.dimension > 1) {
-							parameter_size = reg->span * 4;
-						} else {
-							parameter_size = parameter->destination.channel_count;
-						}
-						if(SCALAR(qvar->address)) {
-							element_count = 1;
-						} else {
-							if(FIXED_LENGTH(qvar->address)) {
-								element_count = ARRAY_SIZE(qvar->address);
+						if(qb_match_pbj_parameter_dimensions(cxt, parameter, qvar->address)) {
+							if(ARRAY_SIZE(qvar->address) == 9) {
+								// 3x3 matrices need paddings 
+								uint32_t dimensions[2] = { 3, 4 };
+								parameter->address = qb_create_writable_array(cxt->compiler_context, parameter_type, dimensions, 2);
+								qb_mark_as_shared(cxt->compiler_context, parameter->address);
 							} else {
-								element_count = 0;
+								parameter->address = qvar->address;
 							}
-						}
-						if(element_count == parameter_size) {
-							parameter->address = qvar->address;
 						} else {
 							qb_report_incorrect_pbj_parameter_type_exception(NULL, cxt->compiler_context->line_id, qvar->name);
 							return FALSE;
@@ -1653,6 +1678,20 @@ static void qb_perform_scatter(qb_pbj_translator_context *cxt, qb_address *src_a
 	qb_produce_op(cxt->compiler_context, &factory_scatter, operands, 3, &result, NULL, 0, NULL);
 }
 
+static void qb_perform_pad_3x3_matrix(qb_pbj_translator_context *cxt, qb_address *src_address, qb_address *dst_address) {
+	uint32_t i;
+	qb_address *zero_address = cxt->compiler_context->zero_address;
+	qb_address *three_address = qb_obtain_constant_U32(cxt->compiler_context, 3);
+
+	for(i = 0; i < 3; i++) {
+		qb_address *index_address = qb_obtain_constant_U32(cxt->compiler_context, i);
+		qb_address *src_col_address = qb_obtain_array_element(cxt->compiler_context, src_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
+		qb_address *dst_col_address = qb_obtain_array_element(cxt->compiler_context, dst_address, index_address, QB_ARRAY_BOUND_CHECK_NONE);
+		qb_address *dst_col_address_slice = qb_obtain_array_slice(cxt->compiler_context, dst_col_address, zero_address, three_address, QB_ARRAY_BOUND_CHECK_NONE); 
+		qb_perform_assignment(cxt, dst_col_address_slice, src_col_address);
+	}
+}
+
 static int32_t qb_start_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 	qb_address *start_coord_address;
 	uint32_t i;
@@ -1664,6 +1703,17 @@ static int32_t qb_start_pbj_filter_loop(qb_pbj_translator_context *cxt) {
 		qb_pbj_texture *texture = &cxt->textures[i];
 		if(DIMENSION(texture->address, -1) == 4) {
 			qb_perform_alpha_premultication(cxt, texture->address);
+		}
+	}
+
+	for(i = 0; i < cxt->parameter_count; i++) {
+		qb_pbj_parameter *parameter = &cxt->parameters[i];
+		if(parameter->address->dimension_count == 2) {
+			if(ARRAY_SIZE(parameter->address) == 12) {
+				// it's a 3x3 matrix--copy the values from the parameter
+				qb_variable *qvar = qb_find_argument(cxt, parameter->name);
+				qb_perform_pad_3x3_matrix(cxt, qvar->address, parameter->address);
+			}
 		}
 	}
 

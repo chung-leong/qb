@@ -1,0 +1,38 @@
+<languageVersion : 1.0;>
+
+kernel simple
+<   namespace : "Your Namespace";
+    vendor : "Your Vendor";
+    version : 1;
+>
+{
+   parameter float3x3 transform 
+    <
+        minValue:float3x3(
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0
+        );
+            
+        maxValue:float3x3(
+            1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0
+        );
+        defaultValue:float3x3(
+            0.5, 0.0, 0.0,
+            0.3, 1.0, 0.7,
+            0.1, 0.3, 0.8
+        );
+    >;
+
+    input image3 src;
+    output pixel3 dst;
+
+    void
+    evaluatePixel()
+    {
+        dst = sampleNearest(src,outCoord());
+        dst = transform * dst;
+    }
+}

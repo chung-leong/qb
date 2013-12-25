@@ -296,6 +296,7 @@ static zend_always_inline qb_variable *qb_allocate_variables(qb_data_pool *pool,
 void qb_mark_as_constant(qb_compiler_context *cxt, qb_address *address);
 void qb_mark_as_writable(qb_compiler_context *cxt, qb_address *address);
 void qb_mark_as_temporary(qb_compiler_context *cxt, qb_address *address);
+void qb_mark_as_shared(qb_compiler_context *cxt, qb_address *address);
 
 void qb_lock_address(qb_compiler_context *cxt, qb_address *address);
 void qb_unlock_address(qb_compiler_context *cxt, qb_address *address);
