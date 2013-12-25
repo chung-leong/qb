@@ -48,6 +48,11 @@ static qb_primitive_type qb_resolve_expression_type_lvalue(qb_compiler_context *
 	return QB_TYPE_ANY;
 }
 
+// the expression doesn't have a type
+static qb_primitive_type qb_resolve_expression_type_void(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	return QB_TYPE_VOID;
+}
+
 // the expression has the same type as the first operand
 static qb_primitive_type qb_resolve_expression_type_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
@@ -208,4 +213,13 @@ static qb_primitive_type qb_resolve_expression_type_function_call(qb_compiler_co
 
 static qb_primitive_type qb_resolve_expression_type_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return QB_TYPE_ANY;
+}
+
+static qb_primitive_type qb_resolve_expression_version_compare(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	if(operand_count == 3) {
+		f->address_flags |= QB_ADDRESS_BOOLEAN;
+	} else {
+		f->address_flags &= ~QB_ADDRESS_BOOLEAN;
+	}
+	return QB_TYPE_I32;
 }

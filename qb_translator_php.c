@@ -856,8 +856,6 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"uint64",				1,		2,		&factory_cast_U64			},
 	{	0,	"float32",				1,		1,		&factory_cast_F32			},
 	{	0,	"float64",				1,		1,		&factory_cast_F64			},
-	{	0,	"defined",				1,		1,		&factory_defined			},
-	{	0,	"define",				2,		2,		&factory_define				},
 	{	0,	"fork",					0,		1,		&factory_fork				},
 	{	0,	"spoon",				0,		0,		&factory_spoon				},
 	{	0,	"equal",				2,		2,		&factory_set_equal			},
@@ -1005,6 +1003,24 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"hsl2rgb",				1,		1,		&factory_hsl2rgb			},
 	{	0,	"rgb_premult",			1,		1,		&factory_apply_premult		},
 	{	0,	"rgb_demult",			1,		1,		&factory_remove_premult		},
+	{	0,	"rgb_demult",			1,		1,		&factory_remove_premult		},
+
+	// compile time functions
+	{	0,	"defined",				1,		1,		&factory_defined			},
+	{	0,	"define",				2,		2,		&factory_define				},
+	{	0,	"phpversion",			0,		1,		&factory_phpversion			},
+	{	0,	"zend_version",			0,		0,		&factory_zend_version		},
+	{	0,	"version_compare",		2,		3,		&factory_version_compare	},
+	{	0,	"function_exists",		1,		1,		&factory_function_exists	},
+	{	0,	"class_exists",			1,		2,		&factory_class_exists		},
+	{	0,	"method_exists",		2,		2,		&factory_method_exists		},
+	{	0,	"property_exists",		2,		2,		&factory_method_exists		},
+	{	0,	"ini_get",				1,		1,		&factory_ini_get			},
+	{	0,	"ini_set",				2,		2,		&factory_ini_set			},
+	{	0,	"ini_alter",			2,		2,		&factory_ini_set			},
+	{	0,	"ini_restore",			1,		1,		&factory_ini_restore		},
+	{	0,	"getenv",				1,		1,		&factory_getenv				},
+	{	0,	"putenv",				1,		1,		&factory_putenv				},
 
 	// unsupported functions
 	{	0,	"compact",				0,		-1,		NULL						},
@@ -1020,6 +1036,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_map",			0,		-1,		NULL						},
 	{	0,	"array_reduce",			0,		-1,		NULL						},
 	{	0,	"array_walk",			0,		-1,		NULL						},
+	{	0,	"func_get_args",		0,		-1,		NULL						},
+	{	0,	"func_get_arg",			0,		-1,		NULL						},
+	{	0,	"func_num_args",		0,		-1,		NULL						},
 };
 
 #define MAX_INLINE_FUNCTION_NAME_LEN		32

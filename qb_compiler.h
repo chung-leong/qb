@@ -129,6 +129,9 @@ struct qb_compiler_context {
 	int32_t matrix_padding;
 	qb_matrix_order matrix_order;
 
+	zval **compile_time_results;
+	uint32_t compile_time_result_count;
+
 	char *external_code;
 	uint32_t external_code_length;
 

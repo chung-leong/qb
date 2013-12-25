@@ -70,6 +70,7 @@ typedef struct qb_pixel_op_factory				qb_pixel_op_factory;
 typedef struct qb_utf8_op_factory				qb_utf8_op_factory;
 typedef struct qb_gather_op_factory				qb_gather_op_factory;
 typedef struct qb_array_resize_op_factory		qb_array_resize_op_factory;
+typedef struct qb_php_function_result_factory	qb_php_function_result_factory;
 
 typedef struct qb_intrinsic_op_factory			qb_intrinsic_op_factory;
 
@@ -232,6 +233,12 @@ struct qb_utf8_op_factory {
 struct qb_array_resize_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcodes[8][10];
+};
+
+struct qb_php_function_result_factory {
+	OP_FACTORY_COMMON_ELEMENTS
+	const char *function_name;
+	int32_t argument_types[4];
 };
 
 struct qb_intrinsic_op_factory {
@@ -596,5 +603,18 @@ extern qb_basic_op_factory factory_unpack_be;
 
 extern qb_op_factory factory_define;
 extern qb_op_factory factory_defined;
+
+extern qb_php_function_result_factory factory_phpversion;
+extern qb_php_function_result_factory factory_zend_version;
+extern qb_php_function_result_factory factory_version_compare;
+extern qb_php_function_result_factory factory_function_exists;
+extern qb_php_function_result_factory factory_class_exists;
+extern qb_php_function_result_factory factory_method_exists;
+extern qb_php_function_result_factory factory_property_exists;
+extern qb_php_function_result_factory factory_ini_get;
+extern qb_php_function_result_factory factory_ini_set;
+extern qb_php_function_result_factory factory_ini_restore;
+extern qb_php_function_result_factory factory_getenv;
+extern qb_php_function_result_factory factory_putenv;
 
 #endif

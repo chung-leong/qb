@@ -850,29 +850,6 @@ static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_facto
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_defined(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *name = &operands[0];
-	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
-		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
-		return FALSE;
-	}
-	return TRUE;
-}
-
-static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *name = &operands[0], *value = &operands[1];
-
-	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
-		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
-		return FALSE;
-	}
-	if(!(value->type == QB_OPERAND_ZVAL || (value->type == QB_OPERAND_ADDRESS && CONSTANT(value->address) && SCALAR(value->address)))) {
-		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant expression");
-		return FALSE;
-	}
-	return TRUE;
-}
-
 static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
@@ -934,3 +911,31 @@ static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt,
 	}
 	return TRUE;
 }
+
+static int32_t qb_validate_operands_literals(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	uint32_t i;
+	for(i = 0; i < operand_count; i++) {
+		qb_operand *operand = &operands[i];
+		if(operand->type != QB_OPERAND_ZVAL || Z_TYPE_P(operand->constant) != IS_STRING) {
+			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "literal string");
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *name = &operands[0], *value = &operands[1];
+
+	if(name->type != QB_OPERAND_ZVAL || Z_TYPE_P(name->constant) != IS_STRING) {
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant string");
+		return FALSE;
+	}
+	if(!(value->type == QB_OPERAND_ZVAL || (value->type == QB_OPERAND_ADDRESS && CONSTANT(value->address) && SCALAR(value->address)))) {
+		qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "constant expression");
+		return FALSE;
+	}
+	return TRUE;
+}
+
+

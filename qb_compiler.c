@@ -3751,6 +3751,12 @@ void qb_free_compiler_context(qb_compiler_context *cxt) {
 	if(cxt->dependencies) {
 		efree(cxt->dependencies);
 	}
+
+	for(i = 0; i < cxt->compile_time_result_count; i++) {
+		zval **compile_time_result = &cxt->compile_time_results[i];
+		zval_ptr_dtor(compile_time_result);
+	}
+	qb_destroy_array((void **) &cxt->compile_time_results);
 }
 
 int32_t qb_load_external_code(qb_compiler_context *cxt, const char *import_path) {

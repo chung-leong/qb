@@ -458,6 +458,71 @@ static void qb_set_preliminary_result_unpack(qb_compiler_context *cxt, qb_op_fac
 	qb_set_result_prototype(cxt, f, expr_type, operands, operand_count, result, result_prototype);
 }
 
+static void qb_set_result_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_operand *func = &operands[0];
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	if(qfunc->return_variable->address) {
+		qb_address *src_address = qfunc->return_variable->address;
+		qb_variable_dimensions _dim, *dim = &_dim;
+
+		// address of qfunc->return_variable is in a different storage object
+		// so we can't use qb_copy_address_dimensions() here
+		dim->dimension_count = src_address->dimension_count;	
+		if(dim->dimension_count > 0) {
+			qb_storage *src_storage = qfunc->local_storage;
+			uint32_t i;
+			for(i = 0; i < src_address->dimension_count; i++) {
+				qb_address *dimension_address = src_address->dimension_addresses[i];
+				if(CONSTANT(dimension_address)) {
+					uint32_t dimension = VALUE_IN(src_storage, U32, dimension_address);
+					dim->dimension_addresses[i] = qb_obtain_constant_U32(cxt, dimension);
+				} else {
+					dim->dimension_addresses[i] = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+				}
+			}
+			for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
+				if(i == dim->dimension_count - 1) {
+					dim->array_size_addresses[i] = dim->dimension_addresses[i];
+				} else {
+					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
+				}
+			}
+		} else {
+			dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
+		}
+		dim->array_size_address = dim->array_size_addresses[0];
+		
+		// no resizing here--the callee will perform that if necessary
+		result->address = qb_obtain_write_target(cxt, expr_type, dim, f->address_flags, result_prototype, FALSE);
+	} else {
+		result->address = cxt->zero_address;
+	}
+	result->type = QB_OPERAND_ADDRESS;
+}
+
+static void qb_set_result_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	if(result_prototype->destination) {
+		qb_address *destination_address = qb_obtain_result_destination_address(cxt, result_prototype->destination);
+		int32_t direct_assignment = FALSE;
+		if(destination_address->mode == QB_ADDRESS_MODE_SCA) {
+			direct_assignment = TRUE;
+		} else if(destination_address->mode == QB_ADDRESS_MODE_ARR && !destination_address->source_address) {
+			direct_assignment = TRUE;
+		}
+		if(direct_assignment) {
+			if(destination_address) {
+				result->address = destination_address;
+			}
+		} else {
+			// use a temporary variable
+			qb_variable_dimensions dim;
+			qb_copy_address_dimensions(cxt, destination_address, 0, &dim);
+			result->address = qb_obtain_temporary_variable(cxt, expr_type, &dim);
+		}
+		result->type = QB_OPERAND_ADDRESS;
+	}
+}
+
 static void qb_set_result_defined(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	USE_TSRM
 	qb_operand *name = &operands[0];
@@ -527,67 +592,41 @@ static void qb_set_result_define(qb_compiler_context *cxt, qb_op_factory *f, qb_
 	result->type = QB_OPERAND_ADDRESS;
 }
 
-static void qb_set_result_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *func = &operands[0];
-	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
-	if(qfunc->return_variable->address) {
-		qb_address *src_address = qfunc->return_variable->address;
-		qb_variable_dimensions _dim, *dim = &_dim;
-
-		// address of qfunc->return_variable is in a different storage object
-		// so we can't use qb_copy_address_dimensions() here
-		dim->dimension_count = src_address->dimension_count;	
-		if(dim->dimension_count > 0) {
-			qb_storage *src_storage = qfunc->local_storage;
-			uint32_t i;
-			for(i = 0; i < src_address->dimension_count; i++) {
-				qb_address *dimension_address = src_address->dimension_addresses[i];
-				if(CONSTANT(dimension_address)) {
-					uint32_t dimension = VALUE_IN(src_storage, U32, dimension_address);
-					dim->dimension_addresses[i] = qb_obtain_constant_U32(cxt, dimension);
-				} else {
-					dim->dimension_addresses[i] = qb_create_writable_scalar(cxt, QB_TYPE_U32);
-				}
-			}
-			for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
-				if(i == dim->dimension_count - 1) {
-					dim->array_size_addresses[i] = dim->dimension_addresses[i];
-				} else {
-					dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->dimension_addresses[i + 1]);
-				}
-			}
-		} else {
-			dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
-		}
-		dim->array_size_address = dim->array_size_addresses[0];
-		
-		// no resizing here--the callee will perform that if necessary
-		result->address = qb_obtain_write_target(cxt, expr_type, dim, f->address_flags, result_prototype, FALSE);
-	} else {
-		result->address = cxt->zero_address;
+static int32_t qb_run_php_function(qb_compiler_context *cxt, const char *function_name, int32_t *zval_types, qb_operand *operands, uint32_t operand_count, zval **p_retval) {
+	USE_TSRM
+	uint32_t i;
+	int result;
+	zval *retval, **p_compile_time_result;
+	zval **argument_pointers[8];
+	zval *arguments[8];
+	zval *function = qb_cstring_to_zval(function_name TSRMLS_CC);
+	for(i = 0; i < operand_count; i++) {
+		arguments[i] = operands[i].constant;
+		argument_pointers[i] = &arguments[i];
+		zval_add_ref(argument_pointers[i]);
+		convert_to_explicit_type_ex(argument_pointers[i], zval_types[i]);
 	}
-	result->type = QB_OPERAND_ADDRESS;
+	result = call_user_function_ex(EG(function_table), NULL, function, &retval, operand_count, argument_pointers, TRUE, NULL TSRMLS_CC);
+	for(i = 0; i < operand_count; i++) {
+		zval_ptr_dtor(argument_pointers[i]);
+	}
+	if(result != SUCCESS) {
+		return FALSE;
+	}
+	if(!cxt->compile_time_results) {
+		qb_create_array((void **) &cxt->compile_time_results, &cxt->compile_time_result_count, sizeof(zval *), 4);
+	}
+	p_compile_time_result = qb_enlarge_array((void **) &cxt->compile_time_results, 1);
+	*p_compile_time_result = retval;
+	*p_retval = retval;
+	return TRUE;
 }
 
-static void qb_set_result_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	if(result_prototype->destination) {
-		qb_address *destination_address = qb_obtain_result_destination_address(cxt, result_prototype->destination);
-		int32_t direct_assignment = FALSE;
-		if(destination_address->mode == QB_ADDRESS_MODE_SCA) {
-			direct_assignment = TRUE;
-		} else if(destination_address->mode == QB_ADDRESS_MODE_ARR && !destination_address->source_address) {
-			direct_assignment = TRUE;
-		}
-		if(direct_assignment) {
-			if(destination_address) {
-				result->address = destination_address;
-			}
-		} else {
-			// use a temporary variable
-			qb_variable_dimensions dim;
-			qb_copy_address_dimensions(cxt, destination_address, 0, &dim);
-			result->address = qb_obtain_temporary_variable(cxt, expr_type, &dim);
-		}
-		result->type = QB_OPERAND_ADDRESS;
+static void qb_set_result_php_function_result(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_php_function_result_factory *pf = (qb_php_function_result_factory *) f;
+	if(qb_run_php_function(cxt, pf->function_name, pf->argument_types, operands, operand_count, &result->constant)) {
+		result->type = QB_OPERAND_ZVAL;
+	} else {
+		result->type = QB_OPERAND_EMPTY;
 	}
 }
