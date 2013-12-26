@@ -931,10 +931,10 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 		}
 		
 		if(!scope->parent) {
-			for(j = 0; j < scope->storage->segment_count; j++) {
+			for(j = QB_SELECTOR_GLOBAL_SCALAR; j < scope->storage->segment_count; j++) {
 				qb_memory_segment *segment = &scope->storage->segments[j];
-				if(segment->memory) {
-					efree(segment->memory);
+				if(!segment->flags & QB_SEGMENT_PREALLOCATED) {
+					qb_release_segment(segment);
 				}
 			}
 			efree(scope->storage->segments);

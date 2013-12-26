@@ -96,6 +96,8 @@ static void qb_retire_operand(qb_php_translator_context *cxt, zend_operand_type 
 				}
 			}
 		}	break;
+		default: {
+		}
 	}
 }
 

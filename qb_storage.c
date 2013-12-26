@@ -142,10 +142,12 @@ void qb_release_segment(qb_memory_segment *segment) {
 		// the memory was borrowed--nothing needs to be done
 		segment->flags &= ~QB_SEGMENT_BORROWED;
 	} else {
-		if(segment->current_allocation) {
+		if(segment->current_allocation > 0) {
 			efree(segment->memory);
 		}
 	}
+	// note: segment->memory is not set to NULL
+	// because we need the value for relocation
 	segment->current_allocation = 0;
 }
 
@@ -172,7 +174,14 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 				qb_dispatch_exceptions(TSRMLS_C);
 			}
 		} else {
-			memory = erealloc(segment->memory, new_allocation);
+			int8_t *allocated_memory;
+			// segment->memory is valid only when current_allocation > 0
+			if(segment->current_allocation > 0) {
+				allocated_memory = segment->memory;
+			} else {
+				allocated_memory = NULL;
+			}
+			memory = erealloc(allocated_memory, new_allocation);
 		}
 
 		// clear the newly allcoated bytes

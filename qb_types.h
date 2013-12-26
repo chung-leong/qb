@@ -70,6 +70,11 @@ typedef enum qb_primitive_type				qb_primitive_type;
 #define INVALID_INDEX						((uint32_t) -1)
 
 enum qb_primitive_type {
+	QB_TYPE_I08						= 0,
+	QB_TYPE_I16						= 2,
+	QB_TYPE_I32						= 4,
+	QB_TYPE_I64						= 6,
+
 	QB_TYPE_S08						= 0,
 	QB_TYPE_U08						= 1,
 	QB_TYPE_S16						= 2,
@@ -83,20 +88,13 @@ enum qb_primitive_type {
 	QB_TYPE_F64						= 9,
 };
 
-enum {
-	QB_TYPE_I08						= 0,
-	QB_TYPE_I16						= 2,
-	QB_TYPE_I32						= 4,
-	QB_TYPE_I64						= 6,
+#define QB_TYPE_COUNT				10
 
-	QB_TYPE_UNSIGNED				= 0x0001,
-	QB_TYPE_COUNT					= 10,
+#define QB_TYPE_VOID				((qb_primitive_type) 100)
+#define QB_TYPE_UNKNOWN				((qb_primitive_type) 101)
+#define QB_TYPE_ANY					((qb_primitive_type) 102)
 
-	// pseudo-types
-	QB_TYPE_VOID					= 100,
-	QB_TYPE_UNKNOWN,
-	QB_TYPE_ANY,
-};
+#define QB_TYPE_UNSIGNED			0x0001
 
 struct qb_intrinsic_function {
 	ulong hash_value;

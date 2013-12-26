@@ -971,17 +971,16 @@ qb_address * qb_obtain_constant_integer(qb_compiler_context *cxt, int64_t value,
 		case QB_TYPE_U32: return qb_obtain_constant_U32(cxt, (CTYPE(U32)) value);
 		case QB_TYPE_S64: return qb_obtain_constant_S64(cxt, (CTYPE(S64)) value);
 		case QB_TYPE_U64: return qb_obtain_constant_U64(cxt, (CTYPE(U64)) value);
+		default: return NULL;
 	}
-	return NULL;
 }
 
 qb_address * qb_obtain_constant_float(qb_compiler_context *cxt, float64_t value, qb_primitive_type element_type) {
 	switch(element_type) {
 		case QB_TYPE_F32: return qb_obtain_constant_F32(cxt, (CTYPE(F32)) value);
 		case QB_TYPE_F64: return qb_obtain_constant_F64(cxt, (CTYPE(F64)) value);
-		default: break;
+		default: return NULL;
 	}
-	return NULL;
 }
 
 qb_address * qb_obtain_constant_boolean(qb_compiler_context *cxt, int32_t value) {
@@ -3744,6 +3743,9 @@ void qb_free_compiler_context(qb_compiler_context *cxt) {
 	}
 	if(cxt->dependencies) {
 		efree(cxt->dependencies);
+	}
+	if(cxt->external_code) {
+		qb_free_external_code(cxt);
 	}
 
 	for(i = 0; i < cxt->compile_time_result_count; i++) {

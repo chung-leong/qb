@@ -522,7 +522,7 @@ void qb_report_missing_pbj_output_image_parameter_exception(qb_thread *thread, u
 }
 
 void qb_report_missing_pbj_input_image_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name) {
-	qb_report_exception(thread, line_id, E_ERROR, "Input image '%s' must be passed to the function");
+	qb_report_exception(thread, line_id, E_ERROR, "Input image '%s' must be passed to the function", param_name);
 }
 
 void qb_report_missing_pbj_parameter_exception(qb_thread *thread, uint32_t line_id, const char *param_name) {

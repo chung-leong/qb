@@ -523,7 +523,6 @@ class CodeGenerator {
 		$folder = dirname(__FILE__);
 		$path = "$folder/listings/$filename";
 		$path = str_replace("%COMPILER%", strtolower($this->compiler), $path);
-		echo "$path\n";
 		$lines = file($path, FILE_IGNORE_NEW_LINES);
 		$filteredLines = array();
 		foreach($lines as $line) {

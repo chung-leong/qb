@@ -284,18 +284,13 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 	if(qop->flags & QB_OP_BRANCH) {
 		qb_op *first_case = NULL;
 		qb_address *variable_address;
-		switch(qop->opcode) {
-			case QB_IF_EQ_I08_I08:
-			case QB_IF_EQ_I16_I16:
-			case QB_IF_EQ_I32_I32:
-			case QB_IF_EQ_I64_I64: {
-				qb_address *address1 = qop->operands[0].address;
-				qb_address *address2 = qop->operands[1].address;
-				if(SCALAR(address1) && CONSTANT(address2)) {
-					first_case = qop;
-					variable_address = address1;
-				}
-			}	break;
+		if(qop->opcode == QB_IF_EQ_I08_I08 || qop->opcode == QB_IF_EQ_I16_I16 || qop->opcode == QB_IF_EQ_I32_I32 || qop->opcode == QB_IF_EQ_I64_I64) {
+			qb_address *address1 = qop->operands[0].address;
+			qb_address *address2 = qop->operands[1].address;
+			if(SCALAR(address1) && CONSTANT(address2)) {
+				first_case = qop;
+				variable_address = address1;
+			}
 		}
 		if(first_case) {
 			uint32_t case_count = 1, last_index = index;
