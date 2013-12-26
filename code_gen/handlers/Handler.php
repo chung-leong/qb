@@ -94,6 +94,9 @@ class Handler {
 			// assume the first branch will be taken
 			$lines[] = "int condition;";
 			$lines[] = $this->getSetHandlerCode("INSTR->next_handler1");
+		} else if($targetCount > 2) {
+			// branch table
+			$lines[] = "unsigned int offset;";			
 		}
 				
 		$lines[] = $this->getAction();
@@ -115,7 +118,10 @@ class Handler {
 			$lines[] = 		"ip = INSTR->instruction_pointer2;";
 			$lines[] = "}";
 			$lines[] = $this->getTimeoutCode();
-		} 
+		}  else if($targetCount > 2) {
+			$lines[] = $this->getSetHandlerCode("INSTR->branch_table[offset].next_handler");
+			$lines[] = "ip = INSTR->branch_table[offset].instruction_pointer;";
+		}
 
 		// go to the next instruction unless the function is returning
 		if($targetCount != -1) {
@@ -147,6 +153,8 @@ class Handler {
 			$instr .= "_jump";
 		} else if($targetCount == -1) {
 			$instr .= "_exit";
+		} else if($targetCount > 2) {
+			$instr .= "_branch_table_$targetCount";
 		}
 		
 		for($i = 1; $i <= $opCount; $i++) {
@@ -177,7 +185,7 @@ class Handler {
 		$opCount = $this->getOperandCount();
 		$lines = array();
 		$lines[] = "typedef struct $instr {";
-		if($targetCount >= 0) {
+		if($targetCount >= 0 && $targetCount <= 2) {
 			if($targetCount == 2) {
 				$lines[] = "void *next_handler1;";
 				$lines[] = "int8_t *instruction_pointer1;";
@@ -199,6 +207,10 @@ class Handler {
 			} else {
 				$lines[] = "qb_pointer_{$addressMode} operand{$i};";
 			}
+		}
+		
+		if($targetCount > 2) {
+			$lines[] = "qb_branch_table_entry branch_table[$targetCount];";
 		}
 		
 		if($this->needsLineIdentifier()) {
@@ -322,7 +334,7 @@ class Handler {
 
 	public function needsCondition() {
 		$targetCount = $this->getJumpTargetCount();
-		return ($targetCount == 2);
+		return ($targetCount >= 2);
 	}
 
 	public function changesOperand($i) {

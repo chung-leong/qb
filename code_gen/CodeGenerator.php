@@ -22,6 +22,16 @@ class CodeGenerator {
 		$this->currentIndentationLevel = 0;
 	
 		fwrite($handle, "#pragma pack(push,1)\n\n");
+		
+		$branchTableEntry = array(
+			"typedef struct qb_branch_table_entry {",
+				"void *next_handler;",
+				"int8_t *instruction_pointer;",
+			"} qb_branch_table_entry;",
+		);
+		$this->writeCode($handle, $branchTableEntry);
+		fwrite($handle, "\n");
+		
 		$structs = $this->getInstructionStructureDefinitions();
 		foreach($structs as $struct) {
 			if($struct) {
@@ -29,6 +39,7 @@ class CodeGenerator {
 				fwrite($handle, "\n");
 			}
 		}
+		
 		fwrite($handle, "#pragma pack(pop)\n\n");
 
 		$lines = array();
@@ -179,6 +190,7 @@ class CodeGenerator {
 		foreach($this->handlers as $index => $handler) {		
 			$flags = array();
 			$relationToPrevious = Handler::compare($handler, $prevHandler);
+			$targetCount = $handler->getJumpTargetCount();
 
 			if($relationToPrevious === false) {
 				$variantIndex = $index + 1;
@@ -199,14 +211,17 @@ class CodeGenerator {
 				} while($relationToNext);
 			}
 
-			if($handler->getJumpTargetCount() != 0) {
-				// op will redirect execution to another location 
-				switch($handler->getJumpTargetCount()) {
-					case 2:	$flags[] = "QB_OP_BRANCH"; break;
-					case 1: $flags[] = "QB_OP_JUMP"; break;
-					default: $flags[] = "QB_OP_EXIT"; break;
-				}
+			// set control flow flags
+			if($targetCount == 1) {
+				$flags[] = "QB_OP_JUMP";
+			} else if($targetCount == 2) {
+				$flags[] = "QB_OP_BRANCH";
+			} else if($targetCount == -1) {
+				$flags[] = "QB_OP_EXIT";
+			} else if($targetCount > 2) {
+				$flags[] = "QB_OP_BRANCH_TABLE";
 			}
+			
 			if($handler->needsLineIdentifier()) {
 				// the line number needs to be packed into the instruction (for error reporting)
 				$flags[] = "QB_OP_NEED_LINE_IDENTIFIER";
@@ -1184,6 +1199,16 @@ class CodeGenerator {
 		}
 		foreach($this->scalarAddressModes as $addressMode) {
 			$this->handlers[] = new BranchOnLessThanEqual("IF_LE", $elementType, $addressMode);
+		}
+		
+		$branch_table_sizes = array(8, 16, 32, 64, 128, 256, 512, 1024);
+
+		if(!$unsigned) {
+			foreach($branch_table_sizes as $size) {
+				foreach($this->scalarAddressModes as $addressMode) {
+					$this->handlers[] = new BranchTable("SWITCH$size", $elementTypeNoSign, $addressMode, $size);
+				}
+			}
 		}
 	}
 

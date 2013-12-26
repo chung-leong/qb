@@ -215,7 +215,7 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 				for(j = 0; j < qop->jump_target_count; j++) {
 					qb_encode_jump_target(cxt, qop->jump_target_indices[j], &ip);
 				}
-			} else {
+			} else if(!(qop->flags & QB_OP_BRANCH_TABLE)) {
 				// need the handler to the next instruction if it's not a jump operation
 				// as functions must always end with a return
 				// there's no check here if there is an op at i + 1
@@ -243,6 +243,12 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 						qb_debug_abort("unknown operand type: %d", operand->type);
 #endif
 					}	break;
+				}
+			}
+
+			if(qop->flags & QB_OP_BRANCH_TABLE) {
+				for(j = 0; j < qop->jump_target_count; j++) {
+					qb_encode_jump_target(cxt, qop->jump_target_indices[j], &ip);
 				}
 			}
 
@@ -718,7 +724,7 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 
 			if(op_flags & QB_OP_EXIT) {
 				// nothing
-			} else {
+			} else if(!(op_flags & QB_OP_BRANCH_TABLE)) {
 #ifndef _MSC_VER
 				if(initializing) {
 					// update next handler
@@ -783,6 +789,27 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 					case 'c': {
 						ip += sizeof(uint32_t);
 					}	break;
+				}
+			}
+
+			if(op_flags & QB_OP_BRANCH_TABLE) {
+				uint32_t branch_count = qb_get_switch_table_size_from_opcode(opcode);
+				uint32_t j;
+				for(j = 0; j < branch_count; j++) {
+					int8_t **p_ip;
+#ifndef _MSC_VER
+					if(initializing) {
+						// update next handler
+						void **p_handler = (void **) ip;
+						qb_opcode next_opcode = (qb_opcode) *p_handler;
+						*p_handler = op_handlers[next_opcode];
+					}
+#endif
+					ip += sizeof(void *);
+
+					p_ip = (int8_t **) ip;
+					SHIFT_POINTER(*p_ip, instruction_shift);
+					ip += sizeof(int8_t *);
 				}
 			}
 

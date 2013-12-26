@@ -125,6 +125,7 @@ static int32_t qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t ind
 						prev_qop->jump_target_indices = qop->jump_target_indices;
 						prev_qop->jump_target_count = qop->jump_target_count;
 						prev_qop->operand_count = 2;
+						qop->flags &= ~QB_OP_BRANCH;
 						qop->opcode = QB_NOP;
 
 						return TRUE;
@@ -384,18 +385,21 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 						// do the substitution if less than 16 slots will be wasted
 						use_table = TRUE;
 					}
-					if(range_length > 256) {
-						// the maximum table size is 256
+					if(range_length > 1024) {
+						// the maximum table size is 1024
 						use_table = FALSE;
 					}
 				}
 
 				if(use_table) {
 					qb_address *offset_address = qb_obtain_constant(cxt, range_offset, variable_address->type & ~QB_TYPE_UNSIGNED); 
-					uint32_t jump_target_count = (uint32_t) range_length + 1;
-					uint32_t *table = qb_allocate_indices(cxt->pool, jump_target_count);
+					uint32_t table_size = qb_get_switch_table_size((uint32_t) range_length);
+					uint32_t *table = qb_allocate_indices(cxt->pool, table_size);
+					qb_opcode new_opcode = qb_get_switch_opcode((uint32_t) range_length, offset_address->type);
+					qb_op *switch_op = first_case;
+
 					// fill the table with the default index first
-					for(i = 0; i < jump_target_count; i++) {
+					for(i = 0; i < table_size; i++) {
 						table[i] = default_jump_index;
 					}
 					// put in the cases
@@ -404,6 +408,24 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 						uint32_t jump_index = jump_indices[i];
 						uint32_t table_index = (uint32_t) (constant - range_offset);
 						table[table_index] = jump_index;
+					}
+
+					// replace first case with switch op
+					switch_op->flags &= ~QB_OP_BRANCH;
+					switch_op->flags |= QB_OP_BRANCH_TABLE;
+					switch_op->opcode = new_opcode;
+					switch_op->operand_count = 2;
+					switch_op->operands[0].address = variable_address;
+					switch_op->operands[1].address = offset_address;
+					switch_op->jump_target_count = table_size;
+					switch_op->jump_target_indices = table;
+
+					for(i = index + 1; i <= last_index; i++) {
+						qop = cxt->ops[i];
+						if(qop->opcode != QB_NOP) {
+							qop->flags &= ~QB_OP_BRANCH;
+							qop->opcode = QB_NOP;
+						}
 					}
 				}
 

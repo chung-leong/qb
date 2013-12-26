@@ -217,6 +217,7 @@ enum {
 	QB_OP_VERSION_AVAILABLE_ELE		= 0x0200,
 	QB_OP_VERSION_AVAILABLE_MIO		= 0x0100,
 	QB_OP_NEED_INSTRUCTION_STRUCT	= 0x0080,
+	QB_OP_BRANCH_TABLE				= 0x0040,
 
 	// compile time properties
 	QB_OP_JUMP_TARGET 				= 0x80000000,
@@ -292,5 +293,9 @@ uint32_t qb_get_instruction_length(qb_opcode opcode);
 qb_address_mode qb_get_operand_address_mode(uint32_t opcode, uint32_t operand_index);
 int32_t qb_is_operand_write_target(qb_opcode opcode, uint32_t operand_index);
 const char *qb_get_op_format(uint32_t opcode);
+
+uint32_t qb_get_switch_table_size(uint32_t case_count);
+qb_opcode qb_get_switch_opcode(uint32_t case_count, qb_primitive_type type);
+uint32_t qb_get_switch_table_size_from_opcode(qb_opcode opcode);
 
 #endif
