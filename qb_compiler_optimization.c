@@ -220,40 +220,186 @@ static int32_t qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t in
 static void qb_simplify_jump(qb_compiler_context *cxt, uint32_t index) {
 	qb_op *qop = cxt->ops[index];
 
-	if(qop->opcode == QB_JMP) {
-		uint32_t target_index = qop->jump_target_indices[0];
-		qb_op *target_qop = cxt->ops[target_index];
+	if(qop->flags & (QB_OP_JUMP | QB_OP_BRANCH)) {
+		uint32_t target_index;
+		qb_op *target_qop;
+		uint32_t i;
+		for(i = 0; i < qop->jump_target_count; i++) {
+			target_index = qop->jump_target_indices[i];
+			target_qop = cxt->ops[target_index];
 
-		// if the jump lands on another jump, change the target to that jump's target
-		while(target_qop->opcode == QB_JMP) {
-			if(target_index != target_qop->jump_target_indices[0]) {
-				target_index = target_qop->jump_target_indices[0];
-				target_qop = cxt->ops[target_index];
-				qop->jump_target_indices[0] = target_index;
-			} else {
-				// the jump goes to itself
-				break;
-			}
-		}
-
-		// if the only thing sitting between the jump and the target
-		// are nop's then eliminate the jump altogether
-		if(target_index > index) {
-			int32_t needed = 0;
-			uint32_t j;
-
-			for(j = index + 1; j < target_index; j++) {
-				if(cxt->ops[j]->opcode != QB_NOP) {
-					needed = TRUE;
+			// if the jump lands on another jump, change the target to that jump's target
+			while(target_qop->opcode == QB_JMP) {
+				if(target_index != target_qop->jump_target_indices[0]) {
+					target_index = target_qop->jump_target_indices[0];
+					target_qop = cxt->ops[target_index];
+					qop->jump_target_indices[i] = target_index;
+				} else {
+					// the jump goes to itself
 					break;
 				}
 			}
-			if(!needed) {
-				qop->opcode = QB_NOP;
-				qop->jump_target_count = 0;
+		}
+
+		if(qop->opcode == QB_JMP) {
+			// if the only thing sitting between the jump and the target
+			// are nop's then eliminate the jump altogether
+			if(target_index > index) {
+				int32_t needed = 0;
+				uint32_t j;
+
+				for(j = index + 1; j < target_index; j++) {
+					if(cxt->ops[j]->opcode != QB_NOP) {
+						needed = TRUE;
+						break;
+					}
+				}
+				if(!needed) {
+					qop->opcode = QB_NOP;
+					qop->jump_target_count = 0;
+				}
 			}
 		}
 	}
+}
+
+static int64_t qb_get_constant_value(qb_compiler_context *cxt, qb_address *address) {
+	switch(address->type) {
+		case QB_TYPE_S08: 
+		case QB_TYPE_U08: return VALUE(S08, address);
+		case QB_TYPE_S16: 
+		case QB_TYPE_U16: return VALUE(S16, address);
+		case QB_TYPE_S32: 
+		case QB_TYPE_U32: return VALUE(S32, address);
+		case QB_TYPE_S64: 
+		case QB_TYPE_U64: return VALUE(S64, address);
+		default: return 0;
+	}
+}
+
+uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
+	qb_op *qop = cxt->ops[index];
+
+	if(qop->flags & QB_OP_BRANCH) {
+		qb_op *first_case = NULL;
+		qb_address *variable_address;
+		switch(qop->opcode) {
+			case QB_IF_EQ_I08_I08:
+			case QB_IF_EQ_I16_I16:
+			case QB_IF_EQ_I32_I32:
+			case QB_IF_EQ_I64_I64: {
+				qb_address *address1 = qop->operands[0].address;
+				qb_address *address2 = qop->operands[1].address;
+				if(SCALAR(address1) && CONSTANT(address2)) {
+					first_case = qop;
+					variable_address = address1;
+				}
+			}	break;
+		}
+		if(first_case) {
+			int32_t variable_signed = !(variable_address->type & QB_TYPE_UNSIGNED);
+			uint32_t case_count = 1, last_index = index;
+			uint32_t previous_jump_target = qop->jump_target_indices[1];
+			uint32_t i;
+			for(i = index + 1; i < cxt->op_count - 1; i++) {
+				qb_op *next_qop = cxt->ops[i];
+				if(next_qop->opcode != QB_NOP) {
+					if(i == previous_jump_target) {
+						if(next_qop->opcode == first_case->opcode) {
+							qb_address *address1 = next_qop->operands[0].address;
+							qb_address *address2 = next_qop->operands[1].address;
+							if(address1 == variable_address && CONSTANT(address2)) {
+								case_count++;
+								previous_jump_target = next_qop->jump_target_indices[1];
+								last_index = i;
+								continue;
+							}
+						}
+					}
+					break;
+				}
+			}
+			if(case_count > 1) {
+				int32_t use_table = FALSE;
+				int64_t *case_constants;
+				uint32_t *jump_indices;
+				uint32_t default_jump_index;
+				uint64_t range_offset;
+				uint64_t range_length;
+				uint32_t j;
+				ALLOCA_FLAG(use_heap1)
+				ALLOCA_FLAG(use_heap2)
+
+				// collect the jump target indices and constants
+				jump_indices = do_alloca(sizeof(uint32_t) * case_count, use_heap1);
+				case_constants = do_alloca(sizeof(int64_t) * case_count, use_heap2);
+				for(i = index, j = 0; i <= last_index; i++) {
+					qop = cxt->ops[i];
+					if(qop->opcode != QB_NOP) {
+						qb_address *address2 = qop->operands[1].address;
+						case_constants[j] = qb_get_constant_value(cxt, address2);	
+						jump_indices[j] = qop->jump_target_indices[0];
+						j++;
+						if(j == case_count) {
+							default_jump_index = qop->jump_target_indices[1];
+						}
+					}
+				}
+
+				// see how large is the range
+				// don't bother unless there are more than two cases
+				if(case_count > 2) {
+					uint64_t range_min_u = UINT64_MAX, range_max_u = 0;
+					int64_t range_min_s = INT64_MAX, range_max_s = INT64_MIN;
+					for(i = 0; i < case_count; i++) {
+						if(variable_signed) {
+							int64_t constant_s = case_constants[i];
+							if(constant_s > range_max_s) {
+								range_max_s = constant_s;
+							} 
+							if(constant_s < range_min_s) {
+								range_min_s = constant_s;
+							}
+						} else {
+							uint64_t constant_u = case_constants[i];
+							if(constant_u > range_max_u) {
+								range_max_u = constant_u;
+							} 
+							if(constant_u < range_min_u) {
+								range_min_u = constant_u;
+							}
+						}
+					}
+					if(variable_signed) {
+						range_length = range_max_s - range_min_s + 1;
+						range_offset = range_min_s;
+					} else {
+						range_length = range_max_u - range_min_u + 1;
+						range_offset = range_min_u;
+					}
+					if(case_count > range_length * 0.25) {
+						// do the substitution if more than a quarter of slots will be used
+						use_table = TRUE;
+					} else if(range_length - case_count < 16) {
+						// do the substitution if less than 16 slots will be wasted
+						use_table = TRUE;
+					}
+					if(range_length > 256) {
+						// the maximum table size is 256
+						use_table = FALSE;
+					}
+				}
+
+				if(use_table) {
+				}
+
+				free_alloca(jump_indices, use_heap1);
+				free_alloca(case_constants, use_heap2);
+			}
+			return last_index - index;
+		}
+	}
+	return 0;
 }
 
 void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
@@ -262,13 +408,17 @@ void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 		// opcodes are not address mode specific at this point
 		// the last op is always RET: there's no need to scan it
 		for(i = 0; i < cxt->op_count - 1; i++) {
+			qb_simplify_jump(cxt, i);
 			if(qb_fuse_conditional_branch(cxt, i)) {
 				continue;
 			}
 			if(qb_fuse_multiply_accumulate(cxt, i)) {
 				continue;
 			}
-			qb_simplify_jump(cxt, i);
+		}
+		for(i = 0; i < cxt->op_count - 1; i++) {
+			uint32_t skip = qb_convert_switch_statement(cxt, i);
+			i += skip;
 		}
 	} else if(pass == 2) {
 		// opcodes are address mode specific here

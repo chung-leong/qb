@@ -21,6 +21,7 @@ function test_function($a) {
 		case 10: echo "Even\n"; break;
 		default: echo "Other\n";
 	}
+	$a = 9;
 }
 
 test_function(1);
