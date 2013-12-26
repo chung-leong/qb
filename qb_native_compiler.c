@@ -1000,7 +1000,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 					qb_print(cxt, "\n");
 				}
 			}
-		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
+		} else if(qop->opcode == QB_FCALL_U32_U32_U32 || qop->opcode == QB_FCALL_MT_U32_U32_U32) {
 			qb_copy_local_arguments_to_storage(cxt, qop);
 			qb_print(cxt, "\n");
 		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_RESUME || qop->opcode == QB_SPOON) {
@@ -1020,7 +1020,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		if(qop->flags & QB_OP_NEED_INSTRUCTION_STRUCT) {
 			qb_copy_local_variables_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
-		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
+		} else if(qop->opcode == QB_FCALL_U32_U32_U32 || qop->opcode == QB_FCALL_MT_U32_U32_U32) {
 			qb_copy_local_arguments_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
 		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_INTR || qop->opcode == QB_RESUME || qop->opcode == QB_SPOON) {
@@ -1037,8 +1037,8 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			for(j = 0; j < qop->jump_target_count; j++) {
 				if(qop->jump_target_indices[j] <= qop_index) {
 					qb_print(cxt, "if(*cxt->windows_timed_out_pointer) {\n");
-					qb_print(cxt,		"zend_timeout(1);\n");
-					qb_print(cxt,		"return QB_VM_TIMEOUT;\n");
+					qb_print(cxt,		"cxt->exit_type = QB_VM_TIMEOUT;\n");
+					qb_print(cxt,		"return;\n");
 					qb_print(cxt, "}\n");
 					break;
 				}
@@ -1063,6 +1063,26 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			const char *jump_target = qb_get_jump_label(cxt, qop->jump_target_indices[0]);
 			qb_printf(cxt, "goto %s;\n", jump_target);
 			qb_print(cxt, "\n");
+		} else if(qop->flags & QB_OP_BRANCH_TABLE) {
+			uint32_t case_count = qop->jump_target_count - 1;
+			uint32_t default_jump_target_index = qop->jump_target_indices[case_count];
+			const char *default_jump_target = qb_get_jump_label(cxt, default_jump_target_index);
+			qb_print(cxt, "switch(offset) {\n");
+			for(i = 0; i < case_count; i++) {
+				uint32_t jump_target_index = qop->jump_target_indices[i];
+				if(jump_target_index != default_jump_target_index) {
+					uint32_t next_jump_target_index = qop->jump_target_indices[i + 1];
+					if(jump_target_index == next_jump_target_index) {
+						// fall through to the next case
+						qb_printf(cxt, "case %u:\n", i);
+					} else {
+						const char *jump_target = qb_get_jump_label(cxt, jump_target_index);
+						qb_printf(cxt, "case %u: goto %s;\n", i, jump_target);
+					}
+				}
+			}
+			qb_printf(cxt, "default: goto %s;\n", default_jump_target);
+			qb_print(cxt, "}\n");
 		}
 
 #ifdef ZEND_DEBUG
@@ -1101,6 +1121,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 				qb_printf(cxt, "#undef %s\n", name);
 			}
 		}
+		qb_print(cxt, "\n");
 #endif
 	}
 }
@@ -1112,6 +1133,7 @@ static void qb_print_local_variables(qb_native_compiler_context *cxt) {
 
 	qb_print(cxt, "int8_t *ip;\n");
 	qb_print(cxt, "int condition;\n");
+	qb_print(cxt, "unsigned int offset;\n");
 	qb_print(cxt, "qb_storage *storage = cxt->function->local_storage;\n");
 
 	// create variables for writable scalars
@@ -1290,46 +1312,56 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 static void * qb_get_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #if defined(_MSC_VER)
-	// intrinsics employed by MSVC are located in the runtime DLL
-	// since the QB DLL might be used compiled using the same version of MSVC
-	// we'll look for the function dynamically
-#ifdef ZEND_DEBUG
-	static const char *dll_names[] = { "msvcr110.dll", "msvcr110d.dll", "msvcr100.dll", "msvcr100d.dll", "msvcr90.dll", "msvcr90d.dll" };
-#else
-	static const char *dll_names[] = { "msvcr110.dll", "msvcr100.dll", "msvcr90.dll" };
-#endif
-	static HMODULE c_lib_handle = 0;
-	static const char *c_lib_dll_name = NULL;
-	if(!c_lib_handle) {
-		// see which of these DLL's is loaded
-		uint32_t i;
-		for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
-			c_lib_handle = GetModuleHandle(dll_names[i]);
-			if(c_lib_handle) {
-				c_lib_dll_name = dll_names[i];
-				break;
-			}
-		}
-	}
-	if(c_lib_handle) {
-		address = GetProcAddress(c_lib_handle, name);
+	if(strcmp(name, "_ftol2") == 0) {
+		address = _ftol2;
+	} else if(strcmp(name, "_allshr") == 0) {
+		address = _allshr;
+	} else if(strcmp(name, "_allshl") == 0) {
+		address = _allshl;
 	}
 	if(!address) {
-		// try loading a more recent version of the runtime
-		static HMODULE newer_c_lib_handle = 0;
-		if(!newer_c_lib_handle) {
+		// intrinsics employed by MSVC are located in the runtime DLL
+		// since the QB DLL might be used compiled using the same version of MSVC
+		// we'll look for the function dynamically
+#ifdef ZEND_DEBUG
+		static const char *dll_names[] = { "msvcr110.dll", "msvcr110d.dll", "msvcr100.dll", "msvcr100d.dll", "msvcr90.dll", "msvcr90d.dll" };
+#else
+		static const char *dll_names[] = { "msvcr110.dll", "msvcr100.dll", "msvcr90.dll" };
+#endif
+		static HMODULE c_lib_handle = 0;
+		static const char *c_lib_dll_name = NULL;
+
+		if(!c_lib_handle) {
+			// see which of these DLL's is loaded
 			uint32_t i;
 			for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
-				if(dll_names[i] != c_lib_dll_name) {
-					newer_c_lib_handle = LoadLibrary(dll_names[i]);
-					if(newer_c_lib_handle) {
-						break;
-					}
+				c_lib_handle = GetModuleHandle(dll_names[i]);
+				if(c_lib_handle) {
+					c_lib_dll_name = dll_names[i];
+					break;
 				}
 			}
 		}
-		if(newer_c_lib_handle) {
-			address = GetProcAddress(newer_c_lib_handle, name);
+		if(c_lib_handle) {
+			address = GetProcAddress(c_lib_handle, name);
+		}
+		if(!address) {
+			// try loading a more recent version of the runtime
+			static HMODULE newer_c_lib_handle = 0;
+			if(!newer_c_lib_handle) {
+				uint32_t i;
+				for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
+					if(dll_names[i] != c_lib_dll_name) {
+						newer_c_lib_handle = LoadLibrary(dll_names[i]);
+						if(newer_c_lib_handle) {
+							break;
+						}
+					}
+				}
+			}
+			if(newer_c_lib_handle) {
+				address = GetProcAddress(newer_c_lib_handle, name);
+			}
 		}
 	}
 #else

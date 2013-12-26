@@ -257,8 +257,8 @@ class CodeGenerator {
 			$opnames[] = $handler->getName();
 		}
 		$folder = dirname(__FILE__);
-		$zend_opnames = file("$folder/listings/zend_op_names.txt", FILE_IGNORE_NEW_LINES);
-		$pbj_opnames = file("$folder/listings/pixel_bender_op_names.txt", FILE_IGNORE_NEW_LINES);
+		$zend_opnames = $this->loadListing("zend_op_names.txt");
+		$pbj_opnames = $this->loadListing("pixel_bender_op_names.txt");
 
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_op_names", $opnames, true, true);
@@ -385,7 +385,7 @@ class CodeGenerator {
 		if($compiler == "MSVC") {
 			// these functions cannot be declared in VC11
 			$folder = dirname(__FILE__);
-			$illegalIntrinsics = file("$folder/listings/intrinsic_functions_msvc11.txt", FILE_IGNORE_NEW_LINES);
+			$illegalIntrinsics = $this->loadListing("intrinsic_functions_msvc11.txt");
 			$illegalIntrinsicIndices = array();
 			foreach($illegalIntrinsics as $illegalIntrinsic) {
 				$illegalIntrinsicIndices[] = $functionIndices[$illegalIntrinsic];
@@ -490,7 +490,7 @@ class CodeGenerator {
 		
 		// load list of intrinsic functions
 		$folder = dirname(__FILE__);
-		$intrinsics = file(($compiler == "MSVC") ? "$folder/listings/intrinsic_functions_msvc.txt" : "$folder/listings/intrinsic_functions_gcc.txt", FILE_IGNORE_NEW_LINES);
+		$intrinsics = $this->loadListing("intrinsic_functions_%COMPILER%.txt");
 
 		fwrite($handle, "qb_native_symbol global_intrinsic_symbols[] = {\n");
 		foreach($intrinsics as $name) {
@@ -517,6 +517,23 @@ class CodeGenerator {
 	protected function setCompiler($compiler) {
 		Handler::setCompiler($compiler);
 		$this->compiler = $compiler;
+	}
+	
+	protected function loadListing($filename) {
+		$folder = dirname(__FILE__);
+		$path = "$folder/listings/$filename";
+		$path = str_replace("%COMPILER%", strtolower($this->compiler), $path);
+		echo "$path\n";
+		$lines = file($path, FILE_IGNORE_NEW_LINES);
+		$filteredLines = array();
+		foreach($lines as $line) {
+			$line = preg_replace('/\/\/.*/', '', $line);
+			$line = trim($line);
+			if($line) {
+				$filteredLines[] = $line;
+			}
+		}
+		return $filteredLines;
 	}
 	
 	protected function getFunctionDefinitions() {
@@ -584,9 +601,8 @@ class CodeGenerator {
 		$functionDefinitions = $this->getFunctionDefinitions();
 		
 		// then prepend the list with ones that aren't generated
-		$folder = dirname(__FILE__);
-		$common = file("$folder/listings/function_prototypes.txt", FILE_IGNORE_NEW_LINES);
-		$compilerSpecific = file(($this->compiler == "MSVC") ? "$folder/listings/function_prototypes_msvc.txt" : "$folder/listings/function_prototypes_gcc.txt", FILE_IGNORE_NEW_LINES);
+		$common = $this->loadListing("function_prototypes.txt");
+		$compilerSpecific = $this->loadListing("function_prototypes_%COMPILER%.txt");
 		foreach(array_merge($common, $compilerSpecific) as $line) {
 			array_unshift($functionDefinitions, array($line));
 		}

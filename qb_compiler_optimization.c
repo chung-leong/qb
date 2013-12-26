@@ -483,7 +483,8 @@ void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 		for(i = 0; i < cxt->op_count - 1; i++) {
 			qb_op *qop = cxt->ops[i];
 			if(!(qop->flags & QB_OP_REACHABLE)) {
-				//qop->opcode = QB_NOP;
+				qop->opcode = QB_NOP;
+				qop->flags &= ~QB_OP_JUMP_TARGET;
 			}
 		}
 	}
