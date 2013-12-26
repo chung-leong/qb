@@ -971,7 +971,6 @@ qb_address * qb_obtain_constant_integer(qb_compiler_context *cxt, int64_t value,
 		case QB_TYPE_U32: return qb_obtain_constant_U32(cxt, (CTYPE(U32)) value);
 		case QB_TYPE_S64: return qb_obtain_constant_S64(cxt, (CTYPE(S64)) value);
 		case QB_TYPE_U64: return qb_obtain_constant_U64(cxt, (CTYPE(U64)) value);
-		default: break;
 	}
 	return NULL;
 }
@@ -1160,7 +1159,6 @@ static int32_t qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue,
 			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_LVAL_P(zvalue); break;
 			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_LVAL_P(zvalue); break;
 			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_LVAL_P(zvalue); break;
-			default: break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_DOUBLE) {
 		switch(address->type) {
@@ -1174,7 +1172,6 @@ static int32_t qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue,
 			case QB_TYPE_U64: VALUE(U64, address) = (CTYPE(U64)) Z_DVAL_P(zvalue); break;
 			case QB_TYPE_F32: VALUE(F32, address) = (CTYPE(F32)) Z_DVAL_P(zvalue); break;
 			case QB_TYPE_F64: VALUE(F64, address) = (CTYPE(F64)) Z_DVAL_P(zvalue); break;
-			default: break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_STRING) {
 		uint32_t type_size = type_sizes[address->type];
@@ -1195,7 +1192,6 @@ static int32_t qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue,
 			case QB_TYPE_U64: VALUE(U64, address) = *((CTYPE(U64) *) string); break;
 			case QB_TYPE_F32: VALUE(F32, address) = *((CTYPE(F32) *) string); break;
 			case QB_TYPE_F64: VALUE(F64, address) = *((CTYPE(F64) *) string); break;
-			default: break;
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY) {
 		switch(address->type) {
@@ -1436,7 +1432,6 @@ qb_address * qb_obtain_constant_zval(qb_compiler_context *cxt, zval *zvalue, qb_
 			case QB_TYPE_U64: return qb_obtain_constant_U64(cxt, (CTYPE(U64)) qb_zval_to_long(zvalue));
 			case QB_TYPE_F32: return qb_obtain_constant_F32(cxt, (CTYPE(F32)) qb_zval_to_double(zvalue));
 			case QB_TYPE_F64: return qb_obtain_constant_F64(cxt, (CTYPE(F64)) qb_zval_to_double(zvalue));
-			default: break;
 		}
 	}
 	return NULL;
@@ -2630,7 +2625,6 @@ void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand) 
 							case QB_TYPE_U64: is_true = VALUE(I64, operand->address) != 0; break;
 							case QB_TYPE_F32: is_true = VALUE(F32, operand->address) != 0.0f; break;
 							case QB_TYPE_F64: is_true = VALUE(F64, operand->address) != 0.0; break;
-							default: break;
 						}
 					} else {
 						is_true = TRUE;

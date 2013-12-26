@@ -452,6 +452,7 @@ struct qb_interpreter_context {\
 	qb_vm_exit_type exit_type;\
 	int32_t exit_status_code;\
 	int32_t exception_encountered;\
+	uint32_t debug_flags;\
 	volatile unsigned char *windows_timed_out_pointer;\
 	int floating_point_precision;\
 	void ***tsrm_ls;\

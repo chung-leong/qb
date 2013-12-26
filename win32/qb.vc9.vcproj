@@ -689,6 +689,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_interpreter_debug.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_interpreter_functions_msvc.c"
 				>
 			</File>

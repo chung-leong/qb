@@ -25,6 +25,7 @@ if (PHP_QB != "no") {
 	qb_extractor.c\
 	qb_function_inliner.c\
 	qb_interpreter.c\
+	qb_interpreter_debug.c\
 	qb_interpreter_functions_msvc.c\
 	qb_interpreter_loop_msvc.c\
 	qb_native_compiler.c\

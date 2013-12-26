@@ -19,8 +19,6 @@
 /* $Id$ */
 
 #include "qb.h"
-#include <math.h>
-#include "zend_variables.h"
 
 static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
 	if(!(ivar->flags & QB_VARIABLE_IMPORTED)) {
@@ -715,8 +713,6 @@ static void qb_handle_execution(qb_interpreter_context *cxt, int32_t forked) {
 			case QB_VM_TIMEOUT: {
 				zend_timeout(0);
 				continue_execution = FALSE;
-			}	break;
-			default: {
 			}	break;
 		}
 	} while(continue_execution);

@@ -494,8 +494,6 @@ static int32_t qb_set_array_dimensions_from_zval(qb_storage *storage, qb_address
 				return FALSE;
 			}
 		}	break;
-		default: {
-		}	break;
 	} 
 	return FALSE;
 }
@@ -537,8 +535,6 @@ static int32_t qb_copy_element_from_zval(qb_storage *storage, qb_address *addres
 					qb_report_illegal_conversion_from_array_exception(storage->current_owner, 0, type_names[address->type]);
 				}
 			}
-		}	break;
-		default: {
 		}	break;
 	}
 	return TRUE;
@@ -716,8 +712,6 @@ static int32_t qb_copy_elements_from_zval(qb_storage *storage, qb_address *addre
 				return qb_copy_elements_from_gd_image(storage, address, image);
 			}
 		}	break;
-		default:	{
-		}	break;
 	}
 	return FALSE;
 }
@@ -804,7 +798,6 @@ static int32_t qb_copy_element_to_zval(qb_storage *storage, qb_address *address,
 			Z_TYPE_P(zvalue) = IS_DOUBLE;
 			Z_DVAL_P(zvalue) = VALUE_IN(storage, F64, address);
 		}	break;
-		default: break;
 	}
 	return TRUE;
 }

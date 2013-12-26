@@ -70,11 +70,6 @@ typedef enum qb_primitive_type				qb_primitive_type;
 #define INVALID_INDEX						((uint32_t) -1)
 
 enum qb_primitive_type {
-	QB_TYPE_I08						= 0,
-	QB_TYPE_I16						= 2,
-	QB_TYPE_I32						= 4,
-	QB_TYPE_I64						= 6,
-
 	QB_TYPE_S08						= 0,
 	QB_TYPE_U08						= 1,
 	QB_TYPE_S16						= 2,
@@ -86,9 +81,15 @@ enum qb_primitive_type {
 
 	QB_TYPE_F32						= 8,
 	QB_TYPE_F64						= 9,
+};
+
+enum {
+	QB_TYPE_I08						= 0,
+	QB_TYPE_I16						= 2,
+	QB_TYPE_I32						= 4,
+	QB_TYPE_I64						= 6,
 
 	QB_TYPE_UNSIGNED				= 0x0001,
-
 	QB_TYPE_COUNT					= 10,
 
 	// pseudo-types

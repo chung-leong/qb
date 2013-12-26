@@ -38,6 +38,10 @@ enum qb_import_scope_type {
 	QB_IMPORT_SCOPE_ABSTRACT_OBJECT,
 };
 
+enum {
+	QB_DEBUG_SEND_EXACT_TYPE = 0x00000001,
+};
+
 struct qb_import_scope {
 	qb_import_scope_type type;
 	qb_import_scope *parent;
@@ -91,6 +95,7 @@ struct qb_interpreter_context {
 	qb_vm_exit_type exit_type;
 	int32_t exit_status_code;
 	int32_t exception_encountered;
+	uint32_t debug_flags;
 
 	volatile unsigned char *windows_timed_out_pointer;
 	int floating_point_precision;
