@@ -438,6 +438,27 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 	return 0;
 }
 
+void qb_mark_op_reachability(qb_compiler_context *cxt, uint32_t start_index) {
+	uint32_t i, j;
+	for(i = start_index; i < cxt->op_count - 1; i++) {
+		qb_op *qop = cxt->ops[i];
+		if(qop->flags & QB_OP_REACHABLE) {
+			break;
+		} else {
+			qop->flags |= QB_OP_REACHABLE;
+		}
+		if(qop->opcode == QB_RET) {
+			break;
+		}
+		if(qop->jump_target_count > 0) {
+			for(j = 0; j < qop->jump_target_count; j++) {
+				qb_mark_op_reachability(cxt, qop->jump_target_indices[j]);
+			}
+			break;
+		}
+	}
+}
+
 void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 	uint32_t i;
 	if(pass == 1) {
@@ -458,5 +479,12 @@ void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 		}
 	} else if(pass == 2) {
 		// opcodes are address mode specific here
+		qb_mark_op_reachability(cxt, 0);
+		for(i = 0; i < cxt->op_count - 1; i++) {
+			qb_op *qop = cxt->ops[i];
+			if(!(qop->flags & QB_OP_REACHABLE)) {
+				//qop->opcode = QB_NOP;
+			}
+		}
 	}
 }
