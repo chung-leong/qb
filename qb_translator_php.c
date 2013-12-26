@@ -56,7 +56,7 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_
 				}
 				break;
 			} else {
-				return FALSE;
+				// temp_var_index can be -1 sometimes
 			}
 		}	break;
 		default: {
