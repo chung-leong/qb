@@ -297,7 +297,6 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 			}	break;
 		}
 		if(first_case) {
-			int32_t variable_signed = !(variable_address->type & QB_TYPE_UNSIGNED);
 			uint32_t case_count = 1, last_index = index;
 			uint32_t previous_jump_target = qop->jump_target_indices[1];
 			uint32_t i;
@@ -324,7 +323,7 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 				int64_t *case_constants;
 				uint32_t *jump_indices;
 				uint32_t default_jump_index;
-				uint64_t range_offset;
+				int64_t range_offset;
 				uint64_t range_length;
 				uint32_t j;
 				ALLOCA_FLAG(use_heap1)
@@ -349,6 +348,7 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 				// see how large is the range
 				// don't bother unless there are more than two cases
 				if(case_count > 2) {
+					int32_t variable_signed = !(variable_address->type & QB_TYPE_UNSIGNED);
 					uint64_t range_min_u = UINT64_MAX, range_max_u = 0;
 					int64_t range_min_s = INT64_MAX, range_max_s = INT64_MIN;
 					for(i = 0; i < case_count; i++) {
@@ -391,6 +391,20 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 				}
 
 				if(use_table) {
+					qb_address *offset_address = qb_obtain_constant(cxt, range_offset, variable_address->type & ~QB_TYPE_UNSIGNED); 
+					uint32_t jump_target_count = (uint32_t) range_length + 1;
+					uint32_t *table = qb_allocate_indices(cxt->pool, jump_target_count);
+					// fill the table with the default index first
+					for(i = 0; i < jump_target_count; i++) {
+						table[i] = default_jump_index;
+					}
+					// put in the cases
+					for(i = 0; i < case_count; i++) {
+						int64_t constant = case_constants[i];
+						uint32_t jump_index = jump_indices[i];
+						uint32_t table_index = (uint32_t) (constant - range_offset);
+						table[table_index] = jump_index;
+					}
 				}
 
 				free_alloca(jump_indices, use_heap1);
