@@ -135,6 +135,10 @@
 	#endif
 #endif
 
+#ifndef IS_INTERNED
+	#define IS_INTERNED(s)		FALSE
+#endif
+
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP16)
 static inline unsigned short __builtin_bswap16(unsigned short v) {
   return (v << 8) | (v >> 8);

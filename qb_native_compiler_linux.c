@@ -196,25 +196,25 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 #define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_R_TYPE(r)					ELF64_R_TYPE(r)
 #define ELF_R_SYM(r)					ELF64_R_SYM(r)
-#define ELFST_BIND(r)					ELF64_ST_BIND(r)
+#define ELF_ST_BIND(r)					ELF64_ST_BIND(r)
 #define ELF_ST_TYPE(s)					ELF64_ST_TYPE(s)	
-typedef Elf_Ehdr				Elf64_Ehdr;
-typedef Elf_Shdr				Elf64_Shdr;
-typedef Elf_Rel					Elf64_Rela;
-typedef Elf_Sym					Elf64_Sym;
+typedef Elf64_Ehdr				Elf_Ehdr;
+typedef Elf64_Shdr				Elf_Shdr;
+typedef Elf64_Rela				Elf_Rel;
+typedef Elf64_Sym				Elf_Sym;
 #else
 #define EM_EXPECTED						EM_386
-#define RELOCATION_SECTION_NAME			".rela.text"
+#define RELOCATION_SECTION_NAME			".rel.text"
 #define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_R_TYPE(r)					ELF32_R_TYPE(r)
 #define ELF_R_SYM(r)					ELF32_R_SYM(r)
-#define ELFST_BIND(r)					ELF32_ST_BIND(r)
+#define ELF_ST_BIND(r)					ELF32_ST_BIND(r)
 #define ELF_ST_TYPE(s)					ELF32_ST_TYPE(s)
-typedef Elf_Ehdr				Elf32_Ehdr;
-typedef Elf_Shdr				Elf32_Shdr;
-typedef Elf_Rel					Elf32_Rel;
-typedef Elf_Sym					Elf32_Sym;
+typedef Elf32_Ehdr				Elf_Ehdr;
+typedef Elf32_Shdr				Elf_Shdr;
+typedef Elf32_Rel				Elf_Rel;
+typedef Elf32_Sym				Elf_Sym;
 #endif
 
 static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
@@ -252,7 +252,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 	char *section_string_section = (char *) (cxt->binary + section_string_section_header->sh_offset);
 	char *string_section = NULL;
 	char *text_section = NULL;
-	Elf_Rela *relocations = NULL;
+	Elf_Rel *relocations = NULL;
 	int relocation_count = 0;
 	Elf_Sym *symbols = NULL;
 	int symbol_count = 0;
@@ -265,8 +265,8 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 		int section_size = section_header->sh_size;
 
 		if(section_header->sh_type == SHT_RELA && memcmp(section_name, RELOCATION_SECTION_NAME, 11) == 0) {
-			relocations = (Elf_Rela *) (cxt->binary + section_header->sh_offset);
-			relocation_count = section_size / sizeof(Elf_Rela);
+			relocations = (Elf_Rel *) (cxt->binary + section_header->sh_offset);
+			relocation_count = section_size / sizeof(Elf_Rel);
 		} else if(section_header->sh_type == SHT_PROGBITS && memcmp(section_name, ".text", 6) == 0) {
 			text_section = (char *) (cxt->binary + section_header->sh_offset);
 		} else if(section_header->sh_type == SHT_SYMTAB && memcmp(section_name, ".symtab", 8) == 0) {
@@ -279,7 +279,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 
 	// perform relocations
 	for(i = 0; i < relocation_count; i++) {
-		Elf_Rela *relocation = &relocations[i];
+		Elf_Rel *relocation = &relocations[i];
 		int reloc_type = ELF_R_TYPE(relocation->r_info);
 		int symbol_index = ELF_R_SYM(relocation->r_info);
 		Elf_Sym *symbol = &symbols[symbol_index];
@@ -303,23 +303,25 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 
 		intptr_t P = (intptr_t) target_address;
 		intptr_t S = (intptr_t) symbol_address;
-
+#ifdef __LP64__
+		intptr_t A = relocation->r_addend;
+#endif
 
 		switch(reloc_type) {
 #ifdef __LP64__
 			case R_X86_64_NONE:
 				break;
 			case R_X86_64_64:
-				*((int64_t *) target_address) += S;
+				*((intptr_t *) target_address) = A + S;
 				break;
 			case R_X86_64_PC32:
-				*((int32_t *) target_address) += S - P;
+				*((int32_t *) target_address) = A + S - P;
 				break;
 			case R_X86_64_32:
-				*((uint32_t *) target_address) += (uint32_t) S;
+				*((uint32_t *) target_address) = A + S;
 				break;
 			case R_X86_64_32S:
-				*((int32_t *) target_address) += (int32_t) S;
+				*((int32_t *) target_address) = A + S;
 				break;
 #else				
 			case R_386_NONE:

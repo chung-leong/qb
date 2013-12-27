@@ -143,6 +143,7 @@ void qb_release_segment(qb_memory_segment *segment) {
 		segment->flags &= ~QB_SEGMENT_BORROWED;
 	} else {
 		if(segment->current_allocation > 0) {
+			//printf("efree(%016x)\n", (intptr_t) segment->memory);
 			efree(segment->memory);
 		}
 	}
@@ -182,6 +183,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 				allocated_memory = NULL;
 			}
 			memory = erealloc(allocated_memory, new_allocation);
+			//printf("erealloc(%016x) => %016x\n", (intptr_t) allocated_memory, (intptr_t) segment->memory);
 		}
 
 		// clear the newly allcoated bytes
@@ -1419,12 +1421,14 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 			if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
 					int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
-					uint32_t bytes_available = Z_STRLEN_P(zvalue);
-					if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
-						if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
-							ZVAL_NULL(zvalue);
+					uint32_t bytes_available = Z_STRLEN_P(zvalue) + 1;
+					if(!IS_INTERNED(memory)) {
+						if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
+							if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
+								ZVAL_NULL(zvalue);
+							}
+							return TRUE;
 						}
-						return TRUE;
 					}
 				} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
 					php_stream *stream = qb_get_file_stream(zvalue);

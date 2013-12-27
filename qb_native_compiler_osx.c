@@ -189,7 +189,7 @@ typedef struct ARCH_SELECT(mach_header)			mach_header;
 typedef struct ARCH_SELECT(segment_command)		segment_command;
 typedef struct ARCH_SELECT(section)				section;
 typedef struct ARCH_SELECT(nlist)				nlist;
-typedef load_command							load_command;
+typedef struct load_command						load_command;
 typedef struct symtab_command					symtab_command;
 typedef struct relocation_info					relocation_info
 
