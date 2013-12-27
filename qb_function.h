@@ -81,6 +81,23 @@ struct qb_external_symbol {
 };
 
 enum {
+	QB_NATIVE_SYMBOL_INLINE_FUNCTION			= 0x0001,
+	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION			= 0x0002,
+};
+
+struct qb_native_symbol {
+	const char *name;
+	void *address;
+	long hash_value;
+	long flags;
+};
+
+struct qb_native_proc_record {
+	uint64_t crc64;
+	void *proc;
+};
+
+enum {
 	QB_FUNCTION_NATIVE_IF_POSSIBLE	= 0x00000001,
 	QB_FUNCTION_NEVER_NATIVE		= 0x00000002,
 	QB_FUNCTION_GO_THRU_ZEND		= 0x00000004,

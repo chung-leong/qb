@@ -42,7 +42,7 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	SECURITY_ATTRIBUTES sa;
-	int cpu_flags[4], file_descriptor;
+	int file_descriptor;
 	HANDLE pipe_error_write, pipe_err_read;
 
 	// open temporary c file for writing (Visual C doesn't accept input from stdin)
@@ -169,16 +169,7 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 	if(file != INVALID_HANDLE_VALUE) {
 		mapping = CreateFileMapping(file, NULL, PAGE_EXECUTE_WRITECOPY, 0, 0, NULL);
 		if(mapping != INVALID_HANDLE_VALUE) {
-#ifdef _WIN64
-			// load the object at an address within 4G of the DLL's base address
-			char *base_address = (char *) 0x00007FFF00000000;
-			do {
-				base_address += 0x100000;
-				cxt->binary = MapViewOfFileEx(mapping, FILE_MAP_EXECUTE | FILE_MAP_COPY, 0, 0, 0, base_address);
-			} while(!cxt->binary && base_address < (char *) 0x800000000000);
-#else
 			cxt->binary = MapViewOfFileEx(mapping, FILE_MAP_EXECUTE | FILE_MAP_COPY, 0, 0, 0, NULL);
-#endif
 			cxt->binary_size = GetFileSize(file, NULL);
 		}
 	}
@@ -233,7 +224,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 				intptr_t S, P; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
-					symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+					symbol_address = qb_find_symbol(cxt, symbol_name);
 					if(!symbol_address) {
 						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
 						missing_symbol_count++;
@@ -254,14 +245,14 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 						*((intptr_t *) target_address) = S;
 						break;
 					case IMAGE_REL_AMD64_REL32:
-						*((int32_t *) target_address) += S - (P + sizeof(int32_t));
+						*((int32_t *) target_address) += (int32_t) (S - (P + sizeof(int32_t)));
 						break;
 #else				
 					case IMAGE_REL_I386_DIR32:
 						*((intptr_t *) target_address) += S;
 						break;
 					case IMAGE_REL_I386_REL32:
-						*((intptr_t *) target_address) += S - (P + sizeof(intptr_t));
+						*((intptr_t *) target_address) += (int32_t) (S - (P + sizeof(intptr_t)));
 						break;
 #endif						
 					default:
@@ -271,21 +262,21 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 		}
 	}
 	if(missing_symbol_count > 0) {
-		return FALSE;
+		//return FALSE;
 	}
 
 	// find the compiled functions
 	for(i = 0; i < header->NumberOfSymbols; i++) {
 		IMAGE_SYMBOL *symbol = &symbols[i];
+		char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : (string_section + symbol->N.Name.Long);
 		if(symbol->SectionNumber > 0) {
 			IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
-			char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : (string_section + symbol->N.Name.Long);
 			void *symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
 			if(ISFCN(symbol->Type)) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
+					if(!qb_find_symbol(cxt, symbol_name)) {
 						return FALSE;
 					}
 				}

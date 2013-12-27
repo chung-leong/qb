@@ -295,9 +295,6 @@ class CodeGenerator {
 		foreach($functionDeclarations as $index => &$decl) {
 			if(preg_match('/(\w+)\s*\(/', $decl, $m)) {
 				$functionName = $m[1];
-				
-				// get rid of ZEND_FASTCALL and ZEND_MACRO
-				$decl = preg_replace('/\b(ZEND_FASTCALL|ZEND_MACRO)\s*/', '', $decl);
 				$functionIndices[$functionName] = $index;
 				$functionRefCounts[$index] = 0;
 			}
@@ -338,26 +335,8 @@ class CodeGenerator {
 									}
 								}
 							} else {
-								switch($name) {
-									case 'if':
-									case 'for':
-									case 'while':
-									case 'sizeof':
-									case 'return':
-									case 'QB_G':
-									case 'EG':
-									case 'SWAP_LE_I16':
-									case 'SWAP_LE_I32':
-									case 'SWAP_LE_I64':
-									case 'SWAP_BE_I16':
-									case 'SWAP_BE_I32':
-									case 'SWAP_BE_I64':
-									case 'EXPECTED':
-									case 'UNEXPECTED':
-									case 'USE_TSRM':
-										break;
-									default:
-										print_r($decl);
+								static $known_tokens = array('if', 'for', 'while', 'sizeof', 'return', 'QB_G', 'EG', 'SWAP_LE_I16', 'SWAP_LE_I32', 'SWAP_LE_I64', 'SWAP_BE_I16', 'SWAP_BE_I32', 'SWAP_BE_I64', 'EXPECTED', 'UNEXPECTED', 'USE_TSRM', 'zend_finite', 'zend_isinf', 'zend_isnan');
+								if(!in_array($name, $known_tokens)) {
 										throw new Exception("Missing function declaration for $name");
 								}
 							}
@@ -381,21 +360,6 @@ class CodeGenerator {
 			}
 		}
 		unset($decl);
-		
-		if($compiler == "MSVC") {
-			// these functions cannot be declared in VC11
-			$folder = dirname(__FILE__);
-			$illegalIntrinsics = $this->loadListing("intrinsic_functions_msvc11.txt");
-			$illegalIntrinsicIndices = array();
-			foreach($illegalIntrinsics as $illegalIntrinsic) {
-				$illegalIntrinsicIndices[] = $functionIndices[$illegalIntrinsic];
-			}
-			$illegalIntrinsicCount = count($illegalIntrinsicIndices);
-			$illegalIntrinsicIndices = implode(", ", $illegalIntrinsicIndices);
-			fwrite($handle, "uint32_t illegal_vc11_intrinsic_indices[] = { $illegalIntrinsicIndices };\n");
-			fwrite($handle, "uint32_t illegal_vc11_intrinsic_count = $illegalIntrinsicCount;\n");
-			fwrite($handle, "\n");
-		}
 		
 		fwrite($handle, "#ifdef HAVE_ZLIB\n");
 		$this->writeCompressTable($handle, "compressed_table_native_actions", $actions, true, true);
@@ -424,81 +388,56 @@ class CodeGenerator {
 				$target = null;
 				
 				if(strpos($decl, "{") === false) {
-					if(preg_match('/\b(ZEND_FASTCALL|ZEND_MACRO)\b/', $modifiers)) {
-						$isMacro = preg_match('/\b(ZEND_MACRO)\b/', $modifiers);
-						$returnType = trim(preg_replace('/\b(ZEND_FASTCALL|ZEND_MACRO|NO_RETURN)\b/', '', $modifiers));
-						$parameterDecls = $m[3];
-						$target = "{$functionName}_symbol";
-						if($parameterDecls) {
-							$parameterDecls = preg_split('/\s*,\s+/', $parameterDecls);
-							$parameters = array();
-							foreach($parameterDecls as $parameterDecl) {
-								$parameterDecl = trim($parameterDecl);
-								if($parameterDecl == 'void') {
-									// none
-								} else if(preg_match('/\w+$/', $parameterDecl, $m)) {
-									$parameters[] = $m[0];
-								} else if(preg_match('/.../', $parameterDecl, $m)) {
-									$parameters[] = $m[0];
-								} else {
-									throw new Exception("Unable to parse parameter declaration: $parameterDecl");
-								}
-							}
-							$parameterList = implode(", ", $parameters);
-							$parameterDecls = implode(", ", $parameterDecls);
-						} else {
-							$parameterList = "";
-							$parameterDecls = "void";
-						}
-					
-						// create a cdecl wrapper for it
-						fwrite($handle, "$returnType $target($parameterDecls) {\n");
-						if($returnType != 'void') {
-							fwrite($handle, "	return $functionName($parameterList);\n");
-						} else {
-							fwrite($handle, "	$functionName($parameterList);\n");
-						}
-						fwrite($handle, "}\n");
-						fwrite($handle, "\n");
+					if($this->compiler == "MSVC" && $functionName == "floor") {
+						// floor() is not constant in MSVC when intrinsic are used
+						// it therefore cannot be used as an initializer
+						// need it get the address at runtime instead
+						$target = "NULL";
 					} else {
 						$target = $functionName;
 					}
 				} else {
 					// a function body could be generated inside the object file for the inline function
 					// need to indicate that the symbol is known 
-					$target = "(void*) -1";
+					$target = "NULL";
 				}
 				$symbols[$functionName] = $target;
 			}
 		}
 		ksort($symbols);
+
+		// load list of intrinsic functions
+		$intrinsics = $this->loadListing("intrinsic_functions_%COMPILER%.txt");
 		
-		if($this->compiler == "MSVC") {
-			// floor() is not constant in MSVC when intrinsic are used
-			// it therefore cannot be used as an initializer
-			// need it get the address at runtime instead
-			$symbols["floor"] = "(void*) -1";
-		}
+		// these functions cannot be declared in VC11
+		$vc11_intrinsics = ($compiler == "MSVC") ? $this->loadListing("intrinsic_functions_msvc11.txt") : array();
 	
+		$count = 0;
 		fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
 		foreach($symbols as $name => $symbol) {
-			fwrite($handle, "	{	0,	\"$name\",	$symbol	},\n");
+			$flags = array();
+			if($symbol == "NULL") {
+				$flags[] = "QB_NATIVE_SYMBOL_INLINE_FUNCTION";
+			}
+			if(in_array($name, $vc11_intrinsics)) {
+				$flags[] = "QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION";
+			}
+			if($flags) {
+				$flags = implode(" | ", $flags);
+			} else {
+				$flags = "0";
+			}
+			fwrite($handle, "	{	\"$name\",	$symbol,	0,	$flags	},\n");
+			$count++;
+		}
+		foreach($intrinsics as $name) {
+			fwrite($handle, "	{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},\n");
+			$count++;
 		}
 		fwrite($handle, "};\n\n");
-		$count = count($symbols);
 		fwrite($handle, "uint32_t global_native_symbol_count = $count;\n\n");
 		
-		// load list of intrinsic functions
-		$folder = dirname(__FILE__);
-		$intrinsics = $this->loadListing("intrinsic_functions_%COMPILER%.txt");
 
-		fwrite($handle, "qb_native_symbol global_intrinsic_symbols[] = {\n");
-		foreach($intrinsics as $name) {
-			fwrite($handle, "	{	0,	\"$name\",	NULL	},\n");
-		}
-		fwrite($handle, "};\n\n");
-		$count = count($intrinsics);
-		fwrite($handle, "uint32_t global_intrinsic_symbol_count = $count;\n\n");
 	}
 
 	public function writeNativeDebugStub($handle) {

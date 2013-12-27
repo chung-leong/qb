@@ -79,6 +79,7 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define NO_RETURN	"STRING(NO_RETURN)"\n");
 	qb_print(cxt, "#define EXPECTED(c)	"STRING(EXPECTED(c))"\n");
 	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
+
 	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");
@@ -88,6 +89,9 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define SWAP_LE_I64(v)	"STRING(SWAP_LE_I64(v))"\n");
 	qb_print(cxt, "#define TRUE	"STRING(TRUE)"\n");
 	qb_print(cxt, "#define FALSE	"STRING(FALSE)"\n");
+	qb_print(cxt, "#define zend_isinf(x)	"STRING(zend_isinf(x))"\n");
+	qb_print(cxt, "#define zend_finite(x)	"STRING(zend_finite(x))"\n");
+	qb_print(cxt, "#define zend_isnan(x)	"STRING(zend_isnan(x))"\n");
 
 #ifdef __GNUC__
 #ifndef __builtin_bswap16
@@ -263,7 +267,7 @@ extern uint32_t illegal_vc11_intrinsic_count;
 
 static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
-	int32_t *prototype_indices, index;
+	int32_t *prototype_indices;
 	uint32_t required[PROTOTYPE_COUNT];
 	qb_op *qop;
 
@@ -277,25 +281,31 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 				qop = compiler_cxt->ops[j];
 				prototype_indices = cxt->op_function_usages[qop->opcode];
 				for(k = 0; prototype_indices[k] != 0xFFFFFFFF; k++) {
-					index = prototype_indices[k];
+					uint32_t index = prototype_indices[k];
+					qb_native_symbol *symbol = &global_native_symbols[index];
+#if _MSV_VER >= 1600 
+					if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
+						// symbol is an intrinsic in VC11--don't print prototype for it
+						continue;
+					}
+#endif
 					required[index] = TRUE;
 				}
 			}
 		}
 	}
 
-#ifdef _WIN64
-	for(i = 0; i < illegal_vc11_intrinsic_count; i++) {
-		uint32_t illegal_index = illegal_vc11_intrinsic_indices[i];
-		const char *illegal_prototype = cxt->function_prototypes[illegal_index];
-		required[illegal_index] = FALSE;
-	}
-#endif
-
 	// print prototypes, maintaining correct order
 	for(i = 0; i < PROTOTYPE_COUNT; i++) {
 		if(required[i]) {
 			const char *prototype = cxt->function_prototypes[i];
+#ifdef _WIN64
+			qb_native_symbol *symbol = &global_native_symbols[i];
+			if(!symbol->flags) {
+				// add __declspec so function looks like a something frm a DLL 
+				qb_print(cxt, "__declspec(dllimport)\n");
+			}
+#endif
 			qb_print(cxt, prototype);
 			qb_print(cxt, "\n");
 		}
@@ -1051,6 +1061,7 @@ static void qb_print_function(qb_native_compiler_context *cxt) {
 	}
 	qb_printf(cxt, STRING(QB_NATIVE_FUNCTION_RET QB_NATIVE_FUNCTION_ATTR) " QBN_%" PRIX64 "(" STRING(QB_NATIVE_FUNCTION_ARGS) ")\n{\n", cxt->compiled_function->instruction_crc64);
 	qb_print_local_variables(cxt);
+	qb_print(cxt, "test();\n");
 	qb_print_reentry_switch(cxt);
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_print_op(cxt, cxt->ops[i], i);
@@ -1120,6 +1131,7 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 static void * qb_get_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #if defined(_MSC_VER)
+#ifndef _WIN64
 	if(strcmp(name, "_ftol2") == 0) {
 		address = _ftol2;
 	} else if(strcmp(name, "_allshr") == 0) {
@@ -1127,6 +1139,7 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 	} else if(strcmp(name, "_allshl") == 0) {
 		address = _allshl;
 	}
+#endif
 	if(!address) {
 		// intrinsics employed by MSVC are located in the runtime DLL
 		// since the QB DLL might be used compiled using the same version of MSVC
@@ -1186,25 +1199,13 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 	return address;
 }
 
-static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, int32_t find_inlined_function) {
+static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
 	long hash_value;
 	uint32_t i, name_len = (uint32_t) strlen(name);
 	const char *proc_name = name;
 #if defined(_MSC_VER)
-	char *name_buffer = alloca(name_len + 1);
-	if(name[0] == '_') {
-		name_len--;
-		strncpy(name_buffer, name + 1, name_len);
-	} else if(name[0] == '@') {
-		// '@' means fastcall
-		while(name[--name_len] != '@');
-		name_len--;
-		strncpy(name_buffer, name + 1, name_len);
-	} else {
-		strncpy(name_buffer, name, name_len);
-	}
-	name_buffer[name_len] = '\0';
-	name = name_buffer;
+	name++;
+	name_len--;
 #elif defined(__MACH__)
 	name++;
 	name_len--;
@@ -1214,26 +1215,13 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name, 
 		qb_native_symbol *symbol = &global_native_symbols[i];
 		if(symbol->hash_value == hash_value) {
 			if(strcmp(symbol->name, name) == 0) {
-				if(symbol->address == (void *) -1) {
-					if(find_inlined_function) {
-						// the function is supposed to be inline but might be an intrinsic (this is for VC11)
+				if(!symbol->address) {
+					if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
+						// the function could exist as both an inline or an intrinsic function (for MSVC)
 						symbol->address = qb_get_intrinsic_function_address(name);
 					}
 				}
 				return symbol->address;
-			}
-		}
-	}
-	for(i = 0; i < global_intrinsic_symbol_count; i++) {
-		qb_native_symbol *symbol = &global_intrinsic_symbols[i];
-		if(symbol->hash_value == hash_value) {
-			if(strcmp(symbol->name, name) == 0) {
-				if(!symbol->address) {
-					symbol->address = qb_get_intrinsic_function_address(name);
-				}
-				if(symbol->address) {
-					return symbol->address;
-				}
 			}
 		}
 	}
@@ -1430,10 +1418,6 @@ void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_b
 		// calculate hash for faster lookup
 		for(i = 0; i < global_native_symbol_count; i++) {
 			qb_native_symbol *symbol = &global_native_symbols[i];
-			symbol->hash_value = zend_hash_func(symbol->name, (uint32_t) strlen(symbol->name) + 1);
-		}
-		for(i = 0; i < global_intrinsic_symbol_count; i++) {
-			qb_native_symbol *symbol = &global_intrinsic_symbols[i];
 			symbol->hash_value = zend_hash_func(symbol->name, (uint32_t) strlen(symbol->name) + 1);
 		}
 		hashes_initialized = TRUE;

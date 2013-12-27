@@ -101,16 +101,6 @@ struct qb_interpreter_context {
 	void ***tsrm_ls;
 };
 
-struct qb_native_symbol {
-	long hash_value;
-	const char *name;
-	void *address;
-};
-
-struct qb_native_proc_record {
-	uint64_t crc64;
-	void *proc;
-};
 
 #if ZEND_DEBUG
 extern qb_native_proc_record *native_proc_table;
