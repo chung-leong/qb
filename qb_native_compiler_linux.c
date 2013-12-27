@@ -149,7 +149,7 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	return TRUE;
 }
 
-static void *qb_find_symbol_strip_trailing_tag(qb_native_compiler_context *cxt, const char *name, int32_t find_inlined_function) {
+static int32_t qb_check_symbol_strip_trailing_tag(qb_native_compiler_context *cxt, const char *name) {
 	// icc creates extra symbols ending in ..0, ..1, etc.
 	// don't know what they are
 	uint32_t name_len = 0;
@@ -159,7 +159,7 @@ static void *qb_find_symbol_strip_trailing_tag(qb_native_compiler_context *cxt, 
 	char *new_name = alloca(name_len + 1);
 	memcpy(new_name, name, name_len + 1);
 	new_name[name_len] = '\0';
-	return qb_find_symbol(cxt, new_name, find_inlined_function);
+	return qb_check_symbol(cxt, new_name);
 }
 
 static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
@@ -352,9 +352,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 							uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 							if(!attached) {
 								// error out if there's an unrecognized function
-								if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
+								if(!qb_check_symbol(cxt, symbol_name, FALSE)) {
 									if(icc) {
-										if(!qb_find_symbol_strip_trailing_tag(cxt, symbol_name, FALSE)) {
+										if(!qb_check_symbol_strip_trailing_tag(cxt, symbol_name, FALSE)) {
 											return FALSE;
 										}
 									} else {

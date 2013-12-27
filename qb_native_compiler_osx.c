@@ -185,6 +185,8 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 #define ARCH_SELECT(t)			t
 #endif
 
+#define SYMBOL_PREFIX_LENGTH	1
+
 typedef struct ARCH_SELECT(mach_header)			mach_header;
 typedef struct ARCH_SELECT(segment_command)		mach_segment_command;
 typedef struct ARCH_SELECT(section)				mach_section;
@@ -264,9 +266,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 			if(reloc->r_extern) {
 				mach_nlist *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
-				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+				symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
 				if(!symbol_address) {
-					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
 					missing_symbol_count++;
 					continue;
 				}
@@ -304,12 +306,11 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 			const char *symbol_name = string_table + symbol->n_un.n_strx;
 			void *symbol_address = text_section + symbol->n_value;
 			if(symbol->n_sect == text_section_number) {
-				uint32_t attached = qb_attach_symbol(cxt, symbol_name + 1, symbol_address);
-				if(attached) {
-					count += attached;
-				} else {
+				uint32_t attached = qb_attach_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH, symbol_address);
+				if(!qb_check_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH)) {
 					return FALSE;
 				}
+				count += attached;
 			} else {
 				if(strncmp(symbol_name + 1, "QB_VERSION", 10) == 0) {
 					uint32_t *p_version = symbol_address;

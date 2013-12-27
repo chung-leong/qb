@@ -404,7 +404,6 @@ class CodeGenerator {
 				$symbols[$functionName] = $target;
 			}
 		}
-		ksort($symbols);
 
 		// load list of intrinsic functions
 		$intrinsics = $this->loadListing("intrinsic_functions_%COMPILER%.txt");

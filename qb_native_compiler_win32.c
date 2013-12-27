@@ -224,9 +224,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 				intptr_t S, P; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
-					symbol_address = qb_find_symbol(cxt, symbol_name);
+					symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
 					if(!symbol_address) {
-						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
 						missing_symbol_count++;
 						continue;
 					}
@@ -262,7 +262,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 		}
 	}
 	if(missing_symbol_count > 0) {
-		//return FALSE;
+		return FALSE;
 	}
 
 	// find the compiled functions
@@ -276,7 +276,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH, symbol_address);
 				if(!attached) {
 					// error out if there's an unrecognized function
-					if(!qb_find_symbol(cxt, symbol_name)) {
+					if(!qb_check_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH)) {
 						return FALSE;
 					}
 				}
