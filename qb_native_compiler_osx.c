@@ -80,7 +80,7 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		if(strlen(compiler_path) > 0) {
 			args[argc++] = compiler_path;
 		} else {
-			args[argc++] = "c99";
+			args[argc++] = "gcc";
 		}
 		args[argc++] = "-c";
 		args[argc++] = "-O2";										// optimization level
@@ -179,29 +179,29 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 
 #ifdef __x86_64__
 #define CPU_TYPE_EXPECTED		CPU_TYPE_X86_64
-#define ARCH_SELECT(t)			token##_64
+#define ARCH_SELECT(t)			t##_64
 #else 
 #define	CPU_TYPE_EXPECTED		CPU_TYPE_X86
-#define ARCH_SELECT(t)			token
+#define ARCH_SELECT(t)			t
 #endif
 
 typedef struct ARCH_SELECT(mach_header)			mach_header;
-typedef struct ARCH_SELECT(segment_command)		segment_command;
-typedef struct ARCH_SELECT(section)				section;
-typedef struct ARCH_SELECT(nlist)				nlist;
-typedef struct load_command						load_command;
-typedef struct symtab_command					symtab_command;
-typedef struct relocation_info					relocation_info
+typedef struct ARCH_SELECT(segment_command)		mach_segment_command;
+typedef struct ARCH_SELECT(section)				mach_section;
+typedef struct ARCH_SELECT(nlist)				mach_nlist;
+typedef struct load_command						mach_load_command;
+typedef struct symtab_command					mach_symtab_command;
+typedef struct relocation_info					mach_relocation_info;
 
-static int32_t qb_parse_mach_o(qb_native_compiler_context *cxt) {
+static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 	mach_header *header;
-	load_command *command;
-	segment_command_64 *segment_command;
-	section *sections = NULL;
-	symtab_command *symtab_command;
-	nlist *symbols = NULL;
+	mach_load_command *command;
+	mach_segment_command *segment_command;
+	mach_section *sections = NULL;
+	mach_symtab_command *symtab_command;
+	mach_nlist *symbols = NULL;
 	char *string_table;
-	relocation_info *relocations;
+	mach_relocation_info *relocations;
 	uint32_t relocation_count;
 	char *text_section = NULL;
 	uint32_t text_section_number = 0;
@@ -220,19 +220,19 @@ static int32_t qb_parse_mach_o(qb_native_compiler_context *cxt) {
 		return FALSE;
 	}
 
-	command = (load_command *) (cxt->binary + sizeof(mach_header));
+	command = (mach_load_command *) (cxt->binary + sizeof(mach_header));
 	for(i = 0; i < header->ncmds; i++) {
 		if(command->cmd == ARCH_SELECT(LC_SEGMENT)) {
 			// there's only one segment inside a mach-o object file
 			// section structures of the segment are located right after the segment command
-			segment_command = (segment_command *) command;
-			sections = (section *) ((char *) command + sizeof(segment_command_64));
+			segment_command = (mach_segment_command *) command;
+			sections = (mach_section *) ((char *) command + sizeof(mach_segment_command));
 		} else if(command->cmd == LC_SYMTAB) {
-			symtab_command = (symtab_command *) command;
-			symbols = (nlist *) (cxt->binary + symtab_command->symoff);
+			symtab_command = (mach_symtab_command *) command;
+			symbols = (mach_nlist *) (cxt->binary + symtab_command->symoff);
 			string_table = cxt->binary + symtab_command->stroff;
 		}
-		command = (load_command *) (((char *) command) + command->cmdsize);
+		command = (mach_load_command *) (((char *) command) + command->cmdsize);
 	}
 
 	if(!sections || !symbols) {
@@ -240,9 +240,9 @@ static int32_t qb_parse_mach_o(qb_native_compiler_context *cxt) {
 	}
 
 	for(i = 0; i < segment_command->nsects; i++) {
-		section *section = &sections[i];
+		mach_section *section = &sections[i];
 		if(memcmp(section->sectname, "__text", 7) == 0) {
-			relocations = (relocation_info *) (cxt->binary + section->reloff);
+			relocations = (mach_relocation_info *) (cxt->binary + section->reloff);
 			relocation_count = section->nreloc;
 			text_section = cxt->binary + section->offset;
 			text_section_number = i + 1;
@@ -256,13 +256,13 @@ static int32_t qb_parse_mach_o(qb_native_compiler_context *cxt) {
 
 	// perform relocation
 	for(i = 0; i < relocation_count; i++) {
-		relocation_info *reloc = &relocations[i];
+		mach_relocation_info *reloc = &relocations[i];
 
 		if(!(reloc->r_address & R_SCATTERED)) {
 			void *symbol_address;
 			void *target_address = text_section + reloc->r_address;
 			if(reloc->r_extern) {
-				nlist *symbol = &symbols[reloc->r_symbolnum];
+				mach_nlist *symbol = &symbols[reloc->r_symbolnum];
 				const char *symbol_name = string_table + symbol->n_un.n_strx;
 				symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
 				if(!symbol_address) {
@@ -271,7 +271,7 @@ static int32_t qb_parse_mach_o(qb_native_compiler_context *cxt) {
 					continue;
 				}
 			} else {
-				section *section = &sections[reloc->r_symbolnum - 1];
+				mach_section *section = &sections[reloc->r_symbolnum - 1];
 				symbol_address = cxt->binary + section->offset;
 			}
 
@@ -299,7 +299,7 @@ static int32_t qb_parse_mach_o(qb_native_compiler_context *cxt) {
 	// find the compiled functions
 	uint32_t count = 0;
 	for(i = 0; i < symtab_command->nsyms; i++) {
-		nlist *symbol = &symbols[i];
+		mach_nlist *symbol = &symbols[i];
 		if(symbol->n_sect != NO_SECT) {
 			const char *symbol_name = string_table + symbol->n_un.n_strx;
 			void *symbol_address = text_section + symbol->n_value;

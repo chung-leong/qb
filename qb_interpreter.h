@@ -25,7 +25,6 @@ typedef struct qb_import_scope			qb_import_scope;
 typedef struct qb_interpreter_context	qb_interpreter_context;
 typedef struct qb_native_symbol			qb_native_symbol;
 typedef struct qb_native_proc_record	qb_native_proc_record;
-typedef struct qb_import_scope			qb_import_scope;
 typedef struct qb_zend_argument_stack	qb_zend_argument_stack;
 
 typedef enum qb_import_scope_type		qb_import_scope_type;

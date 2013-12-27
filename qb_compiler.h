@@ -28,7 +28,6 @@ typedef struct qb_jump_target				qb_jump_target;
 
 typedef enum qb_stage						qb_stage;
 typedef enum qb_diagnostic_type				qb_diagnostic_type;
-typedef enum qb_result_destination_type		qb_result_destination_type;
 typedef enum qb_matrix_order				qb_matrix_order;
 typedef enum qb_derived_variable_type		qb_derived_variable_type;
 typedef enum qb_translation_type			qb_translation_type;

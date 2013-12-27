@@ -22,7 +22,6 @@
 #define QB_FUNCTION_H_
 
 typedef struct qb_variable					qb_variable;
-typedef struct qb_function					qb_function;
 typedef struct qb_native_code_bundle		qb_native_code_bundle;
 
 typedef enum qb_external_symbol_type		qb_external_symbol_type;

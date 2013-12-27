@@ -31,7 +31,6 @@ typedef struct qb_pbj_parameter				qb_pbj_parameter;
 typedef struct qb_pbj_texture				qb_pbj_texture;
 typedef struct qb_pbj_op					qb_pbj_op;
 typedef struct qb_pbj_translator			qb_pbj_translator;
-typedef struct qb_pbj_register				qb_pbj_register;
 typedef struct qb_pbj_register_slot			qb_pbj_register_slot;
 
 typedef enum qb_pbj_opcode					qb_pbj_opcode;

@@ -31,6 +31,7 @@ typedef struct qb_array_initializer			qb_array_initializer;
 typedef struct qb_result_prototype			qb_result_prototype;
 typedef struct qb_result_destination		qb_result_destination;
 typedef struct qb_external_symbol			qb_external_symbol;
+typedef struct qb_function					qb_function;
 
 typedef enum qb_opcode						qb_opcode;
 typedef enum qb_operand_type				qb_operand_type;
@@ -129,9 +130,6 @@ enum qb_operand_type {
 	QB_OPERAND_PBJ_CONSTANT,
 };
 
-typedef struct qb_function			qb_function;
-typedef struct qb_pbj_constant		qb_pbj_constant;
-
 struct qb_operand {
 	qb_operand_type type;
 	union {
@@ -144,7 +142,6 @@ struct qb_operand {
 		qb_result_prototype *result_prototype;
 		qb_intrinsic_function *intrinsic_function;
 		qb_operand *arguments;
-		qb_pbj_constant *pbj_constant;
 		void *generic_pointer;
 	};
 };
