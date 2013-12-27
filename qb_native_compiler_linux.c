@@ -192,26 +192,26 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 
 #ifdef __LP64__
 #define EM_EXPECTED						EM_X86_64
-#define RELOCATION_SECTION_NAME			".rela.text"
 #define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_R_TYPE(r)					ELF64_R_TYPE(r)
 #define ELF_R_SYM(r)					ELF64_R_SYM(r)
 #define ELF_ST_BIND(r)					ELF64_ST_BIND(r)
-#define ELF_ST_TYPE(s)					ELF64_ST_TYPE(s)	
+#define ELF_ST_TYPE(s)					ELF64_ST_TYPE(s)
+#define SHT_REL_EXPECTED				SHT_RELA
 typedef Elf64_Ehdr				Elf_Ehdr;
 typedef Elf64_Shdr				Elf_Shdr;
 typedef Elf64_Rela				Elf_Rel;
 typedef Elf64_Sym				Elf_Sym;
 #else
 #define EM_EXPECTED						EM_386
-#define RELOCATION_SECTION_NAME			".rel.text"
 #define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_R_TYPE(r)					ELF32_R_TYPE(r)
 #define ELF_R_SYM(r)					ELF32_R_SYM(r)
 #define ELF_ST_BIND(r)					ELF32_ST_BIND(r)
 #define ELF_ST_TYPE(s)					ELF32_ST_TYPE(s)
+#define SHT_REL_EXPECTED				SHT_REL
 typedef Elf32_Ehdr				Elf_Ehdr;
 typedef Elf32_Shdr				Elf_Shdr;
 typedef Elf32_Rel				Elf_Rel;
@@ -219,7 +219,8 @@ typedef Elf32_Sym				Elf_Sym;
 #endif
 
 static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
-	int icc = FALSE;
+	int32_t icc = FALSE;
+	uint32_t missing_symbol_count = 0;
 
 	if(cxt->binary_size < sizeof(Elf_Ehdr)) {
 		return FALSE;
@@ -246,129 +247,129 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 		return FALSE;
 	}
 
-	int i;
+	int i, j;
 	int section_count = header->e_shnum;
 	Elf_Shdr *section_headers = (Elf_Shdr *) (cxt->binary + header->e_shoff);
 	Elf_Shdr *section_string_section_header = &section_headers[header->e_shstrndx];
 	char *section_string_section = (char *) (cxt->binary + section_string_section_header->sh_offset);
-	char *string_section = NULL;
-	char *text_section = NULL;
-	Elf_Rel *relocations = NULL;
-	int relocation_count = 0;
-	Elf_Sym *symbols = NULL;
-	int symbol_count = 0;
-	int missing_symbol_count = 0;
 
-	// look up the relocation table, symbol table, string table, and text section,
+	// look for relocation sections
 	for(i = 0; i < section_count; i++) {
-		Elf_Shdr *section_header = &section_headers[i];
-		char *section_name = section_string_section + section_header->sh_name;
-		int section_size = section_header->sh_size;
+		if(section_headers[i].sh_type == SHT_REL_EXPECTED) {
+			Elf_Shdr *reloc_section_header = &section_headers[i];
+			Elf_Shdr *text_section_header = &section_headers[reloc_section_header->sh_info];
+			Elf_Shdr *symbol_section_header = &section_headers[reloc_section_header->sh_link];
+			Elf_Shdr *string_section_header = &section_headers[symbol_section_header->sh_link];
+			Elf_Rel *relocations = (Elf_Rel *) (cxt->binary + reloc_section_header->sh_offset);
+			uint32_t relocation_count = (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rel));
+			char *text_section = (char *) (cxt->binary + text_section_header->sh_offset);
+			char *string_section = (char *) (cxt->binary + string_section_header->sh_offset);
+			Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_offset);
 
-		if(section_header->sh_type == SHT_RELA && memcmp(section_name, RELOCATION_SECTION_NAME, 11) == 0) {
-			relocations = (Elf_Rel *) (cxt->binary + section_header->sh_offset);
-			relocation_count = section_size / sizeof(Elf_Rel);
-		} else if(section_header->sh_type == SHT_PROGBITS && memcmp(section_name, ".text", 6) == 0) {
-			text_section = (char *) (cxt->binary + section_header->sh_offset);
-		} else if(section_header->sh_type == SHT_SYMTAB && memcmp(section_name, ".symtab", 8) == 0) {
-			symbols = (Elf_Sym *) (cxt->binary + section_header->sh_offset);
-			symbol_count = section_size / sizeof(Elf_Sym);
-		} else if(section_header->sh_type == SHT_STRTAB && memcmp(section_name, ".strtab", 8) == 0) {
-			string_section = (char *) (cxt->binary + section_header->sh_offset);
-		}
-	}
+			for(j = 0; j < relocation_count; j++) {
+				Elf_Rel *relocation = &relocations[j];
+				int reloc_type = ELF_R_TYPE(relocation->r_info);
+				int symbol_index = ELF_R_SYM(relocation->r_info);
+				Elf_Sym *symbol = &symbols[symbol_index];
+				int symbol_bind = ELF_ST_BIND(symbol->st_info);
+				char *symbol_name = string_section + symbol->st_name;
+				void *symbol_address;
+				void *target_address = (text_section + relocation->r_offset);
 
-	// perform relocations
-	for(i = 0; i < relocation_count; i++) {
-		Elf_Rel *relocation = &relocations[i];
-		int reloc_type = ELF_R_TYPE(relocation->r_info);
-		int symbol_index = ELF_R_SYM(relocation->r_info);
-		Elf_Sym *symbol = &symbols[symbol_index];
-		int symbol_bind = ELF_ST_BIND(symbol->st_info);
-		char *symbol_name = string_section + symbol->st_name;
-		void *symbol_address;
-		void *target_address = (text_section + relocation->r_offset);
+				if(symbol_bind == STB_LOCAL) {
+					// links to something in another section
+					symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
+				} else if(symbol_bind == STB_GLOBAL) {
+					// links to a symbol symbol
+					symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+					if(!symbol_address) {
+						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+						missing_symbol_count++;
+						continue;
+					}
+				} else {
+					return FALSE;
+				}
 
-		if(symbol_bind == STB_LOCAL) {
-			symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
-		} else if(symbol_bind == STB_GLOBAL) {
-			symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
-			if(!symbol_address) {
-				qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
-				missing_symbol_count++;
-				continue;
-			}
-		} else {
-			return FALSE;
-		}
-
-		intptr_t P = (intptr_t) target_address;
-		intptr_t S = (intptr_t) symbol_address;
+				intptr_t P = (intptr_t) target_address;
+				intptr_t S = (intptr_t) symbol_address;
 #ifdef __LP64__
-		intptr_t A = relocation->r_addend;
+				intptr_t A = relocation->r_addend;
 #endif
 
-		switch(reloc_type) {
+				switch(reloc_type) {
 #ifdef __LP64__
-			case R_X86_64_NONE:
-				break;
-			case R_X86_64_64:
-				*((intptr_t *) target_address) = A + S;
-				break;
-			case R_X86_64_PC32:
-				*((int32_t *) target_address) = A + S - P;
-				break;
-			case R_X86_64_32:
-				*((uint32_t *) target_address) = A + S;
-				break;
-			case R_X86_64_32S:
-				*((int32_t *) target_address) = A + S;
-				break;
-#else				
-			case R_386_NONE:
-				break;
-			case R_386_32:
-				*((intptr_t *) target_address) += S;
-				break;
-			case R_386_PC32:
-				*((intptr_t *) target_address) += S - P;
-				break;
-#endif				
-			default:
-				return FALSE;
+					case R_X86_64_NONE:
+						break;
+					case R_X86_64_64:
+						*((intptr_t *) target_address) = A + S;
+						break;
+					case R_X86_64_PC32:
+						*((int32_t *) target_address) = A + S - P;
+						break;
+					case R_X86_64_32:
+						*((uint32_t *) target_address) = A + S;
+						break;
+					case R_X86_64_32S:
+						*((int32_t *) target_address) = A + S;
+						break;
+#else
+					case R_386_NONE:
+						break;
+					case R_386_32:
+						*((intptr_t *) target_address) += S;
+						break;
+					case R_386_PC32:
+						*((intptr_t *) target_address) += S - P;
+						break;
+#endif
+					default:
+						return FALSE;
+				}
+			}
 		}
 	}
-	if(missing_symbol_count > 0) {
-		return FALSE;
-	}
 
-	// find the compiled functions
+	// look for symbol section
 	uint32_t count = 0;
-	for(i = 0; i < symbol_count; i++) {
-		Elf_Sym *symbol = &symbols[i];
-		if(symbol->st_shndx < symbol_count) {
-			int symbol_type = ELF_ST_TYPE(symbol->st_info);
-			char *symbol_name = string_section + symbol->st_name;
-			void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
-			if(symbol_type == STT_FUNC) {
-				uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
-				if(!attached) {
-					// error out if there's an unrecognized function
-					if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
-						if(icc) {
-							if(!qb_find_symbol_strip_trailing_tag(cxt, symbol_name, FALSE)) {
-								return FALSE;
+	for(i = 0; i < section_count; i++) {
+		if(section_headers[i].sh_type == SHT_SYMTAB) {
+			Elf_Shdr *symbol_section_header = &section_headers[i];
+			char *symbol_section_name = section_string_section + symbol_section_header->sh_name;
+			if(strcmp(symbol_section_name, ".symtab") == 0) {
+				Elf_Shdr *string_section_header = &section_headers[symbol_section_header->sh_link];
+				char *string_section = (char *) (cxt->binary + string_section_header->sh_offset);
+				Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_offset);
+				uint32_t symbol_count = (uint32_t) (symbol_section_header->sh_size / sizeof(Elf_Sym));
+
+				for(i = 0; i < symbol_count; i++) {
+					Elf_Sym *symbol = &symbols[i];
+					if(symbol->st_shndx < symbol_count) {
+						int symbol_type = ELF_ST_TYPE(symbol->st_info);
+						char *symbol_name = string_section + symbol->st_name;
+						void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
+						if(symbol_type == STT_FUNC) {
+							uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
+							if(!attached) {
+								// error out if there's an unrecognized function
+								if(!qb_find_symbol(cxt, symbol_name, FALSE)) {
+									if(icc) {
+										if(!qb_find_symbol_strip_trailing_tag(cxt, symbol_name, FALSE)) {
+											return FALSE;
+										}
+									} else {
+										return FALSE;
+									}
+								}
 							}
-						} else {
-							return FALSE;
+							count += attached;
+						} else if(symbol_type == STT_OBJECT) {
+							if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
+								uint32_t *p_version = symbol_address;
+								cxt->qb_version = *p_version;
+							}
 						}
 					}
-				}
-				count += attached;
-			} else if(symbol_type == STT_OBJECT) {
-				if(strncmp(symbol_name, "QB_VERSION", 10) == 0) {
-					uint32_t *p_version = symbol_address;
-					cxt->qb_version = *p_version;
 				}
 			}
 		}

@@ -1104,6 +1104,7 @@ static void qb_print_functions(qb_native_compiler_context *cxt) {
 static void qb_print_function_records(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	qb_print(cxt, "\n");
+	qb_print(cxt, "#ifdef ZEND_DEBUG\n");
 	qb_print(cxt, "#define HAVE_NATIVE_PROC_RECORDS\n");
 	qb_print(cxt, "qb_native_proc_record native_proc_records[] = {\n");
 	for(i = 0; i < cxt->compiler_context_count; i++) {
@@ -1113,6 +1114,7 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 		}
 	}
 	qb_print(cxt, "};\n");
+	qb_print(cxt, "#endif\n");
 }
 
 static void * qb_get_intrinsic_function_address(const char *name) {
