@@ -71,7 +71,7 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		close(gcc_pipe_error[1]);
 
 		// start gcc
-		const char *args[16];
+		const char *args[32];
 		int argc = 0;
 		if(strlen(compiler_path) > 0) {
 			args[argc++] = compiler_path;
@@ -95,6 +95,7 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 #if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
 #endif
+		args[argc++] = "-Wno-pointer-sign";
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
 #if defined(__LP64__) && !defined(__APPLE__)

@@ -5233,14 +5233,14 @@ qb_basic_op_factory factory_range = {
 
 qb_basic_op_factory factory_range_count = {
 	NULL,
-	qb_resolve_expression_type_highest_rank,
+	qb_resolve_expression_type_index,
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
 	qb_validate_operands_range,
 	qb_set_result_temporary_value,
 	NULL,
-	qb_select_opcode_basic,
+	qb_select_opcode_basic_first_operand,
 	qb_transfer_operands_range,
 	NULL,
 	0,

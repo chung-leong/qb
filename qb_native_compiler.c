@@ -771,7 +771,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			} else if(operand->type == QB_OPERAND_SEGMENT_SELECTOR) {
 				qb_printf(cxt, "#define %s	%u\n", name, address->segment_selector);
 			} else if(operand->type == QB_OPERAND_ELEMENT_SIZE) {
-				qb_printf(cxt, "#define %s	%u\n", name, type_sizes[operand->type]);
+				qb_printf(cxt, "#define %s	%u\n", name, BYTE_COUNT(1, address->type));
 			} else if(operand->type == QB_OPERAND_NUMBER) {
 				qb_printf(cxt, "#define %s	%u\n", name, operand->number);
 			}
@@ -853,6 +853,18 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			qb_printf(cxt, "goto %s;\n", jump_target);
 			qb_print(cxt, "\n");
 		} else if(qop->flags & QB_OP_BRANCH_TABLE) {
+#ifdef __GNUC__
+			// use computed goto
+			qb_printf(cxt, "static void *branch_table_%u[%u] = {", qop_index, qop->jump_target_count);
+			for(i = 0; i < qop->jump_target_count; i++) {
+				uint32_t jump_target_index = qop->jump_target_indices[i];
+				const char *jump_target = qb_get_jump_label(cxt, jump_target_index);
+				qb_printf(cxt, "&&%s,\n", jump_target);
+			}
+			qb_print(cxt, "};\n");
+			qb_printf(cxt, "goto *branch_table_%u[offset];\n", qop_index);
+#else
+			// create a switch statement for MSVC
 			uint32_t case_count = qop->jump_target_count - 1;
 			uint32_t default_jump_target_index = qop->jump_target_indices[case_count];
 			const char *default_jump_target = qb_get_jump_label(cxt, default_jump_target_index);
@@ -872,6 +884,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			}
 			qb_printf(cxt, "default: goto %s;\n", default_jump_target);
 			qb_print(cxt, "}\n");
+#endif
 		}
 
 #ifdef ZEND_DEBUG

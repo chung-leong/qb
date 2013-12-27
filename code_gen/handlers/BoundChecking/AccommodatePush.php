@@ -2,7 +2,7 @@
 
 class AccommodatePush extends Handler {
 
-	use ScalarAddressMode, TernaryOperator, MainThreadExecution;
+	use ScalarAddressMode, TernaryOperator;
 	
 	public function changesOperand($i) {
 		return ($i == 1 || $i == 4);

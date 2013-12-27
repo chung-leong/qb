@@ -2,7 +2,7 @@
 
 class AccommodateSizeUpdateDimension extends Handler {
 
-	use ScalarAddressMode, SenaryOperator, MainThreadExecution;
+	use ScalarAddressMode, SenaryOperator;
 	
 	public function getOutputOperandCount() {
 		return 0;

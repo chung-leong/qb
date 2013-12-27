@@ -2,8 +2,6 @@
 
 class AccommodateSizeCopyDimension extends Handler {
 
-	use MainThreadExecution;
-	
 	protected $dimensionCount;
 	
 	public function __construct($baseName, $operandType, $dimensionCount) {

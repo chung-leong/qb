@@ -2,8 +2,6 @@
 
 class ArrayResize extends Handler {
 
-	use MainThreadExecution;
-	
 	protected $dimensionCount;
 	
 	public function __construct($baseName, $operandType, $dimensionCount) {
@@ -13,6 +11,10 @@ class ArrayResize extends Handler {
 		$this->addressMode = "ARR";
 		$this->multipleData = false;
 		$this->dimensionCount = $dimensionCount;
+	}
+
+	public function needsInterpreterContext() {
+		return true;
 	}
 	
 	public function getInputOperandCount() {
