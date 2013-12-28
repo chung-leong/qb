@@ -303,6 +303,8 @@
     <ClCompile Include="..\qb_compiler_optimization.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\qb_crc64.c" />
     <ClCompile Include="..\qb_data_tables_msvc.c" />
@@ -318,6 +320,8 @@
     <ClCompile Include="..\qb_native_compiler_win32.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\qb_native_proc_debug.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
@@ -330,10 +334,14 @@
     <ClCompile Include="..\qb_op_factory_behavior_adjustment.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\qb_op_factory_decomposition.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\qb_op_factory_dimension_calculation.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">true</ExcludedFromBuild>
