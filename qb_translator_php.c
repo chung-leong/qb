@@ -265,8 +265,14 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 		if(zfunc) {
 			qfunc = qb_find_compiled_function(zfunc);
 		} else {
-			qb_report_missing_function_exception(NULL, cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
-			return FALSE;
+			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) { 
+				qb_report_missing_function_exception(NULL, cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
+				return FALSE;
+			} else {
+				result->address = cxt->compiler_context->false_address;
+				result->type = QB_OPERAND_ADDRESS;
+				return TRUE;
+			}
 		}
 	}
 
@@ -459,6 +465,8 @@ static int32_t qb_process_branch(qb_php_translator_context *cxt, void *op_factor
 	qb_operand *condition = &operands[0];
 	zend_op *target_op1 = Z_OPERAND_INFO(cxt->zend_op->op2, jmp_addr);
 	uint32_t target_indices[2];
+	int32_t condition_constant = FALSE;
+	int32_t condition_true = FALSE;
 
 	// start down the next instruction first before going down the branch
 	cxt->next_op_index1 = ZEND_OP_INDEX(target_op1);
@@ -471,8 +479,14 @@ static int32_t qb_process_branch(qb_php_translator_context *cxt, void *op_factor
 
 	if(condition->type == QB_OPERAND_ADDRESS && CONSTANT(condition->address)) {
 		// the condition is constant--eliminate the branch
-		int32_t is_true = VALUE_IN(cxt->compiler_context->storage, I32, condition->address);
-		if((is_true && op_factory == &factory_branch_on_true) || (!is_true && op_factory == &factory_branch_on_false)) {
+		condition_constant = TRUE;
+		condition_true = VALUE_IN(cxt->compiler_context->storage, I32, condition->address);
+	} else if(condition->type == QB_OPERAND_ZVAL) {
+		condition_constant = TRUE;
+		condition_true = zval_is_true(condition->constant);
+	}
+	if(condition_constant) {
+		if((condition_true && op_factory == &factory_branch_on_true) || (!condition_true && op_factory == &factory_branch_on_false)) {
 			// the branch always occurs--jump to it
 			cxt->next_op_index2 = 0;
 
