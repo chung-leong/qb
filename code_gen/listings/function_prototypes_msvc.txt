@@ -28,3 +28,6 @@ static zend_always_inline float floorf(float x) { return (float) floor(x); }
 static zend_always_inline float fabsf(float x) { return (float) fabs(x); }
 static zend_always_inline float hypotf(float x, float y) { return (float) hypot(x, y); }
 static zend_always_inline float fmodf(float n, float d) { return (float) fmod(n, d); }
+int _finite(double x);
+int _isnan(double x);
+int _fpclass(double x);

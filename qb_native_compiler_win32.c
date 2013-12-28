@@ -43,6 +43,9 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 	PROCESS_INFORMATION pi;
 	SECURITY_ATTRIBUTES sa;
 	int file_descriptor;
+#ifndef  _WIN64
+	int cpu_flags[4];
+#endif
 	HANDLE pipe_error_write, pipe_err_read;
 
 	// open temporary c file for writing (Visual C doesn't accept input from stdin)
@@ -353,7 +356,9 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 #ifdef _WIN64
 
 #else
-	if(strcmp(name, "_ftol2") == 0) {
+	if(strcmp(name, "floor") == 0) {
+		address = floor;
+	} else if(strcmp(name, "_ftol2") == 0) {
 		address = _ftol2;
 	} else if(strcmp(name, "_allshr") == 0) {
 		address = _allshr;

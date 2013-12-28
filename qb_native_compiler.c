@@ -283,12 +283,6 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 				for(k = 0; prototype_indices[k] != 0xFFFFFFFF; k++) {
 					uint32_t index = prototype_indices[k];
 					qb_native_symbol *symbol = &global_native_symbols[index];
-#ifdef _MSC_VER >= 1700
-					if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
-						// symbol is an intrinsic in VC11--don't print prototype for it
-						continue;
-					}
-#endif
 					required[index] = TRUE;
 				}
 			}
