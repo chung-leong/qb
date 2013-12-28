@@ -2,7 +2,7 @@
 
 class ArrayReplace extends Handler {
 
-	use MultipleAddressMode, SenaryOperator, MainThreadExecution;
+	use MultipleAddressMode, SenaryOperator, ResizeResult;
 	
 	public function getOperandType($i) {
 		switch($i) {

@@ -2,7 +2,7 @@
 
 class ClearArrayResize extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, MainThreadExecution;
+	use ArrayAddressMode, UnaryOperator;
 	
 	public function changesOperandSize($i) {
 		return ($i == 2);

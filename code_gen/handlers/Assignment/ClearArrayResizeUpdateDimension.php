@@ -2,7 +2,7 @@
 
 class ClearArrayResizeUpdateDimension extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, MainThreadExecution;
+	use ArrayAddressMode, BinaryOperator;
 	
 	public function changesOperandSize($i) {
 		return ($i == 3);

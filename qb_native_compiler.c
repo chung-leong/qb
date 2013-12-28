@@ -795,7 +795,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 					qb_print(cxt, "\n");
 				}
 			}
-		} else if(qop->opcode == QB_FCALL_U32_U32_U32 || qop->opcode == QB_FCALL_MT_U32_U32_U32) {
+		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
 			qb_copy_local_arguments_to_storage(cxt, qop);
 			qb_print(cxt, "\n");
 		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_RESUME || qop->opcode == QB_SPOON) {
@@ -815,7 +815,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 		if(qop->flags & QB_OP_NEED_INSTRUCTION_STRUCT) {
 			qb_copy_local_variables_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
-		} else if(qop->opcode == QB_FCALL_U32_U32_U32 || qop->opcode == QB_FCALL_MT_U32_U32_U32) {
+		} else if(qop->opcode == QB_FCALL_U32_U32_U32) {
 			qb_copy_local_arguments_from_storage(cxt, qop);
 			qb_print(cxt, "\n");
 		} else if(qop->opcode == QB_END_STATIC || qop->opcode == QB_INTR || qop->opcode == QB_RESUME || qop->opcode == QB_SPOON) {

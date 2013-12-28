@@ -1031,24 +1031,6 @@ qb_simple_op_factory factory_function_call = {
 	QB_FCALL_U32_U32_U32,
 };
 
-qb_simple_op_factory factory_function_call_main_thread = {
-	NULL,
-	qb_resolve_expression_type_function_call,
-	NULL,
-	qb_coerce_operands_function_call,
-	qb_set_result_prototype,
-	qb_validate_operands_function_call,
-	qb_set_result_function_call,
-	NULL,
-	qb_select_opcode_simple,
-	qb_transfer_operands_function_call,
-	qb_indicate_non_inlineable,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	0,
-	QB_FCALL_MT_U32_U32_U32,
-};
-
 qb_op_decomposer factory_inline_function_call = {
 	qb_inline_function,
 };
@@ -1068,10 +1050,10 @@ qb_simple_op_factory factory_zend_function_call = {
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	QB_FCALL_MT_U32_U32_U32,
+	QB_FCALL_U32_U32_U32,
 };
 
-void *factories_fcall[] = { &factory_intrinsic, &factory_function_call, &factory_function_call_main_thread, &factory_inline_function_call, &factory_zend_function_call };
+void *factories_fcall[] = { &factory_intrinsic, &factory_function_call, &factory_inline_function_call, &factory_zend_function_call };
 
 qb_cast_op_factory factory_cast_S08 = {
 	NULL,

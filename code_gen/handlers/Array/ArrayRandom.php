@@ -2,7 +2,7 @@
 
 class ArrayRandom extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, MainThreadExecution;
+	use MultipleAddressMode, BinaryOperator;
 	
 	public function getOperandType($i) {
 		switch($i) {

@@ -43,9 +43,8 @@
 
 #define QB_OP_FACTORY_INTRINSIC		0
 #define QB_OP_FACTORY_NORMAL		1
-#define QB_OP_FACTORY_MAIN_THREAD	2
-#define QB_OP_FACTORY_INLINE		3
-#define QB_OP_FACTORY_ZEND			4	
+#define QB_OP_FACTORY_INLINE		2
+#define QB_OP_FACTORY_ZEND			3	
 
 typedef struct qb_op_factory					qb_op_factory; 
 typedef struct qb_derived_op_factory			qb_derived_op_factory; 
