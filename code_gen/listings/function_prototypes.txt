@@ -1,5 +1,6 @@
 void *memcpy(void *__restrict dest, const void *__restrict src, size_t n);
 void *memmove(void * dest, const void * src, size_t n);
+
 double sin(double x);
 double asin(double x);
 double cos(double x);

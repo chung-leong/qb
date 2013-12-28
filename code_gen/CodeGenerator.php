@@ -408,8 +408,21 @@ class CodeGenerator {
 		// load list of intrinsic functions
 		$intrinsics = $this->loadListing("intrinsic_functions_%COMPILER%.txt");
 		
-		// these functions cannot be declared in VC11
-		$vc11_intrinsics = ($compiler == "MSVC") ? $this->loadListing("intrinsic_functions_msvc11.txt") : array();
+		if($compiler == "MSVC") {
+			// these functions cannot be declared in VC11
+			$vc11_intrinsics =  $this->loadListing("intrinsic_functions_msvc11.txt");
+			
+			fwrite($handle, "#if _MSC_VER >= 1700\n");
+			foreach($vc11_intrinsics as $name) {
+				fwrite($handle, "#define __{$name}_address	$name\n");
+			}
+			fwrite($handle, "#else\n");
+			foreach($vc11_intrinsics as $name) {
+				fwrite($handle, "#define __{$name}_address	NULL\n");
+			}
+			fwrite($handle, "#endif\n");
+		}
+		fwrite($handle, "\n");
 	
 		$count = 0;
 		fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
@@ -418,8 +431,9 @@ class CodeGenerator {
 			if($symbol == "NULL") {
 				$flags[] = "QB_NATIVE_SYMBOL_INLINE_FUNCTION";
 			}
-			if(in_array($name, $vc11_intrinsics)) {
+			if(isset($vc11_intrinsics) && in_array($name, $vc11_intrinsics)) {
 				$flags[] = "QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION";
+				$symbol = "__{$name}_address";
 			}
 			if($flags) {
 				$flags = implode(" | ", $flags);

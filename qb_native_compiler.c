@@ -283,7 +283,7 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 				for(k = 0; prototype_indices[k] != 0xFFFFFFFF; k++) {
 					uint32_t index = prototype_indices[k];
 					qb_native_symbol *symbol = &global_native_symbols[index];
-#if _MSV_VER >= 1600 
+#ifdef _MSC_VER >= 1700
 					if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
 						// symbol is an intrinsic in VC11--don't print prototype for it
 						continue;
@@ -301,7 +301,7 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 			const char *prototype = cxt->function_prototypes[i];
 #ifdef _WIN64
 			qb_native_symbol *symbol = &global_native_symbols[i];
-			if(!symbol->flags) {
+			if(!(symbol->flags & QB_NATIVE_SYMBOL_INLINE_FUNCTION) && (((intptr_t) symbol->address) & 0xFFFFFFFF00000000 || !symbol->address)) {
 				// add __declspec so function looks like a something frm a DLL 
 				qb_print(cxt, "__declspec(dllimport)\n");
 			} else if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
@@ -1129,76 +1129,7 @@ static void qb_print_function_records(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#endif\n");
 }
 
-static void * qb_get_intrinsic_function_address(const char *name) {
-	void *address = NULL;
-#if defined(_MSC_VER)
-#ifndef _WIN64
-	if(strcmp(name, "_ftol2") == 0) {
-		address = _ftol2;
-	} else if(strcmp(name, "_allshr") == 0) {
-		address = _allshr;
-	} else if(strcmp(name, "_allshl") == 0) {
-		address = _allshl;
-	}
-#endif
-	if(!address) {
-		// intrinsics employed by MSVC are located in the runtime DLL
-		// since the QB DLL might be used compiled using the same version of MSVC
-		// we'll look for the function dynamically
-#ifdef ZEND_DEBUG
-		static const char *dll_names[] = { "msvcr110.dll", "msvcr110d.dll", "msvcr100.dll", "msvcr100d.dll", "msvcr90.dll", "msvcr90d.dll" };
-#else
-		static const char *dll_names[] = { "msvcr110.dll", "msvcr100.dll", "msvcr90.dll" };
-#endif
-		static HMODULE c_lib_handle = 0;
-		static const char *c_lib_dll_name = NULL;
-
-		if(!c_lib_handle) {
-			// see which of these DLL's is loaded
-			uint32_t i;
-			for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
-				c_lib_handle = GetModuleHandle(dll_names[i]);
-				if(c_lib_handle) {
-					c_lib_dll_name = dll_names[i];
-					break;
-				}
-			}
-		}
-		if(c_lib_handle) {
-			address = GetProcAddress(c_lib_handle, name);
-		}
-		if(!address) {
-			// try loading a more recent version of the runtime
-			static HMODULE newer_c_lib_handle = 0;
-			if(!newer_c_lib_handle) {
-				uint32_t i;
-				for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
-					if(dll_names[i] != c_lib_dll_name) {
-						newer_c_lib_handle = LoadLibrary(dll_names[i]);
-						if(newer_c_lib_handle) {
-							break;
-						}
-					}
-				}
-			}
-			if(newer_c_lib_handle) {
-				address = GetProcAddress(newer_c_lib_handle, name);
-			}
-		}
-	}
-#else
-	#ifdef HAVE_SINCOS
-	if(!address) {
-		if(strcmp(name, "sincos") == 0) {
-			address = sincos;
-		} else if(strcmp(name, "sincosf") == 0) {
-			address = sincosf;
-		}
-	}
-	#endif
-#endif
-	return address;
-}
+static void * qb_get_intrinsic_function_address(const char *name);
 
 static void * qb_get_symbol_address(qb_native_compiler_context *cxt, qb_native_symbol *symbol) {
 	if(!symbol->address) {
@@ -1208,32 +1139,6 @@ static void * qb_get_symbol_address(qb_native_compiler_context *cxt, qb_native_s
 	}
 	return symbol->address;
 }
-
-#ifdef _WIN64
-static void * qb_find_symbol_pointer(qb_native_compiler_context *cxt, const char *name) {
-	static void **pointer_table = NULL;
-	uint32_t i, name_len = (uint32_t) strlen(name);
-	long hash_value = zend_get_hash_value(name, name_len + 1);
-	if(!pointer_table) {
-		pointer_table = VirtualAlloc(NULL, sizeof(void *) * global_native_symbol_count, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-	}
-	for(i = 0; i < global_native_symbol_count; i++) {
-		qb_native_symbol *symbol = &global_native_symbols[i];
-		if(symbol->hash_value == hash_value) {
-			if(strcmp(symbol->name, name) == 0) {
-				void *address = qb_get_symbol_address(cxt, symbol);
-				if(address) {
-					pointer_table[i] = address;
-					return &pointer_table[i];
-				} else {
-					break;
-				}
-			}
-		}
-	}
-	return NULL;
-}
-#endif
 
 static int32_t qb_check_symbol(qb_native_compiler_context *cxt, const char *name) {
 	uint32_t i, name_len = (uint32_t) strlen(name);
@@ -1253,11 +1158,6 @@ static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) 
 	long hash_value;
 	uint32_t i, name_len = (uint32_t) strlen(name);
 	const char *proc_name = name;
-#ifdef _WIN64
-	if(memcmp(name, "__imp_", 6) == 0) {
-		return qb_find_symbol_pointer(cxt, name + 6);
-	}
-#endif
 	hash_value = zend_get_hash_value(name, name_len + 1);
 	for(i = 0; i < global_native_symbol_count; i++) {
 		qb_native_symbol *symbol = &global_native_symbols[i];

@@ -170,8 +170,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>..\Debug_TS/php_qb.lib</ImportLibrary>
-      <BaseAddress>
-      </BaseAddress>
+      <BaseAddress>0x0000000080000000</BaseAddress>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -283,6 +282,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>..\Release_TS/php_qb.lib</ImportLibrary>
+      <BaseAddress>0x0000000080000000</BaseAddress>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>

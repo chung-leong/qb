@@ -179,6 +179,32 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 	return (cxt->binary != NULL);
 }
 
+#ifdef _WIN64
+static void * qb_find_symbol_pointer(qb_native_compiler_context *cxt, const char *name) {
+	static void **import_address_table = NULL;
+	uint32_t i, name_len = (uint32_t) strlen(name);
+	long hash_value = zend_get_hash_value(name, name_len + 1);
+	if(!import_address_table) {
+		import_address_table = VirtualAlloc(NULL, sizeof(void *) * global_native_symbol_count, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	}
+	for(i = 0; i < global_native_symbol_count; i++) {
+		qb_native_symbol *symbol = &global_native_symbols[i];
+		if(symbol->hash_value == hash_value) {
+			if(strcmp(symbol->name, name) == 0) {
+				void *address = qb_get_symbol_address(cxt, symbol);
+				if(address) {
+					import_address_table[i] = address;
+					return &import_address_table[i];
+				} else {
+					break;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+#endif
+
 #ifdef _WIN64	
 #define IMAGE_FILE_MACHINE		IMAGE_FILE_MACHINE_AMD64
 #define SYMBOL_PREFIX_LENGTH	0
@@ -224,7 +250,15 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 				intptr_t S, P; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
+#ifdef _WIN64
+					if(!ISFCN(symbol->Type) && memcmp(symbol_name, "__imp_", 6) == 0) {
+						symbol_address = qb_find_symbol_pointer(cxt, symbol_name + 6);
+					} else {
+						symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
+					}
+#else
 					symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
+#endif
 					if(!symbol_address) {
 						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
 						missing_symbol_count++;
@@ -245,6 +279,11 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 						*((intptr_t *) target_address) = S;
 						break;
 					case IMAGE_REL_AMD64_REL32:
+						if((uint64_t) (S - P) >= UINT32_MAX) {
+							// symbol is too far away
+							qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
+							return FALSE;
+						}
 						*((int32_t *) target_address) += (int32_t) (S - (P + sizeof(int32_t)));
 						break;
 #else				
@@ -307,4 +346,65 @@ static void qb_remove_object_file(qb_native_compiler_context *cxt) {
 
 void qb_free_native_code(qb_native_code_bundle *bundle) {
 	UnmapViewOfFile(bundle->memory);
+}
+
+static void * qb_get_intrinsic_function_address(const char *name) {
+	void *address = NULL;
+#ifdef _WIN64
+
+#else
+	if(strcmp(name, "_ftol2") == 0) {
+		address = _ftol2;
+	} else if(strcmp(name, "_allshr") == 0) {
+		address = _allshr;
+	} else if(strcmp(name, "_allshl") == 0) {
+		address = _allshl;
+	}
+#endif
+	if(!address) {
+		// intrinsics employed by MSVC are located in the runtime DLL
+		// since the QB DLL might be used compiled using the same version of MSVC
+		// we'll look for the function dynamically
+#ifdef ZEND_DEBUG
+		static const char *dll_names[] = { "msvcr110.dll", "msvcr110d.dll", "msvcr100.dll", "msvcr100d.dll", "msvcr90.dll", "msvcr90d.dll" };
+#else
+		static const char *dll_names[] = { "msvcr110.dll", "msvcr100.dll", "msvcr90.dll" };
+#endif
+		static HMODULE c_lib_handle = 0;
+		static const char *c_lib_dll_name = NULL;
+
+		if(!c_lib_handle) {
+			// see which of these DLL's is loaded
+			uint32_t i;
+			for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
+				c_lib_handle = GetModuleHandle(dll_names[i]);
+				if(c_lib_handle) {
+					c_lib_dll_name = dll_names[i];
+					break;
+				}
+			}
+		}
+		if(c_lib_handle) {
+			address = GetProcAddress(c_lib_handle, name);
+		}
+		if(!address) {
+			// try loading a more recent version of the runtime
+			static HMODULE newer_c_lib_handle = 0;
+			if(!newer_c_lib_handle) {
+				uint32_t i;
+				for(i = 0; i < sizeof(dll_names) / sizeof(dll_names[0]); i++) {
+					if(dll_names[i] != c_lib_dll_name) {
+						newer_c_lib_handle = LoadLibrary(dll_names[i]);
+						if(newer_c_lib_handle) {
+							break;
+						}
+					}
+				}
+			}
+			if(newer_c_lib_handle) {
+				address = GetProcAddress(newer_c_lib_handle, name);
+			}
+		}
+	}
+	return address;
 }

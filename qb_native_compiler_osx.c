@@ -338,3 +338,17 @@ static void qb_remove_object_file(qb_native_compiler_context *cxt) {
 void qb_free_native_code(qb_native_code_bundle *bundle) {
 	munmap(bundle->memory, bundle->size);
 }
+
+static void * qb_get_intrinsic_function_address(const char *name) {
+	void *address = NULL;
+#ifdef HAVE_SINCOS
+	if(!address) {
+		if(strcmp(name, "sincos") == 0) {
+			address = sincos;
+		} else if(strcmp(name, "sincosf") == 0) {
+			address = sincosf;
+		}
+	}
+#endif
+	return address;
+}

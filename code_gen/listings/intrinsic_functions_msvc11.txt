@@ -17,6 +17,5 @@ powf
 sqrtf
 ceilf
 floorf
-fabsf
 hypotf
 fmodf
