@@ -2,7 +2,7 @@
 
 class ClearElementResize extends Handler {
 
-	use ArrayAddressMode, TernaryOperator;
+	use ArrayAddressMode, TernaryOperator, NotThreadSafe;
 	
 	public function changesOperandSize($i) {
 		return ($i == 4);

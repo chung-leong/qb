@@ -2,6 +2,8 @@
 
 class ArrayResize extends Handler {
 
+	use NotThreadSafe;
+
 	protected $dimensionCount;
 	
 	public function __construct($baseName, $operandType, $dimensionCount) {

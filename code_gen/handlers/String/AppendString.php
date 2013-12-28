@@ -2,7 +2,7 @@
 
 class AppendString extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, ResizeResult;
+	use ArrayAddressMode, BinaryOperator, ResizeResult, NotThreadSafe;
 	
 	public function getOperandType($i) {
 		switch($i) {

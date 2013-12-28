@@ -359,6 +359,10 @@ class Handler {
 		return false;
 	}
 
+	public function isThreadSafe() {
+		return true;
+	}
+	
 	public function mayExitLoop() {
 		return false;
 	}

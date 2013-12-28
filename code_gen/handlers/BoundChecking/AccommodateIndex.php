@@ -2,7 +2,7 @@
 
 class AccommodateIndex extends Handler {
 
-	use ScalarAddressMode, QuaternaryOperator;
+	use ScalarAddressMode, QuaternaryOperator, NotThreadSafe;
 	
 	public function getOutputOperandCount() {
 		return 0;

@@ -205,7 +205,7 @@ struct qb_result_destination {
 
 enum {
 	// intrinsic properties of an op
-	QB_OP_NEED_LINE_IDENTIFIER			= 0x8000,
+	QB_OP_NEED_LINE_IDENTIFIER		= 0x8000,
 	QB_OP_BRANCH					= 0x4000,
 	QB_OP_EXIT 						= 0x2000,
 	QB_OP_JUMP 						= 0x1000,
@@ -215,6 +215,7 @@ enum {
 	QB_OP_VERSION_AVAILABLE_MIO		= 0x0100,
 	QB_OP_NEED_INSTRUCTION_STRUCT	= 0x0080,
 	QB_OP_BRANCH_TABLE				= 0x0040,
+	QB_OP_NOT_THREAD_SAFE			= 0x0020,
 
 	// compile time properties
 	QB_OP_JUMP_TARGET 				= 0x80000000,

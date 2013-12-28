@@ -2,7 +2,7 @@
 
 class AccommodateIndexMultiply extends Handler {
 
-	use ScalarAddressMode, SenaryOperator;
+	use ScalarAddressMode, SenaryOperator, NotThreadSafe;
 	
 	public function changesOperand($i) {
 		return ($i == 2 || $i == 4 || $i == 7);

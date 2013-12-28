@@ -232,6 +232,9 @@ class CodeGenerator {
 			if($handler->needsInstructionStructure()) {
 				$flags[] = "QB_OP_NEED_INSTRUCTION_STRUCT";
 			}
+			if(!$handler->isThreadSafe()) {
+				$flags[] = "QB_OP_NOT_THREAD_SAFE";
+			}
 			$combined = ($flags) ? implode(" | ", $flags) : "0";
 			
 			$instr = $handler->getInstructionStructure();

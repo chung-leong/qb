@@ -2,7 +2,7 @@
 
 class AppendVariable extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, UseSprintf, ResizeResult {
+	use MultipleAddressMode, BinaryOperator, UseSprintf, ResizeResult, NotThreadSafe {
         ResizeResult::needsInterpreterContext insteadof UseSprintf;
 	}
 	
