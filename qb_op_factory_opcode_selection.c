@@ -632,7 +632,10 @@ static qb_opcode qb_select_opcode_matrix_current_mode(qb_compiler_context *cxt, 
 static qb_opcode qb_select_opcode_matrix_unary(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	qb_vector_op_factory *vf = (qb_vector_op_factory *) f;
 	qb_address *address = operands[0].address;
-	qb_opcode opcode = qb_select_fixed_size_matrix_opcode(cxt, vf->opcodes_fixed_size, expr_type, address);
+	qb_opcode opcode;
+	if(CONSTANT_DIMENSION(address, -1) && CONSTANT_DIMENSION(address, -2)) {
+		opcode = qb_select_fixed_size_matrix_opcode(cxt, vf->opcodes_fixed_size, expr_type, address);
+	}
 	if(opcode == QB_NOP) {
 		opcode = qb_select_type_dependent_opcode(cxt, vf->opcodes_any_size, expr_type);
 	}

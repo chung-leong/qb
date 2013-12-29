@@ -527,6 +527,11 @@ extern qb_vector_op_factory factory_normalize;
 extern qb_vector_op_factory factory_reflect;
 extern qb_vector_op_factory factory_refract;
 
+extern qb_simple_op_factory factory_validate_cross_product_2d;
+extern qb_simple_op_factory factory_validate_cross_product_3d;
+extern qb_simple_op_factory factory_validate_cross_product_4d;
+extern qb_simple_op_factory factory_validate_vector_width;
+
 extern qb_matrix_op_factory factory_mm_mult_cm;
 extern qb_matrix_op_factory factory_mv_mult_cm;
 extern qb_matrix_op_factory factory_vm_mult_cm;
@@ -540,9 +545,15 @@ extern qb_matrix_op_factory factory_transform_cm;
 extern qb_matrix_op_factory factory_transform_rm;
 extern qb_matrix_op_factory_selector factory_transform;
 
+extern qb_simple_op_factory factory_validate_mm_mult;
+extern qb_simple_op_factory factory_validate_mv_mult;
+extern qb_simple_op_factory factory_validate_vm_mult;
+
 extern qb_matrix_op_factory factory_determinant;
 extern qb_matrix_op_factory factory_inverse;
 extern qb_matrix_op_factory factory_transpose;
+
+extern qb_simple_op_factory factory_validate_square_matrix;
 
 extern qb_pixel_op_factory factory_alpha_blend;
 extern qb_pixel_op_factory factory_apply_premult;

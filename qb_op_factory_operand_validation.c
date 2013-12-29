@@ -299,20 +299,23 @@ static int32_t qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_f
 
 static int32_t qb_validate_operands_matching_vector_width(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+	qb_address *v1_width_address = DIMENSION_ADDRESS(operand1->address, -1);
+	qb_address *v2_width_address = DIMENSION_ADDRESS(operand2->address, -1);
 
 	if(!qb_validate_operands_two_arrays(cxt, f, expr_type, operands, operand_count, result_destination)) {
 		return FALSE;
 	}
 
-	if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1)) {
-		uint32_t vector_width1 = DIMENSION(operand1->address, -1);
-		uint32_t vector_width2 = DIMENSION(operand2->address, -1);
-		if(vector_width1 != vector_width2) {
-			qb_report_vector_width_mismatch_exception(NULL, cxt->line_id, vector_width1, vector_width2);
+	if(CONSTANT(v1_width_address) && CONSTANT(v2_width_address)) {
+		uint32_t v1_width = VALUE(U32, v1_width_address);
+		uint32_t v2_width = VALUE(U32, v2_width_address);
+		if(v1_width != v2_width) {
+			qb_report_vector_width_mismatch_exception(NULL, cxt->line_id, v1_width, v2_width);
 			return FALSE;
 		}
 	} else {
-		// TODO: runtime check
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { v1_width_address } }, { QB_OPERAND_ADDRESS, { v2_width_address } } };
+		qb_produce_op(cxt, &factory_validate_vector_width, operands, 2, NULL, NULL, 0, NULL);
 	}
 	return TRUE;
 }
@@ -342,30 +345,48 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 
 	if(operand_count == 3) {
 		qb_operand *operand1 = &operands[0], *operand2 = &operands[1], *operand3 = &operands[2];
-		if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1) && CONSTANT_DIMENSION(operand3->address, -1)) {
-			uint32_t vector_width1 = DIMENSION(operand1->address, -1);
-			uint32_t vector_width2 = DIMENSION(operand2->address, -1);
-			uint32_t vector_width3 = DIMENSION(operand3->address, -1);
+		qb_address *v1_width_address = DIMENSION_ADDRESS(operand1->address, -1);
+		qb_address *v2_width_address = DIMENSION_ADDRESS(operand2->address, -1);
+		qb_address *v3_width_address = DIMENSION_ADDRESS(operand3->address, -1);
+		if(CONSTANT(v1_width_address) && CONSTANT(v2_width_address) && CONSTANT(v3_width_address)) {
+			uint32_t v1_width = VALUE(U32, v1_width_address);
+			uint32_t v2_width = VALUE(U32, v2_width_address);
+			uint32_t v3_width = VALUE(U32, v3_width_address);
 
-			if(!(vector_width1 == vector_width2 && vector_width2 == vector_width3 && 2 <= vector_width1 && vector_width1 <= 3)) {
-				qb_report_invalid_4d_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2, vector_width3);
+			if(!(v1_width == v2_width && v2_width == v3_width && 2 <= v1_width && v1_width <= 3)) {
+				qb_report_invalid_4d_cross_product_exception(NULL, cxt->line_id, v1_width, v2_width, v3_width);
 				return FALSE;
 			}
 		} else {
-			// TODO: runtime check
+			qb_operand operands[3] = { { QB_OPERAND_ADDRESS, { v1_width_address } }, { QB_OPERAND_ADDRESS, { v2_width_address } }, { QB_OPERAND_ADDRESS, { v3_width_address } } };
+			qb_produce_op(cxt, &factory_validate_cross_product_4d, operands, 3, NULL, NULL, 0, NULL);
 		} 
 	} else {
 		qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
-		if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand2->address, -1)) {
-			uint32_t vector_width1 = DIMENSION(operand1->address, -1);
-			uint32_t vector_width2 = DIMENSION(operand2->address, -1);
+		qb_address *v1_width_address = DIMENSION_ADDRESS(operand1->address, -1);
+		qb_address *v2_width_address = DIMENSION_ADDRESS(operand2->address, -1);
+		if(CONSTANT(v1_width_address) && CONSTANT(v2_width_address)) {
+			uint32_t v1_width = VALUE(U32, v1_width_address);
+			uint32_t v2_width = VALUE(U32, v2_width_address);
 
-			if(!(vector_width1 == vector_width2 && 2 <= vector_width1 && vector_width1 <= 3)) {
-				qb_report_invalid_cross_product_exception(NULL, cxt->line_id, vector_width1, vector_width2);
+			if(!(v1_width == v2_width && 2 <= v1_width && v2_width <= 3)) {
+				qb_report_invalid_cross_product_exception(NULL, cxt->line_id, v1_width, v2_width);
 				return FALSE;
 			}
 		} else {
-			// TODO: runtime check
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { v1_width_address } }, { QB_OPERAND_ADDRESS, { v2_width_address } } };
+			uint32_t width = 3;
+			if(CONSTANT(v1_width_address)) {
+				width = VALUE(U32, v1_width_address);
+			}
+			if(CONSTANT(v2_width_address)) {
+				width = VALUE(U32, v2_width_address);
+			}
+			if(width == 2) {
+				qb_produce_op(cxt, &factory_validate_cross_product_2d, operands, 2, NULL, NULL, 0, NULL);
+			} else {
+				qb_produce_op(cxt, &factory_validate_cross_product_3d, operands, 2, NULL, NULL, 0, NULL);
+			}
 		} 
 	}
 	return TRUE;
@@ -381,20 +402,44 @@ static int32_t qb_validate_operands_one_matrix(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
+static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_factory *f) {
+	if(f->result_flags & QB_RESULT_IS_COLUMN_MAJOR) {
+		return QB_MATRIX_ORDER_COLUMN_MAJOR;
+	} else if(f->result_flags & QB_RESULT_IS_ROW_MAJOR) {
+		return QB_MATRIX_ORDER_ROW_MAJOR;
+	} else {
+		return cxt->matrix_order;
+	}
+}
+
+static qb_address *qb_obtain_matrix_row_address(qb_compiler_context *cxt, qb_address *address, qb_matrix_order order) {
+	int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
+	return address->dimension_addresses[address->dimension_count + row_offset];
+}
+
+static qb_address *qb_obtain_matrix_column_address(qb_compiler_context *cxt, qb_address *address, qb_matrix_order order) {
+	int32_t col_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -1 : -2;
+	return address->dimension_addresses[address->dimension_count + col_offset];
+}
+
 static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *operand1 = &operands[0];
+	qb_operand *matrix = &operands[0];
+	qb_matrix_order order = qb_get_matrix_order(cxt, f);
+	qb_address *m_col_address = qb_obtain_matrix_column_address(cxt, matrix->address, order);
+	qb_address *m_row_address = qb_obtain_matrix_row_address(cxt, matrix->address, order);
 
 	qb_validate_operands_one_matrix(cxt, f, expr_type, operands, operand_count, result_destination);
 
-	if(CONSTANT_DIMENSION(operand1->address, -1) && CONSTANT_DIMENSION(operand1->address, -2)) {
-		uint32_t row = DIMENSION(operand1->address, -1);
-		uint32_t col = DIMENSION(operand1->address, -2);
+	if(CONSTANT(m_col_address) && CONSTANT(m_row_address)) {
+		uint32_t row = VALUE(U32, m_col_address);
+		uint32_t col = VALUE(U32, m_row_address);
 		if(row != col) {
-			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "square matrix");
+			qb_report_not_square_matrix_exception(NULL, cxt->line_id, col, row);
 			return FALSE;
 		}
 	} else {
-		// TODO: runtime check
+		qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { m_col_address } }, { QB_OPERAND_ADDRESS, { m_row_address } } };
+		qb_produce_op(cxt, &factory_validate_square_matrix, operands, 2, NULL, NULL, 0, NULL);
 	}
 	return TRUE;
 }
@@ -467,26 +512,6 @@ static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *
 	return TRUE;
 }
 
-static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_factory *f) {
-	if(f->result_flags & QB_RESULT_IS_COLUMN_MAJOR) {
-		return QB_MATRIX_ORDER_COLUMN_MAJOR;
-	} else if(f->result_flags & QB_RESULT_IS_ROW_MAJOR) {
-		return QB_MATRIX_ORDER_ROW_MAJOR;
-	} else {
-		return cxt->matrix_order;
-	}
-}
-
-static qb_address *qb_obtain_matrix_row_address(qb_compiler_context *cxt, qb_address *address, qb_matrix_order order) {
-	int32_t row_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -2 : -1;
-	return address->dimension_addresses[address->dimension_count + row_offset];
-}
-
-static qb_address *qb_obtain_matrix_column_address(qb_compiler_context *cxt, qb_address *address, qb_matrix_order order) {
-	int32_t col_offset = (order == QB_MATRIX_ORDER_ROW_MAJOR) ? -1 : -2;
-	return address->dimension_addresses[address->dimension_count + col_offset];
-}
-
 static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *matrix1 = &operands[0], *matrix2 = &operands[1];
 	qb_matrix_order order = qb_get_matrix_order(cxt, f);
@@ -502,19 +527,20 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 		return FALSE;
 	}
 
-	if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
-		uint32_t m1_col_count = VALUE(U32, m1_col_address);
-		uint32_t m2_row_count = VALUE(U32, m2_row_address);
+	if(m1_col_address != m2_row_address) {
+		if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
+			uint32_t m1_col_count = VALUE(U32, m1_col_address);
+			uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(!cxt->matrix_padding) {
-			if(m1_col_count != m2_row_count) {
-				qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1 | 2);
-				return FALSE;
+			if(!cxt->matrix_padding) {
+				if(m1_col_count != m2_row_count) {
+					qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1 | 2);
+					return FALSE;
+				}
 			}
-		}
-	} else {
-		if(m1_col_address != m2_row_address) {
-			// TODO: add run time checks
+		} else {
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { m1_col_address } }, { QB_OPERAND_ADDRESS, { m2_row_address } } };
+			qb_produce_op(cxt, &factory_validate_mm_mult, operands, 2, NULL, NULL, 0, NULL);
 		}
 	}
 	return TRUE;
@@ -535,19 +561,20 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 		return FALSE;
 	}
 
-	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -1)) {
-		uint32_t m1_col_count = VALUE(U32, m1_col_address);
-		uint32_t m2_row_count = VALUE(U32, m2_row_address);
+	if(m1_col_address != m2_row_address) {
+		if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
+			uint32_t m1_col_count = VALUE(U32, m1_col_address);
+			uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(!cxt->matrix_padding) {
-			if(m1_col_count != m2_row_count) {
-				qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1);
-				return FALSE;
+			if(!cxt->matrix_padding) {
+				if(m1_col_count != m2_row_count) {
+					qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 1);
+					return FALSE;
+				}
 			}
-		}
-	} else {
-		if(m1_col_address != m2_row_address) {
-			// TODO: add run time checks
+		} else {
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { m1_col_address } }, { QB_OPERAND_ADDRESS, { m2_row_address } } };
+			qb_produce_op(cxt, &factory_validate_mv_mult, operands, 2, NULL, NULL, 0, NULL);
 		}
 	}
 	return TRUE;
@@ -568,19 +595,20 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 		return FALSE;
 	}
 
-	if(CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -2) && CONSTANT_DIMENSION(matrix2->address, -1)) {
-		uint32_t m1_col_count = VALUE(U32, m1_col_address);
-		uint32_t m2_row_count = VALUE(U32, m2_row_address);
+	if(m1_col_address != m2_row_address) {
+		if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
+			uint32_t m1_col_count = VALUE(U32, m1_col_address);
+			uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
-		if(!cxt->matrix_padding) {
-			if(m1_col_count != m2_row_count) {
-				qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 2);
-				return FALSE;
+			if(!cxt->matrix_padding) {
+				if(m1_col_count != m2_row_count) {
+					qb_report_invalid_matrix_multiplication_exception(NULL, cxt->line_id, m1_col_count, m2_row_count, 2);
+					return FALSE;
+				}
 			}
-		}
-	} else {
-		if(m1_col_address != m2_row_address) {
-			// TODO: add run time checks
+		} else {
+			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { m1_col_address } }, { QB_OPERAND_ADDRESS, { m2_row_address } } };
+			qb_produce_op(cxt, &factory_validate_vm_mult, operands, 2, NULL, NULL, 0, NULL);
 		}
 	}
 	return TRUE;

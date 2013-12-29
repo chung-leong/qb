@@ -225,7 +225,7 @@ static qb_address * qb_obtain_largest_of_three(qb_compiler_context *cxt, qb_addr
 }
 
 static void qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_variable_dimensions *dim1, qb_variable_dimensions *dim2, qb_variable_dimensions *dim3, qb_variable_dimensions *dim) {
-	qb_variable_dimensions *dim_chosen;
+	qb_variable_dimensions *dim_chosen = NULL;
 	if(SCALAR(dim1) && SCALAR(dim2)) {
 		// use the third if the first and second are scalars
 		dim_chosen = dim3;
