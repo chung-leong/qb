@@ -368,12 +368,6 @@ static void qb_set_result_dimensions_largest_of_three(qb_compiler_context *cxt, 
 	qb_choose_dimensions_from_three_addresses(cxt, first->address, 0, second->address, 0, third->address, 0, dim);
 }
 
-static void qb_set_result_dimensions_fork(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	dim->dimension_count = 1;
-	dim->array_size_address = qb_obtain_constant_U32(cxt, 2);
-	dim->array_size_addresses[0] = dim->dimension_addresses[0] = dim->array_size_address;
-}
-
 static void qb_set_result_dimensions_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	if(operand_count == 2) {
 		qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim);

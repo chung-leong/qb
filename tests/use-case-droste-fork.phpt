@@ -192,7 +192,7 @@ class Droste {
 		$xBounds->min = $xyMiddle->x - 0.5 * $xyRange->x;
 		$xBounds->max = $xyMiddle->x + 0.5 * $xyRange->x;
 				
-		list($y) = fork($height);
+		$y = fork($height);
 		
 		for($x = 0; $x < $width; $x++) {
 			$sign = 0;

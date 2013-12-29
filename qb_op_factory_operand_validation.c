@@ -393,6 +393,8 @@ static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_o
 			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "square matrix");
 			return FALSE;
 		}
+	} else {
+		// TODO: runtime check
 	}
 	return TRUE;
 }

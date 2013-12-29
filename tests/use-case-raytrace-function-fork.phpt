@@ -164,7 +164,6 @@ class RayTracer {
 	 * @local float32			$v
 	 * @local float32[3]		$temp
 	 * @local uint32			$temp2
-	 * @local uint32			$fork_count
 	 */
 	public function generate(&$image) {
 		$this->initialize();
@@ -173,7 +172,7 @@ class RayTracer {
 		$height = count($image);
 		$width = count($image[0]);
 		
-		list($y, $fork_count) = fork($height);
+		$y = fork($height);
 		
 		for($x = 0; $x < $width; $x++) {
 			$dst = 0;

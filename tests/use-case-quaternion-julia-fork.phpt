@@ -557,7 +557,6 @@ class QuaternionJulia {
 	 * @local float32[3][3]	$viewRotationY
 	 * @local float32[3][3]	$viewRotationZ
 	 * @local float32[2]	$coord
-	 * @local uint32		$forks
 	 *
 	 * @return void
 	 */
@@ -588,7 +587,7 @@ class QuaternionJulia {
 		$this->eye = vm_mult(array(0, 0, $this->camera[3]), $this->viewRotation);
         $this->lightSource = vm_mult($this->light, $this->viewRotation);
         
-        list($y, $forks) = fork($height);
+        $y = fork($height);
         	
         $coord[1] = $y + 0.5;
         

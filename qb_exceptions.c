@@ -135,13 +135,15 @@ void qb_report_divide_by_zero_exception(qb_thread *thread, uint32_t line_id) {
 }
 
 void qb_report_vector_width_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2) {
-	qb_report_exception(thread, line_id, E_ERROR, "The size of the first vector (%u) does not match the size of the second vector (%u)", vector_width1, vector_width2);
+	qb_report_exception(thread, line_id, E_ERROR, "The first vector's width (%u) does not match the sector vector's (%u)", vector_width1, vector_width2);
 }
 
 void qb_report_invalid_cross_product_exception(qb_thread *thread, uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2) {
+	qb_report_exception(thread, line_id, E_ERROR, "ERROR");
 }
 
 void qb_report_invalid_4d_cross_product_exception(qb_thread *thread, uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2, uint32_t vector_width3) {
+	qb_report_exception(thread, line_id, E_ERROR, "ERROR");
 }
 
 void qb_report_invalid_transform_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row, uint32_t vector_width) {
@@ -150,6 +152,10 @@ void qb_report_invalid_transform_exception(qb_thread *thread, uint32_t line_id, 
 	} else {
 		qb_report_exception(thread, line_id, E_ERROR, "A %ux%u matrix cannot transform a vector with %u elements", matrix_column, matrix_row, vector_width);
 	}
+}
+
+void qb_report_not_square_matrix_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row) {
+	qb_report_exception(thread, line_id, E_ERROR, "Operation cannot be performed on a %ux%u matrix", matrix_column, matrix_row);
 }
 
 void qb_report_invalid_matrix_multiplication_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix1_column, uint32_t matrix2_row, uint32_t matrix_flags) {
@@ -163,9 +169,11 @@ void qb_report_invalid_matrix_multiplication_exception(qb_thread *thread, uint32
 }
 
 void qb_report_dimension_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2) {
+	qb_report_exception(thread, line_id, E_ERROR, "ERROR");
 }
 
 void qb_report_dimension_count_mismatch_exception(qb_thread *thread, uint32_t line_id, uint32_t dimension1, uint32_t dimension2) {
+	qb_report_exception(thread, line_id, E_ERROR, "ERROR");
 }
 
 void qb_report_missing_type_declaration_exception(qb_thread *thread, uint32_t line_id, qb_variable *qvar) {

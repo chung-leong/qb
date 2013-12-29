@@ -2,9 +2,7 @@
 
 class BranchOnLessThan extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, BranchInstruction {
-        BranchInstruction::getOutputOperandCount insteadof BinaryOperator;
-	}
+	use MultipleAddressMode, BinaryOperatorNoResult, BranchInstruction;
 
 	protected function getActionOnUnitData() {
 		return "condition = (op1 < op2);";

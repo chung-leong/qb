@@ -2,9 +2,7 @@
 
 class IncrementBranchOnGreaterThan extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, BranchInstruction {
-        UnaryOperator::getOutputOperandCount insteadof BranchInstruction;
-	}
+	use MultipleAddressMode, UnaryOperator, BranchInstruction;
 
 	protected function getActionOnUnitData() {
 		return "condition = (op1 > ++res);";

@@ -281,7 +281,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 					symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
 				} else if(symbol_bind == STB_GLOBAL) {
 					// links to a symbol symbol
-					symbol_address = qb_find_symbol(cxt, symbol_name, TRUE);
+					symbol_address = qb_find_symbol(cxt, symbol_name);
 					if(!symbol_address) {
 						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
 						missing_symbol_count++;
@@ -352,9 +352,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 							uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 							if(!attached) {
 								// error out if there's an unrecognized function
-								if(!qb_check_symbol(cxt, symbol_name, FALSE)) {
+								if(!qb_check_symbol(cxt, symbol_name)) {
 									if(icc) {
-										if(!qb_check_symbol_strip_trailing_tag(cxt, symbol_name, FALSE)) {
+										if(!qb_check_symbol_strip_trailing_tag(cxt, symbol_name)) {
 											return FALSE;
 										}
 									} else {

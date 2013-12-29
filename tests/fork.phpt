@@ -13,7 +13,8 @@ function test_function($c) {
 	$a = 88;
 	$b = 8;
 	$text = "Hello";
-	list($fork_id, $fork_count) = fork($c);
+	$fork_id = fork($c);
+	$fork_count = fork_count();
 	echo "$text: $a, $b, $c, $fork_id, $fork_count\n";
 }
 

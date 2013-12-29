@@ -58,3 +58,4 @@ void qb_report_invalid_cross_product_exception(qb_thread *thread, uint32_t line_
 void qb_report_invalid_4d_cross_product_exception(qb_thread *thread, uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2, uint32_t vector_width3);
 void qb_report_invalid_transform_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row, uint32_t vector_width);
 void qb_report_invalid_matrix_multiplication_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix1_column, uint32_t matrix2_row, uint32_t matrix_flags);
+void qb_report_not_square_matrix_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row);

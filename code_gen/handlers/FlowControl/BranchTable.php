@@ -2,13 +2,9 @@
 
 class BranchTable extends Handler {
 
-	use MultipleAddressMode, NoUnsigned, BranchInstruction;
+	use MultipleAddressMode, BinaryOperatorNoResult, NoUnsigned, BranchInstruction;
 	
 	protected $tableSize;
-
-	public function getInputOperandCount() {
-		return 2;
-	}
 	
 	public function __construct($baseName, $operandType, $addressMode, $size) {
 		$this->baseName = $baseName;

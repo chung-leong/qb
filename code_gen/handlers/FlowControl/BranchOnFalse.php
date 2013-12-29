@@ -2,9 +2,7 @@
 
 class BranchOnFalse extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, BranchInstruction {
-        BranchInstruction::getOutputOperandCount insteadof UnaryOperator;
-	}
+	use MultipleAddressMode, UnaryOperatorNoResult, BranchInstruction;
 	
 	public function getAction() {
 		return "condition = !op1;";

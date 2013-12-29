@@ -2,11 +2,7 @@
 
 class GuardExtent extends Handler {
 
-	use ScalarAddressMode, TernaryOperator, MayEmitError;
-
-	public function getOutputOperandCount() {
-		return 0;
-	}
+	use ScalarAddressMode, TernaryOperatorNoResult, MayEmitError;
 
 	public function getOperandType($i) {
 		switch($i) {

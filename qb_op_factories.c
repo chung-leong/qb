@@ -2744,29 +2744,47 @@ qb_simple_op_factory factory_fork_resume = {
 	QB_RESUME,
 };
 
-qb_simple_op_factory factory_fork_result = {
+qb_simple_op_factory factory_fork_id = {
 	NULL,
-	qb_resolve_expression_type_search_index,
+	qb_resolve_expression_type_index,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_temporary_value,
-	qb_set_result_dimensions_fork,
+	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
 	NULL,
 	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	QB_FORK_RES_U32,
+	0,
+	QB_FORK_ID_U32,
+};
+
+qb_simple_op_factory factory_fork_count = {
+	NULL,
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
+	NULL,
+	0,
+	0,
+	0,
+	QB_FORK_CNT_U32,
 };
 
 qb_fork_decomposer factory_fork = {
 	qb_decompose_fork,
 	&factory_fork_init,
 	&factory_fork_resume,
-	&factory_fork_result,
+	&factory_fork_id,
 };
 
 qb_simple_op_factory factory_spoon = {

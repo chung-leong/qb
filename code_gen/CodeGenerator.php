@@ -738,6 +738,7 @@ class CodeGenerator {
 			$this->addUnsetHandlers($elementType);
 			$this->addStringHandlers($elementType);
 		}
+		$this->addRuntimeValidationHandlers();
 		$this->addDebugHandlers();
 	}
 	
@@ -1138,7 +1139,12 @@ class CodeGenerator {
 			$this->handlers[] = new FunctionCall("FCALL");
 			$this->handlers[] = new StaticInitializationEnd("END_STATIC");
 			$this->handlers[] = new Fork("FORK", "U32");
-			$this->handlers[] = new ForkResult("FORK_RES", "U32");
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new ForkIdentifier("FORK_ID", "U32", $addressMode);
+			}
+			foreach($this->scalarAddressModes as $addressMode) {
+				$this->handlers[] = new ForkCount("FORK_CNT", "U32", $addressMode);
+			}
 			$this->handlers[] = new Resume("RESUME");
 			$this->handlers[] = new Spoon("SPOON");
 		}
@@ -1551,6 +1557,18 @@ class CodeGenerator {
 			$this->handlers[] = new Refract("REFR", $elementType, "variable");
 			$this->handlers[] = new Refract("REFR", $elementType, "variable", true);
 		}
+	}
+	
+	protected function addRuntimeValidationHandlers() {
+		$this->handlers[] = new ValidateMatrixByMatrix("MUL_MM_GUARD", "U32");
+		$this->handlers[] = new ValidateMatrixByVector("MUL_MV_GUARD", "U32");
+		$this->handlers[] = new ValidateVectorByMatrix("MUL_VM_GUARD", "U32");
+		$this->handlers[] = new ValidateSquareMatrix("SM_GUARD", "U32");
+		$this->handlers[] = new ValidateTransform("TRAN_GUARD", "U32");
+		$this->handlers[] = new Validate2DCrossProduct("CROSS_2X_GUARD", "U32");
+		$this->handlers[] = new Validate3DCrossProduct("CROSS_3X_GUARD", "U32");
+		$this->handlers[] = new Validate4DCrossProduct("CROSS_4X_GUARD", "U32");
+		$this->handlers[] = new ValidateVectorWidths("VV_GUARD", "U32");
 	}
 
 	protected function addComplexNumberHandlers($elementType) {

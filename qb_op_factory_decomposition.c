@@ -238,7 +238,7 @@ static int32_t qb_decompose_fork(qb_compiler_context *cxt, void *factory, qb_ope
 		return FALSE;
 	}
 
-	// add result op
+	// add id op
 	if(!qb_produce_op(cxt, d->result_factory, NULL, 0, result, NULL, 0, result_prototype)) {
 		return FALSE;
 	}

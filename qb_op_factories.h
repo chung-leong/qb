@@ -443,6 +443,7 @@ extern qb_op_decomposer factory_yield;
 extern qb_op_decomposer factory_branch_on_true_set;
 
 extern qb_fork_decomposer factory_fork;
+extern qb_simple_op_factory factory_fork_count;
 extern qb_simple_op_factory factory_spoon;
 
 extern qb_simple_op_factory factory_empty_string;
