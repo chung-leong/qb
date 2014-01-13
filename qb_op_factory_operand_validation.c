@@ -353,7 +353,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 			uint32_t v2_width = VALUE(U32, v2_width_address);
 			uint32_t v3_width = VALUE(U32, v3_width_address);
 
-			if(!(v1_width == v2_width && v2_width == v3_width && 2 <= v1_width && v1_width <= 3)) {
+			if(!(v1_width == v2_width && v2_width == v3_width && v1_width == 4)) {
 				qb_report_invalid_4d_cross_product_exception(NULL, cxt->line_id, v1_width, v2_width, v3_width);
 				return FALSE;
 			}
