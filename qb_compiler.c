@@ -2895,6 +2895,10 @@ qb_address * qb_obtain_array_element(qb_compiler_context *cxt, qb_address *conta
 	qb_address *result_address;
 	uint32_t i;
 
+	if(container_address->dimension_count == 0) {
+		return NULL;
+	}
+
 	// if the index is to an array element, copy the value to a temporary variable 
 	if(index_address->mode == QB_ADDRESS_MODE_ELE) {
 		index_address = qb_obtain_scalar_value(cxt, index_address);

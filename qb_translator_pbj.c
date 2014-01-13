@@ -1649,12 +1649,8 @@ static void qb_perform_loop(qb_pbj_translator_context *cxt, qb_address *index_ad
 
 static void qb_perform_fork(qb_pbj_translator_context *cxt, qb_address *id_address, qb_address *count_address) {
 	qb_operand fork_operands[1] = { { QB_OPERAND_ADDRESS, { count_address } } };
-	qb_operand fetch_operands[2] = { { QB_OPERAND_EMPTY, { NULL } }, { QB_OPERAND_ADDRESS, { cxt->compiler_context->zero_address } } };
-	qb_operand assign_operands[2] = { { QB_OPERAND_ADDRESS, { id_address } }, { QB_OPERAND_EMPTY, { NULL } } };
-	qb_operand assign_result = { QB_OPERAND_EMPTY, { NULL } };
-	qb_produce_op(cxt->compiler_context, &factory_fork, fork_operands, 1, &fetch_operands[0], NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
-	qb_produce_op(cxt->compiler_context, &factory_fetch_array_element_read, fetch_operands, 2, &assign_operands[1], NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
-	qb_produce_op(cxt->compiler_context, &factory_assign, assign_operands, 2, &assign_result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
+	qb_operand fork_result = { QB_OPERAND_ADDRESS, { id_address } };
+	qb_produce_op(cxt->compiler_context, &factory_fork, fork_operands, 1, &fork_result, NULL, 0, &cxt->result_prototypes[cxt->loop_op_index++]);
 }
 
 static void qb_perform_spoon(qb_pbj_translator_context *cxt) {
