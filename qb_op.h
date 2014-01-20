@@ -128,6 +128,7 @@ enum qb_operand_type {
 	QB_OPERAND_SEGMENT_SELECTOR,
 	QB_OPERAND_ELEMENT_SIZE,
 	QB_OPERAND_PBJ_CONSTANT,
+	QB_OPERAND_THIS,
 };
 
 struct qb_operand {

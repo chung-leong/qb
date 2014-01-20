@@ -40,6 +40,7 @@ void qb_report_corrupted_pbj_exception(qb_thread *thread, uint32_t line_id);
 void qb_report_unsupported_pbj_exception(qb_thread *thread, uint32_t line_id);
 void qb_report_native_compilation_exception(qb_thread *thread, uint32_t line_id, const char *function_name);
 void qb_report_missing_native_symbol_exception(qb_thread *thread, uint32_t line_id, const char *symbol_name);
+void qb_report_illegal_use_of_this(qb_thread *thread, uint32_t line_id);
 
 // these functions may be called at runtime
 void qb_report_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive);

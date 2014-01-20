@@ -121,6 +121,10 @@ void qb_report_missing_native_symbol_exception(qb_thread *thread, uint32_t line_
 	qb_report_exception(thread, line_id, E_WARNING, "Unable to find external symbol: %s", symbol_name);
 }
 
+void qb_report_illegal_use_of_this(qb_thread *thread, uint32_t line_id) {
+	qb_report_exception(thread, line_id, E_ERROR, "Illegal use of $this");
+}
+
 void qb_report_out_of_bound_exception(qb_thread *thread, uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive) {
 	const char *comparison = (inclusive) ? ">" : ">=";
 	qb_report_exception(thread, line_id, E_ERROR, "Array out-of-bound condition: (%u %s %u)", index, comparison, limit);

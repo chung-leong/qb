@@ -42,4 +42,3 @@ test_function($m4x5);
 --EXPECTREGEX--
 16224
 .*Fatal error.*
-

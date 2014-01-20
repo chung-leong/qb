@@ -113,6 +113,34 @@ static void qb_merge_address_dimensions(qb_compiler_context *cxt, qb_address *ad
 	dim->array_size_address = dim->array_size_addresses[0];
 }
 
+static void qb_append_final_dimension(qb_compiler_context *cxt, qb_address *address, qb_address *final_dimension_address, qb_variable_dimensions *dim) {
+	uint32_t i;
+	dim->dimension_count = address->dimension_count;
+	for(i = 0; i < dim->dimension_count; i++) {
+		if(i < dim->dimension_count - 1) {
+			dim->dimension_addresses[i] = address->dimension_addresses[i];
+		} else {
+			dim->dimension_addresses[i] = final_dimension_address;
+		}
+	}
+	if(qb_compare_addresses(dim->dimension_addresses, dim->dimension_count, address->dimension_addresses, address->dimension_count)) {
+		// the array sizes are the same as those of address1 
+		for(i = 0; i < dim->dimension_count; i++) {
+			dim->array_size_addresses[i] = address->array_size_addresses[i];
+		}
+	} else {
+		// need to be recalculated
+		for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
+			if(i == dim->dimension_count - 1) {
+				dim->array_size_addresses[i] = dim->dimension_addresses[i];
+			} else {
+				dim->array_size_addresses[i] = qb_obtain_on_demand_product(cxt, dim->dimension_addresses[i], dim->array_size_addresses[i + 1]);
+			}
+		}
+	}
+	dim->array_size_address = dim->array_size_addresses[0];
+}
+
 static qb_address * qb_obtain_larger_of_two(qb_compiler_context *cxt, qb_address *size_address1, qb_address *value_address1, qb_address *size_address2, qb_address *value_address2) {
 	if(value_address1 == value_address2) {
 		return value_address1;
@@ -210,6 +238,19 @@ static void qb_choose_dimensions_from_two_addresses(qb_compiler_context *cxt, qb
 		qb_variable_dimensions dim1, dim2;
 		qb_copy_address_dimensions(cxt, address1, offset1, &dim1);
 		qb_copy_address_dimensions(cxt, address2, offset2, &dim2);
+		qb_choose_dimensions_from_two(cxt, &dim1, &dim2, dim);
+	}
+}
+
+static void qb_choose_dimensions_from_two_vector_addresses(qb_compiler_context *cxt, qb_address *address1, qb_address *address2, qb_address *vector_width_address, qb_variable_dimensions *dim) {
+	if(address1->dimension_count == 1) {
+		qb_copy_address_dimensions(cxt, address2, 0, dim);
+	} else if(address2->dimension_count == 1) {
+		qb_copy_address_dimensions(cxt, address1, 0, dim);
+	} else {
+		qb_variable_dimensions dim1, dim2;
+		qb_append_final_dimension(cxt, address1, vector_width_address, &dim1);
+		qb_append_final_dimension(cxt, address2, vector_width_address, &dim2);
 		qb_choose_dimensions_from_two(cxt, &dim1, &dim2, dim);
 	}
 }
@@ -330,6 +371,22 @@ static void qb_choose_dimensions_from_three_addresses(qb_compiler_context *cxt, 
 	}
 }
 
+static void qb_choose_dimensions_from_three_vector_addresses(qb_compiler_context *cxt, qb_address *address1, qb_address *address2, qb_address *address3, qb_address *vector_width_address, qb_variable_dimensions *dim) {
+	if(address1->dimension_count == 1 && address2->dimension_count == 1) {
+		qb_copy_address_dimensions(cxt, address3, 0, dim);
+	} else if(address1->dimension_count == 1 && address3->dimension_count == 1) {
+		qb_copy_address_dimensions(cxt, address2, 0, dim);
+	} else if(address2->dimension_count == 1 && address3->dimension_count == 1) {
+		qb_copy_address_dimensions(cxt, address1, 0, dim);
+	} else {
+		qb_variable_dimensions dim1, dim2, dim3;
+		qb_append_final_dimension(cxt, address1, vector_width_address, &dim1);
+		qb_append_final_dimension(cxt, address2, vector_width_address, &dim2);
+		qb_append_final_dimension(cxt, address3, vector_width_address, &dim3);
+		qb_choose_dimensions_from_three(cxt, &dim1, &dim2, &dim3, dim);
+	}
+}
+
 static void qb_append_address_dimensions(qb_compiler_context *cxt, qb_address *first_dimension_address, qb_address *address, int32_t offset, qb_variable_dimensions *dim) {
 	uint32_t i;
 	dim->dimension_count = 1 + address->dimension_count - offset;
@@ -363,9 +420,39 @@ static void qb_set_result_dimensions_larger_of_two(qb_compiler_context *cxt, qb_
 	qb_choose_dimensions_from_two_addresses(cxt, first->address, 0, second->address, 0, dim);
 }
 
+static qb_address * qb_get_vector_width_address(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
+	uint32_t i;
+	qb_address *from_address = NULL;
+	for(i = 0; i < operand_count; i++) {
+		// use the constant dimension if there's one
+		qb_address *address = operands[i].address;
+		if(CONSTANT_DIMENSION(address, -1)) {
+			from_address = address;
+			break;
+		}
+	}
+	// just use the first one
+	if(!from_address) {
+		from_address = operands[0].address;
+	}
+	return DIMENSION_ADDRESS(from_address, -1);
+}
+
+static void qb_set_result_dimensions_larger_of_two_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0], *second = &operands[1];
+	qb_address *vector_width_address = qb_get_vector_width_address(cxt, operands, operand_count);
+	qb_choose_dimensions_from_two_vector_addresses(cxt, first->address, second->address, vector_width_address, dim);
+}
+
 static void qb_set_result_dimensions_largest_of_three(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0], *second = &operands[1], *third = &operands[2];
 	qb_choose_dimensions_from_three_addresses(cxt, first->address, 0, second->address, 0, third->address, 0, dim);
+}
+
+static void qb_set_result_dimensions_larger_of_three_vectors(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0], *second = &operands[1], *third = &operands[2];
+	qb_address *vector_width_address = qb_get_vector_width_address(cxt, operands, operand_count);
+	qb_choose_dimensions_from_three_vector_addresses(cxt, first->address, second->address, third->address, vector_width_address, dim);
 }
 
 static void qb_set_result_dimensions_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
@@ -397,10 +484,11 @@ static void qb_set_result_dimensions_dot_product(qb_compiler_context *cxt, qb_op
 }
 
 static void qb_set_result_dimensions_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+	qb_operand *first = &operands[0], *second = &operands[1], *third = &operands[2];
 	if(operand_count == 3) {
-		qb_set_result_dimensions_largest_of_three(cxt, f, operands, operand_count, dim);	
+		qb_set_result_dimensions_larger_of_three_vectors(cxt, f, operands, operand_count, dim);
 	} else {
-		qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim);	
+		qb_set_result_dimensions_larger_of_two_vectors(cxt, f, operands, operand_count, dim);
 	}
 }
 

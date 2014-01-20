@@ -2085,6 +2085,9 @@ int32_t qb_add_variables(qb_compiler_context *cxt) {
 				// we don't know whether it is a local or a global variable at this point
 				qvar->flags = 0;
 				qvar->address = NULL;
+				if(zvar->name_len == 4 && strcmp(zvar->name, "this") == 0) {
+					qvar->flags = QB_VARIABLE_THIS;
+				}
 			}
 		}
 		qb_add_variable(cxt, qvar);
@@ -2556,6 +2559,8 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 					}
 				}
 			}
+		} else if(operand->type == QB_OPERAND_THIS) {
+			qb_report_illegal_use_of_this(NULL, cxt->line_id);
 		}
 	} else {
 		if(operand->type == QB_OPERAND_ADDRESS) {

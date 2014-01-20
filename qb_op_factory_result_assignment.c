@@ -601,10 +601,23 @@ static int32_t qb_run_php_function(qb_compiler_context *cxt, const char *functio
 	zval *arguments[8];
 	zval *function = qb_cstring_to_zval(function_name TSRMLS_CC);
 	for(i = 0; i < operand_count; i++) {
-		arguments[i] = operands[i].constant;
+		int32_t zval_type = zval_types[i];
+		qb_operand *operand = &operands[i];
 		argument_pointers[i] = &arguments[i];
-		zval_add_ref(argument_pointers[i]);
-		convert_to_explicit_type_ex(argument_pointers[i], zval_types[i]);
+		if(zval_type == IS_OBJECT) {
+			if(operand->type == QB_OPERAND_THIS) {
+				zval *object = EG(This);
+				arguments[i] = object;
+			} else {
+				// class name
+				arguments[i] = operand->constant;
+			}
+			zval_add_ref(argument_pointers[i]);
+		} else {
+			arguments[i] = operand->constant;
+			zval_add_ref(argument_pointers[i]);
+			convert_to_explicit_type_ex(argument_pointers[i], zval_type);
+		}
 	}
 	result = call_user_function_ex(EG(function_table), NULL, function, &retval, operand_count, argument_pointers, TRUE, NULL TSRMLS_CC);
 	for(i = 0; i < operand_count; i++) {

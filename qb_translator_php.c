@@ -26,14 +26,18 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_
 			uint32_t var_index = Z_OPERAND_INFO(*zoperand, var);
 			qb_variable *qvar = cxt->compiler_context->variables[var_index];
 			if(!qvar->address) {
-				// the variable type hasn't been set yet
-				qvar->flags |= QB_VARIABLE_LOCAL;
-				if(!qb_apply_type_declaration(cxt->compiler_context, qvar)) {
-					return FALSE;
+				if(qvar->flags & QB_VARIABLE_THIS) {
+					operand->type = QB_OPERAND_THIS;
+				} else {
+					// the variable type hasn't been set yet
+					qvar->flags |= QB_VARIABLE_LOCAL;
+					if(!qb_apply_type_declaration(cxt->compiler_context, qvar)) {
+						return FALSE;
+					}
+					operand->type = QB_OPERAND_ADDRESS;
 				}
 			}
 			operand->address = qvar->address;
-			operand->type = QB_OPERAND_ADDRESS;
 		}	break;
 		case Z_OPERAND_CONST: {
 			operand->constant = Z_OPERAND_ZV(*zoperand);
@@ -1027,7 +1031,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"function_exists",		1,		1,		&factory_function_exists	},
 	{	0,	"class_exists",			1,		2,		&factory_class_exists		},
 	{	0,	"method_exists",		2,		2,		&factory_method_exists		},
-	{	0,	"property_exists",		2,		2,		&factory_method_exists		},
+	{	0,	"property_exists",		2,		2,		&factory_property_exists	},
 	{	0,	"ini_get",				1,		1,		&factory_ini_get			},
 	{	0,	"ini_set",				2,		2,		&factory_ini_set			},
 	{	0,	"ini_alter",			2,		2,		&factory_ini_set			},

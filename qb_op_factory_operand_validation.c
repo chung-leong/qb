@@ -942,13 +942,34 @@ static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt,
 	return TRUE;
 }
 
-static int32_t qb_validate_operands_literals(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+static int32_t qb_validate_operands_compile_time_function(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	uint32_t i;
+	qb_php_function_result_factory *pf = (qb_php_function_result_factory *) f;
 	for(i = 0; i < operand_count; i++) {
 		qb_operand *operand = &operands[i];
-		if(operand->type != QB_OPERAND_ZVAL || Z_TYPE_P(operand->constant) != IS_STRING) {
-			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "literal string");
-			return FALSE;
+		int32_t type = pf->argument_types[i];
+		if(type == IS_STRING) {
+			if(operand->type != QB_OPERAND_ZVAL || Z_TYPE_P(operand->constant) != IS_STRING) {
+				qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "literal string");
+				return FALSE;
+			} 
+		} else if(type == IS_BOOL) {
+			if(operand->type != QB_OPERAND_ZVAL || Z_TYPE_P(operand->constant) != IS_BOOL) {
+				qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "boolean");
+				return FALSE;
+			} 
+		} else if(type == IS_CONSTANT) {
+			if(operand->type != QB_OPERAND_ZVAL) {
+				qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "constant expression");
+				return FALSE;
+			} 
+		} else if(type == IS_OBJECT) {
+			if(operand->type != QB_OPERAND_THIS) {
+				if(operand->type != QB_OPERAND_ZVAL || Z_TYPE_P(operand->constant) != IS_STRING) {
+					qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "class name or $this");
+					return FALSE;
+				} 
+			}
 		}
 	}
 	return TRUE;
