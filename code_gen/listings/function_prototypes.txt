@@ -59,3 +59,9 @@ void qb_report_invalid_4d_cross_product_exception(qb_thread *thread, uint32_t li
 void qb_report_invalid_transform_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row, uint32_t vector_width);
 void qb_report_invalid_matrix_multiplication_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix1_column, uint32_t matrix2_row, uint32_t matrix_flags);
 void qb_report_not_square_matrix_exception(qb_thread *thread, uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row);
+
+long strtol(const char* str, char** endptr, int base);
+long long int strtoll(const char* str, char** endptr, int base);
+unsigned long strtoul(const char* str, char** endptr, int base);
+unsigned long long int strtoull(const char* str, char** endptr, int base);
+double zend_strtod(const char *s00, const char **se);

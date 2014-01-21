@@ -1226,6 +1226,9 @@ class CodeGenerator {
 				$this->handlers[] = new UnpackBigEndian("UNPACK_BE", $elementTypeNoSign, $addressMode);
 			}
 		}
+		foreach($this->scalarAddressModes as $addressMode) {
+			$this->handlers[] = new ConvertFromString("CONV_STR", $elementType, $addressMode);
+		}
 	}
 	
 	protected function addArrayHandlers($elementType) {

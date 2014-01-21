@@ -248,6 +248,7 @@ double _php_math_round(double value, int places, int mode);
 
 #ifdef _MSC_VER
 	#define strtoull	_strtoui64
+	#define strtoll		_strtoi64
 #endif
 
 #if defined(_MSC_VER) || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1

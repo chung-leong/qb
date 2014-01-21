@@ -46,7 +46,7 @@ class ArraySlice extends Handler {
 		$lines[] = "if(op1 >= 0) {";
 		$lines[] =		"start_index = op1;";
 		$lines[] = "} else {";
-		$lines[] = 		"start_index = (op3 > -op1) ? op3 + op1 : 0;";
+		$lines[] = 		"start_index = (op3 > (uint32_t) -op1) ? op3 + op1 : 0;";
 		$lines[] = "}";
 		$lines[] = "if(op2 >= 0) {";
 		$lines[] =		"end_index = start_index + op2;";

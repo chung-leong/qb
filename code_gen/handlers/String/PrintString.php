@@ -2,12 +2,8 @@
 
 class PrintString extends Handler {
 
-	use ArrayAddressMode, MainThreadExecution;
+	use ArrayAddressMode, UnaryOperatorNoResult, MainThreadExecution;
 	
-	public function getInputOperandCount() {
-		return 1;
-	}
-
 	public function getOperandAddressMode($i) {
 		return "ARR";
 	}

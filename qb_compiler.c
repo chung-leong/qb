@@ -1915,17 +1915,26 @@ static qb_type_declaration * qb_find_variable_declaration_in_list(qb_compiler_co
 uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address) {
 	uint32_t i;	
 	qb_variable *qvar;
-	while(address->source_address) {
-		if(address->source_address->dimension_count == address->dimension_count) {
-			address = address->source_address;
-		} else {
-			break;
+	if(address) {
+		while(address->source_address) {
+			if(address->source_address->dimension_count == address->dimension_count) {
+				address = address->source_address;
+			} else {
+				break;
+			}
 		}
-	}
-	for(i = 0; i < cxt->variable_count; i++) {
-		qvar = cxt->variables[i];
-		if(qvar->address == address) {
-			return i;
+		for(i = 0; i < cxt->variable_count; i++) {
+			qvar = cxt->variables[i];
+			if(qvar->address == address) {
+				return i;
+			}
+		}
+	} else {
+		for(i = 0; i < cxt->variable_count; i++) {
+			qvar = cxt->variables[i];
+			if(qvar->flags & QB_VARIABLE_THIS) {
+				return i;
+			}
 		}
 	}
 	qvar = qb_allocate_variable(cxt->pool);
@@ -2550,7 +2559,9 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 						// operand cannot be floating point (e.g. result of bitwise operator) 
 						// use the largest integer type instead
 						desired_type = QB_TYPE_I64;
-					} 
+					} else if(desired_type < QB_TYPE_F32 && operand->result_prototype->coercion_flags & QB_COERCE_TO_FLOATING_POINT) {
+						desired_type = QB_TYPE_F64;
+					}
 					if(desired_type > operand->result_prototype->preliminary_type || operand->result_prototype->preliminary_type == QB_TYPE_ANY || operand->result_prototype->preliminary_type == QB_TYPE_UNKNOWN) {
 						operand->result_prototype->preliminary_type = desired_type;
 						if(!(operand->result_prototype->coercion_flags & QB_COERCE_TO_LVALUE_TYPE)) {

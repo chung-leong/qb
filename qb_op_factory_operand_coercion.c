@@ -284,6 +284,11 @@ static void qb_coerce_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f
 	}
 }
 
+static void qb_coerce_operands_convert_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *string = &operands[0];
+	qb_perform_type_coercion(cxt, string, QB_TYPE_U08, 0);
+}
+
 static void qb_coerce_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
@@ -307,6 +312,8 @@ static void qb_coerce_operands_zend_function_call(qb_compiler_context *cxt, qb_o
 	uint32_t i;
 	for(i = 0; i < (uint32_t) argument_count->number; i++) {
 		qb_operand *argument = &arguments->arguments[i];
-		qb_perform_type_coercion(cxt, argument, QB_TYPE_ANY, 0);
+		if(argument->type != QB_OPERAND_THIS) {
+			qb_perform_type_coercion(cxt, argument, QB_TYPE_ANY, 0);
+		}
 	}
 }

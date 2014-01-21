@@ -987,9 +987,14 @@ static int32_t qb_execute_zend_function_call(qb_interpreter_context *cxt, zend_f
 	for(i = 0; i < argument_count; i++) {
 		uint32_t var_index = variable_indices[i];
 		qb_variable *var = cxt->function->variables[var_index];
-		ALLOC_INIT_ZVAL(arguments[i]);
-		qb_transfer_value_to_zval(cxt->function->local_storage, var->address, arguments[i]);
 		argument_pointers[i] = &arguments[i];
+		if(var->address) {
+			ALLOC_INIT_ZVAL(arguments[i]);
+			qb_transfer_value_to_zval(cxt->function->local_storage, var->address, arguments[i]);
+		} else {
+			arguments[i] = EG(This);
+			zval_add_ref(argument_pointers[i]);
+		}
 	}
 
 	qb_sync_imported_variables(cxt);
