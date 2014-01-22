@@ -1529,7 +1529,7 @@ static qb_address * qb_obtain_multidimensional_alias(qb_compiler_context *cxt, q
 	alias->array_size_addresses = qb_allocate_address_pointers(cxt->pool, dim->dimension_count);
 	for(i = 0; i < dim->dimension_count; i++) {
 		alias->dimension_addresses[i] = dim->dimension_addresses[i];
-		alias->array_size_addresses[i] = dim->array_size_addresses[i];
+		alias->array_size_addresses[i] = (i == 0) ? address->array_size_address : dim->array_size_addresses[i];
 	}
 	if(IN_USE(address)) {
 		for(i = 0; i < dim->dimension_count; i++) {
@@ -1537,12 +1537,12 @@ static qb_address * qb_obtain_multidimensional_alias(qb_compiler_context *cxt, q
 			qb_lock_address(cxt, alias->array_size_addresses[i]);
 		}
 	}
-	alias->array_size_address = dim->array_size_address;
 	return alias;
 }
 
 qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim) {
 	uint32_t i;
+	qb_address *address = NULL;
 	qb_address *usable_address = NULL;
 	if(dim && dim->dimension_count > 0) {
 		int32_t need_variable_length = !dim->array_size_address || VARIABLE_LENGTH(dim);
@@ -1572,7 +1572,12 @@ qb_address * qb_obtain_temporary_variable(qb_compiler_context *cxt, qb_primitive
 		usable_address = qb_create_temporary_variable(cxt, element_type, dim);
 	}
 	qb_lock_address(cxt, usable_address);
-	return usable_address;
+	if(dim && dim->dimension_count > 1) {
+		address = qb_obtain_multidimensional_alias(cxt, usable_address, dim);
+	} else {
+		address = usable_address;
+	}
+	return address;
 }
 
 qb_address * qb_obtain_write_target(qb_compiler_context *cxt, qb_primitive_type element_type, qb_variable_dimensions *dim, uint32_t address_flags, qb_result_prototype *result_prototype, int32_t resizing) {

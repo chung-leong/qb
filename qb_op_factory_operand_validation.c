@@ -722,6 +722,53 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
+static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	uint32_t i;
+	uint32_t result_dimension_count = 1;
+	qb_address *result_element_size_address = NULL;
+
+	// the argument with the largest number of dimensions determines
+	// how many there are in the result and the element size
+	for(i = 0; i < operand_count; i++) {
+		qb_address *address = operands[i].address;
+		if(address->dimension_count > result_dimension_count) {
+			result_dimension_count = address->dimension_count;
+			result_element_size_address = address->array_size_addresses[1];
+		}
+	}
+
+	// make sure the elements are of the same size
+	if(result_element_size_address) {
+		for(i = 0; i < operand_count; i++) {
+			qb_address *address = operands[i].address;
+			qb_address *element_size_address;
+			if(address->dimension_count == result_dimension_count) {
+				element_size_address = address->array_size_addresses[1];
+			} else {
+				// if the number of dimensions is less, then treat the whole array as the element
+				element_size_address = address->array_size_address;
+			}
+
+			if(element_size_address) {
+				if(result_element_size_address != element_size_address) {
+					if(CONSTANT(result_element_size_address) && CONSTANT(element_size_address)) {
+						uint32_t result_element_size = VALUE(U32, result_element_size_address);
+						uint32_t element_size = VALUE(U32, element_size_address);
+						if(result_element_size != element_size) {
+							qb_report_out_of_bound_exception(NULL, cxt->line_id, element_size, result_element_size, TRUE);
+						}
+					} else {
+						// TODO: runtime check
+					}
+				}
+			} else {
+				qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "array");
+			}
+		}
+	}
+	return TRUE;
+}
+
 static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *value = &operands[0];
 	if(cxt->argument_offset == 0) {

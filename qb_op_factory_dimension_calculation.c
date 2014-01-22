@@ -647,38 +647,32 @@ static void qb_set_result_dimensions_sampling_vector(qb_compiler_context *cxt, q
 }
 
 static void qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	/*
-	uint32_t i, final_length = 0;
-	qb_address *dimension_source = NULL;
+	uint32_t i;
+	uint32_t result_dimension_count = 1;
+	qb_address *result_element_size_address = NULL;
+	qb_address **result_element_dimension_addresses = NULL;
+	qb_address **result_element_array_size_addresses = NULL;
+
 	for(i = 0; i < operand_count; i++) {
 		qb_address *address = operands[i].address;
-		if(VARIABLE_LENGTH_ARRAY(address)) {
-			final_length = 0;
-			dimension_source = NULL;
-			break;
-		} else {
-			if(SCALAR(address)) {
-				final_length += 1;
-			} else {
-				final_length += ARRAY_SIZE(address);
-			}
-		}
-		if(!dimension_source || address->dimension_count > dimension_source->dimension_count) {
-			dimension_source = address;
+		if(address->dimension_count > result_dimension_count) {
+			result_dimension_count = address->dimension_count;
+			result_element_size_address = address->array_size_addresses[1];
+			result_element_dimension_addresses = address->dimension_addresses + 1;
+			result_element_array_size_addresses = address->array_size_addresses + 1;
 		}
 	}
-	dim->array_size = final_length;
-	if(dimension_source && dimension_source->dimension_count > 1) {
-		uint32_t element_count = final_length / VALUE(U32, dimension_source->array_size_addresses[1]);
-		dim->dimension_addresses[0] = qb_obtain_constant_U32(cxt, element_count);
-		for(i = 1; i < dimension_source->dimension_count; i++) {
-			dim->dimension_addresses[i] = dimension_source->dimension_addresses[i];
+
+	dim->dimension_count = result_dimension_count;
+	dim->array_size_address = NULL;
+	if(result_dimension_count > 1) {
+		dim->array_size_addresses[0] = NULL;
+		dim->dimension_addresses[0] = qb_create_writable_scalar(cxt, QB_TYPE_U32);
+		for(i = 1; i < result_dimension_count; i++) {
+			dim->array_size_addresses[i] = result_element_array_size_addresses[i - 1];
+			dim->dimension_addresses[i] = result_element_dimension_addresses[i - 1];
 		}
-		dim->dimension_count = dimension_source->dimension_count;
-	} else {
-		dim->dimension_count = 1;
 	}
-	*/
 }
 
 static void qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {

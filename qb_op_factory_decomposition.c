@@ -344,22 +344,39 @@ static int32_t qb_decompose_array_merge(qb_compiler_context *cxt, void *factory,
 		result->type = QB_OPERAND_RESULT_PROTOTYPE;
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_variable_dimensions dim = { 1, NULL };
-		result->address = qb_obtain_temporary_variable(cxt, result_prototype->final_type, &dim);
-		result->type = QB_OPERAND_ADDRESS;
+		qb_primitive_type expr_type = qb_resolve_expression_type_highest_rank(cxt, factory, operands, operand_count);
+		qb_coerce_operands_all(cxt, factory, expr_type, operands, operand_count);
 
-		for(i = 0; i < operand_count; i++) {
-			qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
-			replace_operands[0].address = result->address;
-			replace_operands[0].type = QB_OPERAND_ADDRESS;
-			replace_operands[1].address = result->address->dimension_addresses[0];
-			replace_operands[1].type = QB_OPERAND_ADDRESS;
-			replace_operands[2].address = cxt->zero_address;
-			replace_operands[2].type = QB_OPERAND_ADDRESS;
-			replace_operands[3] = operands[i];
-			if(!qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL)) {
+		if(qb_validate_operands_array_merge(cxt, factory, expr_type, operands, operand_count, NULL)) {
+			qb_operand unset_operands[1];
+			qb_operand unset_result = { QB_OPERAND_EMPTY, { NULL } };
+			qb_variable_dimensions dim;
+
+			qb_set_result_dimensions_array_merge(cxt, factory, operands, operand_count, &dim);
+			result->address = qb_obtain_temporary_variable(cxt, result_prototype->final_type, &dim);
+			result->type = QB_OPERAND_ADDRESS;
+
+			unset_operands[0].address = result->address;
+			unset_operands[0].type = QB_OPERAND_ADDRESS;
+			if(!qb_produce_op(cxt, &factory_unset, unset_operands, 1, &unset_result, NULL, 0, NULL)) {
 				return FALSE;
 			}
+
+			for(i = 0; i < operand_count; i++) {
+				qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
+				replace_operands[0].address = result->address;
+				replace_operands[0].type = QB_OPERAND_ADDRESS;
+				replace_operands[1].address = result->address->dimension_addresses[0];
+				replace_operands[1].type = QB_OPERAND_ADDRESS;
+				replace_operands[2].address = cxt->zero_address;
+				replace_operands[2].type = QB_OPERAND_ADDRESS;
+				replace_operands[3] = operands[i];
+				if(!qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL)) {
+					return FALSE;
+				}
+			}
+		} else {
+			return FALSE;
 		}
 	}
 	return TRUE;
