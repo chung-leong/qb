@@ -285,7 +285,11 @@ void qb_report_incorrect_argument_count_exception(qb_thread *thread, uint32_t li
 		qb_report_exception(thread, line_id, E_ERROR, "%s() expects %u arguments but %u was passed", ifunc->name, ifunc->argument_count_min, argument_count);
 	} else {
 		if(argument_count < ifunc->argument_count_min || argument_count > ifunc->argument_count_max) {
-			qb_report_exception(thread, line_id, E_ERROR, "%s() expects %u to %u arguments but %u was passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count);
+			if(ifunc->argument_count_max != INVALID_INDEX) {
+				qb_report_exception(thread, line_id, E_ERROR, "%s() expects %u to %u arguments but %u was passed", ifunc->name, ifunc->argument_count_min, ifunc->argument_count_max, argument_count);
+			} else {
+				qb_report_exception(thread, line_id, E_ERROR, "%s() expects %u or more arguments but %u was passed", ifunc->name, ifunc->argument_count_min, argument_count);
+			}
 		} else {
 			// function is being called because either argument count can be the min or the max
 			// and not something in between

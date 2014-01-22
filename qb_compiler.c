@@ -3376,7 +3376,7 @@ void qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
 int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_factory *f = factory;
 	if(f->produce_composite) {
-		f->produce_composite(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
+		return f->produce_composite(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
 	} else {
 		qb_primitive_type expr_type = QB_TYPE_VOID;
 		int32_t result_used = (!result || result->type != QB_OPERAND_NONE);
