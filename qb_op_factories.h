@@ -220,7 +220,7 @@ struct qb_matrix_op_factory_selector {
 
 struct qb_pixel_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
-	qb_opcode opcodes[2][2];
+	qb_opcode opcodes[4][2];
 }; 
 
 struct qb_utf8_op_factory {

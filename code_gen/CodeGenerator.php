@@ -1316,11 +1316,25 @@ class CodeGenerator {
 				$this->handlers[] = new SampleNearest("SAMPLE_NN", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleNearest("SAMPLE_NN", $elementType, $addressMode, 2, ($addressMode == "ARR"));
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleNearest("SAMPLE_NN", $elementType, $addressMode, 1, ($addressMode == "ARR"));
+			}
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 4, ($addressMode == "ARR"));
 			}
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 3, ($addressMode == "ARR"));
 			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 2, ($addressMode == "ARR"));
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new SampleBilinear("SAMPLE_BL", $elementType, $addressMode, 1, ($addressMode == "ARR"));
+			}
+			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 2);
+			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 2, true);
 			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 4);
 			$this->handlers[] = new AlphaBlend("BLEND", $elementType, 4, true);
 			$this->handlers[] = new ApplyPremultiplication("PREMULT", $elementType, 4);

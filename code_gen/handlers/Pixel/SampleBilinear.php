@@ -2,7 +2,7 @@
 
 class SampleBilinear extends Handler {
 
-	use MultipleAddressMode, PixelSampler, FloatingPointOnly, DoublePrecisionIsRare, UseQuickRoundingFunction;
+	use MultipleAddressMode, PixelSampler, FloatingPointOnly, DoublePrecisionIsRare;
 	
 	protected function getPixelRetrievalExpression($offsetX, $offsetY) {
 		$pixel = "p$offsetX$offsetY";
@@ -10,16 +10,24 @@ class SampleBilinear extends Handler {
 		$lines[] = "if((((uint32_t) ix + $offsetX) < op2) && (((uint32_t) iy + $offsetY) < op3)) {";
 		$lines[] =		"uint32_t index = (((iy + $offsetY) * op2) + (ix + $offsetX)) * $this->operandSize;";
 		$lines[] =		"{$pixel}[0] = op1_ptr[index + 0];";
-		$lines[] =		"{$pixel}[1] = op1_ptr[index + 1];";
-		$lines[] =		"{$pixel}[2] = op1_ptr[index + 2];";
-		if($this->operandSize == 4) {
+		if($this->operandSize >= 2) {
+			$lines[] =	"{$pixel}[1] = op1_ptr[index + 1];";
+		}
+		if($this->operandSize >= 3) {
+			$lines[] =	"{$pixel}[2] = op1_ptr[index + 2];";
+		}
+		if($this->operandSize >= 4) {
 			$lines[] =	"{$pixel}[3] = op1_ptr[index + 3];";
 		}
 		$lines[] = "} else {";
 		$lines[] =		"{$pixel}[0] = 0;";
-		$lines[] =		"{$pixel}[1] = 0;";
-		$lines[] =		"{$pixel}[2] = 0;";
-		if($this->operandSize == 4) {
+		if($this->operandSize >= 2) {
+			$lines[] =	"{$pixel}[1] = 0;";
+		}
+		if($this->operandSize >= 3) {
+			$lines[] =	"{$pixel}[2] = 0;";
+		}
+		if($this->operandSize >= 4) {
 			$lines[] =	"{$pixel}[3] = 0;";
 		}
 		$lines[] = "}";
@@ -31,24 +39,32 @@ class SampleBilinear extends Handler {
 		$cType = $this->getOperandCType(6);
 		$f = ($type == 'F32') ? 'f' : '';
 		$lines = array();
-		$lines[] = "int32_t ix = qb_quick_floor$f(op4 - 0.5$f);";
-		$lines[] = "int32_t iy = qb_quick_floor$f(op5 - 0.5$f);";
+		$lines[] = "int32_t ix = (int32_t) floor$f(op4 - 0.5$f);";
+		$lines[] = "int32_t iy = (int32_t) floor$f(op5 - 0.5$f);";
 		$lines[] = "$cType fx = (op4 - 0.5$f) - floor$f(op4 - 0.5$f);";
 		$lines[] = "$cType fy = (op5 - 0.5$f) - floor$f(op5 - 0.5$f);";
 		$lines[] = "if(fx + fy == 0) {";
 		$lines[] = 		"if(((uint32_t) ix < op2) && ((uint32_t) iy < op3)) {";
 		$lines[] = 			"uint32_t index = ((iy * op2) + ix) * $this->operandSize;";
 		$lines[] = 			"res_ptr[0] = op1_ptr[index + 0];";
-		$lines[] = 			"res_ptr[1] = op1_ptr[index + 1];";
-		$lines[] = 			"res_ptr[2] = op1_ptr[index + 2];";
-		if($this->operandSize == 4) {
+		if($this->operandSize >= 2) {
+			$lines[] = 		"res_ptr[1] = op1_ptr[index + 1];";
+		}
+		if($this->operandSize >= 3) {
+			$lines[] = 		"res_ptr[2] = op1_ptr[index + 2];";
+		}
+		if($this->operandSize >= 4) {
 			$lines[] = 		"res_ptr[3] = op1_ptr[index + 3];";
 		}
 		$lines[] = 		"} else {";
 		$lines[] = 			"res_ptr[0] = 0;";
-		$lines[] =			"res_ptr[1] = 0;";
-		$lines[] = 			"res_ptr[2] = 0;";
-		if($this->operandSize == 4) {
+		if($this->operandSize >= 2) {
+			$lines[] =		"res_ptr[1] = 0;";
+		}
+		if($this->operandSize >= 3) {
+			$lines[] = 		"res_ptr[2] = 0;";
+		}
+		if($this->operandSize >= 4) {
 			$lines[] =		"res_ptr[3] = 0;";
 		}
 		$lines[] = 		"}";
@@ -65,9 +81,13 @@ class SampleBilinear extends Handler {
 		$lines[] = 		$this->getPixelRetrievalExpression(0, 1);
 		$lines[] = 		$this->getPixelRetrievalExpression(1, 1);
 		$lines[] = 		"res_ptr[0] = p00[0] * w00 + p10[0] * w10 + p01[0] * w01 + p11[0] * w11;";
-		$lines[] = 		"res_ptr[1] = p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11;";
-		$lines[] = 		"res_ptr[2] = p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11;";
-		if($this->operandSize == 4) {
+		if($this->operandSize >= 2) {
+			$lines[] =	"res_ptr[1] = p00[1] * w00 + p10[1] * w10 + p01[1] * w01 + p11[1] * w11;";
+		}
+		if($this->operandSize >= 3) {
+			$lines[] = 	"res_ptr[2] = p00[2] * w00 + p10[2] * w10 + p01[2] * w01 + p11[2] * w11;";
+		}
+		if($this->operandSize >= 4) {
 			$lines[] = 	"res_ptr[3] = p00[3] * w00 + p10[3] * w10 + p01[3] * w01 + p11[3] * w11;";
 		}
 		$lines[] = "}";

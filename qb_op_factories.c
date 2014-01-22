@@ -4696,6 +4696,8 @@ qb_pixel_op_factory factory_sample_nearest = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
+		{	QB_SAMPLE_NN_F64_U32_U32_F64_F64_F64,		QB_SAMPLE_NN_F32_U32_U32_F32_F32_F32,		},
+		{	QB_SAMPLE_NN_2X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_NN_2X_F32_U32_U32_F32_F32_F32,	},
 		{	QB_SAMPLE_NN_3X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_NN_3X_F32_U32_U32_F32_F32_F32,	},
 		{	QB_SAMPLE_NN_4X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_NN_4X_F32_U32_U32_F32_F32_F32,	},
 	}
@@ -4735,6 +4737,8 @@ qb_pixel_op_factory factory_sample_bilinear = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
+		{	QB_SAMPLE_BL_F64_U32_U32_F64_F64_F64,		QB_SAMPLE_BL_F32_U32_U32_F32_F32_F32,		},
+		{	QB_SAMPLE_BL_2X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_BL_2X_F32_U32_U32_F32_F32_F32,	},
 		{	QB_SAMPLE_BL_3X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_BL_3X_F32_U32_U32_F32_F32_F32,	},
 		{	QB_SAMPLE_BL_4X_F64_U32_U32_F64_F64_F64,	QB_SAMPLE_BL_4X_F32_U32_U32_F32_F32_F32,	},
 	}
@@ -4764,7 +4768,7 @@ qb_pixel_op_factory factory_alpha_blend = {
 	qb_link_results_all_operands,
 	qb_coerce_operands_all,
 	qb_set_result_prototype,
-	qb_validate_operands_rgba,
+	qb_validate_operands_blend,
 	qb_set_result_temporary_value,
 	qb_set_result_dimensions_larger_of_two,
 	qb_select_opcode_pixel,
@@ -4774,8 +4778,10 @@ qb_pixel_op_factory factory_alpha_blend = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
-		{	0,							0						},
-		{	QB_BLEND_F64_F64_F64,		QB_BLEND_F32_F32_F32,	},
+		{	0,							0							},
+		{	QB_BLEND_2X_F64_F64_F64,	QB_BLEND_2X_F32_F32_F32,	},
+		{	0,							0							},
+		{	QB_BLEND_4X_F64_F64_F64,	QB_BLEND_4X_F32_F32_F32,	},
 	}
 };
 
@@ -4795,6 +4801,8 @@ qb_pixel_op_factory factory_apply_premult = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
+		{	0,							0						},
+		{	0,							0						},
 		{	0,							0						},
 		{	QB_PREMULT_F64_F64,			QB_PREMULT_F32_F32		},
 	}
@@ -4817,6 +4825,8 @@ qb_pixel_op_factory factory_remove_premult = {
 	QB_ADDRESS_TEMPORARY,
 	{
 		{	0,							0						},
+		{	0,							0						},
+		{	0,							0						},
 		{	QB_UNPREMULT_F64_F64,		QB_UNPREMULT_F32_F32	},
 	}
 };
@@ -4837,6 +4847,8 @@ qb_pixel_op_factory factory_rgb2hsv = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
+		{	0,							0						},
+		{	0,							0						},
 		{	QB_RGB2HSV_3X_F64_F64,		QB_RGB2HSV_3X_F32_F32	},
 		{	QB_RGB2HSV_4X_F64_F64,		QB_RGB2HSV_4X_F32_F32	},
 	}
@@ -4858,6 +4870,8 @@ qb_pixel_op_factory factory_hsv2rgb = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
+		{	0,							0						},
+		{	0,							0						},
 		{	QB_HSV2RGB_3X_F64_F64,		QB_HSV2RGB_3X_F32_F32	},
 		{	QB_HSV2RGB_4X_F64_F64,		QB_HSV2RGB_4X_F32_F32	},
 	}
@@ -4879,6 +4893,8 @@ qb_pixel_op_factory factory_rgb2hsl = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
+		{	0,							0						},
+		{	0,							0						},
 		{	QB_RGB2HSL_3X_F64_F64,		QB_RGB2HSL_3X_F32_F32	},
 		{	QB_RGB2HSL_4X_F64_F64,		QB_RGB2HSL_4X_F32_F32	},
 	}
@@ -4900,6 +4916,8 @@ qb_pixel_op_factory factory_hsl2rgb = {
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{
+		{	0,							0						},
+		{	0,							0						},
 		{	QB_HSL2RGB_3X_F64_F64,		QB_HSL2RGB_3X_F32_F32	},
 		{	QB_HSL2RGB_4X_F64_F64,		QB_HSL2RGB_4X_F32_F32	},
 	}

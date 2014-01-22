@@ -413,7 +413,7 @@ static qb_opcode qb_select_opcode_sampling(qb_compiler_context *cxt, qb_op_facto
 	qb_address *address_x = operands[1].address;
 	qb_address *address_y = operands[2].address;
 	uint32_t channel_count = DIMENSION(image_address, -1);
-	qb_opcode opcode = pf->opcodes[channel_count - 3][QB_TYPE_F64 - image_address->type];
+	qb_opcode opcode = pf->opcodes[channel_count - 1][QB_TYPE_F64 - image_address->type];
 
 	if(address_x->dimension_count > 1 || address_y->dimension_count > 1) {
 		// handling multiple pixels
@@ -427,7 +427,7 @@ static qb_opcode qb_select_opcode_sampling_vector(qb_compiler_context *cxt, qb_o
 	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) df->parent;
 	qb_address *image_address = operands[0].address;
 	uint32_t channel_count = DIMENSION(image_address, -1);
-	qb_opcode opcode = pf->opcodes[channel_count - 3][QB_TYPE_F64 - image_address->type];
+	qb_opcode opcode = pf->opcodes[channel_count - 1][QB_TYPE_F64 - image_address->type];
 	return opcode;
 }
 
@@ -442,7 +442,7 @@ static qb_opcode qb_select_opcode_pixel(qb_compiler_context *cxt, qb_op_factory 
 	qb_pixel_op_factory *pf = (qb_pixel_op_factory *) f;
 	qb_address *address = operands[0].address;
 	uint32_t channel_count = DIMENSION(address, -1);
-	qb_opcode opcode = pf->opcodes[channel_count - 3][QB_TYPE_F64 - address->type];
+	qb_opcode opcode = pf->opcodes[channel_count - 1][QB_TYPE_F64 - address->type];
 
 	if(address->dimension_count > 1) {
 		// handling multiple pixels

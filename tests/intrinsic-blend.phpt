@@ -32,6 +32,16 @@ function blend2(&$dst, $image1, $image2) {
 
 /**
  * @engine qb
+ * @param image2	$dst
+ * @param image2	$image1
+ * @param image2	$image2
+ */
+function blend3(&$dst, $image1, $image2) {
+	$dst = blend($image1, $image2);
+}
+
+/**
+ * @engine qb
  *
  * @param image	$img2;
  * @param image	$img1;
@@ -43,21 +53,31 @@ function _image_diff($img1, $img2) {
 	return sqrt(array_sum($img2));
 }
 
-for($i = 1; $i <= 2; $i++) {
+for($i = 1; $i <= 3; $i++) {
 	$correct_path = preg_replace('/#/', $i, $correct_path_templ);
 	$incorrect_path = preg_replace('/#/', $i, $incorrect_path_templ);
 	
-	if($i == 1) {
-		$red = imagecreatefrompng("$folder/input/red-circle.png");
-		$blue = imagecreatefrompng("$folder/input/blue-circle.png");
-		blend1($red, $blue);
-		$image = $red;
-	} else {
-		$red = imagecreatefrompng("$folder/input/red-circle.png");
-		$blue = imagecreatefrompng("$folder/input/blue-circle.png");
-		$image = imagecreatetruecolor(imagesx($red), imagesy($red));
-		imagesavealpha($image, true);
-		blend2($image, $blue, $red);
+	switch($i) {
+		case 1:
+			$red = imagecreatefrompng("$folder/input/red-circle.png");
+			$blue = imagecreatefrompng("$folder/input/blue-circle.png");
+			blend1($red, $blue);
+			$image = $red;
+			break;
+		case 2: 
+			$red = imagecreatefrompng("$folder/input/red-circle.png");
+			$blue = imagecreatefrompng("$folder/input/blue-circle.png");
+			$image = imagecreatetruecolor(imagesx($red), imagesy($red));
+			imagesavealpha($image, true);
+			blend2($image, $blue, $red);
+			break;
+		case 3: 
+			$red = imagecreatefrompng("$folder/input/red-circle.png");
+			$blue = imagecreatefrompng("$folder/input/blue-circle.png");
+			$image = imagecreatetruecolor(imagesx($red), imagesy($red));
+			imagesavealpha($image, true);
+			blend3($image, $blue, $red);
+			break;
 	}
 
 	ob_start();
@@ -99,5 +119,6 @@ for($i = 1; $i <= 2; $i++) {
 
 ?>
 --EXPECT--
+CORRECT
 CORRECT
 CORRECT
