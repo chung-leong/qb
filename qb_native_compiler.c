@@ -89,9 +89,6 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define SWAP_LE_I64(v)	"STRING(SWAP_LE_I64(v))"\n");
 	qb_print(cxt, "#define TRUE	"STRING(TRUE)"\n");
 	qb_print(cxt, "#define FALSE	"STRING(FALSE)"\n");
-	qb_print(cxt, "#define zend_isinf(x)	"STRING(zend_isinf(x))"\n");
-	qb_print(cxt, "#define zend_finite(x)	"STRING(zend_finite(x))"\n");
-	qb_print(cxt, "#define zend_isnan(x)	"STRING(zend_isnan(x))"\n");
 
 #ifdef __GNUC__
 #ifndef __builtin_bswap16
@@ -282,7 +279,6 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 				prototype_indices = cxt->op_function_usages[qop->opcode];
 				for(k = 0; prototype_indices[k] != 0xFFFFFFFF; k++) {
 					uint32_t index = prototype_indices[k];
-					qb_native_symbol *symbol = &global_native_symbols[index];
 					required[index] = TRUE;
 				}
 			}
