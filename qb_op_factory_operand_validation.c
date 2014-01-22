@@ -476,6 +476,22 @@ static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory
 	return TRUE;
 }
 
+static int32_t qb_validate_operands_blend(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	qb_operand *operand1 = &operands[0];
+
+	if(CONSTANT_DIMENSION(operand1->address, -1)) {
+		uint32_t channel_count = DIMENSION(operand1->address, -1);
+		if(channel_count != 2 && channel_count != 4) {
+			qb_report_missing_alpha_channel_exception(NULL, cxt->line_id, cxt->intrinsic_function, channel_count);
+			return FALSE;
+		}
+	} else {
+		qb_report_variable_pixel_width_exception(NULL, cxt->line_id, cxt->intrinsic_function);
+		return FALSE;
+	}
+	return TRUE;
+}
+
 static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *image = &operands[0];
 	uint32_t channel_count;
@@ -485,7 +501,7 @@ static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 	}
 	if(CONSTANT_DIMENSION(image->address, -1)) {
 		channel_count = DIMENSION(image->address, -1);
-		if(!(3 <= channel_count && channel_count <= 4)) {
+		if(!(1 <= channel_count && channel_count <= 4)) {
 			qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0, "array whose last dimension is 3 or 4");
 			return FALSE;
 		}

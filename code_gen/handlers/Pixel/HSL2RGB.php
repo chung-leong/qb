@@ -19,7 +19,7 @@ class HSL2RGB extends Handler {
 					"} else {",
 						"c = (1 - fabs$f(2 * l - 1)) * s;", 
 						"h /= 60;",
-						"i = qb_quick_floor$f(h);",
+						"i = (int32_t) floor$f(h);",
 						"f = h - i;",
 						"switch_loop:",
 						"switch(i) {",

@@ -89,9 +89,6 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define SWAP_LE_I64(v)	"STRING(SWAP_LE_I64(v))"\n");
 	qb_print(cxt, "#define TRUE	"STRING(TRUE)"\n");
 	qb_print(cxt, "#define FALSE	"STRING(FALSE)"\n");
-	qb_print(cxt, "#define zend_isinf(x)	"STRING(zend_isinf(x))"\n");
-	qb_print(cxt, "#define zend_finite(x)	"STRING(zend_finite(x))"\n");
-	qb_print(cxt, "#define zend_isnan(x)	"STRING(zend_isnan(x))"\n");
 
 #ifdef __GNUC__
 #ifndef __builtin_bswap16
@@ -282,7 +279,6 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 				prototype_indices = cxt->op_function_usages[qop->opcode];
 				for(k = 0; prototype_indices[k] != 0xFFFFFFFF; k++) {
 					uint32_t index = prototype_indices[k];
-					qb_native_symbol *symbol = &global_native_symbols[index];
 					required[index] = TRUE;
 				}
 			}
@@ -588,7 +584,7 @@ static void qb_copy_local_scalar_to_storage(qb_native_compiler_context *cxt, qb_
 }
 
 static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, qb_op *qop) {
-	uint32_t i;
+	uint32_t i, j;
 	for(i = 0; i < qop->operand_count; i++) {
 		qb_operand *operand = &qop->operands[i];
 		if(operand->type == QB_OPERAND_ADDRESS) {
@@ -604,6 +600,12 @@ static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, 
 				case QB_ADDRESS_MODE_ARR: {
 					qb_copy_local_scalar_to_storage(cxt, address);
 					qb_copy_local_scalar_to_storage(cxt, address->array_index_address);
+					for(j = 0; j < address->dimension_count; j++) {
+						qb_copy_local_scalar_to_storage(cxt, address->array_size_addresses[j]);
+						if(j != address->dimension_count - 1) {
+							qb_copy_local_scalar_to_storage(cxt, address->dimension_addresses[j]);
+						}
+					}
 				}	break;
 				default: {
 				}	break;

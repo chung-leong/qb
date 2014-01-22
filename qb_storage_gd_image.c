@@ -30,9 +30,11 @@ enum qb_pixel_format {
 	QB_PIXEL_I08_4,
 	QB_PIXEL_I32_1,
 	QB_PIXEL_F32_1,
+	QB_PIXEL_F32_2,
 	QB_PIXEL_F32_3,
 	QB_PIXEL_F32_4,
 	QB_PIXEL_F64_1,
+	QB_PIXEL_F64_2,
 	QB_PIXEL_F64_3,
 	QB_PIXEL_F64_4,
 
@@ -40,9 +42,11 @@ enum qb_pixel_format {
 	QB_PIXEL_1D_I08_4 = QB_PIXEL_I08_4 | QB_PIXEL_ARRANGEMENT_1D,
 	QB_PIXEL_1D_I32_1 = QB_PIXEL_I32_1 | QB_PIXEL_ARRANGEMENT_1D,
 	QB_PIXEL_1D_F32_1 = QB_PIXEL_F32_1 | QB_PIXEL_ARRANGEMENT_1D,
+	QB_PIXEL_1D_F32_2 = QB_PIXEL_F32_2 | QB_PIXEL_ARRANGEMENT_1D,
 	QB_PIXEL_1D_F32_3 = QB_PIXEL_F32_3 | QB_PIXEL_ARRANGEMENT_1D,
 	QB_PIXEL_1D_F32_4 = QB_PIXEL_F32_4 | QB_PIXEL_ARRANGEMENT_1D,
 	QB_PIXEL_1D_F64_1 = QB_PIXEL_F64_1 | QB_PIXEL_ARRANGEMENT_1D,
+	QB_PIXEL_1D_F64_2 = QB_PIXEL_F64_2 | QB_PIXEL_ARRANGEMENT_1D,
 	QB_PIXEL_1D_F64_3 = QB_PIXEL_F64_3 | QB_PIXEL_ARRANGEMENT_1D,
 	QB_PIXEL_1D_F64_4 = QB_PIXEL_F64_4 | QB_PIXEL_ARRANGEMENT_1D,
 
@@ -50,9 +54,11 @@ enum qb_pixel_format {
 	QB_PIXEL_2D_I08_4 = QB_PIXEL_I08_4 | QB_PIXEL_ARRANGEMENT_2D,
 	QB_PIXEL_2D_I32_1 = QB_PIXEL_I32_1 | QB_PIXEL_ARRANGEMENT_2D,
 	QB_PIXEL_2D_F32_1 = QB_PIXEL_F32_1 | QB_PIXEL_ARRANGEMENT_2D,
+	QB_PIXEL_2D_F32_2 = QB_PIXEL_F32_2 | QB_PIXEL_ARRANGEMENT_2D,
 	QB_PIXEL_2D_F32_3 = QB_PIXEL_F32_3 | QB_PIXEL_ARRANGEMENT_2D,
 	QB_PIXEL_2D_F32_4 = QB_PIXEL_F32_4 | QB_PIXEL_ARRANGEMENT_2D,
 	QB_PIXEL_2D_F64_1 = QB_PIXEL_F64_1 | QB_PIXEL_ARRANGEMENT_2D,
+	QB_PIXEL_2D_F64_2 = QB_PIXEL_F64_2 | QB_PIXEL_ARRANGEMENT_2D,
 	QB_PIXEL_2D_F64_3 = QB_PIXEL_F64_3 | QB_PIXEL_ARRANGEMENT_2D,
 	QB_PIXEL_2D_F64_4 = QB_PIXEL_F64_4 | QB_PIXEL_ARRANGEMENT_2D,
 };
@@ -125,6 +131,8 @@ static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_ad
 			} else if(element_type == QB_TYPE_F32) {
 				if(last_dimension == 1) {
 					pixel_format = QB_PIXEL_2D_F32_1;
+				} else if(last_dimension == 2) {
+					pixel_format = QB_PIXEL_2D_F32_2;
 				} else if(last_dimension == 3) {
 					pixel_format = QB_PIXEL_2D_F32_3;
 				} else if(last_dimension == 4) {
@@ -133,6 +141,8 @@ static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_ad
 			} else if(element_type == QB_TYPE_F64) {
 				if(last_dimension == 1) {
 					pixel_format = QB_PIXEL_2D_F64_1;
+				} else if(last_dimension == 2) {
+					pixel_format = QB_PIXEL_2D_F64_2;
 				} else if(last_dimension == 3) {
 					pixel_format = QB_PIXEL_2D_F64_3;
 				} else if(last_dimension == 4) {
@@ -150,6 +160,8 @@ static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_ad
 			} else if(element_type == QB_TYPE_F32) {
 				if(last_dimension == 1) {
 					pixel_format = QB_PIXEL_1D_F32_1;
+				} else if(last_dimension == 2) {
+					pixel_format = QB_PIXEL_1D_F32_2;
 				} else if(last_dimension == 3) {
 					pixel_format = QB_PIXEL_1D_F32_3;
 				} else if(last_dimension == 4) {
@@ -158,6 +170,8 @@ static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_ad
 			} else if(element_type == QB_TYPE_F64) {
 				if(last_dimension == 1) {
 					pixel_format = QB_PIXEL_1D_F64_1;
+				} else if(last_dimension == 2) {
+					pixel_format = QB_PIXEL_1D_F64_2;
 				} else if(last_dimension == 3) {
 					pixel_format = QB_PIXEL_1D_F64_3;
 				} else if(last_dimension == 4) {
@@ -300,7 +314,22 @@ static void qb_copy_rgb_pixel_from_gd_image_scanline_F32(void *param1, void *par
 	}
 }
 
-static void qb_copy_monochrome_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+static void qb_copy_ya_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax)) * 0.299f
+			 + ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax)) * 0.587f
+			 + ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax)) * 0.114f;
+		p[1] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0f / gdAlphaMax));
+		p += 2;
+	}
+}
+
+static void qb_copy_y_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
 	float32_t *p = param1;
 	int *tpixels = param2, tpixel;
 	uint32_t width = (uint32_t) param3, i;
@@ -321,10 +350,10 @@ static void qb_copy_rgba_pixel_from_gd_image_scanline_F64(void *param1, void *pa
 
 	for(i = 0; i < width; i++) {
 		tpixel = tpixels[i];
-		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
-		p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
-		p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
-		p[3] = ((float32_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0f / gdAlphaMax));
+		p[0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+		p[1] = ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+		p[2] = ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
+		p[3] = ((float64_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
 		p += 4;
 	}
 }
@@ -336,23 +365,38 @@ static void qb_copy_rgb_pixel_from_gd_image_scanline_F64(void *param1, void *par
 
 	for(i = 0; i < width; i++) {
 		tpixel = tpixels[i];
-		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax));
-		p[1] = ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax));
-		p[2] = ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax));
+		p[0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax));
+		p[1] = ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax));
+		p[2] = ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax));
 		p += 3;
 	}
 }
 
-static void qb_copy_monochrome_pixel_from_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+static void qb_copy_ya_pixel_from_gd_image_scanline_F64(void *param1, void *param2, int param3) {
 	float64_t *p = param1;
 	int *tpixels = param2, tpixel;
 	uint32_t width = (uint32_t) param3, i;
 
 	for(i = 0; i < width; i++) {
 		tpixel = tpixels[i];
-		p[0] = ((float32_t) gdTrueColorGetRed(tpixel) * (1.0f / gdRedMax)) * 0.299f
-			 + ((float32_t) gdTrueColorGetGreen(tpixel) * (1.0f / gdGreenMax)) * 0.587f
-			 + ((float32_t) gdTrueColorGetBlue(tpixel) * (1.0f / gdBlueMax)) * 0.114f;
+		p[0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax)) * 0.299
+			 + ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax)) * 0.587
+			 + ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax)) * 0.114;
+		p[1] = ((float64_t) (gdAlphaTransparent - gdTrueColorGetAlpha(tpixel)) * (1.0 / gdAlphaMax));
+		p += 2;
+	}
+}
+
+static void qb_copy_y_pixel_from_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2, tpixel;
+	uint32_t width = (uint32_t) param3, i;
+
+	for(i = 0; i < width; i++) {
+		tpixel = tpixels[i];
+		p[0] = ((float64_t) gdTrueColorGetRed(tpixel) * (1.0 / gdRedMax)) * 0.299
+			 + ((float64_t) gdTrueColorGetGreen(tpixel) * (1.0 / gdGreenMax)) * 0.587
+			 + ((float64_t) gdTrueColorGetBlue(tpixel) * (1.0 / gdBlueMax)) * 0.114;
 		p += 1;
 	}
 }
@@ -386,8 +430,12 @@ static int32_t qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *a
 				proc = qb_copy_rgb_pixel_from_gd_image_scanline_F32;
 				pixel_size = sizeof(float32_t) * 3;
 			}	break;
+			case QB_PIXEL_F32_2: {
+				proc = qb_copy_ya_pixel_from_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 2;
+			}	break;
 			case QB_PIXEL_F32_1: {
-				proc = qb_copy_monochrome_pixel_from_gd_image_scanline_F32;
+				proc = qb_copy_y_pixel_from_gd_image_scanline_F32;
 				pixel_size = sizeof(float32_t) * 1;
 			}	break;
 			case QB_PIXEL_F64_4: {
@@ -398,8 +446,12 @@ static int32_t qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *a
 				proc = qb_copy_rgb_pixel_from_gd_image_scanline_F64;
 				pixel_size = sizeof(float64_t) * 3;
 			}	break;
+			case QB_PIXEL_F64_2: {
+				proc = qb_copy_ya_pixel_from_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 2;
+			}	break;
 			case QB_PIXEL_F64_1: {
-				proc = qb_copy_monochrome_pixel_from_gd_image_scanline_F64;
+				proc = qb_copy_y_pixel_from_gd_image_scanline_F64;
 				pixel_size = sizeof(float64_t) * 1;
 			}	break;
 			default: {
@@ -470,7 +522,21 @@ static void qb_copy_rgb_pixel_to_gd_image_scanline_F32(void *param1, void *param
 	}
 }
 
-static void qb_copy_monochrome_pixel_to_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+static void qb_copy_ya_pixel_to_gd_image_scanline_F32(void *param1, void *param2, int param3) {
+	float32_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r, a;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float32(p[0], gdRedMax);
+		a = gdAlphaTransparent - qb_clamp_float32(p[1], gdAlphaMax);
+		tpixels[i] = gdTrueColorAlpha(r, r, r, a);
+		p += 2;
+	}
+}
+
+static void qb_copy_y_pixel_to_gd_image_scanline_F32(void *param1, void *param2, int param3) {
 	float32_t *p = param1;
 	int *tpixels = param2;
 	uint32_t width = (uint32_t) param3, i;
@@ -514,7 +580,21 @@ static void qb_copy_rgb_pixel_to_gd_image_scanline_F64(void *param1, void *param
 	}
 }
 
-static void qb_copy_monochrome_pixel_to_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+static void qb_copy_ya_pixel_to_gd_image_scanline_F64(void *param1, void *param2, int param3) {
+	float64_t *p = param1;
+	int *tpixels = param2;
+	uint32_t width = (uint32_t) param3, i;
+	int r, a;
+
+	for(i = 0; i < width; i++) {
+		r = qb_clamp_float64(p[0], gdRedMax);
+		a = gdAlphaTransparent - qb_clamp_float64(p[1], gdAlphaMax);
+		tpixels[i] = gdTrueColorAlpha(r, r, r, a);
+		p += 2;
+	}
+}
+
+static void qb_copy_y_pixel_to_gd_image_scanline_F64(void *param1, void *param2, int param3) {
 	float64_t *p = param1;
 	int *tpixels = param2;
 	uint32_t width = (uint32_t) param3, i;
@@ -579,8 +659,12 @@ static int32_t qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *add
 				proc = qb_copy_rgb_pixel_to_gd_image_scanline_F32;
 				pixel_size = sizeof(float32_t) * 3;
 			}	break;
+			case QB_PIXEL_F32_2: {
+				proc = qb_copy_ya_pixel_to_gd_image_scanline_F32;
+				pixel_size = sizeof(float32_t) * 2;
+			}	break;
 			case QB_PIXEL_F32_1: {
-				proc = qb_copy_monochrome_pixel_to_gd_image_scanline_F32;
+				proc = qb_copy_y_pixel_to_gd_image_scanline_F32;
 				pixel_size = sizeof(float32_t) * 1;
 			}	break;
 			case QB_PIXEL_F64_4: {
@@ -591,8 +675,12 @@ static int32_t qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *add
 				proc = qb_copy_rgb_pixel_to_gd_image_scanline_F64;
 				pixel_size = sizeof(float64_t) * 3;
 			}	break;
+			case QB_PIXEL_F64_2: {
+				proc = qb_copy_ya_pixel_to_gd_image_scanline_F64;
+				pixel_size = sizeof(float64_t) * 2;
+			}	break;
 			case QB_PIXEL_F64_1: {
-				proc = qb_copy_monochrome_pixel_to_gd_image_scanline_F64;
+				proc = qb_copy_y_pixel_to_gd_image_scanline_F64;
 				pixel_size = sizeof(float64_t) * 1;
 			}	break;
 			default: {

@@ -535,7 +535,7 @@ void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, in
 		}
 
 		// determine which segment should be used
-		if(element_count == 1) {
+		if(SCALAR(address)) {
 			if(CONSTANT(address)) {
 				selector = QB_SELECTOR_CONSTANT_SCALAR;
 			} else if(TEMPORARY(address)) {

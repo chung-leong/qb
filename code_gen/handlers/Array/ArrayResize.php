@@ -34,6 +34,8 @@ class ArrayResize extends Handler {
 				case 2:	return true;		// destination array size
 				case 0:	return true;		// destination dimension
 			}
+		} else if($i == $this->dimensionCount * 3 + 2) {
+			return true;
 		}
 		return false;
 	}
