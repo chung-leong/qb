@@ -295,21 +295,34 @@ static int32_t qb_decompose_array_push(qb_compiler_context *cxt, void *factory, 
 	qb_operand *container = &operands[0];
 	uint32_t i;
 
-	for(i = 1; i < operand_count; i++) {
-		qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
-		replace_operands[0].address = container->address;
-		replace_operands[0].type = QB_OPERAND_ADDRESS;
-		replace_operands[1].address = container->address->dimension_addresses[0];
-		replace_operands[1].type = QB_OPERAND_ADDRESS;
-		replace_operands[2].address = cxt->zero_address;
-		replace_operands[2].type = QB_OPERAND_ADDRESS;
-		replace_operands[3] = operands[i];
-		if(!qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL)) {
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->final_type = result_prototype->preliminary_type = QB_TYPE_U32;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_primitive_type arg_type = (container->type == QB_OPERAND_ADDRESS) ? container->address->type : QB_TYPE_ANY;
+		qb_coerce_operands_all(cxt, factory, arg_type, operands, operand_count);
+
+		if(qb_validate_operands_array_push(cxt, factory, QB_TYPE_U32, operands, operand_count, NULL)) {
+			for(i = 1; i < operand_count; i++) {
+				qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
+				replace_operands[0].address = container->address;
+				replace_operands[0].type = QB_OPERAND_ADDRESS;
+				replace_operands[1].address = container->address->dimension_addresses[0];
+				replace_operands[1].type = QB_OPERAND_ADDRESS;
+				replace_operands[2].address = cxt->zero_address;
+				replace_operands[2].type = QB_OPERAND_ADDRESS;
+				replace_operands[3] = operands[i];
+				if(!qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL)) {
+					return FALSE;
+				}
+			}
+		} else {
 			return FALSE;
 		}
+		result->address = container->address->dimension_addresses[0];
+		result->type = QB_OPERAND_ADDRESS;
 	}
-	result->address = container->address->dimension_addresses[0];
-	result->type = QB_OPERAND_ADDRESS;
 	return TRUE;
 }
 
@@ -317,21 +330,34 @@ static int32_t qb_decompose_array_unshift(qb_compiler_context *cxt, void *factor
 	qb_operand *container = &operands[0];
 	uint32_t i;
 
-	for(i = operand_count - 1; i >= 1; i--) {
-		qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
-		replace_operands[0].address = container->address;
-		replace_operands[0].type = QB_OPERAND_ADDRESS;
-		replace_operands[1].address = cxt->zero_address;
-		replace_operands[1].type = QB_OPERAND_ADDRESS;
-		replace_operands[2].address = cxt->zero_address;
-		replace_operands[2].type = QB_OPERAND_ADDRESS;
-		replace_operands[3] = operands[i];
-		if(!qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL)) {
+	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+		result_prototype->final_type = result_prototype->preliminary_type = QB_TYPE_U32;
+		result->type = QB_OPERAND_RESULT_PROTOTYPE;
+		result->result_prototype = result_prototype;
+	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+		qb_primitive_type arg_type = (container->type == QB_OPERAND_ADDRESS) ? container->address->type : QB_TYPE_ANY;
+		qb_coerce_operands_all(cxt, factory, arg_type, operands, operand_count);
+
+		if(qb_validate_operands_array_push(cxt, factory, QB_TYPE_U32, operands, operand_count, NULL)) {
+			for(i = operand_count - 1; i >= 1; i--) {
+				qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
+				replace_operands[0].address = container->address;
+				replace_operands[0].type = QB_OPERAND_ADDRESS;
+				replace_operands[1].address = cxt->zero_address;
+				replace_operands[1].type = QB_OPERAND_ADDRESS;
+				replace_operands[2].address = cxt->zero_address;
+				replace_operands[2].type = QB_OPERAND_ADDRESS;
+				replace_operands[3] = operands[i];
+				if(!qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL)) {
+					return FALSE;
+				}
+			}
+		} else {
 			return FALSE;
 		}
+		result->address = container->address->dimension_addresses[0];
+		result->type = QB_OPERAND_ADDRESS;
 	}
-	result->address = container->address->dimension_addresses[0];
-	result->type = QB_OPERAND_ADDRESS;
 	return TRUE;
 }
 
@@ -344,7 +370,8 @@ static int32_t qb_decompose_array_merge(qb_compiler_context *cxt, void *factory,
 		result->type = QB_OPERAND_RESULT_PROTOTYPE;
 		result->result_prototype = result_prototype;
 	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		qb_primitive_type expr_type = qb_resolve_expression_type_highest_rank(cxt, factory, operands, operand_count);
+		qb_primitive_type expr_type = qb_get_highest_rank_type(cxt, operands, operand_count, 0);
+		qb_address *dest_address = qb_obtain_result_destination_address(cxt, result_prototype->destination);
 		qb_coerce_operands_all(cxt, factory, expr_type, operands, operand_count);
 
 		if(qb_validate_operands_array_merge(cxt, factory, expr_type, operands, operand_count, NULL)) {
@@ -364,13 +391,19 @@ static int32_t qb_decompose_array_merge(qb_compiler_context *cxt, void *factory,
 
 			for(i = 0; i < operand_count; i++) {
 				qb_operand replace_operands[4], replace_result = { QB_OPERAND_EMPTY, { NULL } };
+				qb_address *addend_address = operands[i].address;
+				if(addend_address == dest_address) {
+
+				}
+
 				replace_operands[0].address = result->address;
 				replace_operands[0].type = QB_OPERAND_ADDRESS;
 				replace_operands[1].address = result->address->dimension_addresses[0];
 				replace_operands[1].type = QB_OPERAND_ADDRESS;
 				replace_operands[2].address = cxt->zero_address;
 				replace_operands[2].type = QB_OPERAND_ADDRESS;
-				replace_operands[3] = operands[i];
+				replace_operands[3].address = addend_address;
+				replace_operands[3].type = QB_OPERAND_ADDRESS;
 				if(!qb_produce_op(cxt, &factory_array_replace, replace_operands, 4, &replace_result, NULL, 0, NULL)) {
 					return FALSE;
 				}

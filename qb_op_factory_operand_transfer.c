@@ -529,7 +529,7 @@ static void qb_transfer_operands_array_replace(qb_compiler_context *cxt, qb_op_f
 	}
 	dest[3].address = container->address->dimension_addresses[0];
 	dest[3].type = QB_OPERAND_ADDRESS;
-	dest[4].address = (container->address->dimension_count > 1) ? container->address->dimension_addresses[1] : cxt->one_address;
+	dest[4].address = (container->address->dimension_count > 1) ? container->address->array_size_addresses[1] : cxt->one_address;
 	dest[4].type = QB_OPERAND_ADDRESS;
 	dest[5].address = container->address;
 	dest[5].type = QB_OPERAND_SEGMENT_SELECTOR;

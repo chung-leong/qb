@@ -672,9 +672,9 @@ static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_fa
 }
 
 static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *container = &operands[0], *value;
+	qb_operand *container = &operands[0];
 	qb_address *container_element_size_address;
-	uint32_t i, container_element_size = 0;
+	uint32_t i;
 
 	if(TEMPORARY(container->address)) {
 		qb_report_unexpected_value_as_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, 0);
@@ -691,31 +691,25 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 
 	if(container->address->dimension_count > 1) {
 		container_element_size_address = container->address->array_size_addresses[1];
-		if(CONSTANT(container_element_size_address)) {
-			container_element_size = VALUE(U32, container_element_size_address);
-		}
 	} else {
-		container_element_size = 1;
+		container_element_size_address = cxt->one_address;
 	}
 
-	if(container_element_size != 0) {
-		// the size of the container's elements is known
-		// make sure the values pushed in aren't too big
-		for(i = 1; i < operand_count; i++) {
-			uint32_t value_size = 0;
-			value = &operands[i];
-			if(value->address->dimension_count > 0) {
-				if(FIXED_LENGTH(value->address)) {
-					value_size = ARRAY_SIZE(value->address);
-				}
-			} else {
-				value_size = 1;
-			}
-			if(value_size != 0) {
-				if(value_size > container_element_size) {
-					qb_report_out_of_bound_exception(NULL, cxt->line_id, value_size, container_element_size, TRUE);
+	// make sure the elements being pushed in match the size of the elements in the container
+	for(i = 1; i < operand_count; i++) {
+		qb_address *address = operands[i].address;
+		qb_address *element_size_address = address->array_size_address;
+
+		if(container_element_size_address != element_size_address) {
+			if(CONSTANT(container_element_size_address) && CONSTANT(element_size_address)) {
+				uint32_t container_element_size = VALUE(U32, container_element_size_address);
+				uint32_t element_size = VALUE(U32, element_size_address);
+				if(container_element_size != element_size) {
+					qb_report_out_of_bound_exception(NULL, cxt->line_id, element_size, container_element_size, TRUE);
 					return FALSE;
 				}
+			} else {
+				// TODO: runtime check
 			}
 		}
 	}
@@ -725,7 +719,7 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	uint32_t i;
 	uint32_t result_dimension_count = 1;
-	qb_address *result_element_size_address = NULL;
+	qb_address *result_element_size_address = cxt->one_address;
 
 	// the argument with the largest number of dimensions determines
 	// how many there are in the result and the element size
@@ -738,31 +732,26 @@ static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_
 	}
 
 	// make sure the elements are of the same size
-	if(result_element_size_address) {
-		for(i = 0; i < operand_count; i++) {
-			qb_address *address = operands[i].address;
-			qb_address *element_size_address;
-			if(address->dimension_count == result_dimension_count) {
-				element_size_address = address->array_size_addresses[1];
-			} else {
-				// if the number of dimensions is less, then treat the whole array as the element
-				element_size_address = address->array_size_address;
-			}
+	for(i = 0; i < operand_count; i++) {
+		qb_address *address = operands[i].address;
+		qb_address *element_size_address;
+		if(address->dimension_count == result_dimension_count) {
+			element_size_address = address->array_size_addresses[1];
+		} else {
+			// if the number of dimensions is less, then treat the whole array as the element
+			element_size_address = address->array_size_address;
+		}
 
-			if(element_size_address) {
-				if(result_element_size_address != element_size_address) {
-					if(CONSTANT(result_element_size_address) && CONSTANT(element_size_address)) {
-						uint32_t result_element_size = VALUE(U32, result_element_size_address);
-						uint32_t element_size = VALUE(U32, element_size_address);
-						if(result_element_size != element_size) {
-							qb_report_out_of_bound_exception(NULL, cxt->line_id, element_size, result_element_size, TRUE);
-						}
-					} else {
-						// TODO: runtime check
-					}
+		if(result_element_size_address != element_size_address) {
+			if(CONSTANT(result_element_size_address) && CONSTANT(element_size_address)) {
+				uint32_t result_element_size = VALUE(U32, result_element_size_address);
+				uint32_t element_size = VALUE(U32, element_size_address);
+				if(result_element_size != element_size) {
+					qb_report_out_of_bound_exception(NULL, cxt->line_id, element_size, result_element_size, TRUE);
+					return FALSE;
 				}
 			} else {
-				qb_report_unexpected_intrinsic_argument_exception(NULL, cxt->line_id, cxt->intrinsic_function, i, "array");
+				// TODO: runtime check
 			}
 		}
 	}
