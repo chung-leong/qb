@@ -588,7 +588,7 @@ static void qb_copy_local_scalar_to_storage(qb_native_compiler_context *cxt, qb_
 }
 
 static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, qb_op *qop) {
-	uint32_t i;
+	uint32_t i, j;
 	for(i = 0; i < qop->operand_count; i++) {
 		qb_operand *operand = &qop->operands[i];
 		if(operand->type == QB_OPERAND_ADDRESS) {
@@ -604,6 +604,12 @@ static void qb_copy_local_variables_to_storage(qb_native_compiler_context *cxt, 
 				case QB_ADDRESS_MODE_ARR: {
 					qb_copy_local_scalar_to_storage(cxt, address);
 					qb_copy_local_scalar_to_storage(cxt, address->array_index_address);
+					for(j = 0; j < address->dimension_count; j++) {
+						qb_copy_local_scalar_to_storage(cxt, address->array_size_addresses[j]);
+						if(j != address->dimension_count - 1) {
+							qb_copy_local_scalar_to_storage(cxt, address->dimension_addresses[j]);
+						}
+					}
 				}	break;
 				default: {
 				}	break;
