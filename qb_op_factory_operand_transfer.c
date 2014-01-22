@@ -541,11 +541,23 @@ static void qb_transfer_operands_array_resize(qb_compiler_context *cxt, qb_op_fa
 	uint32_t i; 
 	for(i = 0; i < container->address->dimension_count; i++) {
 		qb_address *new_dimension_address = (i + 1 < operand_count) ? operands[i + 1].address : container->address->dimension_addresses[i];
+		qb_address *array_size_address = container->address->array_size_addresses[i];
+		qb_address *dimension_address = container->address->dimension_addresses[i];
+
+		if(CONSTANT(array_size_address)) {
+			// copy dimension to temporary location
+			array_size_address = qb_retrieve_temporary_copy(cxt, array_size_address, array_size_address->type);
+			if(i == container->address->dimension_count - 1) {
+				dimension_address = array_size_address;
+			} else {
+				dimension_address = qb_retrieve_temporary_copy(cxt, dimension_address, dimension_address->type);
+			}
+		}
 		dest[i * 3 + 0].address = new_dimension_address;
 		dest[i * 3 + 0].type = QB_OPERAND_ADDRESS;
-		dest[i * 3 + 1].address = container->address->array_size_addresses[i];
+		dest[i * 3 + 1].address = array_size_address;
 		dest[i * 3 + 1].type = QB_OPERAND_ADDRESS;
-		dest[i * 3 + 2].address = container->address->dimension_addresses[i];
+		dest[i * 3 + 2].address = dimension_address;
 		dest[i * 3 + 2].type = QB_OPERAND_ADDRESS;
 	}
 	dest[i * 3 + 0].address = container->address;

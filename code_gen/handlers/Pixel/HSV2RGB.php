@@ -19,7 +19,7 @@ class HSV2RGB extends Handler {
 					"} else {",
 						"c = v * s;",
 						"h /= 60;",
-						"i = qb_quick_floor$f(h);",
+						"i = (int32_t) floor$f(h);",
 						"f = h - i;",
 						"switch_loop:",
 						"switch(i) {",

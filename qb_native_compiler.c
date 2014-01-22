@@ -618,13 +618,14 @@ static void qb_copy_local_arguments_to_storage(qb_native_compiler_context *cxt, 
 	uint32_t i;
 	for(i = 0; i < arg_count; i++) {
 		qb_variable *qvar = cxt->variables[var_indices[i]];
-		qb_address *address = qvar->address;
-		switch(address->mode) {
-			case QB_ADDRESS_MODE_SCA: {
-				qb_copy_local_scalar_to_storage(cxt, address);
-			}	break;
-			default: {
-			}	break;
+		if(qvar->address) {
+			switch(qvar->address->mode) {
+				case QB_ADDRESS_MODE_SCA: {
+					qb_copy_local_scalar_to_storage(cxt, qvar->address);
+				}	break;
+				default: {
+				}	break;
+			}
 		}
 	}
 }
