@@ -2,7 +2,7 @@
 
 class SampleNearest extends Handler {
 
-	use MultipleAddressMode, PixelSampler, FloatingPointOnly, DoublePrecisionIsRare, UseQuickRoundingFunction;
+	use MultipleAddressMode, PixelSampler, FloatingPointOnly, DoublePrecisionIsRare;
 
 	public function getActionOnUnitData() {
 		$type = $this->getOperandType(1);
