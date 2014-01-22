@@ -103,9 +103,6 @@ void qb_lock_address(qb_compiler_context *cxt, qb_address *address) {
 		if(address->source_address) {
 			qb_lock_address(cxt, address->source_address);
 		}
-		if(TEMPORARY(address->array_index_address)) {
-			qb_lock_address(cxt, address->array_index_address);
-		}
 		if(TEMPORARY(address->array_size_address)) {
 			qb_lock_address(cxt, address->array_size_address);
 		}
@@ -116,6 +113,9 @@ void qb_lock_address(qb_compiler_context *cxt, qb_address *address) {
 				qb_lock_address(cxt, address->dimension_addresses[i]);
 			}
 		}
+	}
+	if(TEMPORARY(address->array_index_address)) {
+		qb_lock_address(cxt, address->array_index_address);
 	}
 }
 

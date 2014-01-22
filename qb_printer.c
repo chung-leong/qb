@@ -226,7 +226,7 @@ static void qb_print_op(qb_printer_context *cxt, qb_op *qop, uint32_t index) {
 		php_printf("<%04d> ", jump_target_index);
 	}
 	if(qop->flags & QB_OP_NEED_LINE_IDENTIFIER) {
-		php_printf("(line %d)", qop->line_id);
+		php_printf("(line %d)", LINE_NUMBER(qop->line_id));
 	}
 	php_printf("\n");
 }
