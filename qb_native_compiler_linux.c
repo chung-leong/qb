@@ -409,6 +409,11 @@ void qb_free_native_code(qb_native_code_bundle *bundle) {
 	munmap(bundle->memory, bundle->size);
 }
 
+#ifdef HAVE_LIBM
+extern void __libm_sse2_sincos(void);
+extern void __libm_sse2_sincosf(void);
+#endif
+
 static void * qb_get_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #ifdef HAVE_SINCOS
@@ -417,6 +422,15 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 			address = sincos;
 		} else if(strcmp(name, "sincosf") == 0) {
 			address = sincosf;
+		}
+	}
+#endif
+#ifdef HAVE_LIBM
+	if(!address) {
+		if(strcmp(name, "__libm_sse2_sincos") == 0) {
+			address = __libm_sse2_sincos;
+		} else if(strcmp(name, "__libm_sse2_sincosf") == 0) {
+			address = __libm_sse2_sincosf;
 		}
 	}
 #endif
