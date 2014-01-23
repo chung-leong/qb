@@ -353,11 +353,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 							if(!attached) {
 								// error out if there's an unrecognized function
 								if(!qb_check_symbol(cxt, symbol_name)) {
-									if(icc) {
-										if(!qb_check_symbol_strip_trailing_tag(cxt, symbol_name)) {
-											return FALSE;
-										}
-									} else {
+									if(!qb_check_symbol_strip_trailing_tag(cxt, symbol_name)) {
 										return FALSE;
 									}
 								}
