@@ -414,16 +414,6 @@ class CodeGenerator {
 		if($compiler == "MSVC") {
 			// these functions cannot be declared in VC11
 			$vc11_intrinsics =  $this->loadListing("intrinsic_functions_msvc11.txt");
-			
-			fwrite($handle, "#if _MSC_VER >= 1700 && defined(_WIN64)\n");
-			foreach($vc11_intrinsics as $name) {
-				fwrite($handle, "#define __{$name}_address	$name\n");
-			}
-			fwrite($handle, "#else\n");
-			foreach($vc11_intrinsics as $name) {
-				fwrite($handle, "#define __{$name}_address	NULL\n");
-			}
-			fwrite($handle, "#endif\n");
 		}
 		fwrite($handle, "\n");
 	
@@ -433,7 +423,6 @@ class CodeGenerator {
 			$flags = array();
 			if(isset($vc11_intrinsics) && in_array($name, $vc11_intrinsics)) {
 				$flags[] = "QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION";
-				$symbol = "__{$name}_address";
 			} else if($symbol == "NULL") {
 				$flags[] = "QB_NATIVE_SYMBOL_INLINE_FUNCTION";
 			}

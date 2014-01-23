@@ -80,7 +80,12 @@ static void qb_print_macros(qb_native_compiler_context *cxt) {
 	qb_print(cxt, "#define EXPECTED(c)	"STRING(EXPECTED(c))"\n");
 	qb_print(cxt, "#define UNEXPECTED(c)	"STRING(UNEXPECTED(c))"\n");
 
+#if defined(ZEND_DEBUG) && defined(_MSC_VER)
+	qb_print(cxt, "#define zend_always_inline	__forceinline\n");
+#else
 	qb_print(cxt, "#define zend_always_inline	"STRING(zend_always_inline)"\n");
+#endif	
+
 	qb_print(cxt, "#define SWAP_BE_I16(v)	"STRING(SWAP_BE_I16(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I32(v)	"STRING(SWAP_BE_I32(v))"\n");
 	qb_print(cxt, "#define SWAP_BE_I64(v)	"STRING(SWAP_BE_I64(v))"\n");
@@ -259,9 +264,6 @@ typedef struct qb_native_proc_record {\
 
 #define PROTOTYPE_COUNT		2000
 
-extern uint32_t illegal_vc11_intrinsic_indices[];
-extern uint32_t illegal_vc11_intrinsic_count;
-
 static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
 	int32_t *prototype_indices;
@@ -291,8 +293,14 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 			const char *prototype = cxt->function_prototypes[i];
 #ifdef _WIN64
 			qb_native_symbol *symbol = &global_native_symbols[i];
-			if(!(symbol->flags & QB_NATIVE_SYMBOL_INLINE_FUNCTION) && (((intptr_t) symbol->address) & 0xFFFFFFFF00000000 || !symbol->address)) {
+			if(!(symbol->flags & QB_NATIVE_SYMBOL_INLINE_FUNCTION)) {
+				if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
+					// redefine it to something else so we can declare it
+					qb_printf(cxt, "#define %s	intrinsic_%s\n", symbol->name, symbol->name);
+				}
+
 				// add __declspec so function looks like a something frm a DLL 
+				// otherwise we might be able to reach it due to use of 32-bit pointers
 				qb_print(cxt, "__declspec(dllimport)\n");
 			} else if(symbol->flags & QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION) {
 				continue;

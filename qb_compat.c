@@ -67,6 +67,72 @@ double round(double x) {
 	return floor(x + 0.5);
 }
 
+#if _MSC_VER < 1700 
+float sinf(float x) { return (float) sin(x); }
+float asinf(float x) { return (float) asin(x); }
+float cosf(float x) { return (float) cos(x); }
+float acosf(float x) { return (float) acos(x); }
+float tanf(float x) { return (float) tan(x); }
+float atanf(float x) { return (float) atan(x); }
+float atan2f(float x, float y) { return (float) atan2(x, y); }
+float sinhf(float x) { return (float) sinh(x); }
+float asinhf(float x) { return (float) asinh(x); }
+float coshf(float x) { return (float) cosh(x); }
+float acoshf(float x) { return (float) acosh(x); }
+float tanhf(float x) { return (float) tanh(x); }
+float atanhf(float x) { return (float) atanh(x); }
+float expf(float x) { return (float) exp(x); }
+float expm1f(float x) { return (float) expm1(x); }
+float exp2f(float x) { return (float) exp2(x); }
+float logf(float x) { return (float) log(x); }
+float log1pf(float x) { return (float) log1p(x); }
+float log10f(float x) { return (float) log10(x); }
+float log2f(float x) { return (float) log2(x); }
+float powf(float x, float y) { return (float) pow(x, y); }
+float sqrtf(float x) { return (float) sqrt(x); }
+float ceilf(float x) { return (float) ceil(x); }
+float floorf(float x) { return (float) floor(x); }
+float fabsf(float x) { return (float) fabs(x); }
+float hypotf(float x, float y) { return (float) hypot(x, y); }
+float fmodf(float n, float d) { return (float) fmod(n, d); }
+#endif
+
+float exp2f(float x) {
+	return (float) exp2(x);
+}
+
+float expm1f(float x) {
+	return (float) expm1(x);
+}
+
+float log2f(float x) {
+	return (float) log2(x);
+}
+
+float log1pf(float x) {
+	return (float) log1p(x);
+}
+
+float asinhf(float x) {
+	return (float) asinh(x);
+}
+
+float acoshf(float x) {
+	return (float) acosh(x);
+}
+
+float atanhf(float x) {
+	return (float) atanh(x);
+}
+
+float roundf(float x) {
+	return (float) round(x);
+}
+
+float fabsf(float x) {
+	return (float) fabs(x);
+}
+
 #else
 
 #ifndef HAVE_EXP2F

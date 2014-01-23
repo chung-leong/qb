@@ -216,6 +216,8 @@ static void * qb_find_symbol_pointer(qb_native_compiler_context *cxt, const char
 #define SYMBOL_PREFIX_LENGTH	1
 #endif
 
+extern void *__ImageBase;
+
 static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 	IMAGE_FILE_HEADER *header;
 	IMAGE_SECTION_HEADER *sections;
@@ -255,7 +257,11 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 #ifdef _WIN64
 					if(!ISFCN(symbol->Type) && memcmp(symbol_name, "__imp_", 6) == 0) {
-						symbol_address = qb_find_symbol_pointer(cxt, symbol_name + 6);
+						if(memcmp(symbol_name, "__imp_intrinsic_", 16) == 0) {
+							symbol_address = qb_find_symbol_pointer(cxt, symbol_name + 16);
+						} else {
+							symbol_address = qb_find_symbol_pointer(cxt, symbol_name + 6);
+						}
 					} else {
 						symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
 					}
@@ -263,9 +269,13 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 					symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
 #endif
 					if(!symbol_address) {
-						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
-						missing_symbol_count++;
-						continue;
+						if(strcmp(symbol_name, "__ImageBase") == 0) {
+							symbol_address = cxt->binary;
+						} else {
+							qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
+							missing_symbol_count++;
+							continue;
+						}
 					}
 				} else {
 					// probably something in the data segment (e.g. a string literal)
@@ -282,12 +292,10 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 						*((intptr_t *) target_address) = S;
 						break;
 					case IMAGE_REL_AMD64_REL32:
-						if((uint64_t) (S - P) >= UINT32_MAX) {
-							// symbol is too far away
-							qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
-							return FALSE;
-						}
 						*((int32_t *) target_address) += (int32_t) (S - (P + sizeof(int32_t)));
+						break;
+					case IMAGE_REL_AMD64_ADDR32NB:
+						*((int32_t *) target_address) += (int32_t) (S - ((intptr_t) cxt->binary));
 						break;
 #else				
 					case IMAGE_REL_I386_DIR32:

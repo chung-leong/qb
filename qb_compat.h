@@ -183,14 +183,18 @@ double rsqrt(double x);
 
 float rsqrtf(float x);
 
-__forceinline float exp2f(float x) { return (float) exp2(x); }
-__forceinline float expm1f(float x) { return (float) expm1(x); }
-__forceinline float log2f(float x) { return (float) log2(x); }
-__forceinline float log1pf(float x) { return (float) log1p(x); }
-__forceinline float asinhf(float x) { return (float) asinh(x); }
-__forceinline float acoshf(float x) { return (float) acosh(x); }
-__forceinline float atanhf(float x) { return (float) atanh(x); }
-__forceinline float roundf(float x) { return (float) round(x); }
+float exp2f(float x);
+float expm1f(float x);
+float log2f(float x);
+float log1pf(float x);
+float asinhf(float x);
+float acoshf(float x);
+float atanhf(float x);
+float roundf(float x);
+
+#undef fabsf
+float fabsf(float x);
+
 #else
 
 #ifndef HAVE_EXP2F
