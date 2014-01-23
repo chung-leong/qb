@@ -58,6 +58,20 @@ static zend_op_array *qb_find_zend_op_array(qb_build_context *cxt, qb_function_t
 	zend_str_tolower_copy(name, tag->function_name, name_len);
 	zend_hash_find(ft, name, name_len + 1, (void **) &zfunc);
 	free_alloca(name, use_heap);
+	if(!zfunc) {
+		Bucket *p;
+		for(p = ft->pListTail; p; p = p->pListLast) {
+			zend_function *f = p->pData;
+			if(f->type == ZEND_USER_FUNCTION) {
+				if(f->op_array.doc_comment == tag->doc_comment) {
+					zfunc = f;
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+	}
 	return (zfunc) ? &zfunc->op_array : NULL;
 }
 

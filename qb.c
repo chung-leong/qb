@@ -150,6 +150,7 @@ qb_import_scope * qb_create_import_scope(qb_import_scope_type type, void *associ
 				scope->storage = ancestor_scope->storage;
 			}
 		}
+	} else if(type == QB_IMPORT_SCOPE_LEXICAL) {
 	}
 	return scope;
 }
@@ -266,6 +267,7 @@ qb_variable * qb_import_variable(qb_storage *storage, qb_variable *var, qb_impor
 			scalar_selector = QB_SELECTOR_CLASS_SCALAR;
 			array_selector = QB_SELECTOR_CLASS_ARRAY;
 		}	break;
+		case QB_IMPORT_SCOPE_LEXICAL:
 		case QB_IMPORT_SCOPE_ABSTRACT_OBJECT:
 		case QB_IMPORT_SCOPE_OBJECT: {
 			scalar_selector = QB_SELECTOR_OBJECT_SCALAR;
@@ -339,7 +341,7 @@ qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zva
 
 	if(var->flags & QB_VARIABLE_GLOBAL) {
 		scope_type = QB_IMPORT_SCOPE_GLOBAL;
-		associated_object = NULL;
+		associated_object = &EG(symbol_table);
 	} else if((var->flags & QB_VARIABLE_CLASS) || (var->flags & QB_VARIABLE_CLASS_CONSTANT)) {
 		scope_type = QB_IMPORT_SCOPE_CLASS;
 		if(var->zend_class) {
@@ -356,6 +358,10 @@ qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zva
 			scope_type = QB_IMPORT_SCOPE_ABSTRACT_OBJECT;
 			associated_object = var->zend_class;
 		}
+	} else if(var->flags & QB_VARIABLE_LEXICAL) {
+		zend_op_array *op_array = EG(current_execute_data)->op_array;
+		scope_type = QB_IMPORT_SCOPE_LEXICAL;
+		associated_object = op_array->static_variables;
 	}
 	scope = qb_find_import_scope(scope_type, associated_object TSRMLS_CC);
 	if(!scope) {
@@ -642,6 +648,10 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 		// save the function name so we can find the function later
 		// op_array might be temporary so we can't use this pointer
 		tag->function_name = op_array->function_name;
+
+		// save the doc comment pointer in case we can't locate
+		// the function by name
+		tag->doc_comment = op_array->doc_comment;
 
 		SET_QB_POINTER(op_array, NULL);
 	}

@@ -40,6 +40,9 @@
 	#define Z_ADDREF_P(zv)			zv->refcount++
 	#define Z_DELREF_P(zv)			zv->refcount--
 
+	#define IS_LEXICAL_VAR			0x020
+	#define IS_LEXICAL_REF			0x040
+
 	#define INIT_CLASS_ENTRY_EX(class_container, class_name, class_name_len, functions) \
 		{															\
 			int _len = class_name_len;								\

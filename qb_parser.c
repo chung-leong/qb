@@ -24,7 +24,7 @@
 #define GROUP_OFFSET(group)		(offsets[group * 2])
 #define GROUP_LENGTH(group)		(offsets[group * 2 + 1] - offsets[group * 2])
 
-#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(shared)|(static|staticvar)|(global)|(var)|(property)|(return)|(receive)|(inline))\\s+(.*?)\\s*(?:\\*+\\/)?$"
+#define DOC_COMMENT_FUNCTION_REGEXP	"\\*\\s*@(?:(engine)|(import)|(param)|(local)|(shared)|(static|staticvar)|(global)|(lexical)|(var)|(property)|(return)|(receive)|(inline))\\s+(.*?)\\s*(?:\\*+\\/)?$"
 
 enum {
 	FUNC_DECL_ENGINE = 1,
@@ -34,6 +34,7 @@ enum {
 	FUNC_DECL_SHARED,
 	FUNC_DECL_STATIC,
 	FUNC_DECL_GLOBAL,
+	FUNC_DECL_LEXICAL,
 	FUNC_DECL_VAR,
 	FUNC_DECL_PROPERTY,
 	FUNC_DECL_RETURN,
@@ -528,6 +529,7 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 						case FUNC_DECL_LOCAL: var_type = QB_VARIABLE_LOCAL; break;
 						case FUNC_DECL_STATIC: var_type = QB_VARIABLE_STATIC | QB_VARIABLE_CLASS; break;
 						case FUNC_DECL_GLOBAL: var_type = QB_VARIABLE_GLOBAL; break;
+						case FUNC_DECL_LEXICAL: var_type = QB_VARIABLE_LEXICAL; break;
 						case FUNC_DECL_PROPERTY: var_type = QB_VARIABLE_CLASS_INSTANCE; break;
 						default:
 							error_zval = element;
@@ -620,6 +622,8 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 					var_type = QB_VARIABLE_GLOBAL;
 				} else if(FOUND_GROUP(FUNC_DECL_LOCAL)) {
 					var_type = QB_VARIABLE_LOCAL;
+				} else if(FOUND_GROUP(FUNC_DECL_LEXICAL)) {
+					var_type = QB_VARIABLE_LEXICAL;
 				} else if(FOUND_GROUP(FUNC_DECL_PARAM)) {
 					var_type = QB_VARIABLE_ARGUMENT;
 				} else if(FOUND_GROUP(FUNC_DECL_STATIC)) {
@@ -765,8 +769,12 @@ void qb_initialize_parser_context(qb_parser_context *cxt, qb_data_pool *pool, ze
 		func_decl_hashes[FUNC_DECL_SHARED] = zend_hash_func("shared", 7);
 		func_decl_hashes[FUNC_DECL_STATIC] = zend_hash_func("static", 7);
 		func_decl_hashes[FUNC_DECL_GLOBAL] = zend_hash_func("global", 7);
+		func_decl_hashes[FUNC_DECL_LEXICAL] = zend_hash_func("lexical", 8);
 		func_decl_hashes[FUNC_DECL_VAR] = zend_hash_func("var", 4);
 		func_decl_hashes[FUNC_DECL_PROPERTY] = zend_hash_func("property", 9);
+		func_decl_hashes[FUNC_DECL_RETURN] = zend_hash_func("return", 7);
+		func_decl_hashes[FUNC_DECL_RECEIVE] = zend_hash_func("receive", 8);
+		func_decl_hashes[FUNC_DECL_INLINE] = zend_hash_func("inline", 7);
 		func_decl_hashes[FUNC_DECL_RETURN] = zend_hash_func("return", 7);
 	}
 

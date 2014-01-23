@@ -679,7 +679,7 @@ void qb_assign_storage_space(qb_compiler_context *cxt) {
 	// deal with external variables first
 	for(i = 0; i < cxt->variable_count; i++) {
 		qb_variable *qvar = cxt->variables[i];
-		if(qvar->flags & QB_VARIABLE_GLOBAL) {
+		if(qvar->flags & (QB_VARIABLE_GLOBAL | QB_VARIABLE_LEXICAL)) {
 			qb_allocate_external_storage_space(cxt, qvar);
 		} else if((qvar->flags & QB_VARIABLE_CLASS) || (qvar->flags & QB_VARIABLE_CLASS_INSTANCE) || (qvar->flags & QB_VARIABLE_CLASS_CONSTANT)) {
 			if(!qvar->zend_class) {
@@ -2092,8 +2092,18 @@ int32_t qb_add_variables(qb_compiler_context *cxt) {
 			// see if it's a static variable
 			zval **p_static_value;
 			if(static_variable_table && zend_hash_quick_find(static_variable_table, zvar->name, zvar->name_len + 1, zvar->hash_value, (void **) &p_static_value) == SUCCESS) {
-				if(!qb_perform_static_initialization(cxt, qvar, *p_static_value)) {
-					return FALSE;
+				if(Z_TYPE_PP(p_static_value) & (IS_LEXICAL_VAR|IS_LEXICAL_REF)) {
+					qvar->flags = QB_VARIABLE_LEXICAL;
+					if(Z_TYPE_PP(p_static_value) && IS_LEXICAL_REF) {
+						qvar->flags |= QB_VARIABLE_BY_REF;
+					}
+					if(!qb_apply_type_declaration(cxt, qvar)) {
+						return FALSE;
+					}
+				} else {
+					if(!qb_perform_static_initialization(cxt, qvar, *p_static_value)) {
+						return FALSE;
+					}
 				}
 			} else {
 				// we don't know whether it is a local or a global variable at this point
@@ -2205,6 +2215,9 @@ qb_variable * qb_get_global_variable(qb_compiler_context *cxt, zval *name) {
 
 qb_variable * qb_get_static_variable(qb_compiler_context *cxt, zval *name) {
 	qb_variable *qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_STATIC);
+	if(!qvar) {
+		qvar = qb_find_variable(cxt, NULL, name, QB_VARIABLE_LEXICAL);
+	}
 	return qvar;
 }
 

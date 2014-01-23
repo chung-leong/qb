@@ -28,9 +28,10 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 			p_zvalue = ivar->value_pointer;
 		} else {
 			switch(scope->type) {
-				case QB_IMPORT_SCOPE_GLOBAL: {
-					// copy value from global symbol table
-					if(zend_hash_quick_find(&EG(symbol_table), ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_zvalue) == SUCCESS) {
+				case QB_IMPORT_SCOPE_GLOBAL:
+				case QB_IMPORT_SCOPE_LEXICAL: {
+					// copy value from symbol table
+					if(zend_hash_quick_find(scope->symbol_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_zvalue) == SUCCESS) {
 						SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
 					}
 				}	break;
@@ -210,7 +211,7 @@ static int32_t qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
 	for(i = cxt->function->argument_count; i < cxt->function->variable_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 
-		if(qvar->flags & (QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_CONSTANT | QB_VARIABLE_GLOBAL)) {
+		if(qvar->flags & (QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_CONSTANT | QB_VARIABLE_GLOBAL | QB_VARIABLE_LEXICAL)) {
 			zval *zobject = !(qvar->flags & QB_VARIABLE_GLOBAL) ? EG(This) : NULL;
 			qb_import_scope *scope = qb_get_import_scope(cxt->function->local_storage, qvar, zobject TSRMLS_CC);
 			qb_variable *ivar = qb_get_import_variable(cxt->function->local_storage, qvar, scope TSRMLS_CC);

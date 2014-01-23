@@ -35,6 +35,7 @@ enum qb_import_scope_type {
 	QB_IMPORT_SCOPE_CLASS,
 	QB_IMPORT_SCOPE_OBJECT,
 	QB_IMPORT_SCOPE_ABSTRACT_OBJECT,
+	QB_IMPORT_SCOPE_LEXICAL,
 };
 
 enum {
@@ -51,6 +52,7 @@ struct qb_import_scope {
 	union {
 		zend_class_entry *zend_class;
 		zval *zend_object;
+		HashTable *symbol_table;
 		void *associated_object;
 	};
 };
