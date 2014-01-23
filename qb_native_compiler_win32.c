@@ -386,14 +386,15 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, HANDLE file
 
 static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 	HANDLE file = NULL;
+	int32_t result;
 
 	file = CreateFile(cxt->obj_file_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, 0);
 	if(file == INVALID_HANDLE_VALUE) {
 		return FALSE;
 	}
-	qb_parse_object_file(cxt, file);
+	result = qb_parse_object_file(cxt, file);
 	CloseHandle(file);
-	return (cxt->binary != NULL);
+	return result;
 }
 
 static void qb_remove_object_file(qb_native_compiler_context *cxt) {

@@ -1,2 +1,4 @@
-sincosf
 sincos
+sincosf
+__libm_sse2_sincos
+__libm_sse2_sincosf

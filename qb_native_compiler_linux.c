@@ -191,7 +191,6 @@ typedef Elf32_Sym				Elf_Sym;
 #endif
 
 static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
-	int32_t icc = FALSE;
 	struct stat stat_buf;
 	size_t file_size = 0;
 	uint32_t missing_symbol_count = 0;
@@ -222,37 +221,49 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		// icc sets the ABI (8th) byte to 0x03
 		if(memcmp(header->e_ident, ELF_SIGNATURE_ICC, 16) != 0) {
 			return FALSE;
-		} else {
-			icc = TRUE;
 		}
 	}
 
-	Elf_Shdr *section_headers = alloca(sizeof(Elf_Shdr) * header->e_shnum);
+	int section_count = header->e_shnum;
+	Elf_Shdr *section_headers = alloca(sizeof(Elf_Shdr) * section_count);
 	if(lseek(fd, header->e_shoff, SEEK_SET) == -1 || read(fd, section_headers, sizeof(Elf_Shdr) * header->e_shnum) == -1) {
 		return FALSE;
 	}
 
 	Elf_Shdr *section_string_section_header = &section_headers[header->e_shstrndx];
 	char *section_string_section = alloca(section_string_section_header->sh_size);
-	if(lseek(fd, header->e_shoff, SEEK_SET) == -1 || read(fd, section_headers, sizeof(Elf_Shdr) * header->e_shnum) == -1) {
+	if(lseek(fd, section_string_section_header->sh_offset, SEEK_SET) == -1 || read(fd, section_string_section, section_string_section_header->sh_size) == -1) {
 		return FALSE;
 	}
+
+	int i, j;
+	uintptr_t address = sizeof(Elf_Ehdr);
+	for(i = 0; i < section_count; i++) {
+		Elf_Shdr *section_header = &section_headers[i];
+		section_header->sh_addr = (section_header->sh_addralign > 1) ? ALIGN_TO(address, section_header->sh_addralign) : address;
+		address = section_header->sh_addr + section_header->sh_size;
+	}
+	cxt->binary_size = address;
 
 #ifdef __LP64__
 	// on x64-64, gcc is going to use 32-bit relative pointers for function calls
 	// the code has to be thus located in an address not too far from the PHP executable
 	// assume here that it's located with in the first 4 gig
-	binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_32BIT, 0, 0);
+	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT, -1, 0);
 #else
-	binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE, 0, 0);
+	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 #endif
 
-
-	int i, j;
-	int section_count = header->e_shnum;
-	Elf_Shdr *section_headers = (Elf_Shdr *) (cxt->binary + header->e_shoff);
-	Elf_Shdr *section_string_section_header = &section_headers[header->e_shstrndx];
-	char *section_string_section = (char *) (cxt->binary + section_string_section_header->sh_offset);
+	// load the sections
+	for(i = 0; i < section_count; i++) {
+		Elf_Shdr *section_header = &section_headers[i];
+		if(section_header->sh_size > 0) {
+			if(lseek(fd, section_header->sh_offset, SEEK_SET) == -1 || read(fd, cxt->binary + section_header->sh_addr, section_header->sh_size) == -1) {
+				return FALSE;
+			}
+		}
+	}
+	memcpy(cxt->binary, header, sizeof(Elf_Ehdr));
 
 	// look for relocation sections
 	for(i = 0; i < section_count; i++) {
@@ -261,11 +272,11 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 			Elf_Shdr *text_section_header = &section_headers[reloc_section_header->sh_info];
 			Elf_Shdr *symbol_section_header = &section_headers[reloc_section_header->sh_link];
 			Elf_Shdr *string_section_header = &section_headers[symbol_section_header->sh_link];
-			Elf_Rel *relocations = (Elf_Rel *) (cxt->binary + reloc_section_header->sh_offset);
+			Elf_Rel *relocations = (Elf_Rel *) (cxt->binary + reloc_section_header->sh_addr);
 			uint32_t relocation_count = (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rel));
-			char *text_section = (char *) (cxt->binary + text_section_header->sh_offset);
-			char *string_section = (char *) (cxt->binary + string_section_header->sh_offset);
-			Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_offset);
+			char *text_section = (char *) (cxt->binary + text_section_header->sh_addr);
+			char *string_section = (char *) (cxt->binary + string_section_header->sh_addr);
+			Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_addr);
 
 			for(j = 0; j < relocation_count; j++) {
 				Elf_Rel *relocation = &relocations[j];
@@ -279,7 +290,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 
 				if(symbol_bind == STB_LOCAL) {
 					// links to something in another section
-					symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value);
+					symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_addr + symbol->st_value);
 				} else if(symbol_bind == STB_GLOBAL) {
 					// links to a symbol symbol
 					symbol_address = qb_find_symbol(cxt, symbol_name);
@@ -331,6 +342,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		}
 	}
 	mprotect(cxt->binary, cxt->binary_size, PROT_EXEC | PROT_READ);
+	if(missing_symbol_count > 0) {
+		return FALSE;
+	}
 
 	// look for symbol section
 	uint32_t count = 0;
@@ -340,8 +354,8 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 			char *symbol_section_name = section_string_section + symbol_section_header->sh_name;
 			if(strcmp(symbol_section_name, ".symtab") == 0) {
 				Elf_Shdr *string_section_header = &section_headers[symbol_section_header->sh_link];
-				char *string_section = (char *) (cxt->binary + string_section_header->sh_offset);
-				Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_offset);
+				char *string_section = (char *) (cxt->binary + string_section_header->sh_addr);
+				Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_addr);
 				uint32_t symbol_count = (uint32_t) (symbol_section_header->sh_size / sizeof(Elf_Sym));
 
 				for(i = 0; i < symbol_count; i++) {
@@ -349,7 +363,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					if(symbol->st_shndx < symbol_count) {
 						int symbol_type = ELF_ST_TYPE(symbol->st_info);
 						char *symbol_name = string_section + symbol->st_name;
-						void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_offset + symbol->st_value;
+						void *symbol_address = cxt->binary + section_headers[symbol->st_shndx].sh_addr + symbol->st_value;
 						if(symbol_type == STT_FUNC) {
 							uint32_t attached = qb_attach_symbol(cxt, symbol_name, symbol_address);
 							if(!attached) {
@@ -377,13 +391,14 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 
 static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 	// map the file into memory 
-	int fd = open(cxt->obj_file_path, O_RDWR);
-	if(file_descriptor == -1) {
+	int fd = open(cxt->obj_file_path, O_RDONLY);
+	int32_t result;
+	if(fd == -1) {
 		return FALSE;
 	}
-	qb_parse_
-	close(file_descriptor);
-	return (cxt->binary != NULL);
+	result = qb_parse_object_file(cxt, fd);
+	close(fd);
+	return result;
 }
 
 static void qb_remove_object_file(qb_native_compiler_context *cxt) {
