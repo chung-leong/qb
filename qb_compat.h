@@ -192,6 +192,10 @@ float acoshf(float x);
 float atanhf(float x);
 float roundf(float x);
 
+#undef fabsf
+float fabsf(float x);
+
+#if _MSC_VER < 1700
 #undef sinf
 float sinf(float x);
 
@@ -248,10 +252,7 @@ float hypotf(float x, float y);
 
 #undef fmodf
 float fmodf(float n, float d);
-
-#undef fabsf
-float fabsf(float x);
-
+#endif
 #else
 
 #ifndef HAVE_EXP2F

@@ -1334,26 +1334,22 @@ void qb_compile_to_native_code(qb_native_compiler_context *cxt) {
 
 		// load the object file produced by the compiler into memory
 		if(qb_load_object_file(cxt)) {
-			// parse the object file and find pointers to the compiled functions
-			if(qb_parse_object_file(cxt)) {
-				if(cxt->qb_version == QB_VERSION_SIGNATURE) {
-					qb_native_code_bundle *bundle;
-					if(!QB_G(native_code_bundles)) {
-						qb_create_array((void **) &QB_G(native_code_bundles), &QB_G(native_code_bundle_count), sizeof(qb_native_code_bundle), 8);
-					}
-					bundle = qb_enlarge_array((void **) &QB_G(native_code_bundles), 1);
-					bundle->memory = cxt->binary;
-					bundle->size = cxt->binary_size;
-					qb_lock_object_file(cxt);
-					cxt->binary = NULL;
-					success = TRUE;
-				} else {
-					qb_detach_symbols(cxt);
+			if(cxt->qb_version == QB_VERSION_SIGNATURE) {
+				qb_native_code_bundle *bundle;
+				if(!QB_G(native_code_bundles)) {
+					qb_create_array((void **) &QB_G(native_code_bundles), &QB_G(native_code_bundle_count), sizeof(qb_native_code_bundle), 8);
 				}
+				bundle = qb_enlarge_array((void **) &QB_G(native_code_bundles), 1);
+				bundle->memory = cxt->binary;
+				bundle->size = cxt->binary_size;
+				cxt->binary = NULL;
+				success = TRUE;
+			} else {
+				qb_detach_symbols(cxt);
 			}
-			if(!success) {
-				qb_remove_object_file(cxt);
-			}
+		}
+		if(!success) {
+			qb_remove_object_file(cxt);
 		}
 	} 
 }

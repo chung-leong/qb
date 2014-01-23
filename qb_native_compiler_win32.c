@@ -164,23 +164,13 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	return TRUE;
 }
 
-static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
-	USE_TSRM
-	HANDLE file = NULL, mapping = NULL;
-
-	file = CreateFile(cxt->obj_file_path, GENERIC_READ | GENERIC_EXECUTE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, 0);
-	if(file != INVALID_HANDLE_VALUE) {
-		mapping = CreateFileMapping(file, NULL, PAGE_EXECUTE_WRITECOPY, 0, 0, NULL);
-		if(mapping != INVALID_HANDLE_VALUE) {
-			cxt->binary = MapViewOfFileEx(mapping, FILE_MAP_EXECUTE | FILE_MAP_COPY, 0, 0, 0, NULL);
-			cxt->binary_size = GetFileSize(file, NULL);
-		}
-	}
-
-	CloseHandle(mapping);
-	CloseHandle(file);		
-	return (cxt->binary != NULL);
-}
+#ifdef _WIN64	
+#define IMAGE_FILE_MACHINE		IMAGE_FILE_MACHINE_AMD64
+#define SYMBOL_PREFIX_LENGTH	0
+#else
+#define IMAGE_FILE_MACHINE		IMAGE_FILE_MACHINE_I386
+#define SYMBOL_PREFIX_LENGTH	1
+#endif
 
 #ifdef _WIN64
 static void * qb_find_symbol_pointer(qb_native_compiler_context *cxt, const char *name) {
@@ -208,41 +198,91 @@ static void * qb_find_symbol_pointer(qb_native_compiler_context *cxt, const char
 }
 #endif
 
-#ifdef _WIN64	
-#define IMAGE_FILE_MACHINE		IMAGE_FILE_MACHINE_AMD64
-#define SYMBOL_PREFIX_LENGTH	0
-#else
-#define IMAGE_FILE_MACHINE		IMAGE_FILE_MACHINE_I386
-#define SYMBOL_PREFIX_LENGTH	1
-#endif
-
-extern void *__ImageBase;
-
-static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
-	IMAGE_FILE_HEADER *header;
+static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, HANDLE file) {
+	IMAGE_FILE_HEADER _header, *header = &_header;
 	IMAGE_SECTION_HEADER *sections;
 	IMAGE_SYMBOL *symbols;
+	DWORD file_size, bytes_read;
+	DWORD symbol_table_size;
+	uint32_t address;
+	uint32_t i, j;
 	char *string_section;
 	uint32_t count = 0;
-	uint32_t i, j;
 	uint32_t missing_symbol_count = 0;
 	
-	if(cxt->binary_size < sizeof(IMAGE_FILE_HEADER)) {
+	file_size = GetFileSize(file, NULL);
+	if(file_size < sizeof(IMAGE_FILE_HEADER)) {
 		return FALSE;
 	}
-
-	header = (IMAGE_FILE_HEADER *) cxt->binary;
+	if(!ReadFile(file, header, sizeof(IMAGE_FILE_HEADER), &bytes_read, NULL)) {
+		return FALSE;
+	}
 	if(header->Machine != IMAGE_FILE_MACHINE) {
 		return FALSE;
 	}
-	sections = (IMAGE_SECTION_HEADER *) (((char *) header) + sizeof(IMAGE_FILE_HEADER));
-	symbols = (IMAGE_SYMBOL *) (cxt->binary + header->PointerToSymbolTable);
-	string_section = (char *) (symbols) + sizeof(IMAGE_SYMBOL) * header->NumberOfSymbols;
+	sections = alloca(sizeof(IMAGE_SECTION_HEADER) * header->NumberOfSections);
+
+	if(!ReadFile(file, sections, sizeof(IMAGE_SECTION_HEADER) * header->NumberOfSections, &bytes_read, NULL)) {
+		return FALSE;
+	}
+
+	// make sure sections are aligned
+	address = sizeof(IMAGE_FILE_HEADER) + sizeof(IMAGE_SECTION_HEADER) * header->NumberOfSections;
+	for(i = 0; i < header->NumberOfSections; i++) {
+		IMAGE_SECTION_HEADER *section = &sections[i];
+		uint32_t alignment = 1 << (((section->Characteristics & IMAGE_SCN_ALIGN_MASK) >> 20) - 1);
+		uint32_t section_size = section->SizeOfRawData + sizeof(IMAGE_RELOCATION) * section->NumberOfRelocations; 
+		section->VirtualAddress = ALIGN_TO(address, alignment);
+		section->Misc.VirtualSize = section_size;
+		address = section->VirtualAddress + section_size;
+	}
+
+	// allocate memory
+	cxt->binary_size = address;
+	cxt->binary = VirtualAlloc(NULL, cxt->binary_size,  MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	if(!cxt->binary) {
+		return FALSE;
+	}
+
+	// load the sections
+	for(i = 0; i < header->NumberOfSections; i++) {
+		IMAGE_SECTION_HEADER *section = &sections[i];
+		uint32_t section_size = section->Misc.VirtualSize;
+		int32_t offset;
+		
+		if(SetFilePointer(file, section->PointerToRawData, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+			return FALSE;
+		}
+		if(!ReadFile(file, cxt->binary + section->VirtualAddress, section_size, &bytes_read, NULL)) {
+			return FALSE;
+		}
+		offset = section->VirtualAddress - section->PointerToRawData;
+		section->PointerToRawData += offset;
+		if(section->NumberOfRelocations > 0) {
+			section->PointerToRelocations += offset;
+		}
+		if(section->NumberOfLinenumbers > 0) {
+			section->NumberOfLinenumbers +=  offset;
+		}
+	}
+	memcpy(cxt->binary, header, sizeof(IMAGE_FILE_HEADER));
+	memcpy(cxt->binary + sizeof(IMAGE_FILE_HEADER), sections, sizeof(IMAGE_SECTION_HEADER) * header->NumberOfSections);
+
+	// load the symbols
+	symbol_table_size = file_size - header->PointerToSymbolTable;
+	symbols = alloca(symbol_table_size);
+	string_section = (char *) &symbols[header->NumberOfSymbols];
+	if(SetFilePointer(file, header->PointerToSymbolTable, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+		return FALSE;
+	}
+	if(!ReadFile(file, symbols, symbol_table_size, &bytes_read, NULL)) {
+		return FALSE;
+	}
 
 	// perform relocation
 	for(i = 0; i < header->NumberOfSections; i++) {
 		IMAGE_SECTION_HEADER *section = &sections[i];
-		if(memcmp(section->Name, ".text", 6) == 0) {
+		if(section->Characteristics & IMAGE_SCN_CNT_CODE) {
 			IMAGE_RELOCATION *relocations = (IMAGE_RELOCATION *) (cxt->binary + section->PointerToRelocations);
 			uint32_t relocation_count = section->NumberOfRelocations;
 
@@ -251,8 +291,8 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 				IMAGE_SYMBOL *symbol = &symbols[reloc->SymbolTableIndex];
 				char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : string_section + symbol->N.Name.Long;
 				void *symbol_address;
-				void *target_address = cxt->binary + section->PointerToRawData + reloc->VirtualAddress;
-				intptr_t S, P; 
+				void *target_address = cxt->binary + section->VirtualAddress + reloc->VirtualAddress;
+				intptr_t S, P, B = (intptr_t) cxt->binary; 
 
 				if(symbol->SectionNumber == IMAGE_SYM_UNDEFINED) {
 #ifdef _WIN64
@@ -280,7 +320,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 				} else {
 					// probably something in the data segment (e.g. a string literal)
 					IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
-					symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
+					symbol_address = cxt->binary + section->VirtualAddress + symbol->Value;
 				}
 
 				S = (intptr_t) symbol_address;
@@ -295,7 +335,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 						*((int32_t *) target_address) += (int32_t) (S - (P + sizeof(int32_t)));
 						break;
 					case IMAGE_REL_AMD64_ADDR32NB:
-						*((int32_t *) target_address) += (int32_t) (S - ((intptr_t) cxt->binary));
+						*((int32_t *) target_address) += (int32_t) (S - B);
 						break;
 #else				
 					case IMAGE_REL_I386_DIR32:
@@ -311,6 +351,8 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 			}
 		}
 	}
+	VirtualProtect(cxt->binary, cxt->binary_size, FILE_MAP_EXECUTE | FILE_MAP_READ, NULL);
+
 	if(missing_symbol_count > 0) {
 		return FALSE;
 	}
@@ -321,7 +363,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 		char *symbol_name = (symbol->N.Name.Short) ? symbol->N.ShortName : (string_section + symbol->N.Name.Long);
 		if(symbol->SectionNumber > 0) {
 			IMAGE_SECTION_HEADER *section = &sections[symbol->SectionNumber - 1];
-			void *symbol_address = cxt->binary + section->PointerToRawData + symbol->Value;
+			void *symbol_address = cxt->binary + section->VirtualAddress + symbol->Value;
 			if(ISFCN(symbol->Type)) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH, symbol_address);
 				if(!attached) {
@@ -342,21 +384,24 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 	return (count > 0);
 }
 
-static void qb_lock_object_file(qb_native_compiler_context *cxt) {
-	VirtualProtect(cxt->binary, cxt->binary_size, FILE_MAP_EXECUTE | FILE_MAP_READ, NULL);
+static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
+	HANDLE file = NULL;
+
+	file = CreateFile(cxt->obj_file_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, 0);
+	if(file == INVALID_HANDLE_VALUE) {
+		return FALSE;
+	}
+	qb_parse_object_file(cxt, file);
+	CloseHandle(file);
+	return (cxt->binary != NULL);
 }
 
 static void qb_remove_object_file(qb_native_compiler_context *cxt) {
-	if(cxt->binary) {
-		UnmapViewOfFile(cxt->binary);
-		cxt->binary = NULL;
-		cxt->binary_size = 0;
-	}
 	DeleteFile(cxt->obj_file_path);
 }
 
 void qb_free_native_code(qb_native_code_bundle *bundle) {
-	UnmapViewOfFile(bundle->memory);
+	VirtualFree(bundle->memory, 0, MEM_RELEASE); 
 }
 
 static void * qb_get_intrinsic_function_address(const char *name) {
