@@ -162,34 +162,6 @@ static int32_t qb_check_symbol_strip_trailing_tag(qb_native_compiler_context *cx
 	return qb_check_symbol(cxt, new_name);
 }
 
-static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
-	// map the file into memory 
-	int file_descriptor = open(cxt->obj_file_path, O_RDWR);
-	size_t binary_size;
-	char *binary = NULL;
-	if(file_descriptor != -1) {
-		struct stat stat_buf;
-		if(fstat(file_descriptor, &stat_buf) != -1) {
-			binary_size = stat_buf.st_size;
-#ifdef __LP64__
-			// on x64-64, gcc is going to use 32-bit relative pointers for function calls
-			// the code has to be thus located in an address not too far from the PHP executable
-			// assume here that it's located with in the first 4 gig
-			binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_32BIT, file_descriptor, 0);
-#else
-			binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE, file_descriptor, 0);
-#endif
-		}
-		close(file_descriptor);
-	}
-	if(!binary) {
-		return FALSE;
-	}
-	cxt->binary = binary;
-	cxt->binary_size = binary_size;
-	return TRUE;
-}
-
 #ifdef __LP64__
 #define EM_EXPECTED						EM_X86_64
 #define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -218,16 +190,34 @@ typedef Elf32_Rel				Elf_Rel;
 typedef Elf32_Sym				Elf_Sym;
 #endif
 
-static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
+static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 	int32_t icc = FALSE;
+	struct stat stat_buf;
+	size_t file_size = 0;
 	uint32_t missing_symbol_count = 0;
 
-	if(cxt->binary_size < sizeof(Elf_Ehdr)) {
+	if(fstat(fd, &stat_buf) != -1) {
+		file_size = stat_buf.st_size;
+	}
+	if(file_size < sizeof(Elf_Ehdr)) {
+		return FALSE;
+	}
+
+	Elf_Ehdr _header, *header = &_header;
+	if(read(fd, header, sizeof(Elf_Ehdr)) == -1) {
+		return FALSE;
+	}
+	if(header->e_machine != EM_EXPECTED) {
+		return FALSE;
+	}
+
+	// check the size
+	int section_header_end = header->e_shoff + header->e_shentsize * header->e_shnum;
+	if(section_header_end > file_size) {
 		return FALSE;
 	}
 
 	// see if it's has the ELF signature (the fifth byte indicates whether it's 32 or 64 bit)
-	Elf_Ehdr *header = (Elf_Ehdr *) cxt->binary;
 	if(memcmp(header->e_ident, ELF_SIGNATURE_GCC, 16) != 0) {
 		// icc sets the ABI (8th) byte to 0x03
 		if(memcmp(header->e_ident, ELF_SIGNATURE_ICC, 16) != 0) {
@@ -237,15 +227,26 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 		}
 	}
 
-	if(header->e_machine != EM_EXPECTED) {
+	Elf_Shdr *section_headers = alloca(sizeof(Elf_Shdr) * header->e_shnum);
+	if(lseek(fd, header->e_shoff, SEEK_SET) == -1 || read(fd, section_headers, sizeof(Elf_Shdr) * header->e_shnum) == -1) {
 		return FALSE;
 	}
 
-	// check the size
-	int section_header_end = header->e_shoff + header->e_shentsize * header->e_shnum;
-	if(section_header_end > cxt->binary_size) {
+	Elf_Shdr *section_string_section_header = &section_headers[header->e_shstrndx];
+	char *section_string_section = alloca(section_string_section_header->sh_size);
+	if(lseek(fd, header->e_shoff, SEEK_SET) == -1 || read(fd, section_headers, sizeof(Elf_Shdr) * header->e_shnum) == -1) {
 		return FALSE;
 	}
+
+#ifdef __LP64__
+	// on x64-64, gcc is going to use 32-bit relative pointers for function calls
+	// the code has to be thus located in an address not too far from the PHP executable
+	// assume here that it's located with in the first 4 gig
+	binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_32BIT, 0, 0);
+#else
+	binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE, 0, 0);
+#endif
+
 
 	int i, j;
 	int section_count = header->e_shnum;
@@ -329,6 +330,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 			}
 		}
 	}
+	mprotect(cxt->binary, cxt->binary_size, PROT_EXEC | PROT_READ);
 
 	// look for symbol section
 	uint32_t count = 0;
@@ -373,16 +375,18 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 	return (count > 0);
 }
 
-static void qb_lock_object_file(qb_native_compiler_context *cxt) {
-	mprotect(cxt->binary, cxt->binary_size, PROT_EXEC | PROT_READ);
+static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
+	// map the file into memory 
+	int fd = open(cxt->obj_file_path, O_RDWR);
+	if(file_descriptor == -1) {
+		return FALSE;
+	}
+	qb_parse_
+	close(file_descriptor);
+	return (cxt->binary != NULL);
 }
 
 static void qb_remove_object_file(qb_native_compiler_context *cxt) {
-	if(cxt->binary) {
-		munmap(cxt->binary, cxt->binary_size);
-		cxt->binary = NULL;
-		cxt->binary_size = 0;
-	}
 	unlink(cxt->obj_file_path);
 }
 
