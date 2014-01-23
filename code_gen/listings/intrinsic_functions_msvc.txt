@@ -1,4 +1,5 @@
 _ftol2
+_ftol2_sse
 _allshr
 _allshl
 _CIacos

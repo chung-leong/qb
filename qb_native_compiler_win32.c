@@ -368,6 +368,8 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 		address = floor;
 	} else if(strcmp(name, "_ftol2") == 0) {
 		address = _ftol2;
+	} else if(strcmp(name, "_ftol2_sse") == 0) {
+		address = _ftol2_sse;
 	} else if(strcmp(name, "_allshr") == 0) {
 		address = _allshr;
 	} else if(strcmp(name, "_allshl") == 0) {

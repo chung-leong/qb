@@ -192,6 +192,63 @@ float acoshf(float x);
 float atanhf(float x);
 float roundf(float x);
 
+#undef sinf
+float sinf(float x);
+
+#undef asinf
+float asinf(float x);
+
+#undef cosf
+float cosf(float x);
+
+#undef acosf
+float acosf(float x);
+
+#undef tanf
+float tanf(float x);
+
+#undef atanf
+float atanf(float x);
+
+#undef atan2f
+float atan2f(float x, float y);
+
+#undef sinhf
+float sinhf(float x);
+
+#undef coshf
+float coshf(float x);
+
+#undef tanhf
+float tanhf(float x);
+
+#undef expf
+float expf(float x);
+
+#undef logf
+float logf(float x);
+
+#undef log10f
+float log10f(float x);
+
+#undef powf
+float powf(float x, float y);
+
+#undef sqrtf
+float sqrtf(float x);
+
+#undef ceilf
+float ceilf(float x);
+
+#undef floorf
+float floorf(float x);
+
+#undef hypotf
+float hypotf(float x, float y);
+
+#undef fmodf
+float fmodf(float n, float d);
+
 #undef fabsf
 float fabsf(float x);
 
@@ -328,6 +385,7 @@ int qb_get_vc6_msvcrt_functions(void);
 
 #ifdef _MSC_VER
 	void _ftol2(void);
+	void _ftol2_sse(void);
 	void _allshr(void);
 	void _allshl(void);
 #endif
