@@ -149,34 +149,6 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	return TRUE;
 }
 
-static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
-	// map the file into memory 
-	int file_descriptor = open(cxt->obj_file_path, O_RDWR);
-	size_t binary_size;
-	char *binary = NULL;
-	if(file_descriptor != -1) {
-		struct stat stat_buf;
-		if(fstat(file_descriptor, &stat_buf) != -1) {
-			binary_size = stat_buf.st_size;
-#ifdef __LP64__
-			// on x64-64, gcc is going to use 32-bit relative pointers for function calls
-			// the code has to be thus located in an address not too far from the PHP executable
-			// assume here that it's located with in the first 4 gig
-			binary = mmap((void *) ~0, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE, file_descriptor, 0);
-#else
-			binary = mmap(NULL, binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE, file_descriptor, 0);
-#endif
-		}
-		close(file_descriptor);
-	}
-	if(!binary) {
-		return FALSE;
-	}
-	cxt->binary = binary;
-	cxt->binary_size = binary_size;
-	return TRUE;
-}
-
 #ifdef __x86_64__
 #define CPU_TYPE_EXPECTED		CPU_TYPE_X86_64
 #define ARCH_SELECT(t)			t##_64
@@ -195,13 +167,32 @@ typedef struct load_command						mach_load_command;
 typedef struct symtab_command					mach_symtab_command;
 typedef struct relocation_info					mach_relocation_info;
 
-static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
-	mach_header *header;
-	mach_load_command *command;
-	mach_segment_command *segment_command;
+static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
+	struct stat stat_buf;
+	size_t file_size = 0;
+
+	if(fstat(fd, &stat_buf) != -1) {
+		file_size = stat_buf.st_size;
+	}
+	if(file_size < sizeof(mach_header)) {
+		return FALSE;
+	}
+
+	mach_header _header, *header = &_header;
+	if(read(fd, header, sizeof(mach_header)) == -1) {
+		return FALSE;
+	}
+	if(header->magic != ARCH_SELECT(MH_MAGIC) || header->filetype != MH_OBJECT) {
+		return FALSE;
+	}
+	if(header->cputype != CPU_TYPE_EXPECTED) {
+		return FALSE;
+	}
+
 	mach_section *sections = NULL;
-	mach_symtab_command *symtab_command;
+	uint32_t section_count, section_position;
 	mach_nlist *symbols = NULL;
+	uint32_t symbol_count;
 	char *string_table;
 	mach_relocation_info *relocations;
 	uint32_t relocation_count;
@@ -210,38 +201,50 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 	uint32_t i;
 	uint32_t missing_symbol_count = 0;
 
-	if(cxt->binary_size < sizeof(mach_header)) {
-		return FALSE;
-	}
+	mach_load_command _command, *command = &_command;
 
-	header = (mach_header *) cxt->binary;
-	if(header->magic != ARCH_SELECT(MH_MAGIC) || header->filetype != MH_OBJECT) {
-		return FALSE;
-	}
-	if(header->cputype != CPU_TYPE_EXPECTED) {
-		return FALSE;
-	}
-
-	command = (mach_load_command *) (cxt->binary + sizeof(mach_header));
+	uint32_t position = sizeof(mach_header);
 	for(i = 0; i < header->ncmds; i++) {
+		if(lseek(fd, position, SEEK_SET) == -1 || read(fd, command, sizeof(mach_load_command)) == -1) {
+			return FALSE;
+		}
+
 		if(command->cmd == ARCH_SELECT(LC_SEGMENT)) {
 			// there's only one segment inside a mach-o object file
 			// section structures of the segment are located right after the segment command
-			segment_command = (mach_segment_command *) command;
-			sections = (mach_section *) ((char *) command + sizeof(mach_segment_command));
+			mach_segment_command *segment_command = (mach_segment_command *) command;
+			section_count = segment_command->nsects;
+			section_position = position + sizeof(mach_segment_command);
 		} else if(command->cmd == LC_SYMTAB) {
-			symtab_command = (mach_symtab_command *) command;
-			symbols = (mach_nlist *) (cxt->binary + symtab_command->symoff);
-			string_table = cxt->binary + symtab_command->stroff;
+			mach_symtab_command *symtab_command = (mach_symtab_command *) command;
+			symbol_count = symtab_command->nsyms;
+			symbols = alloca(sizeof(mach_nlist) * symbol_count);
+			if(lseek(fd, symtab_command->symoff, SEEK_SET) == -1 || read(fd, symbols, sizeof(mach_nlist) * symbol_count) == -1) {
+				return FALSE;
+			}
+
+			uint32_t string_table_size = ???;
+			string_table = alloca(string_table_size);
+			if(lseek(fd, symtab_command->stroff, SEEK_SET) == -1 || read(fd, symbols, string_table_size) == -1) {
+				return FALSE;
+			}
 		}
-		command = (mach_load_command *) (((char *) command) + command->cmdsize);
+		position += command->cmdsize;
 	}
 
 	if(!sections || !symbols) {
 		return FALSE;
 	}
+#ifdef __LP64__
+	// on x64-64, gcc is going to use 32-bit relative pointers for function calls
+	// the code has to be thus located in an address not too far from the PHP executable
+	// assume here that it's located with in the first 4 gig
+	cxt->binary = mmap((void *) ~0, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+#else
+	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+#endif
 
-	for(i = 0; i < segment_command->nsects; i++) {
+	for(i = 0; i < section_count; i++) {
 		mach_section *section = &sections[i];
 		if(memcmp(section->sectname, "__text", 7) == 0) {
 			relocations = (mach_relocation_info *) (cxt->binary + section->reloff);
@@ -294,13 +297,14 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 			}
 		}
 	}
+	mprotect(cxt->binary, cxt->binary_size, PROT_EXEC | PROT_READ);
 	if(missing_symbol_count > 0) {
 		return FALSE;
 	}
 
 	// find the compiled functions
 	uint32_t count = 0;
-	for(i = 0; i < symtab_command->nsyms; i++) {
+	for(i = 0; i < symbol_count; i++) {
 		mach_nlist *symbol = &symbols[i];
 		if(symbol->n_sect != NO_SECT) {
 			const char *symbol_name = string_table + symbol->n_un.n_strx;
@@ -322,8 +326,16 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt) {
 	return (count > 0);
 }
 
-static void qb_lock_object_file(qb_native_compiler_context *cxt) {
-	mprotect(cxt->binary, cxt->binary_size, PROT_EXEC | PROT_READ);
+static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
+	// map the file into memory
+	int fd = open(cxt->obj_file_path, O_RDONLY);
+	int32_t result;
+	if(fd == -1) {
+		return FALSE;
+	}
+	result = qb_parse_object_file(cxt, fd);
+	close(fd);
+	return result;
 }
 
 static void qb_remove_object_file(qb_native_compiler_context *cxt) {

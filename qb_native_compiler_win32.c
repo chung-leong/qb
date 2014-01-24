@@ -398,6 +398,11 @@ static int32_t qb_load_object_file(qb_native_compiler_context *cxt) {
 }
 
 static void qb_remove_object_file(qb_native_compiler_context *cxt) {
+	if(cxt->binary) {
+		VirtualFree(cxt->binary, 0, MEM_RELEASE);
+		cxt->binary = NULL;
+		cxt->binary_size = 0;
+	}
 	DeleteFile(cxt->obj_file_path);
 }
 
