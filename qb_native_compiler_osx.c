@@ -300,14 +300,25 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 			intptr_t P = ((intptr_t) target_address);
 
 			switch(reloc->r_type) {
+#ifdef __LP64__
+				case X86_64_RELOC_UNSIGNED:
+					*((intptr_t *) target_address) += S;
+					break;
+				case X86_64_RELOC_SIGNED:
+					*((int32_t *) target_address) += S - (P + sizeof(int32_t));
+					break;
+				case X86_64_RELOC_BRANCH:
+					*((int32_t *) target_address) += S - (P + sizeof(int32_t));
+					break;
+#else
 				case GENERIC_RELOC_VANILLA: 
-				case X86_64_RELOC_BRANCH: {
 					if(reloc->r_pcrel) {
-						*((int32_t *) target_address) = S - (P + sizeof(intptr_t));
+						*((int32_t *) target_address) = S - (P + sizeof(int32_t));
 					} else {
 						*((intptr_t *) target_address) = S;
 					}
-				}	break;
+					break;
+#endif
 				default:
 					return FALSE;
 			}
