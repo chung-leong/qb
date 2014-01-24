@@ -27,6 +27,8 @@
 
 #include <elf.h>
 
+#define LP64_USE_PIC	1
+
 static void qb_create_cache_folder(qb_native_compiler_context *cxt) {
 	uint32_t len = (uint32_t) strlen(cxt->cache_folder_path);
 	if(len == 0) {
@@ -98,8 +100,12 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		args[argc++] = "-Wno-pointer-sign";
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
-#if defined(__LP64__) && !defined(__APPLE__)
-		args[argc++] = "-mcmodel=large";							// use large memory model, since qb extension could be anywhere in the address space
+#if defined(__LP64__)
+#if LP64_USE_PIC
+		args[argc++] = "-fpic";										// in 64-bit function call needs PIC since external function could be anywhere
+#else
+		args[argc++] = "-mcmodel=large";							// use large memory model instead of PIC,
+#endif
 #endif
 		args[argc++] = "-o";
 		args[argc++] = cxt->obj_file_path;
@@ -161,6 +167,44 @@ static int32_t qb_check_symbol_strip_trailing_tag(qb_native_compiler_context *cx
 	new_name[name_len] = '\0';
 	return qb_check_symbol(cxt, new_name);
 }
+
+#ifdef LP64_USE_PIC
+
+#pragma pack(push,1)
+typedef struct qb_elf_entry {
+	int16_t opcode;
+	int32_t rip_address;
+	int16_t padding;
+	void *function_address;
+} qb_elf_entry;
+#pragma pack(pop)
+
+static void * qb_find_symbol_plt_entry(qb_native_compiler_context *cxt, const char *name) {
+	static qb_elf_entry *procedure_linkage_table = NULL;
+	uint32_t i, name_len = (uint32_t) strlen(name);
+	long hash_value = zend_get_hash_value(name, name_len + 1);
+	if(!procedure_linkage_table) {
+		procedure_linkage_table = mmap(NULL, sizeof(qb_elf_entry) * global_native_symbol_count, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	}
+	for(i = 0; i < global_native_symbol_count; i++) {
+		qb_native_symbol *symbol = &global_native_symbols[i];
+		if(symbol->hash_value == hash_value) {
+			if(strcmp(symbol->name, name) == 0) {
+				qb_elf_entry *plt_entry = &procedure_linkage_table[i];
+				if(!plt_entry->opcode) {
+					plt_entry->opcode = 0x25FF;
+					plt_entry->rip_address = 2;
+					plt_entry->function_address = qb_get_symbol_address(cxt, symbol);
+				}
+				if(plt_entry->function_address) {
+					return plt_entry;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+#endif
 
 #ifdef __LP64__
 #define EM_EXPECTED						EM_X86_64
@@ -243,16 +287,11 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		section_header->sh_addr = (section_header->sh_addralign > 1) ? ALIGN_TO(address, section_header->sh_addralign) : address;
 		address = section_header->sh_addr + section_header->sh_size;
 	}
-	cxt->binary_size = address;
 
-#ifdef __LP64__
-	// on x64-64, gcc is going to use 32-bit relative pointers for function calls
-	// the code has to be thus located in an address not too far from the PHP executable
-	// assume here that it's located with in the first 4 gig
-	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT, -1, 0);
-#else
+
+
+	cxt->binary_size = address;
 	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-#endif
 
 	// load the sections
 	for(i = 0; i < section_count; i++) {
@@ -293,7 +332,16 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					symbol_address = (cxt->binary + section_headers[symbol->st_shndx].sh_addr + symbol->st_value);
 				} else if(symbol_bind == STB_GLOBAL) {
 					// links to a symbol symbol
+#ifdef LP64_USE_PIC
+					if(reloc_type == R_X86_64_PLT32) {
+						symbol_address = qb_find_symbol_plt_entry(cxt, symbol_name);
+
+					} else {
+						symbol_address = qb_find_symbol(cxt, symbol_name);
+					}
+#else
 					symbol_address = qb_find_symbol(cxt, symbol_name);
+#endif
 					if(!symbol_address) {
 						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
 						missing_symbol_count++;
@@ -316,6 +364,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					case R_X86_64_64:
 						*((intptr_t *) target_address) = A + S;
 						break;
+					case R_X86_64_PLT32:
 					case R_X86_64_PC32:
 						*((int32_t *) target_address) = A + S - P;
 						break;
