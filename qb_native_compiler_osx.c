@@ -308,7 +308,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					*((int32_t *) target_address) += S - (P + sizeof(int32_t));
 					break;
 				case X86_64_RELOC_BRANCH:
-					*((int32_t *) target_address) += S - (P + sizeof(int32_t));
+					*((uint32_t *) target_address) += S - (P + sizeof(int32_t));
 					break;
 #else
 				case GENERIC_RELOC_VANILLA: 
