@@ -84,17 +84,6 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		}
 		args[argc++] = "-c";
 		args[argc++] = "-O2";										// optimization level
-#ifdef HAVE_GCC_MARCH_NATIVE
-		args[argc++] = "-march=native";								// optimize for current CPU
-#elif defined(__SSE4__)
-		args[argc++] = "-msse4";
-#elif defined(__SSE3__)
-		args[argc++] = "-msse3";
-#elif defined(__SSE2__)
-		args[argc++] = "-msse2";
-#elif defined(__SSE__)
-		args[argc++] = "-msse";
-#endif
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
@@ -212,20 +201,28 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		if(command->cmd == ARCH_SELECT(LC_SEGMENT)) {
 			// there's only one segment inside a mach-o object file
 			// section structures of the segment are located right after the segment command
-			mach_segment_command *segment_command = (mach_segment_command *) command;
+			mach_segment_command _segment_command, *segment_command = &_segment_command;
+			if(lseek(fd, position, SEEK_SET) == -1 || read(fd, segment_command, sizeof(mach_segment_command)) == -1) {
+				return FALSE;
+			}
 			section_count = segment_command->nsects;
+			sections = alloca(sizeof(mach_section) * section_count);
+			if(read(fd, sections, sizeof(mach_section) * section_count) == -1) {
+				return FALSE;
+			}
 			section_position = position + sizeof(mach_segment_command);
 		} else if(command->cmd == LC_SYMTAB) {
-			mach_symtab_command *symtab_command = (mach_symtab_command *) command;
+			mach_symtab_command _symtab_command, *symtab_command = &_symtab_command;
+			if(lseek(fd, position, SEEK_SET) == -1 || read(fd, symtab_command, sizeof(mach_symtab_command)) == -1) {
+				return FALSE;
+			}
 			symbol_count = symtab_command->nsyms;
 			symbols = alloca(sizeof(mach_nlist) * symbol_count);
 			if(lseek(fd, symtab_command->symoff, SEEK_SET) == -1 || read(fd, symbols, sizeof(mach_nlist) * symbol_count) == -1) {
 				return FALSE;
 			}
-
-			uint32_t string_table_size = ???;
-			string_table = alloca(string_table_size);
-			if(lseek(fd, symtab_command->stroff, SEEK_SET) == -1 || read(fd, symbols, string_table_size) == -1) {
+			string_table = alloca(symtab_command->strsize);
+			if(lseek(fd, symtab_command->stroff, SEEK_SET) == -1 || read(fd, string_table, symtab_command->strsize) == -1) {
 				return FALSE;
 			}
 		}
@@ -235,26 +232,45 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 	if(!sections || !symbols) {
 		return FALSE;
 	}
+
+	// align the sections
+	uintptr_t address = 0;
+	for(i = 0; i < section_count; i++) {
+		mach_section *section = &sections[i];
+		uint32_t alignment = 1 << section->align;
+		section->addr = ALIGN_TO(address, alignment);
+		address = section->addr + section->size;
+	}
+	cxt->binary_size = address;
+
 #ifdef __LP64__
 	// on x64-64, gcc is going to use 32-bit relative pointers for function calls
 	// the code has to be thus located in an address not too far from the PHP executable
 	// assume here that it's located with in the first 4 gig
-	cxt->binary = mmap((void *) ~0, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	cxt->binary = mmap((void *) ~0, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 #else
-	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 #endif
-
-	for(i = 0; i < section_count; i++) {
-		mach_section *section = &sections[i];
-		if(memcmp(section->sectname, "__text", 7) == 0) {
-			relocations = (mach_relocation_info *) (cxt->binary + section->reloff);
-			relocation_count = section->nreloc;
-			text_section = cxt->binary + section->offset;
-			text_section_number = i + 1;
-			break;
-		}
+	if(!cxt->binary) {
+		return FALSE;
 	}
 
+	// load the sections
+	for(i = 0; i < section_count; i++) {
+		mach_section *section = &sections[i];
+		if(lseek(fd, section->offset, SEEK_SET) == -1 || read(fd, cxt->binary + section->addr, section->size) == -1) {
+			return FALSE;
+		}
+		if(memcmp(section->sectname, "__text", 7) == 0) {
+			text_section = cxt->binary + section->addr;
+			text_section_number = i + 1;
+			relocation_count = section->nreloc;
+			relocations = alloca(sizeof(mach_relocation_info) * relocation_count);
+			if(lseek(fd, section->reloff, SEEK_SET) == -1 || read(fd, relocations, sizeof(mach_relocation_info) * relocation_count) == -1) {
+				return FALSE;
+			}
+		}
+	}
 	if(!text_section) {
 		return FALSE;
 	}
@@ -277,7 +293,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 				}
 			} else {
 				mach_section *section = &sections[reloc->r_symbolnum - 1];
-				symbol_address = cxt->binary + section->offset;
+				symbol_address = cxt->binary + section->addr;
 			}
 
 			intptr_t S = (intptr_t) symbol_address;
@@ -308,15 +324,17 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		mach_nlist *symbol = &symbols[i];
 		if(symbol->n_sect != NO_SECT) {
 			const char *symbol_name = string_table + symbol->n_un.n_strx;
-			void *symbol_address = text_section + symbol->n_value;
+			void *symbol_address = cxt->binary + symbol->n_value;
 			if(symbol->n_sect == text_section_number) {
 				uint32_t attached = qb_attach_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH, symbol_address);
-				if(!qb_check_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH)) {
-					return FALSE;
+				if(attached == 0) {
+					if(!qb_check_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH)) {
+						return FALSE;
+					}
 				}
 				count += attached;
 			} else {
-				if(strncmp(symbol_name + 1, "QB_VERSION", 10) == 0) {
+				if(strncmp(symbol_name + SYMBOL_PREFIX_LENGTH, "QB_VERSION", 10) == 0) {
 					uint32_t *p_version = symbol_address;
 					cxt->qb_version = *p_version;
 				}
