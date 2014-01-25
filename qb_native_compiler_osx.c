@@ -80,7 +80,7 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		if(strlen(compiler_path) > 0) {
 			args[argc++] = compiler_path;
 		} else {
-			args[argc++] = "gcc";
+			args[argc++] = "clang";
 		}
 		args[argc++] = "-c";
 		args[argc++] = "-O2";										// optimization level
@@ -137,6 +137,44 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	}
 	return TRUE;
 }
+
+#ifdef __x86_64__
+
+#pragma pack(push,1)
+typedef struct qb_elf_entry {
+	int16_t opcode;
+	int32_t rip_address;
+	int16_t padding;
+	void *function_address;
+} qb_elf_entry;
+#pragma pack(pop)
+
+static void * qb_find_symbol_plt_entry(qb_native_compiler_context *cxt, const char *name) {
+	static qb_elf_entry *procedure_linkage_table = NULL;
+	uint32_t i, name_len = (uint32_t) strlen(name);
+	long hash_value = zend_get_hash_value(name, name_len + 1);
+	if(!procedure_linkage_table) {
+		procedure_linkage_table = mmap(NULL, sizeof(qb_elf_entry) * global_native_symbol_count, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+	}
+	for(i = 0; i < global_native_symbol_count; i++) {
+		qb_native_symbol *symbol = &global_native_symbols[i];
+		if(symbol->hash_value == hash_value) {
+			if(strcmp(symbol->name, name) == 0) {
+				qb_elf_entry *plt_entry = &procedure_linkage_table[i];
+				if(!plt_entry->opcode) {
+					plt_entry->opcode = 0x25FF;
+					plt_entry->rip_address = 2;
+					plt_entry->function_address = qb_get_symbol_address(cxt, symbol);
+				}
+				if(plt_entry->function_address) {
+					return plt_entry;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+#endif
 
 #ifdef __x86_64__
 #define CPU_TYPE_EXPECTED		CPU_TYPE_X86_64
@@ -241,17 +279,11 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		section->addr = ALIGN_TO(address, alignment);
 		address = section->addr + section->size;
 	}
-	cxt->binary_size = address;
 
-#ifdef __LP64__
-	// on x64-64, gcc is going to use 32-bit relative pointers for function calls
-	// the code has to be thus located in an address not too far from the PHP executable
-	// assume here that it's located with in the first 4 gig
-	cxt->binary = mmap((void *) ~0, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-#else
+	// allocate memory
+	cxt->binary_size = address;
 	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-#endif
-	if(!cxt->binary) {
+	if(cxt->binary == (void *) -1) {
 		return FALSE;
 	}
 
@@ -279,21 +311,26 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 	for(i = 0; i < relocation_count; i++) {
 		mach_relocation_info *reloc = &relocations[i];
 
-		if(!(reloc->r_address & R_SCATTERED)) {
+		if(!(reloc->r_address & R_SCATTERED) && reloc->r_extern) {
 			void *symbol_address;
 			void *target_address = text_section + reloc->r_address;
-			if(reloc->r_extern) {
-				mach_nlist *symbol = &symbols[reloc->r_symbolnum];
-				const char *symbol_name = string_table + symbol->n_un.n_strx;
+			mach_nlist *symbol = &symbols[reloc->r_symbolnum];
+			const char *symbol_name = string_table + symbol->n_un.n_strx;
+			if(symbol->n_type == N_EXT) {
+#ifdef __x86_64__
+				symbol_address = qb_find_symbol_plt_entry(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
+#else
 				symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
+#endif
 				if(!symbol_address) {
 					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
 					missing_symbol_count++;
 					continue;
 				}
 			} else {
-				mach_section *section = &sections[reloc->r_symbolnum - 1];
-				symbol_address = cxt->binary + section->addr;
+				mach_section *section = &sections[symbol->n_sect - 1];
+				mach_nlist *symbol = &symbols[i];
+				symbol_address = cxt->binary + symbol->n_value;
 			}
 
 			intptr_t S = (intptr_t) symbol_address;
@@ -301,9 +338,6 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 
 			switch(reloc->r_type) {
 #ifdef __LP64__
-				case X86_64_RELOC_UNSIGNED:
-					*((intptr_t *) target_address) += S;
-					break;
 				case X86_64_RELOC_SIGNED:
 					*((int32_t *) target_address) += S - (P + sizeof(int32_t));
 					break;
