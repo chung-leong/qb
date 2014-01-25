@@ -616,7 +616,9 @@ static int32_t qb_run_php_function(qb_compiler_context *cxt, const char *functio
 		} else {
 			arguments[i] = operand->constant;
 			zval_add_ref(argument_pointers[i]);
-			convert_to_explicit_type_ex(argument_pointers[i], zval_type);
+			if(zval_type != IS_CONSTANT) {
+				convert_to_explicit_type_ex(argument_pointers[i], zval_type);
+			}
 		}
 	}
 	result = call_user_function_ex(EG(function_table), NULL, function, &retval, operand_count, argument_pointers, TRUE, NULL TSRMLS_CC);
@@ -638,6 +640,16 @@ static int32_t qb_run_php_function(qb_compiler_context *cxt, const char *functio
 static void qb_set_result_php_function_result(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_php_function_result_factory *pf = (qb_php_function_result_factory *) f;
 	if(qb_run_php_function(cxt, pf->function_name, pf->argument_types, operands, operand_count, &result->constant)) {
+		result->type = QB_OPERAND_ZVAL;
+	} else {
+		result->type = QB_OPERAND_EMPTY;
+	}
+}
+
+static void qb_set_result_ini_get(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_php_function_result_factory *pf = (qb_php_function_result_factory *) f;
+	if(qb_run_php_function(cxt, pf->function_name, pf->argument_types, operands, operand_count, &result->constant)) {
+		convert_to_double(result->constant);
 		result->type = QB_OPERAND_ZVAL;
 	} else {
 		result->type = QB_OPERAND_EMPTY;

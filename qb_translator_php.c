@@ -1041,8 +1041,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"ini_set",				2,		2,		&factory_ini_set			},
 	{	0,	"ini_alter",			2,		2,		&factory_ini_set			},
 	{	0,	"ini_restore",			1,		1,		&factory_ini_restore		},
-	{	0,	"getenv",				1,		1,		&factory_getenv				},
-	{	0,	"putenv",				1,		1,		&factory_putenv				},
+	{	0,	"get_cfg_var",			1,		1,		&factory_get_cfg_var		},
 
 	// unsupported functions
 	{	0,	"compact",				0,		-1,		NULL						},

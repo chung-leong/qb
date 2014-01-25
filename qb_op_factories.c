@@ -5817,7 +5817,7 @@ qb_php_function_result_factory factory_ini_get = {
 	NULL,
 	qb_set_result_prototype,
 	qb_validate_operands_compile_time_function,
-	qb_set_result_php_function_result,
+	qb_set_result_ini_get,
 	NULL,
 	NULL,
 	NULL,
@@ -5825,7 +5825,7 @@ qb_php_function_result_factory factory_ini_get = {
 	0,
 	0,
 	QB_ADDRESS_CONSTANT | QB_ADDRESS_STRING,
-	"class_exists",
+	"ini_get",
 	{	IS_STRING	},
 };
 
@@ -5864,17 +5864,17 @@ qb_php_function_result_factory factory_ini_restore = {
 	QB_RESULT_HAS_SIDE_EFFECT,
 	QB_ADDRESS_CONSTANT | QB_ADDRESS_BOOLEAN,
 	"ini_restore",
-	{	IS_STRING	},
+	{	IS_STRING,	IS_CONSTANT	},
 };
 
-qb_php_function_result_factory factory_getenv = {
+qb_php_function_result_factory factory_get_cfg_var = {
 	NULL,
 	qb_resolve_expression_type_string,
 	NULL,
 	NULL,
 	qb_set_result_prototype,
 	qb_validate_operands_compile_time_function,
-	qb_set_result_php_function_result,
+	qb_set_result_ini_get,
 	NULL,
 	NULL,
 	NULL,
@@ -5882,25 +5882,7 @@ qb_php_function_result_factory factory_getenv = {
 	0,
 	0,
 	QB_ADDRESS_CONSTANT | QB_ADDRESS_STRING,
-	"getenv",
+	"get_cfg_var",
 	{	IS_STRING	},
 };
 
-qb_php_function_result_factory factory_putenv = {
-	NULL,
-	qb_resolve_expression_type_boolean,
-	NULL,
-	NULL,
-	qb_set_result_prototype,
-	qb_validate_operands_compile_time_function,
-	qb_set_result_php_function_result,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	0,
-	QB_RESULT_HAS_SIDE_EFFECT,
-	QB_ADDRESS_CONSTANT | QB_ADDRESS_BOOLEAN,
-	"putenv",
-	{	IS_STRING	},
-};
