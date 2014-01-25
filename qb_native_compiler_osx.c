@@ -221,13 +221,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 	mach_nlist *symbols = NULL;
 	uint32_t symbol_count;
 	char *string_table;
-	mach_relocation_info *relocations;
-	uint32_t relocation_count;
-	char *text_section = NULL;
 	uint32_t text_section_number = 0;
-	uint32_t i;
+	uint32_t i, j;
 	uint32_t missing_symbol_count = 0;
-
 	mach_load_command _command, *command = &_command;
 
 	uint32_t position = sizeof(mach_header);
@@ -294,67 +290,70 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 			return FALSE;
 		}
 		if(memcmp(section->sectname, "__text", 7) == 0) {
-			text_section = cxt->binary + section->addr;
 			text_section_number = i + 1;
-			relocation_count = section->nreloc;
+		}
+	}
+
+	// perform relocation
+
+	for(i = 0; i < section_count; i++) {
+		mach_section *section = &sections[i];
+		mach_relocation_info *relocations;
+		uint32_t relocation_count = section->nreloc;
+
+		if(relocation_count > 0) {
 			relocations = alloca(sizeof(mach_relocation_info) * relocation_count);
 			if(lseek(fd, section->reloff, SEEK_SET) == -1 || read(fd, relocations, sizeof(mach_relocation_info) * relocation_count) == -1) {
 				return FALSE;
 			}
 		}
-	}
-	if(!text_section) {
-		return FALSE;
-	}
 
-	// perform relocation
-	for(i = 0; i < relocation_count; i++) {
-		mach_relocation_info *reloc = &relocations[i];
+		for(j = 0; j < relocation_count; j++) {
+			mach_relocation_info *reloc = &relocations[j];
 
-		if(!(reloc->r_address & R_SCATTERED) && reloc->r_extern) {
-			void *symbol_address;
-			void *target_address = text_section + reloc->r_address;
-			mach_nlist *symbol = &symbols[reloc->r_symbolnum];
-			const char *symbol_name = string_table + symbol->n_un.n_strx;
-			if(symbol->n_type == N_EXT) {
+			if(!(reloc->r_address & R_SCATTERED) && reloc->r_extern) {
+				void *symbol_address;
+				void *target_address = cxt->binary + section->addr + reloc->r_address;
+				mach_nlist *symbol = &symbols[reloc->r_symbolnum];
+				const char *symbol_name = string_table + symbol->n_un.n_strx;
+				if(symbol->n_type == N_EXT) {
 #ifdef __x86_64__
-				symbol_address = qb_find_symbol_plt_entry(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
+					symbol_address = qb_find_symbol_plt_entry(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
 #else
-				symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
+					symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
 #endif
-				if(!symbol_address) {
-					qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
-					missing_symbol_count++;
-					continue;
-				}
-			} else {
-				mach_section *section = &sections[symbol->n_sect - 1];
-				mach_nlist *symbol = &symbols[i];
-				symbol_address = cxt->binary + symbol->n_value;
-			}
-
-			intptr_t S = (intptr_t) symbol_address;
-			intptr_t P = ((intptr_t) target_address);
-
-			switch(reloc->r_type) {
-#ifdef __LP64__
-				case X86_64_RELOC_SIGNED:
-					*((int32_t *) target_address) += S - (P + sizeof(int32_t));
-					break;
-				case X86_64_RELOC_BRANCH:
-					*((uint32_t *) target_address) += S - (P + sizeof(int32_t));
-					break;
-#else
-				case GENERIC_RELOC_VANILLA: 
-					if(reloc->r_pcrel) {
-						*((int32_t *) target_address) = S - (P + sizeof(int32_t));
-					} else {
-						*((intptr_t *) target_address) = S;
+					if(!symbol_address) {
+						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
+						missing_symbol_count++;
+						continue;
 					}
-					break;
+				} else {
+					mach_section *section = &sections[symbol->n_sect - 1];
+					mach_nlist *symbol = &symbols[i];
+					symbol_address = cxt->binary + symbol->n_value;
+				}
+
+				intptr_t S = (intptr_t) symbol_address;
+				intptr_t P = ((intptr_t) target_address);
+
+				switch(reloc->r_type) {
+#ifdef __LP64__
+					case X86_64_RELOC_SIGNED:
+					case X86_64_RELOC_BRANCH:
+						*((int32_t *) target_address) += S - (P + sizeof(int32_t));
+						break;
+#else
+					case GENERIC_RELOC_VANILLA:
+						if(reloc->r_pcrel) {
+							*((int32_t *) target_address) = S - (P + sizeof(int32_t));
+						} else {
+							*((intptr_t *) target_address) = S;
+						}
+						break;
 #endif
-				default:
-					return FALSE;
+					default:
+						return FALSE;
+				}
 			}
 		}
 	}

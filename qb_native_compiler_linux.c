@@ -288,10 +288,12 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		address = section_header->sh_addr + section_header->sh_size;
 	}
 
-
-
+	// allocate memory
 	cxt->binary_size = address;
 	cxt->binary = mmap(NULL, cxt->binary_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if(cxt->binary == MAP_FAILED) {
+		return FALSE;
+	}
 
 	// load the sections
 	for(i = 0; i < section_count; i++) {
