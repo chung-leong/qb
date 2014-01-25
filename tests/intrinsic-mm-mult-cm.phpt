@@ -3,6 +3,8 @@ Matrix-matrix multiplication test (column-major)
 --FILE--
 <?php
 
+ini_set('precision', 10);
+
 /**
  * A test function
  * 
