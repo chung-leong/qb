@@ -64,14 +64,12 @@ typedef struct qb_exception_params {
 } qb_exception_params;
 
 static void qb_report_exception_in_main_thread(void *param1, void *param2, int param3) {
-#ifdef ZTS
-	void ***tsrm_ls = param2;
-#endif
 	qb_exception_params *params = param1;
 	uint32_t file_id = FILE_ID(params->line_id);
 	uint32_t line_number = LINE_NUMBER(params->line_id);
 	qb_exception *exception;
 	char *message = NULL;
+	TSRMLS_FETCH();
 
 	if(!QB_G(exceptions)) {
 		qb_create_array((void **) &QB_G(exceptions), &QB_G(exception_count), sizeof(qb_exception), 1);
@@ -87,17 +85,12 @@ static void qb_report_exception_in_main_thread(void *param1, void *param2, int p
 
 ZEND_ATTRIBUTE_FORMAT(printf, 3, 4)
 static void qb_report_exception(uint32_t line_id, int32_t type, const char *format, ...) {
-#ifdef ZTS
-	void ***tsrm_ls = qb_get_tsrm_ls(thread);
-#else
-	void ***tsrm_ls = NULL;
-#endif
 	qb_exception_params params;
 	params.line_id = line_id;
 	params.type = type;
 	params.format = format;
 	va_start(params.arguments, format);
-	qb_run_in_main_thread(qb_report_exception_in_main_thread, &params, tsrm_ls, 0);
+	qb_run_in_main_thread(qb_report_exception_in_main_thread, &params, NULL, 0);
 	va_end(params.arguments);
 }
 
@@ -392,7 +385,7 @@ void qb_report_unexpected_function_argument_type_exception(uint32_t line_id, qb_
 
 void qb_report_missing_argument_exception(uint32_t line_id, const char *class_name, const char *function_name, uint32_t argument_index, uint32_t caller_line_id) {
 #ifdef ZTS
-	void ***tsrm_ls = qb_get_tsrm_ls(thread);
+	void ***tsrm_ls = qb_get_tsrm_ls();
 #endif
 	const char *space;
 	if(class_name) {

@@ -5886,3 +5886,40 @@ qb_php_function_result_factory factory_get_cfg_var = {
 	{	IS_STRING	},
 };
 
+qb_php_function_result_factory factory_getenv = {
+	NULL,
+	qb_resolve_expression_type_string,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_compile_time_function,
+	qb_set_result_php_function_result,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	0,
+	QB_ADDRESS_CONSTANT | QB_ADDRESS_STRING,
+	"getenv",
+	{	IS_STRING	},
+};
+
+qb_php_function_result_factory factory_putenv = {
+	NULL,
+	qb_resolve_expression_type_boolean,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	qb_validate_operands_compile_time_function,
+	qb_set_result_php_function_result,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	QB_ADDRESS_CONSTANT | QB_ADDRESS_BOOLEAN,
+	"putenv",
+	{	IS_STRING	},
+};

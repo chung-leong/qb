@@ -180,7 +180,7 @@ int qb_initialize_main_thread(qb_main_thread *thread TSRMLS_DC);
 void qb_free_main_thread(qb_main_thread *thread);
 
 #ifdef ZTS
-void ***qb_get_tsrm_ls(qb_thread *);
+void ***qb_get_tsrm_ls(void);
 #endif
 
 void qb_initialize_task_group(qb_task_group *group, long task_count, long extra_bytes);

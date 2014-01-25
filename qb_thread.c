@@ -362,9 +362,9 @@ static qb_main_thread * qb_get_thread_owner(qb_thread *thread) {
 }
 
 #ifdef ZTS
-void ***qb_get_tsrm_ls(qb_thread *thread) {
-	if(thread) {
-		qb_main_thread *main_thread = qb_get_thread_owner(thread);
+void ***qb_get_tsrm_ls() {
+	if(current_thread) {
+		qb_main_thread *main_thread = qb_get_thread_owner(current_thread);
 		return main_thread->tsrm_ls;
 	} else {
 		TSRMLS_FETCH();

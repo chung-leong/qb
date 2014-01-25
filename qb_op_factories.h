@@ -629,5 +629,7 @@ extern qb_php_function_result_factory factory_ini_get;
 extern qb_php_function_result_factory factory_ini_set;
 extern qb_php_function_result_factory factory_ini_restore;
 extern qb_php_function_result_factory factory_get_cfg_var;
+extern qb_php_function_result_factory factory_getenv;
+extern qb_php_function_result_factory factory_putenv;
 
 #endif
