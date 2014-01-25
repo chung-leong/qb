@@ -783,6 +783,17 @@ static ZEND_INI_MH(OnUpdatePath) {
 	return OnUpdateString(entry, new_value, new_value_length, mh_arg1, mh_arg2, mh_arg3, stage TSRMLS_CC);
 }
 
+static ZEND_INI_MH(OnThreadCount) /* {{{ */
+{
+	OnUpdateLong(entry, new_value, new_value_length, mh_arg1, mh_arg2, mh_arg3, stage TSRMLS_CC);
+	if(QB_G(thread_count) < 0) {
+		QB_G(thread_count) = 0;
+	} else if(QB_G(thread_count) > MAX_THREAD_COUNT) {
+		QB_G(thread_count) = MAX_THREAD_COUNT;
+	}
+	return SUCCESS;
+}
+
 /* {{{ PHP_INI
  */
 PHP_INI_BEGIN()
@@ -794,7 +805,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("qb.native_code_cache_path",  		"",		PHP_INI_SYSTEM, OnUpdatePath,	native_code_cache_path,			zend_qb_globals,	qb_globals)
 	STD_PHP_INI_ENTRY("qb.execution_log_path",  			"",		PHP_INI_SYSTEM, OnUpdatePath,	execution_log_path,				zend_qb_globals,	qb_globals)
 
-	STD_PHP_INI_ENTRY("qb.thread_count",					"0",	PHP_INI_SYSTEM, OnUpdateLong,	thread_count,					zend_qb_globals,	qb_globals)
+	STD_PHP_INI_ENTRY("qb.thread_count",					"0",	PHP_INI_SYSTEM, OnThreadCount,	thread_count,					zend_qb_globals,	qb_globals)
 
 	STD_PHP_INI_BOOLEAN("qb.allow_bytecode_interpretation",	"1",	PHP_INI_ALL,	OnUpdateBool,	allow_bytecode_interpretation,	zend_qb_globals,	qb_globals)
 	STD_PHP_INI_BOOLEAN("qb.allow_debugger_inspection",		"1",	PHP_INI_ALL,	OnUpdateBool,	allow_debugger_inspection,		zend_qb_globals,	qb_globals)

@@ -1,5 +1,5 @@
 --TEST--
-Zend function call with $this
+Zend generator call
 --SKIPIF--
 <?php 
 	if(version_compare(PHP_VERSION, '5.5.0') < 0) print 'skip feature not available';
@@ -25,9 +25,8 @@ function generator($count) {
 	}
 }
 
+test_function();
+
 ?>
---EXPECT--
-Test Object
-(
-    [hello] => 5
-)
+--EXPECTREGEX--
+.*Fatal error.*

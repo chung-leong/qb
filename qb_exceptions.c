@@ -433,6 +433,18 @@ void qb_report_missing_function_exception(qb_thread *thread, uint32_t line_id, c
 	qb_report_exception(thread, line_id, E_ERROR, "Call to undefined function %s%s%s()", class_name, space, function_name);
 }
 
+void qb_report_generator_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name) {
+	const char *space;
+	if(class_name) {
+		space = "::";
+	} else {
+		class_name = "";
+		space = "";
+	}
+	qb_report_exception(thread, line_id, E_ERROR, "Unable to call generator function %s%s%s()", class_name, space, function_name);
+}
+
+
 void qb_report_inline_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *function_name) {
 	const char *space;
 	if(class_name) {

@@ -85,6 +85,7 @@ void qb_report_type_mismatch_exception(qb_thread *thread, uint32_t line_id, qb_p
 void qb_report_missing_send_declaration(qb_thread *thread, uint32_t line_id);
 void qb_report_ambiguous_return_value_exception(qb_thread *thread, uint32_t line_id);
 void qb_report_missing_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *name);
+void qb_report_generator_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *name);
 void qb_report_inline_function_exception(qb_thread *thread, uint32_t line_id, const char *class_name, const char *name);
 
 void qb_report_incorrect_argument_count_exception(qb_thread *thread, uint32_t line_id, qb_intrinsic_function *ifunc, uint32_t argument_count);

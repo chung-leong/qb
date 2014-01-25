@@ -269,6 +269,12 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 		}
 		zfunc = qb_find_zend_function(class_name, name->constant TSRMLS_CC);
 		if(zfunc) {
+#ifdef ZEND_ACC_GENERATOR
+			if(zfunc->common.fn_flags & ZEND_ACC_GENERATOR) {
+				qb_report_generator_function_exception(NULL, cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
+				return FALSE;
+			}
+#endif
 			qfunc = qb_find_compiled_function(zfunc);
 		} else {
 			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) { 
