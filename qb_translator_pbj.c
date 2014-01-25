@@ -722,11 +722,11 @@ int32_t qb_decode_pbj_binary(qb_pbj_translator_context *cxt) {
 		}
 	}
 	if(!cxt->out_pixel || !cxt->out_coord || cxt->conditional_count > 0) {
-		qb_report_corrupted_pbj_exception(NULL, cxt->compiler_context->line_id);
+		qb_report_corrupted_pbj_exception(cxt->compiler_context->line_id);
 		return FALSE;
 	}
 	if(cxt->out_pixel->type != PBJ_TYPE_FLOAT3 && cxt->out_pixel->type != PBJ_TYPE_FLOAT4) {
-		qb_report_unsupported_pbj_exception(NULL, cxt->compiler_context->line_id);
+		qb_report_unsupported_pbj_exception(cxt->compiler_context->line_id);
 		return FALSE;
 	}
 	return TRUE;
@@ -1014,7 +1014,7 @@ static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 			if(qb_is_image(cxt, qvar->address, texture->channel_count)) {
 				texture->address = qvar->address;
 			} else {
-				qb_report_incorrect_pbj_parameter_type_exception(NULL, cxt->compiler_context->line_id, qvar->name);
+				qb_report_incorrect_pbj_parameter_type_exception(cxt->compiler_context->line_id, qvar->name);
 				return FALSE;
 			} 
 		} else {
@@ -1023,7 +1023,7 @@ static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 			if(qvar) {
 				texture->address = qvar->address;
 			} else {
-				qb_report_missing_pbj_input_image_parameter_exception(NULL, cxt->compiler_context->line_id, texture->name);
+				qb_report_missing_pbj_input_image_parameter_exception(cxt->compiler_context->line_id, texture->name);
 				return FALSE;
 			}
 		}
@@ -1057,15 +1057,15 @@ static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 								parameter->address = qvar->address;
 							}
 						} else {
-							qb_report_incorrect_pbj_parameter_type_exception(NULL, cxt->compiler_context->line_id, qvar->name);
+							qb_report_incorrect_pbj_parameter_type_exception(cxt->compiler_context->line_id, qvar->name);
 							return FALSE;
 						}
 					} else {
-						qb_report_incorrect_pbj_parameter_type_exception(NULL, cxt->compiler_context->line_id, qvar->name);
+						qb_report_incorrect_pbj_parameter_type_exception(cxt->compiler_context->line_id, qvar->name);
 						return FALSE;
 					}
 				} else {
-					qb_report_extraneous_pbj_parameter_exception(NULL, cxt->compiler_context->line_id, parameter->name);
+					qb_report_extraneous_pbj_parameter_exception(cxt->compiler_context->line_id, parameter->name);
 					return FALSE;
 				}
 			} else {
@@ -1073,7 +1073,7 @@ static int32_t qb_map_pbj_variables(qb_pbj_translator_context *cxt) {
 				if(parameter->default_value.type) {
 					parameter->address = qb_create_pbj_constant(cxt->compiler_context, &parameter->default_value);
 				} else {
-					qb_report_missing_pbj_parameter_exception(NULL, cxt->compiler_context->line_id, parameter->name);
+					qb_report_missing_pbj_parameter_exception(cxt->compiler_context->line_id, parameter->name);
 					return FALSE;
 				}
 			}

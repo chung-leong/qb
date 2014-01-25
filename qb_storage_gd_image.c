@@ -85,7 +85,7 @@ static int32_t qb_set_image_dimensions(qb_storage *storage, qb_address *address,
 	uint32_t height_expected = VALUE_IN(storage, U32, height_address);
 	if(width_expected != image->sx) {
 		if(CONSTANT(width_address)) {
-			qb_report_image_width_mismatch_exception(storage->current_owner, 0, image->sx, width_expected);
+			qb_report_image_width_mismatch_exception(0, image->sx, width_expected);
 			return FALSE;
 		}
 		VALUE_IN(storage, U32, width_address) = image->sx;
@@ -93,7 +93,7 @@ static int32_t qb_set_image_dimensions(qb_storage *storage, qb_address *address,
 
 	if(height_expected != image->sy) {
 		if(CONSTANT(height_address)) {
-			qb_report_image_height_mismatch_exception(storage->current_owner, 0, image->sy, width_expected);
+			qb_report_image_height_mismatch_exception(0, image->sy, width_expected);
 		}
 		VALUE_IN(storage, U32, height_address) = image->sy;
 	}
@@ -106,7 +106,7 @@ static int32_t qb_set_image_linear_size(qb_storage *storage, qb_address *address
 	uint32_t length_expected = VALUE_IN(storage, U32, length_address);
 	if(length_expected != pixel_count) {
 		if(CONSTANT(length_address)) {
-			qb_report_pixel_count_mismatch_exception(storage->current_owner, 0, pixel_count, length_expected);
+			qb_report_pixel_count_mismatch_exception(0, pixel_count, length_expected);
 			return FALSE;
 		}
 	}
@@ -204,7 +204,7 @@ static int32_t qb_set_array_dimensions_from_image(qb_storage *storage, qb_addres
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
 
 	if(pixel_format == QB_PIXEL_INVALID) {
-		qb_report_invalid_variable_for_image_exception(storage->current_owner, 0, address->dimension_count, image->trueColor);
+		qb_report_invalid_variable_for_image_exception(0, address->dimension_count, image->trueColor);
 		return FALSE;
 	}
 
@@ -232,7 +232,7 @@ static int32_t qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
 	unsigned char ***p_scanlines;
 
 	if(width <= 0 || height <= 0 || width > INT_MAX / sizeof(int) || height > INT_MAX / sizeof(void *)) {
-		qb_report_gd_image_exception(NULL, 0, width, height);
+		qb_report_gd_image_exception(0, width, height);
 		return FALSE;
 	}
 
@@ -462,10 +462,9 @@ static int32_t qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *a
 			TSRMLS_FETCH();
 			int8_t *p = ARRAY_IN(storage, I08, address);
 			qb_task_group _group, *group = &_group;
-			qb_main_thread *main_thread = qb_get_main_thread(TSRMLS_C);
-			qb_initialize_task_group(group, (qb_thread *) main_thread, image->sy, 0);
+			qb_initialize_task_group(group, image->sy, 0);
 			for(i = 0; i < (uint32_t) image->sy; i++) {
-				qb_add_task(group, proc, p, image->tpixels[i], image->sx, NULL);
+				qb_add_task(group, proc, p, image->tpixels[i], image->sx);
 				p += image->sx * pixel_size;
 			}
 			qb_run_task_group(group);
@@ -691,10 +690,9 @@ static int32_t qb_copy_elements_to_gd_image(qb_storage *storage, qb_address *add
 			TSRMLS_FETCH();
 			int8_t *p = ARRAY_IN(storage, I08, address);
 			qb_task_group _group, *group = &_group;
-			qb_main_thread *main_thread = qb_get_main_thread(TSRMLS_C);
-			qb_initialize_task_group(group, (qb_thread *) main_thread, image->sy, 0);
+			qb_initialize_task_group(group, image->sy, 0);
 			for(i = 0; i < (uint32_t) image->sy; i++) {
-				qb_add_task(group, proc, p, image->tpixels[i], image->sx, NULL);
+				qb_add_task(group, proc, p, image->tpixels[i], image->sx);
 				p += image->sx * pixel_size;
 			}
 			qb_run_task_group(group);
@@ -740,7 +738,7 @@ static int32_t qb_initialize_zval_image(qb_storage *storage, qb_address *element
 	zval_ptr_dtor(&z_height);
 	zval_ptr_dtor(&z_function_name);
 	if(Z_TYPE_P(z_retval) != IS_RESOURCE) {
-		qb_report_gd_image_exception(storage->current_owner, 0, width, height);
+		qb_report_gd_image_exception(0, width, height);
 		return FALSE;
 	}
 	*element = *z_retval;

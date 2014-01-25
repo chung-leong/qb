@@ -485,11 +485,7 @@ uint32_t qb_get_thread_count(TSRMLS_D) {
 }
 
 qb_main_thread * qb_get_main_thread(TSRMLS_D) {
-	qb_main_thread *thread = &QB_G(main_thread);
-	if(thread->type == -1) {
-		qb_initialize_main_thread(thread TSRMLS_CC);
-	}
-	return thread;
+	return &QB_G(main_thread);
 }
 
 static void qb_start_execution_timer(qb_function *qfunc TSRMLS_DC) {
@@ -564,6 +560,9 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = GET_QB_POINTER(op_array);
 	if(!qfunc) {
+		if(QB_G(main_thread).type == -1) {
+			qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
+		}
 		if(QB_G(build_context)) {
 			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
 			qb_build(build_cxt);

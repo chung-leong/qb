@@ -70,14 +70,6 @@ if test "$PHP_QB" != "no"; then
     AC_MSG_RESULT([yes])
   fi
 
-  PHP_CHECK_LIBRARY(libm,__libm_sse2_sincos,
-  [
-    AC_DEFINE(HAVE_LIBM,1,[ ])
-  ],[
-  ],[
-    -lm
-  ]) 
-    
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
   *darwin*)

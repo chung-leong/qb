@@ -430,7 +430,7 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 							if(address->dimension_addresses[i] != dim->dimension_addresses[i]) {
 								uint32_t dimension1 = VALUE(U32, address->dimension_addresses[i]);
 								uint32_t dimension2 = VALUE(U32, dim->dimension_addresses[i]);
-								qb_report_dimension_mismatch_exception(NULL, cxt->line_id, dimension1, dimension2);
+								qb_report_dimension_mismatch_exception(cxt->line_id, dimension1, dimension2);
 								qb_dispatch_exceptions(TSRMLS_C);
 							}
 						}
@@ -457,12 +457,12 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 							if(address->dimension_addresses[i] != dim->dimension_addresses[j]) {
 								uint32_t dimension1 = VALUE(U32, address->dimension_addresses[i]);
 								uint32_t dimension2 = VALUE(U32, dim->dimension_addresses[i]);
-								qb_report_dimension_mismatch_exception(NULL, cxt->line_id, dimension1, dimension2);
+								qb_report_dimension_mismatch_exception(cxt->line_id, dimension1, dimension2);
 								qb_dispatch_exceptions(TSRMLS_C);
 							}
 						}
 					} else {
-						qb_report_dimension_count_mismatch_exception(NULL, cxt->line_id, address->dimension_count, dim->dimension_count);
+						qb_report_dimension_count_mismatch_exception(cxt->line_id, address->dimension_count, dim->dimension_count);
 						qb_dispatch_exceptions(TSRMLS_C);
 					}
 				}
@@ -1086,7 +1086,7 @@ static uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval
 			uint32_t sub_array_dimension_count = qb_get_zend_array_dimension_count(cxt, *p_element, element_type);
 			if(overall_sub_array_dimension_count) {
 				if(overall_sub_array_dimension_count != sub_array_dimension_count) {
-					qb_report_illegal_array_structure_exception(NULL, cxt->line_id);
+					qb_report_illegal_array_structure_exception(cxt->line_id);
 					qb_dispatch_exceptions(TSRMLS_C);
 				}
 			} else {
@@ -1094,7 +1094,7 @@ static uint32_t qb_get_zend_array_dimension_count(qb_compiler_context *cxt, zval
 			}
 		}
 		if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
-			qb_report_illegal_dimension_count_exception(NULL, cxt->line_id, overall_sub_array_dimension_count + 1);
+			qb_report_illegal_dimension_count_exception(cxt->line_id, overall_sub_array_dimension_count + 1);
 			qb_dispatch_exceptions(TSRMLS_C);
 		}
 		return overall_sub_array_dimension_count + 1;
@@ -1134,7 +1134,7 @@ static void qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue,
 		uint32_t byte_count = Z_STRLEN_P(zvalue);
 		uint32_t dimension = byte_count >> type_size_shifts[element_type];
 		if(byte_count != dimension * type_sizes[element_type]) {
-			qb_report_binary_string_size_mismatch_exception(NULL, cxt->line_id, byte_count, element_type);
+			qb_report_binary_string_size_mismatch_exception(cxt->line_id, byte_count, element_type);
 			qb_dispatch_exceptions(TSRMLS_C);
 		}
 		if(dimension > dimensions[0]) {
@@ -1177,7 +1177,7 @@ static int32_t qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue,
 		uint32_t string_len = Z_STRLEN_P(zvalue);
 		const char *string = Z_STRVAL_P(zvalue);
 		if(type_size != string_len) {
-			qb_report_binary_string_size_mismatch_exception(NULL, cxt->line_id, string_len, address->type);
+			qb_report_binary_string_size_mismatch_exception(cxt->line_id, string_len, address->type);
 			return FALSE;
 		}
 		switch(address->type) {
@@ -1197,12 +1197,12 @@ static int32_t qb_copy_element_from_zval(qb_compiler_context *cxt, zval *zvalue,
 			case QB_TYPE_S64:
 			case QB_TYPE_U64: {
 				if(!qb_zval_array_to_int64(zvalue, &VALUE(I64, address))) {
-					qb_report_illegal_conversion_from_array_exception(NULL, cxt->line_id, type_names[address->type]);
+					qb_report_illegal_conversion_from_array_exception(cxt->line_id, type_names[address->type]);
 					return FALSE;
 				}
 			}	break;
 			default: {
-				qb_report_illegal_conversion_from_array_exception(NULL, cxt->line_id, type_names[address->type]);
+				qb_report_illegal_conversion_from_array_exception(cxt->line_id, type_names[address->type]);
 				return FALSE;
 			}
 		}
@@ -1748,7 +1748,7 @@ static uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cx
 		if(overall_sub_array_dimension_count) {
 			if(overall_sub_array_dimension_count != sub_array_dimension_count) {
 				USE_TSRM
-				qb_report_illegal_array_structure_exception(NULL, cxt->line_id);
+				qb_report_illegal_array_structure_exception(cxt->line_id);
 				qb_dispatch_exceptions(TSRMLS_C);
 			}
 		} else {
@@ -1757,7 +1757,7 @@ static uint32_t qb_get_array_initializer_dimension_count(qb_compiler_context *cx
 	}
 	if(overall_sub_array_dimension_count + 1 > MAX_DIMENSION) {
 		USE_TSRM
-		qb_report_illegal_dimension_count_exception(NULL, cxt->line_id, overall_sub_array_dimension_count + 1);
+		qb_report_illegal_dimension_count_exception(cxt->line_id, overall_sub_array_dimension_count + 1);
 		qb_dispatch_exceptions(TSRMLS_C);
 	}
 	return overall_sub_array_dimension_count + 1;
@@ -1998,7 +1998,7 @@ int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 		} else if(qvar->flags & QB_VARIABLE_SENT_VALUE) {
 			// yield does not produce a value by default
 		} else {
-			qb_report_missing_type_declaration_exception(NULL, cxt->line_id, qvar);
+			qb_report_missing_type_declaration_exception(cxt->line_id, qvar);
 			return FALSE;
 		}
 	}
@@ -2589,7 +2589,7 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 				}
 			}
 		} else if(operand->type == QB_OPERAND_THIS) {
-			qb_report_illegal_use_of_this(NULL, cxt->line_id);
+			qb_report_illegal_use_of_this(cxt->line_id);
 		}
 	} else {
 		if(operand->type == QB_OPERAND_ADDRESS) {
@@ -3817,7 +3817,7 @@ int32_t qb_load_external_code(qb_compiler_context *cxt, const char *import_path)
 		}
 	}
 	if(!cxt->external_code && target_op_array) {
-		qb_report_external_code_load_failure_exception(NULL, cxt->line_id, import_path);
+		qb_report_external_code_load_failure_exception(cxt->line_id, import_path);
 		return FALSE;
 	}
 	return TRUE;

@@ -115,7 +115,6 @@ struct qb_storage {
 	qb_memory_segment *segments;
 	uint32_t segment_count;
 	uint32_t flags;
-	qb_thread *current_owner;
 };
 
 enum {

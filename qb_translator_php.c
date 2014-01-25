@@ -188,7 +188,7 @@ static int32_t qb_process_cast_op(qb_php_translator_context *cxt, void *op_facto
 		case IS_ARRAY:	op_factory = list[QB_OP_FACTORY_ARRAY]; break;
 		case IS_STRING: op_factory = list[QB_OP_FACTORY_STRING]; break;
 		default: {		
-			qb_report_invalid_cast_exception(NULL, cxt->compiler_context->line_id, zend_get_type_by_const(zend_type));
+			qb_report_invalid_cast_exception(cxt->compiler_context->line_id, zend_get_type_by_const(zend_type));
 			return FALSE;
 		}
 	}
@@ -213,7 +213,6 @@ static int32_t qb_process_fetch_class(qb_php_translator_context *cxt, void *op_f
 
 static int32_t qb_process_fetch(qb_php_translator_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	USE_TSRM
-	qb_operand *name = &operands[0], *scope = &operands[1];
 	uint32_t fetch_type = FETCH_TYPE(cxt->zend_op);
 	void **list = op_factories, *op_factory;
 
@@ -271,14 +270,14 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 		if(zfunc) {
 #ifdef ZEND_ACC_GENERATOR
 			if(zfunc->common.fn_flags & ZEND_ACC_GENERATOR) {
-				qb_report_generator_function_exception(NULL, cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
+				qb_report_generator_function_exception(cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
 				return FALSE;
 			}
 #endif
 			qfunc = qb_find_compiled_function(zfunc);
 		} else {
 			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) { 
-				qb_report_missing_function_exception(NULL, cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
+				qb_report_missing_function_exception(cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
 				return FALSE;
 			} else {
 				result->address = cxt->compiler_context->false_address;
@@ -318,7 +317,7 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 					} else {
 						if(other_compiler_cxt->function_flags & QB_FUNCTION_INLINE_ALWAYS) {
 							zend_class_entry *ce = zfunc->common.scope;
-							qb_report_inline_function_exception(NULL, cxt->compiler_context->line_id, (ce) ? ce->name : NULL, Z_STRVAL_P(name->constant));
+							qb_report_inline_function_exception(cxt->compiler_context->line_id, (ce) ? ce->name : NULL, Z_STRVAL_P(name->constant));
 						}
 					}
 				}
@@ -517,7 +516,6 @@ static int32_t qb_process_branch(qb_php_translator_context *cxt, void *op_factor
 }
 
 static int32_t qb_process_for_loop(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *condition = &operands[0];
 	uint32_t target_indices[2];
 	
 	cxt->next_op_index1 = cxt->zend_op->extended_value;
@@ -533,7 +531,7 @@ static zend_brk_cont_element * qb_find_break_continue_element(qb_php_translator_
 	int32_t i;
 	for(i = 0; i < nest_levels; i++) {
 		if(array_offset == -1) {
-			qb_report_invalid_break_level_exception(NULL, cxt->compiler_context->line_id, nest_levels);
+			qb_report_invalid_break_level_exception(cxt->compiler_context->line_id, nest_levels);
 			return NULL;
 		}
 		jmp_to = &brk_cont_array[array_offset];
@@ -572,14 +570,13 @@ static int32_t qb_process_continue(qb_php_translator_context *cxt, void *op_fact
 }
 
 static int32_t qb_process_foreach_fetch(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *container = &operands[0];
 	uint32_t target_indices[2];
 
 	cxt->next_op_index1 = cxt->zend_op_index + 2;
 	cxt->next_op_index2 = Z_OPERAND_INFO(cxt->zend_op->op2, opline_num);
 
 	if(cxt->zend_op->extended_value & ZEND_FE_FETCH_BYREF) {
-		qb_report_reference_exception(NULL, cxt->compiler_context->line_id);
+		qb_report_reference_exception(cxt->compiler_context->line_id);
 		return FALSE;
 	}
 
@@ -859,7 +856,7 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 			// lock operands kept as temporary variables
 			qb_lock_temporary_variables(cxt);
 		} else {
-			qb_report_unsupported_language_feature_exception(NULL, cxt->compiler_context->line_id, zend_opcode);
+			qb_report_unsupported_language_feature_exception(cxt->compiler_context->line_id, zend_opcode);
 			return FALSE;
 		}
 	}

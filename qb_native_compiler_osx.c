@@ -326,7 +326,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					symbol_address = qb_find_symbol(cxt, symbol_name + SYMBOL_PREFIX_LENGTH);
 #endif
 					if(!symbol_address) {
-						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
+						qb_report_missing_native_symbol_exception(0, symbol_name + SYMBOL_PREFIX_LENGTH);
 						missing_symbol_count++;
 						continue;
 					}

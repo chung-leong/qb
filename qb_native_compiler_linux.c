@@ -345,7 +345,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					symbol_address = qb_find_symbol(cxt, symbol_name);
 #endif
 					if(!symbol_address) {
-						qb_report_missing_native_symbol_exception(NULL, 0, symbol_name);
+						qb_report_missing_native_symbol_exception(0, symbol_name);
 						missing_symbol_count++;
 						continue;
 					}
@@ -465,7 +465,7 @@ void qb_free_native_code(qb_native_code_bundle *bundle) {
 	munmap(bundle->memory, bundle->size);
 }
 
-#ifdef HAVE_LIBM
+#ifdef __INTEL_COMPILER
 extern void __libm_sse2_sincos(void);
 extern void __libm_sse2_sincosf(void);
 #endif
@@ -481,7 +481,7 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 		}
 	}
 #endif
-#ifdef HAVE_LIBM
+#ifdef __INTEL_COMPILER
 	if(!address) {
 		if(strcmp(name, "__libm_sse2_sincos") == 0) {
 			address = __libm_sse2_sincos;

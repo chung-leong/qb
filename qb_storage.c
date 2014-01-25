@@ -60,7 +60,6 @@ void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count)
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
 		qb_allocate_segment_memory(segment->imported_segment, byte_count);
 	} else {
-		segment->byte_count = byte_count;
 		if(byte_count > segment->current_allocation) {
 			uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
 			uint32_t extra = new_allocation - byte_count;
@@ -69,6 +68,7 @@ void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count)
 			segment->current_allocation = new_allocation;
 			memset(data_end, 0, extra);
 			qb_relocate_segment_memory(segment, memory);
+			segment->byte_count = byte_count;
 		}
 	}
 }
@@ -143,7 +143,6 @@ void qb_release_segment(qb_memory_segment *segment) {
 		segment->flags &= ~QB_SEGMENT_BORROWED;
 	} else {
 		if(segment->current_allocation > 0) {
-			//printf("efree(%016x)\n", (intptr_t) segment->memory);
 			efree(segment->memory);
 		}
 	}
@@ -171,7 +170,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 			if(!memory) {
 				// shouldn't really happen--we had managed to map it successfully after all
 				// can use NULL for the thread since this always run in the main thread
-				qb_report_memory_map_exception(NULL, 0, segment->stream->orig_path);
+				qb_report_memory_map_exception(0, segment->stream->orig_path);
 				qb_dispatch_exceptions(TSRMLS_C);
 			}
 		} else {
@@ -183,7 +182,6 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 				allocated_memory = NULL;
 			}
 			memory = erealloc(allocated_memory, new_allocation);
-			//printf("erealloc(%016x) => %016x\n", (intptr_t) allocated_memory, (intptr_t) segment->memory);
 		}
 
 		// clear the newly allcoated bytes
@@ -307,7 +305,7 @@ static int32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_a
 			element_byte_count = BYTE_COUNT(item_element_count, address->type);
 		} else {
 			// cannot determine the dimension since the lower dimensions aren't defined 
-			qb_report_undefined_dimension_exception(storage->current_owner, 0);
+			qb_report_undefined_dimension_exception(0);
 			return FALSE;
 		}
 		dimension = byte_count / element_byte_count;
@@ -318,7 +316,7 @@ static int32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_a
 
 	// make sure the number of bytes is a multiple of the entry size
 	if(byte_count != dimension * element_byte_count) {
-		qb_report_binary_string_size_mismatch_exception(storage->current_owner, 0, byte_count, address->type);
+		qb_report_binary_string_size_mismatch_exception(0, byte_count, address->type);
 	}
 
 	dimension_address = address->dimension_addresses[0];
@@ -326,7 +324,7 @@ static int32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_a
 		// dimension is defined
 		dimension_expected = VALUE_IN(storage, U32, dimension_address);
 		if(dimension > dimension_expected) {
-			qb_report_argument_size_mismatch_exception(storage->current_owner, 0, dimension, dimension_expected);
+			qb_report_argument_size_mismatch_exception(0, dimension, dimension_expected);
 			return FALSE;
 		}
 		element_count = ARRAY_SIZE_IN(storage, address);
@@ -412,7 +410,7 @@ static int32_t qb_set_array_dimensions_from_array(qb_storage *storage, qb_addres
 		uint32_t dimension_expected = VALUE_IN(storage, U32, dimension_address);
 		if(dimension > dimension_expected) {
 			// dimension is defined
-			qb_report_argument_size_mismatch_exception(storage->current_owner, 0, dimension, dimension_expected);
+			qb_report_argument_size_mismatch_exception(0, dimension, dimension_expected);
 			return FALSE;
 		}
 		dimension = dimension_expected;
@@ -465,7 +463,7 @@ static int32_t qb_set_array_dimensions_from_object(qb_storage *storage, qb_addre
 	if(address->index_alias_schemes && address->index_alias_schemes[0]) {
 		*p_array_size = ARRAY_SIZE_IN(storage, address);
 	} else {
-		qb_report_illegal_conversion_to_array_exception(storage->current_owner, 0, "object");
+		qb_report_illegal_conversion_to_array_exception(0, "object");
 		return FALSE;
 	}
 	return TRUE;
@@ -501,7 +499,7 @@ static int32_t qb_set_array_dimensions_from_zval(qb_storage *storage, qb_address
 			} else if((stream = qb_get_file_stream(zvalue))) {
 				return qb_set_array_dimensions_from_file(storage, address, stream, p_array_size);
 			} else {
-				qb_report_illegal_conversion_to_array_exception(storage->current_owner, 0, "resource");
+				qb_report_illegal_conversion_to_array_exception(0, "resource");
 				return FALSE;
 			}
 		}	break;
@@ -528,7 +526,7 @@ static int32_t qb_copy_element_from_zval(qb_storage *storage, qb_address *addres
 		case IS_STRING: {
 			uint32_t type_size = BYTE_COUNT(1, address->type);
 			if(type_size != Z_STRLEN_P(zvalue)) {
-				qb_report_binary_string_size_mismatch_exception(storage->current_owner, 0, (uint32_t) Z_STRLEN_P(zvalue), address->type);
+				qb_report_binary_string_size_mismatch_exception(0, (uint32_t) Z_STRLEN_P(zvalue), address->type);
 			}
 			qb_copy_elements(address->type, (int8_t *) Z_STRVAL_P(zvalue), 1, address->type, ARRAY_IN(storage, I08, address), 1);
 		}	break;
@@ -538,12 +536,12 @@ static int32_t qb_copy_element_from_zval(qb_storage *storage, qb_address *addres
 				case QB_TYPE_S64:
 				case QB_TYPE_U64: {
 					if(!qb_zval_array_to_int64(zvalue, &VALUE_IN(storage, I64, address))) {
-						qb_report_illegal_conversion_from_array_exception(storage->current_owner, 0, type_names[address->type]);
+						qb_report_illegal_conversion_from_array_exception(0, type_names[address->type]);
 						return FALSE;
 					}
 				}	break;
 				default: {
-					qb_report_illegal_conversion_from_array_exception(storage->current_owner, 0, type_names[address->type]);
+					qb_report_illegal_conversion_from_array_exception(0, type_names[address->type]);
 				}
 			}
 		}	break;
@@ -822,10 +820,10 @@ static int32_t qb_initialize_zval_array(qb_storage *storage, qb_address *element
 			if(!scheme->zend_class) {
 				zend_class_entry **p_ce;
 				if(zend_lookup_class(scheme->class_name, scheme->class_name_length, &p_ce TSRMLS_CC) == FAILURE) {
-					qb_report_missing_class_exception(storage->current_owner, 0, scheme->class_name);
+					qb_report_missing_class_exception(0, scheme->class_name);
 					return FALSE;
 				} else if((*p_ce)->ce_flags & (ZEND_ACC_INTERFACE|ZEND_ACC_IMPLICIT_ABSTRACT_CLASS|ZEND_ACC_EXPLICIT_ABSTRACT_CLASS)) {
-					qb_report_abstract_class_exception(storage->current_owner, 0, scheme->class_name);
+					qb_report_abstract_class_exception(0, scheme->class_name);
 					return FALSE;
 				}
 				scheme->zend_class = *p_ce;
@@ -1033,7 +1031,7 @@ static int32_t qb_set_array_dimensions_from_storage_location(qb_storage *storage
 
 			if(dimension > dimension_expected) {
 				if(CONSTANT(dimension_address)) {
-					qb_report_argument_size_mismatch_exception(storage->current_owner, 0, dimension, dimension_expected);
+					qb_report_argument_size_mismatch_exception(0, dimension, dimension_expected);
 					return FALSE;
 				} else {
 					VALUE_IN(storage, U32, dimension_address) = dimension;
@@ -1048,7 +1046,7 @@ static int32_t qb_set_array_dimensions_from_storage_location(qb_storage *storage
 		*p_array_size = array_size;
 		return TRUE;
 	} else {
-		qb_report_dimension_count_mismatch_exception(storage->current_owner, 0, address->dimension_count, src_address->dimension_count);
+		qb_report_dimension_count_mismatch_exception(0, address->dimension_count, src_address->dimension_count);
 		return FALSE;
 	}
 }

@@ -80,7 +80,6 @@ struct qb_interpreter_context {
 	int8_t *instruction_pointer;
 	qb_interpreter_context *caller_context;
 
-	qb_thread *thread;
 	uint32_t thread_count;
 
 	uint32_t fork_id;

@@ -18,7 +18,7 @@ class GuardIndexMultiplyAdd extends Handler {
 		$lines = array();
 		$lines[] = "res = op1 * op3 + op4;";
 		$lines[] = "if(UNEXPECTED(!(op1 < op2))) {";
-		$lines[] =		"qb_report_out_of_bound_exception(cxt->thread, line_id, op1, op2, FALSE);";
+		$lines[] =		"qb_report_out_of_bound_exception(line_id, op1, op2, FALSE);";
 		$lines[] =		"cxt->exit_type = QB_VM_ERROR;";
 		$lines[] =		"return;";
 		$lines[] = "}";

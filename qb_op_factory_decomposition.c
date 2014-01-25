@@ -79,7 +79,7 @@ static int32_t qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, 
 	qb_intrinsic_function *ifunc = cxt->intrinsic_function = func->intrinsic_function;
 
 	if((uint32_t) argument_count->number < ifunc->argument_count_min || (uint32_t) argument_count->number > ifunc->argument_count_max) {
-		qb_report_incorrect_argument_count_exception(NULL, cxt->line_id, ifunc, argument_count->number);
+		qb_report_incorrect_argument_count_exception(cxt->line_id, ifunc, argument_count->number);
 		return FALSE;
 	}
 	if(!qb_produce_op(cxt, ff, arguments->arguments, argument_count->number, result, NULL, 0, result_prototype)) {

@@ -98,7 +98,6 @@ struct qb_task {
 	void *param2;
 	int param3;
 	qb_task_group *group;
-	qb_thread **thread_pointer;
 };
 
 struct qb_task_group {
@@ -184,12 +183,15 @@ void qb_free_main_thread(qb_main_thread *thread);
 void ***qb_get_tsrm_ls(qb_thread *);
 #endif
 
-void qb_initialize_task_group(qb_task_group *group, qb_thread *owner, long task_count, long extra_bytes);
+void qb_initialize_task_group(qb_task_group *group, long task_count, long extra_bytes);
 void qb_free_task_group(qb_task_group *group);
-void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread);
+void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3);
 void qb_run_task_group(qb_task_group *group);
-void qb_run_in_main_thread(qb_thread *thread, qb_thread_proc proc, void *param1, void *param2, int param3, qb_thread **p_thread);
+void qb_run_in_main_thread(qb_thread_proc proc, void *param1, void *param2, int param3);
 void qb_terminate_associated_workers(qb_main_thread *main_thread);
+
+qb_thread *qb_get_current_thread(void);
+int32_t qb_in_main_thread(void);
 
 void qb_initialize_thread_pool(TSRMLS_D);
 void qb_add_workers(qb_main_thread *thread);

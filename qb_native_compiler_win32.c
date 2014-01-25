@@ -312,7 +312,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, HANDLE file
 						if(strcmp(symbol_name, "__ImageBase") == 0) {
 							symbol_address = cxt->binary;
 						} else {
-							qb_report_missing_native_symbol_exception(NULL, 0, symbol_name + SYMBOL_PREFIX_LENGTH);
+							qb_report_missing_native_symbol_exception(0, symbol_name + SYMBOL_PREFIX_LENGTH);
 							missing_symbol_count++;
 							continue;
 						}

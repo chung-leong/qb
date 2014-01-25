@@ -803,7 +803,7 @@ class Handler {
 			$lines = array();
 			$lines[] = "$controllerTypeDecl $controllerFunction($controllerParameterList) {";
 			$lines[] =		$this->getMacroDefinitions();
-			$lines[] =		"if(cxt->thread->type == QB_THREAD_WORKER) {";
+			$lines[] =		"if(!qb_in_main_thread()) {";
 			$lines[] = 			"qb_dispatch_instruction_to_main_thread(cxt, $controllerFunction, ip);";
 			$lines[] =		"} else {";
 			$lines[] = 			"$handlerFunction($handlerParameterList);";

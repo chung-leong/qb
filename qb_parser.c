@@ -158,7 +158,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 				if(Z_TYPE_P(constant) == IS_LONG) {
 					long const_value = Z_LVAL_P(constant);
 					if(const_value <= 0) {
-						qb_report_illegal_dimension_exception(NULL, cxt->line_id, const_value);
+						qb_report_illegal_dimension_exception(cxt->line_id, const_value);
 						free_alloca(name, use_heap);
 						next_offset = -1;
 					}
@@ -176,7 +176,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 					decl = NULL;
 				}
 			} else {
-				qb_report_undefined_constant_exception(NULL, cxt->line_id, NULL, name);
+				qb_report_undefined_constant_exception(cxt->line_id, NULL, name);
 				next_offset = -1;
 			}
 			free_alloca(name, use_heap);
@@ -446,7 +446,7 @@ static void qb_report_unexpected_doc_comment_tag(qb_parser_context *cxt, const c
 			const char *tag = comment + start_index;
 
 			qb_find_doc_comment_line_number(cxt, comment, comment_length, start_index);
-			qb_report_unexpected_tag_in_doc_comment_exception(NULL, cxt->line_id, tag, tag_len);
+			qb_report_unexpected_tag_in_doc_comment_exception(cxt->line_id, tag, tag_len);
 			break;
 		}
 	}
@@ -454,7 +454,7 @@ static void qb_report_unexpected_doc_comment_tag(qb_parser_context *cxt, const c
 
 static void qb_report_doc_comment_syntax_issue(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int offset) {
 	qb_find_doc_comment_line_number(cxt, comment, comment_length, offset);
-	qb_report_doc_comment_syntax_exception(NULL, cxt->line_id);
+	qb_report_doc_comment_syntax_exception(cxt->line_id);
 }
 
 qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context *cxt, HashTable *ht) {
@@ -560,15 +560,15 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 					} else {
 						text = zend_get_type_by_const(Z_TYPE_P(error_zval));
 					}
-					qb_report_syntax_error_in_typedef_exception(NULL, cxt->line_id, text);
+					qb_report_syntax_error_in_typedef_exception(cxt->line_id, text);
 					return NULL;
 				}
 			} else {
-				qb_report_unknown_keyword_in_typedef_exception(NULL, cxt->line_id, p->arKey);
+				qb_report_unknown_keyword_in_typedef_exception(cxt->line_id, p->arKey);
 				return NULL;
 			}
 		} else {
-			qb_report_unexpected_numeric_key_in_typedef_exception(NULL, cxt->line_id);
+			qb_report_unexpected_numeric_key_in_typedef_exception(cxt->line_id);
 			return NULL;
 		}
 	}

@@ -152,7 +152,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				}
 			} else {
 				const char *class_name = (EG(active_op_array)->scope) ? EG(active_op_array)->scope->name : NULL;
-				qb_report_missing_argument_exception(cxt->thread, cxt->function->line_id, class_name, cxt->function->name, i, cxt->caller_context->line_id);
+				qb_report_missing_argument_exception(cxt->function->line_id, class_name, cxt->function->name, i, cxt->caller_context->line_id);
 			}
 		}
 	}
@@ -198,7 +198,7 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 					uint32_t caller_line_number = ptr->opline->lineno;
 					caller_line_id = LINE_ID(caller_file_id, caller_line_number);
 				}
-				qb_report_missing_argument_exception(cxt->thread, cxt->function->line_id, class_name, cxt->function->name, i, caller_line_id);
+				qb_report_missing_argument_exception(cxt->function->line_id, class_name, cxt->function->name, i, caller_line_id);
 			}
 		}
 	}
@@ -428,7 +428,6 @@ static int32_t qb_lock_function(qb_function *f) {
 }
 
 static void qb_unlock_function(qb_function *f) {
-	f->local_storage->current_owner = NULL;
 	f->in_use = 0;
 }
 
@@ -473,9 +472,9 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 
 	if(!f) {
 		// need to create a copy
-		if(cxt->thread->type == QB_THREAD_WORKER) {
+		if(!qb_in_main_thread()) {
 			// do it in the main thread
-			qb_run_in_main_thread(cxt->thread, qb_create_function_copy_in_main_thread, last, &f, reentrance, NULL);
+			qb_run_in_main_thread(qb_create_function_copy_in_main_thread, last, &f, reentrance);
 		} else {
 			f = qb_create_function_copy(last, reentrance);
 			if(reentrance) {
@@ -486,18 +485,15 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 		}
 		qb_lock_function(f);
 	}
-	f->local_storage->current_owner = cxt->thread;
 	return f;
 }
 
 void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function *qfunc, qb_interpreter_context *caller_cxt TSRMLS_DC) {
 	if(caller_cxt) {
 		cxt->call_depth = caller_cxt->call_depth + 1;
-		cxt->thread = caller_cxt->thread;
 		cxt->caller_context = caller_cxt;
 	} else {
 		cxt->call_depth = 1;
-		cxt->thread = (qb_thread *) qb_get_main_thread(TSRMLS_C);
 		cxt->caller_context = NULL;
 	}
 	cxt->function = qb_acquire_function(cxt, qfunc, TRUE);
@@ -550,7 +546,6 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3);
 static void qb_fork_execution(qb_interpreter_context *cxt) {
 	qb_interpreter_context *fork_contexts;
 	qb_task_group _group, *group = &_group;
-	qb_thread *original_thread = cxt->thread;
 	uint32_t original_fork_id = cxt->fork_id;
 	uint32_t original_thread_count = cxt->thread_count;
 	uint32_t i, fork_count, function_count, new_context_count, remaining_thread_count;
@@ -580,15 +575,14 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	remaining_thread_count = (cxt->thread_count > cxt->fork_count) ? cxt->thread_count - cxt->fork_count : 0;
 
 	// initialize the group, allocating extra memory for new interpreter contexts
-	qb_initialize_task_group(group, original_thread, fork_count, sizeof(qb_interpreter_context) * new_context_count);
+	qb_initialize_task_group(group, fork_count, sizeof(qb_interpreter_context) * new_context_count);
 	fork_contexts = group->extra_memory;
 
 	if(reusing_original_cxt) {
 		// schedule the first worker
 		cxt->fork_id = 0;
-		cxt->thread = NULL;
 		cxt->thread_count = remaining_thread_count;
-		qb_add_task(group, qb_execute_in_worker_thread, cxt, NULL, 0, &cxt->thread);
+		qb_add_task(group, qb_execute_in_worker_thread, cxt, NULL, 0);
 	}
 
 	// initialize new interpreter contexts
@@ -596,7 +590,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 		USE_TSRM
 		for(i = reusing_original_cxt; i < cxt->fork_count; i++) {
 			qb_interpreter_context *fork_cxt = &fork_contexts[i - reusing_original_cxt];
-			if(i < function_count && cxt->thread->type == QB_THREAD_MAIN) {
+			if(i < function_count && qb_in_main_thread()) {
 				// acquire the function in the main thread now to avoid context switching from the worker
 				// (since emalloc() does not work inside worker threads)
 				fork_cxt->function = qb_acquire_function(cxt, cxt->function, FALSE);
@@ -607,7 +601,6 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 				fork_cxt->instruction_pointer = (int8_t *) (instr_offset);
 			}
 			fork_cxt->caller_context = NULL;
-			fork_cxt->thread = NULL;
 			fork_cxt->thread_count = remaining_thread_count;
 			fork_cxt->fork_id = i;
 			fork_cxt->fork_count = fork_count;
@@ -625,7 +618,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			fork_cxt->tsrm_ls = tsrm_ls;
 #endif
 			// pass the function as a parameter to qb_execute_in_worker_thread() if a copy has not been acquired yet
-			qb_add_task(group, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0, &fork_cxt->thread);
+			qb_add_task(group, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0);
 		}
 	}
 
@@ -635,7 +628,6 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	if(reusing_original_cxt) {
 		// restore variables in the original context
 		cxt->fork_id = original_fork_id;
-		cxt->thread = original_thread;
 		cxt->thread_count = original_thread_count;
 	} else {
 		// transfer the execution state to the original context
@@ -879,7 +871,6 @@ int32_t qb_execute_internal(qb_interpreter_context *cxt) {
 void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count) {
 	qb_task_group _group, *group = &_group;
 	qb_task tasks[MAX_THREAD_COUNT];
-	qb_thread *original_thread = cxt->thread;
 	uint32_t original_thread_count = cxt->thread_count;
 	uint32_t i;
 
@@ -887,13 +878,13 @@ void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *contr
 	group->completion_count = 0;
 	group->task_count = 0;
 	group->task_index = 0;
-	group->owner = cxt->thread;
+	group->owner = qb_get_current_thread();
 	group->extra_memory = NULL;
 	group->previous_group = NULL;
 	group->next_group = NULL;
 	for(i = 0; i < thread_count; i++) {
 		int8_t *ip = instruction_pointers[i];
-		qb_add_task(group, control_func, cxt, ip, 0, &cxt->thread);
+		qb_add_task(group, control_func, cxt, ip, 0);
 	}
 
 	// set the thread count to zero, so the controller function performs the task instead of redirecting it
@@ -901,12 +892,11 @@ void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *contr
 	qb_run_task_group(group);
 
 	// restore variables
-	cxt->thread = original_thread;
 	cxt->thread_count = original_thread_count;
 }
 
 void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer) {
-	qb_run_in_main_thread(cxt->thread, control_func, cxt, instruction_pointer, 0, &cxt->thread);
+	qb_run_in_main_thread(control_func, cxt, instruction_pointer, 0);
 }
 
 static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_function *zfunc, zval ***argument_pointers, uint32_t argument_count, uint32_t line_id, zval **p_retval) {
@@ -968,7 +958,7 @@ static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_functio
 	if(call_result != SUCCESS) {
 		const char *function_name = zfunc->common.function_name;
 		const char *class_name = (zfunc->common.scope) ? zfunc->common.scope->name : NULL;
-		qb_report_function_call_exception(cxt->thread, line_id, class_name, zfunc->common.function_name);
+		qb_report_function_call_exception(line_id, class_name, function_name);
 		return FALSE;
 	}
 	*p_retval = retval;
@@ -1050,7 +1040,7 @@ static int32_t qb_execute_function_call(qb_interpreter_context *cxt, qb_function
 		qb_free_interpreter_context(new_cxt);
 		return successful;
 	} else {
-		qb_report_too_much_recursion_exception(cxt->thread, line_id, cxt->call_depth);
+		qb_report_too_much_recursion_exception(line_id, cxt->call_depth);
 		return FALSE;
 	}
 }
