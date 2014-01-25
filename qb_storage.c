@@ -56,19 +56,27 @@ void qb_import_segment(qb_memory_segment *segment, qb_memory_segment *other_segm
 	}
 }
 
+static void qb_allocate_segment_memory_in_main_thread(void *param1, void *param2, int param3) {
+	qb_allocate_segment_memory(param1, param3);
+}
+
 void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count) {
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
 		qb_allocate_segment_memory(segment->imported_segment, byte_count);
 	} else {
 		if(byte_count > segment->current_allocation) {
-			uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
-			uint32_t extra = new_allocation - byte_count;
-			int8_t *memory = (segment->current_allocation) ? erealloc(segment->memory, new_allocation): emalloc(new_allocation);
-			int8_t *data_end = memory + byte_count;
-			segment->current_allocation = new_allocation;
-			memset(data_end, 0, extra);
-			qb_relocate_segment_memory(segment, memory);
-			segment->byte_count = byte_count;
+			if(qb_in_main_thread()) {
+				uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
+				uint32_t extra = new_allocation - byte_count;
+				int8_t *memory = (segment->current_allocation) ? erealloc(segment->memory, new_allocation): emalloc(new_allocation);
+				int8_t *data_end = memory + byte_count;
+				segment->current_allocation = new_allocation;
+				memset(data_end, 0, extra);
+				qb_relocate_segment_memory(segment, memory);
+				segment->byte_count = byte_count;
+			} else {
+				qb_run_in_main_thread(qb_allocate_segment_memory_in_main_thread, segment, NULL, byte_count);
+			}
 		}
 	}
 }
@@ -121,6 +129,10 @@ static int32_t qb_connect_segment_to_file(qb_memory_segment *segment, php_stream
 	}
 }
 
+static void qb_release_segment_in_main_thread(void *param1, void *param2, int param3) {
+	qb_release_segment(param1);
+}
+
 void qb_release_segment(qb_memory_segment *segment) {
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
 		qb_memory_segment *other_segment = segment->imported_segment;
@@ -128,27 +140,41 @@ void qb_release_segment(qb_memory_segment *segment) {
 		other_segment->next_dependent = segment->next_dependent;
 		segment->next_dependent = NULL;
 		segment->imported_segment = NULL;
-	} else if(segment->flags & QB_SEGMENT_MAPPED) {
-		TSRMLS_FETCH();
-		qb_unmap_file_from_memory(segment->stream TSRMLS_CC);
-
-		// set the file to the actual size if more bytes were allocated than needed
-		if(segment->current_allocation != segment->byte_count) {
-			php_stream_truncate_set_size(segment->stream, segment->byte_count);
-		}
-		segment->flags &= ~(QB_SEGMENT_BORROWED | QB_SEGMENT_MAPPED);
-		segment->stream = NULL;
 	} else if(segment->flags & QB_SEGMENT_BORROWED) {
 		// the memory was borrowed--nothing needs to be done
 		segment->flags &= ~QB_SEGMENT_BORROWED;
 	} else {
-		if(segment->current_allocation > 0) {
-			efree(segment->memory);
+		if(qb_in_main_thread()) {
+			if(segment->flags & QB_SEGMENT_MAPPED) {
+				TSRMLS_FETCH();
+				qb_unmap_file_from_memory(segment->stream TSRMLS_CC);
+
+				// set the file to the actual size if more bytes were allocated than needed
+				if(segment->current_allocation != segment->byte_count) {
+					php_stream_truncate_set_size(segment->stream, segment->byte_count);
+				}
+				segment->flags &= ~(QB_SEGMENT_BORROWED | QB_SEGMENT_MAPPED);
+				segment->stream = NULL;
+			} else {
+				if(segment->current_allocation > 0) {
+					efree(segment->memory);
+				}
+			}
+		} else {
+			if((segment->flags & QB_SEGMENT_MAPPED) || segment->current_allocation > 0) {
+				qb_run_in_main_thread(qb_release_segment_in_main_thread, segment, NULL, 0);
+				return;
+			}
 		}
-	}
+	} 
 	// note: segment->memory is not set to NULL
 	// because we need the value for relocation
 	segment->current_allocation = 0;
+}
+
+void qb_resize_segment_in_main_thread(void *param1, void *param2, int param3) {
+	intptr_t *p_offset = param2;
+	*p_offset = qb_resize_segment(param1, param3);
 }
 
 intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
@@ -156,40 +182,46 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 		return qb_resize_segment(segment->imported_segment, new_size);
 	}
 	if(new_size > segment->current_allocation) {
-		int8_t *current_data_end;
-		int8_t *memory;
-		uint32_t new_allocation = ALIGN_TO(new_size, 4);
-		uint32_t addition = new_allocation - segment->current_allocation;
+		if(qb_in_main_thread()) {
+			int8_t *current_data_end;
+			int8_t *memory;
+			uint32_t new_allocation = ALIGN_TO(new_size, 4);
+			uint32_t addition = new_allocation - segment->current_allocation;
 
-		if(segment->flags & QB_SEGMENT_MAPPED) {
-			// unmap the file, enlarge it, then map it again
-			TSRMLS_FETCH();
-			qb_unmap_file_from_memory(segment->stream TSRMLS_CC);
-			php_stream_truncate_set_size(segment->stream, new_allocation);
-			memory = qb_map_file_to_memory(segment->stream, new_allocation, TRUE TSRMLS_CC);
-			if(!memory) {
-				// shouldn't really happen--we had managed to map it successfully after all
-				// can use NULL for the thread since this always run in the main thread
-				qb_report_memory_map_exception(0, segment->stream->orig_path);
-				qb_dispatch_exceptions(TSRMLS_C);
-			}
-		} else {
-			int8_t *allocated_memory;
-			// segment->memory is valid only when current_allocation > 0
-			if(segment->current_allocation > 0) {
-				allocated_memory = segment->memory;
+			if(segment->flags & QB_SEGMENT_MAPPED) {
+				// unmap the file, enlarge it, then map it again
+				TSRMLS_FETCH();
+				qb_unmap_file_from_memory(segment->stream TSRMLS_CC);
+				php_stream_truncate_set_size(segment->stream, new_allocation);
+				memory = qb_map_file_to_memory(segment->stream, new_allocation, TRUE TSRMLS_CC);
+				if(!memory) {
+					// shouldn't really happen--we had managed to map it successfully after all
+					// can use NULL for the thread since this always run in the main thread
+					qb_report_memory_map_exception(0, segment->stream->orig_path);
+					qb_dispatch_exceptions(TSRMLS_C);
+				}
 			} else {
-				allocated_memory = NULL;
+				int8_t *allocated_memory;
+				// segment->memory is valid only when current_allocation > 0
+				if(segment->current_allocation > 0) {
+					allocated_memory = segment->memory;
+				} else {
+					allocated_memory = NULL;
+				}
+				memory = erealloc(allocated_memory, new_allocation);
 			}
-			memory = erealloc(allocated_memory, new_allocation);
-		}
 
-		// clear the newly allcoated bytes
-		current_data_end = memory + segment->byte_count;
-		memset(current_data_end, 0, addition);
-		segment->byte_count = new_size;
-		segment->current_allocation = new_allocation;
-		return qb_relocate_segment_memory(segment, memory);
+			// clear the newly allcoated bytes
+			current_data_end = memory + segment->byte_count;
+			memset(current_data_end, 0, addition);
+			segment->byte_count = new_size;
+			segment->current_allocation = new_allocation;
+			return qb_relocate_segment_memory(segment, memory);
+		} else {
+			intptr_t offset;
+			qb_run_in_main_thread(qb_resize_segment_in_main_thread, segment, &offset, new_size);
+			return offset;
+		}
 	} else {
 		segment->byte_count = new_size;
 	}
