@@ -483,7 +483,6 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 				last->next_forked_copy = f;
 			}
 		}
-		qb_lock_function(f);
 	}
 	return f;
 }

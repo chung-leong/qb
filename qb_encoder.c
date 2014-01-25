@@ -846,7 +846,7 @@ qb_function * qb_create_function_copy(qb_function *base, int32_t reentrance) {
 		memcpy(qfunc->instructions, base->instructions, base->instruction_length);
 		instruction_shift = (uintptr_t) qfunc->instructions - (uintptr_t) base->instructions;
 	}
-	qfunc->in_use = 0;
+	qfunc->in_use = 1;
 	qfunc->local_storage = qb_create_storage_copy(base->local_storage, instruction_shift, reentrance);
 	qfunc->next_reentrance_copy = NULL;
 	qfunc->next_forked_copy = NULL;
