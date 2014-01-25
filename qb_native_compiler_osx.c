@@ -308,6 +308,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 			}
 		}
 
+#ifdef __LP64__
+		intptr_t T = 0;
+#endif
 		for(j = 0; j < relocation_count; j++) {
 			mach_relocation_info *reloc = &relocations[j];
 
@@ -328,7 +331,6 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 						continue;
 					}
 				} else {
-					mach_section *section = &sections[symbol->n_sect - 1];
 					mach_nlist *symbol = &symbols[i];
 					symbol_address = cxt->binary + symbol->n_value;
 				}
@@ -341,6 +343,13 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					case X86_64_RELOC_SIGNED:
 					case X86_64_RELOC_BRANCH:
 						*((int32_t *) target_address) += S - (P + sizeof(int32_t));
+						break;
+					case X86_64_RELOC_UNSIGNED:
+						*((intptr_t *) target_address) += S - T;
+						T = 0;
+						break;
+					case X86_64_RELOC_SUBTRACTOR:
+						T = S;
 						break;
 #else
 					case GENERIC_RELOC_VANILLA:
