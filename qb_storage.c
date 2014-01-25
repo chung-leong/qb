@@ -140,7 +140,7 @@ void qb_release_segment(qb_memory_segment *segment) {
 		other_segment->next_dependent = segment->next_dependent;
 		segment->next_dependent = NULL;
 		segment->imported_segment = NULL;
-	} else if(segment->flags & QB_SEGMENT_BORROWED) {
+	} else if((segment->flags & QB_SEGMENT_BORROWED) && !(segment->flags & QB_SEGMENT_MAPPED)) {
 		// the memory was borrowed--nothing needs to be done
 		segment->flags &= ~QB_SEGMENT_BORROWED;
 	} else {
