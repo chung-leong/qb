@@ -448,7 +448,6 @@ static void qb_enable_termination(qb_worker_thread *thread) {
 void qb_free_main_thread(qb_main_thread *thread) {
 	qb_unlock_event_sink(&thread->event_sink);
 	qb_free_event_sink(&thread->event_sink);
-	current_thread = NULL;
 }
 
 static void qb_free_worker_thread(qb_worker_thread *thread) {
