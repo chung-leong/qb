@@ -487,7 +487,7 @@ class Handler {
 				if($count > 16) {
 					return 'extern';
 				} else if($count == 1) {
-					return 'inline';
+					return '';
 				}
 				
 				$lines = array_linearize($action);
