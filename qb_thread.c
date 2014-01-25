@@ -72,7 +72,7 @@ static void qb_yield_time_slice(void) {
 #ifndef WIN32
 	sched_yield();
 #else
-	Sleep(0);
+	Sleep(1);
 #endif
 }
 

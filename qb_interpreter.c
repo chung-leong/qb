@@ -545,6 +545,7 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3);
 static void qb_fork_execution(qb_interpreter_context *cxt) {
 	qb_interpreter_context *fork_contexts;
 	qb_task_group _group, *group = &_group;
+	qb_function *function = cxt->function;
 	uint32_t original_fork_id = cxt->fork_id;
 	uint32_t original_thread_count = cxt->thread_count;
 	uint32_t i, fork_count, function_count, new_context_count, remaining_thread_count;
@@ -592,7 +593,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			if(i < function_count && qb_in_main_thread()) {
 				// acquire the function in the main thread now to avoid context switching from the worker
 				// (since emalloc() does not work inside worker threads)
-				fork_cxt->function = qb_acquire_function(cxt, cxt->function, FALSE);
+				fork_cxt->function = qb_acquire_function(cxt, function, FALSE);
 				fork_cxt->instruction_pointer = (int8_t *) (fork_cxt->function->instruction_base_address + instr_offset);
 			} else {
 				// let the worker acquire a copy relinquished by another that has finished
@@ -617,7 +618,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			fork_cxt->tsrm_ls = tsrm_ls;
 #endif
 			// pass the function as a parameter to qb_execute_in_worker_thread() if a copy has not been acquired yet
-			qb_add_task(group, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? cxt->function : NULL, 0);
+			qb_add_task(group, qb_execute_in_worker_thread, fork_cxt, (!fork_cxt->function) ? function : NULL, 0);
 		}
 	}
 
@@ -628,6 +629,8 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 		// restore variables in the original context
 		cxt->fork_id = original_fork_id;
 		cxt->thread_count = original_thread_count;
+		cxt->function = function;
+		function->in_use = TRUE;
 	} else {
 		// transfer the execution state to the original context
 		qb_interpreter_context *first_cxt = &fork_contexts[0];

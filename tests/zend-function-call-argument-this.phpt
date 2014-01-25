@@ -1,5 +1,5 @@
 --TEST--
-Zend function call with $this
+Zend function call test (with $this)
 --FILE--
 <?php
 
