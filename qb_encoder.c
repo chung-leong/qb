@@ -186,7 +186,7 @@ static void qb_encode_number(qb_encoder_context *cxt, int32_t number, int8_t **p
 
 int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 	uint32_t i, j;
-	int8_t *ip = memory;
+	int8_t *ip = cxt->instructions = memory;
 
 	//  encode the instruction stream in the following manner:
 	//  [op1 handler][op2 handler][op1 operands][op3 handler][op2 operands][op3 operands]...
