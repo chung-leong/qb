@@ -307,7 +307,7 @@ static void qb_transfer_operands_two_vectors(qb_compiler_context *cxt, qb_op_fac
 	dest[1] = operands[1];
 	if(dest_count == 4) {
 		// need the dimension
-		qb_address *address1 = operands[0].address, *address2 = operands[1].address;		
+		qb_address *address1 = operands[0].address;
 		dest[2].type = QB_OPERAND_ADDRESS;
 		dest[2].address = DIMENSION_ADDRESS(address1, -1);
 		dest[3] = *result;
@@ -322,7 +322,7 @@ static void qb_transfer_operands_refract(qb_compiler_context *cxt, qb_op_factory
 	dest[2] = operands[2];
 	if(dest_count == 5) {
 		// need the dimension
-		qb_address *address1 = operands[0].address, *address2 = operands[1].address;		
+		qb_address *address1 = operands[0].address;
 		dest[3].type = QB_OPERAND_ADDRESS;
 		dest[3].address = DIMENSION_ADDRESS(address1, -1);
 		dest[4] = *result;
@@ -365,7 +365,6 @@ static void qb_transfer_operands_mm_mult_cm(qb_compiler_context *cxt, qb_op_fact
 		qb_address *m2_address = operands[1].address;
 		qb_address *m1_row_address = DIMENSION_ADDRESS(m1_address, -1);
 		qb_address *m1_col_address = DIMENSION_ADDRESS(m1_address, -2);
-		qb_address *m2_row_address = DIMENSION_ADDRESS(m2_address, -1);
 		qb_address *m2_col_address = DIMENSION_ADDRESS(m2_address, -2);
 		dest[2].address = m1_row_address;
 		dest[2].type = QB_OPERAND_ADDRESS;
@@ -384,10 +383,8 @@ static void qb_transfer_operands_mv_mult_cm(qb_compiler_context *cxt, qb_op_fact
 	dest[1] = operands[1];
 	if(dest_count == 5) {
 		qb_address *m1_address = operands[0].address;
-		qb_address *m2_address = operands[1].address;
 		qb_address *m1_row_address = DIMENSION_ADDRESS(m1_address, -1);
 		qb_address *m1_col_address = DIMENSION_ADDRESS(m1_address, -2);
-		qb_address *m2_row_address = DIMENSION_ADDRESS(m2_address, -1);
 		dest[2].address = m1_row_address;
 		dest[2].type = QB_OPERAND_ADDRESS;
 		dest[3].address = m1_col_address;
@@ -402,9 +399,7 @@ static void qb_transfer_operands_vm_mult_cm(qb_compiler_context *cxt, qb_op_fact
 	dest[0] = operands[0];
 	dest[1] = operands[1];
 	if(dest_count == 5) {
-		qb_address *m1_address = operands[0].address;
 		qb_address *m2_address = operands[1].address;
-		qb_address *m1_col_address = DIMENSION_ADDRESS(m1_address, -1);
 		qb_address *m2_row_address = DIMENSION_ADDRESS(m2_address, -1);
 		qb_address *m2_col_address = DIMENSION_ADDRESS(m2_address, -2);
 		dest[2].address = m2_row_address;

@@ -392,7 +392,6 @@ static void qb_append_address_dimensions(qb_compiler_context *cxt, qb_address *f
 	dim->dimension_count = 1 + address->dimension_count - offset;
 	dim->dimension_addresses[0] = first_dimension_address;
 	for(i = 1; i < dim->dimension_count; i++) {
-		uint32_t dimension = VALUE(U32, address->dimension_addresses[i + (offset - 1)]);
 		dim->dimension_addresses[i] = address->dimension_addresses[i + (offset - 1)];
 	}
 	for(i = dim->dimension_count - 1; (int32_t) i >= 0; i--) {
@@ -408,11 +407,6 @@ static void qb_append_address_dimensions(qb_compiler_context *cxt, qb_address *f
 static void qb_set_result_dimensions_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_operand *first = &operands[0];
 	qb_copy_address_dimensions(cxt, first->address, 0, dim);
-}
-
-static void qb_set_result_dimensions_second_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	qb_operand *second = &operands[1];
-	qb_copy_address_dimensions(cxt, second->address, 0, dim);
 }
 
 static void qb_set_result_dimensions_larger_of_two(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
@@ -484,7 +478,6 @@ static void qb_set_result_dimensions_dot_product(qb_compiler_context *cxt, qb_op
 }
 
 static void qb_set_result_dimensions_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	qb_operand *first = &operands[0], *second = &operands[1], *third = &operands[2];
 	if(operand_count == 3) {
 		qb_set_result_dimensions_larger_of_three_vectors(cxt, f, operands, operand_count, dim);
 	} else {
@@ -620,7 +613,6 @@ static void qb_set_result_dimensions_determinant(qb_compiler_context *cxt, qb_op
 
 static void qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	qb_address *image_address = operands[0].address;
-	qb_address *channel_count_address = DIMENSION_ADDRESS(image_address, -1);
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
 
@@ -753,14 +745,12 @@ static void qb_set_result_dimensions_array_unique(qb_compiler_context *cxt, qb_o
 }
 
 static void qb_set_result_dimensions_utf8_decode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	qb_operand *string = &operands[0];
 	qb_address *decoded_length_address = qb_obtain_on_demand_value(cxt, &factory_utf8_decode_count, operands, operand_count);
 	dim->dimension_count = 1;
 	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = decoded_length_address;
 }
 
 static void qb_set_result_dimensions_utf8_encode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
-	qb_operand *codepoints = &operands[0];
 	qb_address *decoded_length_address = qb_obtain_on_demand_value(cxt, &factory_utf8_encode_count, operands, operand_count);
 	dim->dimension_count = 1;
 	dim->array_size_address = dim->array_size_addresses[0] = dim->dimension_addresses[0] = decoded_length_address;

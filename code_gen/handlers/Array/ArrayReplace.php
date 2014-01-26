@@ -66,7 +66,7 @@ class ArrayReplace extends Handler {
 		$lines[] =		"start_index = op2;";
 		$lines[] = "} else {";
 		$lines[] = 		"start_index = op4 + op2;";
-		$lines[] = 		"if(start_index < 0) {";
+		$lines[] = 		"if((int32_t) start_index < 0) {";
 		$lines[] =			"start_index = 0;";
 		$lines[] = 		"}";
 		$lines[] = "}";

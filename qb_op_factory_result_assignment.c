@@ -64,10 +64,6 @@ static void qb_set_result_second_operand(qb_compiler_context *cxt, qb_op_factory
 	*result = operands[1];
 }
 
-static void qb_set_result_third_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	*result = operands[2];
-}
-
 static void qb_set_result_true(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	result->type = QB_OPERAND_ADDRESS;
 	result->address = cxt->true_address;
@@ -320,7 +316,7 @@ static void qb_set_result_empty_string(qb_compiler_context *cxt, qb_op_factory *
 }
 
 static void qb_set_result_add_string(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *augend = &operands[0], *addend = &operands[1];
+	qb_operand *augend = &operands[0];
 	if(augend->type == QB_OPERAND_ADDRESS) {
 		*result = *augend;
 	} else {
@@ -332,7 +328,7 @@ static void qb_set_result_add_string(qb_compiler_context *cxt, qb_op_factory *f,
 }
 
 static void qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	qb_operand *augend = &operands[0], *addend = &operands[1];
+	qb_operand *augend = &operands[0];
 	if(augend->type == QB_OPERAND_ADDRESS && TEMPORARY(augend->address) && (augend->address->flags & QB_ADDRESS_STRING)) {
 		// append to the augend
 		*result = *augend;

@@ -214,7 +214,7 @@ static void qb_transfer_dimension(qb_storage *src_storage, qb_address *src_addre
 		dst_address->segment_selector = QB_SELECTOR_CONSTANT_SCALAR;
 		segment = &dst_storage->segments[QB_SELECTOR_CONSTANT_SCALAR];
 		indices = (uint32_t *) segment->memory;
-		index_count = segment->byte_count / sizeof(uint32_t), i;
+		index_count = segment->byte_count / sizeof(uint32_t);
 		for(i = 0; i < index_count; i++) {
 			if(indices[i] == index) {
 				dst_address->segment_offset = i * sizeof(uint32_t);
@@ -560,7 +560,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = GET_QB_POINTER(op_array);
 	if(!qfunc) {
-		if(QB_G(main_thread).type == -1) {
+		if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
 			qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
 		}
 		if(QB_G(build_context)) {
@@ -901,7 +901,7 @@ PHP_RINIT_FUNCTION(qb)
 #endif
 		value->type = IS_STRING;
 	}
-	QB_G(main_thread).type = -1;
+	QB_G(main_thread).type = QB_THREAD_UNINITIALIZED;
 	QB_G(static_zval_index) = 0;
 	QB_G(build_context) = NULL;
 	QB_G(scopes) = NULL;
@@ -932,7 +932,7 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 	uint32_t i, j;
 	qb_discard_current_build(TSRMLS_C);
 
-	if(QB_G(main_thread).type != -1) {
+	if(QB_G(main_thread).type != QB_THREAD_UNINITIALIZED) {
 		if(CG(unclean_shutdown)) {
 			// bailing out of script--make sure threads are shutdown
 			qb_terminate_associated_workers(&QB_G(main_thread));

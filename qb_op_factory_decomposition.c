@@ -362,7 +362,6 @@ static int32_t qb_decompose_array_unshift(qb_compiler_context *cxt, void *factor
 }
 
 static int32_t qb_decompose_array_merge(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
-	qb_operand *container1 = &operands[0];
 	uint32_t i;
 
 	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {

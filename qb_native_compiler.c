@@ -1160,7 +1160,6 @@ static int32_t qb_check_symbol(qb_native_compiler_context *cxt, const char *name
 static void * qb_find_symbol(qb_native_compiler_context *cxt, const char *name) {
 	long hash_value;
 	uint32_t i, name_len = (uint32_t) strlen(name);
-	const char *proc_name = name;
 	hash_value = zend_get_hash_value(name, name_len + 1);
 	for(i = 0; i < global_native_symbol_count; i++) {
 		qb_native_symbol *symbol = &global_native_symbols[i];

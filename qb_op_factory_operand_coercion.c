@@ -277,7 +277,7 @@ static void qb_coerce_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, 
 }
 
 static void qb_coerce_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *string = &operands[0], *index = &operands[1], *type = &operands[2];
+	qb_operand *string = &operands[0], *index = &operands[1];
 	qb_perform_type_coercion(cxt, string, QB_TYPE_U08, 0);
 	if(index->type != QB_OPERAND_NONE) {
 		qb_perform_type_coercion(cxt, index, QB_TYPE_U32, 0);
@@ -308,7 +308,7 @@ static void qb_coerce_operands_function_call(qb_compiler_context *cxt, qb_op_fac
 }
 
 static void qb_coerce_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
+	qb_operand *arguments = &operands[1], *argument_count = &operands[2];
 	uint32_t i;
 	for(i = 0; i < (uint32_t) argument_count->number; i++) {
 		qb_operand *argument = &arguments->arguments[i];

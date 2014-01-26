@@ -48,19 +48,9 @@ static qb_primitive_type qb_resolve_expression_type_lvalue(qb_compiler_context *
 	return QB_TYPE_ANY;
 }
 
-// the expression doesn't have a type
-static qb_primitive_type qb_resolve_expression_type_void(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	return QB_TYPE_VOID;
-}
-
 // the expression has the same type as the first operand
 static qb_primitive_type qb_resolve_expression_type_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
-}
-
-// the expression has the same type as the second operand
-static qb_primitive_type qb_resolve_expression_type_second_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
-	return qb_get_operand_type(cxt, &operands[1], f->coercion_flags);
 }
 
 // the expression has the same type as the third operand

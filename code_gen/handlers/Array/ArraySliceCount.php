@@ -38,7 +38,7 @@ class ArraySliceCount extends Handler {
 		$lines[] =		"start_index = op1;";
 		$lines[] = "} else {";
 		$lines[] = 		"start_index = op3 + op1;";
-		$lines[] = 		"if(start_index < 0) {";
+		$lines[] = 		"if((int32_t) start_index < 0) {";
 		$lines[] =			"start_index = 0;";
 		$lines[] = 		"}";
 		$lines[] = "}";

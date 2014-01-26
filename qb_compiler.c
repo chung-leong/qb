@@ -2094,7 +2094,7 @@ int32_t qb_add_variables(qb_compiler_context *cxt) {
 			if(static_variable_table && zend_hash_quick_find(static_variable_table, zvar->name, zvar->name_len + 1, zvar->hash_value, (void **) &p_static_value) == SUCCESS) {
 				if(Z_TYPE_PP(p_static_value) & (IS_LEXICAL_VAR|IS_LEXICAL_REF)) {
 					qvar->flags = QB_VARIABLE_LEXICAL;
-					if(Z_TYPE_PP(p_static_value) && IS_LEXICAL_REF) {
+					if(Z_TYPE_PP(p_static_value) & IS_LEXICAL_REF) {
 						qvar->flags |= QB_VARIABLE_BY_REF;
 					}
 					if(!qb_apply_type_declaration(cxt, qvar)) {

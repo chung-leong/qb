@@ -305,11 +305,11 @@ void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage) 
 	// copy the preallocated segments
 	src_segment_start = &src_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
 	src_segment_end = &src_storage->segments[QB_SELECTOR_LOCAL_ARRAY];
-	dst_segment_start = &src_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
+	dst_segment_start = &dst_storage->segments[QB_SELECTOR_LOCAL_SCALAR];
 	byte_count = (uint32_t) ((src_segment_end->memory + src_segment_end->byte_count) - src_segment_start->memory);
 	memcpy(dst_segment_start->memory, src_segment_start->memory, byte_count);
 
-	for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < src_storage->segment_count; i++) {
+	for(i = QB_SELECTOR_ARRAY_START; i < src_storage->segment_count; i++) {
 		qb_memory_segment *src = &src_storage->segments[i];
 		qb_memory_segment *dst = &dst_storage->segments[i];
 		if(dst->memory != src->memory) {
@@ -374,20 +374,6 @@ static int32_t qb_set_array_dimensions_from_byte_count(qb_storage *storage, qb_a
 static uint32_t qb_get_zval_array_size(zval *zvalue) {
 	HashTable *ht = Z_ARRVAL_P(zvalue);
 	return ht->nNextFreeElement;
-}
-
-static int32_t qb_is_linear_zval_array(zval *zvalue) {
-	HashTable *ht = Z_ARRVAL_P(zvalue);
-	Bucket *p;
-	for(p = ht->pListHead; p; p = p->pListNext) {
-		if(p->nKeyLength == 0 && (long) p->h >= 0) {
-			zval **p_element = p->pData;
-			if(Z_TYPE_PP(p_element) == IS_ARRAY || Z_TYPE_PP(p_element) == IS_OBJECT) {
-				return FALSE;
-			}
-		}
-	}
-	return TRUE;
 }
 
 static void qb_initialize_element_address(qb_address *address, qb_address *container_address) {
@@ -1450,9 +1436,9 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 			uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 			if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
 				if(Z_TYPE_P(zvalue) == IS_STRING) {
-					int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
-					uint32_t bytes_available = Z_STRLEN_P(zvalue) + 1;
-					if(!IS_INTERNED(memory)) {
+					if(!IS_INTERNED(Z_STRVAL_P(zvalue))) {
+						int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
+						uint32_t bytes_available = Z_STRLEN_P(zvalue) + 1;
 						if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 							if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
 								ZVAL_NULL(zvalue);

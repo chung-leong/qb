@@ -61,6 +61,7 @@ enum qb_event_type {
 };
 
 enum qb_thread_type {
+	QB_THREAD_UNINITIALIZED,
 	QB_THREAD_MAIN,
 	QB_THREAD_WORKER,
 };

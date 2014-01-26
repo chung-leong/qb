@@ -445,7 +445,7 @@ static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_o
 }
 
 static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
+	qb_operand *operand1 = &operands[0];
 
 	if(CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
@@ -770,7 +770,7 @@ static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_f
 }
 
 static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	qb_operand *start_index = &operands[0], *number = &operands[1], *value = &operands[2];
+	qb_operand *start_index = &operands[0], *number = &operands[1];
 	if(!SCALAR(start_index->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
@@ -787,6 +787,10 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 
 	if(SCALAR(input->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
+		return FALSE;
+	}
+	if(!SCALAR(size->address)) {
+		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
 

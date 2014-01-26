@@ -5794,7 +5794,7 @@ void qb_do_array_replace_F32(qb_interpreter_context *__restrict cxt, float32_t *
 		start_index = op2;
 	} else {
 		start_index = (*op4_ptr) + op2;
-		if(start_index < 0) {
+		if((int32_t) start_index < 0) {
 			start_index = 0;
 		}
 	}
@@ -5842,7 +5842,7 @@ void qb_do_array_replace_F64(qb_interpreter_context *__restrict cxt, float64_t *
 		start_index = op2;
 	} else {
 		start_index = (*op4_ptr) + op2;
-		if(start_index < 0) {
+		if((int32_t) start_index < 0) {
 			start_index = 0;
 		}
 	}
@@ -5890,7 +5890,7 @@ void qb_do_array_replace_I08(qb_interpreter_context *__restrict cxt, int8_t *op1
 		start_index = op2;
 	} else {
 		start_index = (*op4_ptr) + op2;
-		if(start_index < 0) {
+		if((int32_t) start_index < 0) {
 			start_index = 0;
 		}
 	}
@@ -5938,7 +5938,7 @@ void qb_do_array_replace_I16(qb_interpreter_context *__restrict cxt, int16_t *op
 		start_index = op2;
 	} else {
 		start_index = (*op4_ptr) + op2;
-		if(start_index < 0) {
+		if((int32_t) start_index < 0) {
 			start_index = 0;
 		}
 	}
@@ -5986,7 +5986,7 @@ void qb_do_array_replace_I32(qb_interpreter_context *__restrict cxt, int32_t *op
 		start_index = op2;
 	} else {
 		start_index = (*op4_ptr) + op2;
-		if(start_index < 0) {
+		if((int32_t) start_index < 0) {
 			start_index = 0;
 		}
 	}
@@ -6034,7 +6034,7 @@ void qb_do_array_replace_I64(qb_interpreter_context *__restrict cxt, int64_t *op
 		start_index = op2;
 	} else {
 		start_index = (*op4_ptr) + op2;
-		if(start_index < 0) {
+		if((int32_t) start_index < 0) {
 			start_index = 0;
 		}
 	}
@@ -8444,7 +8444,7 @@ void qb_do_array_slice_count_I32(int32_t op1, int32_t op2, uint32_t op3, uint32_
 		start_index = op1;
 	} else {
 		start_index = op3 + op1;
-		if(start_index < 0) {
+		if((int32_t) start_index < 0) {
 			start_index = 0;
 		}
 	}
