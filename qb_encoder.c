@@ -186,7 +186,7 @@ static void qb_encode_number(qb_encoder_context *cxt, int32_t number, int8_t **p
 
 int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 	uint32_t i, j;
-	int8_t *ip = cxt->instructions = memory;
+	int8_t *ip = memory;
 
 	//  encode the instruction stream in the following manner:
 	//  [op1 handler][op2 handler][op1 operands][op3 handler][op2 operands][op3 operands]...
@@ -604,14 +604,27 @@ static int8_t * qb_preallocate_segments(qb_encoder_context *cxt, int8_t *memory,
 	return p;
 }
 
-int64_t qb_calculate_function_crc64(qb_function *qfunc) {
+int64_t qb_calculate_function_crc64(qb_encoder_context *cxt) {
 	// calculate the crc64 of the instruction stream plus the constant segments
-	qb_memory_segment *scalar_segment = &qfunc->local_storage->segments[QB_SELECTOR_CONSTANT_SCALAR];
-	qb_memory_segment *array_segment = &qfunc->local_storage->segments[QB_SELECTOR_CONSTANT_ARRAY];
+	qb_memory_segment *scalar_segment = &cxt->storage->segments[QB_SELECTOR_CONSTANT_SCALAR];
+	qb_memory_segment *array_segment = &cxt->storage->segments[QB_SELECTOR_CONSTANT_ARRAY];
+	uint32_t i;
 	int64_t crc64 = 0;
-	crc64 = qb_calculate_crc64((uint8_t *) qfunc->instructions, qfunc->instruction_length, crc64);
-	crc64 = qb_calculate_crc64((uint8_t *) scalar_segment->memory, scalar_segment->byte_count, crc64);
-	crc64 = qb_calculate_crc64((uint8_t *) array_segment->memory, array_segment->byte_count, crc64);
+	crc64 = qb_calculate_crc64((uint8_t *) cxt->instructions, cxt->instruction_stream_length, crc64);
+	crc64 = qb_calculate_crc64((uint8_t *) scalar_segment->memory, scalar_segment->byte_count, crc64 ^ 0x1234567F);
+	crc64 = qb_calculate_crc64((uint8_t *) array_segment->memory, array_segment->byte_count, crc64 ^ 0x123456F8);
+
+	// make sure the layout of variables match
+	for(i = 0; i < cxt->compiler_context->writable_scalar_count; i++) {
+		qb_address *address = &cxt->compiler_context->writable_scalars[i];
+		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_selector, sizeof(uint32_t), crc64 ^ 0x1234567F);
+		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_offset, sizeof(uint32_t), crc64);
+	}
+	for(i = 0; i < cxt->compiler_context->writable_array_count; i++) {
+		qb_address *address = &cxt->compiler_context->writable_arrays[i];
+		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_selector, sizeof(uint32_t), crc64 ^ 0x123456F8);
+		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_offset, sizeof(uint32_t), crc64);
+	}
 	return crc64;
 }
 
@@ -654,17 +667,17 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	p = emalloc(instruction_length + opcode_length);
 
 	// encode the instructions
-	qfunc->instructions = p;
+	qfunc->instructions = cxt->instructions = p;
 	p = qb_encode_instruction_stream(cxt, p);
 
 	// store the opcodes for use during relocation
 	qfunc->instruction_opcodes = (uint16_t *) p;
 	qfunc->instruction_opcode_count = cxt->instruction_op_count;
-	qfunc->instruction_length = cxt->instruction_stream_length;
 	p = qb_copy_instruction_opcodes(cxt, p);
 
 	// calculate the CRC64 signature
-	qfunc->instruction_crc64 = qb_calculate_function_crc64(qfunc);
+	qfunc->instruction_crc64 = qb_calculate_function_crc64(cxt);
+	qfunc->instruction_length = cxt->instruction_stream_length;
 
 	if(cxt->position_independent) {
 		// save the placeholder base address used to encode the instructions
@@ -887,7 +900,7 @@ void qb_initialize_encoder_context(qb_encoder_context *cxt, qb_compiler_context 
 	cxt->instruction_stream_length = 0;
 	cxt->instruction_op_count = 0;
 	cxt->instruction_crc64 = 0;
-	cxt->instructions = NULL;
+	 NULL;
 
 	if(position_independent) {
 		// map stuff half and a quarter way up the entire address space initially
