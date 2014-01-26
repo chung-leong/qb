@@ -616,12 +616,17 @@ int64_t qb_calculate_function_crc64(qb_encoder_context *cxt) {
 
 	// make sure the layout of variables match
 	for(i = 0; i < cxt->compiler_context->writable_scalar_count; i++) {
-		qb_address *address = &cxt->compiler_context->writable_scalars[i];
+		qb_address *address = cxt->compiler_context->writable_scalars[i];
 		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_selector, sizeof(uint32_t), crc64 ^ 0x1234567F);
 		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_offset, sizeof(uint32_t), crc64);
 	}
 	for(i = 0; i < cxt->compiler_context->writable_array_count; i++) {
-		qb_address *address = &cxt->compiler_context->writable_arrays[i];
+		qb_address *address = cxt->compiler_context->writable_arrays[i];
+		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_selector, sizeof(uint32_t), crc64 ^ 0x123456F8);
+		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_offset, sizeof(uint32_t), crc64);
+	}
+	for(i = 0; i < cxt->compiler_context->constant_array_count; i++) {
+		qb_address *address = cxt->compiler_context->constant_arrays[i];
 		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_selector, sizeof(uint32_t), crc64 ^ 0x123456F8);
 		crc64 = qb_calculate_crc64((uint8_t *) &address->segment_offset, sizeof(uint32_t), crc64);
 	}
