@@ -167,7 +167,6 @@ static inline unsigned short __builtin_bswap16(unsigned short v) {
 	#endif
 
 	#define hypot		_hypot
-	#define hypotf		_hypotf
 	#define llabs		_abs64
 	#define isnan		_isnan
 
@@ -193,66 +192,66 @@ float atanhf(float x);
 float roundf(float x);
 
 #undef fabsf
-float fabsf(float x);
+#define fabsf	__fabsf
+float __fabsf(float x);
 
-#if _MSC_VER < 1700
-#undef sinf
-float sinf(float x);
+#define sinf	__sinf
+float __sinf(float x);
 
-#undef asinf
-float asinf(float x);
+#define asinf	__asinf
+float __asinf(float x);
 
-#undef cosf
-float cosf(float x);
+#define cosf	__cosf
+float __cosf(float x);
 
-#undef acosf
-float acosf(float x);
+#define acosf	__acosf
+float __acosf(float x);
 
-#undef tanf
-float tanf(float x);
+#define tanf	__tanf
+float __tanf(float x);
 
-#undef atanf
-float atanf(float x);
+#define atanf	__atanf
+float __atanf(float x);
 
-#undef atan2f
-float atan2f(float x, float y);
+#define atan2f	__atan2f
+float __atan2f(float x, float y);
 
-#undef sinhf
-float sinhf(float x);
+#define sinhf	__sinhf
+float __sinhf(float x);
 
-#undef coshf
-float coshf(float x);
+#define coshf	__coshf
+float __coshf(float x);
 
-#undef tanhf
-float tanhf(float x);
+#define tanhf	__tanhf
+float __tanhf(float x);
 
-#undef expf
-float expf(float x);
+#define expf	__expf
+float __expf(float x);
 
-#undef logf
-float logf(float x);
+#define logf	__logf
+float __logf(float x);
 
-#undef log10f
-float log10f(float x);
+#define log10f	__log10f
+float __log10f(float x);
 
-#undef powf
-float powf(float x, float y);
+#define powf	__powf
+float __powf(float x, float y);
 
-#undef sqrtf
-float sqrtf(float x);
+#define sqrtf	__sqrtf
+float __sqrtf(float x);
 
-#undef ceilf
-float ceilf(float x);
+#define ceilf	__ceilf
+float __ceilf(float x);
 
-#undef floorf
-float floorf(float x);
+#define floorf	__floorf
+float __floorf(float x);
 
 #undef hypotf
-float hypotf(float x, float y);
+#define hypotf	__hypotf
+float __hypotf(float x, float y);
 
-#undef fmodf
-float fmodf(float n, float d);
-#endif
+#define fmodf	__fmodf
+float __fmodf(float n, float d);
 #else
 
 #ifndef HAVE_EXP2F

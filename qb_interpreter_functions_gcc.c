@@ -26887,7 +26887,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"hypot",	hypot,	0,	0	},
 	{	"fabs",	fabs,	0,	0	},
 	{	"floor",	floor,	0,	0	},
-	{	"ceil",	ceil,	0,	0	},
+	{	"ceil",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"sqrt",	sqrt,	0,	0	},
 	{	"pow",	pow,	0,	0	},
 	{	"log2",	log2,	0,	0	},

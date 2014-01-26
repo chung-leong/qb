@@ -67,83 +67,81 @@ double round(double x) {
 	return floor(x + 0.5);
 }
 
-#if _MSC_VER < 1700 
-float sinf(float x) { 
+float __sinf(float x) { 
 	return (float) sin(x); 
 }
 
-float asinf(float x) { 
+float __asinf(float x) { 
 	return (float) asin(x); 
 }
 
-float cosf(float x) { 
+float __cosf(float x) { 
 	return (float) cos(x); 
 }
 
-float acosf(float x) { 
+float __acosf(float x) { 
 	return (float) acos(x); 
 }
 
-float tanf(float x) { 
+float __tanf(float x) { 
 	return (float) tan(x); 
 }
 
-float atanf(float x) { 
+float __atanf(float x) { 
 	return (float) atan(x); 
 }
 
-float atan2f(float x, float y) { 
+float __atan2f(float x, float y) { 
 	return (float) atan2(x, y); 
 }
 
-float sinhf(float x) { 
+float __sinhf(float x) { 
 	return (float) sinh(x); 
 }
 
-float coshf(float x) { 
+float __coshf(float x) { 
 	return (float) cosh(x); 
 }
 
-float tanhf(float x) { 
+float __tanhf(float x) { 
 	return (float) tanh(x); 
 }
 
-float expf(float x) { 
+float __expf(float x) { 
 	return (float) exp(x); 
 }
 
-float logf(float x) { 
+float __logf(float x) { 
 	return (float) log(x); 
 }
 
-float log10f(float x) { 
+float __log10f(float x) { 
 	return (float) log10(x); 
 }
 
-float powf(float x, float y) {
+float __powf(float x, float y) {
 	return (float) pow(x, y); 
 }
 
-float sqrtf(float x) { 
+float __sqrtf(float x) { 
 	return (float) sqrt(x); 
 }
 
-float ceilf(float x) { 
+float __ceilf(float x) { 
 	return (float) ceil(x); 
 }
 
-float floorf(float x) { 
+float __floorf(float x) { 
 	return (float) floor(x); 
 }
 
-float hypotf(float x, float y) { 
+float __hypotf(float x, float y) { 
 	return (float) hypot(x, y); 
 }
 
-float fmodf(float n, float d) { 
+float __fmodf(float n, float d) { 
 	return (float) fmod(n, d); 
 }
-#endif
 
 float exp2f(float x) {
 	return (float) exp2(x);

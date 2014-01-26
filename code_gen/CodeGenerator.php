@@ -391,7 +391,7 @@ class CodeGenerator {
 				$target = null;
 				
 				if(strpos($decl, "{") === false) {
-					if($this->compiler == "MSVC" && $functionName == "floor") {
+					if($this->compiler == "MSVC" && $functionName == "floor" || $functionName == "ceil") {
 						// floor() is not constant in MSVC when intrinsic are used
 						// it therefore cannot be used as an initializer
 						// need it get the address at runtime instead

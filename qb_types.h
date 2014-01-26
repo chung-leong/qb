@@ -62,7 +62,7 @@ typedef enum qb_primitive_type				qb_primitive_type;
 
 #define STORAGE_TYPE_MATCH(type1, type2)	((type1 == type2) || ((type1 & ~QB_TYPE_UNSIGNED) == (type2 & ~QB_TYPE_UNSIGNED) && (type1 < QB_TYPE_F32)))
 
-#define BYTE_COUNT(element_count, type)		((element_count) << type_size_shifts[type])
+#define BYTE_COUNT(element_count, type)		((uint32_t) ((element_count) << type_size_shifts[type]))
 #define ELEMENT_COUNT(byte_count, type)		((byte_count) >> type_size_shifts[type])
 
 #define SHIFT_POINTER(p, shift)				*((uintptr_t *) &(p)) += shift

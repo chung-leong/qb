@@ -417,6 +417,8 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 #else
 	if(strcmp(name, "floor") == 0) {
 		address = floor;
+	} else if(strcmp(name, "ceil") == 0) {
+		address = ceil;
 	} else if(strcmp(name, "_ftol2") == 0) {
 		address = _ftol2;
 	} else if(strcmp(name, "_ftol2_sse") == 0) {

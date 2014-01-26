@@ -1237,7 +1237,7 @@ void qb_initialize_php_translator_context(qb_php_translator_context *cxt, qb_com
 		uint32_t i;
 		for(i = 0; i < sizeof(intrinsic_functions) / sizeof(qb_intrinsic_function); i++) {
 			qb_intrinsic_function *f = &intrinsic_functions[i];
-			f->hash_value = zend_hash_func(f->name, strlen(f->name) + 1);
+			f->hash_value = zend_hash_func(f->name, (uint) strlen(f->name) + 1);
 		}
 		hash_initialized = TRUE;
 	}
