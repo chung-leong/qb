@@ -783,24 +783,26 @@ class CodeGenerator {
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new Add("ADD", $elementTypeNoSign, $addressMode);
 			}
-			foreach($this->addressModes as $addressMode) {
-				$this->handlers[] = new Subtract("SUB", $elementTypeNoSign, $addressMode);
-			}
 		}
 		foreach($this->addressModes as $addressMode) {
 			$this->handlers[] = new Multiply("MUL", $elementType, $addressMode);
-		}
-		foreach($this->addressModes as $addressMode) {
-			$this->handlers[] = new Divide("DIV", $elementType, $addressMode);
-		}
-		foreach($this->addressModes as $addressMode) {
-			$this->handlers[] = new Modulo("MOD", $elementType, $addressMode);
 		}
 		foreach($this->addressModes as $addressMode) {
 			$width = (int) substr($elementType, 1);
 			if($width >= 32) {
 				$this->handlers[] = new MultiplyAccumulate("MAC", $elementType, $addressMode);
 			}
+		}
+		if(!$unsigned) {
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new Subtract("SUB", $elementTypeNoSign, $addressMode);
+			}
+		}
+		foreach($this->addressModes as $addressMode) {
+			$this->handlers[] = new Divide("DIV", $elementType, $addressMode);
+		}
+		foreach($this->addressModes as $addressMode) {
+			$this->handlers[] = new Modulo("MOD", $elementType, $addressMode);
 		}
 		if($float) {
 			foreach($this->addressModes as $addressMode) {

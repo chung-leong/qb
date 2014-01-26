@@ -134,9 +134,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cxt->fork_id;
-			}
+			qb_do_fork_identifier_U32(cxt, &res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -148,9 +146,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cxt->fork_id;
-			}
+			qb_do_fork_identifier_U32(cxt, &res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -162,9 +158,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cxt->fork_count;
-			}
+			qb_do_fork_count_U32(cxt, &res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -176,9 +170,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cxt->fork_count;
-			}
+			qb_do_fork_count_U32(cxt, &res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -213,9 +205,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 > ++res);
-			}
+			qb_do_increment_branch_on_greater_than_U32(&condition, op1, &res);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -235,9 +225,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -257,9 +245,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -279,9 +265,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -301,9 +285,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -1143,9 +1125,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -1161,9 +1141,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -1191,6 +1169,68 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+#undef res_ptr
+#undef res_count
+		
+		label_MAC_U32_U32_U32_U32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res	((uint32_t *) INSTR->operand4.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_U32(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_U32_U32_U32_U32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((uint32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_U32(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_U32_U32_U32_U32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
 #undef res_ptr
 #undef res_count
 		
@@ -1326,72 +1366,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_MAC_U32_U32_U32_U32_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
-#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
-#define res	((uint32_t *) INSTR->operand4.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_U32_U32_U32_U32_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
-#define op1	((uint32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((uint32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((uint32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_U32_U32_U32_U32_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((uint32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
-#undef res_ptr
-#undef res_count
-		
 		label_SHL_U32_U32_U32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
@@ -1399,9 +1373,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -1417,9 +1389,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -1457,9 +1427,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -1475,9 +1443,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -1515,9 +1481,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -1533,9 +1497,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -1571,9 +1533,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -1589,9 +1549,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -1671,9 +1629,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -1689,9 +1645,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -1729,9 +1683,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -1747,9 +1699,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -2295,9 +2245,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -2317,9 +2265,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -2339,9 +2285,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -2361,9 +2305,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -2383,9 +2325,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -2405,9 +2345,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -2713,9 +2651,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I32(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -2727,9 +2663,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I32(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -2755,9 +2689,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I32(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -2769,9 +2701,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I32(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -2842,9 +2772,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -2858,9 +2786,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -2893,9 +2819,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -2911,9 +2835,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -2944,64 +2866,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_SUB_I32_I32_I32_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
-#define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
-#define res	((int32_t *) INSTR->operand3.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I32_I32_I32_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
-#define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I32_I32_I32_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define res_count	INSTR->operand3.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_subtract_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef res_ptr
-#undef res_count
-		
 		label_MUL_S32_S32_S32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
@@ -3009,9 +2873,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3027,9 +2889,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -3049,6 +2909,122 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			handler = INSTR->next_handler;
 			qb_do_multiply_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+		
+		label_MAC_S32_S32_S32_S32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((int32_t *) INSTR->operand3.data_pointer)[0]
+#define res	((int32_t *) INSTR->operand4.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_S32(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_S32_S32_S32_S32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((int32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_S32(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_S32_S32_S32_S32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+		
+		label_SUB_I32_I32_I32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
+#define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
+#define res	((int32_t *) INSTR->operand3.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I32(op1, op2, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I32_I32_I32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
+#define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I32(op1, op2, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I32_I32_I32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -3192,81 +3168,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_MAC_S32_S32_S32_S32_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
-#define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((int32_t *) INSTR->operand3.data_pointer)[0]
-#define res	((int32_t *) INSTR->operand4.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_S32_S32_S32_S32_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
-#define op1	((int32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((int32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_S32_S32_S32_S32_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((int32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
-#undef res_ptr
-#undef res_count
-		
 		label_NEG_I32_I32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
 #define op1	((int32_t *) INSTR->operand1.data_pointer)[0]
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -3280,9 +3188,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -3315,9 +3221,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3333,9 +3237,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -3373,9 +3275,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3391,9 +3291,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -3431,9 +3329,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3449,9 +3345,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -3488,9 +3382,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -3504,9 +3396,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -3539,9 +3429,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3557,9 +3445,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -3597,9 +3483,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3615,9 +3499,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -3655,9 +3537,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3673,9 +3553,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -3711,9 +3589,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3729,9 +3605,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -3767,9 +3641,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3785,9 +3657,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -3823,9 +3693,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -3841,9 +3709,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -4049,9 +3915,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 && op2;
-			}
+			qb_do_logical_and_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -4067,9 +3931,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 || op2;
-			}
+			qb_do_logical_or_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -4085,9 +3947,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = !op1 != !op2;
-			}
+			qb_do_logical_xor_I32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -4102,9 +3962,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = !op1;
-			}
+			qb_do_logical_not_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -4118,9 +3976,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) abs(op1);
-			}
+			qb_do_abs_S32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -4134,9 +3990,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) abs(op1);
-			}
+			qb_do_abs_S32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -4169,9 +4023,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -4187,9 +4039,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -4227,9 +4077,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -4245,9 +4093,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -5579,9 +5425,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -5601,9 +5445,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -5623,9 +5465,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -5645,9 +5485,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -5667,9 +5505,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -5689,9 +5525,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_F32(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -5997,9 +5831,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_F32(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -6011,9 +5843,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_F32(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -6039,9 +5869,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_F32(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -6053,9 +5881,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_F32(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -6126,9 +5952,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -6142,9 +5966,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -6177,9 +5999,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6195,9 +6015,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -6228,64 +6046,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_SUB_F32_F32_F32_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
-#define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
-#define res	((float32_t *) INSTR->operand3.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_F32_F32_F32_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
-#define op1	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_F32_F32_F32_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define res_count	INSTR->operand3.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_subtract_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef res_ptr
-#undef res_count
-		
 		label_MUL_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
@@ -6293,9 +6053,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6311,9 +6069,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -6344,6 +6100,122 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
+		label_MAC_F32_F32_F32_F32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((float32_t *) INSTR->operand3.data_pointer)[0]
+#define res	((float32_t *) INSTR->operand4.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_F32(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_F32_F32_F32_F32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((float32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_F32(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_F32_F32_F32_F32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+		
+		label_SUB_F32_F32_F32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
+#define res	((float32_t *) INSTR->operand3.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_F32(op1, op2, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_F32_F32_F32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_F32(op1, op2, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_F32_F32_F32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+		
 		label_DIV_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
@@ -6351,9 +6223,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 / op2;
-			}
+			qb_do_divide_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6369,9 +6239,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 / op2;
-			}
+			qb_do_divide_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -6409,9 +6277,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = fmodf(op1, op2);
-			}
+			qb_do_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6427,9 +6293,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = fmodf(op1, op2);
-			}
+			qb_do_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -6460,72 +6324,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_MAC_F32_F32_F32_F32_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
-#define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((float32_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((float32_t *) INSTR->operand3.data_pointer)[0]
-#define res	((float32_t *) INSTR->operand4.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_F32_F32_F32_F32_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
-#define op1	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((float32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_F32_F32_F32_F32_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
-#undef res_ptr
-#undef res_count
-		
 		label_MOD_FLR_F32_F32_F32_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
@@ -6533,9 +6331,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) (op1 - op2 * floor(op1 / op2));
-			}
+			qb_do_floored_division_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6551,9 +6347,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) (op1 - op2 * floor(op1 / op2));
-			}
+			qb_do_floored_division_modulo_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -6590,9 +6384,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -6606,9 +6398,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -6641,9 +6431,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6659,9 +6447,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -6697,9 +6483,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6715,9 +6499,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -6753,9 +6535,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6771,9 +6551,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -6809,9 +6587,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -6827,9 +6603,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -6952,9 +6726,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) fabsf(op1);
-			}
+			qb_do_abs_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -6968,9 +6740,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) fabsf(op1);
-			}
+			qb_do_abs_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7003,9 +6773,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -7021,9 +6789,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -7061,9 +6827,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -7079,9 +6843,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -7118,9 +6880,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) sinf(op1);
-			}
+			qb_do_sin_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7134,9 +6894,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) sinf(op1);
-			}
+			qb_do_sin_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7168,9 +6926,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asinf(op1);
-			}
+			qb_do_asin_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7184,9 +6940,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asinf(op1);
-			}
+			qb_do_asin_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7218,9 +6972,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cosf(op1);
-			}
+			qb_do_cos_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7234,9 +6986,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cosf(op1);
-			}
+			qb_do_cos_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7268,9 +7018,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) acosf(op1);
-			}
+			qb_do_acos_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7284,9 +7032,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) acosf(op1);
-			}
+			qb_do_acos_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7318,9 +7064,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tanf(op1);
-			}
+			qb_do_tan_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7334,9 +7078,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tanf(op1);
-			}
+			qb_do_tan_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7368,9 +7110,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atanf(op1);
-			}
+			qb_do_atan_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7384,9 +7124,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atanf(op1);
-			}
+			qb_do_atan_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7419,9 +7157,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atan2f(op1, op2);
-			}
+			qb_do_atan2_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -7437,9 +7173,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atan2f(op1, op2);
-			}
+			qb_do_atan2_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -7476,9 +7210,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sinhf(op1);
-			}
+			qb_do_sinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7492,9 +7224,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sinhf(op1);
-			}
+			qb_do_sinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7526,9 +7256,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asinhf(op1);
-			}
+			qb_do_asinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7542,9 +7270,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asinhf(op1);
-			}
+			qb_do_asinh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7576,9 +7302,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = coshf(op1);
-			}
+			qb_do_cosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7592,9 +7316,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = coshf(op1);
-			}
+			qb_do_cosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7626,9 +7348,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = acoshf(op1);
-			}
+			qb_do_acosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7642,9 +7362,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = acoshf(op1);
-			}
+			qb_do_acosh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7676,9 +7394,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tanhf(op1);
-			}
+			qb_do_tanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7692,9 +7408,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tanhf(op1);
-			}
+			qb_do_tanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7726,9 +7440,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atanhf(op1);
-			}
+			qb_do_atanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7742,9 +7454,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atanhf(op1);
-			}
+			qb_do_atanh_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7776,9 +7486,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ceilf(op1);
-			}
+			qb_do_ceil_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7792,9 +7500,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ceilf(op1);
-			}
+			qb_do_ceil_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7826,9 +7532,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) floorf(op1);
-			}
+			qb_do_floor_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7842,9 +7546,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) floorf(op1);
-			}
+			qb_do_floor_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7878,9 +7580,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand4.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) _php_math_round(op1, op2, op3);
-			}
+			qb_do_round_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -7898,9 +7598,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) _php_math_round(op1, op2, op3);
-			}
+			qb_do_round_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -7942,9 +7640,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = logf(op1);
-			}
+			qb_do_log_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -7958,9 +7654,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = logf(op1);
-			}
+			qb_do_log_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -7992,9 +7686,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log1pf(op1);
-			}
+			qb_do_log1p_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8008,9 +7700,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log1pf(op1);
-			}
+			qb_do_log1p_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8042,9 +7732,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log2f(op1);
-			}
+			qb_do_log2_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8058,9 +7746,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log2f(op1);
-			}
+			qb_do_log2_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8092,9 +7778,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log10f(op1);
-			}
+			qb_do_log10_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8108,9 +7792,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log10f(op1);
-			}
+			qb_do_log10_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8142,9 +7824,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = expf(op1);
-			}
+			qb_do_exp_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8158,9 +7838,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = expf(op1);
-			}
+			qb_do_exp_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8192,9 +7870,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = expm1f(op1);
-			}
+			qb_do_exp_m1_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8208,9 +7884,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = expm1f(op1);
-			}
+			qb_do_exp_m1_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8242,9 +7916,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = exp2f(op1);
-			}
+			qb_do_exp2_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8258,9 +7930,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = exp2f(op1);
-			}
+			qb_do_exp2_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8293,9 +7963,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = powf(op1, op2);
-			}
+			qb_do_pow_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -8311,9 +7979,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = powf(op1, op2);
-			}
+			qb_do_pow_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -8350,9 +8016,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sqrtf(op1);
-			}
+			qb_do_sqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8366,9 +8030,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sqrtf(op1);
-			}
+			qb_do_sqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8401,9 +8063,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) hypotf(op1, op2);
-			}
+			qb_do_hypot_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -8419,9 +8079,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) hypotf(op1, op2);
-			}
+			qb_do_hypot_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -8634,9 +8292,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = qb_fast_rsqrtf(op1);
-			}
+			qb_do_rsqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8650,9 +8306,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = qb_fast_rsqrtf(op1);
-			}
+			qb_do_rsqrt_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8746,9 +8400,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 - floorf(op1);
-			}
+			qb_do_fract_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8762,9 +8414,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 - floorf(op1);
-			}
+			qb_do_fract_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8798,9 +8448,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand4.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * (1 - op3) + op2 * op3;
-			}
+			qb_do_mix_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -8818,9 +8466,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * (1 - op3) + op2 * op3;
-			}
+			qb_do_mix_F32(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -8909,9 +8555,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ((op2 < op1) ? 0.0f : 1.0f);
-			}
+			qb_do_step_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -8927,9 +8571,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ((op2 < op1) ? 0.0f : 1.0f);
-			}
+			qb_do_step_F32(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -9028,9 +8670,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float32_t) (180 / M_PI));
-			}
+			qb_do_radian_to_degree_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -9044,9 +8684,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float32_t) (180 / M_PI));
-			}
+			qb_do_radian_to_degree_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -9078,9 +8716,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float32_t) (M_PI / 180.0));
-			}
+			qb_do_degree_to_radian_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -9094,9 +8730,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float32_t) (M_PI / 180.0));
-			}
+			qb_do_degree_to_radian_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -11056,9 +10690,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_rgb_to_hsv_F32(op1_ptr, res_ptr);
-			}
+			qb_do_rgb2hsv_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -11130,9 +10762,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_hsv_to_rgb_F32(op1_ptr, res_ptr);
-			}
+			qb_do_hsv2rgb_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -11204,9 +10834,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_rgb_to_hsl_F32(op1_ptr, res_ptr);
-			}
+			qb_do_rgb2hsl_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -11278,9 +10906,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_hsl_to_rgb_F32(op1_ptr, res_ptr);
-			}
+			qb_do_hsl2rgb_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -11607,9 +11233,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);
-			}
+			qb_do_dot_product_4x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 			goto *handler;
 		}
@@ -11629,9 +11253,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);
-			}
+			qb_do_dot_product_4x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 			goto *handler;
 		}
@@ -12096,12 +11718,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0];
-				res_ptr[1] = op1_ptr[1];
-				res_ptr[2] = op1_ptr[2];
-				res_ptr[3] = op1_ptr[3];
-			}
+			qb_do_copy_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -12139,12 +11756,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] + op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] + op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] + op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] + op2_ptr[3];
-			}
+			qb_do_add_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12188,12 +11800,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] - op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] - op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] - op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] - op2_ptr[3];
-			}
+			qb_do_subtract_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12237,12 +11844,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] * op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] * op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] * op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] * op2_ptr[3];
-			}
+			qb_do_multiply_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12286,12 +11888,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] / op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] / op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] / op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] / op2_ptr[3];
-			}
+			qb_do_divide_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12335,12 +11932,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = fmodf(op1_ptr[0], op2_ptr[0]);
-				res_ptr[1] = fmodf(op1_ptr[1], op2_ptr[1]);
-				res_ptr[2] = fmodf(op1_ptr[2], op2_ptr[2]);
-				res_ptr[3] = fmodf(op1_ptr[3], op2_ptr[3]);
-			}
+			qb_do_modulo_4x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12382,12 +11974,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = - op1_ptr[0];
-				res_ptr[1] = - op1_ptr[1];
-				res_ptr[2] = - op1_ptr[2];
-				res_ptr[3] = - op1_ptr[3];
-			}
+			qb_do_negate_4x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -12421,12 +12008,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res_ptr[0];
-				++res_ptr[1];
-				++res_ptr[2];
-				++res_ptr[3];
-			}
+			qb_do_increment_4x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -12454,12 +12036,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res_ptr[0];
-				--res_ptr[1];
-				--res_ptr[2];
-				--res_ptr[3];
-			}
+			qb_do_decrement_4x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -12493,12 +12070,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + op3_ptr[0];
-				res_ptr[1] = (op1_ptr[1] * op2_ptr[1]) + op3_ptr[1];
-				res_ptr[2] = (op1_ptr[2] * op2_ptr[2]) + op3_ptr[2];
-				res_ptr[3] = (op1_ptr[3] * op2_ptr[3]) + op3_ptr[3];
-			}
+			qb_do_multiply_accumulate_4x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12867,9 +12439,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);
-			}
+			qb_do_dot_product_3x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 			goto *handler;
 		}
@@ -12889,9 +12459,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);
-			}
+			qb_do_dot_product_3x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 			goto *handler;
 		}
@@ -13348,11 +12916,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0];
-				res_ptr[1] = op1_ptr[1];
-				res_ptr[2] = op1_ptr[2];
-			}
+			qb_do_copy_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -13390,11 +12954,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] + op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] + op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] + op2_ptr[2];
-			}
+			qb_do_add_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13438,11 +12998,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] - op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] - op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] - op2_ptr[2];
-			}
+			qb_do_subtract_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13486,11 +13042,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] * op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] * op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] * op2_ptr[2];
-			}
+			qb_do_multiply_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13534,11 +13086,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] / op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] / op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] / op2_ptr[2];
-			}
+			qb_do_divide_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13582,11 +13130,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = fmodf(op1_ptr[0], op2_ptr[0]);
-				res_ptr[1] = fmodf(op1_ptr[1], op2_ptr[1]);
-				res_ptr[2] = fmodf(op1_ptr[2], op2_ptr[2]);
-			}
+			qb_do_modulo_3x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13628,11 +13172,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = - op1_ptr[0];
-				res_ptr[1] = - op1_ptr[1];
-				res_ptr[2] = - op1_ptr[2];
-			}
+			qb_do_negate_3x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -13666,11 +13206,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res_ptr[0];
-				++res_ptr[1];
-				++res_ptr[2];
-			}
+			qb_do_increment_3x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -13698,11 +13234,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res_ptr[0];
-				--res_ptr[1];
-				--res_ptr[2];
-			}
+			qb_do_decrement_3x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -13736,11 +13268,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + op3_ptr[0];
-				res_ptr[1] = (op1_ptr[1] * op2_ptr[1]) + op3_ptr[1];
-				res_ptr[2] = (op1_ptr[2] * op2_ptr[2]) + op3_ptr[2];
-			}
+			qb_do_multiply_accumulate_3x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13991,9 +13519,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0 * 2 + 0] * op1_ptr[1 * 2 + 1]) - (op1_ptr[0 * 2 + 1] * op1_ptr[1 * 2 + 0]);
-			}
+			qb_do_determinant_2x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -14009,9 +13535,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0 * 2 + 0] * op1_ptr[1 * 2 + 1]) - (op1_ptr[0 * 2 + 1] * op1_ptr[1 * 2 + 0]);
-			}
+			qb_do_determinant_2x_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -14047,9 +13571,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);
-			}
+			qb_do_dot_product_2x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 			goto *handler;
 		}
@@ -14069,9 +13591,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);
-			}
+			qb_do_dot_product_2x_F32(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 			goto *handler;
 		}
@@ -14528,10 +14048,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0];
-				res_ptr[1] = op1_ptr[1];
-			}
+			qb_do_copy_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -14569,10 +14086,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] + op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] + op2_ptr[1];
-			}
+			qb_do_add_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14616,10 +14130,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] - op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] - op2_ptr[1];
-			}
+			qb_do_subtract_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14663,10 +14174,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] * op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] * op2_ptr[1];
-			}
+			qb_do_multiply_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14710,10 +14218,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] / op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] / op2_ptr[1];
-			}
+			qb_do_divide_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14757,10 +14262,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = fmodf(op1_ptr[0], op2_ptr[0]);
-				res_ptr[1] = fmodf(op1_ptr[1], op2_ptr[1]);
-			}
+			qb_do_modulo_2x_F32(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14802,10 +14304,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = - op1_ptr[0];
-				res_ptr[1] = - op1_ptr[1];
-			}
+			qb_do_negate_2x_F32(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -14839,10 +14338,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res_ptr[0];
-				++res_ptr[1];
-			}
+			qb_do_increment_2x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -14870,10 +14366,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res_ptr[0];
-				--res_ptr[1];
-			}
+			qb_do_decrement_2x_F32(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -14907,10 +14400,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + op3_ptr[0];
-				res_ptr[1] = (op1_ptr[1] * op2_ptr[1]) + op3_ptr[1];
-			}
+			qb_do_multiply_accumulate_2x_F32(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -16209,9 +15699,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -16231,9 +15719,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -16253,9 +15739,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -16275,9 +15759,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -16297,9 +15779,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -16319,9 +15799,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_F64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -16627,9 +16105,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_F64(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -16641,9 +16117,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_F64(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -16669,9 +16143,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_F64(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -16683,9 +16155,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_F64(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -16756,9 +16226,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -16772,9 +16240,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -16807,9 +16273,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -16825,9 +16289,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -16858,64 +16320,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_SUB_F64_F64_F64_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
-#define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
-#define res	((float64_t *) INSTR->operand3.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_F64_F64_F64_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
-#define op1	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_F64_F64_F64_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define res_count	INSTR->operand3.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_subtract_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef res_ptr
-#undef res_count
-		
 		label_MUL_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
@@ -16923,9 +16327,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -16941,9 +16343,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -16974,6 +16374,122 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
+		label_MAC_F64_F64_F64_F64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((float64_t *) INSTR->operand3.data_pointer)[0]
+#define res	((float64_t *) INSTR->operand4.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_F64(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_F64_F64_F64_F64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((float64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_F64(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_F64_F64_F64_F64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+		
+		label_SUB_F64_F64_F64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
+#define res	((float64_t *) INSTR->operand3.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_F64(op1, op2, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_F64_F64_F64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_F64(op1, op2, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_F64_F64_F64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+		
 		label_DIV_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
@@ -16981,9 +16497,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 / op2;
-			}
+			qb_do_divide_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -16999,9 +16513,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 / op2;
-			}
+			qb_do_divide_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -17039,9 +16551,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = fmod(op1, op2);
-			}
+			qb_do_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17057,9 +16567,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = fmod(op1, op2);
-			}
+			qb_do_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -17090,72 +16598,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_MAC_F64_F64_F64_F64_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
-#define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((float64_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((float64_t *) INSTR->operand3.data_pointer)[0]
-#define res	((float64_t *) INSTR->operand4.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_F64_F64_F64_F64_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
-#define op1	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((float64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_F64_F64_F64_F64_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
-#undef res_ptr
-#undef res_count
-		
 		label_MOD_FLR_F64_F64_F64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
@@ -17163,9 +16605,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) (op1 - op2 * floor(op1 / op2));
-			}
+			qb_do_floored_division_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17181,9 +16621,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) (op1 - op2 * floor(op1 / op2));
-			}
+			qb_do_floored_division_modulo_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -17220,9 +16658,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -17236,9 +16672,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -17271,9 +16705,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17289,9 +16721,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -17327,9 +16757,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17345,9 +16773,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -17383,9 +16809,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17401,9 +16825,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -17439,9 +16861,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17457,9 +16877,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -17582,9 +17000,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) fabs(op1);
-			}
+			qb_do_abs_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -17598,9 +17014,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) fabs(op1);
-			}
+			qb_do_abs_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -17633,9 +17047,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17651,9 +17063,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -17691,9 +17101,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -17709,9 +17117,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -17748,9 +17154,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) sin(op1);
-			}
+			qb_do_sin_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -17764,9 +17168,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) sin(op1);
-			}
+			qb_do_sin_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -17798,9 +17200,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asin(op1);
-			}
+			qb_do_asin_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -17814,9 +17214,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asin(op1);
-			}
+			qb_do_asin_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -17848,9 +17246,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cos(op1);
-			}
+			qb_do_cos_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -17864,9 +17260,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cos(op1);
-			}
+			qb_do_cos_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -17898,9 +17292,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) acos(op1);
-			}
+			qb_do_acos_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -17914,9 +17306,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) acos(op1);
-			}
+			qb_do_acos_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -17948,9 +17338,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tan(op1);
-			}
+			qb_do_tan_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -17964,9 +17352,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tan(op1);
-			}
+			qb_do_tan_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -17998,9 +17384,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atan(op1);
-			}
+			qb_do_atan_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18014,9 +17398,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atan(op1);
-			}
+			qb_do_atan_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18049,9 +17431,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atan2(op1, op2);
-			}
+			qb_do_atan2_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -18067,9 +17447,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atan2(op1, op2);
-			}
+			qb_do_atan2_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -18106,9 +17484,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sinh(op1);
-			}
+			qb_do_sinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18122,9 +17498,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sinh(op1);
-			}
+			qb_do_sinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18156,9 +17530,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asinh(op1);
-			}
+			qb_do_asinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18172,9 +17544,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = asinh(op1);
-			}
+			qb_do_asinh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18206,9 +17576,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cosh(op1);
-			}
+			qb_do_cosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18222,9 +17590,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = cosh(op1);
-			}
+			qb_do_cosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18256,9 +17622,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = acosh(op1);
-			}
+			qb_do_acosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18272,9 +17636,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = acosh(op1);
-			}
+			qb_do_acosh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18306,9 +17668,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tanh(op1);
-			}
+			qb_do_tanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18322,9 +17682,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = tanh(op1);
-			}
+			qb_do_tanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18356,9 +17714,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atanh(op1);
-			}
+			qb_do_atanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18372,9 +17728,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = atanh(op1);
-			}
+			qb_do_atanh_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18406,9 +17760,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ceil(op1);
-			}
+			qb_do_ceil_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18422,9 +17774,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ceil(op1);
-			}
+			qb_do_ceil_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18456,9 +17806,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) floor(op1);
-			}
+			qb_do_floor_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18472,9 +17820,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) floor(op1);
-			}
+			qb_do_floor_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18508,9 +17854,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand4.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) _php_math_round(op1, op2, op3);
-			}
+			qb_do_round_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -18528,9 +17872,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) _php_math_round(op1, op2, op3);
-			}
+			qb_do_round_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -18572,9 +17914,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log(op1);
-			}
+			qb_do_log_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18588,9 +17928,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log(op1);
-			}
+			qb_do_log_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18622,9 +17960,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log1p(op1);
-			}
+			qb_do_log1p_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18638,9 +17974,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log1p(op1);
-			}
+			qb_do_log1p_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18672,9 +18006,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log2(op1);
-			}
+			qb_do_log2_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18688,9 +18020,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log2(op1);
-			}
+			qb_do_log2_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18722,9 +18052,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log10(op1);
-			}
+			qb_do_log10_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18738,9 +18066,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = log10(op1);
-			}
+			qb_do_log10_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18772,9 +18098,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = exp(op1);
-			}
+			qb_do_exp_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18788,9 +18112,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = exp(op1);
-			}
+			qb_do_exp_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18822,9 +18144,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = expm1(op1);
-			}
+			qb_do_exp_m1_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18838,9 +18158,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = expm1(op1);
-			}
+			qb_do_exp_m1_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18872,9 +18190,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = exp2(op1);
-			}
+			qb_do_exp2_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18888,9 +18204,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = exp2(op1);
-			}
+			qb_do_exp2_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18923,9 +18237,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = pow(op1, op2);
-			}
+			qb_do_pow_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -18941,9 +18253,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = pow(op1, op2);
-			}
+			qb_do_pow_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -18980,9 +18290,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sqrt(op1);
-			}
+			qb_do_sqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18996,9 +18304,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = sqrt(op1);
-			}
+			qb_do_sqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -19031,9 +18337,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) hypot(op1, op2);
-			}
+			qb_do_hypot_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -19049,9 +18353,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) hypot(op1, op2);
-			}
+			qb_do_hypot_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -19264,9 +18566,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = qb_fast_rsqrt(op1);
-			}
+			qb_do_rsqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -19280,9 +18580,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = qb_fast_rsqrt(op1);
-			}
+			qb_do_rsqrt_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -19376,9 +18674,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 - floor(op1);
-			}
+			qb_do_fract_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -19392,9 +18688,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 - floor(op1);
-			}
+			qb_do_fract_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -19428,9 +18722,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand4.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * (1 - op3) + op2 * op3;
-			}
+			qb_do_mix_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -19448,9 +18740,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * (1 - op3) + op2 * op3;
-			}
+			qb_do_mix_F64(op1, op2, op3, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -19539,9 +18829,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ((op2 < op1) ? 0.0 : 1.0);
-			}
+			qb_do_step_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -19557,9 +18845,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ((op2 < op1) ? 0.0 : 1.0);
-			}
+			qb_do_step_F64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -19658,9 +18944,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float64_t) (180 / M_PI));
-			}
+			qb_do_radian_to_degree_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -19674,9 +18958,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float64_t) (180 / M_PI));
-			}
+			qb_do_radian_to_degree_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -19708,9 +18990,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float64_t) (M_PI / 180.0));
-			}
+			qb_do_degree_to_radian_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -19724,9 +19004,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * ((float64_t) (M_PI / 180.0));
-			}
+			qb_do_degree_to_radian_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -21686,9 +20964,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_rgb_to_hsv_F64(op1_ptr, res_ptr);
-			}
+			qb_do_rgb2hsv_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -21760,9 +21036,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_hsv_to_rgb_F64(op1_ptr, res_ptr);
-			}
+			qb_do_hsv2rgb_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -21834,9 +21108,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_rgb_to_hsl_F64(op1_ptr, res_ptr);
-			}
+			qb_do_rgb2hsl_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -21908,9 +21180,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				qb_convert_hsl_to_rgb_F64(op1_ptr, res_ptr);
-			}
+			qb_do_hsl2rgb_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -22237,9 +21507,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);
-			}
+			qb_do_dot_product_4x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 			goto *handler;
 		}
@@ -22259,9 +21527,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]) + (op1_ptr[3] * op2_ptr[3]);
-			}
+			qb_do_dot_product_4x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 			goto *handler;
 		}
@@ -22726,12 +21992,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0];
-				res_ptr[1] = op1_ptr[1];
-				res_ptr[2] = op1_ptr[2];
-				res_ptr[3] = op1_ptr[3];
-			}
+			qb_do_copy_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -22769,12 +22030,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] + op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] + op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] + op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] + op2_ptr[3];
-			}
+			qb_do_add_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22818,12 +22074,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] - op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] - op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] - op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] - op2_ptr[3];
-			}
+			qb_do_subtract_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22867,12 +22118,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] * op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] * op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] * op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] * op2_ptr[3];
-			}
+			qb_do_multiply_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22916,12 +22162,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] / op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] / op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] / op2_ptr[2];
-				res_ptr[3] = op1_ptr[3] / op2_ptr[3];
-			}
+			qb_do_divide_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22965,12 +22206,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = fmod(op1_ptr[0], op2_ptr[0]);
-				res_ptr[1] = fmod(op1_ptr[1], op2_ptr[1]);
-				res_ptr[2] = fmod(op1_ptr[2], op2_ptr[2]);
-				res_ptr[3] = fmod(op1_ptr[3], op2_ptr[3]);
-			}
+			qb_do_modulo_4x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23012,12 +22248,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = - op1_ptr[0];
-				res_ptr[1] = - op1_ptr[1];
-				res_ptr[2] = - op1_ptr[2];
-				res_ptr[3] = - op1_ptr[3];
-			}
+			qb_do_negate_4x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -23051,12 +22282,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res_ptr[0];
-				++res_ptr[1];
-				++res_ptr[2];
-				++res_ptr[3];
-			}
+			qb_do_increment_4x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -23084,12 +22310,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res_ptr[0];
-				--res_ptr[1];
-				--res_ptr[2];
-				--res_ptr[3];
-			}
+			qb_do_decrement_4x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -23123,12 +22344,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + op3_ptr[0];
-				res_ptr[1] = (op1_ptr[1] * op2_ptr[1]) + op3_ptr[1];
-				res_ptr[2] = (op1_ptr[2] * op2_ptr[2]) + op3_ptr[2];
-				res_ptr[3] = (op1_ptr[3] * op2_ptr[3]) + op3_ptr[3];
-			}
+			qb_do_multiply_accumulate_4x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23431,9 +22647,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);
-			}
+			qb_do_dot_product_3x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 			goto *handler;
 		}
@@ -23453,9 +22667,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]) + (op1_ptr[2] * op2_ptr[2]);
-			}
+			qb_do_dot_product_3x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 			goto *handler;
 		}
@@ -23912,11 +23124,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0];
-				res_ptr[1] = op1_ptr[1];
-				res_ptr[2] = op1_ptr[2];
-			}
+			qb_do_copy_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -23954,11 +23162,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] + op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] + op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] + op2_ptr[2];
-			}
+			qb_do_add_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24002,11 +23206,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] - op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] - op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] - op2_ptr[2];
-			}
+			qb_do_subtract_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24050,11 +23250,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] * op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] * op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] * op2_ptr[2];
-			}
+			qb_do_multiply_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24098,11 +23294,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] / op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] / op2_ptr[1];
-				res_ptr[2] = op1_ptr[2] / op2_ptr[2];
-			}
+			qb_do_divide_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24146,11 +23338,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = fmod(op1_ptr[0], op2_ptr[0]);
-				res_ptr[1] = fmod(op1_ptr[1], op2_ptr[1]);
-				res_ptr[2] = fmod(op1_ptr[2], op2_ptr[2]);
-			}
+			qb_do_modulo_3x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24192,11 +23380,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = - op1_ptr[0];
-				res_ptr[1] = - op1_ptr[1];
-				res_ptr[2] = - op1_ptr[2];
-			}
+			qb_do_negate_3x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -24230,11 +23414,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res_ptr[0];
-				++res_ptr[1];
-				++res_ptr[2];
-			}
+			qb_do_increment_3x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -24262,11 +23442,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res_ptr[0];
-				--res_ptr[1];
-				--res_ptr[2];
-			}
+			qb_do_decrement_3x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -24300,11 +23476,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + op3_ptr[0];
-				res_ptr[1] = (op1_ptr[1] * op2_ptr[1]) + op3_ptr[1];
-				res_ptr[2] = (op1_ptr[2] * op2_ptr[2]) + op3_ptr[2];
-			}
+			qb_do_multiply_accumulate_3x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24555,9 +23727,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0 * 2 + 0] * op1_ptr[1 * 2 + 1]) - (op1_ptr[0 * 2 + 1] * op1_ptr[1 * 2 + 0]);
-			}
+			qb_do_determinant_2x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -24573,9 +23743,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0 * 2 + 0] * op1_ptr[1 * 2 + 1]) - (op1_ptr[0 * 2 + 1] * op1_ptr[1 * 2 + 0]);
-			}
+			qb_do_determinant_2x_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -24611,9 +23779,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);
-			}
+			qb_do_dot_product_2x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_SCA);
 			goto *handler;
 		}
@@ -24633,9 +23799,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1_ptr[0] * op2_ptr[0]) + (op1_ptr[1] * op2_ptr[1]);
-			}
+			qb_do_dot_product_2x_F64(op1_ptr, op2_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ARR_ELE);
 			goto *handler;
 		}
@@ -25092,10 +24256,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0];
-				res_ptr[1] = op1_ptr[1];
-			}
+			qb_do_copy_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -25133,10 +24294,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] + op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] + op2_ptr[1];
-			}
+			qb_do_add_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -25180,10 +24338,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] - op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] - op2_ptr[1];
-			}
+			qb_do_subtract_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -25227,10 +24382,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] * op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] * op2_ptr[1];
-			}
+			qb_do_multiply_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -25274,10 +24426,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = op1_ptr[0] / op2_ptr[0];
-				res_ptr[1] = op1_ptr[1] / op2_ptr[1];
-			}
+			qb_do_divide_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -25321,10 +24470,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = fmod(op1_ptr[0], op2_ptr[0]);
-				res_ptr[1] = fmod(op1_ptr[1], op2_ptr[1]);
-			}
+			qb_do_modulo_2x_F64(op1_ptr, op2_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -25366,10 +24512,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = - op1_ptr[0];
-				res_ptr[1] = - op1_ptr[1];
-			}
+			qb_do_negate_2x_F64(op1_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -25403,10 +24546,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res_ptr[0];
-				++res_ptr[1];
-			}
+			qb_do_increment_2x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -25434,10 +24574,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand1.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res_ptr[0];
-				--res_ptr[1];
-			}
+			qb_do_decrement_2x_F64(res_ptr);
 			ip += sizeof(qb_instruction_ARR);
 			goto *handler;
 		}
@@ -25471,10 +24608,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res_ptr[0] = (op1_ptr[0] * op2_ptr[0]) + op3_ptr[0];
-				res_ptr[1] = (op1_ptr[1] * op2_ptr[1]) + op3_ptr[1];
-			}
+			qb_do_multiply_accumulate_2x_F64(op1_ptr, op2_ptr, op3_ptr, res_ptr);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -26773,9 +25907,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -26795,9 +25927,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -26817,9 +25947,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -26839,9 +25967,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -26861,9 +25987,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -26883,9 +26007,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -27191,9 +26313,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I08(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -27205,9 +26325,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I08(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -27233,9 +26351,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I08(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -27247,9 +26363,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I08(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -27320,9 +26434,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -27336,9 +26448,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -27371,9 +26481,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -27389,9 +26497,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -27422,64 +26528,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_SUB_I08_I08_I08_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
-#define op1	((int8_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
-#define res	((int8_t *) INSTR->operand3.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I08_I08_I08_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
-#define op1	((int8_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I08_I08_I08_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define res_count	INSTR->operand3.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_subtract_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef res_ptr
-#undef res_count
-		
 		label_MUL_S08_S08_S08_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((int8_t *) INSTR->operand1.data_pointer)[0]
@@ -27487,9 +26535,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -27505,9 +26551,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -27527,6 +26571,60 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			handler = INSTR->next_handler;
 			qb_do_multiply_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+		
+		label_SUB_I08_I08_I08_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
+#define op1	((int8_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int8_t *) INSTR->operand2.data_pointer)[0]
+#define res	((int8_t *) INSTR->operand3.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I08(op1, op2, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I08_I08_I08_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
+#define op1	((int8_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I08(op1, op2, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I08_I08_I08_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -27676,9 +26774,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -27692,9 +26788,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -27727,9 +26821,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -27745,9 +26837,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -27785,9 +26875,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -27803,9 +26891,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -27843,9 +26929,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -27861,9 +26945,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -27900,9 +26982,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -27916,9 +26996,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -27951,9 +27029,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -27969,9 +27045,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -28009,9 +27083,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -28027,9 +27099,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -28067,9 +27137,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -28085,9 +27153,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -28123,9 +27189,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -28141,9 +27205,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -28179,9 +27241,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -28197,9 +27257,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -28235,9 +27293,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -28253,9 +27309,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -28378,9 +27432,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) abs(op1);
-			}
+			qb_do_abs_S08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -28394,9 +27446,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) abs(op1);
-			}
+			qb_do_abs_S08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -28429,9 +27479,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -28447,9 +27495,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -28487,9 +27533,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -28505,9 +27549,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -29763,9 +28805,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -29785,9 +28825,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -29807,9 +28845,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -29829,9 +28865,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U08(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -29851,9 +28885,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -29869,9 +28901,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -30041,9 +29071,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -30059,9 +29087,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -30099,9 +29125,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -30117,9 +29141,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -30157,9 +29179,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -30175,9 +29195,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -30213,9 +29231,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -30231,9 +29247,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -30313,9 +29327,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -30331,9 +29343,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -30371,9 +29381,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -30389,9 +29397,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U08(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -30813,9 +29819,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -30835,9 +29839,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -30857,9 +29859,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -30879,9 +29879,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -30901,9 +29899,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -30923,9 +29919,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -31231,9 +30225,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I16(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -31245,9 +30237,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I16(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -31273,9 +30263,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I16(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -31287,9 +30275,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I16(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -31360,9 +30346,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -31376,9 +30360,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -31411,9 +30393,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -31429,9 +30409,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -31462,64 +30440,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_SUB_I16_I16_I16_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
-#define op1	((int16_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
-#define res	((int16_t *) INSTR->operand3.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I16_I16_I16_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
-#define op1	((int16_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I16_I16_I16_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define res_count	INSTR->operand3.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_subtract_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef res_ptr
-#undef res_count
-		
 		label_MUL_S16_S16_S16_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((int16_t *) INSTR->operand1.data_pointer)[0]
@@ -31527,9 +30447,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -31545,9 +30463,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -31567,6 +30483,60 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			handler = INSTR->next_handler;
 			qb_do_multiply_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+		
+		label_SUB_I16_I16_I16_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
+#define op1	((int16_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int16_t *) INSTR->operand2.data_pointer)[0]
+#define res	((int16_t *) INSTR->operand3.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I16(op1, op2, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I16_I16_I16_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
+#define op1	((int16_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I16(op1, op2, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I16_I16_I16_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -31716,9 +30686,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -31732,9 +30700,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -31767,9 +30733,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -31785,9 +30749,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -31825,9 +30787,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -31843,9 +30803,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -31883,9 +30841,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -31901,9 +30857,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -31940,9 +30894,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -31956,9 +30908,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -31991,9 +30941,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32009,9 +30957,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -32049,9 +30995,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32067,9 +31011,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -32107,9 +31049,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32125,9 +31065,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -32163,9 +31101,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32181,9 +31117,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -32219,9 +31153,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32237,9 +31169,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -32275,9 +31205,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32293,9 +31221,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -32418,9 +31344,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) abs(op1);
-			}
+			qb_do_abs_S16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -32434,9 +31358,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) abs(op1);
-			}
+			qb_do_abs_S16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -32469,9 +31391,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32487,9 +31407,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -32527,9 +31445,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -32545,9 +31461,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -33803,9 +32717,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -33825,9 +32737,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -33847,9 +32757,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -33869,9 +32777,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U16(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -33891,9 +32797,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -33909,9 +32813,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -34081,9 +32983,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -34099,9 +32999,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -34139,9 +33037,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -34157,9 +33053,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -34197,9 +33091,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -34215,9 +33107,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -34253,9 +33143,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -34271,9 +33159,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -34353,9 +33239,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -34371,9 +33255,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -34411,9 +33293,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -34429,9 +33309,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U16(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -34853,9 +33731,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -34875,9 +33751,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 != op2);
-			}
+			qb_do_branch_on_not_equal_I64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -34897,9 +33771,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -34919,9 +33791,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -34941,9 +33811,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -34963,9 +33831,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_S64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -35271,9 +34137,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I64(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -35285,9 +34149,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				++res;
-			}
+			qb_do_increment_I64(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -35313,9 +34175,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I64(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -35327,9 +34187,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				--res;
-			}
+			qb_do_decrement_I64(&res);
 			ip += sizeof(qb_instruction_ELE);
 			goto *handler;
 		}
@@ -35400,9 +34258,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -35416,9 +34272,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1;
-			}
+			qb_do_copy_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -35451,9 +34305,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -35469,9 +34321,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 + op2;
-			}
+			qb_do_add_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -35502,64 +34352,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_SUB_I64_I64_I64_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
-#define op1	((int64_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
-#define res	((int64_t *) INSTR->operand3.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I64_I64_I64_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
-#define op1	((int64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = op1 - op2;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef res
-		
-		label_SUB_I64_I64_I64_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define res_count	INSTR->operand3.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_subtract_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef res_ptr
-#undef res_count
-		
 		label_MUL_S64_S64_S64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((int64_t *) INSTR->operand1.data_pointer)[0]
@@ -35567,9 +34359,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -35585,9 +34375,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -35607,6 +34395,122 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			handler = INSTR->next_handler;
 			qb_do_multiply_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+		
+		label_MAC_S64_S64_S64_S64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((int64_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((int64_t *) INSTR->operand3.data_pointer)[0]
+#define res	((int64_t *) INSTR->operand4.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_S64(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_S64_S64_S64_S64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((int64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((int64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_S64(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_S64_S64_S64_S64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+		
+		label_SUB_I64_I64_I64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
+#define op1	((int64_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
+#define res	((int64_t *) INSTR->operand3.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I64(op1, op2, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I64_I64_I64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE * __restrict) ip)
+#define op1	((int64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_I64(op1, op2, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef res
+		
+		label_SUB_I64_I64_I64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_subtract_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -35750,81 +34654,13 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_MAC_S64_S64_S64_S64_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
-#define op1	((int64_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int64_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((int64_t *) INSTR->operand3.data_pointer)[0]
-#define res	((int64_t *) INSTR->operand4.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_S64_S64_S64_S64_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
-#define op1	((int64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((int64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_S64_S64_S64_S64_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((int64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
-#undef res_ptr
-#undef res_count
-		
 		label_NEG_I64_I64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
 #define op1	((int64_t *) INSTR->operand1.data_pointer)[0]
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -35838,9 +34674,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = - op1;
-			}
+			qb_do_negate_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -35873,9 +34707,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -35891,9 +34723,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 & op2;
-			}
+			qb_do_bitwise_and_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -35931,9 +34761,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -35949,9 +34777,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 | op2;
-			}
+			qb_do_bitwise_or_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -35989,9 +34815,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36007,9 +34831,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 ^ op2;
-			}
+			qb_do_bitwise_xor_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -36046,9 +34868,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -36062,9 +34882,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = ~op1;
-			}
+			qb_do_bitwise_not_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -36097,9 +34915,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36115,9 +34931,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -36155,9 +34969,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36173,9 +34985,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -36213,9 +35023,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36231,9 +35039,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 == op2);
-			}
+			qb_do_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -36269,9 +35075,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36287,9 +35091,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != op2);
-			}
+			qb_do_not_equal_I64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -36325,9 +35127,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36343,9 +35143,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -36381,9 +35179,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36399,9 +35195,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -36524,9 +35318,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) llabs(op1);
-			}
+			qb_do_abs_S64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -36540,9 +35332,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) llabs(op1);
-			}
+			qb_do_abs_S64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -36575,9 +35365,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36593,9 +35381,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -36633,9 +35419,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -36651,9 +35435,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_S64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -37909,9 +36691,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -37931,9 +36711,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 < op2);
-			}
+			qb_do_branch_on_less_than_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -37953,9 +36731,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -37975,9 +36751,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		{
 			int condition;
 			handler = INSTR->next_handler1;
-			{
-				condition = (op1 <= op2);
-			}
+			qb_do_branch_on_less_than_equal_U64(&condition, op1, op2);
 			if(condition) {
 				ip = INSTR->instruction_pointer1;
 			} else {
@@ -37997,9 +36771,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -38015,9 +36787,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 * op2;
-			}
+			qb_do_multiply_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -38045,6 +36815,68 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+#undef res_ptr
+#undef res_count
+		
+		label_MAC_U64_U64_U64_U64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((uint64_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((uint64_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint64_t *) INSTR->operand3.data_pointer)[0]
+#define res	((uint64_t *) INSTR->operand4.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_U64(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_U64_U64_U64_U64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((uint64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((uint64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((uint64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_U64(op1, op2, op3, &res);
+			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+		
+		label_MAC_U64_U64_U64_U64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_multiply_accumulate_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
 #undef res_ptr
 #undef res_count
 		
@@ -38180,72 +37012,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 		
-		label_MAC_U64_U64_U64_U64_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
-#define op1	((uint64_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((uint64_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((uint64_t *) INSTR->operand3.data_pointer)[0]
-#define res	((uint64_t *) INSTR->operand4.data_pointer)[0]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_U64_U64_U64_U64_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
-#define op1	((uint64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((uint64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((uint64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
-		{
-			handler = INSTR->next_handler;
-			{
-				res = (op1 * op2) + op3;
-			}
-			ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1
-#undef op2
-#undef op3
-#undef res
-		
-		label_MAC_U64_U64_U64_U64_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
-#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
-#define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((uint64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
-		{
-			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
-			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
-			goto *handler;
-		}
-#undef INSTR
-#undef op1_ptr
-#undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
-#undef res_ptr
-#undef res_count
-		
 		label_SHL_U64_U64_U64_SCA:
 #define INSTR		((qb_instruction_SCA_SCA_SCA * __restrict) ip)
 #define op1	((uint64_t *) INSTR->operand1.data_pointer)[0]
@@ -38253,9 +37019,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -38271,9 +37035,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 << op2;
-			}
+			qb_do_shift_left_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -38311,9 +37073,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -38329,9 +37089,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = op1 >> op2;
-			}
+			qb_do_shift_right_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -38369,9 +37127,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -38387,9 +37143,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2);
-			}
+			qb_do_less_than_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -38425,9 +37179,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -38443,9 +37195,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 <= op2);
-			}
+			qb_do_less_than_equal_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_SCA);
 			goto *handler;
 		}
@@ -38525,9 +37275,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -38543,9 +37291,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 < op2) ? op1 : op2;
-			}
+			qb_do_min_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -38583,9 +37329,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_SCA_SCA_SCA);
 			goto *handler;
 		}
@@ -38601,9 +37345,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 > op2) ? op1 : op2;
-			}
+			qb_do_max_U64(op1, op2, &res);
 			ip += sizeof(qb_instruction_ELE_ELE_ELE);
 			goto *handler;
 		}
@@ -38984,9 +37726,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U32_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39000,9 +37740,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U32_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39034,9 +37772,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U32_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39050,9 +37786,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U32_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39084,9 +37818,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_U32_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39100,9 +37832,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_U32_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39362,9 +38092,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S32_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39378,9 +38106,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S32_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39412,9 +38138,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S32_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39428,9 +38152,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S32_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39462,9 +38184,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_I32_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39478,9 +38198,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_I32_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39512,9 +38230,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_I32_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39528,9 +38244,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_I32_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39562,9 +38276,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_S32_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39578,9 +38290,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_S32_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39612,9 +38322,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -39628,9 +38336,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -39923,9 +38629,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = 0;
-			}
+			qb_do_clear_scalar_I32(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -40203,9 +38907,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) res_ptr) = SWAP_LE_I32(op1);
-			}
+			qb_do_pack_little_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 			goto *handler;
 		}
@@ -40221,9 +38923,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) res_ptr) = SWAP_LE_I32(op1);
-			}
+			qb_do_pack_little_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 			goto *handler;
 		}
@@ -40239,9 +38939,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) res_ptr) = SWAP_BE_I32(op1);
-			}
+			qb_do_pack_big_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 			goto *handler;
 		}
@@ -40257,9 +38955,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) res_ptr) = SWAP_BE_I32(op1);
-			}
+			qb_do_pack_big_endian_I32(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 			goto *handler;
 		}
@@ -40275,9 +38971,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_LE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -40293,9 +38987,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_LE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -40311,9 +39003,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_BE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -40329,9 +39019,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_BE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_I32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -40378,9 +39066,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint32_t) op1;
-			}
+			qb_do_cast_F32_U32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40394,9 +39080,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint32_t) op1;
-			}
+			qb_do_cast_F32_U32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40428,9 +39112,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_F32_S32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40444,9 +39126,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_F32_S32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40478,9 +39158,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_F32_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40494,9 +39172,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_F32_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40528,9 +39204,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_F32_S08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40544,9 +39218,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_F32_S08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40578,9 +39250,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint8_t) op1;
-			}
+			qb_do_cast_F32_U08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40594,9 +39264,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint8_t) op1;
-			}
+			qb_do_cast_F32_U08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40628,9 +39296,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_F32_S16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40644,9 +39310,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_F32_S16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40678,9 +39342,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint16_t) op1;
-			}
+			qb_do_cast_F32_U16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40694,9 +39356,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint16_t) op1;
-			}
+			qb_do_cast_F32_U16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40728,9 +39388,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_F32_S64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40744,9 +39402,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_F32_S64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40778,9 +39434,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint64_t) op1;
-			}
+			qb_do_cast_F32_U64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40794,9 +39448,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint64_t) op1;
-			}
+			qb_do_cast_F32_U64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -40828,9 +39480,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -40844,9 +39494,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41139,9 +39787,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = 0;
-			}
+			qb_do_clear_scalar_F32(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -41483,9 +40129,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_LE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -41501,9 +40145,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_LE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -41519,9 +40161,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_BE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -41537,9 +40177,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint32_t *) &res) = SWAP_BE_I32(*((uint32_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_F32(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -41586,9 +40224,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint32_t) op1;
-			}
+			qb_do_cast_F64_U32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41602,9 +40238,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint32_t) op1;
-			}
+			qb_do_cast_F64_U32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41636,9 +40270,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_F64_S32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41652,9 +40284,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_F64_S32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41686,9 +40316,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_F64_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41702,9 +40330,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_F64_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41736,9 +40362,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_F64_S08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41752,9 +40376,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_F64_S08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41786,9 +40408,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint8_t) op1;
-			}
+			qb_do_cast_F64_U08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41802,9 +40422,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint8_t) op1;
-			}
+			qb_do_cast_F64_U08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41836,9 +40454,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_F64_S16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41852,9 +40468,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_F64_S16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41886,9 +40500,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint16_t) op1;
-			}
+			qb_do_cast_F64_U16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41902,9 +40514,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint16_t) op1;
-			}
+			qb_do_cast_F64_U16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41936,9 +40546,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_F64_S64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -41952,9 +40560,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_F64_S64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -41986,9 +40592,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint64_t) op1;
-			}
+			qb_do_cast_F64_U64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -42002,9 +40606,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((uint64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (uint64_t) op1;
-			}
+			qb_do_cast_F64_U64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -42036,9 +40638,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -42052,9 +40652,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -42347,9 +40945,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = 0;
-			}
+			qb_do_clear_scalar_F64(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -42691,9 +41287,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_LE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -42709,9 +41303,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_LE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -42727,9 +41319,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_BE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -42745,9 +41335,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_BE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_F64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -42794,9 +41382,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_S08_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -42810,9 +41396,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_S08_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -42844,9 +41428,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S08_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -42860,9 +41442,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S08_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -42894,9 +41474,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S08_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -42910,9 +41488,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S08_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -42944,9 +41520,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_S08_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -42960,9 +41534,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_S08_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -42994,9 +41566,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_S08_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -43010,9 +41580,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_S08_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -43044,9 +41612,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -43060,9 +41626,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -43355,9 +41919,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = 0;
-			}
+			qb_do_clear_scalar_I08(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -43666,9 +42228,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_U08_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -43682,9 +42242,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_U08_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -43716,9 +42274,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U08_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -43732,9 +42288,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U08_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -43766,9 +42320,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U08_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -43782,9 +42334,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U08_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -43816,9 +42366,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_U08_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -43832,9 +42380,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_U08_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -43866,9 +42412,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_U08_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -43882,9 +42426,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_U08_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -44128,9 +42670,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_S16_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -44144,9 +42684,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_S16_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -44178,9 +42716,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S16_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -44194,9 +42730,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S16_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -44228,9 +42762,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S16_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -44244,9 +42776,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S16_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -44278,9 +42808,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_I16_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -44294,9 +42822,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_I16_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -44328,9 +42854,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_S16_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -44344,9 +42868,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_S16_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -44378,9 +42900,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -44394,9 +42914,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -44689,9 +43207,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = 0;
-			}
+			qb_do_clear_scalar_I16(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -44969,9 +43485,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) res_ptr) = SWAP_LE_I16(op1);
-			}
+			qb_do_pack_little_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 			goto *handler;
 		}
@@ -44987,9 +43501,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) res_ptr) = SWAP_LE_I16(op1);
-			}
+			qb_do_pack_little_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 			goto *handler;
 		}
@@ -45005,9 +43517,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) res_ptr) = SWAP_BE_I16(op1);
-			}
+			qb_do_pack_big_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 			goto *handler;
 		}
@@ -45023,9 +43533,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) res_ptr) = SWAP_BE_I16(op1);
-			}
+			qb_do_pack_big_endian_I16(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 			goto *handler;
 		}
@@ -45041,9 +43549,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) &res) = SWAP_LE_I16(*((uint16_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -45059,9 +43565,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) &res) = SWAP_LE_I16(*((uint16_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -45077,9 +43581,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) &res) = SWAP_BE_I16(*((uint16_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -45095,9 +43597,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint16_t *) &res) = SWAP_BE_I16(*((uint16_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_I16(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -45144,9 +43644,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_U16_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45160,9 +43658,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_U16_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45194,9 +43690,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U16_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45210,9 +43704,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U16_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45244,9 +43736,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U16_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45260,9 +43750,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U16_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45294,9 +43782,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_U16_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45310,9 +43796,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int64_t) op1;
-			}
+			qb_do_cast_U16_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45588,9 +44072,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_I64_I32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45604,9 +44086,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int32_t) op1;
-			}
+			qb_do_cast_I64_I32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45638,9 +44118,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S64_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45654,9 +44132,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_S64_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45688,9 +44164,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S64_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45704,9 +44178,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_S64_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45738,9 +44210,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_I64_I08(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45754,9 +44224,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int8_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int8_t) op1;
-			}
+			qb_do_cast_I64_I08(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45788,9 +44256,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_I64_I16(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45804,9 +44270,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int16_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (int16_t) op1;
-			}
+			qb_do_cast_I64_I16(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -45838,9 +44302,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -45854,9 +44316,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (op1 != 0);
-			}
+			qb_do_boolean_cast_I64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -46149,9 +44609,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand1.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = 0;
-			}
+			qb_do_clear_scalar_I64(&res);
 			ip += sizeof(qb_instruction_SCA);
 			goto *handler;
 		}
@@ -46429,9 +44887,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) res_ptr) = SWAP_LE_I64(op1);
-			}
+			qb_do_pack_little_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 			goto *handler;
 		}
@@ -46447,9 +44903,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) res_ptr) = SWAP_LE_I64(op1);
-			}
+			qb_do_pack_little_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 			goto *handler;
 		}
@@ -46465,9 +44919,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) res_ptr) = SWAP_BE_I64(op1);
-			}
+			qb_do_pack_big_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_SCA_ARR);
 			goto *handler;
 		}
@@ -46483,9 +44935,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) res_ptr) = SWAP_BE_I64(op1);
-			}
+			qb_do_pack_big_endian_I64(op1, res_ptr);
 			ip += sizeof(qb_instruction_ELE_ARR);
 			goto *handler;
 		}
@@ -46501,9 +44951,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_LE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -46519,9 +44967,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_LE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_little_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -46537,9 +44983,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_BE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_SCA);
 			goto *handler;
 		}
@@ -46555,9 +44999,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				*((uint64_t *) &res) = SWAP_BE_I64(*((uint64_t *) op1_ptr));
-			}
+			qb_do_unpack_big_endian_I64(op1_ptr, &res);
 			ip += sizeof(qb_instruction_ARR_ELE);
 			goto *handler;
 		}
@@ -46604,9 +45046,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U64_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -46620,9 +45060,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float32_t) op1;
-			}
+			qb_do_cast_U64_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -46654,9 +45092,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U64_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -46670,9 +45106,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			{
-				res = (float64_t) op1;
-			}
+			qb_do_cast_U64_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -47105,15 +45539,15 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_MUL_U32_U32_U32_SCA] = &&label_MUL_U32_U32_U32_SCA;
 		op_handlers[QB_MUL_U32_U32_U32_ELE] = &&label_MUL_U32_U32_U32_ELE;
 		op_handlers[QB_MUL_U32_U32_U32_MIO] = &&label_MUL_U32_U32_U32_MIO;
+		op_handlers[QB_MAC_U32_U32_U32_U32_SCA] = &&label_MAC_U32_U32_U32_U32_SCA;
+		op_handlers[QB_MAC_U32_U32_U32_U32_ELE] = &&label_MAC_U32_U32_U32_U32_ELE;
+		op_handlers[QB_MAC_U32_U32_U32_U32_MIO] = &&label_MAC_U32_U32_U32_U32_MIO;
 		op_handlers[QB_DIV_U32_U32_U32_SCA] = &&label_DIV_U32_U32_U32_SCA;
 		op_handlers[QB_DIV_U32_U32_U32_ELE] = &&label_DIV_U32_U32_U32_ELE;
 		op_handlers[QB_DIV_U32_U32_U32_MIO] = &&label_DIV_U32_U32_U32_MIO;
 		op_handlers[QB_MOD_U32_U32_U32_SCA] = &&label_MOD_U32_U32_U32_SCA;
 		op_handlers[QB_MOD_U32_U32_U32_ELE] = &&label_MOD_U32_U32_U32_ELE;
 		op_handlers[QB_MOD_U32_U32_U32_MIO] = &&label_MOD_U32_U32_U32_MIO;
-		op_handlers[QB_MAC_U32_U32_U32_U32_SCA] = &&label_MAC_U32_U32_U32_U32_SCA;
-		op_handlers[QB_MAC_U32_U32_U32_U32_ELE] = &&label_MAC_U32_U32_U32_U32_ELE;
-		op_handlers[QB_MAC_U32_U32_U32_U32_MIO] = &&label_MAC_U32_U32_U32_U32_MIO;
 		op_handlers[QB_SHL_U32_U32_U32_SCA] = &&label_SHL_U32_U32_U32_SCA;
 		op_handlers[QB_SHL_U32_U32_U32_ELE] = &&label_SHL_U32_U32_U32_ELE;
 		op_handlers[QB_SHL_U32_U32_U32_MIO] = &&label_SHL_U32_U32_U32_MIO;
@@ -47199,21 +45633,21 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADD_I32_I32_I32_SCA] = &&label_ADD_I32_I32_I32_SCA;
 		op_handlers[QB_ADD_I32_I32_I32_ELE] = &&label_ADD_I32_I32_I32_ELE;
 		op_handlers[QB_ADD_I32_I32_I32_MIO] = &&label_ADD_I32_I32_I32_MIO;
-		op_handlers[QB_SUB_I32_I32_I32_SCA] = &&label_SUB_I32_I32_I32_SCA;
-		op_handlers[QB_SUB_I32_I32_I32_ELE] = &&label_SUB_I32_I32_I32_ELE;
-		op_handlers[QB_SUB_I32_I32_I32_MIO] = &&label_SUB_I32_I32_I32_MIO;
 		op_handlers[QB_MUL_S32_S32_S32_SCA] = &&label_MUL_S32_S32_S32_SCA;
 		op_handlers[QB_MUL_S32_S32_S32_ELE] = &&label_MUL_S32_S32_S32_ELE;
 		op_handlers[QB_MUL_S32_S32_S32_MIO] = &&label_MUL_S32_S32_S32_MIO;
+		op_handlers[QB_MAC_S32_S32_S32_S32_SCA] = &&label_MAC_S32_S32_S32_S32_SCA;
+		op_handlers[QB_MAC_S32_S32_S32_S32_ELE] = &&label_MAC_S32_S32_S32_S32_ELE;
+		op_handlers[QB_MAC_S32_S32_S32_S32_MIO] = &&label_MAC_S32_S32_S32_S32_MIO;
+		op_handlers[QB_SUB_I32_I32_I32_SCA] = &&label_SUB_I32_I32_I32_SCA;
+		op_handlers[QB_SUB_I32_I32_I32_ELE] = &&label_SUB_I32_I32_I32_ELE;
+		op_handlers[QB_SUB_I32_I32_I32_MIO] = &&label_SUB_I32_I32_I32_MIO;
 		op_handlers[QB_DIV_S32_S32_S32_SCA] = &&label_DIV_S32_S32_S32_SCA;
 		op_handlers[QB_DIV_S32_S32_S32_ELE] = &&label_DIV_S32_S32_S32_ELE;
 		op_handlers[QB_DIV_S32_S32_S32_MIO] = &&label_DIV_S32_S32_S32_MIO;
 		op_handlers[QB_MOD_S32_S32_S32_SCA] = &&label_MOD_S32_S32_S32_SCA;
 		op_handlers[QB_MOD_S32_S32_S32_ELE] = &&label_MOD_S32_S32_S32_ELE;
 		op_handlers[QB_MOD_S32_S32_S32_MIO] = &&label_MOD_S32_S32_S32_MIO;
-		op_handlers[QB_MAC_S32_S32_S32_S32_SCA] = &&label_MAC_S32_S32_S32_S32_SCA;
-		op_handlers[QB_MAC_S32_S32_S32_S32_ELE] = &&label_MAC_S32_S32_S32_S32_ELE;
-		op_handlers[QB_MAC_S32_S32_S32_S32_MIO] = &&label_MAC_S32_S32_S32_S32_MIO;
 		op_handlers[QB_NEG_I32_I32_SCA] = &&label_NEG_I32_I32_SCA;
 		op_handlers[QB_NEG_I32_I32_ELE] = &&label_NEG_I32_I32_ELE;
 		op_handlers[QB_NEG_I32_I32_MIO] = &&label_NEG_I32_I32_MIO;
@@ -47361,21 +45795,21 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADD_F32_F32_F32_SCA] = &&label_ADD_F32_F32_F32_SCA;
 		op_handlers[QB_ADD_F32_F32_F32_ELE] = &&label_ADD_F32_F32_F32_ELE;
 		op_handlers[QB_ADD_F32_F32_F32_MIO] = &&label_ADD_F32_F32_F32_MIO;
-		op_handlers[QB_SUB_F32_F32_F32_SCA] = &&label_SUB_F32_F32_F32_SCA;
-		op_handlers[QB_SUB_F32_F32_F32_ELE] = &&label_SUB_F32_F32_F32_ELE;
-		op_handlers[QB_SUB_F32_F32_F32_MIO] = &&label_SUB_F32_F32_F32_MIO;
 		op_handlers[QB_MUL_F32_F32_F32_SCA] = &&label_MUL_F32_F32_F32_SCA;
 		op_handlers[QB_MUL_F32_F32_F32_ELE] = &&label_MUL_F32_F32_F32_ELE;
 		op_handlers[QB_MUL_F32_F32_F32_MIO] = &&label_MUL_F32_F32_F32_MIO;
+		op_handlers[QB_MAC_F32_F32_F32_F32_SCA] = &&label_MAC_F32_F32_F32_F32_SCA;
+		op_handlers[QB_MAC_F32_F32_F32_F32_ELE] = &&label_MAC_F32_F32_F32_F32_ELE;
+		op_handlers[QB_MAC_F32_F32_F32_F32_MIO] = &&label_MAC_F32_F32_F32_F32_MIO;
+		op_handlers[QB_SUB_F32_F32_F32_SCA] = &&label_SUB_F32_F32_F32_SCA;
+		op_handlers[QB_SUB_F32_F32_F32_ELE] = &&label_SUB_F32_F32_F32_ELE;
+		op_handlers[QB_SUB_F32_F32_F32_MIO] = &&label_SUB_F32_F32_F32_MIO;
 		op_handlers[QB_DIV_F32_F32_F32_SCA] = &&label_DIV_F32_F32_F32_SCA;
 		op_handlers[QB_DIV_F32_F32_F32_ELE] = &&label_DIV_F32_F32_F32_ELE;
 		op_handlers[QB_DIV_F32_F32_F32_MIO] = &&label_DIV_F32_F32_F32_MIO;
 		op_handlers[QB_MOD_F32_F32_F32_SCA] = &&label_MOD_F32_F32_F32_SCA;
 		op_handlers[QB_MOD_F32_F32_F32_ELE] = &&label_MOD_F32_F32_F32_ELE;
 		op_handlers[QB_MOD_F32_F32_F32_MIO] = &&label_MOD_F32_F32_F32_MIO;
-		op_handlers[QB_MAC_F32_F32_F32_F32_SCA] = &&label_MAC_F32_F32_F32_F32_SCA;
-		op_handlers[QB_MAC_F32_F32_F32_F32_ELE] = &&label_MAC_F32_F32_F32_F32_ELE;
-		op_handlers[QB_MAC_F32_F32_F32_F32_MIO] = &&label_MAC_F32_F32_F32_F32_MIO;
 		op_handlers[QB_MOD_FLR_F32_F32_F32_SCA] = &&label_MOD_FLR_F32_F32_F32_SCA;
 		op_handlers[QB_MOD_FLR_F32_F32_F32_ELE] = &&label_MOD_FLR_F32_F32_F32_ELE;
 		op_handlers[QB_MOD_FLR_F32_F32_F32_MIO] = &&label_MOD_FLR_F32_F32_F32_MIO;
@@ -47885,21 +46319,21 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADD_F64_F64_F64_SCA] = &&label_ADD_F64_F64_F64_SCA;
 		op_handlers[QB_ADD_F64_F64_F64_ELE] = &&label_ADD_F64_F64_F64_ELE;
 		op_handlers[QB_ADD_F64_F64_F64_MIO] = &&label_ADD_F64_F64_F64_MIO;
-		op_handlers[QB_SUB_F64_F64_F64_SCA] = &&label_SUB_F64_F64_F64_SCA;
-		op_handlers[QB_SUB_F64_F64_F64_ELE] = &&label_SUB_F64_F64_F64_ELE;
-		op_handlers[QB_SUB_F64_F64_F64_MIO] = &&label_SUB_F64_F64_F64_MIO;
 		op_handlers[QB_MUL_F64_F64_F64_SCA] = &&label_MUL_F64_F64_F64_SCA;
 		op_handlers[QB_MUL_F64_F64_F64_ELE] = &&label_MUL_F64_F64_F64_ELE;
 		op_handlers[QB_MUL_F64_F64_F64_MIO] = &&label_MUL_F64_F64_F64_MIO;
+		op_handlers[QB_MAC_F64_F64_F64_F64_SCA] = &&label_MAC_F64_F64_F64_F64_SCA;
+		op_handlers[QB_MAC_F64_F64_F64_F64_ELE] = &&label_MAC_F64_F64_F64_F64_ELE;
+		op_handlers[QB_MAC_F64_F64_F64_F64_MIO] = &&label_MAC_F64_F64_F64_F64_MIO;
+		op_handlers[QB_SUB_F64_F64_F64_SCA] = &&label_SUB_F64_F64_F64_SCA;
+		op_handlers[QB_SUB_F64_F64_F64_ELE] = &&label_SUB_F64_F64_F64_ELE;
+		op_handlers[QB_SUB_F64_F64_F64_MIO] = &&label_SUB_F64_F64_F64_MIO;
 		op_handlers[QB_DIV_F64_F64_F64_SCA] = &&label_DIV_F64_F64_F64_SCA;
 		op_handlers[QB_DIV_F64_F64_F64_ELE] = &&label_DIV_F64_F64_F64_ELE;
 		op_handlers[QB_DIV_F64_F64_F64_MIO] = &&label_DIV_F64_F64_F64_MIO;
 		op_handlers[QB_MOD_F64_F64_F64_SCA] = &&label_MOD_F64_F64_F64_SCA;
 		op_handlers[QB_MOD_F64_F64_F64_ELE] = &&label_MOD_F64_F64_F64_ELE;
 		op_handlers[QB_MOD_F64_F64_F64_MIO] = &&label_MOD_F64_F64_F64_MIO;
-		op_handlers[QB_MAC_F64_F64_F64_F64_SCA] = &&label_MAC_F64_F64_F64_F64_SCA;
-		op_handlers[QB_MAC_F64_F64_F64_F64_ELE] = &&label_MAC_F64_F64_F64_F64_ELE;
-		op_handlers[QB_MAC_F64_F64_F64_F64_MIO] = &&label_MAC_F64_F64_F64_F64_MIO;
 		op_handlers[QB_MOD_FLR_F64_F64_F64_SCA] = &&label_MOD_FLR_F64_F64_F64_SCA;
 		op_handlers[QB_MOD_FLR_F64_F64_F64_ELE] = &&label_MOD_FLR_F64_F64_F64_ELE;
 		op_handlers[QB_MOD_FLR_F64_F64_F64_MIO] = &&label_MOD_FLR_F64_F64_F64_MIO;
@@ -48406,12 +46840,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADD_I08_I08_I08_SCA] = &&label_ADD_I08_I08_I08_SCA;
 		op_handlers[QB_ADD_I08_I08_I08_ELE] = &&label_ADD_I08_I08_I08_ELE;
 		op_handlers[QB_ADD_I08_I08_I08_MIO] = &&label_ADD_I08_I08_I08_MIO;
-		op_handlers[QB_SUB_I08_I08_I08_SCA] = &&label_SUB_I08_I08_I08_SCA;
-		op_handlers[QB_SUB_I08_I08_I08_ELE] = &&label_SUB_I08_I08_I08_ELE;
-		op_handlers[QB_SUB_I08_I08_I08_MIO] = &&label_SUB_I08_I08_I08_MIO;
 		op_handlers[QB_MUL_S08_S08_S08_SCA] = &&label_MUL_S08_S08_S08_SCA;
 		op_handlers[QB_MUL_S08_S08_S08_ELE] = &&label_MUL_S08_S08_S08_ELE;
 		op_handlers[QB_MUL_S08_S08_S08_MIO] = &&label_MUL_S08_S08_S08_MIO;
+		op_handlers[QB_SUB_I08_I08_I08_SCA] = &&label_SUB_I08_I08_I08_SCA;
+		op_handlers[QB_SUB_I08_I08_I08_ELE] = &&label_SUB_I08_I08_I08_ELE;
+		op_handlers[QB_SUB_I08_I08_I08_MIO] = &&label_SUB_I08_I08_I08_MIO;
 		op_handlers[QB_DIV_S08_S08_S08_SCA] = &&label_DIV_S08_S08_S08_SCA;
 		op_handlers[QB_DIV_S08_S08_S08_ELE] = &&label_DIV_S08_S08_S08_ELE;
 		op_handlers[QB_DIV_S08_S08_S08_MIO] = &&label_DIV_S08_S08_S08_MIO;
@@ -48607,12 +47041,12 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADD_I16_I16_I16_SCA] = &&label_ADD_I16_I16_I16_SCA;
 		op_handlers[QB_ADD_I16_I16_I16_ELE] = &&label_ADD_I16_I16_I16_ELE;
 		op_handlers[QB_ADD_I16_I16_I16_MIO] = &&label_ADD_I16_I16_I16_MIO;
-		op_handlers[QB_SUB_I16_I16_I16_SCA] = &&label_SUB_I16_I16_I16_SCA;
-		op_handlers[QB_SUB_I16_I16_I16_ELE] = &&label_SUB_I16_I16_I16_ELE;
-		op_handlers[QB_SUB_I16_I16_I16_MIO] = &&label_SUB_I16_I16_I16_MIO;
 		op_handlers[QB_MUL_S16_S16_S16_SCA] = &&label_MUL_S16_S16_S16_SCA;
 		op_handlers[QB_MUL_S16_S16_S16_ELE] = &&label_MUL_S16_S16_S16_ELE;
 		op_handlers[QB_MUL_S16_S16_S16_MIO] = &&label_MUL_S16_S16_S16_MIO;
+		op_handlers[QB_SUB_I16_I16_I16_SCA] = &&label_SUB_I16_I16_I16_SCA;
+		op_handlers[QB_SUB_I16_I16_I16_ELE] = &&label_SUB_I16_I16_I16_ELE;
+		op_handlers[QB_SUB_I16_I16_I16_MIO] = &&label_SUB_I16_I16_I16_MIO;
 		op_handlers[QB_DIV_S16_S16_S16_SCA] = &&label_DIV_S16_S16_S16_SCA;
 		op_handlers[QB_DIV_S16_S16_S16_ELE] = &&label_DIV_S16_S16_S16_ELE;
 		op_handlers[QB_DIV_S16_S16_S16_MIO] = &&label_DIV_S16_S16_S16_MIO;
@@ -48808,21 +47242,21 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_ADD_I64_I64_I64_SCA] = &&label_ADD_I64_I64_I64_SCA;
 		op_handlers[QB_ADD_I64_I64_I64_ELE] = &&label_ADD_I64_I64_I64_ELE;
 		op_handlers[QB_ADD_I64_I64_I64_MIO] = &&label_ADD_I64_I64_I64_MIO;
-		op_handlers[QB_SUB_I64_I64_I64_SCA] = &&label_SUB_I64_I64_I64_SCA;
-		op_handlers[QB_SUB_I64_I64_I64_ELE] = &&label_SUB_I64_I64_I64_ELE;
-		op_handlers[QB_SUB_I64_I64_I64_MIO] = &&label_SUB_I64_I64_I64_MIO;
 		op_handlers[QB_MUL_S64_S64_S64_SCA] = &&label_MUL_S64_S64_S64_SCA;
 		op_handlers[QB_MUL_S64_S64_S64_ELE] = &&label_MUL_S64_S64_S64_ELE;
 		op_handlers[QB_MUL_S64_S64_S64_MIO] = &&label_MUL_S64_S64_S64_MIO;
+		op_handlers[QB_MAC_S64_S64_S64_S64_SCA] = &&label_MAC_S64_S64_S64_S64_SCA;
+		op_handlers[QB_MAC_S64_S64_S64_S64_ELE] = &&label_MAC_S64_S64_S64_S64_ELE;
+		op_handlers[QB_MAC_S64_S64_S64_S64_MIO] = &&label_MAC_S64_S64_S64_S64_MIO;
+		op_handlers[QB_SUB_I64_I64_I64_SCA] = &&label_SUB_I64_I64_I64_SCA;
+		op_handlers[QB_SUB_I64_I64_I64_ELE] = &&label_SUB_I64_I64_I64_ELE;
+		op_handlers[QB_SUB_I64_I64_I64_MIO] = &&label_SUB_I64_I64_I64_MIO;
 		op_handlers[QB_DIV_S64_S64_S64_SCA] = &&label_DIV_S64_S64_S64_SCA;
 		op_handlers[QB_DIV_S64_S64_S64_ELE] = &&label_DIV_S64_S64_S64_ELE;
 		op_handlers[QB_DIV_S64_S64_S64_MIO] = &&label_DIV_S64_S64_S64_MIO;
 		op_handlers[QB_MOD_S64_S64_S64_SCA] = &&label_MOD_S64_S64_S64_SCA;
 		op_handlers[QB_MOD_S64_S64_S64_ELE] = &&label_MOD_S64_S64_S64_ELE;
 		op_handlers[QB_MOD_S64_S64_S64_MIO] = &&label_MOD_S64_S64_S64_MIO;
-		op_handlers[QB_MAC_S64_S64_S64_S64_SCA] = &&label_MAC_S64_S64_S64_S64_SCA;
-		op_handlers[QB_MAC_S64_S64_S64_S64_ELE] = &&label_MAC_S64_S64_S64_S64_ELE;
-		op_handlers[QB_MAC_S64_S64_S64_S64_MIO] = &&label_MAC_S64_S64_S64_S64_MIO;
 		op_handlers[QB_NEG_I64_I64_SCA] = &&label_NEG_I64_I64_SCA;
 		op_handlers[QB_NEG_I64_I64_ELE] = &&label_NEG_I64_I64_ELE;
 		op_handlers[QB_NEG_I64_I64_MIO] = &&label_NEG_I64_I64_MIO;
@@ -48928,15 +47362,15 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_MUL_U64_U64_U64_SCA] = &&label_MUL_U64_U64_U64_SCA;
 		op_handlers[QB_MUL_U64_U64_U64_ELE] = &&label_MUL_U64_U64_U64_ELE;
 		op_handlers[QB_MUL_U64_U64_U64_MIO] = &&label_MUL_U64_U64_U64_MIO;
+		op_handlers[QB_MAC_U64_U64_U64_U64_SCA] = &&label_MAC_U64_U64_U64_U64_SCA;
+		op_handlers[QB_MAC_U64_U64_U64_U64_ELE] = &&label_MAC_U64_U64_U64_U64_ELE;
+		op_handlers[QB_MAC_U64_U64_U64_U64_MIO] = &&label_MAC_U64_U64_U64_U64_MIO;
 		op_handlers[QB_DIV_U64_U64_U64_SCA] = &&label_DIV_U64_U64_U64_SCA;
 		op_handlers[QB_DIV_U64_U64_U64_ELE] = &&label_DIV_U64_U64_U64_ELE;
 		op_handlers[QB_DIV_U64_U64_U64_MIO] = &&label_DIV_U64_U64_U64_MIO;
 		op_handlers[QB_MOD_U64_U64_U64_SCA] = &&label_MOD_U64_U64_U64_SCA;
 		op_handlers[QB_MOD_U64_U64_U64_ELE] = &&label_MOD_U64_U64_U64_ELE;
 		op_handlers[QB_MOD_U64_U64_U64_MIO] = &&label_MOD_U64_U64_U64_MIO;
-		op_handlers[QB_MAC_U64_U64_U64_U64_SCA] = &&label_MAC_U64_U64_U64_U64_SCA;
-		op_handlers[QB_MAC_U64_U64_U64_U64_ELE] = &&label_MAC_U64_U64_U64_U64_ELE;
-		op_handlers[QB_MAC_U64_U64_U64_U64_MIO] = &&label_MAC_U64_U64_U64_U64_MIO;
 		op_handlers[QB_SHL_U64_U64_U64_SCA] = &&label_SHL_U64_U64_U64_SCA;
 		op_handlers[QB_SHL_U64_U64_U64_ELE] = &&label_SHL_U64_U64_U64_ELE;
 		op_handlers[QB_SHL_U64_U64_U64_MIO] = &&label_SHL_U64_U64_U64_MIO;

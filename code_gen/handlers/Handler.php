@@ -484,10 +484,10 @@ class Handler {
 			} else {
 				$action = $this->getActionOnUnitData();
 				$count = count($action, true);
-				if($count > 16) {
+				if($count > 8) {
 					return 'extern';
 				} else if($count == 1) {
-					return '';
+					return 'inline';
 				}
 				
 				$lines = array_linearize($action);

@@ -3950,11 +3950,14 @@ int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 	cxt->compiler_contexts = emalloc(sizeof(qb_compiler_context *) * QB_DIAGNOSTIC_SPEED_TEST_COUNTS);
 
 	for(i = 0; i < QB_DIAGNOSTIC_SPEED_TEST_COUNTS; i++) {
-		double start_time, end_time, duration, instruction_per_sec;
 		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i] = emalloc(sizeof(qb_compiler_context));
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, NULL, 0, 0 TSRMLS_CC);
 		qb_create_diagnostic_loop(compiler_cxt, i);
+	}
 		
+	for(i = 0; i < QB_DIAGNOSTIC_SPEED_TEST_COUNTS; i++) {
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
+		double start_time, end_time, duration, instruction_per_sec;
 		start_time = qb_get_high_res_timestamp();
 		qb_run_diagnostic_loop(compiler_cxt);
 		end_time = qb_get_high_res_timestamp();
