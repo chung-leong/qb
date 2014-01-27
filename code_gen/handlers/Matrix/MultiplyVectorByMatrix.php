@@ -73,7 +73,7 @@ class MultiplyVectorByMatrix extends Handler {
 				$lines[] = "ALLOCA_FLAG(use_heap)";
 				$lines[] = "uint32_t i, j, k;";
 				$lines[] = "uint32_t matrix_rows = op3, matrix_cols = op4;";
-				$lines[] = "$cType *buffer = do_alloca(matrix_rows * sizeof($cType), use_heap);";
+				$lines[] = "$cType *buffer = do_alloca(matrix_cols * sizeof($cType), use_heap);";
 				$lines[] = "for(i = 0, k = 0; i < matrix_cols; ++i) {";
 				$lines[] = 		"$cType dot_product = 0;";
 				$lines[] = 		"for(j = 0; j < matrix_rows; ++j, ++k) {";
@@ -88,7 +88,7 @@ class MultiplyVectorByMatrix extends Handler {
 				$lines[] = "ALLOCA_FLAG(use_heap)";
 				$lines[] = "uint32_t i, j, k;";
 				$lines[] = "uint32_t matrix_rows = op3, matrix_cols = op4;";
-				$lines[] = "$cType *buffer = do_alloca(matrix_rows * sizeof($cType), use_heap);";
+				$lines[] = "$cType *buffer = do_alloca(matrix_cols * sizeof($cType), use_heap);";
 				$lines[] = "for(i = 0, k = 0; i < matrix_cols; ++i) {";
 				$lines[] = 		"$cType dot_product = 0;";
 				$lines[] = 		"for(j = 0; j < matrix_rows; ++j, ++k) {";
