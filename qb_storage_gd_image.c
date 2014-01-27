@@ -114,6 +114,132 @@ static int32_t qb_set_image_linear_size(qb_storage *storage, qb_address *address
 	return TRUE;
 }
 
+static qb_pixel_format __qb_get_compatible_pixel_format(qb_dimension_mappings *m, uint32_t parent_dimension_count, int32_t true_color) {
+	qb_pixel_format pixel_format = QB_PIXEL_INVALID;
+	if(parent_dimension_count + 1 < m->dst_dimension_count) {
+		uint32_t last_dimension = m->dst_dimensions[m->dst_dimension_count - 1];
+		uint32_t dimension_remaining = m->dst_dimension_count - parent_dimension_count;
+
+		if(dimension_remaining == 3) {
+			// allow int8, float32, and float64 and the last dimension must be 1, 3, or 4
+			// the GD image must be true color
+			if(true_color) {
+				if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I08)) {
+					if(last_dimension == 4) {
+						pixel_format = QB_PIXEL_2D_I08_4;
+					}
+				} else if(m->dst_element_type == QB_TYPE_F32) {
+					if(last_dimension == 1) {
+						pixel_format = QB_PIXEL_2D_F32_1;
+					} else if(last_dimension == 2) {
+						pixel_format = QB_PIXEL_2D_F32_2;
+					} else if(last_dimension == 3) {
+						pixel_format = QB_PIXEL_2D_F32_3;
+					} else if(last_dimension == 4) {
+						pixel_format = QB_PIXEL_2D_F32_4;
+					}
+				} else if(m->dst_element_type == QB_TYPE_F64) {
+					if(last_dimension == 1) {
+						pixel_format = QB_PIXEL_2D_F64_1;
+					} else if(last_dimension == 2) {
+						pixel_format = QB_PIXEL_2D_F64_2;
+					} else if(last_dimension == 3) {
+						pixel_format = QB_PIXEL_2D_F64_3;
+					} else if(last_dimension == 4) {
+						pixel_format = QB_PIXEL_2D_F64_4;
+					}
+				}
+			}
+		} else if(dimension_remaining == 2) {
+			// allow either int32, representing each pixel (if the image is true color)
+			// or int8, representing representing each pixel (if the image uses a palette )
+			// or int8, float32, and float64, with the last dimension being one, three, or four (if the image is true color)
+			if(true_color) {
+				if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I32)) {
+					pixel_format = QB_PIXEL_2D_I32_1;
+				} else if(m->dst_element_type == QB_TYPE_F32) {
+					if(last_dimension == 1) {
+						pixel_format = QB_PIXEL_1D_F32_1;
+					} else if(last_dimension == 2) {
+						pixel_format = QB_PIXEL_1D_F32_2;
+					} else if(last_dimension == 3) {
+						pixel_format = QB_PIXEL_1D_F32_3;
+					} else if(last_dimension == 4) {
+						pixel_format = QB_PIXEL_1D_F32_4;
+					}
+				} else if(m->dst_element_type == QB_TYPE_F64) {
+					if(last_dimension == 1) {
+						pixel_format = QB_PIXEL_1D_F64_1;
+					} else if(last_dimension == 2) {
+						pixel_format = QB_PIXEL_1D_F64_2;
+					} else if(last_dimension == 3) {
+						pixel_format = QB_PIXEL_1D_F64_3;
+					} else if(last_dimension == 4) {
+						pixel_format = QB_PIXEL_1D_F64_4;
+					}
+				}
+			} else {
+				if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I08)) {
+					pixel_format = QB_PIXEL_2D_I08_1;
+				}
+			}
+		} else if(dimension_remaining == 1) {
+			// allow either int32, representing each pixel (if the image is true color)
+			// or int8, representing representing each pixel (if the image uses a palette)
+			if(true_color) {
+				if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I32)) {
+					pixel_format = QB_PIXEL_1D_I32_1;
+				}
+			} else {
+				if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I08)) {
+					pixel_format = QB_PIXEL_1D_I08_1;
+				}
+			}
+		}
+	}
+	return pixel_format;
+}
+
+static int32_t qb_capture_dimensions_from_image(gdImagePtr image, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
+	qb_pixel_format pixel_format = __qb_get_compatible_pixel_format(m, parent_dimension_count, image->trueColor);
+
+	if(pixel_format == QB_PIXEL_INVALID) {
+		qb_report_invalid_variable_for_image_exception(0, m->dst_dimension_count, image->trueColor);
+		return FALSE;
+	}
+	if(pixel_format & QB_PIXEL_ARRANGEMENT_2D) {
+		uint32_t dimension1 = image->sy;
+		uint32_t dimension2 = image->sx;
+		if(parent_dimension_count + 2 > MAX_DIMENSION) {
+			// TODO: error msg
+			return FALSE;
+		}
+		if(m->src_dimensions[parent_dimension_count] < dimension1) {
+			m->src_dimensions[parent_dimension_count] = dimension1;
+		}
+		if(m->src_dimensions[parent_dimension_count + 1] < dimension2) {
+			m->src_dimensions[parent_dimension_count + 1] = dimension2;
+		}
+		m->src_dimension_count = parent_dimension_count + 2;
+	} else {
+		uint32_t dimension = image->sx * image->sy;
+		if(parent_dimension_count + 1 > MAX_DIMENSION) {
+			// TODO: error msg
+			return FALSE;
+		}
+		if(m->src_dimensions[parent_dimension_count] < dimension) {
+			m->src_dimensions[parent_dimension_count] = dimension;
+		}
+		m->src_dimension_count = parent_dimension_count + 1;
+	}
+	if(!STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I32)) {
+		// add the final dimension
+		m->src_dimensions[m->src_dimension_count] = m->dst_dimensions[m->dst_dimension_count - 1];
+		m->src_dimension_count++;
+	}
+	return TRUE;
+}
+
 static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_address *address, int32_t true_color) {
 	qb_pixel_format pixel_format = QB_PIXEL_INVALID;
 	qb_primitive_type element_type = address->type;

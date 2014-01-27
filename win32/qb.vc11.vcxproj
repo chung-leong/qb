@@ -67,17 +67,19 @@
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">
-    <OutDir>..\Debug_TS\</OutDir>
+    <OutDir>..\..\..\Debug_TS\</OutDir>
     <IntDir>..\Debug_TS\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>php_qb</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_TS|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">
-    <OutDir>..\Release_TS\</OutDir>
+    <OutDir>..\..\..\Release_TS\</OutDir>
     <IntDir>..\Release_TS\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>php_qb</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|x64'">
     <LinkIncremental>false</LinkIncremental>

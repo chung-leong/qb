@@ -23,6 +23,7 @@
 
 typedef struct qb_memory_segment			qb_memory_segment;
 typedef struct qb_storage					qb_storage;
+typedef struct qb_dimension_mappings		qb_dimension_mappings;
 
 enum {
 	QB_SEGMENT_PREALLOCATED			= 0x00000001,
@@ -121,6 +122,17 @@ enum {
 	QB_TRANSFER_CAN_BORROW_MEMORY	= 0x0001,
 	QB_TRANSFER_CAN_SEIZE_MEMORY	= 0x0002,
 	QB_TRANSFER_CAN_ENLARGE_SEGMENT	= 0x0004,
+};
+
+struct qb_dimension_mappings {
+	uint32_t dst_dimension_count;
+	uint32_t dst_dimensions[MAX_DIMENSION];
+	uint32_t dst_array_sizes[MAX_DIMENSION];
+	qb_primitive_type dst_element_type;
+	qb_index_alias_scheme *dst_index_alias_schemes[MAX_DIMENSION];
+	uint32_t src_dimension_count;
+	uint32_t src_dimensions[MAX_DIMENSION];
+	uint32_t src_array_sizes[MAX_DIMENSION];
 };
 
 #define gdTrueColorAlpha(r, g, b, a) (((a) << 24) + \
