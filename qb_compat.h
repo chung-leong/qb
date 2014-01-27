@@ -195,54 +195,71 @@ float roundf(float x);
 #define fabsf	__fabsf
 float __fabsf(float x);
 
+#undef sinf
 #define sinf	__sinf
 float __sinf(float x);
 
+#undef asinf
 #define asinf	__asinf
 float __asinf(float x);
 
+#undef cosf
 #define cosf	__cosf
 float __cosf(float x);
 
+#undef acosf
 #define acosf	__acosf
 float __acosf(float x);
 
+#undef tanf
 #define tanf	__tanf
 float __tanf(float x);
 
+#undef atanf
 #define atanf	__atanf
 float __atanf(float x);
 
+#undef atan2f
 #define atan2f	__atan2f
 float __atan2f(float x, float y);
 
+#undef sinhf
 #define sinhf	__sinhf
 float __sinhf(float x);
 
+#undef coshf
 #define coshf	__coshf
 float __coshf(float x);
 
+#undef tanhf
 #define tanhf	__tanhf
 float __tanhf(float x);
 
+#undef expf
 #define expf	__expf
 float __expf(float x);
 
+#undef logf
 #define logf	__logf
 float __logf(float x);
 
+#undef log10f
 #define log10f	__log10f
 float __log10f(float x);
 
+#undef powf
 #define powf	__powf
 float __powf(float x, float y);
 
+#undef sqrtf
 #define sqrtf	__sqrtf
 float __sqrtf(float x);
 
+#undef ceilf
 #define ceilf	__ceilf
 float __ceilf(float x);
 
+#undef floorf
 #define floorf	__floorf
 float __floorf(float x);
 
@@ -250,6 +267,7 @@ float __floorf(float x);
 #define hypotf	__hypotf
 float __hypotf(float x, float y);
 
+#undef fmodf
 #define fmodf	__fmodf
 float __fmodf(float n, float d);
 #else
