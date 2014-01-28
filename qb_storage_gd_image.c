@@ -527,7 +527,7 @@ static void qb_copy_y_pixel_from_gd_image_scanline_F64(void *param1, void *param
 	}
 }
 
-static int32_t __qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
 	uint32_t i, j;
 	qb_pixel_format pixel_format = __qb_get_compatible_pixel_format(m, dimension_index, image->trueColor);
 	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
@@ -630,95 +630,6 @@ static int32_t __qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_me
 				if((uint32_t) image->sy < dst_height) {
 					memset(p, 0, (dst_height - image->sy) * dst_width * sizeof(int8_t));
 				}
-			}	break;
-			default: {
-			}	break;
-		}
-	}
-	return TRUE;
-}
-
-static int32_t qb_copy_elements_from_gd_image(qb_storage *storage, qb_address *address, gdImagePtr image) {
-	uint32_t i, j;
-	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
-	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
-
-	if(image->trueColor) {
-		qb_thread_proc proc = NULL;
-		uint32_t pixel_size;
-
-		switch(pixel_type) {
-			case QB_PIXEL_I08_4:
-			case QB_PIXEL_I32_1: {
-				int32_t *p = ARRAY_IN(storage, I32, address);
-
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						p[0] = gdImageTrueColorPixel(image, j, i);
-						p += 1;
-					}
-				}
-			}	break;
-			case QB_PIXEL_F32_4: {
-				proc = qb_copy_rgba_pixel_from_gd_image_scanline_F32;
-				pixel_size = sizeof(float32_t) * 4;
-			}	break;
-			case QB_PIXEL_F32_3: {
-				proc = qb_copy_rgb_pixel_from_gd_image_scanline_F32;
-				pixel_size = sizeof(float32_t) * 3;
-			}	break;
-			case QB_PIXEL_F32_2: {
-				proc = qb_copy_ya_pixel_from_gd_image_scanline_F32;
-				pixel_size = sizeof(float32_t) * 2;
-			}	break;
-			case QB_PIXEL_F32_1: {
-				proc = qb_copy_y_pixel_from_gd_image_scanline_F32;
-				pixel_size = sizeof(float32_t) * 1;
-			}	break;
-			case QB_PIXEL_F64_4: {
-				proc = qb_copy_rgba_pixel_from_gd_image_scanline_F64;
-				pixel_size = sizeof(float64_t) * 4;
-			}	break;
-			case QB_PIXEL_F64_3: {
-				proc = qb_copy_rgb_pixel_from_gd_image_scanline_F64;
-				pixel_size = sizeof(float64_t) * 3;
-			}	break;
-			case QB_PIXEL_F64_2: {
-				proc = qb_copy_ya_pixel_from_gd_image_scanline_F64;
-				pixel_size = sizeof(float64_t) * 2;
-			}	break;
-			case QB_PIXEL_F64_1: {
-				proc = qb_copy_y_pixel_from_gd_image_scanline_F64;
-				pixel_size = sizeof(float64_t) * 1;
-			}	break;
-			default: {
-			}	break;
-		}
-
-		if(proc) {
-			TSRMLS_FETCH();
-			int8_t *p = ARRAY_IN(storage, I08, address);
-			qb_task_group _group, *group = &_group;
-			qb_initialize_task_group(group, image->sy, 0);
-			for(i = 0; i < (uint32_t) image->sy; i++) {
-				qb_add_task(group, proc, p, image->tpixels[i], image->sx);
-				p += image->sx * pixel_size;
-			}
-			qb_run_task_group(group);
-			qb_free_task_group(group);
-		}
-	} else {
-		switch(pixel_type) {
-			case QB_PIXEL_I08_1: {
-				int8_t *p = ARRAY_IN(storage, I08, address);
-
-				for(i = 0; i < (uint32_t) image->sy; i++) {
-					for(j = 0; j < (uint32_t) image->sx; j++) {
-						p[0] = gdImagePalettePixel(image, j, i);
-						p += 1;
-					}
-				}
-
 			}	break;
 			default: {
 			}	break;

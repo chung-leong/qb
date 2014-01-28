@@ -43,17 +43,6 @@ static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_
 	return qb_capture_dimensions_from_byte_count(size, m, parent_dimension_count);
 }
 
-static int32_t qb_set_array_dimensions_from_file(qb_storage *storage, qb_address *address, php_stream *stream, uint32_t *p_array_size) {
-	// get the file size
-	off_t position, size;
-	TSRMLS_FETCH();
-	position = php_stream_tell(stream);
-	php_stream_seek(stream, 0, SEEK_END);		
-	size = php_stream_tell(stream);
-	php_stream_seek(stream, position, SEEK_SET);
-	return qb_set_array_dimensions_from_byte_count(storage, address, size, p_array_size);
-}
-
 static int32_t qb_copy_elements_to_file(qb_storage *storage, qb_address *address, php_stream *stream) {
 	off_t position, byte_count;
 	size_t byte_written;
@@ -66,7 +55,7 @@ static int32_t qb_copy_elements_to_file(qb_storage *storage, qb_address *address
 	return (byte_written == byte_count);
 }
 
-static int32_t __qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
 	off_t position;
 	uint32_t src_byte_count;
 	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
@@ -80,18 +69,6 @@ static int32_t __qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memo
 		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
 	}
 	return TRUE;
-}
-
-static int32_t qb_copy_elements_from_file(qb_storage *storage, qb_address *address, php_stream *stream) {
-	off_t position, byte_count;
-	size_t byte_read;
-	TSRMLS_FETCH();
-	position = php_stream_tell(stream);
-	byte_count = VALUE_IN(storage, U32, address->array_size_address);
-	php_stream_seek(stream, 0, SEEK_SET);
-	byte_read = php_stream_read(stream, (char *) ARRAY_IN(storage, I08, address), byte_count);
-	php_stream_seek(stream, position, SEEK_SET);
-	return (byte_read == byte_count);
 }
 
 static void * qb_map_file_to_memory(php_stream *stream, uint32_t byte_count, int32_t write_access TSRMLS_DC) {
