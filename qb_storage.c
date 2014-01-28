@@ -489,37 +489,20 @@ static int32_t qb_set_array_dimensions_from_object(qb_storage *storage, qb_addre
 
 static int32_t qb_capture_dimensions_from_byte_count(uint32_t byte_count, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
 	uint32_t element_count = ELEMENT_COUNT(byte_count, m->dst_element_type);
+	uint32_t correct_byte_count = BYTE_COUNT(element_count, m->dst_element_type);
 
 	if(parent_dimension_count + 1 > MAX_DIMENSION) {
 		// TODO: report error
 		return FALSE;
 	}
-	if(parent_dimension_count + 1 < m->dst_dimension_count && m->dst_array_sizes[parent_dimension_count] != 0) {
-		uint32_t sub_array_size = m->dst_array_sizes[parent_dimension_count + 1];
-		uint32_t dimension = element_count / sub_array_size;
-		uint32_t correct_byte_count = BYTE_COUNT(dimension * sub_array_size, m->dst_element_type);
-		uint32_t i;
-
-		// make sure the number of bytes is a multiple of the entry size
-		if(byte_count != correct_byte_count) {
-			qb_report_binary_string_size_mismatch_exception(0, byte_count, m->dst_element_type);
-		}
-
-		if(m->src_dimensions[parent_dimension_count] < dimension) {
-			m->src_dimensions[parent_dimension_count] = dimension;
-
-			// copy the rest of the dimensions
-			for(i = parent_dimension_count + 1; i < m->dst_dimension_count; i++) {
-				m->src_dimensions[i] = m->dst_dimensions[i];
-			}
-		}
-		m->src_dimension_count = m->dst_dimension_count;
-	} else {
-		if(m->src_dimensions[parent_dimension_count] < element_count) {
-			m->src_dimensions[parent_dimension_count] = element_count;
-		}
-		m->src_dimension_count = parent_dimension_count + 1;
+	// make sure the number of bytes is a multiple of the element size
+	if(byte_count != correct_byte_count) {
+		qb_report_binary_string_size_mismatch_exception(0, byte_count, m->dst_element_type);
 	}
+	if(m->src_dimensions[parent_dimension_count] < element_count) {
+		m->src_dimensions[parent_dimension_count] = element_count;
+	}
+	m->src_dimension_count = parent_dimension_count + 1;
 	return TRUE;
 }
 
@@ -585,6 +568,27 @@ static int32_t qb_capture_dimensions_from_object(zval *zobject, qb_dimension_map
 	return TRUE;
 }
 
+void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
+	if(filled_byte_count) {
+		while(filled_byte_count < required_byte_count) {
+			uint32_t gap = (required_byte_count - filled_byte_count);
+			uint32_t copy_count = (gap > filled_byte_count) ? filled_byte_count : gap;
+			memcpy(memory + filled_byte_count, memory, copy_count);
+			filled_byte_count += copy_count;
+		}
+	} else {
+		memset(memory, 0, required_byte_count);
+	}
+}
+
+void qb_fill_array_gap(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count, uint32_t dimension_index) {
+	if(dimension_index == 0) {
+		qb_copy_wrap_around(memory, filled_byte_count, required_byte_count);
+	} else {
+		memset(memory + filled_byte_count, 0, required_byte_count - filled_byte_count);
+	}
+}
+
 #include "qb_storage_file.c"
 #include "qb_storage_gd_image.c"
 
@@ -637,23 +641,93 @@ static int32_t qb_get_dimension_mappings(qb_storage *storage, qb_address *addres
 			m->dst_dimensions[i] = VALUE_IN(storage, U32, dimension_address);
 		}
 		if(CONSTANT(array_size_address)) {
-			m->src_array_sizes[i] = VALUE_IN(storage, U32, dimension_address);
+			m->dst_array_sizes[i] = VALUE_IN(storage, U32, dimension_address);
 		}
 		if(address->index_alias_schemes) {
 			m->dst_index_alias_schemes[i] = address->index_alias_schemes[i];
 		}
 	}
 	if(qb_capture_dimensions_from_zval(zvalue, m, 0)) {
-		int32_t i;
+		uint32_t i;
 		uint32_t element_size = 1;
-		for(i = m->src_dimension_count - 1; i >= 0; i--) {
+		for(i = m->dst_dimension_count - 1; (int32_t) i >= 0; i--) {
 			uint32_t array_size = element_size * m->src_dimensions[i];
-			m->dst_array_sizes[i] = array_size;
+			m->src_array_sizes[i] = array_size;
 			element_size = array_size;
 		}
 		return TRUE;
 	}
 	return FALSE;
+}
+
+static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *address, qb_dimension_mappings *m) {
+	uint32_t src_array_size = (m->src_dimension_count > 0) ? m->src_dimensions[0] : 1;
+	if(m->dst_dimension_count > 0) {
+		uint32_t dst_array_size = m->dst_array_sizes[0];
+		if(src_array_size != dst_array_size) {
+			if(!dst_array_size) {
+				// some dimensions aren't defined
+				uint32_t unknown_dimension_count = 0, known_dimension_count = m->src_dimension_count;
+				uint32_t i;
+				for(i = 0; i < m->dst_dimension_count; i++) {
+					if(m->dst_dimensions[i] != 0) {
+						// the subarray size of the destination needs to match the source
+						if(i < m->src_dimension_count && m->dst_array_sizes[i] == m->src_array_sizes[i]) {
+							known_dimension_count = i;
+						} else {
+							known_dimension_count = 0;
+						}
+						break;
+					} else {
+						unknown_dimension_count++;
+					}
+				}
+				if(unknown_dimension_count == known_dimension_count) {
+					// copy the dimensions over
+					for(i = 0; i < unknown_dimension_count; i++) {
+						m->dst_dimensions[i] = m->src_dimensions[i];
+						m->dst_array_sizes[i] = m->src_array_sizes[i];
+					}
+				} else if(unknown_dimension_count == 1) {
+					uint32_t src_array_size = m->src_array_sizes[0];
+					if(m->dst_dimension_count == 1) {
+						// a multidimensional array copied to a linear array
+						m->dst_dimensions[0] = src_array_size;
+						m->dst_array_sizes[0] = src_array_size;
+					} else {
+						uint32_t dst_sub_array_size = m->dst_array_sizes[1];
+						uint32_t dst_dimension = src_array_size / dst_sub_array_size;
+						uint32_t dst_array_size = dst_dimension * dst_sub_array_size;
+						m->dst_dimensions[0] = dst_dimension;
+						m->dst_array_sizes[0] = dst_array_size;
+						if(dst_array_size != src_array_size) {
+							// TODO: warning
+						}
+					}
+				} else {
+					// TODO: error msg
+					return FALSE;
+				}
+				for(i = 0; i < unknown_dimension_count; i++) {
+					qb_address *dimension_address = address->dimension_addresses[i];
+					qb_address *array_size_address = address->array_size_addresses[i];
+					VALUE_IN(storage, U32, dimension_address) = m->dst_dimensions[i];
+					VALUE_IN(storage, U32, array_size_address) = m->dst_array_sizes[i];
+				}
+			} else if(dst_array_size < src_array_size) {
+				// the source is too large
+				// TODO: error msg
+				return FALSE;
+			}
+		}
+	} else {
+		// scalar
+		if(src_array_size != 1) {
+			// TODO: error msg
+			return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 static int32_t qb_set_array_dimensions_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, uint32_t *p_array_size) {
@@ -735,17 +809,46 @@ static int32_t qb_copy_element_from_zval(qb_storage *storage, qb_address *addres
 	return TRUE;
 }
 
-void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count) {
-	if(filled_byte_count) {
-		while(filled_byte_count < required_byte_count) {
-			uint32_t gap = (required_byte_count - filled_byte_count);
-			uint32_t copy_count = (gap > filled_byte_count) ? filled_byte_count : gap;
-			memcpy(memory + filled_byte_count, memory, copy_count);
-			filled_byte_count += copy_count;
+static int32_t __qb_copy_elements_from_zval(zval *zvalue, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index);
+
+static int32_t __qb_copy_elements_from_array(zval *zarray, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+	int8_t *dst_pointer = dst_memory;
+	uint32_t dst_dimension = (dimension_index < m->dst_dimension_count) ? m->dst_dimensions[dimension_index] : 1;
+	uint32_t dst_element_element_count = (dimension_index + 1 < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index + 1] : 1;
+	uint32_t dst_element_byte_count = BYTE_COUNT(dst_element_element_count, m->dst_element_type);
+	uint32_t src_index = 0;
+	HashTable *ht = Z_ARRVAL_P(zarray);
+	Bucket *p;
+
+	// assume the elements are stored in order in the array
+	for(p = ht->pListHead; p && src_index < dst_dimension; p = p->pListNext) {
+		if((uint32_t) p->h == src_index && !p->arKey) {
+			zval **p_element = p->pData;
+			__qb_copy_elements_from_zval(*p_element, dst_pointer, m, dimension_index + 1);
+			src_index++;
+			dst_pointer += dst_element_byte_count;
+		} else {
+			break;
 		}
-	} else {
-		memset(memory, 0, required_byte_count);
 	}
+	if(src_index < dst_dimension) {
+		// the elements are not sequential: copy the rest
+		while(src_index < dst_dimension && src_index < ht->nNextFreeElement) {
+			zval **p_element;
+			if(zend_hash_index_find(ht, src_index, (void **) &p_element) == SUCCESS) {
+				__qb_copy_elements_from_zval(*p_element, dst_pointer, m, dimension_index + 1);
+			} else {
+				// there's a gap
+				memset(dst_pointer, 0, dst_element_byte_count);
+			}
+			src_index++;
+			dst_pointer += dst_element_byte_count;
+		}
+		if(src_index < dst_dimension) {
+			qb_fill_array_gap(dst_memory, src_index * dst_element_byte_count, dst_dimension * dst_element_byte_count, dimension_index);
+		}
+	}
+	return TRUE;
 }
 
 static int32_t qb_copy_elements_from_zval(qb_storage *storage, qb_address *address, zval *zarray);
@@ -807,6 +910,39 @@ static int32_t qb_copy_elements_from_array(qb_storage *storage, qb_address *addr
 	return TRUE;
 }
 
+static int32_t __qb_copy_elements_from_object(zval *zobject, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+	int8_t *dst_pointer = dst_memory;
+	uint32_t dst_dimension = (dimension_index < m->dst_dimension_count) ? m->dst_dimensions[dimension_index] : 1;
+	uint32_t dst_element_element_count = (dimension_index + 1 < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index + 1] : 1;
+	uint32_t dst_element_byte_count = BYTE_COUNT(dst_element_element_count, m->dst_element_type);
+	uint32_t src_index = 0;
+	qb_index_alias_scheme *scheme = m->dst_index_alias_schemes[dimension_index];
+	TSRMLS_FETCH();
+	while(src_index < dst_dimension) {
+		zval **p_element, *element = NULL;
+		zval *alias = qb_cstring_to_zval(scheme->aliases[src_index] TSRMLS_CC);
+		p_element = Z_OBJ_GET_PROP_PTR_PTR(zobject, alias);
+
+		if(p_element) {
+			element = *p_element;
+		} else if(Z_OBJ_HT_P(zobject)->read_property) {
+			element = Z_OBJ_READ_PROP(zobject, alias);
+		}
+		if(element && Z_TYPE_P(element) != IS_NULL) {
+			__qb_copy_elements_from_zval(element, dst_pointer, m, dimension_index + 1);
+		} else {
+			memset(dst_pointer, 0, dst_element_byte_count);
+		}
+		if(!p_element && element) {
+			Z_ADDREF_P(element);
+			zval_ptr_dtor(&element);
+		}
+		src_index++;
+		dst_pointer += dst_element_byte_count;
+	}
+	return TRUE;
+}
+
 static int32_t qb_copy_elements_from_object(qb_storage *storage, qb_address *address, zval *zobject) {
 	qb_index_alias_scheme *scheme = address->index_alias_schemes[0];
 	qb_address _element_address, *element_address = &_element_address;
@@ -846,6 +982,18 @@ static int32_t qb_copy_elements_from_object(qb_storage *storage, qb_address *add
 	return TRUE;
 }
 
+static int32_t __qb_copy_elements_from_string(zval *zstring, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+	int8_t *src_memory = (int8_t *) Z_STRVAL_P(zstring);
+	uint32_t src_byte_count = Z_STRLEN_P(zstring);
+	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
+	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+	memcpy(dst_memory, src_memory, src_byte_count);
+	if(src_byte_count < dst_byte_count) {
+		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+	}
+	return TRUE;
+}
+
 static int32_t qb_copy_elements_from_string(qb_storage *storage, qb_address *address, zval *zstring) {
 	int8_t *memory = (int8_t *) Z_STRVAL_P(zstring);
 	uint32_t element_count = VALUE_IN(storage, U32, address->array_size_address);
@@ -854,6 +1002,41 @@ static int32_t qb_copy_elements_from_string(qb_storage *storage, qb_address *add
 	if((uint32_t) Z_STRLEN_P(zstring) < byte_count) {
 		qb_copy_wrap_around(ARRAY_IN(storage, I08, address), Z_STRLEN_P(zstring), byte_count);
 	}
+	return TRUE;
+}
+
+static int32_t __qb_copy_elements_from_long(zval *zlong, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+	long src_value = Z_LVAL_P(zlong);
+#if SIZEOF_LONG == 8
+	qb_copy_element(QB_TYPE_S64, (int8_t *) &src_value, m->dst_element_type, dst_memory);
+#else
+	qb_copy_element(QB_TYPE_S32, (int8_t *) &src_value, m->dst_element_type, dst_memory);
+#endif
+	if(dimension_index < m->dst_dimension_count) {
+		uint32_t dst_element_count = m->dst_array_sizes[dimension_index];
+		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+		uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
+		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+	}
+	return TRUE;
+}
+
+static int32_t __qb_copy_elements_from_double(zval *zdouble, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+	double src_value = Z_DVAL_P(zdouble);
+	qb_copy_element(QB_TYPE_F64, (int8_t *) &src_value, m->dst_element_type, dst_memory);
+	if(dimension_index < m->dst_dimension_count) {
+		uint32_t dst_element_count = m->dst_array_sizes[dimension_index];
+		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+		uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
+		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+	}
+	return TRUE;
+}
+
+static int32_t __qb_copy_elements_from_null(zval *znull, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
+	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+	memset(dst_memory, 0, dst_byte_count);
 	return TRUE;
 }
 
@@ -874,6 +1057,31 @@ static int32_t qb_copy_elements_from_null(qb_storage *storage, qb_address *addre
 	uint32_t byte_count = BYTE_COUNT(element_count, address->type);
 	memset(ARRAY_IN(storage, I08, address), 0, byte_count);
 	return TRUE;
+}
+
+static int32_t __qb_copy_elements_from_zval(zval *zvalue, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
+	switch(Z_TYPE_P(zvalue)) {
+		case IS_CONSTANT_ARRAY:
+		case IS_ARRAY:	return __qb_copy_elements_from_array(zvalue, dst_memory, m, dimension_index);
+		case IS_OBJECT:	return __qb_copy_elements_from_object(zvalue, dst_memory, m, dimension_index);
+		case IS_STRING:	return __qb_copy_elements_from_string(zvalue, dst_memory, m, dimension_index);
+		case IS_NULL:	return __qb_copy_elements_from_null(zvalue, dst_memory, m, dimension_index);
+		case IS_BOOL:
+		case IS_LONG:	return __qb_copy_elements_from_long(zvalue, dst_memory, m, dimension_index);
+		case IS_DOUBLE:	return __qb_copy_elements_from_double(zvalue, dst_memory, m, dimension_index);
+		case IS_RESOURCE: {
+			gdImagePtr image;
+			php_stream *stream;
+			if((image = qb_get_gd_image(zvalue))) {
+				// copy the content from the image
+				return __qb_copy_elements_from_gd_image(image, dst_memory, m, dimension_index);
+			} else if((stream = qb_get_file_stream(zvalue))) {
+				// copy the content from the file 
+				return __qb_copy_elements_from_file(stream, dst_memory, m, dimension_index);
+			}
+		}	break;
+	}
+	return FALSE;
 }
 
 static int32_t qb_copy_elements_from_zval(qb_storage *storage, qb_address *address, zval *zvalue) {
@@ -1590,9 +1798,53 @@ static int32_t qb_copy_element_to_storage_location(qb_storage *storage, qb_addre
 }
 
 int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zval *zvalue, int32_t transfer_flags) {
-	qb_dimension_mappings _mapping, *mapping = &_mapping;
-	qb_get_dimension_mappings(storage, address, zvalue, mapping);
+	// determine the array's dimensions and check for out-of-bound condition
+	qb_dimension_mappings _mappings, *mappings = &_mappings;
+	int8_t *pointer;
+	if(!qb_get_dimension_mappings(storage, address, zvalue, mappings)) {
+		return FALSE;
+	}
+	if(!qb_apply_dimension_mappings(storage, address, mappings)) {
+		return FALSE;
+	}
 
+	// if it's a variable-length array, adjust the size 
+	if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
+		uint32_t element_count = mappings->dst_array_sizes[0];
+		qb_memory_segment *segment = &storage->segments[address->segment_selector];
+		uint32_t byte_count = BYTE_COUNT(element_count, address->type);
+
+		// use memory from the source if possible
+		if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
+			if(Z_TYPE_P(zvalue) == IS_STRING) {
+				if(!IS_INTERNED(Z_STRVAL_P(zvalue))) {
+					int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
+					uint32_t bytes_available = Z_STRLEN_P(zvalue) + 1;
+					if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
+						if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
+							ZVAL_NULL(zvalue);
+						}
+						return TRUE;
+					}
+				}
+			} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
+				php_stream *stream = qb_get_file_stream(zvalue);
+				if(stream) {
+					if(qb_connect_segment_to_file(segment, stream, byte_count, !READ_ONLY(address))) {
+						return TRUE;
+					}
+				}
+			}
+		}
+			
+		// make sure there's enough bytes in the segment
+		qb_allocate_segment_memory(segment, byte_count);
+		pointer = segment->memory;
+	} else {
+		pointer = ARRAY_IN(storage, I08, address);
+	}
+	return __qb_copy_elements_from_zval(zvalue, pointer, mappings, 0);
+	/*
 	if(SCALAR(address)) {
 		return qb_copy_element_from_zval(storage, address, zvalue);
 	} else {
@@ -1632,6 +1884,7 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 		}
 		return qb_copy_elements_from_zval(storage, address, zvalue);
 	}
+	*/
 }
 
 int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address *address, qb_storage *src_storage, qb_address *src_address, uint32_t transfer_flags) {
