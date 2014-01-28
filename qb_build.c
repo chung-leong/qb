@@ -208,8 +208,12 @@ static int qb_compare_dependencies(const void *a, const void *b) {
 		// b is dependent on a, so it needs to be translated after a
 		return -1;
 	} else {
-		// order doesn't matter
-		return 0;
+		// break the tie based on the dependency index
+		if(cxt_a->dependency_index < cxt_b->dependency_index) {
+			return -1;
+		} else {
+			return 1;
+		}
 	}
 }
 
@@ -228,11 +232,6 @@ static void qb_resolve_dependencies(qb_build_context *cxt) {
 		// sort the contexts by dependencies so when we translate a function call,
 		// the op-tree of the target function will be available
 		qsort(cxt->compiler_contexts, cxt->compiler_context_count, sizeof(qb_compiler_context *), qb_compare_dependencies);
-
-		for(i = 0; i < cxt->compiler_context_count; i++) {
-			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
-			printf("%s\n", compiler_cxt->function_prototype.name);
-		}
 	}
 }
 
