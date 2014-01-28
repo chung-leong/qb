@@ -43,16 +43,22 @@ static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_
 	return qb_capture_dimensions_from_byte_count(size, m, dimension_index);
 }
 
-static int32_t qb_copy_elements_to_file(qb_storage *storage, qb_address *address, php_stream *stream) {
-	off_t position, byte_count;
+static int32_t qb_copy_elements_to_file(int8_t *src_memory, php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
+	off_t position;
+	uint32_t src_element_count = (dimension_index < m->src_dimension_count) ? m->src_array_sizes[dimension_index] : 1;
+	uint32_t src_byte_count = BYTE_COUNT(src_element_count, m->src_element_type);
 	size_t byte_written;
 	TSRMLS_FETCH();
 	position = php_stream_tell(stream);
-	byte_count = VALUE_IN(storage, U32, address->array_size_address);
 	php_stream_seek(stream, 0, SEEK_SET);
-	byte_written = php_stream_write(stream, (char *) ARRAY_IN(storage, I08, address), byte_count);
+	byte_written = php_stream_write(stream, (char *) src_memory, src_byte_count);
 	php_stream_seek(stream, position, SEEK_SET);
-	return (byte_written == byte_count);
+	php_stream_truncate_set_size(stream, src_byte_count);
+	if(byte_written != src_byte_count) {
+		// TODO: error msg
+		return FALSE;
+	}
+	return TRUE;
 }
 
 static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {

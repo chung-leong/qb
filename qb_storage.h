@@ -129,10 +129,14 @@ struct qb_dimension_mappings {
 	uint32_t dst_dimensions[MAX_DIMENSION];
 	uint32_t dst_array_sizes[MAX_DIMENSION];
 	qb_primitive_type dst_element_type;
+	uint32_t dst_address_flags;
 	qb_index_alias_scheme *dst_index_alias_schemes[MAX_DIMENSION];
 	uint32_t src_dimension_count;
 	uint32_t src_dimensions[MAX_DIMENSION];
 	uint32_t src_array_sizes[MAX_DIMENSION];
+	qb_primitive_type src_element_type;
+	uint32_t src_address_flags;
+	qb_index_alias_scheme *src_index_alias_schemes[MAX_DIMENSION];
 };
 
 #define gdTrueColorAlpha(r, g, b, a) (((a) << 24) + \
