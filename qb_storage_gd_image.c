@@ -78,47 +78,11 @@ static gdImagePtr qb_get_gd_image(zval *resource) {
 	return NULL;
 }
 
-static int32_t qb_set_image_dimensions(qb_storage *storage, qb_address *address, gdImagePtr image) {
-	qb_address *width_address = address->dimension_addresses[1];
-	qb_address *height_address = address->dimension_addresses[0];
-	uint32_t width_expected = VALUE_IN(storage, U32, width_address);
-	uint32_t height_expected = VALUE_IN(storage, U32, height_address);
-	if(width_expected != image->sx) {
-		if(CONSTANT(width_address)) {
-			qb_report_image_width_mismatch_exception(0, image->sx, width_expected);
-			return FALSE;
-		}
-		VALUE_IN(storage, U32, width_address) = image->sx;
-	}
-
-	if(height_expected != image->sy) {
-		if(CONSTANT(height_address)) {
-			qb_report_image_height_mismatch_exception(0, image->sy, width_expected);
-		}
-		VALUE_IN(storage, U32, height_address) = image->sy;
-	}
-	return TRUE;
-}
-
-static int32_t qb_set_image_linear_size(qb_storage *storage, qb_address *address, gdImagePtr image) {
-	qb_address *length_address = address->dimension_addresses[0];
-	uint32_t pixel_count = image->sx * image->sy;
-	uint32_t length_expected = VALUE_IN(storage, U32, length_address);
-	if(length_expected != pixel_count) {
-		if(CONSTANT(length_address)) {
-			qb_report_pixel_count_mismatch_exception(0, pixel_count, length_expected);
-			return FALSE;
-		}
-	}
-	VALUE_IN(storage, U32, length_address) = pixel_count;
-	return TRUE;
-}
-
-static qb_pixel_format __qb_get_compatible_pixel_format(qb_dimension_mappings *m, uint32_t parent_dimension_count, int32_t true_color) {
+static qb_pixel_format __qb_get_compatible_pixel_format(qb_dimension_mappings *m, uint32_t dimension_index, int32_t true_color) {
 	qb_pixel_format pixel_format = QB_PIXEL_INVALID;
-	if(parent_dimension_count + 1 < m->dst_dimension_count) {
+	if(dimension_index + 1 < m->dst_dimension_count) {
 		uint32_t last_dimension = m->dst_dimensions[m->dst_dimension_count - 1];
-		uint32_t dimension_remaining = m->dst_dimension_count - parent_dimension_count;
+		uint32_t dimension_remaining = m->dst_dimension_count - dimension_index;
 
 		if(dimension_remaining == 3) {
 			// allow int8, float32, and float64 and the last dimension must be 1, 3, or 4
@@ -200,8 +164,8 @@ static qb_pixel_format __qb_get_compatible_pixel_format(qb_dimension_mappings *m
 	return pixel_format;
 }
 
-static int32_t qb_capture_dimensions_from_image(gdImagePtr image, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
-	qb_pixel_format pixel_format = __qb_get_compatible_pixel_format(m, parent_dimension_count, image->trueColor);
+static int32_t qb_capture_dimensions_from_image(gdImagePtr image, qb_dimension_mappings *m, uint32_t dimension_index) {
+	qb_pixel_format pixel_format = __qb_get_compatible_pixel_format(m, dimension_index, image->trueColor);
 
 	if(pixel_format == QB_PIXEL_INVALID) {
 		qb_report_invalid_variable_for_image_exception(0, m->dst_dimension_count, image->trueColor);
@@ -210,27 +174,27 @@ static int32_t qb_capture_dimensions_from_image(gdImagePtr image, qb_dimension_m
 	if(pixel_format & QB_PIXEL_ARRANGEMENT_2D) {
 		uint32_t dimension1 = image->sy;
 		uint32_t dimension2 = image->sx;
-		if(parent_dimension_count + 2 > MAX_DIMENSION) {
+		if(dimension_index + 2 > MAX_DIMENSION) {
 			// TODO: error msg
 			return FALSE;
 		}
-		if(m->src_dimensions[parent_dimension_count] < dimension1) {
-			m->src_dimensions[parent_dimension_count] = dimension1;
+		if(m->src_dimensions[dimension_index] < dimension1) {
+			m->src_dimensions[dimension_index] = dimension1;
 		}
-		if(m->src_dimensions[parent_dimension_count + 1] < dimension2) {
-			m->src_dimensions[parent_dimension_count + 1] = dimension2;
+		if(m->src_dimensions[dimension_index + 1] < dimension2) {
+			m->src_dimensions[dimension_index + 1] = dimension2;
 		}
-		m->src_dimension_count = parent_dimension_count + 2;
+		m->src_dimension_count = dimension_index + 2;
 	} else {
 		uint32_t dimension = image->sx * image->sy;
-		if(parent_dimension_count + 1 > MAX_DIMENSION) {
+		if(dimension_index + 1 > MAX_DIMENSION) {
 			// TODO: error msg
 			return FALSE;
 		}
-		if(m->src_dimensions[parent_dimension_count] < dimension) {
-			m->src_dimensions[parent_dimension_count] = dimension;
+		if(m->src_dimensions[dimension_index] < dimension) {
+			m->src_dimensions[dimension_index] = dimension;
 		}
-		m->src_dimension_count = parent_dimension_count + 1;
+		m->src_dimension_count = dimension_index + 1;
 	}
 	if(!STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I32)) {
 		// add the final dimension
@@ -323,34 +287,6 @@ static qb_pixel_format qb_get_compatible_pixel_format(qb_storage *storage, qb_ad
 		}
 	}
 	return pixel_format;
-}
-
-static int32_t qb_set_array_dimensions_from_image(qb_storage *storage, qb_address *address, gdImagePtr image, uint32_t *p_array_size) {
-	uint32_t array_size, i;
-	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(storage, address, image->trueColor);
-
-	if(pixel_format == QB_PIXEL_INVALID) {
-		qb_report_invalid_variable_for_image_exception(0, address->dimension_count, image->trueColor);
-		return FALSE;
-	}
-
-	// set the dimension(s)
-	if(pixel_format & QB_PIXEL_ARRANGEMENT_1D) {
-		qb_set_image_linear_size(storage, address, image);
-	} else {
-		qb_set_image_dimensions(storage, address, image);
-	}
-
-	// calculate the array sizes
-	array_size = 1;
-	for(i = address->dimension_count - 1; (int32_t) i >= 0; i--) {
-		qb_address *dimension_address = address->dimension_addresses[i];
-		qb_address *array_size_address = address->array_size_addresses[i];
-		array_size *= VALUE_IN(storage, U32, dimension_address);
-		VALUE_IN(storage, U32, array_size_address) = array_size;
-	}
-	*p_array_size = array_size;
-	return TRUE;
 }
 
 static int32_t qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
@@ -531,8 +467,11 @@ static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memo
 	uint32_t i, j;
 	qb_pixel_format pixel_format = __qb_get_compatible_pixel_format(m, dimension_index, image->trueColor);
 	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
-	uint32_t dst_height = m->dst_dimensions[dimension_index];
-	uint32_t dst_width = m->dst_dimensions[dimension_index + 1];
+	qb_pixel_format pixel_arrangement = pixel_format & QB_PIXEL_ARRANGEMENT_FLAGS;
+	uint32_t dst_height = (pixel_arrangement == QB_PIXEL_ARRANGEMENT_2D) ? m->dst_dimensions[dimension_index] : image->sy;
+	uint32_t dst_width = (pixel_arrangement == QB_PIXEL_ARRANGEMENT_2D) ? m->dst_dimensions[dimension_index + 1] : image->sx;
+	uint32_t dst_pixel_count = dst_height * dst_width;
+	uint32_t src_pixel_count = image->sy * image->sx;
 
 	if(image->trueColor) {
 		qb_thread_proc proc = NULL;
@@ -553,8 +492,8 @@ static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memo
 						p += (dst_width - image->sx);
 					}
 				}
-				if((uint32_t) image->sy < dst_height) {
-					memset(p, 0, (dst_height - image->sy) * dst_width * sizeof(int32_t));
+				if(src_pixel_count < dst_pixel_count) {
+					memset(p, 0, (dst_pixel_count - src_pixel_count) * sizeof(int32_t));
 				}
 			}	break;
 			case QB_PIXEL_F32_4: {
@@ -594,7 +533,6 @@ static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memo
 		}
 
 		if(proc) {
-			TSRMLS_FETCH();
 			int8_t *p = dst_memory;
 			qb_task_group _group, *group = &_group;
 			qb_initialize_task_group(group, image->sy, 0);
@@ -606,8 +544,8 @@ static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memo
 					p += (dst_width - image->sx);
 				}
 			}
-			if((uint32_t) image->sy < dst_height) {
-				memset(p, 0, (dst_height - image->sy) * dst_width * pixel_size);
+			if(src_pixel_count < dst_pixel_count) {
+				memset(p, 0, (dst_pixel_count - src_pixel_count) * pixel_size);
 			}
 			qb_run_task_group(group);
 			qb_free_task_group(group);
@@ -627,8 +565,8 @@ static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memo
 						p += (dst_width - image->sx);
 					}
 				}
-				if((uint32_t) image->sy < dst_height) {
-					memset(p, 0, (dst_height - image->sy) * dst_width * sizeof(int8_t));
+				if(src_pixel_count < dst_pixel_count) {
+					memset(p, 0, (dst_pixel_count - src_pixel_count) * sizeof(int8_t));
 				}
 			}	break;
 			default: {

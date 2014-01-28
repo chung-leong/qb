@@ -345,11 +345,11 @@ static void qb_initialize_element_address(qb_address *address, qb_address *conta
 	}
 }
 
-static int32_t qb_capture_dimensions_from_byte_count(uint32_t byte_count, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
+static int32_t qb_capture_dimensions_from_byte_count(uint32_t byte_count, qb_dimension_mappings *m, uint32_t dimension_index) {
 	uint32_t element_count = ELEMENT_COUNT(byte_count, m->dst_element_type);
 	uint32_t correct_byte_count = BYTE_COUNT(element_count, m->dst_element_type);
 
-	if(parent_dimension_count + 1 > MAX_DIMENSION) {
+	if(dimension_index + 1 > MAX_DIMENSION) {
 		// TODO: report error
 		return FALSE;
 	}
@@ -357,53 +357,57 @@ static int32_t qb_capture_dimensions_from_byte_count(uint32_t byte_count, qb_dim
 	if(byte_count != correct_byte_count) {
 		qb_report_binary_string_size_mismatch_exception(0, byte_count, m->dst_element_type);
 	}
-	if(m->src_dimensions[parent_dimension_count] < element_count) {
-		m->src_dimensions[parent_dimension_count] = element_count;
+	if(m->src_dimensions[dimension_index] < element_count) {
+		m->src_dimensions[dimension_index] = element_count;
 	}
-	m->src_dimension_count = parent_dimension_count + 1;
+	m->src_dimension_count = dimension_index + 1;
 	return TRUE;
 }
 
-static int32_t qb_capture_dimensions_from_string(zval *zvalue, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
-	return qb_capture_dimensions_from_byte_count(Z_STRLEN_P(zvalue), m, parent_dimension_count);
+static int32_t qb_capture_dimensions_from_string(zval *zvalue, qb_dimension_mappings *m, uint32_t dimension_index) {
+	return qb_capture_dimensions_from_byte_count(Z_STRLEN_P(zvalue), m, dimension_index);
 }
 
-static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappings *m, uint32_t parent_dimension_count);
+static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappings *m, uint32_t dimension_index);
 
-static int32_t qb_capture_dimensions_from_array(zval *zarray, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
+static int32_t qb_capture_dimensions_from_array(zval *zarray, qb_dimension_mappings *m, uint32_t dimension_index) {
 	HashTable *ht = Z_ARRVAL_P(zarray);
 	Bucket *p;
 	uint32_t dimension = ht->nNextFreeElement;
-	if(parent_dimension_count + 1 > MAX_DIMENSION) {
+	if(dimension_index + 1 > MAX_DIMENSION) {
 		// TODO: report error
 		return FALSE;
 	}
-	if(m->src_dimensions[parent_dimension_count] < dimension) {
-		m->src_dimensions[parent_dimension_count] = dimension;
+	if(m->src_dimensions[dimension_index] < dimension) {
+		m->src_dimensions[dimension_index] = dimension;
 	}
-	if(m->src_dimension_count < parent_dimension_count + 1) {
-		m->src_dimension_count = parent_dimension_count + 1;
+	if(m->src_dimension_count < dimension_index + 1) {
+		m->src_dimension_count = dimension_index + 1;
 	}
 	for(p = ht->pListHead; p; p = p->pListNext) {
 		if(p->h >= 0 && !p->arKey) {
 			zval **p_element = p->pData;
-			qb_capture_dimensions_from_zval(*p_element, m, parent_dimension_count + 1);
+			qb_capture_dimensions_from_zval(*p_element, m, dimension_index + 1);
 		}
 	}
 	return TRUE;
 }
 
-static int32_t qb_capture_dimensions_from_object(zval *zobject, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
-	qb_index_alias_scheme *scheme = m->dst_index_alias_schemes[parent_dimension_count];
+static int32_t qb_capture_dimensions_from_object(zval *zobject, qb_dimension_mappings *m, uint32_t dimension_index) {
+	qb_index_alias_scheme *scheme = m->dst_index_alias_schemes[dimension_index];
 	uint32_t i;
 	TSRMLS_FETCH();
-	if(parent_dimension_count + 1 > MAX_DIMENSION) {
+	if(dimension_index + 1 > MAX_DIMENSION) {
 		// TODO: report error
 		return FALSE;
 	}
 	if(!scheme) {
 		qb_report_illegal_conversion_to_array_exception(0, "object");
 	}
+	if(m->src_dimensions[dimension_index] < scheme->dimension) {
+		m->src_dimensions[dimension_index] = scheme->dimension;
+	}
+	m->src_dimension_count = dimension_index + 1;
 	for(i = 0; i < scheme->dimension; i++) {
 		zval **p_element, *element = NULL;
 		zval *alias = qb_cstring_to_zval(scheme->aliases[i] TSRMLS_CC);
@@ -415,7 +419,7 @@ static int32_t qb_capture_dimensions_from_object(zval *zobject, qb_dimension_map
 			element = Z_OBJ_READ_PROP(zobject, alias);
 		}
 		if(element) {
-			qb_capture_dimensions_from_zval(element, m, parent_dimension_count);
+			qb_capture_dimensions_from_zval(element, m, dimension_index + 1);
 		}
 		if(!p_element && element) {
 			// value from __get()
@@ -450,17 +454,17 @@ void qb_fill_array_gap(int8_t *memory, uint32_t filled_byte_count, uint32_t requ
 #include "qb_storage_file.c"
 #include "qb_storage_gd_image.c"
 
-static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
+static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappings *m, uint32_t dimension_index) {
 	switch(Z_TYPE_P(zvalue)) {
 		case IS_CONSTANT_ARRAY:
 		case IS_ARRAY: {
-			return qb_capture_dimensions_from_array(zvalue, m, parent_dimension_count);
+			return qb_capture_dimensions_from_array(zvalue, m, dimension_index);
 		}
 		case IS_OBJECT: {
-			return qb_capture_dimensions_from_object(zvalue, m, parent_dimension_count);
+			return qb_capture_dimensions_from_object(zvalue, m, dimension_index);
 		}	
 		case IS_STRING: {
-			return qb_capture_dimensions_from_string(zvalue, m, parent_dimension_count);
+			return qb_capture_dimensions_from_string(zvalue, m, dimension_index);
 		}	
 		case IS_NULL:
 		case IS_LONG:
@@ -473,9 +477,9 @@ static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappin
 			php_stream *stream;
 			
 			if((image = qb_get_gd_image(zvalue))) {
-				return qb_capture_dimensions_from_image(image, m, parent_dimension_count);
+				return qb_capture_dimensions_from_image(image, m, dimension_index);
 			} else if((stream = qb_get_file_stream(zvalue))) {
-				return qb_capture_dimensions_from_file(stream, m, parent_dimension_count);
+				return qb_capture_dimensions_from_file(stream, m, dimension_index);
 			} else {
 				qb_report_illegal_conversion_to_array_exception(0, "resource");
 				return FALSE;
@@ -487,9 +491,8 @@ static int32_t qb_capture_dimensions_from_zval(zval *zvalue, qb_dimension_mappin
 	} 
 }
 
-static int32_t qb_get_dimension_mappings(qb_storage *storage, qb_address *address, zval *zvalue, qb_dimension_mappings *m) {
+static int32_t qb_add_destination_dimensions(qb_storage *storage, qb_address *address, qb_dimension_mappings *m) {
 	uint32_t i;
-	memset(m, 0, sizeof(qb_dimension_mappings));
 	m->dst_dimension_count = address->dimension_count;
 	m->dst_element_type = address->type;
 	for(i = 0; i < address->dimension_count; i++) {
@@ -497,16 +500,30 @@ static int32_t qb_get_dimension_mappings(qb_storage *storage, qb_address *addres
 		qb_address *array_size_address = address->array_size_addresses[i];
 		if(CONSTANT(dimension_address)) {
 			m->dst_dimensions[i] = VALUE_IN(storage, U32, dimension_address);
+		} else {
+			m->dst_dimensions[i] = 0;
 		}
 		if(CONSTANT(array_size_address)) {
 			m->dst_array_sizes[i] = VALUE_IN(storage, U32, dimension_address);
+		} else {
+			m->dst_array_sizes[i] = 0;
 		}
 		if(address->index_alias_schemes) {
 			m->dst_index_alias_schemes[i] = address->index_alias_schemes[i];
+		} else {
+			m->dst_index_alias_schemes[i] = NULL;
 		}
 	}
+	return TRUE;
+}
+
+static int32_t qb_add_source_dimensions_from_zval(zval *zvalue, qb_dimension_mappings *m) {
+	uint32_t i;
+	m->src_dimension_count = 0;
+	for(i = 0; i < MAX_DIMENSION; i++) {
+		m->src_dimensions[i] = 0;
+	}
 	if(qb_capture_dimensions_from_zval(zvalue, m, 0)) {
-		uint32_t i;
 		uint32_t element_size = 1;
 		for(i = m->src_dimension_count - 1; (int32_t) i >= 0; i--) {
 			uint32_t array_size = element_size * m->src_dimensions[i];
@@ -638,7 +655,7 @@ static int32_t qb_copy_elements_from_object(zval *zobject, int8_t *dst_memory, q
 	uint32_t src_index = 0;
 	qb_index_alias_scheme *scheme = m->dst_index_alias_schemes[dimension_index];
 	TSRMLS_FETCH();
-	while(src_index < dst_dimension) {
+	while(src_index < scheme->dimension) {
 		zval **p_element, *element = NULL;
 		zval *alias = qb_cstring_to_zval(scheme->aliases[src_index] TSRMLS_CC);
 		p_element = Z_OBJ_GET_PROP_PTR_PTR(zobject, alias);
@@ -659,6 +676,9 @@ static int32_t qb_copy_elements_from_object(zval *zobject, int8_t *dst_memory, q
 		}
 		src_index++;
 		dst_pointer += dst_element_byte_count;
+	}
+	if(src_index < dst_dimension) {
+		qb_fill_array_gap(dst_memory, src_index * dst_element_byte_count, dst_dimension * dst_element_byte_count, dimension_index);
 	}
 	return TRUE;
 }
@@ -1417,7 +1437,7 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 	// determine the array's dimensions and check for out-of-bound condition
 	qb_dimension_mappings _mappings, *mappings = &_mappings;
 	int8_t *pointer;
-	if(!qb_get_dimension_mappings(storage, address, zvalue, mappings)) {
+	if(!qb_add_destination_dimensions(storage, address, mappings) || !qb_add_source_dimensions_from_zval(zvalue, mappings)) {
 		return FALSE;
 	}
 	if(!qb_apply_dimension_mappings(storage, address, mappings)) {

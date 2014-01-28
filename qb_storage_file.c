@@ -32,7 +32,7 @@ static php_stream * qb_get_file_stream(zval *resource) {
 	return NULL;
 }
 
-static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_mappings *m, uint32_t parent_dimension_count) {
+static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
 	// get the file size
 	off_t position, size;
 	TSRMLS_FETCH();
@@ -40,7 +40,7 @@ static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_
 	php_stream_seek(stream, 0, SEEK_END);		
 	size = php_stream_tell(stream);
 	php_stream_seek(stream, position, SEEK_SET);
-	return qb_capture_dimensions_from_byte_count(size, m, parent_dimension_count);
+	return qb_capture_dimensions_from_byte_count(size, m, dimension_index);
 }
 
 static int32_t qb_copy_elements_to_file(qb_storage *storage, qb_address *address, php_stream *stream) {
