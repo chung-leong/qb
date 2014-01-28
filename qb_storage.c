@@ -637,9 +637,12 @@ static int32_t qb_copy_elements_from_zval(zval *zvalue, int8_t *dst_memory, qb_d
 
 static int32_t qb_copy_elements_from_array(zval *zarray, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
 	int8_t *dst_pointer = dst_memory;
-	uint32_t dst_dimension = (dimension_index < m->dst_dimension_count) ? m->dst_dimensions[dimension_index] : 1;
-	uint32_t dst_element_element_count = (dimension_index + 1 < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index + 1] : 1;
-	uint32_t dst_element_byte_count = BYTE_COUNT(dst_element_element_count, m->dst_element_type);
+	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
+	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+	uint32_t src_dimension = (dimension_index < m->src_dimension_count) ? m->src_dimensions[dimension_index] : 1;
+	uint32_t src_element_element_count = (dimension_index + 1 < m->src_dimension_count) ? m->src_array_sizes[dimension_index + 1] : 1;
+	uint32_t src_element_byte_count = BYTE_COUNT(src_element_element_count, m->dst_element_type);
+	uint32_t src_byte_count = src_dimension * src_element_byte_count;
 	uint32_t src_index = 0;
 	HashTable *ht = Z_ARRVAL_P(zarray);
 	Bucket *p;
@@ -651,41 +654,44 @@ static int32_t qb_copy_elements_from_array(zval *zarray, int8_t *dst_memory, qb_
 	}
 
 	// assume the elements are stored in order in the array
-	for(p = ht->pListHead; p && src_index < dst_dimension; p = p->pListNext) {
+	for(p = ht->pListHead; p && src_index < src_dimension; p = p->pListNext) {
 		if((uint32_t) p->h == src_index && !p->arKey) {
 			zval **p_element = p->pData;
 			qb_copy_elements_from_zval(*p_element, dst_pointer, m, dimension_index + 1);
 			src_index++;
-			dst_pointer += dst_element_byte_count;
+			dst_pointer += src_element_byte_count;
 		} else {
 			break;
 		}
 	}
-	if(src_index < dst_dimension) {
+	if(src_index < src_dimension) {
 		// the elements are not sequential: copy the rest
-		while(src_index < dst_dimension && src_index < ht->nNextFreeElement) {
+		while(src_index < src_dimension) {
 			zval **p_element;
 			if(zend_hash_index_find(ht, src_index, (void **) &p_element) == SUCCESS) {
 				qb_copy_elements_from_zval(*p_element, dst_pointer, m, dimension_index + 1);
 			} else {
 				// there's a gap
-				memset(dst_pointer, 0, dst_element_byte_count);
+				memset(dst_pointer, 0, src_element_byte_count);
 			}
 			src_index++;
-			dst_pointer += dst_element_byte_count;
+			dst_pointer += src_element_byte_count;
 		}
-		if(src_index < dst_dimension) {
-			qb_fill_array_gap(dst_memory, src_index * dst_element_byte_count, dst_dimension * dst_element_byte_count, dimension_index);
-		}
+	}
+	if(dimension_index == 0 && src_byte_count < dst_byte_count) {
+		qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
 	}
 	return TRUE;
 }
 
 static int32_t qb_copy_elements_from_object(zval *zobject, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
 	int8_t *dst_pointer = dst_memory;
-	uint32_t dst_dimension = (dimension_index < m->dst_dimension_count) ? m->dst_dimensions[dimension_index] : 1;
-	uint32_t dst_element_element_count = (dimension_index + 1 < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index + 1] : 1;
-	uint32_t dst_element_byte_count = BYTE_COUNT(dst_element_element_count, m->dst_element_type);
+	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
+	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+	uint32_t src_dimension = (dimension_index < m->src_dimension_count) ? m->src_dimensions[dimension_index] : 1;
+	uint32_t src_element_element_count = (dimension_index + 1 < m->src_dimension_count) ? m->src_array_sizes[dimension_index + 1] : 1;
+	uint32_t src_element_byte_count = BYTE_COUNT(src_element_element_count, m->dst_element_type);
+	uint32_t src_byte_count = src_dimension * src_element_byte_count;
 	uint32_t src_index = 0;
 	qb_index_alias_scheme *scheme = m->dst_index_alias_schemes[dimension_index];
 	TSRMLS_FETCH();
@@ -702,17 +708,17 @@ static int32_t qb_copy_elements_from_object(zval *zobject, int8_t *dst_memory, q
 		if(element && Z_TYPE_P(element) != IS_NULL) {
 			qb_copy_elements_from_zval(element, dst_pointer, m, dimension_index + 1);
 		} else {
-			memset(dst_pointer, 0, dst_element_byte_count);
+			memset(dst_pointer, 0, src_element_byte_count);
 		}
 		if(!p_element && element) {
 			Z_ADDREF_P(element);
 			zval_ptr_dtor(&element);
 		}
 		src_index++;
-		dst_pointer += dst_element_byte_count;
+		dst_pointer += src_element_byte_count;
 	}
-	if(src_index < dst_dimension) {
-		qb_fill_array_gap(dst_memory, src_index * dst_element_byte_count, dst_dimension * dst_element_byte_count, dimension_index);
+	if(src_byte_count < dst_byte_count) {
+		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
 	}
 	return TRUE;
 }
