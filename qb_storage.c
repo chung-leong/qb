@@ -541,11 +541,20 @@ static int32_t qb_add_source_dimensions_from_zval(zval *zvalue, qb_dimension_map
 	uint32_t i;
 	m->src_dimension_count = 0;
 	m->src_address_flags = 0;
+	m->src_element_type = QB_TYPE_UNKNOWN;
 	for(i = 0; i < MAX_DIMENSION; i++) {
 		m->src_dimensions[i] = 0;
 	}
 	if(qb_capture_dimensions_from_zval(zvalue, m, 0)) {
 		uint32_t element_size = 1;
+		if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I64)) {
+			if(m->dst_dimension_count + 1 == m->src_dimension_count) {
+				if(m->src_dimensions[m->src_dimension_count - 1] == 2) {
+					// forming 64-bit integers from two-element array
+					m->src_dimension_count--;
+				}
+			}
+		}
 		for(i = m->src_dimension_count - 1; (int32_t) i >= 0; i--) {
 			uint32_t array_size = element_size * m->src_dimensions[i];
 			m->src_array_sizes[i] = array_size;
@@ -637,6 +646,12 @@ static int32_t qb_copy_elements_from_array(zval *zarray, int8_t *dst_memory, qb_
 	uint32_t src_index = 0;
 	HashTable *ht = Z_ARRVAL_P(zarray);
 	Bucket *p;
+
+	if(STORAGE_TYPE_MATCH(m->dst_element_type, QB_TYPE_I64) && dimension_index == m->src_dimension_count) {
+		if(qb_zval_array_to_int64(zarray, (int64_t *) dst_memory)) {
+			return TRUE;
+		}
+	}
 
 	// assume the elements are stored in order in the array
 	for(p = ht->pListHead; p && src_index < dst_dimension; p = p->pListNext) {
