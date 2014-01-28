@@ -118,3 +118,8 @@ foreach(yield_sepia($image) as $index => $image) {
 
 ?>
 --EXPECT--
+CORRECT
+CORRECT
+CORRECT
+CORRECT
+CORRECT
