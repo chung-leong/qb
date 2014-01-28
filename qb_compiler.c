@@ -2085,6 +2085,10 @@ int32_t qb_add_variables(qb_compiler_context *cxt) {
 			if(!qb_apply_type_declaration(cxt, qvar)) {
 				return FALSE;
 			}
+			if(!FIXED_LENGTH(qvar->address)) {
+				// functions with variable-length array as arguments are not inlineable
+				cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+			}
 
 			// parameters are shared between forked copies of the function
 			qb_mark_as_shared(cxt, qvar->address);

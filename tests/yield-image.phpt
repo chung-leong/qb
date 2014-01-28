@@ -9,7 +9,6 @@ Yield test
 
 /**
  * @engine qb
- * @inline never
  * @param image			$(dst|src)
  * @param float32		$intensity
  *

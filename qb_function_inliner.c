@@ -277,7 +277,27 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 		}
 		if(argument_address) {
 			// copy the argument into the temporary variable
+			// NOTE: not handling array expansion here
+			// functions that changes the size of the arugment shouldn't be inlinable
 			qb_perform_assignment(cxt, caller_address, argument_address);
+		} else {
+			// unset read-only flag on the caller variable
+			uint32_t i;
+			if(!READ_ONLY(callee_address)) {
+				caller_address->flags &= ~QB_ADDRESS_READ_ONLY;
+			}
+			for(i = 0; i < caller_address->dimension_count; i++) {
+				qb_address *callee_dimension_address = callee_address->dimension_addresses[i];
+				qb_address *caller_dimension_address = caller_address->dimension_addresses[i];
+				qb_address *callee_array_size_address = callee_address->array_size_addresses[i];
+				qb_address *caller_array_size_address = caller_address->array_size_addresses[i];
+				if(!READ_ONLY(callee_dimension_address)) {
+					caller_dimension_address->flags &= ~QB_ADDRESS_READ_ONLY;
+				}
+				if(!READ_ONLY(callee_array_size_address)) {
+					caller_array_size_address->flags &= ~QB_ADDRESS_READ_ONLY;
+				}
+			}
 		}
 	}
 	qb_add_substitution(cxt, callee_address, caller_address);

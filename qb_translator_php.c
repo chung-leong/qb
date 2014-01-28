@@ -1213,7 +1213,6 @@ int32_t qb_survey_instructions(qb_php_translator_context *cxt) {
 }
 
 int32_t qb_translate_instructions(qb_php_translator_context *cxt) {
-
 	cxt->compiler_context->stage = QB_STAGE_OPCODE_TRANSLATION;
 	qb_clear_temporary_variables(cxt);
 	qb_clear_completion_flags(cxt);
