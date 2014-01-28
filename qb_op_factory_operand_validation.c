@@ -408,7 +408,12 @@ static qb_matrix_order qb_get_matrix_order(qb_compiler_context *cxt, qb_op_facto
 	} else if(f->result_flags & QB_RESULT_IS_ROW_MAJOR) {
 		return QB_MATRIX_ORDER_ROW_MAJOR;
 	} else {
-		return cxt->matrix_order;
+		USE_TSRM
+		if(QB_G(column_major_matrix)) { 
+			return QB_MATRIX_ORDER_COLUMN_MAJOR;
+		} else {
+			return QB_MATRIX_ORDER_ROW_MAJOR;
+		}
 	}
 }
 
@@ -631,8 +636,9 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 }
 
 static int32_t qb_validate_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	USE_TSRM
 	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
-	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
+	if(QB_G(column_major_matrix)) {
 		f = s->cm_factory;
 	} else {
 		f = s->rm_factory;

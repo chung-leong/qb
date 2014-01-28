@@ -3720,8 +3720,6 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 	qb_attach_new_array(pool, (void **) &cxt->address_aliases, &cxt->address_alias_count, sizeof(qb_address *), 64);
 	qb_attach_new_array(pool, (void **) &cxt->on_demand_expressions, &cxt->on_demand_expression_count, sizeof(qb_address *), 64);
 
-	cxt->matrix_order = QB_G(column_major_matrix) ? QB_MATRIX_ORDER_COLUMN_MAJOR : QB_MATRIX_ORDER_ROW_MAJOR;
-
 	// only set up segments for scalars and fixed-length arrays initially
 	cxt->storage = emalloc(sizeof(qb_storage));
 	cxt->storage->flags = 0;

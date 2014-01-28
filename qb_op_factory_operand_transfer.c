@@ -422,8 +422,9 @@ static void qb_transfer_operands_transpose_equivalent(qb_compiler_context *cxt, 
 }
 
 static void qb_transfer_operands_matrix_current_mode(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	USE_TSRM
 	qb_matrix_op_factory_selector *s = (qb_matrix_op_factory_selector *) f;
-	if(cxt->matrix_order == QB_MATRIX_ORDER_COLUMN_MAJOR) {
+	if(QB_G(column_major_matrix)) {
 		f = s->cm_factory;
 	} else {
 		f = s->rm_factory;
