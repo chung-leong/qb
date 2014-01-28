@@ -173,7 +173,7 @@ static int32_t qb_capture_dimensions_from_image(gdImagePtr image, qb_dimension_m
 		uint32_t dimension1 = image->sy;
 		uint32_t dimension2 = image->sx;
 		if(dimension_index + 2 > MAX_DIMENSION) {
-			// TODO: error msg
+			qb_report_too_man_dimension_exception(0);
 			return FALSE;
 		}
 		if(m->src_dimensions[dimension_index] < dimension1) {
@@ -186,7 +186,7 @@ static int32_t qb_capture_dimensions_from_image(gdImagePtr image, qb_dimension_m
 	} else {
 		uint32_t dimension = image->sx * image->sy;
 		if(dimension_index + 1 > MAX_DIMENSION) {
-			// TODO: error msg
+			qb_report_too_man_dimension_exception(0);
 			return FALSE;
 		}
 		if(m->src_dimensions[dimension_index] < dimension) {

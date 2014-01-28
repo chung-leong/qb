@@ -55,7 +55,7 @@ static int32_t qb_copy_elements_to_file(int8_t *src_memory, php_stream *stream, 
 	php_stream_seek(stream, position, SEEK_SET);
 	php_stream_truncate_set_size(stream, src_byte_count);
 	if(byte_written != src_byte_count) {
-		// TODO: error msg
+		qb_report_file_write_error(0, src_byte_count, stream);
 		return FALSE;
 	}
 	return TRUE;

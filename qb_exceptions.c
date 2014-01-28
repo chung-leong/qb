@@ -188,6 +188,10 @@ void qb_report_incompatible_array_structure_exception(uint32_t line_id, qb_primi
 	qb_construct_type_specifier(type_specifier2, type2, dimensions2, dimension_count2);
 	qb_report_exception(line_id, E_ERROR, "Unable to convert %s to %s", type_specifier1, type_specifier2);
 }
+
+void qb_report_file_write_error(uint32_t line_id, uint32_t byte_count, php_stream *stream) {
+	qb_report_exception(line_id, E_ERROR, "Error encounter while writing %u bytes to %s", byte_count, stream->orig_path);
+}
 					
 void qb_report_too_man_dimension_exception(uint32_t line_id) {
 	qb_report_exception(line_id, E_ERROR, "Too many dimensions");
