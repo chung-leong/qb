@@ -350,7 +350,7 @@ static int32_t qb_capture_dimensions_from_byte_count(uint32_t byte_count, qb_dim
 	uint32_t correct_byte_count = BYTE_COUNT(element_count, m->dst_element_type);
 
 	if(dimension_index + 1 > MAX_DIMENSION) {
-		// TODO: report error
+		qb_report_too_man_dimension_exception(0);
 		return FALSE;
 	}
 	// make sure the number of bytes is a multiple of the element size
@@ -375,7 +375,7 @@ static int32_t qb_capture_dimensions_from_array(zval *zarray, qb_dimension_mappi
 	Bucket *p;
 	uint32_t dimension = ht->nNextFreeElement;
 	if(dimension_index + 1 > MAX_DIMENSION) {
-		// TODO: report error
+		qb_report_too_man_dimension_exception(0);
 		return FALSE;
 	}
 	if(m->src_dimensions[dimension_index] < dimension) {
@@ -398,7 +398,7 @@ static int32_t qb_capture_dimensions_from_object(zval *zobject, qb_dimension_map
 	uint32_t i;
 	TSRMLS_FETCH();
 	if(dimension_index + 1 > MAX_DIMENSION) {
-		// TODO: report error
+		qb_report_too_man_dimension_exception(0);
 		return FALSE;
 	}
 	if(!scheme) {
@@ -606,12 +606,9 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 						uint32_t dst_array_size = dst_dimension * dst_sub_array_size;
 						m->dst_dimensions[0] = dst_dimension;
 						m->dst_array_sizes[0] = dst_array_size;
-						if(dst_array_size != src_array_size) {
-							// TODO: warning
-						}
 					}
 				} else {
-					// TODO: error msg
+					qb_report_incompatible_array_structure_exception(0, m->src_element_type, m->src_dimensions, m->src_dimension_count, m->dst_element_type, m->dst_dimensions, m->dst_dimension_count);
 					return FALSE;
 				}
 				for(i = 0; i < unknown_dimension_count; i++) {
@@ -622,14 +619,14 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 				}
 			} else if(dst_array_size < src_array_size) {
 				// the source is too large
-				// TODO: error msg
+				qb_report_incompatible_array_structure_exception(0, m->src_element_type, m->src_dimensions, m->src_dimension_count, m->dst_element_type, m->dst_dimensions, m->dst_dimension_count);
 				return FALSE;
 			}
 		}
 	} else {
 		// scalar
 		if(src_array_size != 1) {
-			// TODO: error msg
+			qb_report_incompatible_array_structure_exception(0, m->src_element_type, m->src_dimensions, m->src_dimension_count, m->dst_element_type, m->dst_dimensions, m->dst_dimension_count);
 			return FALSE;
 		}
 	}

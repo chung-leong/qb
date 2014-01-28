@@ -169,8 +169,28 @@ void qb_report_dimension_mismatch_exception(uint32_t line_id, uint32_t dimension
 	qb_report_exception(line_id, E_ERROR, "ERROR");
 }
 
-void qb_report_dimension_count_mismatch_exception(uint32_t line_id, uint32_t dimension1, uint32_t dimension2) {
-	qb_report_exception(line_id, E_ERROR, "ERROR");
+void qb_report_dimension_count_mismatch_exception(uint32_t line_id, uint32_t dimension_count1, uint32_t dimension_count2) {
+	qb_report_exception(line_id, E_ERROR, "Incompatible array structure");
+}
+
+static void qb_construct_type_specifier(char *buffer, qb_primitive_type type, uint32_t *dimensions, uint32_t dimension_count) {
+	uint32_t i;
+	char *p = buffer;
+	p += sprintf(p, "%s", type_names[type]);
+	for(i = 0; i < dimension_count; i++) {
+		p += sprintf(p, "[%u]", dimensions[i]);
+	}
+}
+
+void qb_report_incompatible_array_structure_exception(uint32_t line_id, qb_primitive_type type1, uint32_t *dimensions1, uint32_t dimension_count1, qb_primitive_type type2, uint32_t *dimensions2, uint32_t dimension_count2) {
+	char type_specifier1[128], type_specifier2[128];
+	qb_construct_type_specifier(type_specifier1, type1, dimensions1, dimension_count1);
+	qb_construct_type_specifier(type_specifier2, type2, dimensions2, dimension_count2);
+	qb_report_exception(line_id, E_ERROR, "Unable to convert %s to %s", type_specifier1, type_specifier2);
+}
+					
+void qb_report_too_man_dimension_exception(uint32_t line_id) {
+	qb_report_exception(line_id, E_ERROR, "Too many dimensions");
 }
 
 void qb_report_missing_type_declaration_exception(uint32_t line_id, qb_variable *qvar) {

@@ -56,9 +56,11 @@ void qb_report_not_square_matrix_exception(uint32_t line_id, uint32_t matrix_col
 void qb_report_gd_image_exception(uint32_t line_id, uint32_t width, uint32_t height);
 
 void qb_report_dimension_mismatch_exception(uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
-void qb_report_dimension_count_mismatch_exception(uint32_t line_id, uint32_t dimension1, uint32_t dimension2);
+void qb_report_dimension_count_mismatch_exception(uint32_t line_id, uint32_t dimension_count1, uint32_t dimension_count2);
+void qb_report_too_man_dimension_exception(uint32_t line_id);
 void qb_report_illegal_dimension_count_exception(uint32_t line_id, uint32_t dimension_count);
 void qb_report_illegal_dimension_exception(uint32_t line_id, long const_value);
+void qb_report_incompatible_array_structure_exception(uint32_t line_id, qb_primitive_type type1, uint32_t *dimensions1, uint32_t dimension_count1, qb_primitive_type type2, uint32_t *dimensions2, uint32_t dimension_count2);
 
 void qb_report_unexpected_tag_in_doc_comment_exception(uint32_t line_id, const char *tag, uint32_t tag_len);
 void qb_report_doc_comment_syntax_exception(uint32_t line_id);
