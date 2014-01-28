@@ -35,7 +35,7 @@ function sepia(&$dst, $src, $intensity) {
 		array(0.956, -0.272, -1.10,   0.0),
 		array(0.621, -0.647,  1.70,   0.0),
 		array(0.0,    0.0,    0.0,    1.0),
-	);	
+	);
 	$dst = mv_mult($inverseYIQ, $src);
 	
 	ini_restore("qb.column_major_matrix");
@@ -58,12 +58,63 @@ function yield_sepia($src) {
 	}
 }
 
+/**
+ * @engine qb
+ *
+ * @param image	$img2;
+ * @param image	$img1;
+ * @return float32
+ */
+function _image_diff($img1, $img2) {
+	$img2 -= $img1;
+	$img2 *= $img2;
+	return sqrt(array_sum($img2));
+}
+
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/malgorzata_socha.png");
-$correct_path = "$folder/output/sepia-2.correct.png";
+$correct_path_templ = "$folder/output/yield-sepia-#.correct.png";
+$incorrect_path_templ = "$folder/output/yield-sepia-#.incorrect.png";
 
 foreach(yield_sepia($image) as $index => $image) {
-	echo "$index => $image\n";
+	$correct_path = preg_replace('/#/', $index + 1, $correct_path_templ);
+	$incorrect_path = preg_replace('/#/', $index + 1, $incorrect_path_templ);
+	
+	ob_start();
+	imagesavealpha($image, true);
+	imagepng($image);
+	$output_png = ob_get_clean();
+	
+	if(file_exists($correct_path)) {
+		$correct_md5 = md5_file($correct_path);
+		$output_md5 = md5($output_png);
+		if($correct_md5 == $output_md5) {
+			// exact match
+			$match = true;
+		} else {
+			$correct_output = imagecreatefrompng($correct_path);
+			$diff = _image_diff($image, $correct_output);
+			if($diff < 3) {
+				// the output is different ever so slightly
+				$match = true;
+			} else {
+				$match = false;
+			}
+		}
+		if($match) {
+			echo "CORRECT\n";
+			if(file_exists($incorrect_path)) {
+				unlink($incorrect_path);
+			}
+		} else {
+			echo "INCORRECT (diff = $diff)\n";
+			file_put_contents($incorrect_path, $output_png);
+		}
+	} else {
+		// reference image not yet available--save image and inspect it for correctness by eye
+		file_put_contents($correct_path, $output_png);
+		echo "CORRECT\n";
+	}
 }
 
 ?>

@@ -307,18 +307,19 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 	zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
 	zval *ret, *ret_key;
 
-	// destroy previous key and value
+	// reusing previous key and value
 	if(generator->value) {
-		zval_ptr_dtor(&generator->value);
+		ret = generator->value;
+	} else {
+		ALLOC_INIT_ZVAL(ret);
+		generator->value = ret;
 	}
 	if(generator->key) {
-		zval_ptr_dtor(&generator->key);
+		ret_key = generator->key;
+	} else {
+		ALLOC_INIT_ZVAL(ret_key);
+		generator->key = ret_key;
 	}
-
-	ALLOC_INIT_ZVAL(ret);
-	ALLOC_INIT_ZVAL(ret_key);
-	generator->value = ret;
-	generator->key = ret_key;
 
 	if(cxt->function->return_variable->address) {
 		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);

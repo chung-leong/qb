@@ -505,7 +505,7 @@ static int32_t qb_add_destination_dimensions(qb_storage *storage, qb_address *ad
 			m->dst_dimensions[i] = 0;
 		}
 		if(CONSTANT(array_size_address)) {
-			m->dst_array_sizes[i] = VALUE_IN(storage, U32, dimension_address);
+			m->dst_array_sizes[i] = VALUE_IN(storage, U32, array_size_address);
 		} else {
 			m->dst_array_sizes[i] = 0;
 		}
@@ -527,7 +527,7 @@ static int32_t qb_add_source_dimensions(qb_storage *storage, qb_address *address
 		qb_address *dimension_address = address->dimension_addresses[i];
 		qb_address *array_size_address = address->array_size_addresses[i];
 		m->src_dimensions[i] = VALUE_IN(storage, U32, dimension_address);
-		m->src_array_sizes[i] = VALUE_IN(storage, U32, dimension_address);
+		m->src_array_sizes[i] = VALUE_IN(storage, U32, array_size_address);
 		if(address->index_alias_schemes) {
 			m->src_index_alias_schemes[i] = address->index_alias_schemes[i];
 		} else {
