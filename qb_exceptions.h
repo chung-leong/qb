@@ -25,13 +25,15 @@ typedef struct qb_exception				qb_exception;
 
 struct qb_exception {
 	char *message;
-	const char *source_file;
-	uint32_t line_number;
+	uint32_t line_id;
 	int32_t type;
 };
 
 uint32_t qb_get_source_file_id(const char *file_path TSRMLS_DC);
 const char *qb_get_source_file_path(uint32_t line_id TSRMLS_DC);
+
+uint32_t qb_get_zend_line_id(TSRMLS_D);
+void qb_set_exception_line_id(uint32_t line_id TSRMLS_DC);
 
 void qb_dispatch_exceptions(TSRMLS_D);
 

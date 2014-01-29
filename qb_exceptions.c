@@ -21,24 +21,52 @@
 #include "qb.h"
 
 uint32_t qb_get_source_file_id(const char *file_path TSRMLS_DC) {
-	const char **p_source_file;
-	uint32_t i;
-	for(i = 0; i < QB_G(source_file_count); i++) {
-		const char *source_file = QB_G(source_files)[i];
-		if(strcmp(source_file, file_path) == 0) {
-			return i + 1;
+	if(file_path) {
+		const char **p_source_file;
+		uint32_t i;
+		for(i = 0; i < QB_G(source_file_count); i++) {
+			const char *source_file = QB_G(source_files)[i];
+			if(strcmp(source_file, file_path) == 0) {
+				return i + 1;
+			}
 		}
+		if(!QB_G(source_files)) {
+			qb_create_array((void **) &QB_G(source_files), &QB_G(source_file_count), sizeof(const char *), 4);
+		}
+		p_source_file = qb_enlarge_array((void **) &QB_G(source_files), 1);
+		*p_source_file = file_path;
+		return QB_G(source_file_count);
+	} else {
+		return 0;
 	}
-	if(!QB_G(source_files)) {
-		qb_create_array((void **) &QB_G(source_files), &QB_G(source_file_count), sizeof(const char *), 4);
-	}
-	p_source_file = qb_enlarge_array((void **) &QB_G(source_files), 1);
-	*p_source_file = file_path;
-	return QB_G(source_file_count);
 }
 
 const char *qb_get_source_file_path(uint32_t file_id TSRMLS_DC) {
-	return (file_id) ? QB_G(source_files)[file_id - 1] : "";
+	return (file_id) ? QB_G(source_files)[file_id - 1] : "Unknown";
+}
+
+uint32_t qb_get_zend_line_id(TSRMLS_D) {
+	zend_execute_data *ed = EG(current_execute_data);
+	do {
+		ed = ed->prev_execute_data;
+	} while(ed && !ed->op_array);
+	if(ed) {
+		const char *filename = ed->op_array->filename;
+		uint32_t line_no = (ed->opline) ? ed->opline->lineno : 0;
+		uint32_t file_id = qb_get_source_file_id(filename);
+		return LINE_ID(file_id, line_no);
+	}
+	return 0;
+}
+
+void qb_set_exception_line_id(uint32_t line_id TSRMLS_DC) {
+	uint32_t i;
+	for(i = 0; i < QB_G(exception_count); i++) {
+		qb_exception *exception = &QB_G(exceptions)[i];
+		if(exception->line_id == 0) {
+			exception->line_id = line_id;
+		}
+	}
 }
 
 static void qb_show_error(int32_t type, const char *filename, uint32_t line_number, const char *format, ...) {
@@ -52,7 +80,10 @@ void qb_dispatch_exceptions(TSRMLS_D) {
 	uint32_t i;
 	for(i = 0; i < QB_G(exception_count); i++) {
 		qb_exception *exception = &QB_G(exceptions)[i];
-		qb_show_error(exception->type, exception->source_file, exception->line_number, "%s", exception->message);
+		uint32_t file_id = FILE_ID(exception->line_id);
+		uint32_t line_number = LINE_NUMBER(exception->line_id);
+		const char *source_file = qb_get_source_file_path(file_id TSRMLS_CC);
+		qb_show_error(exception->type, source_file, line_number, "%s", exception->message);
 	}
 }
 
@@ -65,8 +96,6 @@ typedef struct qb_exception_params {
 
 static void qb_report_exception_in_main_thread(void *param1, void *param2, int param3) {
 	qb_exception_params *params = param1;
-	uint32_t file_id = FILE_ID(params->line_id);
-	uint32_t line_number = LINE_NUMBER(params->line_id);
 	qb_exception *exception;
 	char *message = NULL;
 	TSRMLS_FETCH();
@@ -78,8 +107,7 @@ static void qb_report_exception_in_main_thread(void *param1, void *param2, int p
 
 	vspprintf(&message, 0, params->format, params->arguments);
 	exception->message = message;
-	exception->line_number = line_number;
-	exception->source_file = qb_get_source_file_path(file_id TSRMLS_CC);
+	exception->line_id = params->line_id;
 	exception->type = params->type;
 }
 
@@ -178,13 +206,25 @@ static void qb_construct_type_specifier(char *buffer, qb_primitive_type type, ui
 	char *p = buffer;
 	p += sprintf(p, "%s", type_names[type]);
 	for(i = 0; i < dimension_count; i++) {
-		p += sprintf(p, "[%u]", dimensions[i]);
+		if(dimensions[i] > 0) {
+			p += sprintf(p, "[%u]", dimensions[i]);
+		} else {
+			p += sprintf(p, "[]");
+		}
 	}
 }
 
 void qb_report_incompatible_array_structure_exception(uint32_t line_id, qb_primitive_type type1, uint32_t *dimensions1, uint32_t dimension_count1, qb_primitive_type type2, uint32_t *dimensions2, uint32_t dimension_count2) {
 	char type_specifier1[128], type_specifier2[128];
-	qb_construct_type_specifier(type_specifier1, type1, dimensions1, dimension_count1);
+	if(type1 != QB_TYPE_UNKNOWN) {
+		qb_construct_type_specifier(type_specifier1, type1, dimensions1, dimension_count1);
+	} else {
+		if(dimension_count1 > 0) {
+			strcpy(type_specifier1, "array");
+		} else {
+			strcpy(type_specifier1, "scalar");
+		}
+	}
 	qb_construct_type_specifier(type_specifier2, type2, dimensions2, dimension_count2);
 	qb_report_exception(line_id, E_ERROR, "Unable to convert %s to %s", type_specifier1, type_specifier2);
 }

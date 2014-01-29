@@ -69,6 +69,8 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 		}
 		if(zvalue) {
 			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY)) {
+				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_set_exception_line_id(line_id TSRMLS_CC);
 				return FALSE;
 			}
 			if(!p_zvalue) {
@@ -79,6 +81,8 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 			}
 		} else {
 			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY)) {
+				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_set_exception_line_id(line_id TSRMLS_CC);
 				return FALSE;
 			}
 		}
@@ -103,6 +107,8 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 				}
 			}
 			if(!qb_transfer_value_to_zval(scope->storage, ivar->address, zvalue)) {
+				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_set_exception_line_id(line_id TSRMLS_CC);
 				return FALSE;
 			}
 
@@ -137,6 +143,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			}
 			if(!qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags)) {
+				qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 				return FALSE;
 			}
 		} else {
@@ -148,6 +155,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 				}
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
+					qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 					return FALSE;
 				}
 			} else {
@@ -177,6 +185,8 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			}
 			if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
+				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_set_exception_line_id(line_id TSRMLS_CC);
 				return FALSE;
 			}
 		} else {
@@ -187,6 +197,8 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 				}
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
+					uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+					qb_set_exception_line_id(line_id TSRMLS_CC);
 					return FALSE;
 				}
 			} else {
@@ -269,6 +281,8 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 				zval **p_zarg = (zval**) p - received_argument_count + i;
 				zval *zarg = *p_zarg;
 				if(!qb_transfer_value_to_zval(cxt->function->local_storage, qvar->address, zarg)) {
+					uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+					qb_set_exception_line_id(line_id TSRMLS_CC);
 					return FALSE;
 				}
 			}
@@ -282,6 +296,8 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 		*EG(return_value_ptr_ptr) = ret;
 		if(cxt->function->return_variable->address) {
 			if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {
+				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+				qb_set_exception_line_id(line_id TSRMLS_CC);
 				return FALSE;
 			}
 		}
@@ -322,10 +338,16 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 	}
 
 	if(cxt->function->return_variable->address) {
-		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret);
+		if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {
+			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+			qb_set_exception_line_id(line_id TSRMLS_CC);
+		}
 	}
 	if(cxt->function->return_key_variable->address) {
-		qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_key_variable->address, ret_key);
+		if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_key_variable->address, ret_key)) {
+			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+			qb_set_exception_line_id(line_id TSRMLS_CC);
+		}
 	}
 	if(cxt->function->sent_variable->address) {
 		if(!generator->send_target) {
@@ -385,6 +407,7 @@ static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			if(qvar->flags & QB_VARIABLE_BY_REF) {
 				if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
+					qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 					return FALSE;
 				}
 			}
@@ -397,6 +420,7 @@ static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			qb_variable *caller_qvar = cxt->caller_context->function->variables[retval_index];
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
+				qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 				return FALSE;
 			}
 		}

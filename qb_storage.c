@@ -594,16 +594,17 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 						m->dst_dimensions[i] = m->src_dimensions[i];
 						m->dst_array_sizes[i] = m->src_array_sizes[i];
 					}
+					dst_array_size = m->dst_array_sizes[0];
 				} else if(unknown_dimension_count == 1) {
-					uint32_t src_array_size = m->src_array_sizes[0];
 					if(m->dst_dimension_count == 1) {
 						// a multidimensional array copied to a linear array
 						m->dst_dimensions[0] = src_array_size;
 						m->dst_array_sizes[0] = src_array_size;
+						dst_array_size = src_array_size;
 					} else {
 						uint32_t dst_sub_array_size = m->dst_array_sizes[1];
 						uint32_t dst_dimension = src_array_size / dst_sub_array_size;
-						uint32_t dst_array_size = dst_dimension * dst_sub_array_size;
+						dst_array_size = dst_dimension * dst_sub_array_size;
 						m->dst_dimensions[0] = dst_dimension;
 						m->dst_array_sizes[0] = dst_array_size;
 					}
@@ -617,7 +618,8 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 					VALUE_IN(storage, U32, dimension_address) = m->dst_dimensions[i];
 					VALUE_IN(storage, U32, array_size_address) = m->dst_array_sizes[i];
 				}
-			} else if(dst_array_size < src_array_size) {
+			}
+			if(dst_array_size < src_array_size) {
 				// the source is too large
 				qb_report_incompatible_array_structure_exception(0, m->src_element_type, m->src_dimensions, m->src_dimension_count, m->dst_element_type, m->dst_dimensions, m->dst_dimension_count);
 				return FALSE;
@@ -1473,7 +1475,6 @@ int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address 
 					}
 					if(dst_segment->imported_segment->byte_count != dst_byte_count) {
 						qb_resize_segment(dst_segment->imported_segment, dst_byte_count);
-						// TODO: wrap-around
 					}
 					return TRUE;
 				} else if(FIXED_LENGTH(address) && ARRAY_SIZE_IN(src_storage, src_address) >= dst_byte_count)  {
@@ -1560,7 +1561,6 @@ int32_t qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *a
 			// make sure the segment is large enough
 			if(((dst_segment->flags & QB_SEGMENT_IMPORTED) && dst_segment->imported_segment->byte_count != dst_byte_count) || dst_segment->byte_count != dst_byte_count) {
 				qb_resize_segment(dst_segment, dst_byte_count);
-				// TODO: wrap-around
 			}
 			return TRUE;
 		}
