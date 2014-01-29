@@ -598,8 +598,8 @@ void qb_report_invalid_cast_exception(uint32_t line_id, const char *type_name) {
 	qb_report_exception(line_id, E_ERROR, "Cannot typecast value to %s", type_name);
 }
 
-void qb_report_unsupported_language_feature_exception(uint32_t line_id, uint32_t zend_opcode) {
-	qb_report_exception(line_id, E_ERROR, "Unsupported language feature (%u)", zend_opcode);
+void qb_report_unsupported_language_feature_exception(uint32_t line_id, const char *op_name) {
+	qb_report_exception(line_id, E_ERROR, "Unsupported language feature (%s)", op_name);
 }
 
 void qb_report_missing_pbj_output_image_parameter_exception(uint32_t line_id) {

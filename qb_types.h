@@ -295,11 +295,17 @@ struct qb_data_pool {
 	qb_block_allocator *result_destination_allocator;
 
 	char * const *op_names;
+	uint32_t op_name_count;
 	char * const *op_actions;
+	uint32_t op_action_count;
 	int32_t * const *op_function_usages;
+	uint32_t op_function_usage_count;
 	char * const *function_prototypes;
+	uint32_t function_prototype_count;
 	char * const *zend_op_names;
+	uint32_t zend_op_name_count;
 	char * const *pbj_op_names;
+	uint32_t pbj_op_name_count;
 };
 
 void qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);

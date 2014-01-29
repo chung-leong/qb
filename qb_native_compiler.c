@@ -573,12 +573,12 @@ extern const char compressed_table_op_names[];
 static const char * qb_get_op_name(qb_native_compiler_context *cxt, uint32_t opcode) {
 	if(!cxt->pool->op_names) {
 		// decompress the opname table
-		qb_uncompress_table(compressed_table_op_names, (void ***) &cxt->pool->op_names, NULL, 0);
-		if(!cxt->pool->op_names) {
-			return "?";
-		}
+		qb_uncompress_table(compressed_table_op_names, (void ***) &cxt->pool->op_names, &cxt->pool->op_name_count, 0);
 	}
-	return cxt->pool->op_names[opcode];
+	if(cxt->pool->op_names && opcode < cxt->pool->op_name_count) {
+		return cxt->pool->op_names[opcode];
+	}
+	return "?";
 }
 
 static void qb_copy_local_scalar_to_storage(qb_native_compiler_context *cxt, qb_address *address) {
@@ -1222,16 +1222,16 @@ static void qb_link_debuggable_functions(qb_native_compiler_context *cxt) {
 int32_t qb_decompress_code(qb_native_compiler_context *cxt) {
 	// decompress string tables used to generate the C source code
 	if(!cxt->pool->op_actions) {
-		qb_uncompress_table(compressed_table_native_actions, (void ***) &cxt->pool->op_actions, NULL, 0);
+		qb_uncompress_table(compressed_table_native_actions, (void ***) &cxt->pool->op_actions, &cxt->pool->op_action_count, 0);
 	}
 	if(!cxt->pool->op_function_usages) {
-		qb_uncompress_table(compressed_table_native_references, (void ***) &cxt->pool->op_function_usages, NULL, 0);
+		qb_uncompress_table(compressed_table_native_references, (void ***) &cxt->pool->op_function_usages, &cxt->pool->op_function_usage_count, 0);
 	}
 	if(!cxt->pool->function_prototypes) {
 		uint32_t count;
-		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &count, 0);
+		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &cxt->pool->function_prototype_count, 0);
 #if ZEND_DEBUG
-		if(count > PROTOTYPE_COUNT) {
+		if(cxt->pool->function_prototype_count > PROTOTYPE_COUNT) {
 			qb_debug_abort("not enough space for the number of possible prototypes");
 		}
 #endif

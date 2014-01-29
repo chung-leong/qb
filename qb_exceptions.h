@@ -123,7 +123,7 @@ void qb_report_missing_class_exception(uint32_t line_id, const char *class_name)
 void qb_report_abstract_class_exception(uint32_t line_id, const char *class_name);
 void qb_report_invalid_break_level_exception(uint32_t line_id, uint32_t nest_levels);
 void qb_report_invalid_cast_exception(uint32_t line_id, const char *type_name);
-void qb_report_unsupported_language_feature_exception(uint32_t line_id, uint32_t zend_opcode);
+void qb_report_unsupported_language_feature_exception(uint32_t line_id, const char *op_name);
 
 void qb_report_missing_pbj_output_image_parameter_exception(uint32_t line_id);
 void qb_report_missing_pbj_input_image_parameter_exception(uint32_t line_id, const char *param_name);

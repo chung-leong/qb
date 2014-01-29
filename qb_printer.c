@@ -24,12 +24,12 @@ extern const char compressed_table_zend_op_names[];
 
 const char * qb_get_zend_op_name(qb_printer_context *cxt, uint32_t opcode) {
 	if(!cxt->pool->zend_op_names) {
-		qb_uncompress_table(compressed_table_zend_op_names, (void ***) &cxt->pool->zend_op_names, NULL, 0);
-		if(!cxt->pool->zend_op_names) {
-			return "?";
-		}
+		qb_uncompress_table(compressed_table_zend_op_names, (void ***) &cxt->pool->zend_op_names, &cxt->pool->zend_op_name_count, 0);
 	}
-	return cxt->pool->zend_op_names[opcode];
+	if(cxt->pool->zend_op_names && opcode < cxt->pool->zend_op_name_count) {
+		return cxt->pool->zend_op_names[opcode];
+	}
+	return "ZEND_UNKNOWN";
 }
 
 static void qb_print_value(qb_printer_context *cxt, int8_t *bytes, uint32_t type) {
@@ -187,12 +187,12 @@ extern const char compressed_table_op_names[];
 static const char * qb_get_op_name(qb_printer_context *cxt, uint32_t opcode) {
 	if(!cxt->pool->op_names) {
 		// decompress the opname table
-		qb_uncompress_table(compressed_table_op_names, (void ***) &cxt->pool->op_names, NULL, 0);
-		if(!cxt->pool->op_names) {
-			return "?";
-		}
+		qb_uncompress_table(compressed_table_op_names, (void ***) &cxt->pool->op_names, &cxt->pool->op_name_count, 0);
 	}
-	return cxt->pool->op_names[opcode];
+	if(cxt->pool->op_names && opcode < cxt->pool->op_name_count) {
+		return cxt->pool->op_names[opcode];
+	}
+	return "?";
 }
 
 static void qb_print_op(qb_printer_context *cxt, qb_op *qop, uint32_t index) {
@@ -306,12 +306,12 @@ extern const char compressed_table_pbj_op_names[];
 
 static const char * qb_get_pbj_op_name(qb_printer_context *cxt, uint32_t opcode) {
 	if(!cxt->pool->pbj_op_names) {
-		qb_uncompress_table(compressed_table_pbj_op_names, (void ***) &cxt->pool->pbj_op_names, NULL, 0);
-		if(!cxt->pool->pbj_op_names) {
-			return "?";
-		}
+		qb_uncompress_table(compressed_table_pbj_op_names, (void ***) &cxt->pool->pbj_op_names, &cxt->pool->pbj_op_name_count, 0);
 	}
-	return cxt->pool->pbj_op_names[opcode];
+	if(cxt->pool->pbj_op_names && opcode < cxt->pool->pbj_op_name_count) {
+		return cxt->pool->pbj_op_names[opcode];
+	}
+	return "?";
 }
 
 static void qb_print_pbj_op(qb_printer_context *cxt, qb_pbj_op *pop, uint32_t pop_index) {
@@ -345,15 +345,6 @@ static void qb_print_pbj_op(qb_printer_context *cxt, qb_pbj_op *pop, uint32_t po
 		qb_print_pbj_address(cxt, &pop->destination);
 	}
 	php_printf("\n");
-
-	/*
-	for(i = 0; i < cxt->compiler_context->op_count; i++) {
-		qb_op *qop = cxt->compiler_context->ops[i];
-		if(qop->line_id == pop_index) {
-			qb_print_op(cxt, qop, i);
-		}
-	}
-	*/
 }
 
 static void qb_print_pbj_ops(qb_printer_context *cxt) {

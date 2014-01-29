@@ -758,10 +758,22 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_jump_set,				&factory_branch_on_true_set					},	// ZEND_JMP_SET_VAR
 	{	NULL,								NULL,										},	// ZEND_DISCARD_EXCEPTION
 	{	qb_process_basic_op,				&factory_yield,								},	// ZEND_YIELD
-	{	qb_process_basic_op,				&factory_leave,								},	// ZEND_GENERATOR_RETURN
+	{	qb_process_return,					&factory_leave,								},	// ZEND_GENERATOR_RETURN
 	{	NULL,								NULL,										},	// ZEND_FAST_CALL
 	{	NULL,								NULL,										},	// ZEND_FAST_RET
 };
+
+extern const char compressed_table_zend_op_names[];
+
+static const char * qb_get_zend_op_name(qb_php_translator_context *cxt, uint32_t opcode) {
+	if(!cxt->pool->zend_op_names) {
+		qb_uncompress_table(compressed_table_zend_op_names, (void ***) &cxt->pool->zend_op_names, &cxt->pool->zend_op_name_count, 0);
+	}
+	if(cxt->pool->zend_op_names && opcode < cxt->pool->zend_op_name_count) {
+		return cxt->pool->zend_op_names[opcode];
+	}
+	return "ZEND_UNKNOWN";
+}
 
 static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 	if(cxt->zend_op->opcode != ZEND_OP_DATA && cxt->zend_op->opcode != qb_user_opcode) {
@@ -856,7 +868,8 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 			// lock operands kept as temporary variables
 			qb_lock_temporary_variables(cxt);
 		} else {
-			qb_report_unsupported_language_feature_exception(cxt->compiler_context->line_id, zend_opcode);
+			const char *op_name = qb_get_zend_op_name(cxt, zend_opcode);
+			qb_report_unsupported_language_feature_exception(cxt->compiler_context->line_id, op_name + 5);
 			return FALSE;
 		}
 	}

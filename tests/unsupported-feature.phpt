@@ -17,4 +17,4 @@ test_function(array(1, 2, 3, 4));
 
 ?>
 --EXPECTREGEX--
-.*Division by zero.*line 9
+.*Fatal error.*line 9
