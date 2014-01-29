@@ -823,6 +823,10 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 			}
 		}
 	}
+
+	if(cxt->shadow_variables) {
+		qb_destroy_shadow_variables(cxt);
+	}
 }
 
 int32_t qb_execute(qb_interpreter_context *cxt) {

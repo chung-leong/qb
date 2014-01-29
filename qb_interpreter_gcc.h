@@ -1627,6 +1627,7 @@ void qb_do_exp_m1_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, flo
 void qb_do_exp_m1_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_exp_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_exp_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_extension_op_U32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t line_id);
 void qb_do_face_forward_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_face_forward_2x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_face_forward_3x_F32(float32_t *op1_ptr, float32_t *op2_ptr, float32_t *res_ptr);
@@ -2204,6 +2205,7 @@ void qb_do_subtract_multiple_times_I08(int8_t *op1_ptr, uint32_t op1_count, int8
 void qb_do_subtract_multiple_times_I16(int16_t *op1_ptr, uint32_t op1_count, int16_t *op2_ptr, uint32_t op2_count, int16_t *res_ptr, uint32_t res_count);
 void qb_do_subtract_multiple_times_I32(int32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *res_ptr, uint32_t res_count);
 void qb_do_subtract_multiple_times_I64(int64_t *op1_ptr, uint32_t op1_count, int64_t *op2_ptr, uint32_t op2_count, int64_t *res_ptr, uint32_t res_count);
+void qb_do_synchronize_shadow_variable_U32(qb_interpreter_context *__restrict cxt, uint32_t op1);
 void qb_do_tan_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_tan_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_tanh_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
@@ -2298,6 +2300,8 @@ void qb_redirect_print_variable_U64(qb_interpreter_context *__restrict cxt, int8
 void qb_redirect_print_variable_array_element_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_variable_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_multidimensional_variable_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_extension_op_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_synchronize_shadow_variable_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 int32_t qb_dispatch_instruction_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t threshold);
 int32_t qb_dispatch_instruction_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand3_size, uint32_t threshold);
 int32_t qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_SCA_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand5_size, uint32_t threshold);

@@ -2834,7 +2834,7 @@ qb_simple_op_factory factory_synchronize_debug_variable = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-	NULL,
+	qb_indicate_shadow_variables,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,

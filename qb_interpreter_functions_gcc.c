@@ -13612,6 +13612,10 @@ void qb_do_exp_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float6
 	}
 }
 
+void qb_do_extension_op_U32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t line_id) {
+	
+}
+
 void qb_do_face_forward_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && op2_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -25049,6 +25053,10 @@ void qb_do_subtract_multiple_times_I64(int64_t *op1_ptr, uint32_t op1_count, int
 	}
 }
 
+void qb_do_synchronize_shadow_variable_U32(qb_interpreter_context *__restrict cxt, uint32_t op1) {
+	
+}
+
 void qb_do_tan_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -26651,6 +26659,32 @@ void qb_redirect_print_multidimensional_variable_U64(qb_interpreter_context *__r
 #undef op2_count
 }
 
+void qb_redirect_extension_op_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_SCA_line_id * __restrict) ip)
+#define line_id		INSTR->line_id
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_extension_op_U32, ip);
+	} else {
+		qb_do_extension_op_U32(cxt, op1, line_id);
+	}
+#undef INSTR
+#undef line_id
+#undef op1
+}
+
+void qb_redirect_synchronize_shadow_variable_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_SCA * __restrict) ip)
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_synchronize_shadow_variable_U32, ip);
+	} else {
+		qb_do_synchronize_shadow_variable_U32(cxt, op1);
+	}
+#undef INSTR
+#undef op1
+}
+
 int32_t qb_dispatch_instruction_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t threshold) {
 	int32_t use_multithreading = TRUE;
 	uint32_t op2_count = instr->operand2.count_pointer[0];
@@ -27506,6 +27540,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_exp_m1_multiple_times_F64",	qb_do_exp_m1_multiple_times_F64,	0,	0	},
 	{	"qb_do_exp_multiple_times_F32",	qb_do_exp_multiple_times_F32,	0,	0	},
 	{	"qb_do_exp_multiple_times_F64",	qb_do_exp_multiple_times_F64,	0,	0	},
+	{	"qb_do_extension_op_U32",	qb_do_extension_op_U32,	0,	0	},
 	{	"qb_do_face_forward_2x_multiple_times_F32",	qb_do_face_forward_2x_multiple_times_F32,	0,	0	},
 	{	"qb_do_face_forward_2x_multiple_times_F64",	qb_do_face_forward_2x_multiple_times_F64,	0,	0	},
 	{	"qb_do_face_forward_3x_F32",	qb_do_face_forward_3x_F32,	0,	0	},
@@ -28083,6 +28118,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_subtract_multiple_times_I16",	qb_do_subtract_multiple_times_I16,	0,	0	},
 	{	"qb_do_subtract_multiple_times_I32",	qb_do_subtract_multiple_times_I32,	0,	0	},
 	{	"qb_do_subtract_multiple_times_I64",	qb_do_subtract_multiple_times_I64,	0,	0	},
+	{	"qb_do_synchronize_shadow_variable_U32",	qb_do_synchronize_shadow_variable_U32,	0,	0	},
 	{	"qb_do_tan_multiple_times_F32",	qb_do_tan_multiple_times_F32,	0,	0	},
 	{	"qb_do_tan_multiple_times_F64",	qb_do_tan_multiple_times_F64,	0,	0	},
 	{	"qb_do_tanh_multiple_times_F32",	qb_do_tanh_multiple_times_F32,	0,	0	},
@@ -28177,6 +28213,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_redirect_print_variable_array_element_U64",	qb_redirect_print_variable_array_element_U64,	0,	0	},
 	{	"qb_redirect_print_variable_multiple_times_U64",	qb_redirect_print_variable_multiple_times_U64,	0,	0	},
 	{	"qb_redirect_print_multidimensional_variable_U64",	qb_redirect_print_multidimensional_variable_U64,	0,	0	},
+	{	"qb_redirect_extension_op_U32",	qb_redirect_extension_op_U32,	0,	0	},
+	{	"qb_redirect_synchronize_shadow_variable_U32",	qb_redirect_synchronize_shadow_variable_U32,	0,	0	},
 	{	"qb_dispatch_instruction_ARR_ARR",	qb_dispatch_instruction_ARR_ARR,	0,	0	},
 	{	"qb_dispatch_instruction_ARR_ARR_ARR",	qb_dispatch_instruction_ARR_ARR_ARR,	0,	0	},
 	{	"qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR",	qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR,	0,	0	},
@@ -28741,5 +28779,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	"__libm_sse2_sincosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 1913;
+uint32_t global_native_symbol_count = 1917;
 

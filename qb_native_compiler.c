@@ -1228,7 +1228,6 @@ int32_t qb_decompress_code(qb_native_compiler_context *cxt) {
 		qb_uncompress_table(compressed_table_native_references, (void ***) &cxt->pool->op_function_usages, &cxt->pool->op_function_usage_count, 0);
 	}
 	if(!cxt->pool->function_prototypes) {
-		uint32_t count;
 		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &cxt->pool->function_prototype_count, 0);
 #if ZEND_DEBUG
 		if(cxt->pool->function_prototype_count > PROTOTYPE_COUNT) {

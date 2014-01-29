@@ -87,7 +87,7 @@ static void qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_addr
 				}	break;
 				case QB_TYPE_S64: {
 					int64_t value = VALUE_IN(storage, S64, address);
-					store_as_string = (value > INT32_MAX) || (value < INT32_MAX);
+					store_as_string = (value > INT32_MAX) || (value < INT32_MIN);
 				}	break;
 				case QB_TYPE_U64: {
 					uint64_t value = VALUE_IN(storage, U64, address);
@@ -199,10 +199,15 @@ static void qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_addr
 	}
 }
 
-static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt) {
+void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 	USE_TSRM
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
+
+	if(!EG(active_symbol_table)) {
+		zend_rebuild_symbol_table(TSRMLS_C);
+	}
+
 	cxt->shadow_variables = ecalloc(cxt->function->variable_count, sizeof(zval *));
 	for(i = 0, j = 0; i < cxt->function->variable_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
@@ -244,10 +249,11 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index) {
 	USE_TSRM
 	qb_variable *qvar = cxt->function->variables[index];
-	zval *shadow_var = cxt->shadow_variables[index];
-	if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-		qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_var);
-	} else {
+	if(cxt->shadow_variables) {
+		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
+			zval *shadow_var = cxt->shadow_variables[index];
+			qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_var);
+		}
 	}
 }
 
@@ -290,6 +296,7 @@ void qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
 		}
 		zval_ptr_dtor(&argument);
 	}
+	efree(cxt->shadow_variables);
 }
 
 #include "zend_extensions.h"
@@ -304,6 +311,12 @@ void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode,
 		zend_op *opline = EG(current_execute_data)->opline;
 		opline->opcode = zend_opcode;
 		opline->lineno = LINE_NUMBER(line_id);
+
+		if(cxt->function->flags & QB_FUNCTION_NEED_SHADOWS) {
+			if(!cxt->shadow_variables) {
+				qb_create_shadow_variables(cxt);
+			}
+		}
 
 		for(element = zend_extensions.head; element; element = element->next) {
 			zend_extension *extension = (zend_extension *) element->data;

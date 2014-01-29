@@ -642,7 +642,6 @@ static void qb_set_result_dimensions_sampling_vector(qb_compiler_context *cxt, q
 static void qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	uint32_t i;
 	uint32_t result_dimension_count = 1;
-	qb_address *result_element_size_address = NULL;
 	qb_address **result_element_dimension_addresses = NULL;
 	qb_address **result_element_array_size_addresses = NULL;
 
