@@ -5,6 +5,7 @@ Function call array dimension mismatch test (scalar from PHP)
 
 /**
  * @engine	qb
+ * @inline	never
  * @param	int32[4][8]			$a
  * @param	int32[][3][4]		$b
  */
