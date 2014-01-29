@@ -45980,6 +45980,18 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef line_id
 #undef op1
 			
+			case QB_DBG_SYNC_U32:
+#define INSTR		((qb_instruction_SCA * __restrict) ip)
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
+			{
+				handler = INSTR->next_handler;
+				qb_sync_shadow_variable(cxt, op1);
+				ip += sizeof(qb_instruction_SCA);
+				break;
+			}
+#undef INSTR
+#undef op1
+			
 			default:
 			__assume(0);
 		}

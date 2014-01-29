@@ -21,23 +21,6 @@
 #include "qb.h"
 #include "zend_variables.h"
 
-
-static zend_class_entry *qb_get_value_type_debug_class(uint32_t type TSRMLS_DC) {
-	static zend_class_entry *value_type_debug_base_class = NULL;
-	static zend_class_entry *value_type_debug_classes[QB_TYPE_COUNT] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, };
-	zend_class_entry ce;
-	if(!value_type_debug_base_class) {
-		INIT_CLASS_ENTRY(ce, "%QB%", NULL);
-		value_type_debug_base_class = zend_register_internal_class_ex(&ce, zend_standard_class_def, NULL TSRMLS_CC);
-	}
-	if(!value_type_debug_classes[type]) {
-		const char *type_name = type_names[type];
-		INIT_CLASS_ENTRY_EX(ce, type_name, strlen(type_name), NULL);
-		value_type_debug_classes[type] = zend_register_internal_class_ex(&ce, value_type_debug_base_class, NULL TSRMLS_CC);
-	}
-	return value_type_debug_classes[type];
-}
-
 static void qb_element_to_zval(zval *zvalue, int8_t *bytes, uint32_t type) {
 	switch(type) {
 		case QB_TYPE_S08: {
@@ -220,6 +203,7 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 	USE_TSRM
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
+	cxt->shadow_variables = ecalloc(cxt->function->variable_count, sizeof(zval *));
 	for(i = 0, j = 0; i < cxt->function->variable_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
@@ -243,7 +227,7 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 				zend_ptr_stack_push(&EG(argument_stack), value);
 #endif
 			}
-			qvar->shadow = value;
+			cxt->shadow_variables[i] = value;
 		}
 	}
 	// push the argument count
@@ -260,8 +244,9 @@ static void ZEND_FASTCALL qb_create_shadow_variables(qb_interpreter_context *cxt
 void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index) {
 	USE_TSRM
 	qb_variable *qvar = cxt->function->variables[index];
+	zval *shadow_var = cxt->shadow_variables[index];
 	if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-		qb_transfer_value_to_debug_zval(cxt, qvar->address, qvar->shadow);
+		qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_var);
 	} else {
 	}
 }
@@ -271,7 +256,7 @@ void qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
 	// the only thing we need to do here is to put arguments that were passed by reference
 	// back into the symbol table and pop them off the stack
 	USE_TSRM
-	uint32_t i, j, arg_count;
+	uint32_t i, arg_count;
 	zend_execute_data *ex = EG(current_execute_data);
 
 	// pop the argument count
@@ -282,7 +267,7 @@ void qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
 	arg_count = (uint32_t) (zend_uintptr_t) zend_ptr_stack_pop(&EG(argument_stack));
 #endif
 
-	for(i = 0, j = 0; i < arg_count; i++) {
+	for(i = 0; i < arg_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
 
 		// pop argument off Zend stack
@@ -298,12 +283,47 @@ void qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
 
 			// updating the CVs for consistency sake
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-			*EX_CV_NUM(ex, j) = var;
+			*EX_CV_NUM(ex, i) = var;
 #else
-			ex->CVs[j] = var;
+			ex->CVs[i] = var;
 #endif
 		}
 		zval_ptr_dtor(&argument);
-		j++;
+	}
+}
+
+#include "zend_extensions.h"
+#include "zend_vm.h"
+
+void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_id) {
+	USE_TSRM
+	if(!EG(no_extensions)) {
+		USE_TSRM
+		zend_llist_element *element;
+		zend_op_array *op_array = EG(current_execute_data)->op_array;
+		zend_op *opline = EG(current_execute_data)->opline;
+		opline->opcode = zend_opcode;
+		opline->lineno = LINE_NUMBER(line_id);
+
+		for(element = zend_extensions.head; element; element = element->next) {
+			zend_extension *extension = (zend_extension *) element->data;
+			switch(zend_opcode) {
+				case ZEND_EXT_FCALL_BEGIN: {
+					if(extension->fcall_begin_handler != NULL) {
+						extension->fcall_begin_handler(op_array);
+					}
+				}	break;
+				case ZEND_EXT_FCALL_END: {
+					if(extension->fcall_end_handler != NULL) {
+						extension->fcall_end_handler(op_array);
+					}
+				}	break;
+				case ZEND_EXT_STMT: {
+					if(extension->statement_handler != NULL) {
+						extension->statement_handler(op_array);
+					}
+				}	break;
+			}
+		}
 	}
 }

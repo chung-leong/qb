@@ -65,7 +65,6 @@ struct qb_variable {
 		zval *default_value;
 		zval **value_pointer;
 	};
-	zval *shadow;
 };
 
 enum qb_external_symbol_type {

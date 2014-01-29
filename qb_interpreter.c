@@ -536,6 +536,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	cxt->argument_count = 0;
 	cxt->result_index = 0;
 	cxt->line_id = 0;
+	cxt->shadow_variables = NULL;
 #ifdef ZEND_WIN32
 	cxt->windows_timed_out_pointer = &EG(timed_out);
 #endif
@@ -822,9 +823,6 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 			}
 		}
 	}
-}
-
-void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_id) {
 }
 
 int32_t qb_execute(qb_interpreter_context *cxt) {

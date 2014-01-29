@@ -697,3 +697,13 @@ static qb_opcode qb_select_opcode_expression_type(qb_compiler_context *cxt, qb_o
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	return qb_select_type_dependent_opcode(cxt, bf->opcodes, expr_type);
 }
+
+static qb_opcode qb_select_opcode_ext(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	USE_TSRM
+	if(QB_G(allow_debugger_inspection)) {
+		qb_simple_op_factory *sf = (qb_simple_op_factory *) f;
+		return sf->opcode;
+	} else {
+		return QB_NOP;
+	}
+}

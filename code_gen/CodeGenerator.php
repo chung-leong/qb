@@ -1616,6 +1616,7 @@ class CodeGenerator {
 	
 	protected function addDebugHandlers() {
 		$this->handlers[] = new ExtensionOp("EXT", "U32");
+		$this->handlers[] = new SynchronizeShadowVariable("DBG_SYNC", "U32");
 	}
 }
 

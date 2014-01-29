@@ -437,7 +437,6 @@ extern qb_simple_op_factory factory_branch_on_false;
 extern qb_simple_op_factory factory_foreach_reset;
 extern qb_simple_op_factory factory_foreach_fetch;
 extern qb_simple_op_factory factory_loop;
-extern qb_simple_op_factory factory_ext;
 extern qb_op_decomposer factory_return;
 extern qb_op_decomposer factory_yield;
 extern qb_op_decomposer factory_branch_on_true_set;
@@ -631,5 +630,8 @@ extern qb_php_function_result_factory factory_ini_restore;
 extern qb_php_function_result_factory factory_get_cfg_var;
 extern qb_php_function_result_factory factory_getenv;
 extern qb_php_function_result_factory factory_putenv;
+
+extern qb_simple_op_factory factory_ext;
+extern qb_simple_op_factory factory_synchronize_debug_variable;
 
 #endif

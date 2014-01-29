@@ -45488,6 +45488,18 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef line_id
 #undef op1
 		
+		label_DBG_SYNC_U32:
+#define INSTR		((qb_instruction_SCA * __restrict) ip)
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_sync_shadow_variable(cxt, op1);
+			ip += sizeof(qb_instruction_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef op1
+		
 	} else {
 		op_handlers[QB_NOP] = &&label_NOP;
 		op_handlers[QB_JMP] = &&label_JMP;
@@ -47864,6 +47876,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_CROSS_4X_GUARD_U32_U32_U32] = &&label_CROSS_4X_GUARD_U32_U32_U32;
 		op_handlers[QB_VV_GUARD_U32_U32] = &&label_VV_GUARD_U32_U32;
 		op_handlers[QB_EXT_U32] = &&label_EXT_U32;
+		op_handlers[QB_DBG_SYNC_U32] = &&label_DBG_SYNC_U32;
 	}
 }
 

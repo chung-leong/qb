@@ -1917,8 +1917,8 @@ static qb_type_declaration * qb_find_variable_declaration_in_list(qb_compiler_co
 	return NULL;
 }
 
-uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address) {
-	uint32_t i;	
+uint32_t qb_find_variable_index(qb_compiler_context *cxt, qb_address *address) {
+	uint32_t i;
 	qb_variable *qvar;
 	if(address) {
 		while(address->source_address) {
@@ -1942,10 +1942,18 @@ uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address) {
 			}
 		}
 	}
-	qvar = qb_allocate_variable(cxt->pool);
-	qvar->address = address;
-	qb_add_variable(cxt, qvar);
-	return i;
+	return INVALID_INDEX;
+}
+
+uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address) {
+	uint32_t index = qb_get_variable_index(cxt, address);
+	if(index == INVALID_INDEX) {
+		qb_variable *qvar = qb_allocate_variable(cxt->pool);
+		qvar->address = address;
+		index = cxt->variable_count;
+		qb_add_variable(cxt, qvar);
+	}
+	return index;
 }
 
 static qb_type_declaration * qb_find_variable_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
@@ -3244,6 +3252,26 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 			}
 		}
 
+		if(cxt->debugger_present) {
+			USE_TSRM
+			if(QB_G(allow_debugger_inspection)) {
+				for(i = 0; i < qop->operand_count; i++) {
+					// sync the variable a
+					if(qop->operands[i].type == QB_OPERAND_ADDRESS) {
+						if(qb_is_operand_write_target(qop->opcode, i)) {
+							uint32_t variable_index = qb_find_variable_index(cxt, qop->operands[i].address);
+							if(variable_index != INVALID_INDEX) {
+								qb_operand operand;
+								operand.address = qb_obtain_constant_U32(cxt, variable_index);
+								operand.type = QB_OPERAND_ADDRESS;
+								qb_create_op(cxt, &factory_synchronize_debug_variable, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		// set function flags
 		if(f->set_function_flags) {
 			f->set_function_flags(cxt, f, operands, operand_count, result);
@@ -3952,7 +3980,7 @@ int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC) {
 	cxt->compiler_contexts = emalloc(sizeof(qb_compiler_context *) * QB_DIAGNOSTIC_SPEED_TEST_COUNTS);
 
 	for(i = 0; i < QB_DIAGNOSTIC_SPEED_TEST_COUNTS; i++) {
-		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i] = emalloc(sizeof(qb_compiler_context));
+		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[cxt->compiler_context_count++] = emalloc(sizeof(qb_compiler_context));
 		qb_initialize_compiler_context(compiler_cxt, cxt->pool, NULL, 0, 0 TSRMLS_CC);
 		qb_create_diagnostic_loop(compiler_cxt, i);
 	}

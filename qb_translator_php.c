@@ -590,7 +590,10 @@ static int32_t qb_process_user_opcode(qb_php_translator_context *cxt, void *op_f
 }
 
 static int32_t qb_process_extension_op(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	return TRUE;
+	qb_operand opcode;
+	opcode.type = QB_OPERAND_NUMBER;
+	opcode.number = cxt->zend_op->opcode;
+	return qb_produce_op(cxt->compiler_context, op_factory, &opcode, 1, result, NULL, 0, result_prototype);
 }
 
 static qb_php_op_translator op_translators[] = {
@@ -698,10 +701,10 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_basic_op,				&factory_fetch_array_element_read			},	// ZEND_FETCH_DIM_TMP_VAR
 	{	qb_process_basic_op,				&factory_fetch_constant						},	// ZEND_FETCH_CONSTANT
 	{	NULL,								NULL										},	// ZEND_GOTO
-	{	qb_process_extension_op,			&factory_ext				},	// ZEND_EXT_STMT
-	{	qb_process_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_BEGIN
-	{	qb_process_extension_op,			&factory_ext				},	// ZEND_EXT_FCALL_END
-	{	qb_process_extension_op,			&factory_ext				},	// ZEND_EXT_NOP
+	{	qb_process_extension_op,			&factory_ext								},	// ZEND_EXT_STMT
+	{	qb_process_extension_op,			&factory_ext								},	// ZEND_EXT_FCALL_BEGIN
+	{	qb_process_extension_op,			&factory_ext								},	// ZEND_EXT_FCALL_END
+	{	qb_process_extension_op,			&factory_ext								},	// ZEND_EXT_NOP
 	{	qb_process_basic_op,				&factory_nop								},	// ZEND_TICKS
 	{	qb_process_send_argument,			NULL										},	// ZEND_SEND_VAR_NO_REF
 	{	NULL,								NULL										},	// ZEND_CATCH
@@ -747,9 +750,9 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_basic_op,				&factory_assign_array_element				},	// ZEND_ASSIGN_DIM
 	{	qb_process_basic_op,				&factory_object_property_isset				},	// ZEND_ISSET_ISEMPTY_PROP_OBJ
 	{	NULL,								NULL										},	// ZEND_HANDLE_EXCEPTION
-	{	qb_process_user_opcode,				NULL						},	// ZEND_USER_OPCODE
+	{	qb_process_user_opcode,				NULL										},	// ZEND_USER_OPCODE
 	{	NULL,								NULL										},	// 151
-	{	qb_process_jump_set,				NULL						},	// ZEND_JMP_SET
+	{	qb_process_jump_set,				NULL										},	// ZEND_JMP_SET
 	{	NULL,								NULL										},	// ZEND_DECLARE_LAMBDA_FUNCTION
 	{	NULL,								NULL										},	// ZEND_ADD_TRAIT
 	{	NULL,								NULL										},	// ZEND_BIND_TRAITS

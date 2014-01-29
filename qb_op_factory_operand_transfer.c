@@ -635,6 +635,14 @@ static void qb_transfer_operands_unpack(qb_compiler_context *cxt, qb_op_factory 
 	dest[1] = *result;
 }
 
+static void qb_transfer_operands_ext(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+	if(dest_count != 0) {
+		qb_operand *opcode = &operands[0];
+		dest[0].address = qb_obtain_constant_U32(cxt, opcode->number);
+		dest[0].type = QB_OPERAND_ADDRESS;
+	}
+}
+
 static void qb_transfer_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];

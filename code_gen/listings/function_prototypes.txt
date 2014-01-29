@@ -41,6 +41,7 @@ int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_i
 intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size);
 
 void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_id);
+void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index);
 
 float qb_fast_rsqrtf(float x);
 double qb_fast_rsqrt(double x);

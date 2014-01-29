@@ -26879,6 +26879,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_fast_sqrtf",	qb_fast_sqrtf,	0,	0	},
 	{	"qb_fast_rsqrt",	qb_fast_rsqrt,	0,	0	},
 	{	"qb_fast_rsqrtf",	qb_fast_rsqrtf,	0,	0	},
+	{	"qb_sync_shadow_variable",	qb_sync_shadow_variable,	0,	0	},
 	{	"qb_run_zend_extension_op",	qb_run_zend_extension_op,	0,	0	},
 	{	"qb_resize_segment",	qb_resize_segment,	0,	0	},
 	{	"qb_dispatch_function_call",	qb_dispatch_function_call,	0,	0	},
@@ -28792,5 +28793,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	"_libm_sse2_tan_precise",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 1964;
+uint32_t global_native_symbol_count = 1965;
 

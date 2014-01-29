@@ -139,6 +139,8 @@ struct qb_compiler_context {
 	qb_translation_type translation;
 	void *translator_context;
 
+	int32_t debugger_present;
+
 #ifdef ZTS
 	void ***tsrm_ls;
 #endif
@@ -352,6 +354,7 @@ qb_variable * qb_get_static_variable(qb_compiler_context *cxt, zval *name);
 qb_variable * qb_get_class_variable(qb_compiler_context *cxt, zend_class_entry *ce, zval *name);
 qb_variable * qb_get_instance_variable(qb_compiler_context *cxt, zval *name);
 uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address);
+uint32_t qb_find_variable_index(qb_compiler_context *cxt, qb_address *address);
 
 int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar);
 

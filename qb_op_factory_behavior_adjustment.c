@@ -22,3 +22,6 @@ static void qb_indicate_non_inlineable(qb_compiler_context *cxt, qb_op_factory *
 	cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
 }
 
+static void qb_indicate_debugger_presence(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+	cxt->debugger_present = TRUE;
+}

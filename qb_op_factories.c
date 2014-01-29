@@ -2810,17 +2810,35 @@ qb_simple_op_factory factory_ext = {
 	NULL,
 	NULL,
 	NULL,
-	qb_set_result_prototype,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_ext,
+	qb_transfer_operands_ext,
+	qb_indicate_debugger_presence,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_EXT_U32,
+};
+
+qb_simple_op_factory factory_synchronize_debug_variable = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL,
 	NULL,
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_all,
-	qb_indicate_non_inlineable,
+	NULL,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
-	QB_EXT_U32,
+	QB_DBG_SYNC_U32,
 };
 
 qb_simple_op_factory factory_jump = {
