@@ -1,5 +1,5 @@
 --TEST--
-Use case: Image reflection
+Use case: Image reflection (using fork)
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';
@@ -10,7 +10,7 @@ Use case: Image reflection
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/malgorzata_socha2.png");
 $correct_path = "$folder/output/image-reflection.correct.png";
-$incorrect_path = "$folder/output/image-reflection.incorrect.png";
+$incorrect_path = "$folder/output/image-reflection-fork.incorrect.png";
 $output = imagecreatetruecolor(640, 480);
 
 class ReflectionFilter {
@@ -69,6 +69,7 @@ class ReflectionFilter {
 	  * @local float32 $(image_.*)
 	  * @local float32[r,g,b,a] $(pixel|sample)
 	  * @local float32 $k;
+	  * @local uint32 $fork_id
 	  */
 	public function draw(&$canvas, $image) {
 		$canvas_height = count($canvas);
@@ -88,19 +89,22 @@ class ReflectionFilter {
 		$image_refl_height = $image_height * $this->length;
 		$image_refl_start = $image_height - $image_refl_height;
 		
-		for($dest_y = $dest_top, $refl_y = $refl_bottom, $image_y = 0; $dest_y < $dest_bottom; $dest_y++, $refl_y--, $image_y += $image_adv) {
-			$k = ($image_y - $image_refl_start) / $image_refl_height * $this->reflectivity;
-			for($dest_x = $dest_left, $image_x = 0; $dest_x < $dest_right; $dest_x++, $image_x += $image_adv) {
-				$pixel = $canvas[$dest_y][$dest_x];
-				$sample = sample_bilinear($image, $image_x, $image_y);
-				$pixel = mix($pixel, $sample, $sample->a);
-				$canvas[$dest_y][$dest_x] = $pixel;
-				
-				if($k > 0.0 && $refl_y < $canvas_height) {
-					$pixel = $canvas[$refl_y][$dest_x];
-					$pixel = mix($pixel, $sample, $sample->a * $k);
-					$canvas[$refl_y][$dest_x] = $pixel;
-				}
+		$fork_id = fork($dest_bottom - $dest_top);
+		$dest_y = $dest_top + $fork_id;
+		$refl_y = $refl_bottom - $fork_id;
+		$image_y = $fork_id * $image_adv;
+
+		$k = ($image_y - $image_refl_start) / $image_refl_height * $this->reflectivity;
+		for($dest_x = $dest_left, $image_x = 0; $dest_x < $dest_right; $dest_x++, $image_x += $image_adv) {
+			$pixel = $canvas[$dest_y][$dest_x];
+			$sample = sample_bilinear($image, $image_x, $image_y);
+			$pixel = mix($pixel, $sample, $sample->a);
+			$canvas[$dest_y][$dest_x] = $pixel;
+			
+			if($k > 0.0 && $refl_y < $canvas_height) {
+				$pixel = $canvas[$refl_y][$dest_x];
+				$pixel = mix($pixel, $sample, $sample->a * $k);
+				$canvas[$refl_y][$dest_x] = $pixel;
 			}
 		}
 	}

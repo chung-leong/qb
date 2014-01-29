@@ -712,13 +712,7 @@ static void qb_handle_execution(qb_interpreter_context *cxt, int32_t forked) {
 			case QB_VM_FORK: {
 				// fork the vm
 				continue_execution = TRUE;
-				if(cxt->fork_count > 0 || cxt->thread_count > 0) {
-					fork_execution = TRUE;
-				} else {
-					// not threads are available and the call to fork() doesn't specify a number
-					cxt->fork_id = 0;
-					fork_execution = FALSE;
-				}
+				fork_execution = (cxt->fork_count > 0);
 			}	break;
 			case QB_VM_ERROR: {
 				USE_TSRM

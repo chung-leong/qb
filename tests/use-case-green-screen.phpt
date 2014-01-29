@@ -1,5 +1,5 @@
 --TEST--
-Use case: Image reflection
+Use case: Green screen
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';
