@@ -59,6 +59,7 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 						SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
 					} else if(Z_OBJ_HT_P(container)->read_property) {
 						zvalue = Z_OBJ_READ_PROP(container, name);
+						Z_ADDREF_P(zvalue);
 					}
 				}	break;
 				default: {
@@ -101,6 +102,8 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 				zvalue = *ivar->value_pointer;
 			} else {
 				zvalue = ivar->value;
+				// separate the zval first, since we're modifying it
+				SEPARATE_ZVAL_TO_MAKE_IS_REF(&zvalue);
 			}
 			if(!zvalue) {
 				ALLOC_INIT_ZVAL(zvalue);
@@ -124,6 +127,7 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 					zval_ptr_dtor(&zvalue);
 				}
 			}
+			ivar->value_pointer = NULL;
 			ivar->value = NULL;
 		}
 		ivar->flags &= ~QB_VARIABLE_IMPORTED;
