@@ -779,7 +779,7 @@ static const char * qb_get_zend_op_name(qb_php_translator_context *cxt, uint32_t
 }
 
 static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
-	if(cxt->zend_op->opcode != ZEND_OP_DATA && cxt->zend_op->opcode != qb_user_opcode) {
+	if(cxt->zend_op->opcode != ZEND_OP_DATA && cxt->zend_op->opcode != QB_USER_OPCODE) {
 		qb_operand operands[3] = { { QB_OPERAND_NONE, { NULL } }, { QB_OPERAND_NONE, { NULL } }, { QB_OPERAND_NONE, { NULL } } };  
 		qb_operand results[2] = { { QB_OPERAND_NONE, { NULL } }, { QB_OPERAND_NONE, { NULL } } };
 		qb_result_prototype *result_prototype = &cxt->result_prototypes[cxt->zend_op_index];

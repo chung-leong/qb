@@ -20,6 +20,7 @@ if (PHP_QB != "no") {
 	qb_crc64.c\
 	qb_compiler.c\
 	qb_data_tables_msvc.c\
+	qb_debug_interface.c\
 	qb_encoder.c\
 	qb_exceptions.c\
 	qb_extractor.c\

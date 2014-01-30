@@ -649,7 +649,6 @@ static void qb_set_result_dimensions_array_merge(qb_compiler_context *cxt, qb_op
 		qb_address *address = operands[i].address;
 		if(address->dimension_count > result_dimension_count) {
 			result_dimension_count = address->dimension_count;
-			result_element_size_address = address->array_size_addresses[1];
 			result_element_dimension_addresses = address->dimension_addresses + 1;
 			result_element_array_size_addresses = address->array_size_addresses + 1;
 		}

@@ -63,7 +63,7 @@ enum qb_pixel_format {
 	QB_PIXEL_2D_F64_4 = QB_PIXEL_F64_4 | QB_PIXEL_ARRANGEMENT_2D,
 };
 
-static gdImagePtr qb_get_gd_image(zval *resource) {
+gdImagePtr qb_get_gd_image(zval *resource) {
 	if(Z_TYPE_P(resource) == IS_RESOURCE) {
 		static int le_gd = -1;
 		TSRMLS_FETCH();

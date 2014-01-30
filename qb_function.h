@@ -61,10 +61,9 @@ struct qb_variable {
 	uint32_t name_length;
 	ulong hash_value;
 	zend_class_entry *zend_class;
-	union {
-		zval *default_value;
-		zval **value_pointer;
-	};
+	zval *default_value;
+	zval *value;
+	zval **value_pointer;
 };
 
 enum qb_external_symbol_type {
@@ -139,6 +138,7 @@ struct qb_function {
 	qb_function *next_reentrance_copy;
 	qb_function *next_forked_copy;
 	volatile int32_t in_use;
+	uint32_t current_fork_id;
 };
 
 struct qb_native_code_bundle {

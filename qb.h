@@ -53,6 +53,7 @@
 #endif
 
 #include "php.h"
+#include "php_qb.h"
 #include "ext/standard/php_rand.h"
 
 #ifdef ZEND_ACC_GENERATOR
@@ -113,6 +114,7 @@
 #include "config.h"
 #endif
 
+#include "qb_debug_interface.h"
 #include "qb_version.h"
 #include "qb_compat.h"
 #include "qb_opcodes.h"
@@ -155,6 +157,7 @@ struct qb_generator_context {
 ZEND_BEGIN_MODULE_GLOBALS(qb)
 	qb_main_thread main_thread;
 	long thread_count;
+	long debug_fork_id;
 
 	zend_bool allow_bytecode_interpretation;
 	zend_bool allow_native_compilation;
@@ -226,6 +229,7 @@ int qb_is_compiled_function(zend_function *zfunc);
 
 zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC);
 
+qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC);
 qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zval *object TSRMLS_DC);
 qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_import_scope *scope  TSRMLS_DC);
 
@@ -236,8 +240,8 @@ qb_build_context * qb_get_current_build(TSRMLS_D);
 qb_main_thread * qb_get_main_thread(TSRMLS_D);
 uint32_t qb_get_thread_count(TSRMLS_D);
 
-extern int qb_user_opcode;
-extern int qb_reserved_offset;
+extern int debug_compatibility_mode;
+extern qb_debug_interface debug_interface;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

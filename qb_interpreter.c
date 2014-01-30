@@ -21,6 +21,7 @@
 #include "qb.h"
 
 static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
+	int32_t result = TRUE;
 	if(!(ivar->flags & QB_VARIABLE_IMPORTED)) {
 		USE_TSRM
 		zval *zvalue = NULL, **p_zvalue = NULL;
@@ -71,34 +72,35 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
-				return FALSE;
-			}
-			if(!p_zvalue) {
-				if(Z_REFCOUNT_P(zvalue) == 0) {
-					Z_ADDREF_P(zvalue);
-					zval_ptr_dtor(&zvalue);
-				}
+				result = FALSE;
 			}
 		} else {
 			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
-				return FALSE;
+				result = FALSE;
 			}
 		}
-		ivar->value_pointer = p_zvalue;
 		ivar->flags |= QB_VARIABLE_IMPORTED;
+		ivar->value_pointer = p_zvalue;
+		if(ivar->value) {
+			zval_ptr_dtor(&ivar->value);
+		}
+		ivar->value = zvalue;
 	}
-	return TRUE;
+	return result;
 }
 
 static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
+	int32_t result = FALSE;
 	if(ivar->flags & QB_VARIABLE_IMPORTED) {
 		USE_TSRM
 		if(!READ_ONLY(ivar->address)) {
-			zval *zvalue = NULL;
+			zval *zvalue;
 			if(ivar->value_pointer) {
 				zvalue = *ivar->value_pointer;
+			} else {
+				zvalue = ivar->value;
 			}
 			if(!zvalue) {
 				ALLOC_INIT_ZVAL(zvalue);
@@ -109,7 +111,7 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 			if(!qb_transfer_value_to_zval(scope->storage, ivar->address, zvalue)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
-				return FALSE;
+				result = FALSE;
 			}
 
 			if(!ivar->value_pointer) {
@@ -122,10 +124,11 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 					zval_ptr_dtor(&zvalue);
 				}
 			}
+			ivar->value = NULL;
 		}
 		ivar->flags &= ~QB_VARIABLE_IMPORTED;
 	}
-	return TRUE;
+	return result;
 }
 
 static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
@@ -169,6 +172,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 
 static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 	USE_TSRM
+	int32_t result = TRUE;
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
@@ -187,8 +191,9 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 			if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
-				return FALSE;
+				result = FALSE;
 			}
+			qvar->value = zarg;
 		} else {
 			if(qvar->default_value) {
 				zval *zarg = qvar->default_value;
@@ -199,7 +204,7 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
 					uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 					qb_set_exception_line_id(line_id TSRMLS_CC);
-					return FALSE;
+					result = FALSE;
 				}
 			} else {
 				const char *class_name = (EG(active_op_array)->scope) ? EG(active_op_array)->scope->name : NULL;
@@ -214,7 +219,7 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 			}
 		}
 	}
-	return TRUE;
+	return result;
 }
 
 static int32_t qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
@@ -287,6 +292,7 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 				}
 			}
 		}
+		qvar->value = NULL;
 	}
 
 	if(EG(return_value_ptr_ptr)) {

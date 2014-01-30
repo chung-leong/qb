@@ -1946,7 +1946,7 @@ uint32_t qb_find_variable_index(qb_compiler_context *cxt, qb_address *address) {
 }
 
 uint32_t qb_get_variable_index(qb_compiler_context *cxt, qb_address *address) {
-	uint32_t index = qb_get_variable_index(cxt, address);
+	uint32_t index = qb_find_variable_index(cxt, address);
 	if(index == INVALID_INDEX) {
 		qb_variable *qvar = qb_allocate_variable(cxt->pool);
 		qvar->address = address;

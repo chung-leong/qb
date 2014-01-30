@@ -246,7 +246,7 @@ static void qb_print_zend_ops(qb_printer_context *cxt) {
 	uint32_t i = 0;
 	for(i = 0; i < cxt->compiler_context->zend_op_array->last; i++) {
 		zend_op *zop = &cxt->compiler_context->zend_op_array->opcodes[i];
-		if(zop->opcode != qb_user_opcode) {
+		if(zop->opcode != QB_USER_OPCODE) {
 			const char *opname = qb_get_zend_op_name(cxt, zop->opcode);
 			php_printf("[%04d] %s (line number: %d)\n", i, opname, zop->lineno);
 		}

@@ -433,6 +433,8 @@ int8_t * qb_copy_variable(qb_variable *qvar, int8_t *memory) {
 	} else {
 		dst->address = NULL;
 	}
+	dst->value = NULL;
+	dst->value_pointer = NULL;
 
 #if ZEND_DEBUG
 	if(memory + length != p) {

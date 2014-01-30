@@ -22,12 +22,14 @@
 #include "config.h"
 #endif
 
-#include "php.h"
+#include "qb.h"
+
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "zend_extensions.h"
-#include "php_qb.h"
-#include "qb.h"
+
+int reserved_offset = -1;
+int debug_compatibility_mode = TRUE;
 
 zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
 	char *error = NULL;
@@ -455,21 +457,18 @@ qb_function * qb_find_compiled_function(zend_function *zfunc) {
 	return NULL;
 }
 
-#define HAS_QB_USER_OP(op_array)		((op_array)->opcodes->opcode == qb_user_opcode)
-#define SET_QB_POINTER(op_array, p)		Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr) = (void *) p
-#define GET_QB_POINTER(op_array)		((void *) Z_OPERAND_INFO((op_array)->opcodes[0].op2, jmp_addr))
-
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array) {
-	SET_QB_POINTER(op_array, qfunc);
+	QB_SET_INTERFACE(op_array, &debug_interface);
+	QB_SET_FUNCTION(op_array, qfunc);
 
 	// save the pointer in the reserved array so we can find it again in the destructor
-	op_array->reserved[qb_reserved_offset] = qfunc;
+	op_array->reserved[reserved_offset] = qfunc;
 }
 
 qb_function * qb_get_compiled_function(zend_function *zfunc) {
 	zend_op_array *op_array = &zfunc->op_array;
-	if(zfunc->type == ZEND_USER_FUNCTION && HAS_QB_USER_OP(op_array)) {
-		return GET_QB_POINTER(op_array);
+	if(zfunc->type == ZEND_USER_FUNCTION && QB_IS_COMPILED(op_array)) {
+		return QB_GET_FUNCTION(op_array);
 	}
 	return NULL;
 }
@@ -558,7 +557,7 @@ static void qb_remove_generator_context(zend_generator *generator TSRMLS_DC) {
 
 int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
-	qb_function *qfunc = GET_QB_POINTER(op_array);
+	qb_function *qfunc = QB_GET_FUNCTION(op_array);
 	if(!qfunc) {
 		if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
 			qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
@@ -566,7 +565,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 		if(QB_G(build_context)) {
 			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
 			qb_build(build_cxt);
-			qfunc = GET_QB_POINTER(op_array);
+			qfunc = QB_GET_FUNCTION(op_array);
 			qb_discard_current_build(TSRMLS_C);
 		}
 	}
@@ -630,19 +629,19 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 
 		// add QB instruction
 		user_op = &op_array->opcodes[op_array->last++];
-		user_op->opcode = qb_user_opcode;
+		user_op->opcode = QB_USER_OPCODE;
 		Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
 		Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
 		Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
 
 		// stash the tag in the node until the compilation is done
-		SET_QB_POINTER(op_array, tag);
+		QB_SET_FUNCTION(op_array, tag);
 	}
 }
 
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
-	if(HAS_QB_USER_OP(op_array)) {
-		qb_function_tag *tag = GET_QB_POINTER(op_array);
+	if(QB_IS_COMPILED(op_array)) {
+		qb_function_tag *tag = QB_GET_FUNCTION(op_array);
 
 		// save the function name so we can find the function later
 		// op_array might be temporary so we can't use this pointer
@@ -652,13 +651,13 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 		// the function by name
 		tag->doc_comment = op_array->doc_comment;
 
-		SET_QB_POINTER(op_array, NULL);
+		QB_SET_FUNCTION(op_array, NULL);
 	}
 }
 
 void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
 	TSRMLS_FETCH();
-	qb_function *qfunc = op_array->reserved[qb_reserved_offset];
+	qb_function *qfunc = op_array->reserved[reserved_offset];
 	if(qfunc) {
 		qb_free_function(qfunc);
 	}
@@ -667,26 +666,14 @@ void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
 extern zend_extension zend_extension_entry;
 
 int qb_install_user_opcode_handler() {
-	if(zend_get_user_opcode_handler(qb_user_opcode)) {
-		// choose a user opcode that isn't in use
-		uint32_t i;
-		for(i = 255; i >= 200; i--) {
-			if(!zend_get_user_opcode_handler(i)) {
-				qb_user_opcode = i;
-				break;
-			}
-		}
-	}
-
-	// set the opcode handler
-	if(zend_set_user_opcode_handler(qb_user_opcode, qb_user_opcode_handler) == FAILURE) {
-		qb_user_opcode = 0;
+	// get a reserved offset
+	reserved_offset = zend_get_resource_handle(&zend_extension_entry);
+	if(reserved_offset == -1) {
 		return FAILURE;
 	}
 
-	// get a reserved offset
-	qb_reserved_offset = zend_get_resource_handle(&zend_extension_entry);
-	if(qb_reserved_offset == -1) {
+	// set the opcode handler
+	if(zend_set_user_opcode_handler(QB_USER_OPCODE, qb_user_opcode_handler) == FAILURE) {
 		return FAILURE;
 	}
 
@@ -700,10 +687,6 @@ int qb_is_compiled_function(zend_function *zfunc) {
 }
 
 ZEND_DECLARE_MODULE_GLOBALS(qb)
-
-/* True global resources - no need for thread safety here */
-int qb_user_opcode = 242;
-int qb_reserved_offset = -1;
 
 /* {{{ qb_functions[]
  *
