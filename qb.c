@@ -458,7 +458,6 @@ qb_function * qb_find_compiled_function(zend_function *zfunc) {
 }
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array) {
-	QB_SET_INTERFACE(op_array, &debug_interface);
 	QB_SET_FUNCTION(op_array, qfunc);
 
 	// save the pointer in the reserved array so we can find it again in the destructor
@@ -723,8 +722,10 @@ zend_module_entry qb_module_entry = {
 };
 /* }}} */
 
+extern qb_debug_interface debug_interface;
+
 zend_extension zend_extension_entry = {
-	"qb",
+	"QB",
 	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION),
 	"Chung Leong",
 	"http://www.php-qb.net/",
@@ -740,7 +741,16 @@ zend_extension zend_extension_entry = {
 	NULL,           /* fcall_end_handler_func_t */
 	qb_zend_ext_op_array_ctor,			/* op_array_ctor_func_t */
 	qb_zend_ext_op_array_dtor,			/* op_array_dtor_func_t */
-	STANDARD_ZEND_EXTENSION_PROPERTIES
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	&debug_interface,			/* reserved8 */
+	NULL,
+	-1
 };
 
 #ifdef COMPILE_DL_QB

@@ -247,12 +247,14 @@ void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 }
 
 void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index) {
-	USE_TSRM
-	qb_variable *qvar = cxt->function->variables[index];
-	if(cxt->shadow_variables) {
-		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-			zval *shadow_var = cxt->shadow_variables[index];
-			qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_var);
+	if(debug_compatibility_mode) {
+		USE_TSRM
+		qb_variable *qvar = cxt->function->variables[index];
+		if(cxt->shadow_variables) {
+			if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
+				zval *shadow_var = cxt->shadow_variables[index];
+				qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_var);
+			}
 		}
 	}
 }
@@ -309,12 +311,13 @@ void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode,
 		zend_llist_element *element;
 		zend_op_array *op_array = EG(current_execute_data)->op_array;
 		zend_op *opline = EG(current_execute_data)->opline;
-		opline->opcode = zend_opcode;
 		opline->lineno = LINE_NUMBER(line_id);
 
 		if(cxt->function->flags & QB_FUNCTION_NEED_SHADOWS) {
-			if(!cxt->shadow_variables) {
-				qb_create_shadow_variables(cxt);
+			if(debug_compatibility_mode) {
+				if(!cxt->shadow_variables) {
+					qb_create_shadow_variables(cxt);
+				}
 			}
 		}
 
@@ -340,3 +343,132 @@ void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode,
 		}
 	}
 }
+
+#ifdef ZEND_DEBUG
+void qb_test_debug_interface(qb_interpreter_context *cxt) {
+	static qb_debug_interface *qb = NULL;
+	USE_TSRM
+	if(!qb) {
+		zend_extension *qb_ext = zend_get_extension("QB");
+		if(qb_ext) {
+			qb = QB_GET_DEBUG_INTERFACE(qb_ext);
+		}
+	}
+
+	if(qb) {
+		uint32_t i;
+		for(i = 0; i < cxt->function->variable_count; i++) {
+			qb_variable *qvar = cxt->function->variables[i];
+			qb_debug_variable_details *details = NULL;
+			if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
+				qb->get_instance_variable_details(EG(This), qvar->name, &details);
+			} else if(qvar->flags & QB_VARIABLE_CLASS) {
+				qb->get_class_variable_details(EG(called_scope), qvar->name, &details);
+			} else if(qvar->flags & QB_VARIABLE_GLOBAL) {
+				qb->get_global_variable_details(qvar->name, &details);
+			} else if(qvar->flags & QB_VARIABLE_CLASS_CONSTANT) {
+				continue;
+			} else if(!qvar->name) {
+				continue;
+			} else {
+				void *f;
+				if(qb->get_function_pointer(EG(active_op_array), &f)) {
+					qb->get_local_variable_details(f, qvar->name, &details);
+				}
+			}
+			printf("%s:\n", qvar->name);
+			if(details) {
+				if(details->flags & QB_VAR_IS_STRING) {
+					char *s = (char *) details->data;
+					int len = details->byte_count;
+					printf("%.*s\n\n", len, s);
+				} else if(details->flags & QB_VAR_IS_IMAGE) {
+					qb_debug_bitmap *bitmap;
+					if(qb->get_bitmap(details, &bitmap)) {
+						printf("[%dx%d bitmap]\n\n", bitmap->width, bitmap->height);
+						qb->free_bitmap(bitmap);
+					} else {
+						printf("failed\n\n");
+					}
+				} else {
+					uint32_t count = details->byte_count / (details->bitness / 8), i;
+					if(details->flags & QB_VAR_IS_FLOAT) {
+						switch(details->bitness) {
+							case 32: {
+								float32_t *f = (float32_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%g ", f[i]);
+								}
+							}	break;
+							case 64: {
+								float64_t *f = (float64_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%g ", f[i]);
+								}
+							}	break;
+						}
+					} else if(details->flags & QB_VAR_IS_UNSIGNED) {
+						switch(details->bitness) {
+							case 8: {
+								uint8_t *u = (uint8_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRIu8 " ", u[i]);
+								}
+							}	break;
+							case 16: {
+								uint16_t *u = (uint16_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRIu16 " ", u[i]);
+								}
+							}	break;
+							case 32: {
+								uint32_t *u = (uint32_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRIu32 " ", u[i]);
+								}
+							}	break;
+							case 64: {
+								uint64_t *u = (uint64_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRIu64 " ", u[i]);
+								}
+							}	break;
+						}
+					} else {
+						switch(details->bitness) {
+							case 8: {
+								int8_t *d = (int8_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRId8 " ", d[i]);
+								}
+							}	break;
+							case 16: {
+								int16_t *d = (int16_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRId16 " ", d[i]);
+								}
+							}	break;
+							case 32: {
+								int32_t *d = (int32_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRId32 " ", d[i]);
+								}
+							}	break;
+							case 64: {
+								int64_t *d = (int64_t *) details->data;
+								for(i = 0; i < count; i++) {
+									printf("%" PRId64 " ", d[i]);
+								}
+							}	break;
+						}
+					}
+					printf("\n\n");
+				}
+				qb->free_variable_details(details);
+			} else {
+				printf("failed\n\n");
+			}
+		}
+	}
+}
+#endif

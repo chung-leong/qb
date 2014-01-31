@@ -241,7 +241,6 @@ qb_main_thread * qb_get_main_thread(TSRMLS_D);
 uint32_t qb_get_thread_count(TSRMLS_D);
 
 extern int debug_compatibility_mode;
-extern qb_debug_interface debug_interface;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

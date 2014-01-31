@@ -775,6 +775,8 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 	qb_handle_execution(cxt, FALSE);
 
+	qb_test_debug_interface(cxt);
+
 	if(cxt->exit_type == QB_VM_EXCEPTION) {
 		return FALSE;
 	} else if(cxt->exit_type == QB_VM_YIELD) {

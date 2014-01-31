@@ -29,6 +29,17 @@ int qb_debug_set_compatibility_mode(int enable) {
 	return TRUE;
 }
 
+int qb_debug_get_function_pointer(zend_op_array *op_array, void **p_func_ptr) {
+	void *f = NULL;
+	if(QB_IS_COMPILED(op_array)) {
+		f = QB_GET_FUNCTION(op_array);
+	}
+	if(p_func_ptr) {
+		*p_func_ptr = f;
+	}
+	return (f != NULL);
+}
+
 static qb_function *qb_get_active_function(qb_function *qfunc) {
 	qb_function *active = qfunc, *f;
 	for(f = qfunc; f; f = f->next_reentrance_copy) {
@@ -81,7 +92,7 @@ static int qb_get_varaible_details(qb_storage *storage, qb_variable *qvar, qb_de
 			if(address->type & QB_TYPE_UNSIGNED) {
 				details->flags |= QB_VAR_IS_UNSIGNED;
 			}
-			if(address->type > QB_TYPE_F32) {
+			if(address->type >= QB_TYPE_F32) {
 				details->flags |= QB_VAR_IS_FLOAT;
 			} else {
 				details->flags |= QB_VAR_IS_INTEGER;
@@ -111,11 +122,11 @@ static int qb_get_varaible_details(qb_storage *storage, qb_variable *qvar, qb_de
 			if(details->dimension_count > 0) {
 				element_count = VALUE_IN(storage, U32, address->array_size_address);
 			} else {
-				element_count = 0;
+				element_count = 1;
 			}
 			details->byte_count = BYTE_COUNT(element_count, address->type);
-			details->zend_variable = qvar->value;
 			details->data = ARRAY_IN(storage, I08, address);
+			details->variable = qvar;
 		}
 	}
 	if(p_details) {
@@ -359,21 +370,24 @@ int qb_debug_get_bitmap(qb_debug_variable_details *details, qb_debug_bitmap **p_
 	}
 	if(pixel_count != 0) {
 		// get the image width from the original gd image
-		if(details->zend_variable) {
-			gdImagePtr image = qb_get_gd_image(details->zend_variable);
+		qb_variable *qvar = details->variable;
+		if(qvar->value) {
+			gdImagePtr image = qb_get_gd_image(qvar->value);
 			width = image->sx;
 			height = pixel_count / width;
 		}
 	}
 	if(width != 0 && height != 0) {
 		// allocate memory
-		qb_debug_bitmap *bitmap = calloc(1, sizeof(qb_debug_bitmap));
+		bitmap = calloc(1, sizeof(qb_debug_bitmap));
 		if(bitmap) {
 			bitmap->scanlines = calloc(height, sizeof(int *));
+			bitmap->width = width;
+			bitmap->height = height;
 			if(bitmap->scanlines) {
 				uint32_t i;
 				for(i = 0; i < height; i++) {
-					int *scanline = calloc(width, sizeof(int));
+					int *scanline = malloc(width * sizeof(int));
 					if(scanline) {
 						bitmap->scanlines[i] = scanline;
 					} else {
@@ -400,8 +414,8 @@ int qb_debug_get_bitmap(qb_debug_variable_details *details, qb_debug_bitmap **p_
 }
 
 qb_debug_interface debug_interface = {
-	QB_INTERFACE_SIGNATURE,
 	sizeof(qb_debug_interface),
+	qb_debug_get_function_pointer,
 	qb_debug_set_compatibility_mode,
 	qb_debug_free_bitmap,
 	qb_debug_get_bitmap,

@@ -146,4 +146,16 @@ struct qb_native_code_bundle {
 	uint32_t size;
 };
 
+#if PHP_MAJOR_VERSION == 5 && (PHP_MINOR_VERSION == 1 || PHP_MINOR_VERSION == 2 || PHP_MINOR_VERSION == 3)
+	#define QB_GET_FUNCTION(op_array)		((void *) (op_array)->opcodes[0].op2.u.jmp_addr)
+	#define QB_SET_FUNCTION(op_array, p)	(op_array)->opcodes[0].op2.u.jmp_addr = (void *) p
+#elif PHP_MAJOR_VERSION == 5 && (PHP_MINOR_VERSION == 4 || PHP_MINOR_VERSION == 5)
+	#define QB_GET_FUNCTION(op_array)		((op_array)->opcodes[0].op2.ptr)
+	#define QB_SET_FUNCTION(op_array, p)	(op_array)->opcodes[0].op2.ptr = (void *) p
+#endif
+
+#define QB_IS_COMPILED(op_array)			((op_array)->opcodes[0].opcode == QB_USER_OPCODE)
+
+#define QB_USER_OPCODE						254
+
 #endif

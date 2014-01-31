@@ -134,4 +134,8 @@ void qb_free_interpreter_context(qb_interpreter_context *cxt);
 
 void qb_main(qb_interpreter_context *__restrict cxt);
 
+#ifdef ZEND_DEBUG
+void qb_test_debug_interface(qb_interpreter_context *cxt);
+#endif
+
 #endif

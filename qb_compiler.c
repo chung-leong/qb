@@ -2442,10 +2442,10 @@ qb_primitive_type qb_get_result_destination_type(qb_compiler_context *cxt, qb_re
 				if(cxt->return_variable->address) {
 					return cxt->return_variable->address->type;
 				}
-			}
+			}	break;
 			case QB_RESULT_DESTINATION_ARGUMENT: {
 				// TODO:
-			}
+			}	break;
 			default: break;
 		}
 	}
@@ -2585,11 +2585,11 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 			if(desired_type != QB_TYPE_ANY) {
 				// change the type only if there's flexibility 
 				if(operand->result_prototype->final_type == QB_TYPE_ANY || operand->result_prototype->final_type == QB_TYPE_UNKNOWN) {
-					if(desired_type >= QB_TYPE_F32 && operand->result_prototype->coercion_flags & QB_COERCE_TO_INTEGER) {
+					if(desired_type >= QB_TYPE_F32 && (operand->result_prototype->coercion_flags & QB_COERCE_TO_INTEGER)) {
 						// operand cannot be floating point (e.g. result of bitwise operator) 
 						// use the largest integer type instead
 						desired_type = QB_TYPE_I64;
-					} else if(desired_type < QB_TYPE_F32 && operand->result_prototype->coercion_flags & QB_COERCE_TO_FLOATING_POINT) {
+					} else if(desired_type < QB_TYPE_F32 && (operand->result_prototype->coercion_flags & QB_COERCE_TO_FLOATING_POINT)) {
 						desired_type = QB_TYPE_F64;
 					}
 					if(desired_type > operand->result_prototype->preliminary_type || operand->result_prototype->preliminary_type == QB_TYPE_ANY || operand->result_prototype->preliminary_type == QB_TYPE_UNKNOWN) {
@@ -3253,18 +3253,20 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 		}
 
 		if(cxt->debugger_present) {
-			USE_TSRM
-			if(QB_G(allow_debugger_inspection)) {
-				for(i = 0; i < qop->operand_count; i++) {
-					// sync the variable a
-					if(qop->operands[i].type == QB_OPERAND_ADDRESS) {
-						if(qb_is_operand_write_target(qop->opcode, i)) {
-							uint32_t variable_index = qb_find_variable_index(cxt, qop->operands[i].address);
-							if(variable_index != INVALID_INDEX) {
-								qb_operand operand;
-								operand.address = qb_obtain_constant_U32(cxt, variable_index);
-								operand.type = QB_OPERAND_ADDRESS;
-								qb_create_op(cxt, &factory_synchronize_debug_variable, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
+			if(debug_compatibility_mode) {
+				USE_TSRM
+				if(QB_G(allow_debugger_inspection)) {
+					for(i = 0; i < qop->operand_count; i++) {
+						// sync the variable a
+						if(qop->operands[i].type == QB_OPERAND_ADDRESS) {
+							if(qb_is_operand_write_target(qop->opcode, i)) {
+								uint32_t variable_index = qb_find_variable_index(cxt, qop->operands[i].address);
+								if(variable_index != INVALID_INDEX) {
+									qb_operand operand;
+									operand.address = qb_obtain_constant_U32(cxt, variable_index);
+									operand.type = QB_OPERAND_ADDRESS;
+									qb_create_op(cxt, &factory_synchronize_debug_variable, QB_TYPE_VOID, &operand, 1, NULL, NULL, 0, FALSE);
+								}
 							}
 						}
 					}
