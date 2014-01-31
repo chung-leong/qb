@@ -310,6 +310,7 @@
     </ClCompile>
     <ClCompile Include="..\qb_crc64.c" />
     <ClCompile Include="..\qb_data_tables_msvc.c" />
+    <ClCompile Include="..\qb_debug_interface.c" />
     <ClCompile Include="..\qb_encoder.c" />
     <ClCompile Include="..\qb_exceptions.c" />
     <ClCompile Include="..\qb_extractor.c" />
@@ -419,6 +420,7 @@
     <ClInclude Include="..\qb_build.h" />
     <ClInclude Include="..\qb_compat.h" />
     <ClInclude Include="..\qb_compiler.h" />
+    <ClInclude Include="..\qb_debug_interface.h" />
     <ClInclude Include="..\qb_encoder.h" />
     <ClInclude Include="..\qb_exceptions.h" />
     <ClInclude Include="..\qb_extractor.h" />
