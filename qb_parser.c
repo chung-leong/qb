@@ -246,6 +246,8 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 	matches = pcre_exec(type_decl_regexp, NULL, s, len, 0, 0, offsets, sizeof(offsets) / sizeof(int));
 	if(matches != -1) {
 		uint32_t end_index = offsets[1];
+		uint32_t base_dimension_count = 0;
+		uint32_t base_dimensions[MAX_DIMENSION];
 
 		decl = qb_allocate_type_declaration(cxt->pool);
 		decl->flags = var_type;
@@ -294,30 +296,28 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 			decl->flags |= QB_TYPE_DECL_BOOLEAN;
 		} else if(FOUND_GROUP(TYPE_DECL_STRING) && !FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
 			decl->type = QB_TYPE_U08;
-			decl->dimension_count = 1;
-			decl->dimensions = qb_allocate_indices(cxt->pool, 1);
-			decl->dimensions[0] = 0;
 			decl->flags |= QB_TYPE_DECL_EXPANDABLE | QB_TYPE_DECL_STRING;
-		} else if(FOUND_GROUP(TYPE_DECL_IMAGE) && !FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
+			base_dimension_count = 1;
+			base_dimensions[0] = 0;
+		} else if(FOUND_GROUP(TYPE_DECL_IMAGE)) {
 			uint32_t identifier_len = GROUP_LENGTH(TYPE_DECL_IMAGE);
 			decl->type = QB_TYPE_F32;
-			decl->dimension_count = 3;
-			decl->dimensions = qb_allocate_indices(cxt->pool, 3);
-			decl->dimensions[0] = 0;
-			decl->dimensions[1] = 0;
+			decl->flags |= QB_TYPE_DECL_IMAGE;
+			base_dimension_count = 3;
+			base_dimensions[0] = 0;
+			base_dimensions[1] = 0;
 			if(identifier_len == 6) {
 				const char *identifier = s + GROUP_OFFSET(TYPE_DECL_IMAGE);
-				decl->dimensions[2] = identifier[identifier_len - 1] - '0';
+				base_dimensions[2] = identifier[identifier_len - 1] - '0';
 			} else {
-				decl->dimensions[2] = 4;
+				base_dimensions[2] = 4;
 			}
-			decl->flags |= QB_TYPE_DECL_IMAGE;
 		} else {
 			return NULL;
 		}
 
 		if(FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
-			uint32_t dimension_count = 0, i;
+			uint32_t dimension_count = 0, i, j;
 			uint32_t dimension_len = GROUP_LENGTH(TYPE_DECL_DIMENSIONS);
 			const char *dimension_string = s + GROUP_OFFSET(TYPE_DECL_DIMENSIONS);
 
@@ -328,8 +328,12 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 				}
 			}
 
-			decl->dimensions = qb_allocate_indices(cxt->pool, dimension_count);
-			decl->dimension_count = dimension_count;
+			if(dimension_count + base_dimension_count > MAX_DIMENSION) {
+				return NULL;
+			}
+
+			decl->dimensions = qb_allocate_indices(cxt->pool, dimension_count + base_dimension_count);
+			decl->dimension_count = dimension_count + base_dimension_count;
 
 			for(i = 0; i < dimension_count; i++) {
 				int32_t processed = qb_parse_type_dimension(cxt, dimension_string, dimension_len, decl, i);
@@ -338,6 +342,16 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 				}
 				dimension_string += processed;
 				dimension_len -= processed;
+			}
+			for(j = 0; j < base_dimension_count; j++, i++) {
+				decl->dimensions[i] = base_dimensions[j];
+			}
+		} else if(base_dimension_count > 0) {
+			uint32_t i;
+			decl->dimensions = qb_allocate_indices(cxt->pool, base_dimension_count);
+			decl->dimension_count = base_dimension_count;
+			for(i = 0; i < base_dimension_count; i++) {
+				decl->dimensions[i] = base_dimensions[i];
 			}
 		}
 

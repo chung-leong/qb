@@ -454,7 +454,7 @@ static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memo
 				p += image->sx * pixel_size;
 				if((uint32_t) image->sx < dst_width) {
 					memset(p, 0, (dst_width - image->sx) * pixel_size);
-					p += (dst_width - image->sx);
+					p += (dst_width - image->sx) * pixel_size;
 				}
 			}
 			if(src_pixel_count < dst_pixel_count) {
