@@ -460,7 +460,7 @@ static int32_t qb_copy_elements_from_gd_image(gdImagePtr image, int8_t *dst_memo
 			if(src_pixel_count < dst_pixel_count) {
 				memset(p, 0, (dst_pixel_count - src_pixel_count) * pixel_size);
 			}
-			qb_run_task_group(group);
+			qb_run_task_group(group, FALSE);
 			qb_free_task_group(group);
 		}
 	} else {
@@ -693,7 +693,7 @@ static int32_t qb_copy_elements_to_gd_image(int8_t *src_memory, gdImagePtr image
 				qb_add_task(group, proc, p, image->tpixels[i], image->sx);
 				p += image->sx * pixel_size;
 			}
-			qb_run_task_group(group);
+			qb_run_task_group(group, FALSE);
 			qb_free_task_group(group);
 		}
 	} else {

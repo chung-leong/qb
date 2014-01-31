@@ -93,7 +93,7 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 }
 
 static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, qb_variable *ivar, qb_import_scope *scope) {
-	int32_t result = FALSE;
+	int32_t result = TRUE;
 	if(ivar->flags & QB_VARIABLE_IMPORTED) {
 		USE_TSRM
 		if(!READ_ONLY(ivar->address)) {
@@ -400,6 +400,14 @@ static int32_t qb_sync_imported_variables(qb_interpreter_context *cxt) {
 	return TRUE;
 }
 
+void qb_sync_imported_variable(qb_interpreter_context *cxt, qb_variable *qvar) {
+	USE_TSRM
+	zval *zobject = !(qvar->flags & QB_VARIABLE_GLOBAL) ? EG(This) : NULL;
+	qb_import_scope *scope = qb_get_import_scope(cxt->function->local_storage, qvar, zobject TSRMLS_CC);
+	qb_variable *ivar = qb_get_import_variable(cxt->function->local_storage, qvar, scope TSRMLS_CC);
+	qb_transfer_value_to_import_source(cxt, ivar, scope);
+}
+
 static int32_t qb_transfer_variables_to_php(qb_interpreter_context *cxt) {
 	return qb_sync_imported_variables(cxt);
 }
@@ -587,23 +595,20 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	uint32_t i, fork_count, function_count, new_context_count, remaining_thread_count;
 	intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
 	int32_t reusing_original_cxt = 1;
+	int32_t debugging = function->flags & QB_FUNCTION_HAS_BREAKPOINTS;
 
-	if(cxt->thread_count > 0) {
+	if(cxt->thread_count > 0 && !debugging) {
 		// we'll create one copy of the function per thread
 		function_count = cxt->thread_count;
 	} else {
 		function_count = 1;
 	}
 
-	if(cxt->fork_count == 0) {
-		fork_count = cxt->fork_count = cxt->thread_count;
-	} else {
-		fork_count = cxt->fork_count;
-		if(cxt->fork_count > (uint32_t) cxt->thread_count) {
-			// if there're more forks than functions, we need to keep the original storage intact,
-			// so we can restore a context to the state at the point of the fork
-			reusing_original_cxt = 0;
-		}
+	fork_count = cxt->fork_count;
+	if(cxt->fork_count > function_count) {
+		// if there're more forks than functions, we need to keep the original storage intact,
+		// so we can restore a context to the state at the point of the fork
+		reusing_original_cxt = 0;
 	}
 	new_context_count = fork_count - reusing_original_cxt;
 
@@ -650,6 +655,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			fork_cxt->windows_timed_out_pointer = cxt->windows_timed_out_pointer;
 			fork_cxt->floating_point_precision = cxt->floating_point_precision;
 			fork_cxt->send_target = NULL;
+			fork_cxt->shadow_variables = cxt->shadow_variables;
 #ifdef ZTS
 			fork_cxt->tsrm_ls = tsrm_ls;
 #endif
@@ -659,7 +665,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	}
 
 	// run the tasks and wait for completion
-	qb_run_task_group(group);
+	qb_run_task_group(group, debugging);
 
 	if(reusing_original_cxt) {
 		// restore variables in the original context
@@ -774,8 +780,6 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 
 static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
 	qb_handle_execution(cxt, FALSE);
-
-	qb_test_debug_interface(cxt);
 
 	if(cxt->exit_type == QB_VM_EXCEPTION) {
 		return FALSE;
@@ -924,7 +928,7 @@ void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *contr
 
 	// set the thread count to zero, so the controller function performs the task instead of redirecting it
 	cxt->thread_count = 0;
-	qb_run_task_group(group);
+	qb_run_task_group(group, FALSE);
 
 	// restore variables
 	cxt->thread_count = original_thread_count;

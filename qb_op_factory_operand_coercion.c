@@ -184,18 +184,6 @@ static void qb_coerce_operands_array_pos(qb_compiler_context *cxt, qb_op_factory
 	}
 }
 
-static void qb_coerce_operands_array_push(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
-	qb_primitive_type operand_type = qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
-	uint32_t i;
-	for(i = 1; i < operand_count; i++) {
-		qb_operand *value = &operands[i];
-		// don't coerce addresses since cross-type copying is possible
-		if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION || value->type != QB_OPERAND_ADDRESS) {
-			qb_perform_type_coercion(cxt, value, operand_type, f->coercion_flags);
-		}
-	}
-}
-
 static void qb_coerce_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_operand *container = &operands[0], *count = &operands[1];
 	qb_perform_type_coercion(cxt, container, QB_TYPE_ANY, f->coercion_flags);

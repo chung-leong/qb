@@ -325,26 +325,6 @@ void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage) 
 	}
 }
 
-static uint32_t qb_get_zval_array_size(zval *zvalue) {
-	HashTable *ht = Z_ARRVAL_P(zvalue);
-	return ht->nNextFreeElement;
-}
-
-static void qb_initialize_element_address(qb_address *address, qb_address *container_address) {
-	*address = *container_address;
-	if(--address->dimension_count > 0) {
-		address->dimension_addresses++;
-		address->array_size_addresses++;
-		address->array_size_address = address->array_size_addresses[0];
-		if(address->index_alias_schemes) {
-			address->index_alias_schemes++;
-		}
-	} else {
-		address->array_size_address = NULL;
-		address->dimension_addresses = address->array_size_addresses = NULL;
-	}
-}
-
 static int32_t qb_capture_dimensions_from_byte_count(uint32_t byte_count, qb_dimension_mappings *m, uint32_t dimension_index) {
 	uint32_t element_count = ELEMENT_COUNT(byte_count, m->dst_element_type);
 	uint32_t correct_byte_count = BYTE_COUNT(element_count, m->dst_element_type);
@@ -980,7 +960,6 @@ static int32_t qb_copy_elements_to_array(int8_t *src_memory, zval *zarray, zval 
 
 static int32_t qb_copy_elements_to_object(int8_t *src_memory, zval *zobject, qb_dimension_mappings *m, uint32_t dimension_index) {
 	int8_t *src_pointer = src_memory;
-	uint32_t src_dimension = (dimension_index < m ->src_dimension_count) ? m->src_dimensions[dimension_index] : 1;
 	uint32_t src_element_count = (dimension_index + 1 < m ->src_dimension_count) ? m->src_array_sizes[dimension_index + 1] : 1;
 	uint32_t src_element_byte_count = BYTE_COUNT(src_element_count, m->src_element_type);
 	uint32_t dst_index = 0;

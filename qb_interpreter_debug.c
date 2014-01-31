@@ -255,6 +255,9 @@ void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index) {
 				zval *shadow_var = cxt->shadow_variables[index];
 				qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_var);
 			}
+			if(qvar->flags & (QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS | QB_VARIABLE_GLOBAL)) {
+				qb_sync_imported_variable(cxt, qvar);
+			}
 		}
 	}
 }

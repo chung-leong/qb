@@ -705,12 +705,12 @@ int qb_wake_workers(qb_thread *thread, long count) {
 	return (awaken > 0);
 }
 
-void qb_run_task_group(qb_task_group *group) {
+void qb_run_task_group(qb_task_group *group, int32_t iterative) {
 	qb_thread *thread = group->owner;
 	qb_main_thread *main_thread = qb_get_thread_owner(thread);
 	int workers_available = FALSE;
 
-	if(main_thread->worker_count + 1 < pool->per_request_thread_limit) {
+	if(main_thread->worker_count + 1 < pool->per_request_thread_limit || iterative) {
 		long count = pool->per_request_thread_limit - main_thread->worker_count;
 		if(count > group->task_count) {
 			count = group->task_count;

@@ -49,11 +49,7 @@ static qb_function *qb_get_active_function(qb_function *qfunc) {
 	}
 	for(f = active; f; f = f->next_forked_copy) {
 		if(f->in_use) {
-			TSRMLS_FETCH();
-			if(f->current_fork_id == QB_G(debug_fork_id)) {
-				active = f;
-				break;
-			}
+			active = f;
 		}
 	}
 	return active;

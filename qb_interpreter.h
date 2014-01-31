@@ -126,6 +126,7 @@ void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode,
 void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index);
 void qb_create_shadow_variables(qb_interpreter_context *cxt);
 void qb_destroy_shadow_variables(qb_interpreter_context *cxt);
+void qb_sync_imported_variable(qb_interpreter_context *cxt, qb_variable *qvar);
 
 int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_number);
 

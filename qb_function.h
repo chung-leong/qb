@@ -110,8 +110,8 @@ enum {
 	QB_FUNCTION_NEVER_INLINE		= 0x00000200,
 	QB_FUNCTION_INLINE_ALWAYS		= 0x00000400,
 	QB_FUNCTION_RUN_IN_MAIN_THREAD	= 0x00000800,
-
 	QB_FUNCTION_NEED_SHADOWS		= 0x00001000,
+	QB_FUNCTION_HAS_BREAKPOINTS		= 0x00002000,
 };
 
 struct qb_function {
@@ -138,7 +138,6 @@ struct qb_function {
 	qb_function *next_reentrance_copy;
 	qb_function *next_forked_copy;
 	volatile int32_t in_use;
-	uint32_t current_fork_id;
 };
 
 struct qb_native_code_bundle {
