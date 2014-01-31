@@ -592,7 +592,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	qb_function *function = cxt->function;
 	uint32_t original_fork_id = cxt->fork_id;
 	uint32_t original_thread_count = cxt->thread_count;
-	uint32_t i, fork_count, function_count, new_context_count, remaining_thread_count;
+	uint32_t i, fork_id, fork_count, function_count, new_context_count, remaining_thread_count;
 	intptr_t instr_offset = cxt->instruction_pointer - cxt->function->instructions;
 	int32_t reusing_original_cxt = 1;
 	int32_t debugging = function->flags & QB_FUNCTION_HAS_BREAKPOINTS;
@@ -613,23 +613,17 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	new_context_count = fork_count - reusing_original_cxt;
 
 	// the number of threads that the each fork can use
-	remaining_thread_count = (cxt->thread_count > cxt->fork_count) ? cxt->thread_count - cxt->fork_count : 0;
+	remaining_thread_count = (cxt->thread_count > cxt->fork_count) ? (cxt->thread_count - cxt->fork_count) / cxt->fork_count : 0;
 
 	// initialize the group, allocating extra memory for new interpreter contexts
 	qb_initialize_task_group(group, fork_count, sizeof(qb_interpreter_context) * new_context_count);
 	fork_contexts = group->extra_memory;
 
-	if(reusing_original_cxt) {
-		// schedule the first worker
-		cxt->fork_id = 0;
-		cxt->thread_count = remaining_thread_count;
-		qb_add_task(group, qb_execute_in_worker_thread, cxt, NULL, 0);
-	}
-
 	// initialize new interpreter contexts
 	if(new_context_count > 0) {
 		USE_TSRM
-		for(i = reusing_original_cxt; i < cxt->fork_count; i++) {
+		// schedule the forks in reverse order
+		for(i = reusing_original_cxt, fork_id = fork_count - 1; i < fork_count; i++, fork_id--) {
 			qb_interpreter_context *fork_cxt = &fork_contexts[i - reusing_original_cxt];
 			if(i < function_count && qb_in_main_thread()) {
 				// acquire the function in the main thread now to avoid context switching from the worker
@@ -643,7 +637,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			}
 			fork_cxt->caller_context = NULL;
 			fork_cxt->thread_count = remaining_thread_count;
-			fork_cxt->fork_id = i;
+			fork_cxt->fork_id = fork_id;
 			fork_cxt->fork_count = fork_count;
 			fork_cxt->argument_indices = NULL;
 			fork_cxt->argument_count = 0;
@@ -664,6 +658,13 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 		}
 	}
 
+	if(reusing_original_cxt) {
+		// schedule the first worker
+		cxt->fork_id = 0;
+		cxt->thread_count = remaining_thread_count;
+		qb_add_task(group, qb_execute_in_worker_thread, cxt, NULL, 0);
+	}
+
 	// run the tasks and wait for completion
 	qb_run_task_group(group, debugging);
 
@@ -671,11 +672,9 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 		// restore variables in the original context
 		cxt->fork_id = original_fork_id;
 		cxt->thread_count = original_thread_count;
-		cxt->function = function;
-		function->in_use = TRUE;
 	} else {
 		// transfer the execution state to the original context
-		qb_interpreter_context *first_cxt = &fork_contexts[0];
+		qb_interpreter_context *first_cxt = &fork_contexts[fork_count - 1];
 		instr_offset = (intptr_t) first_cxt->instruction_pointer;
 		cxt->exit_type = first_cxt->exit_type;
 		cxt->instruction_pointer = cxt->function->instructions + instr_offset;
@@ -683,8 +682,10 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 		if(cxt->exit_type == QB_VM_SPOON) {
 			// need to transfer non-shared segments back into the original storage
 			// since the execution will resume
+			qb_copy_storage_contents(first_cxt->function->local_storage, cxt->function->local_storage);
 		}
 	}
+	cxt->fork_count = 0;
 
 	if(new_context_count > 0) {
 		// free the new interpreter contexts
@@ -773,9 +774,11 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 	// adjust instruction offset
 	cxt->instruction_pointer = (int8_t *) (cxt->instruction_pointer - cxt->function->instructions);
 
-	// unlock the function
-	qb_unlock_function(cxt->function);
-	cxt->function = NULL;
+	// unlock the function (unless it's the fork #0)
+	if(cxt->fork_id != 0) {
+		qb_unlock_function(cxt->function);
+		cxt->function = NULL;
+	}
 }
 
 static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {

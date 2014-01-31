@@ -313,14 +313,8 @@ void qb_copy_storage_contents(qb_storage *src_storage, qb_storage *dst_storage) 
 		qb_memory_segment *src = &src_storage->segments[i];
 		qb_memory_segment *dst = &dst_storage->segments[i];
 		if(dst->memory != src->memory) {
-			// assume that the destination buffer is large enough
-#ifdef ZEND_DEBUG
-			if(dst->current_allocation < src->byte_count) {
-				qb_debug_abort("Error");
-			}
-#endif
+			qb_resize_segment(dst, src->byte_count);
 			memcpy(dst->memory, src->memory, src->byte_count);
-			dst->byte_count = src->byte_count;
 		}
 	}
 }
