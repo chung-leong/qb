@@ -53,7 +53,7 @@ uint32_t qb_get_zend_line_id(TSRMLS_D) {
 	if(ed) {
 		const char *filename = ed->op_array->filename;
 		uint32_t line_no = (ed->opline) ? ed->opline->lineno : 0;
-		uint32_t file_id = qb_get_source_file_id(filename);
+		uint32_t file_id = qb_get_source_file_id(filename TSRMLS_CC);
 		return LINE_ID(file_id, line_no);
 	}
 	return 0;

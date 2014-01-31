@@ -665,6 +665,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_debug_interface.c"
+				>
+			</File>
+			<File
 				RelativePath="..\qb_encoder.c"
 				>
 			</File>
@@ -1351,6 +1355,10 @@
 			</File>
 			<File
 				RelativePath="..\qb_compiler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_debug_interface.h"
 				>
 			</File>
 			<File
