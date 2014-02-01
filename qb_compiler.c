@@ -422,7 +422,6 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 					qb_operand operands[6] = { { QB_OPERAND_ADDRESS, { dim->array_size_address } }, { QB_OPERAND_ADDRESS, { address->array_size_address } }, { QB_OPERAND_ADDRESS, { address->dimension_addresses[0] } }, { QB_OPERAND_ADDRESS, { address->array_size_addresses[1] } }, { QB_OPERAND_SEGMENT_SELECTOR, { address } }, { QB_OPERAND_ELEMENT_SIZE, { address } } };
 					expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
 				} else {
-					// TODO: move validation to the proper stage
 					uint32_t i, j;
 					if(address->dimension_count == dim->dimension_count) {
 						qb_operand operands[MAX_DIMENSION * 4 + 2];
@@ -3211,20 +3210,6 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 
 		// add the ops for calculating on-demand values 
 		qb_create_on_demand_op(cxt, qop, QB_EXPR_EXECUTE_BEFORE);
-
-		/*
-		for(i = 0; i < operand_count; i++) {
-			qb_address *address = operands[i].address;
-			if(address->mode == QB_ADDRESS_MODE_ELE) {
-				// see if the opcode has an ELE version; most do, but a few do not
-				uint32_t op_flags = qb_get_op_flags(cxt, opcode);
-				if(!(op_flags & QB_OP_VERSION_AVAILABLE_ELE)) {
-					// copy the element to an temporary variable
-					// TODO
-				}
-			}
-		}
-		*/
 
 		// add the op
 		qb_add_op(cxt, qop);

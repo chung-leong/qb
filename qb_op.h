@@ -278,7 +278,6 @@ struct qb_pointer_PAR {
 #define VARIABLE_LENGTH(address)			(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
 #define MULTIDIMENSIONAL(address)			(address->dimension_count > 1)
 
-// TODO: fix these
 #define ARRAY_MEMBER(address)				(address->source_address && address->source_address->dimension_count > address->dimension_count)
 #define CAST(address)						(address->source_address && address->source_address->dimension_count == address->dimension_count && address->type != address->source_address->type)
 

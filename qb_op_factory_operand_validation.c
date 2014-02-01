@@ -943,8 +943,11 @@ static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_facto
 }
 
 static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	zend_class_entry *ce = EG(called_scope);
+	const char *class_name = (ce) ? ce->name : NULL;
 	uint32_t i;
 
 	for(i = 0; i < (uint32_t) argument_count->number; i++) {
@@ -954,17 +957,13 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 			if(arg->flags & QB_VARIABLE_BY_REF) {
 				// TODO: check size
 				if(val->type != QB_OPERAND_ADDRESS || TEMPORARY(val->address)) {
-					qb_report_unexpected_value_as_function_argument_exception(cxt->line_id, qfunc, i);
+					qb_report_unexpected_value_as_function_argument_exception(cxt->line_id, class_name, qfunc->name, i);
 					return FALSE;
 				}
 				if(!STORAGE_TYPE_MATCH(val->address->type, arg->address->type)) {
-					qb_report_unexpected_function_argument_type_exception(cxt->line_id, qfunc, i, val->address->type, arg->address->type);
+					qb_report_unexpected_function_argument_type_exception(cxt->line_id, class_name, qfunc->name, i, val->address->type, arg->address->type);
 					return FALSE;
 				}
-			}
-			if(SCALAR(arg->address) && !SCALAR(val->address)) {
-				qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, i, "scalar");
-				return FALSE;
 			}
 		}
 	}
@@ -972,12 +971,16 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 	if(!qfunc->return_variable->address) {
 		if(result_destination) {
 			switch(result_destination->type) {
-				case QB_RESULT_DESTINATION_RETURN:
 				case QB_RESULT_DESTINATION_VARIABLE:
 				case QB_RESULT_DESTINATION_ELEMENT:
 				case QB_RESULT_DESTINATION_PROPERTY:
 				case QB_RESULT_DESTINATION_PRINT:
-					// TODO: warn about void
+					qb_report_void_return_value_exception(cxt->line_id, class_name, qfunc->name);
+					break;
+				case QB_RESULT_DESTINATION_RETURN:
+					if(cxt->return_variable->address) {
+						qb_report_void_return_value_exception(cxt->line_id, class_name, qfunc->name);
+					}
 					break;
 				default: {
 				}	break;
@@ -988,7 +991,6 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 }
 
 static int32_t qb_validate_operands_zend_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
-	// TODO: check for by-ref argument
 	if(result_destination) {
 		switch(result_destination->type) {
 			case QB_RESULT_DESTINATION_RETURN:

@@ -102,10 +102,12 @@ void qb_report_missing_intrinsic_argument_exception(uint32_t line_id, qb_intrins
 void qb_report_variable_pixel_width_exception(uint32_t line_id, qb_intrinsic_function *ifunc);
 void qb_report_missing_alpha_channel_exception(uint32_t line_id, qb_intrinsic_function *ifunc, uint32_t channel_count);
 void qb_report_invalid_pixel_format_exception(uint32_t line_id, qb_intrinsic_function *ifunc, uint32_t channel_count);
-void qb_report_unexpected_value_as_function_argument_exception(uint32_t line_id, qb_function *qfunc, uint32_t param_index);
-void qb_report_unexpected_function_argument_type_exception(uint32_t line_id, qb_function *qfunc, uint32_t param_index, qb_primitive_type value_type, qb_primitive_type param_type);
+
+void qb_report_unexpected_value_as_function_argument_exception(uint32_t line_id, const char *class_name, const char *function_name, uint32_t param_index);
+void qb_report_unexpected_function_argument_type_exception(uint32_t line_id, const char *class_name, const char *function_name, uint32_t param_index, qb_primitive_type value_type, qb_primitive_type param_type);
 void qb_report_missing_argument_exception(uint32_t line_id, const char *class_name, const char *function_name, uint32_t argument_index, uint32_t caller_line_id);
 void qb_report_function_call_exception(uint32_t line_id, const char *class_name, const char *function_name);
+void qb_report_void_return_value_exception(uint32_t line_id, const char *class_name, const char *function_name);
 void qb_report_too_much_recursion_exception(uint32_t line_id, uint32_t call_depth);
 
 void qb_report_illegal_array_structure_exception(uint32_t line_id);

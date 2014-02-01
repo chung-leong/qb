@@ -190,9 +190,19 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 									compatible = TRUE;
 								}
 							} else if(READ_ONLY(callee_address->array_size_address)) {
-								// TODO: check granularity
 								// the function doesn't change the length
-								compatible = TRUE;
+								uint32_t length1 = ARRAY_SIZE_IN(cxt->caller_context->storage, argument_address);
+								uint32_t length2 = 1, i;
+								for(i = 1; i < callee_address->dimension_count; i++) {
+									qb_address *element_size_address = callee_address->array_size_addresses[i];
+									if(CONSTANT(element_size_address)) {
+										length2 = VALUE_IN(cxt->callee_context->storage, U32, element_size_address);
+										break;
+									}
+								}
+								if((length1 % length2) == 0) {
+									compatible = TRUE;
+								}
 							}
 						} else if(VARIABLE_LENGTH(argument_address) && VARIABLE_LENGTH(callee_address)) {
 							compatible = TRUE;

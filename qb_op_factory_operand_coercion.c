@@ -261,7 +261,6 @@ static void qb_coerce_operands_pack(qb_compiler_context *cxt, qb_op_factory *f, 
 			qb_perform_type_coercion(cxt, value, operand_type, 0);
 		}
 	}
-	// TODO: check the type
 }
 
 static void qb_coerce_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
