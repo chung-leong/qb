@@ -30,7 +30,8 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_
 					operand->type = QB_OPERAND_THIS;
 				} else {
 					// the variable type hasn't been set yet
-					qvar->flags |= QB_VARIABLE_LOCAL;
+					// could be local or shared
+					qvar->flags |= QB_VARIABLE_LOCAL | QB_VARIABLE_SHARED;
 					if(!qb_apply_type_declaration(cxt->compiler_context, qvar)) {
 						return FALSE;
 					}
@@ -1239,6 +1240,12 @@ int32_t qb_translate_instructions(qb_php_translator_context *cxt) {
 	// make sure there's always a RET at the end
 	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
 		if(!qb_produce_op(cxt->compiler_context, &factory_leave, NULL, 0, NULL, NULL, 0, NULL)) {
+			return FALSE;
+		}
+	}
+
+	if(cxt->compiler_context->function_flags & QB_FUNCTION_MULTITHREADED) {
+		if(!qb_check_thread_safety(cxt->compiler_context)) {
 			return FALSE;
 		}
 	}

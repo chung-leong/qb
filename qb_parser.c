@@ -541,6 +541,7 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 					switch(match) {
 						case FUNC_DECL_PARAM: var_type = QB_VARIABLE_ARGUMENT; break;
 						case FUNC_DECL_LOCAL: var_type = QB_VARIABLE_LOCAL; break;
+						case FUNC_DECL_SHARED: var_type = QB_VARIABLE_SHARED; break;
 						case FUNC_DECL_STATIC: var_type = QB_VARIABLE_STATIC | QB_VARIABLE_CLASS; break;
 						case FUNC_DECL_GLOBAL: var_type = QB_VARIABLE_GLOBAL; break;
 						case FUNC_DECL_LEXICAL: var_type = QB_VARIABLE_LEXICAL; break;
@@ -636,6 +637,8 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 					var_type = QB_VARIABLE_GLOBAL;
 				} else if(FOUND_GROUP(FUNC_DECL_LOCAL)) {
 					var_type = QB_VARIABLE_LOCAL;
+				} else if(FOUND_GROUP(FUNC_DECL_SHARED)) {
+					var_type = QB_VARIABLE_SHARED;
 				} else if(FOUND_GROUP(FUNC_DECL_LEXICAL)) {
 					var_type = QB_VARIABLE_LEXICAL;
 				} else if(FOUND_GROUP(FUNC_DECL_PARAM)) {

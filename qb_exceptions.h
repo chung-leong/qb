@@ -44,6 +44,9 @@ void qb_report_native_compilation_exception(uint32_t line_id, const char *functi
 void qb_report_missing_native_symbol_exception(uint32_t line_id, const char *symbol_name);
 void qb_report_illegal_use_of_this(uint32_t line_id);
 
+void qb_report_fork_in_fork_exception(uint32_t line_id);
+void qb_report_resize_in_fork_exception(uint32_t line_id);
+
 // these functions may be called at runtime
 void qb_report_out_of_bound_exception(uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive);
 void qb_report_element_size_mismatch_exception(uint32_t line_id, uint32_t size1, uint32_t size2);

@@ -2737,7 +2737,7 @@ qb_simple_op_factory factory_fork_init = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_fork,
-	qb_indicate_non_inlineable,
+	qb_indicate_fork,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,

@@ -703,7 +703,7 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 
 static void qb_adjust_pointer(void **p, uintptr_t start, uintptr_t end, intptr_t shift) {
 	uintptr_t address = *((uintptr_t *) p);
-	if(start <= address && address <= end) {
+	if(start <= address && address < end) {
 		SHIFT_POINTER(*p, shift);
 	}
 }

@@ -1974,6 +1974,9 @@ static qb_type_declaration * qb_find_variable_declaration(qb_compiler_context *c
 int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 	qb_type_declaration *decl = qb_find_variable_declaration(cxt, qvar);
 	if(decl) {
+		// clear the type flags that don't match
+		qvar->flags &= (decl->flags & QB_VARIABLE_TYPES) | ~QB_VARIABLE_TYPES;
+
 		if(decl->type != QB_TYPE_VOID) {
 			qb_address *address;
 			if(decl->dimension_count == 0) {
@@ -1993,6 +1996,9 @@ int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 			}
 			if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
 				address->index_alias_schemes = decl->index_alias_schemes;
+			}
+			if(qvar->flags & QB_VARIABLE_SHARED) {
+				qb_mark_as_shared(cxt, address);
 			}
 			qvar->address = address;
 		}
@@ -3702,6 +3708,56 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 			}
 		}
 	}
+}
+
+int32_t qb_check_thread_safety_in_range(qb_compiler_context *cxt, uint32_t start_index, uint32_t end_index, int32_t forked) {
+	uint32_t i, j;
+	for(i = start_index; i <= end_index; i++) {
+		qb_op *qop = cxt->ops[i];
+		if(qop->flags & QB_OP_CHECKED) {
+			break;
+		}
+		qop->flags |= QB_OP_CHECKED;
+		if(forked) {
+			if(qop->opcode == QB_RET) {
+				break;
+			} else if(qop->opcode == QB_SPOON) {
+				forked = FALSE;
+			} else if(qop->opcode == QB_FORK_U32) {
+				qb_report_fork_in_fork_exception(qop->line_id);
+				return FALSE;
+			} else {
+				if(qop->flags & QB_OP_NOT_THREAD_SAFE) {
+					// make sure none of the operands are shared
+					for(j = 0; j < qop->operand_count; j++) {
+						qb_operand *operand = &qop->operands[j];
+						if(operand->type == QB_OPERAND_ADDRESS) {
+							if(SHARED(operand->address)) {
+								if(qb_is_operand_write_target(qop->opcode, j)) {
+									qb_report_resize_in_fork_exception(qop->line_id);
+									return FALSE;
+								}
+							}
+						}
+					}
+				}
+			}
+			for(j = 0; j < qop->jump_target_count; j++) {
+				if(!qb_check_thread_safety_in_range(cxt, qop->jump_target_indices[j], end_index, forked)) {
+					return FALSE;
+				}
+			}
+		} else {
+			if(qop->opcode == QB_FORK_U32) {
+				forked = TRUE;
+			}
+		}
+	}
+	return TRUE;
+}
+
+int32_t qb_check_thread_safety(qb_compiler_context *cxt) {
+	return qb_check_thread_safety_in_range(cxt, 0, cxt->op_count - 1, FALSE);
 }
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC) {
