@@ -676,6 +676,9 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 		// restore variables in the original context
 		cxt->fork_id = original_fork_id;
 		cxt->thread_count = original_thread_count;
+
+		// fix up the ip as well
+		cxt->instruction_pointer += (intptr_t) cxt->function->instructions;
 	} else {
 		// transfer the execution state to the original context
 		qb_interpreter_context *first_cxt = &fork_contexts[fork_count - 1];
