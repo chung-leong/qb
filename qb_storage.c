@@ -185,7 +185,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 		if(qb_in_main_thread()) {
 			int8_t *current_data_end;
 			int8_t *memory;
-			uint32_t new_allocation = ALIGN_TO(new_size, 4);
+			uint32_t new_allocation = ALIGN_TO(new_size, 1024);
 			uint32_t addition = new_allocation - segment->current_allocation;
 
 			if(segment->flags & QB_SEGMENT_MAPPED) {

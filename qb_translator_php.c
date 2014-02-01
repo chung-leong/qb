@@ -110,9 +110,9 @@ static void qb_retire_operand(qb_php_translator_context *cxt, zend_operand_type 
 static qb_operand * qb_push_stack_item(qb_php_translator_context *cxt) {
 	if(cxt->stack_item_offset + cxt->stack_item_count + 1 > cxt->stack_item_buffer_size) {
 		uint32_t i;
-		cxt->stack_item_buffer_size += 2;		// TODO: make it bigger
+		cxt->stack_item_buffer_size += 8;
 		cxt->stack_items = erealloc(cxt->stack_items, cxt->stack_item_buffer_size * sizeof(qb_operand *));
-		for(i = 0; i < 2; i++) {
+		for(i = 0; i < 8; i++) {
 			cxt->stack_items[cxt->stack_item_offset + cxt->stack_item_count + i] = qb_allocate_operands(cxt->pool, 1);
 		}
 	}

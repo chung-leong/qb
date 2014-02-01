@@ -499,22 +499,20 @@ static int32_t qb_validate_operands_blend(qb_compiler_context *cxt, qb_op_factor
 
 static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *image = &operands[0];
-	uint32_t channel_count;
+	uint32_t channel_count = 0;
 
 	if(image->address->dimension_count != 3) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "three-dimensional array");
 	}
 	if(CONSTANT_DIMENSION(image->address, -1)) {
 		channel_count = DIMENSION(image->address, -1);
-		if(!(1 <= channel_count && channel_count <= 4)) {
-			qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array whose last dimension is 3 or 4");
-			return FALSE;
-		}
-	} else {
-		// TODO: do check at runtime
+	}
+	if(!(1 <= channel_count && channel_count <= 4)) {
+		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array whose last dimension is between 1 and 4");
+		return FALSE;
 	}
 	if(!(image->address->type >= QB_TYPE_F32)) {
-		qb_report_unmet_intrinsic_condition_exception(cxt->line_id, cxt->intrinsic_function, "image data to be in floating-point representation");
+		qb_report_unmet_intrinsic_condition_exception(cxt->line_id, cxt->intrinsic_function, "array in floating-point representation");
 		return FALSE;
 	}
 	return TRUE;
@@ -672,7 +670,7 @@ static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_fa
 			return FALSE;
 		}
 	} else {
-		// TODO: do runtime check
+		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "matrix with fixed dimensions");
 	}
 	return TRUE;
 }
@@ -711,11 +709,13 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 				uint32_t container_element_size = VALUE(U32, container_element_size_address);
 				uint32_t element_size = VALUE(U32, element_size_address);
 				if(container_element_size != element_size) {
-					qb_report_out_of_bound_exception(cxt->line_id, element_size, container_element_size, TRUE);
+					qb_report_unmet_intrinsic_condition_exception(cxt->line_id, cxt->intrinsic_function, "values of the same size as the elements in the container");
 					return FALSE;
 				}
 			} else {
-				// TODO: runtime check
+				qb_operand guard_operands[2] = { { QB_OPERAND_ADDRESS, { element_size_address } }, { QB_OPERAND_ADDRESS, { container_element_size_address } } };
+				qb_operand guard_result = { QB_OPERAND_EMPTY, { NULL } };
+				qb_produce_op(cxt, &factory_guard_array_size_exact, guard_operands, 2, &guard_result, NULL, 0, NULL);
 			}
 		}
 	}
@@ -742,7 +742,7 @@ static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_
 		qb_address *address = operands[i].address;
 		qb_address *element_size_address;
 		if(address->dimension_count == result_dimension_count) {
-			element_size_address = address->array_size_addresses[1];
+			element_size_address = (address->dimension_count > 1) ? address->array_size_addresses[1] : cxt->one_address;
 		} else {
 			// if the number of dimensions is less, then treat the whole array as the element
 			element_size_address = address->array_size_address;
@@ -753,11 +753,13 @@ static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_
 				uint32_t result_element_size = VALUE(U32, result_element_size_address);
 				uint32_t element_size = VALUE(U32, element_size_address);
 				if(result_element_size != element_size) {
-					qb_report_out_of_bound_exception(cxt->line_id, element_size, result_element_size, TRUE);
+					qb_report_unmet_intrinsic_condition_exception(cxt->line_id, cxt->intrinsic_function, "arrays with elements with of the same size");
 					return FALSE;
 				}
 			} else {
-				// TODO: runtime check
+				qb_operand guard_operands[2] = { { QB_OPERAND_ADDRESS, { element_size_address } }, { QB_OPERAND_ADDRESS, { result_element_size_address } } };
+				qb_operand guard_result = { QB_OPERAND_EMPTY, { NULL } };
+				qb_produce_op(cxt, &factory_guard_array_size_exact, guard_operands, 2, &guard_result, NULL, 0, NULL);
 			}
 		}
 	}
@@ -811,7 +813,9 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 				return FALSE;
 			}
 		} else {
-			// TODO: add runtime  check
+			qb_operand guard_operands[2] = { { QB_OPERAND_ADDRESS, { value_size_address } }, { QB_OPERAND_ADDRESS, { element_size_address } } };
+			qb_operand guard_result = { QB_OPERAND_EMPTY, { NULL } };
+			qb_produce_op(cxt, &factory_guard_array_size_exact, guard_operands, 2, &guard_result, NULL, 0, NULL);
 		}
 	} else {
 		if(!SCALAR(value->address)) {
@@ -955,7 +959,6 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 			qb_variable *arg = qfunc->variables[i];
 			qb_operand *val = &arguments->arguments[i];
 			if(arg->flags & QB_VARIABLE_BY_REF) {
-				// TODO: check size
 				if(val->type != QB_OPERAND_ADDRESS || TEMPORARY(val->address)) {
 					qb_report_unexpected_value_as_function_argument_exception(cxt->line_id, class_name, qfunc->name, i);
 					return FALSE;

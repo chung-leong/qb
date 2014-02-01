@@ -446,6 +446,24 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op1
 #undef op2
 			
+			case QB_SZ_GUARD_EX_U32_U32:
+#define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
+#define line_id		INSTR->line_id
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+			{
+				handler = INSTR->next_handler;
+				if(!qb_do_guard_size_exact_U32(cxt, op1, op2, line_id)) {
+					return;
+				}
+				ip += sizeof(qb_instruction_SCA_SCA_line_id);
+				break;
+			}
+#undef INSTR
+#undef line_id
+#undef op1
+#undef op2
+			
 			case QB_EXT_GUARD_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
 #define line_id		INSTR->line_id

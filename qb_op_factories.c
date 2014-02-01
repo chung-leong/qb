@@ -693,6 +693,24 @@ qb_simple_op_factory factory_guard_array_size = {
 	QB_SZ_GUARD_U32_U32,
 };
 
+qb_simple_op_factory factory_guard_array_size_exact = {
+	NULL,
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_first_operand,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
+	NULL,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_SZ_GUARD_EX_U32_U32,
+};
+
 qb_simple_op_factory factory_guard_array_extent = {
 	NULL,
 	qb_resolve_expression_type_index,

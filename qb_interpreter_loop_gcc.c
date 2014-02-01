@@ -402,6 +402,24 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op1
 #undef op2
 		
+		label_SZ_GUARD_EX_U32_U32:
+#define INSTR		((qb_instruction_SCA_SCA_line_id * __restrict) ip)
+#define line_id		INSTR->line_id
+#define op1	((uint32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			if(!qb_do_guard_size_exact_U32(cxt, op1, op2, line_id)) {
+				return;
+			}
+			ip += sizeof(qb_instruction_SCA_SCA_line_id);
+			goto *handler;
+		}
+#undef INSTR
+#undef line_id
+#undef op1
+#undef op2
+		
 		label_EXT_GUARD_U32_U32_U32:
 #define INSTR		((qb_instruction_SCA_SCA_SCA_line_id * __restrict) ip)
 #define line_id		INSTR->line_id
@@ -45525,6 +45543,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_IDX_GUARD_MUL_U32_U32_U32_U32] = &&label_IDX_GUARD_MUL_U32_U32_U32_U32;
 		op_handlers[QB_IDX_GUARD_MAC_U32_U32_U32_U32_U32] = &&label_IDX_GUARD_MAC_U32_U32_U32_U32_U32;
 		op_handlers[QB_SZ_GUARD_U32_U32] = &&label_SZ_GUARD_U32_U32;
+		op_handlers[QB_SZ_GUARD_EX_U32_U32] = &&label_SZ_GUARD_EX_U32_U32;
 		op_handlers[QB_EXT_GUARD_U32_U32_U32] = &&label_EXT_GUARD_U32_U32_U32;
 		op_handlers[QB_EXT_GUARD_MUL_U32_U32_U32_U32_U32] = &&label_EXT_GUARD_MUL_U32_U32_U32_U32_U32;
 		op_handlers[QB_EXT_GUARD_SUB_U32_U32_U32] = &&label_EXT_GUARD_SUB_U32_U32_U32;

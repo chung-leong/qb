@@ -151,6 +151,10 @@ void qb_report_out_of_bound_exception(uint32_t line_id, uint32_t index, uint32_t
 	qb_report_exception(line_id, E_ERROR, "Array out-of-bound condition: (%u %s %u)", index, comparison, limit);
 }
 
+void qb_report_element_size_mismatch_exception(uint32_t line_id, uint32_t size1, uint32_t size2) {
+	qb_report_exception(line_id, E_ERROR, "Element size mismatch: (%u != %u)", size1, size2);
+}
+
 void qb_report_missing_column_exception(uint32_t line_id, uint32_t column_offset, uint32_t column_count) {
 	qb_report_exception(line_id, E_ERROR, "Accessing non-existing column: (%u >= %u)", column_offset, column_count);
 }

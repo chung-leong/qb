@@ -2485,6 +2485,15 @@ static zend_always_inline int32_t qb_do_guard_size_U32(qb_interpreter_context *_
 	return TRUE;
 }
 
+static zend_always_inline int32_t qb_do_guard_size_exact_U32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint32_t line_id) {
+	if(UNEXPECTED(!(op1 == op2))) {
+		void qb_report_element_size_mismatch_exception(line_id, op1, op2);
+		cxt->exit_type = QB_VM_ERROR;
+		return FALSE;
+	}
+	return TRUE;
+}
+
 static zend_always_inline int32_t qb_do_modulo_S08(qb_interpreter_context *__restrict cxt, int8_t op1, int8_t op2, int8_t *res_ptr, uint32_t line_id) {
 	if(UNEXPECTED(op2 == 0)) {
 		qb_report_divide_by_zero_exception(line_id);

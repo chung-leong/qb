@@ -26906,6 +26906,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_report_vector_width_mismatch_exception",	qb_report_vector_width_mismatch_exception,	0,	0	},
 	{	"qb_report_divide_by_zero_exception",	qb_report_divide_by_zero_exception,	0,	0	},
 	{	"qb_report_missing_column_exception",	qb_report_missing_column_exception,	0,	0	},
+	{	"qb_report_element_size_mismatch_exception",	qb_report_element_size_mismatch_exception,	0,	0	},
 	{	"qb_report_out_of_bound_exception",	qb_report_out_of_bound_exception,	0,	0	},
 	{	"qb_dispatch_instruction_to_main_thread",	qb_dispatch_instruction_to_main_thread,	0,	0	},
 	{	"qb_dispatch_instruction_to_threads",	qb_dispatch_instruction_to_threads,	0,	0	},
@@ -28242,6 +28243,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_guard_index_multiply_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_guard_index_multiply_add_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_guard_size_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
+	{	"qb_do_guard_size_exact_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_modulo_S08",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_modulo_S16",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_modulo_S32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
@@ -28831,5 +28833,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	"_libm_sse2_tan_precise",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 1969;
+uint32_t global_native_symbol_count = 1971;
 

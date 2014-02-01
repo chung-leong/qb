@@ -46,6 +46,7 @@ void qb_report_illegal_use_of_this(uint32_t line_id);
 
 // these functions may be called at runtime
 void qb_report_out_of_bound_exception(uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive);
+void qb_report_element_size_mismatch_exception(uint32_t line_id, uint32_t size1, uint32_t size2);
 void qb_report_missing_column_exception(uint32_t line_id, uint32_t column_offset, uint32_t column_count);
 void qb_report_divide_by_zero_exception(uint32_t line_id);
 void qb_report_vector_width_mismatch_exception(uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2);
