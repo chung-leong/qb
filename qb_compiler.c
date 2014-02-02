@@ -1983,8 +1983,8 @@ int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 				address = qb_create_writable_scalar(cxt, decl->type);
 			} else {
 				address = qb_create_writable_array(cxt, decl->type, decl->dimensions, decl->dimension_count);
-				if(decl->flags & QB_TYPE_DECL_EXPANDABLE) {
-					address->flags |= QB_ADDRESS_AUTO_EXPAND;
+				if(decl->flags & QB_TYPE_DECL_AUTOVIVIFICIOUS) {
+					address->flags |= QB_ADDRESS_AUTOVIVIFICIOUS;
 				}
 			}
 			if(decl->flags & QB_TYPE_DECL_STRING) {
@@ -2750,7 +2750,7 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 	qb_address *sub_array_size_address = (container_address->dimension_count > 1) ? container_address->array_size_addresses[1] : NULL;
 	int32_t can_expand = FALSE;
 
-	if(AUTO_EXPAND(container_address)) {
+	if(AUTOVIVIFICIOUS(container_address)) {
 		can_expand = TRUE;
 	} else if(RESIZABLE(container_address)) {
 		if(index_limit_address == index_address) {

@@ -182,7 +182,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 			free_alloca(name, use_heap);
 		} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
 			if(dimension_index == 0) {
-				decl->flags |= QB_TYPE_DECL_EXPANDABLE;
+				decl->flags |= QB_TYPE_DECL_AUTOVIVIFICIOUS;
 			}
 			dimension = 0;
 		} else {
@@ -296,7 +296,7 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 			decl->flags |= QB_TYPE_DECL_BOOLEAN;
 		} else if(FOUND_GROUP(TYPE_DECL_STRING) && !FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
 			decl->type = QB_TYPE_U08;
-			decl->flags |= QB_TYPE_DECL_EXPANDABLE | QB_TYPE_DECL_STRING;
+			decl->flags |= QB_TYPE_DECL_AUTOVIVIFICIOUS | QB_TYPE_DECL_STRING;
 			base_dimension_count = 1;
 			base_dimensions[0] = 0;
 		} else if(FOUND_GROUP(TYPE_DECL_IMAGE)) {

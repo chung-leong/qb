@@ -60,7 +60,7 @@ enum {
 	QB_ADDRESS_CAST					= 0x00000800,
 	QB_ADDRESS_NON_LOCAL			= 0x00001000,
 	QB_ADDRESS_NON_REUSABLE			= 0x00002000,
-	QB_ADDRESS_AUTO_EXPAND			= 0x00004000,
+	QB_ADDRESS_AUTOVIVIFICIOUS			= 0x00004000,
 	QB_ADDRESS_IMAGE				= 0x00008000,
 	QB_ADDRESS_FOREACH_INDEX		= 0x01000000,
 
@@ -274,7 +274,7 @@ struct qb_pointer_PAR {
 #define NON_REUSABLE(address)				(address->flags & QB_ADDRESS_NON_REUSABLE)
 #define RESIZABLE(address)					(address->flags & QB_ADDRESS_RESIZABLE)
 #define TAGGED(address)						(address->flags & QB_ADDRESS_TAGGED)
-#define AUTO_EXPAND(address)				(address->flags & QB_ADDRESS_AUTO_EXPAND)
+#define AUTOVIVIFICIOUS(address)				(address->flags & QB_ADDRESS_AUTOVIVIFICIOUS)
 #define FIXED_LENGTH(address)				CONSTANT(address->array_size_address)
 #define VARIABLE_LENGTH(address)			(address->dimension_count > 0 && !CONSTANT(address->array_size_address))
 #define MULTIDIMENSIONAL(address)			(address->dimension_count > 1)

@@ -26,6 +26,14 @@ typedef struct qb_type_declaration			qb_type_declaration;
 typedef struct qb_function_declaration		qb_function_declaration;
 typedef struct qb_class_declaration			qb_class_declaration;
 
+enum {
+	QB_TYPE_DECL_STRING				= 0x00010000,
+	QB_TYPE_DECL_BOOLEAN			= 0x00020000,
+	QB_TYPE_DECL_AUTOVIVIFICIOUS	= 0x00040000,
+	QB_TYPE_DECL_HAS_ALIAS_SCHEMES	= 0x00080000,
+	QB_TYPE_DECL_IMAGE				= 0x00100000,
+};
+
 struct qb_type_declaration {
 	pcre *regexp;
 	const char *name;

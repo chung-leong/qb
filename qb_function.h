@@ -27,14 +27,6 @@ typedef struct qb_native_code_bundle		qb_native_code_bundle;
 typedef enum qb_external_symbol_type		qb_external_symbol_type;
 
 enum {
-	QB_TYPE_DECL_STRING				= 0x00010000,
-	QB_TYPE_DECL_BOOLEAN			= 0x00020000,
-	QB_TYPE_DECL_EXPANDABLE			= 0x00040000,
-	QB_TYPE_DECL_HAS_ALIAS_SCHEMES	= 0x00080000,
-	QB_TYPE_DECL_IMAGE				= 0x00100000,
-};
-
-enum {
 	QB_VARIABLE_LOCAL				= 0x00000001,
 	QB_VARIABLE_ARGUMENT			= 0x00000002,
 	QB_VARIABLE_STATIC				= 0x00000004,
