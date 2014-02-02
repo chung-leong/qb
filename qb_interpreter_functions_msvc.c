@@ -14498,6 +14498,15 @@ void qb_do_gather_8x_I64(uint32_t op1, int64_t *op2_ptr, int64_t *res_ptr) {
 	res_ptr[7] = v7;
 }
 
+void qb_do_get_time_F64(float64_t *res_ptr) {
+	struct timeval tp;
+	if(gettimeofday(&tp, NULL) != -1) {
+		(*res_ptr) = tp.tv_sec + tp.tv_usec / 1000000.0;
+	} else {
+		(*res_ptr) = 0;
+	}
+}
+
 void qb_do_hsl2rgb_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -34747,6 +34756,30 @@ void qb_redirect_print_multidimensional_variable_U64(qb_interpreter_context *__r
 #undef op2_count
 }
 
+void qb_redirect_get_time_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_SCA * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[0]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_get_time_F64, ip);
+	} else {
+		qb_do_get_time_F64(&res);
+	}
+#undef INSTR
+#undef res
+}
+
+void qb_redirect_get_time_array_element_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ELE * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_get_time_array_element_F64, ip);
+	} else {
+		qb_do_get_time_F64(&res);
+	}
+#undef INSTR
+#undef res
+}
+
 void qb_redirect_extension_op_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_SCA_line_id * __restrict) ip)
 #define line_id		INSTR->line_id
@@ -36097,6 +36130,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_gather_8x_I16",	qb_do_gather_8x_I16,	0,	0	},
 	{	"qb_do_gather_8x_I32",	qb_do_gather_8x_I32,	0,	0	},
 	{	"qb_do_gather_8x_I64",	qb_do_gather_8x_I64,	0,	0	},
+	{	"qb_do_get_time_F64",	qb_do_get_time_F64,	0,	0	},
 	{	"qb_do_hsl2rgb_3x_multiple_times_F32",	qb_do_hsl2rgb_3x_multiple_times_F32,	0,	0	},
 	{	"qb_do_hsl2rgb_3x_multiple_times_F64",	qb_do_hsl2rgb_3x_multiple_times_F64,	0,	0	},
 	{	"qb_do_hsl2rgb_4x_multiple_times_F32",	qb_do_hsl2rgb_4x_multiple_times_F32,	0,	0	},
@@ -37151,6 +37185,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_redirect_print_variable_array_element_U64",	qb_redirect_print_variable_array_element_U64,	0,	0	},
 	{	"qb_redirect_print_variable_multiple_times_U64",	qb_redirect_print_variable_multiple_times_U64,	0,	0	},
 	{	"qb_redirect_print_multidimensional_variable_U64",	qb_redirect_print_multidimensional_variable_U64,	0,	0	},
+	{	"qb_redirect_get_time_F64",	qb_redirect_get_time_F64,	0,	0	},
+	{	"qb_redirect_get_time_array_element_F64",	qb_redirect_get_time_array_element_F64,	0,	0	},
 	{	"qb_redirect_extension_op_U32",	qb_redirect_extension_op_U32,	0,	0	},
 	{	"qb_redirect_synchronize_shadow_variable_U32",	qb_redirect_synchronize_shadow_variable_U32,	0,	0	},
 	{	"qb_dispatch_instruction_ARR",	qb_dispatch_instruction_ARR,	0,	0	},
@@ -37773,5 +37809,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	"_libm_sse2_tan_precise",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 2410;
+uint32_t global_native_symbol_count = 2413;
 

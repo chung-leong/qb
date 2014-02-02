@@ -5679,6 +5679,25 @@ qb_basic_op_factory factory_floatval = {
 	{	QB_CONV_STR_U08_F64,	QB_CONV_STR_U08_F32	},
 };
 
+qb_simple_op_factory factory_get_time = {
+	NULL,
+	qb_resolve_expression_type_double,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_result_only,
+	NULL,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_TIME_F64,
+};
+
+
 qb_op_factory factory_defined = {
 	NULL,
 	qb_resolve_expression_type_boolean,

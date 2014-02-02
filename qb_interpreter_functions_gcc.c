@@ -14498,6 +14498,15 @@ void qb_do_gather_8x_I64(uint32_t op1, int64_t *op2_ptr, int64_t *res_ptr) {
 	res_ptr[7] = v7;
 }
 
+void qb_do_get_time_F64(float64_t *res_ptr) {
+	struct timeval tp;
+	if(gettimeofday(&tp, NULL) != -1) {
+		(*res_ptr) = tp.tv_sec + tp.tv_usec / 1000000.0;
+	} else {
+		(*res_ptr) = 0;
+	}
+}
+
 void qb_do_hsl2rgb_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -36093,6 +36102,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_gather_8x_I16",	qb_do_gather_8x_I16,	0,	0	},
 	{	"qb_do_gather_8x_I32",	qb_do_gather_8x_I32,	0,	0	},
 	{	"qb_do_gather_8x_I64",	qb_do_gather_8x_I64,	0,	0	},
+	{	"qb_do_get_time_F64",	qb_do_get_time_F64,	0,	0	},
 	{	"qb_do_hsl2rgb_3x_multiple_times_F32",	qb_do_hsl2rgb_3x_multiple_times_F32,	0,	0	},
 	{	"qb_do_hsl2rgb_3x_multiple_times_F64",	qb_do_hsl2rgb_3x_multiple_times_F64,	0,	0	},
 	{	"qb_do_hsl2rgb_4x_multiple_times_F32",	qb_do_hsl2rgb_4x_multiple_times_F32,	0,	0	},
@@ -37721,5 +37731,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	"__libm_sse2_sincosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 2358;
+uint32_t global_native_symbol_count = 2359;
 

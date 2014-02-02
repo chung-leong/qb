@@ -612,6 +612,8 @@ extern qb_basic_op_factory factory_pack_be;
 extern qb_basic_op_factory factory_unpack_le;
 extern qb_basic_op_factory factory_unpack_be;
 
+extern qb_simple_op_factory factory_get_time;
+
 extern qb_basic_op_factory factory_intval;
 extern qb_basic_op_factory factory_floatval;
 

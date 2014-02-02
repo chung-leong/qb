@@ -728,7 +728,7 @@ class CodeGenerator {
 			$this->addStringHandlers($elementType);
 		}
 		$this->addRuntimeValidationHandlers();
-		$this->addDebugHandlers();
+		$this->addMiscHandlers();
 	}
 	
 	protected function addBoundCheckingHandlers($elementType) {
@@ -1615,7 +1615,10 @@ class CodeGenerator {
 		}
 	}
 	
-	protected function addDebugHandlers() {
+	protected function addMiscHandlers() {
+		foreach($this->scalarAddressModes as $addressMode) {
+			$this->handlers[] = new GetTime("TIME", "F64", $addressMode);
+		}
 		$this->handlers[] = new ExtensionOp("EXT", "U32");
 		$this->handlers[] = new SynchronizeShadowVariable("DBG_SYNC", "U32");
 	}

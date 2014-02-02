@@ -45492,6 +45492,30 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op1
 #undef op2
 		
+		label_TIME_F64_SCA:
+#define INSTR		((qb_instruction_SCA * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[0]
+		{
+			handler = INSTR->next_handler;
+			qb_do_get_time_F64(&res);
+			ip += sizeof(qb_instruction_SCA);
+			goto *handler;
+		}
+#undef INSTR
+#undef res
+		
+		label_TIME_F64_ELE:
+#define INSTR		((qb_instruction_ELE * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+		{
+			handler = INSTR->next_handler;
+			qb_do_get_time_F64(&res);
+			ip += sizeof(qb_instruction_ELE);
+			goto *handler;
+		}
+#undef INSTR
+#undef res
+		
 		label_EXT_U32:
 #define INSTR		((qb_instruction_SCA_line_id * __restrict) ip)
 #define line_id		INSTR->line_id
@@ -47894,6 +47918,8 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_CROSS_3X_GUARD_U32_U32] = &&label_CROSS_3X_GUARD_U32_U32;
 		op_handlers[QB_CROSS_4X_GUARD_U32_U32_U32] = &&label_CROSS_4X_GUARD_U32_U32_U32;
 		op_handlers[QB_VV_GUARD_U32_U32] = &&label_VV_GUARD_U32_U32;
+		op_handlers[QB_TIME_F64_SCA] = &&label_TIME_F64_SCA;
+		op_handlers[QB_TIME_F64_ELE] = &&label_TIME_F64_ELE;
 		op_handlers[QB_EXT_U32] = &&label_EXT_U32;
 		op_handlers[QB_DBG_SYNC_U32] = &&label_DBG_SYNC_U32;
 	}

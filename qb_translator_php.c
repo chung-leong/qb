@@ -1046,6 +1046,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"intval",				1,		1,		&factory_intval				},
 	{	0,	"floatval",				1,		1,		&factory_floatval			},
 	{	0,	"doubleval",			1,		1,		&factory_floatval			},
+	{	0,	"time",					0,		0,		&factory_get_time			},
+	{	0,	"microtime",			0,		1,		&factory_get_time			},
+	{	0,	"gettimeofday",			0,		1,		&factory_get_time			},
 
 	// compile time functions
 	{	0,	"defined",				1,		1,		&factory_defined			},

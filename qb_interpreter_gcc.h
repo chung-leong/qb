@@ -1678,6 +1678,7 @@ void qb_do_gather_8x_I08(uint32_t op1, int8_t *op2_ptr, int8_t *res_ptr);
 void qb_do_gather_8x_I16(uint32_t op1, int16_t *op2_ptr, int16_t *res_ptr);
 void qb_do_gather_8x_I32(uint32_t op1, int32_t *op2_ptr, int32_t *res_ptr);
 void qb_do_gather_8x_I64(uint32_t op1, int64_t *op2_ptr, int64_t *res_ptr);
+void qb_do_get_time_F64(float64_t *res_ptr);
 void qb_do_hsl2rgb_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_hsl2rgb_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_hsl2rgb_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
@@ -2926,7 +2927,7 @@ static zend_always_inline int32_t qb_do_guard_size_U32(qb_interpreter_context *_
 
 static zend_always_inline int32_t qb_do_guard_size_exact_U32(qb_interpreter_context *__restrict cxt, uint32_t op1, uint32_t op2, uint32_t line_id) {
 	if(UNEXPECTED(!(op1 == op2))) {
-		void qb_report_element_size_mismatch_exception(line_id, op1, op2);
+		qb_report_element_size_mismatch_exception(line_id, op1, op2);
 		cxt->exit_type = QB_VM_ERROR;
 		return FALSE;
 	}

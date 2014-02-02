@@ -38,6 +38,11 @@ static qb_primitive_type qb_resolve_expression_type_string(qb_compiler_context *
 	return QB_TYPE_U08;
 }
 
+// the expression is always a F64
+static qb_primitive_type  qb_resolve_expression_type_double(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	return QB_TYPE_F64;
+}
+
 // the expresion has the same type as the highest-rank operand
 static qb_primitive_type qb_resolve_expression_type_highest_rank(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
 	return qb_get_highest_rank_type(cxt, operands, operand_count, f->coercion_flags);

@@ -45984,6 +45984,30 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef op1
 #undef op2
 			
+			case QB_TIME_F64_SCA:
+#define INSTR		((qb_instruction_SCA * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[0]
+			{
+				handler = INSTR->next_handler;
+				qb_redirect_get_time_F64(cxt, ip, 0);
+				ip += sizeof(qb_instruction_SCA);
+				break;
+			}
+#undef INSTR
+#undef res
+			
+			case QB_TIME_F64_ELE:
+#define INSTR		((qb_instruction_ELE * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+			{
+				handler = INSTR->next_handler;
+				qb_redirect_get_time_array_element_F64(cxt, ip, 0);
+				ip += sizeof(qb_instruction_ELE);
+				break;
+			}
+#undef INSTR
+#undef res
+			
 			case QB_EXT_U32:
 #define INSTR		((qb_instruction_SCA_line_id * __restrict) ip)
 #define line_id		INSTR->line_id
