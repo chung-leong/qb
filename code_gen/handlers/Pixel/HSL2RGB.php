@@ -2,7 +2,7 @@
 
 class HSL2RGB extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, FloatingPointOnly;
+	use ArrayAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
 	
 	public function getHelperFunctions() {
 		$cType = $this->getOperandCType(1);

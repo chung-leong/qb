@@ -2,7 +2,7 @@
 
 class Refract extends Handler {
 
-	use ArrayAddressMode, TernaryOperator, FloatingPointOnly;
+	use ArrayAddressMode, TernaryOperator, FloatingPointOnly, Multithreaded;
 
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {

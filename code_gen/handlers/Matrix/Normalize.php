@@ -2,7 +2,7 @@
 
 class Normalize extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, FloatingPointOnly;
+	use ArrayAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
 	
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {

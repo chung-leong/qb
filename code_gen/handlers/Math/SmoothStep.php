@@ -2,7 +2,7 @@
 
 class SmoothStep extends Handler {
 
-	use MultipleAddressMode, TernaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, TernaryOperator, FloatingPointOnly, Multithreaded;
 	
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(3);

@@ -2,7 +2,7 @@
 
 class SampleBilinear extends Handler {
 
-	use MultipleAddressMode, PixelSampler, FloatingPointOnly, DoublePrecisionIsRare;
+	use MultipleAddressMode, PixelSampler, FloatingPointOnly, DoublePrecisionIsRare, Multithreaded;
 	
 	protected function getPixelRetrievalExpression($offsetX, $offsetY) {
 		$pixel = "p$offsetX$offsetY";

@@ -2,7 +2,7 @@
 
 class ATan2 extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, BinaryOperator, FloatingPointOnly, Multithreaded;
 	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(2);

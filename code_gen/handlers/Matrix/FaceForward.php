@@ -2,7 +2,7 @@
 
 class FaceForward extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, FloatingPointOnly;
+	use ArrayAddressMode, BinaryOperator, FloatingPointOnly, Multithreaded;
 
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {

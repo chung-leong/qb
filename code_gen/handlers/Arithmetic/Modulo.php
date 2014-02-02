@@ -2,7 +2,7 @@
 
 class Modulo extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, ExpressionReplication;
+	use MultipleAddressMode, BinaryOperator, ExpressionReplication, Multithreaded;
 
 	public function needsInterpreterContext() {
 		$type = $this->getOperandType(1);

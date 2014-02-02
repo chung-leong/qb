@@ -2,7 +2,7 @@
 
 class TransformVector extends Handler {
 
-	use ArrayAddressMode, BinaryOperator, MatrixConventionDependent, FloatingPointOnly;
+	use ArrayAddressMode, BinaryOperator, MatrixConventionDependent, FloatingPointOnly, Multithreaded;
 	
 	public function getOperandSize($i) {
 		switch($i) {

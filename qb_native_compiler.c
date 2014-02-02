@@ -260,16 +260,16 @@ typedef struct qb_native_proc_record {\
 	qb_print(cxt, "\n");
 }
 
-#define PROTOTYPE_COUNT		2000
-
 static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	uint32_t i, j, k;
 	int32_t *prototype_indices;
-	uint32_t required[PROTOTYPE_COUNT];
+	uint32_t prototype_count = cxt->pool->function_prototype_count;
+	int32_t *required;
 	qb_op *qop;
 
 	// see which functions are required
-	memset(required, 0, sizeof(required));
+	required = alloca(sizeof(int32_t) * prototype_count);
+	memset(required, 0, sizeof(int32_t) * prototype_count);
 	for(i = 0; i < cxt->compiler_context_count; i++) {
 		qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 		if(!compiler_cxt->compiled_function->native_proc && (compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE)) {
@@ -286,7 +286,7 @@ static void qb_print_prototypes(qb_native_compiler_context *cxt) {
 	}
 
 	// print prototypes, maintaining correct order
-	for(i = 0; i < PROTOTYPE_COUNT; i++) {
+	for(i = 0; i < prototype_count; i++) {
 		if(required[i]) {
 			const char *prototype = cxt->function_prototypes[i];
 #ifdef _WIN64
@@ -1229,11 +1229,6 @@ int32_t qb_decompress_code(qb_native_compiler_context *cxt) {
 	}
 	if(!cxt->pool->function_prototypes) {
 		qb_uncompress_table(compressed_table_native_prototypes, (void ***) &cxt->pool->function_prototypes, &cxt->pool->function_prototype_count, 0);
-#if ZEND_DEBUG
-		if(cxt->pool->function_prototype_count > PROTOTYPE_COUNT) {
-			qb_debug_abort("not enough space for the number of possible prototypes");
-		}
-#endif
 	}
 
 	cxt->op_names = cxt->pool->op_names;
