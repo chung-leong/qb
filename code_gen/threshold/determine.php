@@ -8,10 +8,21 @@ trait SequentialNumbers {
 	}
 }
 
+trait SequentialInverse {
+
+	function arguments($count) {
+		$arg1 = array();
+		for($i = 1; $i <= $count; $i++) {
+			$arg1[] = 1 / $i;
+		}
+		return array($arg1);
+	}
+}
+
 require("Arithmetic.php");
 require("Math.php");
 
-function check_if_faster($obj, $count, $iterations = 100) {
+function check_if_faster($obj, $count, $iterations = 500) {
 	$arguments = $obj->arguments($count);
 
 	$ratios = array();
@@ -23,7 +34,11 @@ function check_if_faster($obj, $count, $iterations = 100) {
 		ini_set("qb.multithreading_threshold", $count * 2);
 		$nmt_time = call_user_func_array($func, $arguments);
 
-		$ratios[] = $mt_time / $nmt_time;
+		if($nmt_time > 0) {
+			$ratios[] = $mt_time / $nmt_time;
+		} else {
+			$ratios[] = INF;
+		}
 	}
 	sort($ratios);
 	$median = $ratios[$iterations >> 1];
@@ -41,6 +56,6 @@ function find_optimal($class) {
 	return 0;
 }
 
-find_optimal('Sqrt_F64');
+find_optimal('Sin_F64');
 
 ?>
