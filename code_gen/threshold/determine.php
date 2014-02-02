@@ -19,8 +19,23 @@ trait SequentialInverse {
 	}
 }
 
+trait Image {
+
+	function arguments($count) {
+		$width = 256;
+		$height = $count / $width;
+		$arg1 = imagecreatetruecolor($width, $height);
+		$color = imagecolorallocate($arg1, 255, 128, 128);
+		imagefilledrectangle($arg1, 0, 0, $width, $height, $color);
+		$color = imagecolorallocatealpha($arg1, 255, 128, 128, 100);
+		imagefilledrectangle($arg1, 0, 0, $width / 2, $height / 2, $color);
+		return array($arg1);
+	}
+}
+
 require("Arithmetic.php");
 require("Math.php");
+require("Pixel.php");
 
 function check_if_faster($obj, $count, $iterations = 500) {
 	$arguments = $obj->arguments($count);
@@ -48,14 +63,18 @@ function check_if_faster($obj, $count, $iterations = 500) {
 
 function find_optimal($class) {
 	$obj = new $class;
-	for($count = 1024; $count < 1024 * 1024; $count += 1024) {
-		if(check_if_faster($obj, $count)) {
-			return $count;
+	for($i = 1024; $i < 1024 * 1024; $i *= 2) {
+		if(check_if_faster($obj, $i)) {
+			for($j = $i / 2 + 1024; $j < $i; $j += 1024) {
+				if(check_if_faster($obj, $j)) {
+					return $j;
+				}
+			}
 		}
 	}
 	return 0;
 }
 
-find_optimal('Sin_F64');
+find_optimal('Add_F64');
 
 ?>
