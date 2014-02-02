@@ -27,4 +27,4 @@ test_function();
 
 ?>
 --EXPECTREGEX--
-*.Fatal error.*line 19
+.*Fatal error.*line 19

@@ -393,6 +393,15 @@ int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 		qb_add_alias_substitution(cxt, callee_alias);
 	}
 
+	// add pre-op on-demand ops
+	for(i = 0; i < cxt->argument_count; i++) {
+		qb_operand *argument = &cxt->arguments[i];
+		qb_update_on_demand_result(cxt->caller_context, argument->address, QB_EXPR_EXECUTE_BEFORE);
+	}
+	if(cxt->result->type == QB_OPERAND_ADDRESS) {
+		qb_update_on_demand_result(cxt->caller_context, cxt->result->address, QB_EXPR_EXECUTE_BEFORE);
+	}
+
 	caller_op_offset = cxt->caller_context->op_count;
 
 	// copy the ops from the callee into the caller
@@ -483,6 +492,15 @@ int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 		if(substitution->current && TEMPORARY(substitution->current)) {
 			qb_unlock_address(cxt->caller_context, substitution->current);
 		}
+	}
+
+	// add post-op on-demand ops
+	for(i = 0; i < cxt->argument_count; i++) {
+		qb_operand *argument = &cxt->arguments[i];
+		qb_update_on_demand_result(cxt->caller_context, argument->address, QB_EXPR_EXECUTE_AFTER);
+	}
+	if(cxt->result->type == QB_OPERAND_ADDRESS) {
+		qb_update_on_demand_result(cxt->caller_context, cxt->result->address, QB_EXPR_EXECUTE_AFTER);
 	}
 	return TRUE;
 }

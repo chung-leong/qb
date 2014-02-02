@@ -398,7 +398,7 @@ qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *addre
 
 void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
 void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
-
+void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags);
 void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory);
 
 int32_t qb_is_source_op_translated(qb_compiler_context *cxt, uint32_t source_index);

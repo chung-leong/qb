@@ -3330,7 +3330,7 @@ void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type ex
 	free_alloca(target_op.operands, use_heap);
 }
 
-static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags) {
+static void qb_update_on_demand_result_no_recursion(qb_compiler_context *cxt, qb_address *address, uint32_t flags) {
 	if(address->expression) {
 		qb_expression *expr = address->expression;
 		if(expr->flags & flags) {
@@ -3343,23 +3343,39 @@ static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *add
 	}
 }
 
+void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags) {
+	if(address) {
+		qb_update_on_demand_result_no_recursion(cxt, address, flags);
+		qb_update_on_demand_result_no_recursion(cxt, address->array_index_address, flags);
+		qb_update_on_demand_result_no_recursion(cxt, address->array_size_address, flags);
+	}
+}
+
 void qb_create_on_demand_op(qb_compiler_context *cxt, qb_op *qop, uint32_t flags) {
-	uint32_t i, j;
-	for(i = 0; i < qop->operand_count; i++) {
-		qb_operand *operand = &qop->operands[i];
-		if(operand->type == QB_OPERAND_ADDRESS) {
-			int32_t duplicate = FALSE;
-			for(j = 0; j < i; j++) {
-				if(operand->type == qop->operands[j].type && operand->address == qop->operands[j].address) {
-					duplicate = TRUE;
-				}
+	uint32_t i;
+	if(qop->opcode != QB_FCALL_U32_U32_U32) {
+		for(i = 0; i < qop->operand_count; i++) {
+			qb_operand *operand = &qop->operands[i];
+			if(operand->type == QB_OPERAND_ADDRESS) {
+				qb_update_on_demand_result(cxt, operand->address, flags);
 			}
-			if(!duplicate) {
-				qb_address *address = operand->address;
-				qb_update_on_demand_result(cxt, address, flags);
-				qb_update_on_demand_result(cxt, address->array_index_address, flags);
-				qb_update_on_demand_result(cxt, address->array_size_address, flags);
-			}
+		}
+	} else {
+		// function arguments are referenced by indices
+		qb_address *argument_indices_address = qop->operands[1].address;
+		qb_address *retvar_index_address = qop->operands[2].address;
+		uint32_t *argument_indices = ARRAY(U32, argument_indices_address);
+		uint32_t argument_count = ARRAY_SIZE(argument_indices_address);
+		uint32_t retvar_index = VALUE(U32, retvar_index_address);
+	
+		for(i = 0; i < argument_count; i++) {
+			uint32_t argument_index = argument_indices[i];
+			qb_variable *qvar = cxt->variables[argument_index];
+			qb_update_on_demand_result(cxt, qvar->address, flags);
+		}
+		if(retvar_index != INVALID_INDEX) {
+			qb_variable *qvar = cxt->variables[retvar_index];
+			qb_update_on_demand_result(cxt, qvar->address, flags);
 		}
 	}
 }
