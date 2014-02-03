@@ -718,8 +718,8 @@ static int32_t qb_copy_elements_from_long(zval *zlong, int8_t *dst_memory, qb_di
 #else
 	qb_copy_element(QB_TYPE_S32, (int8_t *) &src_value, m->dst_element_type, dst_memory);
 #endif
-	if(dimension_index < m->dst_dimension_count) {
-		uint32_t dst_element_count = m->dst_array_sizes[dimension_index];
+	if(dimension_index < m->src_dimension_count) {
+		uint32_t dst_element_count = m->src_array_sizes[dimension_index];
 		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
 		uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
 		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
@@ -730,8 +730,8 @@ static int32_t qb_copy_elements_from_long(zval *zlong, int8_t *dst_memory, qb_di
 static int32_t qb_copy_elements_from_double(zval *zdouble, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
 	double src_value = Z_DVAL_P(zdouble);
 	qb_copy_element(QB_TYPE_F64, (int8_t *) &src_value, m->dst_element_type, dst_memory);
-	if(dimension_index < m->dst_dimension_count) {
-		uint32_t dst_element_count = m->dst_array_sizes[dimension_index];
+	if(dimension_index < m->src_dimension_count) {
+		uint32_t dst_element_count = m->src_array_sizes[dimension_index];
 		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
 		uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
 		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
@@ -1377,16 +1377,16 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 	// if it's a variable-length array, adjust the size 
 	if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
 		uint32_t dst_element_count = m->dst_array_sizes[0];
-		qb_memory_segment *segment = &storage->segments[address->segment_selector];
-		uint32_t byte_count = BYTE_COUNT(dst_element_count, address->type);
+		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+		qb_memory_segment *dst_segment = &storage->segments[address->segment_selector];
 
 		// use memory from the source if possible
 		if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
 			if(Z_TYPE_P(zvalue) == IS_STRING) {
 				if(!IS_INTERNED(Z_STRVAL_P(zvalue))) {
-					int8_t *memory = (int8_t *) Z_STRVAL_P(zvalue);
-					uint32_t bytes_available = Z_STRLEN_P(zvalue) + 1;
-					if(qb_connect_segment_to_memory(segment, memory, byte_count, bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
+					int8_t *src_memory = (int8_t *) Z_STRVAL_P(zvalue);
+					uint32_t src_bytes_available = Z_STRLEN_P(zvalue) + 1;
+					if(qb_connect_segment_to_memory(dst_segment, src_memory, dst_byte_count, src_bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
 						if(transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY) {
 							ZVAL_NULL(zvalue);
 						}
@@ -1396,7 +1396,7 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 			} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
 				php_stream *stream = qb_get_file_stream(zvalue);
 				if(stream) {
-					if(qb_connect_segment_to_file(segment, stream, byte_count, !READ_ONLY(address))) {
+					if(qb_connect_segment_to_file(dst_segment, stream, dst_byte_count, !READ_ONLY(address))) {
 						return TRUE;
 					}
 				}
@@ -1404,8 +1404,8 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 		}
 			
 		// make sure there's enough bytes in the segment
-		qb_allocate_segment_memory(segment, byte_count);
-		dst_memory = segment->memory;
+		qb_allocate_segment_memory(dst_segment, dst_byte_count);
+		dst_memory = dst_segment->memory;
 	} else {
 		dst_memory = ARRAY_IN(storage, I08, address);
 	}
