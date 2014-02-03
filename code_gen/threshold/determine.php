@@ -5,7 +5,7 @@ $predefined_classes = get_declared_classes();
 trait SequentialNumbers {
 
 	function arguments($count) {
-		$arg1 = range(0, $count);
+		$arg1 = range(1, $count);
 		return array($arg1);
 	}
 }
@@ -13,7 +13,7 @@ trait SequentialNumbers {
 trait SequentialNumbersWithNegative {
 
 	function arguments($count) {
-		$start = (int) -$count / 4;
+		$start = (int) - $count / 4;
 		$end = $start + $count;
 		$arg1 = range($start, $end);
 		return array($arg1);
@@ -42,6 +42,37 @@ trait Image {
 		$color = imagecolorallocatealpha($arg1, 255, 128, 128, 100);
 		imagefilledrectangle($arg1, 0, 0, $width / 2, $height / 2, $color);
 		return array($arg1);
+	}
+}
+
+trait Sampling {
+
+	function arguments($count) {
+		$width = 256;
+		$height = 256;
+		$arg1 = imagecreatetruecolor($width, $height);
+		$color = imagecolorallocate($arg1, 255, 128, 128);
+		imagefilledrectangle($arg1, 0, 0, $width, $height, $color);
+		$color = imagecolorallocatealpha($arg1, 255, 128, 128, 100);
+		imagefilledrectangle($arg1, 0, 0, $width / 2, $height / 2, $color);
+
+		$arg2 = array();
+		$arg3 = array();
+		$x = 0.5;
+		$y = 0.5;
+		for($i = 0; $i < $count; $i++) {
+			if($x > $width) {
+				$x = 0.5;
+			}
+			if($y > $height) {
+				$y = 0.5;
+			}
+			$arg2[] = $x;
+			$arg3[] = $y;
+			$x += 2;
+			$y += 4;
+		}
+		return array($arg1, $arg2, $arg3);
 	}
 }
 
@@ -74,7 +105,7 @@ function check_if_faster($obj, $count, $iterations = 100) {
 
 function find_optimal($class) {
 	$obj = new $class;
-	for($i = 1024; $i < 1024 * 1024; $i *= 2) {
+	for($i = 1024; $i <= 1024 * 1024; $i *= 2) {
 		if(check_if_faster($obj, $i)) {
 			return $i;
 		}
