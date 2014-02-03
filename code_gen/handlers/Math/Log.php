@@ -2,7 +2,7 @@
 
 class Log extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
 	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(2);

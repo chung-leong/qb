@@ -53,7 +53,7 @@ uint32_t qb_get_zend_line_id(TSRMLS_D) {
 	if(ed) {
 		const char *filename = ed->op_array->filename;
 		uint32_t line_no = (ed->opline) ? ed->opline->lineno : 0;
-		uint32_t file_id = qb_get_source_file_id(filename);
+		uint32_t file_id = qb_get_source_file_id(filename TSRMLS_CC);
 		return LINE_ID(file_id, line_no);
 	}
 	return 0;
@@ -146,9 +146,21 @@ void qb_report_illegal_use_of_this(uint32_t line_id) {
 	qb_report_exception(line_id, E_ERROR, "Illegal use of $this");
 }
 
+void qb_report_fork_in_fork_exception(uint32_t line_id) {
+	qb_report_exception(line_id, E_ERROR, "Cannot fork again inside a forked section");
+}
+
+void qb_report_resize_in_fork_exception(uint32_t line_id) {
+	qb_report_exception(line_id, E_ERROR, "Cannot resize shared variables inside a forked section");
+}
+
 void qb_report_out_of_bound_exception(uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive) {
 	const char *comparison = (inclusive) ? ">" : ">=";
 	qb_report_exception(line_id, E_ERROR, "Array out-of-bound condition: (%u %s %u)", index, comparison, limit);
+}
+
+void qb_report_element_size_mismatch_exception(uint32_t line_id, uint32_t size1, uint32_t size2) {
+	qb_report_exception(line_id, E_ERROR, "Element size mismatch: (%u != %u)", size1, size2);
 }
 
 void qb_report_missing_column_exception(uint32_t line_id, uint32_t column_offset, uint32_t column_count) {
@@ -426,24 +438,39 @@ void qb_report_invalid_pixel_format_exception(uint32_t line_id, qb_intrinsic_fun
 	qb_report_exception(line_id, E_ERROR, "%s() expects an array whose last dimension is either 3 or 4", ifunc->name);
 }
 
-void qb_report_unexpected_value_as_function_argument_exception(uint32_t line_id, qb_function *qfunc, uint32_t param_index) {
-	if(param_index <= 10) {
-		const char *parameter = qb_get_parameter_name(param_index, 10);
-		qb_report_exception(line_id, E_ERROR, "%s expects the %s to be a variable", qfunc->name, parameter);
+void qb_report_unexpected_value_as_function_argument_exception(uint32_t line_id, const char *class_name, const char *function_name, uint32_t param_index) {
+	const char *space;
+	if(class_name) {
+		space = "::";
 	} else {
-		qb_report_exception(line_id, E_ERROR, "%s expects parameter %u to be a variable", qfunc->name, param_index + 1);
+		class_name = "";
+		space = "";
 	}
-}
-					
-void qb_report_unexpected_function_argument_type_exception(uint32_t line_id, qb_function *qfunc, uint32_t param_index, qb_primitive_type value_type, qb_primitive_type param_type) {
-	const char *type1 = type_names[value_type];
-	const char *type2 = type_names[param_type];
 
 	if(param_index <= 10) {
 		const char *parameter = qb_get_parameter_name(param_index, 10);
-		qb_report_exception(line_id, E_ERROR, "%s expects the %s to be %s but a variable of the type %s is given", qfunc->name, parameter, type1, type2);
+		qb_report_exception(line_id, E_ERROR, "%s%s%s() expects the %s to be a variable", class_name, space, function_name, parameter);
 	} else {
-		qb_report_exception(line_id, E_ERROR, "%s expects parameter %u to be %s but a variable of the type %s is given", qfunc->name, param_index + 1, type1, type2);
+		qb_report_exception(line_id, E_ERROR, "%s%s%s() expects parameter %u to be a variable", class_name, space, function_name, param_index + 1);
+	}
+}
+					
+void qb_report_unexpected_function_argument_type_exception(uint32_t line_id, const char *class_name, const char *function_name, uint32_t param_index, qb_primitive_type value_type, qb_primitive_type param_type) {
+	const char *type1 = type_names[value_type];
+	const char *type2 = type_names[param_type];
+	const char *space;
+	if(class_name) {
+		space = "::";
+	} else {
+		class_name = "";
+		space = "";
+	}
+
+	if(param_index <= 10) {
+		const char *parameter = qb_get_parameter_name(param_index, 10);
+		qb_report_exception(line_id, E_ERROR, "%s%s%s() expects the %s to be %s but a variable of the type %s is given", class_name, space, function_name, parameter, type1, type2);
+	} else {
+		qb_report_exception(line_id, E_ERROR, "%s%s%s() expects parameter %u to be %s but a variable of the type %s is given", class_name, space, function_name, param_index + 1, type1, type2);
 	}
 }
 
@@ -467,6 +494,18 @@ void qb_report_missing_argument_exception(uint32_t line_id, const char *class_na
 		qb_report_exception(line_id, E_WARNING, "Missing argument %u for %s%s%s()", argument_index + 1, class_name, space, function_name);
 	}
 }
+
+void qb_report_void_return_value_exception(uint32_t line_id, const char *class_name, const char *function_name) {
+	const char *space;
+	if(class_name) {
+		space = "::";
+	} else {
+		class_name = "";
+		space = "";
+	}
+	qb_report_exception(line_id, E_ERROR, "%s%s%s() returns void", class_name, space, function_name);
+}
+
 
 void qb_report_function_call_exception(uint32_t line_id, const char *class_name, const char *function_name) {
 	const char *space;

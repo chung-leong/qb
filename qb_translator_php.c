@@ -30,7 +30,8 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_
 					operand->type = QB_OPERAND_THIS;
 				} else {
 					// the variable type hasn't been set yet
-					qvar->flags |= QB_VARIABLE_LOCAL;
+					// could be local or shared
+					qvar->flags |= QB_VARIABLE_LOCAL | QB_VARIABLE_SHARED;
 					if(!qb_apply_type_declaration(cxt->compiler_context, qvar)) {
 						return FALSE;
 					}
@@ -110,9 +111,9 @@ static void qb_retire_operand(qb_php_translator_context *cxt, zend_operand_type 
 static qb_operand * qb_push_stack_item(qb_php_translator_context *cxt) {
 	if(cxt->stack_item_offset + cxt->stack_item_count + 1 > cxt->stack_item_buffer_size) {
 		uint32_t i;
-		cxt->stack_item_buffer_size += 2;		// TODO: make it bigger
+		cxt->stack_item_buffer_size += 8;
 		cxt->stack_items = erealloc(cxt->stack_items, cxt->stack_item_buffer_size * sizeof(qb_operand *));
-		for(i = 0; i < 2; i++) {
+		for(i = 0; i < 8; i++) {
 			cxt->stack_items[cxt->stack_item_offset + cxt->stack_item_count + i] = qb_allocate_operands(cxt->pool, 1);
 		}
 	}
@@ -1044,6 +1045,9 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"intval",				1,		1,		&factory_intval				},
 	{	0,	"floatval",				1,		1,		&factory_floatval			},
 	{	0,	"doubleval",			1,		1,		&factory_floatval			},
+	{	0,	"time",					0,		0,		&factory_get_time			},
+	{	0,	"microtime",			0,		1,		&factory_get_time			},
+	{	0,	"gettimeofday",			0,		1,		&factory_get_time			},
 
 	// compile time functions
 	{	0,	"defined",				1,		1,		&factory_defined			},
@@ -1238,6 +1242,12 @@ int32_t qb_translate_instructions(qb_php_translator_context *cxt) {
 	// make sure there's always a RET at the end
 	if(cxt->compiler_context->op_count == 0 || cxt->compiler_context->ops[cxt->compiler_context->op_count - 1]->opcode != QB_RET) {
 		if(!qb_produce_op(cxt->compiler_context, &factory_leave, NULL, 0, NULL, NULL, 0, NULL)) {
+			return FALSE;
+		}
+	}
+
+	if(cxt->compiler_context->function_flags & QB_FUNCTION_MULTITHREADED) {
+		if(!qb_check_thread_safety(cxt->compiler_context)) {
 			return FALSE;
 		}
 	}

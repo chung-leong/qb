@@ -2,7 +2,7 @@
 
 class IsFinite extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
 	
 	public function getOperandType($i) {
 		return ($i == 2) ? "I32" : $this->operandType;

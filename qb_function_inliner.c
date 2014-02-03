@@ -190,9 +190,19 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 									compatible = TRUE;
 								}
 							} else if(READ_ONLY(callee_address->array_size_address)) {
-								// TODO: check granularity
 								// the function doesn't change the length
-								compatible = TRUE;
+								uint32_t length1 = ARRAY_SIZE_IN(cxt->caller_context->storage, argument_address);
+								uint32_t length2 = 1, i;
+								for(i = 1; i < callee_address->dimension_count; i++) {
+									qb_address *element_size_address = callee_address->array_size_addresses[i];
+									if(CONSTANT(element_size_address)) {
+										length2 = VALUE_IN(cxt->callee_context->storage, U32, element_size_address);
+										break;
+									}
+								}
+								if((length1 % length2) == 0) {
+									compatible = TRUE;
+								}
 							}
 						} else if(VARIABLE_LENGTH(argument_address) && VARIABLE_LENGTH(callee_address)) {
 							compatible = TRUE;
@@ -383,6 +393,15 @@ int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 		qb_add_alias_substitution(cxt, callee_alias);
 	}
 
+	// add pre-op on-demand ops
+	for(i = 0; i < cxt->argument_count; i++) {
+		qb_operand *argument = &cxt->arguments[i];
+		qb_update_on_demand_result(cxt->caller_context, argument->address, QB_EXPR_EXECUTE_BEFORE);
+	}
+	if(cxt->result->type == QB_OPERAND_ADDRESS) {
+		qb_update_on_demand_result(cxt->caller_context, cxt->result->address, QB_EXPR_EXECUTE_BEFORE);
+	}
+
 	caller_op_offset = cxt->caller_context->op_count;
 
 	// copy the ops from the callee into the caller
@@ -473,6 +492,15 @@ int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 		if(substitution->current && TEMPORARY(substitution->current)) {
 			qb_unlock_address(cxt->caller_context, substitution->current);
 		}
+	}
+
+	// add post-op on-demand ops
+	for(i = 0; i < cxt->argument_count; i++) {
+		qb_operand *argument = &cxt->arguments[i];
+		qb_update_on_demand_result(cxt->caller_context, argument->address, QB_EXPR_EXECUTE_AFTER);
+	}
+	if(cxt->result->type == QB_OPERAND_ADDRESS) {
+		qb_update_on_demand_result(cxt->caller_context, cxt->result->address, QB_EXPR_EXECUTE_AFTER);
 	}
 	return TRUE;
 }

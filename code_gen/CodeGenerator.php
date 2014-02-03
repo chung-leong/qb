@@ -728,7 +728,7 @@ class CodeGenerator {
 			$this->addStringHandlers($elementType);
 		}
 		$this->addRuntimeValidationHandlers();
-		$this->addDebugHandlers();
+		$this->addMiscHandlers();
 	}
 	
 	protected function addBoundCheckingHandlers($elementType) {
@@ -742,6 +742,7 @@ class CodeGenerator {
 			$this->handlers[] = new GuardIndexMultiplyAdd("IDX_GUARD_MAC", $elementType);
 			
 			$this->handlers[] = new GuardSize("SZ_GUARD", $elementType);
+			$this->handlers[] = new GuardSizeExact("SZ_GUARD_EX", $elementType);
 			
 			$this->handlers[] = new GuardExtent("EXT_GUARD", $elementType);
 			$this->handlers[] = new GuardExtentMultiply("EXT_GUARD_MUL", $elementType);
@@ -1614,7 +1615,10 @@ class CodeGenerator {
 		}
 	}
 	
-	protected function addDebugHandlers() {
+	protected function addMiscHandlers() {
+		foreach($this->scalarAddressModes as $addressMode) {
+			$this->handlers[] = new GetTime("TIME", "F64", $addressMode);
+		}
 		$this->handlers[] = new ExtensionOp("EXT", "U32");
 		$this->handlers[] = new SynchronizeShadowVariable("DBG_SYNC", "U32");
 	}

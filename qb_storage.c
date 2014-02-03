@@ -185,7 +185,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 		if(qb_in_main_thread()) {
 			int8_t *current_data_end;
 			int8_t *memory;
-			uint32_t new_allocation = ALIGN_TO(new_size, 4);
+			uint32_t new_allocation = ALIGN_TO(new_size, 1024);
 			uint32_t addition = new_allocation - segment->current_allocation;
 
 			if(segment->flags & QB_SEGMENT_MAPPED) {
@@ -1422,6 +1422,13 @@ int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address 
 		return FALSE;
 	}
 
+	src_memory = ARRAY_IN(src_storage, I08, src_address);
+	if(src_address->array_index_address) {
+		uint32_t src_index = VALUE_IN(src_storage, U32, src_address->array_index_address);
+		uint32_t byte_offset = BYTE_COUNT(src_index, m->src_element_type);
+		src_memory += byte_offset;
+	}
+
 	if(address->segment_selector >= QB_SELECTOR_ARRAY_START) {
 		uint32_t dst_element_count = m->dst_array_sizes[0];
 		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
@@ -1431,9 +1438,8 @@ int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address 
 				// the incoming value is a fixed length array or scalar
 				// use the memory there unless the function resizes the argument
 				if(READ_ONLY(address->array_size_address)) {
-					int8_t *memory = ARRAY_IN(src_storage, I08, src_address);
-					uint32_t bytes_available = ARRAY_SIZE_IN(src_storage, src_address);
-					if(qb_connect_segment_to_memory(dst_segment, memory, dst_byte_count, bytes_available, FALSE)) {
+					uint32_t src_byte_count = m->src_array_sizes[0];
+					if(qb_connect_segment_to_memory(dst_segment, src_memory, dst_byte_count, src_byte_count, FALSE)) {
 						return TRUE;
 					}
 				}
@@ -1464,7 +1470,6 @@ int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address 
 	} else {
 		dst_memory = ARRAY_IN(storage, I08, address);
 	}
-	src_memory = ARRAY_IN(src_storage, I08, src_address);
 	if(m->src_dimension_count == 0 && m->dst_dimension_count == 0) {
 		qb_copy_element(m->src_element_type, src_memory, m->dst_element_type, dst_memory);
 	} else {
@@ -1547,6 +1552,11 @@ int32_t qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *a
 		src_memory = ARRAY_IN(storage, I08, address);
 	}
 	dst_memory = ARRAY_IN(dst_storage, I08, dst_address);
+	if(dst_address->array_index_address) {
+		uint32_t dst_index = VALUE_IN(dst_storage, U32, dst_address->array_index_address);
+		uint32_t byte_offset = BYTE_COUNT(dst_index, m->src_element_type);
+		dst_memory += byte_offset;
+	}
 	if(m->src_dimension_count == 0 && m->dst_dimension_count == 0) {
 		qb_copy_element(m->src_element_type, src_memory, m->dst_element_type, dst_memory);
 	} else {

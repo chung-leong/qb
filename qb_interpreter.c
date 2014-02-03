@@ -150,11 +150,11 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			}
 			if(!qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags)) {
+				USE_TSRM
 				qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 				return FALSE;
 			}
 		} else {
-			USE_TSRM
 			if(qvar->default_value) {
 				zval *zarg = qvar->default_value;
 				uint32_t transfer_flags = 0;
@@ -162,10 +162,12 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 				}
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
+					USE_TSRM
 					qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 					return FALSE;
 				}
 			} else {
+				USE_TSRM
 				const char *class_name = (EG(active_op_array)->scope) ? EG(active_op_array)->scope->name : NULL;
 				qb_report_missing_argument_exception(cxt->function->line_id, class_name, cxt->function->name, i, cxt->caller_context->line_id);
 			}
@@ -425,6 +427,7 @@ static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			if(qvar->flags & QB_VARIABLE_BY_REF) {
 				if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
+					USE_TSRM
 					qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 					return FALSE;
 				}
@@ -438,6 +441,7 @@ static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 			qb_variable *caller_qvar = cxt->caller_context->function->variables[retval_index];
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			if(!qb_transfer_value_to_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address)) {
+				USE_TSRM
 				qb_set_exception_line_id(cxt->caller_context->line_id TSRMLS_CC);
 				return FALSE;
 			}
@@ -672,6 +676,9 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 		// restore variables in the original context
 		cxt->fork_id = original_fork_id;
 		cxt->thread_count = original_thread_count;
+
+		// fix up the ip as well
+		cxt->instruction_pointer += (intptr_t) cxt->function->instructions;
 	} else {
 		// transfer the execution state to the original context
 		qb_interpreter_context *first_cxt = &fork_contexts[fork_count - 1];

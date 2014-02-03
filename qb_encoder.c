@@ -289,6 +289,12 @@ static uint32_t qb_get_address_length(qb_address *address) {
 		} else {
 			length += sizeof(qb_address);
 		}
+		if(address->array_index_address) {
+			if(address->array_index_address->segment_selector != QB_SELECTOR_CONSTANT_SCALAR || address->array_index_address->segment_offset != 0) {
+				// it's not zero
+				length += sizeof(qb_address);
+			}
+		}
 		if(address->index_alias_schemes) {
 			// need a pointer per dimension
 			length += sizeof(qb_index_alias_scheme *) * address->dimension_count;	
@@ -355,6 +361,12 @@ static int8_t * qb_copy_address(qb_address *address, int8_t *memory) {
 			dst->array_size_addresses = &dst->array_size_address;
 			dst->array_size_address = (qb_address *) p;
 			p = qb_copy_address(src->array_size_address, p);
+		}
+		if(src->array_index_address) {
+			if(src->array_index_address->segment_selector != QB_SELECTOR_CONSTANT_SCALAR || src->array_index_address->segment_offset != 0) {
+				dst->array_index_address = (qb_address *) p;
+				p = qb_copy_address(src->array_index_address, p);
+			}
 		}
 		if(src->index_alias_schemes) {
 			dst->index_alias_schemes = (qb_index_alias_scheme **) p; p += sizeof(qb_index_alias_scheme *) * src->dimension_count;
@@ -703,7 +715,7 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 
 static void qb_adjust_pointer(void **p, uintptr_t start, uintptr_t end, intptr_t shift) {
 	uintptr_t address = *((uintptr_t *) p);
-	if(start <= address && address <= end) {
+	if(start <= address && address < end) {
 		SHIFT_POINTER(*p, shift);
 	}
 }

@@ -2,7 +2,7 @@
 
 class Round extends Handler {
 
-	use MultipleAddressMode, TernaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, TernaryOperator, FloatingPointOnly, Multithreaded;
 
 	public function getOperandType($i) {
 		return ($i == 2 || $i == 3) ? "I32" : $this->operandType;

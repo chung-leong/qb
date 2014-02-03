@@ -157,6 +157,7 @@ struct qb_generator_context {
 ZEND_BEGIN_MODULE_GLOBALS(qb)
 	qb_main_thread main_thread;
 	long thread_count;
+	long multithreading_threshold;
 	long debug_fork_id;
 
 	zend_bool allow_bytecode_interpretation;
@@ -241,6 +242,7 @@ qb_main_thread * qb_get_main_thread(TSRMLS_D);
 uint32_t qb_get_thread_count(TSRMLS_D);
 
 extern int debug_compatibility_mode;
+extern long multithreading_threshold;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

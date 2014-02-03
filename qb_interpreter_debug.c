@@ -211,28 +211,30 @@ void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 	cxt->shadow_variables = ecalloc(cxt->function->variable_count, sizeof(zval *));
 	for(i = 0, j = 0; i < cxt->function->variable_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
-		if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-			zval **var, *value;
-			ALLOC_INIT_ZVAL(value);
-			qb_transfer_value_to_debug_zval(cxt, qvar->address, value);
-			zend_hash_quick_update(ex->symbol_table, qvar->name, qvar->name_length + 1, qvar->hash_value, &value, sizeof(zval *), (void **) &var);
+		if(qvar->name) {
+			if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
+				zval **var, *value;
+				ALLOC_INIT_ZVAL(value);
+				qb_transfer_value_to_debug_zval(cxt, qvar->address, value);
+				zend_hash_quick_update(ex->symbol_table, qvar->name, qvar->name_length + 1, qvar->hash_value, &value, sizeof(zval *), (void **) &var);
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-			*EX_CV_NUM(ex, j) = var;
+				*EX_CV_NUM(ex, j) = var;
 #else
-			ex->CVs[j] = var;
+				ex->CVs[j] = var;
 #endif
-			j++;
+				j++;
 
-			if(qvar->flags & QB_VARIABLE_ARGUMENT) {
-				// push argument onto Zend stack
-				Z_ADDREF_P(value);
+				if(qvar->flags & QB_VARIABLE_ARGUMENT) {
+					// push argument onto Zend stack
+					Z_ADDREF_P(value);
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-				zend_vm_stack_push(value TSRMLS_CC);
+					zend_vm_stack_push(value TSRMLS_CC);
 #else
-				zend_ptr_stack_push(&EG(argument_stack), value);
+					zend_ptr_stack_push(&EG(argument_stack), value);
 #endif
+				}
+				cxt->shadow_variables[i] = value;
 			}
-			cxt->shadow_variables[i] = value;
 		}
 	}
 	// push the argument count
@@ -251,9 +253,9 @@ void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index) {
 		USE_TSRM
 		qb_variable *qvar = cxt->function->variables[index];
 		if(cxt->shadow_variables) {
-			if(!(qvar->flags & (QB_VARIABLE_CLASS | QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_RETURN_VALUE))) {
-				zval *shadow_var = cxt->shadow_variables[index];
-				qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_var);
+			zval *shadow_variable = cxt->shadow_variables[index];
+			if(shadow_variable) {
+				qb_transfer_value_to_debug_zval(cxt, qvar->address, shadow_variable);
 			}
 			if(qvar->flags & (QB_VARIABLE_CLASS_INSTANCE | QB_VARIABLE_CLASS | QB_VARIABLE_GLOBAL)) {
 				qb_sync_imported_variable(cxt, qvar);

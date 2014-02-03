@@ -422,7 +422,6 @@ void qb_attach_bound_checking_expression(qb_compiler_context *cxt, qb_address *a
 					qb_operand operands[6] = { { QB_OPERAND_ADDRESS, { dim->array_size_address } }, { QB_OPERAND_ADDRESS, { address->array_size_address } }, { QB_OPERAND_ADDRESS, { address->dimension_addresses[0] } }, { QB_OPERAND_ADDRESS, { address->array_size_addresses[1] } }, { QB_OPERAND_SEGMENT_SELECTOR, { address } }, { QB_OPERAND_ELEMENT_SIZE, { address } } };
 					expr = qb_get_on_demand_expression(cxt, &factory_accommodate_array_size_update_dimension, operands, 6);
 				} else {
-					// TODO: move validation to the proper stage
 					uint32_t i, j;
 					if(address->dimension_count == dim->dimension_count) {
 						qb_operand operands[MAX_DIMENSION * 4 + 2];
@@ -1975,14 +1974,17 @@ static qb_type_declaration * qb_find_variable_declaration(qb_compiler_context *c
 int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 	qb_type_declaration *decl = qb_find_variable_declaration(cxt, qvar);
 	if(decl) {
+		// clear the type flags that don't match
+		qvar->flags &= (decl->flags & QB_VARIABLE_TYPES) | ~QB_VARIABLE_TYPES;
+
 		if(decl->type != QB_TYPE_VOID) {
 			qb_address *address;
 			if(decl->dimension_count == 0) {
 				address = qb_create_writable_scalar(cxt, decl->type);
 			} else {
 				address = qb_create_writable_array(cxt, decl->type, decl->dimensions, decl->dimension_count);
-				if(decl->flags & QB_TYPE_DECL_EXPANDABLE) {
-					address->flags |= QB_ADDRESS_AUTO_EXPAND;
+				if(decl->flags & QB_TYPE_DECL_AUTOVIVIFICIOUS) {
+					address->flags |= QB_ADDRESS_AUTOVIVIFICIOUS;
 				}
 			}
 			if(decl->flags & QB_TYPE_DECL_STRING) {
@@ -1994,6 +1996,9 @@ int32_t qb_apply_type_declaration(qb_compiler_context *cxt, qb_variable *qvar) {
 			}
 			if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
 				address->index_alias_schemes = decl->index_alias_schemes;
+			}
+			if(qvar->flags & QB_VARIABLE_SHARED) {
+				qb_mark_as_shared(cxt, address);
 			}
 			qvar->address = address;
 		}
@@ -2745,7 +2750,7 @@ qb_address * qb_obtain_bound_checked_array_index(qb_compiler_context *cxt, qb_ad
 	qb_address *sub_array_size_address = (container_address->dimension_count > 1) ? container_address->array_size_addresses[1] : NULL;
 	int32_t can_expand = FALSE;
 
-	if(AUTO_EXPAND(container_address)) {
+	if(AUTOVIVIFICIOUS(container_address)) {
 		can_expand = TRUE;
 	} else if(RESIZABLE(container_address)) {
 		if(index_limit_address == index_address) {
@@ -3212,20 +3217,6 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 		// add the ops for calculating on-demand values 
 		qb_create_on_demand_op(cxt, qop, QB_EXPR_EXECUTE_BEFORE);
 
-		/*
-		for(i = 0; i < operand_count; i++) {
-			qb_address *address = operands[i].address;
-			if(address->mode == QB_ADDRESS_MODE_ELE) {
-				// see if the opcode has an ELE version; most do, but a few do not
-				uint32_t op_flags = qb_get_op_flags(cxt, opcode);
-				if(!(op_flags & QB_OP_VERSION_AVAILABLE_ELE)) {
-					// copy the element to an temporary variable
-					// TODO
-				}
-			}
-		}
-		*/
-
 		// add the op
 		qb_add_op(cxt, qop);
 
@@ -3339,7 +3330,7 @@ void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type ex
 	free_alloca(target_op.operands, use_heap);
 }
 
-static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags) {
+static void qb_update_on_demand_result_no_recursion(qb_compiler_context *cxt, qb_address *address, uint32_t flags) {
 	if(address->expression) {
 		qb_expression *expr = address->expression;
 		if(expr->flags & flags) {
@@ -3352,23 +3343,39 @@ static void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *add
 	}
 }
 
+void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags) {
+	if(address) {
+		qb_update_on_demand_result_no_recursion(cxt, address, flags);
+		qb_update_on_demand_result_no_recursion(cxt, address->array_index_address, flags);
+		qb_update_on_demand_result_no_recursion(cxt, address->array_size_address, flags);
+	}
+}
+
 void qb_create_on_demand_op(qb_compiler_context *cxt, qb_op *qop, uint32_t flags) {
-	uint32_t i, j;
-	for(i = 0; i < qop->operand_count; i++) {
-		qb_operand *operand = &qop->operands[i];
-		if(operand->type == QB_OPERAND_ADDRESS) {
-			int32_t duplicate = FALSE;
-			for(j = 0; j < i; j++) {
-				if(operand->type == qop->operands[j].type && operand->address == qop->operands[j].address) {
-					duplicate = TRUE;
-				}
+	uint32_t i;
+	if(qop->opcode != QB_FCALL_U32_U32_U32) {
+		for(i = 0; i < qop->operand_count; i++) {
+			qb_operand *operand = &qop->operands[i];
+			if(operand->type == QB_OPERAND_ADDRESS) {
+				qb_update_on_demand_result(cxt, operand->address, flags);
 			}
-			if(!duplicate) {
-				qb_address *address = operand->address;
-				qb_update_on_demand_result(cxt, address, flags);
-				qb_update_on_demand_result(cxt, address->array_index_address, flags);
-				qb_update_on_demand_result(cxt, address->array_size_address, flags);
-			}
+		}
+	} else {
+		// function arguments are referenced by indices
+		qb_address *argument_indices_address = qop->operands[1].address;
+		qb_address *retvar_index_address = qop->operands[2].address;
+		uint32_t *argument_indices = ARRAY(U32, argument_indices_address);
+		uint32_t argument_count = ARRAY_SIZE(argument_indices_address);
+		uint32_t retvar_index = VALUE(U32, retvar_index_address);
+	
+		for(i = 0; i < argument_count; i++) {
+			uint32_t argument_index = argument_indices[i];
+			qb_variable *qvar = cxt->variables[argument_index];
+			qb_update_on_demand_result(cxt, qvar->address, flags);
+		}
+		if(retvar_index != INVALID_INDEX) {
+			qb_variable *qvar = cxt->variables[retvar_index];
+			qb_update_on_demand_result(cxt, qvar->address, flags);
 		}
 	}
 }
@@ -3717,6 +3724,56 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 			}
 		}
 	}
+}
+
+int32_t qb_check_thread_safety_in_range(qb_compiler_context *cxt, uint32_t start_index, uint32_t end_index, int32_t forked) {
+	uint32_t i, j;
+	for(i = start_index; i <= end_index; i++) {
+		qb_op *qop = cxt->ops[i];
+		if(qop->flags & QB_OP_CHECKED) {
+			break;
+		}
+		qop->flags |= QB_OP_CHECKED;
+		if(forked) {
+			if(qop->opcode == QB_RET) {
+				break;
+			} else if(qop->opcode == QB_SPOON) {
+				forked = FALSE;
+			} else if(qop->opcode == QB_FORK_U32) {
+				qb_report_fork_in_fork_exception(qop->line_id);
+				return FALSE;
+			} else {
+				if(qop->flags & QB_OP_NOT_THREAD_SAFE) {
+					// make sure none of the operands are shared
+					for(j = 0; j < qop->operand_count; j++) {
+						qb_operand *operand = &qop->operands[j];
+						if(operand->type == QB_OPERAND_ADDRESS) {
+							if(SHARED(operand->address)) {
+								if(qb_is_operand_write_target(qop->opcode, j)) {
+									qb_report_resize_in_fork_exception(qop->line_id);
+									return FALSE;
+								}
+							}
+						}
+					}
+				}
+			}
+			for(j = 0; j < qop->jump_target_count; j++) {
+				if(!qb_check_thread_safety_in_range(cxt, qop->jump_target_indices[j], end_index, forked)) {
+					return FALSE;
+				}
+			}
+		} else {
+			if(qop->opcode == QB_FORK_U32) {
+				forked = TRUE;
+			}
+		}
+	}
+	return TRUE;
+}
+
+int32_t qb_check_thread_safety(qb_compiler_context *cxt) {
+	return qb_check_thread_safety_in_range(cxt, 0, cxt->op_count - 1, FALSE);
 }
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC) {

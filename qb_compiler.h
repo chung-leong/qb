@@ -398,7 +398,7 @@ qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *addre
 
 void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
 void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
-
+void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags);
 void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory);
 
 int32_t qb_is_source_op_translated(qb_compiler_context *cxt, uint32_t source_index);
@@ -418,7 +418,8 @@ void qb_resolve_jump_targets(qb_compiler_context *cxt);
 void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass);
 void qb_assign_storage_space(qb_compiler_context *cxt);
 void qb_resolve_address_modes(qb_compiler_context *cxt);
-void qb_resolve_reference_counts(qb_compiler_context *compiler_cxt);
+void qb_resolve_reference_counts(qb_compiler_context *cxt);
+int32_t qb_check_thread_safety(qb_compiler_context *cxt);
 
 void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool, qb_function_declaration *function_decl, uint32_t dependency_index, uint32_t max_dependency_index TSRMLS_DC);
 void qb_free_compiler_context(qb_compiler_context *cxt);

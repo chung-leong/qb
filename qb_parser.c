@@ -182,7 +182,7 @@ static int32_t qb_parse_type_dimension(qb_parser_context *cxt, const char *s, ui
 			free_alloca(name, use_heap);
 		} else if(FOUND_GROUP(TYPE_DIM_ASTERISK)) {
 			if(dimension_index == 0) {
-				decl->flags |= QB_TYPE_DECL_EXPANDABLE;
+				decl->flags |= QB_TYPE_DECL_AUTOVIVIFICIOUS;
 			}
 			dimension = 0;
 		} else {
@@ -296,7 +296,7 @@ static qb_type_declaration * qb_parse_type_declaration(qb_parser_context *cxt, c
 			decl->flags |= QB_TYPE_DECL_BOOLEAN;
 		} else if(FOUND_GROUP(TYPE_DECL_STRING) && !FOUND_GROUP(TYPE_DECL_DIMENSIONS)) {
 			decl->type = QB_TYPE_U08;
-			decl->flags |= QB_TYPE_DECL_EXPANDABLE | QB_TYPE_DECL_STRING;
+			decl->flags |= QB_TYPE_DECL_AUTOVIVIFICIOUS | QB_TYPE_DECL_STRING;
 			base_dimension_count = 1;
 			base_dimensions[0] = 0;
 		} else if(FOUND_GROUP(TYPE_DECL_IMAGE)) {
@@ -541,6 +541,7 @@ qb_function_declaration * qb_parse_function_declaration_table(qb_parser_context 
 					switch(match) {
 						case FUNC_DECL_PARAM: var_type = QB_VARIABLE_ARGUMENT; break;
 						case FUNC_DECL_LOCAL: var_type = QB_VARIABLE_LOCAL; break;
+						case FUNC_DECL_SHARED: var_type = QB_VARIABLE_SHARED; break;
 						case FUNC_DECL_STATIC: var_type = QB_VARIABLE_STATIC | QB_VARIABLE_CLASS; break;
 						case FUNC_DECL_GLOBAL: var_type = QB_VARIABLE_GLOBAL; break;
 						case FUNC_DECL_LEXICAL: var_type = QB_VARIABLE_LEXICAL; break;
@@ -636,6 +637,8 @@ qb_function_declaration * qb_parse_function_doc_comment(qb_parser_context *cxt, 
 					var_type = QB_VARIABLE_GLOBAL;
 				} else if(FOUND_GROUP(FUNC_DECL_LOCAL)) {
 					var_type = QB_VARIABLE_LOCAL;
+				} else if(FOUND_GROUP(FUNC_DECL_SHARED)) {
+					var_type = QB_VARIABLE_SHARED;
 				} else if(FOUND_GROUP(FUNC_DECL_LEXICAL)) {
 					var_type = QB_VARIABLE_LEXICAL;
 				} else if(FOUND_GROUP(FUNC_DECL_PARAM)) {

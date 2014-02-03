@@ -693,6 +693,24 @@ qb_simple_op_factory factory_guard_array_size = {
 	QB_SZ_GUARD_U32_U32,
 };
 
+qb_simple_op_factory factory_guard_array_size_exact = {
+	NULL,
+	qb_resolve_expression_type_index,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_first_operand,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_all,
+	NULL,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_SZ_GUARD_EX_U32_U32,
+};
+
 qb_simple_op_factory factory_guard_array_extent = {
 	NULL,
 	qb_resolve_expression_type_index,
@@ -2719,7 +2737,7 @@ qb_simple_op_factory factory_fork_init = {
 	NULL,
 	qb_select_opcode_simple,
 	qb_transfer_operands_fork,
-	qb_indicate_non_inlineable,
+	qb_indicate_fork,
 	0,
 	QB_RESULT_HAS_SIDE_EFFECT,
 	0,
@@ -5660,6 +5678,25 @@ qb_basic_op_factory factory_floatval = {
 	QB_ADDRESS_TEMPORARY,
 	{	QB_CONV_STR_U08_F64,	QB_CONV_STR_U08_F32	},
 };
+
+qb_simple_op_factory factory_get_time = {
+	NULL,
+	qb_resolve_expression_type_double,
+	NULL,
+	NULL,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	NULL,
+	qb_select_opcode_simple,
+	qb_transfer_operands_result_only,
+	NULL,
+	0,
+	0,
+	QB_ADDRESS_TEMPORARY,
+	QB_TIME_F64,
+};
+
 
 qb_op_factory factory_defined = {
 	NULL,

@@ -2,7 +2,7 @@
 
 class Step extends Handler {
 
-	use MultipleAddressMode, BinaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, BinaryOperator, FloatingPointOnly, Multithreaded;
 	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(3);

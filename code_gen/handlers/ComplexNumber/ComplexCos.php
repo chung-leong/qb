@@ -2,7 +2,7 @@
 
 class ComplexCos extends Handler {
 
-	use ArrayAddressMode, UnaryOperator, FloatingPointOnly, FixedOperandSize, Slow;
+	use ArrayAddressMode, UnaryOperator, FloatingPointOnly, FixedOperandSize, Slow, Multithreaded;
 	
 	protected function getActionOnUnitData() {
 		$type = $this->getOperandType(2);

@@ -315,6 +315,7 @@ extern qb_simple_op_factory factory_guard_array_index_add;
 extern qb_simple_op_factory factory_guard_array_index_multiply;
 extern qb_simple_op_factory factory_guard_array_index_multiply_add;
 extern qb_simple_op_factory factory_guard_array_size;
+extern qb_simple_op_factory factory_guard_array_size_exact;
 extern qb_simple_op_factory factory_guard_array_extent;
 extern qb_simple_op_factory factory_guard_array_extent_multiply;
 extern qb_simple_op_factory factory_guard_array_extent_subtract;
@@ -610,6 +611,8 @@ extern qb_basic_op_factory factory_pack_le;
 extern qb_basic_op_factory factory_pack_be;
 extern qb_basic_op_factory factory_unpack_le;
 extern qb_basic_op_factory factory_unpack_be;
+
+extern qb_simple_op_factory factory_get_time;
 
 extern qb_basic_op_factory factory_intval;
 extern qb_basic_op_factory factory_floatval;

@@ -14498,6 +14498,15 @@ void qb_do_gather_8x_I64(uint32_t op1, int64_t *op2_ptr, int64_t *res_ptr) {
 	res_ptr[7] = v7;
 }
 
+void qb_do_get_time_F64(float64_t *res_ptr) {
+	struct timeval tp;
+	if(gettimeofday(&tp, NULL) != -1) {
+		(*res_ptr) = tp.tv_sec + tp.tv_usec / 1000000.0;
+	} else {
+		(*res_ptr) = 0;
+	}
+}
+
 void qb_do_hsl2rgb_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -25773,6 +25782,1638 @@ void qb_do_utf8encode_count_U32(uint32_t *op1_ptr, uint32_t op1_count, uint32_t 
 	(*res_ptr) = length;
 }
 
+void qb_redirect_multiply_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_U32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_multiple_times_U32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_accumulate_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_U32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_U32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_U32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_U32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_U32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_U32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_U32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_U32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_multiple_times_I32, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_increment_multiple_times_I32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_multiple_times_I32, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_decrement_multiple_times_I32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_multiple_times_I32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_add_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_S32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_multiple_times_S32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_accumulate_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_multiple_times_I32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_subtract_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_multiple_times_I32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_negate_multiple_times_I32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_and_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_and_multiple_times_I32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_and_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_or_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_or_multiple_times_I32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_or_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_xor_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_xor_multiple_times_I32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_xor_multiple_times_I32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_not_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_bitwise_not_multiple_times_I32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_not_multiple_times_I32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_S32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_S32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_abs_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_abs_multiple_times_S32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_abs_multiple_times_S32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_S32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_S32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_S32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_S32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_S32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_S32(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_multiple_times_F32, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_increment_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_multiple_times_F32, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_decrement_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_add_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_accumulate_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_subtract_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_divide_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_modulo_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_floored_division_modulo_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_floored_division_modulo_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_floored_division_modulo_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_negate_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_abs_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_abs_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_abs_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sin_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sin_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sin_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_asin_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_asin_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_asin_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cos_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_cos_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_cos_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_acos_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_acos_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_acos_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_tan_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_tan_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_tan_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_atan_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_atan_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_atan_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_atan2_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_atan2_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_atan2_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sinh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sinh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sinh_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_asinh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_asinh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_asinh_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cosh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_cosh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_cosh_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_acosh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_acosh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_acosh_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_tanh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_tanh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_tanh_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_atanh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_atanh_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_atanh_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_ceil_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_ceil_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_ceil_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_floor_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_floor_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_floor_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_round_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_round_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_round_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log1p_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log1p_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log1p_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log2_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log2_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log2_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log10_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log10_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log10_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_exp_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_exp_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_exp_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_exp_m1_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_exp_m1_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_exp_m1_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_exp2_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_exp2_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_exp2_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_pow_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_pow_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_pow_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sqrt_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sqrt_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sqrt_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hypot_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_hypot_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_hypot_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_lcg_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_lcg_multiple_times_F32, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_lcg_multiple_times_F32(cxt, res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_is_finite_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_is_finite_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_is_finite_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_is_infinite_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_is_infinite_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_is_infinite_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_is_nan_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_is_nan_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_is_nan_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rsqrt_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rsqrt_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_rsqrt_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_clamp_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_clamp_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_clamp_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_fract_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_fract_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_fract_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_mix_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_mix_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_mix_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sign_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sign_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sign_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_step_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_step_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_step_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_smooth_step_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_smooth_step_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_smooth_step_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_radian_to_degree_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_radian_to_degree_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_radian_to_degree_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_degree_to_radian_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_degree_to_radian_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_degree_to_radian_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_4x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+		qb_do_sample_nearest_4x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_3x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+		qb_do_sample_nearest_3x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_2x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+		qb_do_sample_nearest_2x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+		qb_do_sample_nearest_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_4x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+		qb_do_sample_bilinear_4x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_3x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+		qb_do_sample_bilinear_3x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_2x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+		qb_do_sample_bilinear_2x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+		qb_do_sample_bilinear_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
 void qb_redirect_alpha_blend_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
 #define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
@@ -25781,7 +27422,7 @@ void qb_redirect_alpha_blend_2x_multiple_times_F32(qb_interpreter_context *__res
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
 		qb_do_alpha_blend_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25801,7 +27442,7 @@ void qb_redirect_alpha_blend_4x_multiple_times_F32(qb_interpreter_context *__res
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
 		qb_do_alpha_blend_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25819,7 +27460,7 @@ void qb_redirect_apply_premultiplication_4x_multiple_times_F32(qb_interpreter_co
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_apply_premultiplication_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_apply_premultiplication_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
 		qb_do_apply_premultiplication_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25835,12 +27476,160 @@ void qb_redirect_remove_premultiplication_4x_multiple_times_F32(qb_interpreter_c
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_remove_premultiplication_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_remove_premultiplication_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
 		qb_do_remove_premultiplication_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsv_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsv_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_rgb2hsv_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsv_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsv_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_rgb2hsv_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsv2rgb_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsv2rgb_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_hsv2rgb_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsv2rgb_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsv2rgb_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_hsv2rgb_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsl_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsl_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_rgb2hsl_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsl_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsl_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_rgb2hsl_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsl2rgb_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsl2rgb_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_hsl2rgb_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsl2rgb_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsl2rgb_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_hsl2rgb_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 16, 16, 16, multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_4x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
 #undef res_ptr
 #undef res_count
 }
@@ -25853,8 +27642,458 @@ void qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F32(qb
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 16, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 16, 4, 4, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_4x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 16, 4, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_4x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_transpose_matrix_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 16, 16, multithreading_threshold)) {
+		qb_do_transpose_matrix_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_invert_matrix_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 16, 16, multithreading_threshold)) {
+		qb_do_invert_matrix_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_determinant_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 16, 1, multithreading_threshold)) {
+		qb_do_determinant_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_dot_product_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 1, multithreading_threshold)) {
+		qb_do_dot_product_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_length_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 1, multithreading_threshold)) {
+		qb_do_length_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_distance_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 1, multithreading_threshold)) {
+		qb_do_distance_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_normalize_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_normalize_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cross_product_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_cross_product_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 4, 4, 4, 4, multithreading_threshold)) {
+		qb_do_cross_product_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_face_forward_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_face_forward_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_reflect_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_reflect_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((float32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_refract_4x_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_refract_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_4x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_4x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 20, 4, 4, multithreading_threshold)) {
+		qb_do_transform_vector_4x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_4x_multiple_times_row_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_4x_multiple_times_row_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 20, 4, 4, multithreading_threshold)) {
+		qb_do_transform_vector_4x_multiple_times_row_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_add_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_subtract_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_multiply_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_divide_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_modulo_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_4x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_negate_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_4x_multiple_times_F32, (qb_instruction_ARR *) ip, 4, multithreading_threshold)) {
+		qb_do_increment_4x_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_4x_multiple_times_F32, (qb_instruction_ARR *) ip, 4, multithreading_threshold)) {
+		qb_do_decrement_4x_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_4x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 4, 4, 4, 4, multithreading_threshold)) {
+		qb_do_multiply_accumulate_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 9, 9, 9, multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -25873,8 +28112,454 @@ void qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F32(qb
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 9, 3, 3, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 9, 3, 3, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 9, 3, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_transpose_matrix_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 9, 9, multithreading_threshold)) {
+		qb_do_transpose_matrix_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_invert_matrix_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 9, 9, multithreading_threshold)) {
+		qb_do_invert_matrix_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_determinant_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 9, 1, multithreading_threshold)) {
+		qb_do_determinant_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_dot_product_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 1, multithreading_threshold)) {
+		qb_do_dot_product_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_length_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 3, 1, multithreading_threshold)) {
+		qb_do_length_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_distance_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 1, multithreading_threshold)) {
+		qb_do_distance_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_normalize_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_normalize_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cross_product_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_cross_product_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_cross_product_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_face_forward_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_face_forward_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_reflect_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_reflect_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((float32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_refract_3x_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_refract_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_3x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_3x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 12, 3, 3, multithreading_threshold)) {
+		qb_do_transform_vector_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_3x_multiple_times_row_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_3x_multiple_times_row_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 12, 3, 3, multithreading_threshold)) {
+		qb_do_transform_vector_3x_multiple_times_row_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_add_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_subtract_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_multiply_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_divide_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_modulo_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_3x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_negate_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_3x_multiple_times_F32, (qb_instruction_ARR *) ip, 3, multithreading_threshold)) {
+		qb_do_increment_3x_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_3x_multiple_times_F32, (qb_instruction_ARR *) ip, 3, multithreading_threshold)) {
+		qb_do_decrement_3x_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_3x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 3, 3, 3, 3, multithreading_threshold)) {
+		qb_do_multiply_accumulate_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -25893,7 +28578,7 @@ void qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F32(qb
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 2, 2, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 4, 2, 2, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25901,6 +28586,458 @@ void qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F32(qb
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 4, 2, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_transpose_matrix_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_transpose_matrix_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_invert_matrix_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_invert_matrix_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_determinant_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 4, 1, multithreading_threshold)) {
+		qb_do_determinant_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_dot_product_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 1, multithreading_threshold)) {
+		qb_do_dot_product_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_length_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 1, multithreading_threshold)) {
+		qb_do_length_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_distance_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 1, multithreading_threshold)) {
+		qb_do_distance_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_normalize_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_normalize_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cross_product_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_cross_product_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_cross_product_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_face_forward_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_face_forward_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_reflect_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_reflect_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((float32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_refract_2x_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_refract_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_2x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_2x_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 6, 2, 2, multithreading_threshold)) {
+		qb_do_transform_vector_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_2x_multiple_times_row_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_2x_multiple_times_row_major_F32, (qb_instruction_ARR_ARR_ARR *) ip, 6, 2, 2, multithreading_threshold)) {
+		qb_do_transform_vector_2x_multiple_times_row_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_add_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_subtract_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_multiply_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_divide_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_modulo_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_negate_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_2x_multiple_times_F32, (qb_instruction_ARR *) ip, 2, multithreading_threshold)) {
+		qb_do_increment_2x_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_2x_multiple_times_F32, (qb_instruction_ARR *) ip, 2, multithreading_threshold)) {
+		qb_do_decrement_2x_multiple_times_F32(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 2, 2, 2, 2, multithreading_threshold)) {
+		qb_do_multiply_accumulate_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
+#define op5	((uint32_t *) INSTR->operand5.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_SCA_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR *) ip, (op3 * op4), (op4 * op5), (op3 * op5), multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, op5, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef op4
+#undef op5
 #undef res_ptr
 #undef res_count
 }
@@ -25915,7 +29052,7 @@ void qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F32(qb_in
 #define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
 #define res_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
 #define res_count	INSTR->operand5.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, (op3 * op4), op3, op4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, (op3 * op4), op3, op4, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25929,6 +29066,1602 @@ void qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F32(qb_in
 #undef res_count
 }
 
+void qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define res_count	INSTR->operand5.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F32, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, op4, (op3 * op4), op3, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef op4
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR(cxt, qb_redirect_transpose_matrix_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR *) ip, op2 * op3, op2 * op3, multithreading_threshold)) {
+		qb_do_transpose_matrix_multiple_times_F32(op1_ptr, op1_count, op2, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_invert_matrix_multiple_times_F32, (qb_instruction_ARR_SCA_ARR *) ip, op2 * op2, op2 * op2, multithreading_threshold)) {
+		qb_do_invert_matrix_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_determinant_multiple_times_F32, (qb_instruction_ARR_SCA_ARR *) ip, op2 * op2, 1, multithreading_threshold)) {
+		qb_do_determinant_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_dot_product_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, 1, multithreading_threshold)) {
+		qb_do_dot_product_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_length_multiple_times_F32, (qb_instruction_ARR_SCA_ARR *) ip, op2, op2, multithreading_threshold)) {
+		qb_do_length_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_distance_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, op3, multithreading_threshold)) {
+		qb_do_distance_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_normalize_multiple_times_F32, (qb_instruction_ARR_SCA_ARR *) ip, op2, op2, multithreading_threshold)) {
+		qb_do_normalize_multiple_times_F32(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_face_forward_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, op3, multithreading_threshold)) {
+		qb_do_face_forward_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_reflect_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, op3, multithreading_threshold)) {
+		qb_do_reflect_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
+#define res_ptr		(((float32_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define res_count	INSTR->operand5.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_refract_multiple_times_F32, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, op4, op4, op4, multithreading_threshold)) {
+		qb_do_refract_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef op4
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_abs_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_abs_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 1, multithreading_threshold)) {
+		qb_do_complex_abs_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_argument_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_argument_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 1, multithreading_threshold)) {
+		qb_do_complex_argument_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_multiply_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_multiply_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_complex_multiply_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_divide_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_divide_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_complex_divide_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_exp_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_exp_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_exp_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_log_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_log_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_log_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_square_root_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_square_root_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_square_root_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_pow_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_pow_2x_multiple_times_F32, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_complex_pow_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_sin_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sin_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_sin_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_cos_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cos_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_cos_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_tan_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tan_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_tan_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_sinh_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sinh_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_sinh_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_cosh_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cosh_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_cosh_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_tanh_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tanh_2x_multiple_times_F32, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_tanh_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_multiple_times_F64, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_increment_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_multiple_times_F64, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_decrement_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_add_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_accumulate_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_subtract_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_divide_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_modulo_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_floored_division_modulo_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_floored_division_modulo_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_floored_division_modulo_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_negate_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_abs_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_abs_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_abs_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sin_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sin_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sin_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_asin_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_asin_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_asin_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cos_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_cos_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_cos_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_acos_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_acos_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_acos_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_tan_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_tan_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_tan_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_atan_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_atan_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_atan_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_atan2_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_atan2_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_atan2_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sinh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sinh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sinh_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_asinh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_asinh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_asinh_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cosh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_cosh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_cosh_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_acosh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_acosh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_acosh_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_tanh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_tanh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_tanh_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_atanh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_atanh_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_atanh_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_ceil_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_ceil_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_ceil_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_floor_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_floor_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_floor_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_round_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_round_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_round_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log1p_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log1p_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log1p_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log2_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log2_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log2_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_log10_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_log10_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_log10_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_exp_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_exp_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_exp_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_exp_m1_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_exp_m1_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_exp_m1_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_exp2_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_exp2_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_exp2_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_pow_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_pow_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_pow_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sqrt_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sqrt_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sqrt_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hypot_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_hypot_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_hypot_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_lcg_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_lcg_multiple_times_F64, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_lcg_multiple_times_F64(cxt, res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_is_finite_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_is_finite_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_is_finite_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_is_infinite_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_is_infinite_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_is_infinite_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_is_nan_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_is_nan_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_is_nan_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rsqrt_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rsqrt_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_rsqrt_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_clamp_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_clamp_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_clamp_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_fract_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_fract_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_fract_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_mix_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_mix_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_mix_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sign_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_sign_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_sign_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_step_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_step_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_step_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_smooth_step_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_smooth_step_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_smooth_step_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_radian_to_degree_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_radian_to_degree_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_radian_to_degree_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_degree_to_radian_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_degree_to_radian_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_degree_to_radian_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_4x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+		qb_do_sample_nearest_4x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_3x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+		qb_do_sample_nearest_3x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_2x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+		qb_do_sample_nearest_2x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_nearest_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+		qb_do_sample_nearest_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_4x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+		qb_do_sample_bilinear_4x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_3x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+		qb_do_sample_bilinear_3x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_2x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+		qb_do_sample_bilinear_2x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_sample_bilinear_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define op4_count	INSTR->operand4.count_pointer[0]
+#define op5_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define op5_count	INSTR->operand5.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+		qb_do_sample_bilinear_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef op4_ptr
+#undef op4_count
+#undef op5_ptr
+#undef op5_count
+#undef res_ptr
+#undef res_count
+}
+
 void qb_redirect_alpha_blend_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
 #define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
@@ -25937,7 +30670,7 @@ void qb_redirect_alpha_blend_2x_multiple_times_F64(qb_interpreter_context *__res
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
 		qb_do_alpha_blend_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25957,7 +30690,7 @@ void qb_redirect_alpha_blend_4x_multiple_times_F64(qb_interpreter_context *__res
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_alpha_blend_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
 		qb_do_alpha_blend_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25975,7 +30708,7 @@ void qb_redirect_apply_premultiplication_4x_multiple_times_F64(qb_interpreter_co
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_apply_premultiplication_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_apply_premultiplication_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
 		qb_do_apply_premultiplication_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -25991,12 +30724,160 @@ void qb_redirect_remove_premultiplication_4x_multiple_times_F64(qb_interpreter_c
 #define op1_count	INSTR->operand1.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
 #define res_count	INSTR->operand2.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_remove_premultiplication_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_remove_premultiplication_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
 		qb_do_remove_premultiplication_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsv_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsv_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_rgb2hsv_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsv_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsv_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_rgb2hsv_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsv2rgb_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsv2rgb_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_hsv2rgb_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsv2rgb_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsv2rgb_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_hsv2rgb_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsl_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsl_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_rgb2hsl_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_rgb2hsl_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_rgb2hsl_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_rgb2hsl_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsl2rgb_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsl2rgb_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_hsl2rgb_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_hsl2rgb_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_hsl2rgb_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_hsl2rgb_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 16, 16, 16, multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_4x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
 #undef res_ptr
 #undef res_count
 }
@@ -26009,8 +30890,458 @@ void qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F64(qb
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 16, 4, 4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 16, 4, 4, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_4x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 16, 4, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_4x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_transpose_matrix_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 16, 16, multithreading_threshold)) {
+		qb_do_transpose_matrix_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_invert_matrix_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 16, 16, multithreading_threshold)) {
+		qb_do_invert_matrix_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_determinant_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 16, 1, multithreading_threshold)) {
+		qb_do_determinant_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_dot_product_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 1, multithreading_threshold)) {
+		qb_do_dot_product_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_length_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 1, multithreading_threshold)) {
+		qb_do_length_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_distance_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 1, multithreading_threshold)) {
+		qb_do_distance_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_normalize_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_normalize_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cross_product_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_cross_product_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 4, 4, 4, 4, multithreading_threshold)) {
+		qb_do_cross_product_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_face_forward_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_face_forward_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_reflect_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_reflect_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((float64_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_refract_4x_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_refract_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_4x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_4x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 20, 4, 4, multithreading_threshold)) {
+		qb_do_transform_vector_4x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_4x_multiple_times_row_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_4x_multiple_times_row_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 20, 4, 4, multithreading_threshold)) {
+		qb_do_transform_vector_4x_multiple_times_row_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_add_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_subtract_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_multiply_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_divide_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_modulo_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_4x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_negate_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_4x_multiple_times_F64, (qb_instruction_ARR *) ip, 4, multithreading_threshold)) {
+		qb_do_increment_4x_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_4x_multiple_times_F64, (qb_instruction_ARR *) ip, 4, multithreading_threshold)) {
+		qb_do_decrement_4x_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_4x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 4, 4, 4, 4, multithreading_threshold)) {
+		qb_do_multiply_accumulate_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 9, 9, 9, multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_3x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -26029,8 +31360,454 @@ void qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F64(qb
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 9, 3, 3, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 9, 3, 3, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_3x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 9, 3, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_3x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_transpose_matrix_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 9, 9, multithreading_threshold)) {
+		qb_do_transpose_matrix_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_invert_matrix_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 9, 9, multithreading_threshold)) {
+		qb_do_invert_matrix_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_determinant_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 9, 1, multithreading_threshold)) {
+		qb_do_determinant_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_dot_product_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 1, multithreading_threshold)) {
+		qb_do_dot_product_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_length_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 3, 1, multithreading_threshold)) {
+		qb_do_length_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_distance_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 1, multithreading_threshold)) {
+		qb_do_distance_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_normalize_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_normalize_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cross_product_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_cross_product_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_cross_product_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_face_forward_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_face_forward_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_reflect_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_reflect_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((float64_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_refract_3x_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_refract_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_3x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_3x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 12, 3, 3, multithreading_threshold)) {
+		qb_do_transform_vector_3x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_3x_multiple_times_row_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_3x_multiple_times_row_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 12, 3, 3, multithreading_threshold)) {
+		qb_do_transform_vector_3x_multiple_times_row_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_add_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_subtract_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_multiply_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_divide_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 3, 3, 3, multithreading_threshold)) {
+		qb_do_modulo_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_3x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 3, 3, multithreading_threshold)) {
+		qb_do_negate_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_3x_multiple_times_F64, (qb_instruction_ARR *) ip, 3, multithreading_threshold)) {
+		qb_do_increment_3x_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_3x_multiple_times_F64, (qb_instruction_ARR *) ip, 3, multithreading_threshold)) {
+		qb_do_decrement_3x_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_3x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 3, 3, 3, 3, multithreading_threshold)) {
+		qb_do_multiply_accumulate_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 4, 4, multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_2x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
 #undef op1_ptr
@@ -26049,7 +31826,7 @@ void qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64(qb
 #define op2_count	INSTR->operand2.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
 #define res_count	INSTR->operand3.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 2, 2, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 4, 2, 2, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_2x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -26057,6 +31834,458 @@ void qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64(qb
 #undef op1_count
 #undef op2_ptr
 #undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 4, 2, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_2x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_transpose_matrix_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_transpose_matrix_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_invert_matrix_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 4, multithreading_threshold)) {
+		qb_do_invert_matrix_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_determinant_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 4, 1, multithreading_threshold)) {
+		qb_do_determinant_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_dot_product_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 1, multithreading_threshold)) {
+		qb_do_dot_product_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_length_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 1, multithreading_threshold)) {
+		qb_do_length_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_distance_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 1, multithreading_threshold)) {
+		qb_do_distance_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_normalize_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_normalize_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_cross_product_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_cross_product_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_cross_product_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_face_forward_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_face_forward_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_reflect_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_reflect_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((float64_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_refract_2x_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_refract_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_2x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_2x_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 6, 2, 2, multithreading_threshold)) {
+		qb_do_transform_vector_2x_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transform_vector_2x_multiple_times_row_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_transform_vector_2x_multiple_times_row_major_F64, (qb_instruction_ARR_ARR_ARR *) ip, 6, 2, 2, multithreading_threshold)) {
+		qb_do_transform_vector_2x_multiple_times_row_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_add_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_subtract_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_multiply_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_divide_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_divide_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_divide_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_modulo_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_modulo_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_modulo_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_negate_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_2x_multiple_times_F64, (qb_instruction_ARR *) ip, 2, multithreading_threshold)) {
+		qb_do_increment_2x_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_2x_multiple_times_F64, (qb_instruction_ARR *) ip, 2, multithreading_threshold)) {
+		qb_do_decrement_2x_multiple_times_F64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 2, 2, 2, 2, multithreading_threshold)) {
+		qb_do_multiply_accumulate_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
+#define op5	((uint32_t *) INSTR->operand5.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
+#define res_count	INSTR->operand6.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_SCA_ARR(cxt, qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR *) ip, (op3 * op4), (op4 * op5), (op3 * op5), multithreading_threshold)) {
+		qb_do_multiply_matrix_by_matrix_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, op5, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef op4
+#undef op5
 #undef res_ptr
 #undef res_count
 }
@@ -26071,7 +32300,7 @@ void qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F64(qb_in
 #define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
 #define res_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
 #define res_count	INSTR->operand5.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, (op3 * op4), op3, op4, 1024)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, (op3 * op4), op3, op4, multithreading_threshold)) {
 		qb_do_multiply_matrix_by_vector_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
 	}
 #undef INSTR
@@ -26081,6 +32310,1874 @@ void qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F64(qb_in
 #undef op2_count
 #undef op3
 #undef op4
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define res_count	INSTR->operand5.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F64, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, op4, (op3 * op4), op3, multithreading_threshold)) {
+		qb_do_multiply_vector_by_matrix_multiple_times_column_major_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef op4
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_transpose_matrix_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR(cxt, qb_redirect_transpose_matrix_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR *) ip, op2 * op3, op2 * op3, multithreading_threshold)) {
+		qb_do_transpose_matrix_multiple_times_F64(op1_ptr, op1_count, op2, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_invert_matrix_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_invert_matrix_multiple_times_F64, (qb_instruction_ARR_SCA_ARR *) ip, op2 * op2, op2 * op2, multithreading_threshold)) {
+		qb_do_invert_matrix_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_determinant_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_determinant_multiple_times_F64, (qb_instruction_ARR_SCA_ARR *) ip, op2 * op2, 1, multithreading_threshold)) {
+		qb_do_determinant_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_dot_product_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_dot_product_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, 1, multithreading_threshold)) {
+		qb_do_dot_product_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_length_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_length_multiple_times_F64, (qb_instruction_ARR_SCA_ARR *) ip, op2, op2, multithreading_threshold)) {
+		qb_do_length_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_distance_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_distance_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, op3, multithreading_threshold)) {
+		qb_do_distance_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_normalize_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2	((uint32_t *) INSTR->operand2.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_ARR(cxt, qb_redirect_normalize_multiple_times_F64, (qb_instruction_ARR_SCA_ARR *) ip, op2, op2, multithreading_threshold)) {
+		qb_do_normalize_multiple_times_F64(op1_ptr, op1_count, op2, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_face_forward_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_face_forward_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, op3, multithreading_threshold)) {
+		qb_do_face_forward_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_reflect_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_ARR(cxt, qb_redirect_reflect_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_ARR *) ip, op3, op3, op3, multithreading_threshold)) {
+		qb_do_reflect_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_refract_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_SCA_SCA_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3	((uint32_t *) INSTR->operand3.data_pointer)[0]
+#define op4	((uint32_t *) INSTR->operand4.data_pointer)[0]
+#define res_ptr		(((float64_t *) INSTR->operand5.data_pointer) + INSTR->operand5.index_pointer[0])
+#define res_count	INSTR->operand5.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(cxt, qb_redirect_refract_multiple_times_F64, (qb_instruction_ARR_ARR_SCA_SCA_ARR *) ip, op4, op4, op4, multithreading_threshold)) {
+		qb_do_refract_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3, op4, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3
+#undef op4
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_abs_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_abs_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 1, multithreading_threshold)) {
+		qb_do_complex_abs_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_argument_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_argument_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 1, multithreading_threshold)) {
+		qb_do_complex_argument_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_multiply_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_multiply_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_complex_multiply_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_divide_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_divide_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_complex_divide_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_exp_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_exp_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_exp_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_log_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_log_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_log_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_square_root_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_square_root_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_square_root_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_pow_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_complex_pow_2x_multiple_times_F64, (qb_instruction_ARR_ARR_ARR *) ip, 2, 2, 2, multithreading_threshold)) {
+		qb_do_complex_pow_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_sin_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sin_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_sin_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_cos_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cos_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_cos_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_tan_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tan_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_tan_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_sinh_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_sinh_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_sinh_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_cosh_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_cosh_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_cosh_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_complex_tanh_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_complex_tanh_2x_multiple_times_F64, (qb_instruction_ARR_ARR *) ip, 2, 2, multithreading_threshold)) {
+		qb_do_complex_tanh_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_multiple_times_I08, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_increment_multiple_times_I08(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_multiple_times_I08, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_decrement_multiple_times_I08(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_multiple_times_I08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_add_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_S08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_multiple_times_I08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_subtract_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_multiple_times_I08, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_negate_multiple_times_I08(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_and_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_and_multiple_times_I08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_and_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_or_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_or_multiple_times_I08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_or_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_xor_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_xor_multiple_times_I08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_xor_multiple_times_I08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_not_multiple_times_I08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_bitwise_not_multiple_times_I08, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_not_multiple_times_I08(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_S08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_S08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_abs_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_abs_multiple_times_S08, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_abs_multiple_times_S08(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_S08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_S08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_S08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_S08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_S08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_S08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_S08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_U08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_U08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_U08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_U08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_U08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_U08(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_U08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_U08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint8_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint8_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint8_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_U08, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_U08(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_multiple_times_I16, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_increment_multiple_times_I16(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_multiple_times_I16, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_decrement_multiple_times_I16(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_multiple_times_I16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_add_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_S16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_multiple_times_I16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_subtract_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_multiple_times_I16, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_negate_multiple_times_I16(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_and_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_and_multiple_times_I16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_and_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_or_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_or_multiple_times_I16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_or_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_xor_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_xor_multiple_times_I16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_xor_multiple_times_I16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_not_multiple_times_I16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_bitwise_not_multiple_times_I16, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_not_multiple_times_I16(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_S16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_S16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_abs_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_abs_multiple_times_S16, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_abs_multiple_times_S16(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_S16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_S16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_S16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_S16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_S16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_S16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_S16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_S16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_U16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_U16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_U16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_U16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_U16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_U16(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_U16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_U16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_U16(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint16_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint16_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint16_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_U16, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_U16(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_increment_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_increment_multiple_times_I64, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_increment_multiple_times_I64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_decrement_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR * __restrict) ip)
+#define res_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define res_count	INSTR->operand1.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR(cxt, qb_redirect_decrement_multiple_times_I64, (qb_instruction_ARR *) ip, 1, multithreading_threshold)) {
+		qb_do_decrement_multiple_times_I64(res_ptr, res_count);
+	}
+#undef INSTR
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_add_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_add_multiple_times_I64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_add_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_S64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_multiple_times_S64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_accumulate_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_subtract_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_subtract_multiple_times_I64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_subtract_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_negate_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_negate_multiple_times_I64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_negate_multiple_times_I64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_and_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_and_multiple_times_I64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_and_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_or_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_or_multiple_times_I64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_or_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_xor_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_bitwise_xor_multiple_times_I64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_xor_multiple_times_I64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_bitwise_not_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_bitwise_not_multiple_times_I64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_bitwise_not_multiple_times_I64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_S64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_S64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_abs_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR(cxt, qb_redirect_abs_multiple_times_S64, (qb_instruction_ARR_ARR *) ip, 1, 1, multithreading_threshold)) {
+		qb_do_abs_multiple_times_S64(op1_ptr, op1_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_S64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_S64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_S64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_S64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((int64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((int64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_S64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_S64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_multiply_multiple_times_U64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_multiply_accumulate_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR_ARR(cxt, qb_redirect_multiply_accumulate_multiple_times_U64, (qb_instruction_ARR_ARR_ARR_ARR *) ip, 1, 1, 1, 1, multithreading_threshold)) {
+		qb_do_multiply_accumulate_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_left_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_left_multiple_times_U64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_left_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_shift_right_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_shift_right_multiple_times_U64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_shift_right_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_min_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_min_multiple_times_U64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_min_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_max_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_max_multiple_times_U64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_max_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_multiple_times_U64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_multiple_times_U64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef res_ptr
+#undef res_count
+}
+
+void qb_redirect_random_mt_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((uint64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((uint64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define res_ptr		(((uint64_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define res_count	INSTR->operand3.count_pointer[0]
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_ARR_ARR(cxt, qb_redirect_random_mt_multiple_times_U64, (qb_instruction_ARR_ARR_ARR *) ip, 1, 1, 1, multithreading_threshold)) {
+		qb_do_random_mt_multiple_times_U64(cxt, op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+	}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
 #undef res_ptr
 #undef res_count
 }
@@ -26659,6 +34756,30 @@ void qb_redirect_print_multidimensional_variable_U64(qb_interpreter_context *__r
 #undef op2_count
 }
 
+void qb_redirect_get_time_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_SCA * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[0]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_get_time_F64, ip);
+	} else {
+		qb_do_get_time_F64(&res);
+	}
+#undef INSTR
+#undef res
+}
+
+void qb_redirect_get_time_array_element_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction_ELE * __restrict) ip)
+#define res	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_get_time_array_element_F64, ip);
+	} else {
+		qb_do_get_time_F64(&res);
+	}
+#undef INSTR
+#undef res
+}
+
 void qb_redirect_extension_op_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_SCA_line_id * __restrict) ip)
 #define line_id		INSTR->line_id
@@ -26685,11 +34806,43 @@ void qb_redirect_synchronize_shadow_variable_U32(qb_interpreter_context *__restr
 #undef op1
 }
 
-int32_t qb_dispatch_instruction_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t threshold) {
-	int32_t use_multithreading = TRUE;
-	uint32_t op2_count = instr->operand2.count_pointer[0];
-	if(op2_count >= threshold * operand2_size) {
+int32_t qb_dispatch_instruction_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR *__restrict instr, uint32_t operand1_size, uint32_t threshold) {
+	uint32_t op1_count = instr->operand1.count_pointer[0];
+	if(op1_count >= threshold) {
 		USE_TSRM
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op1_count / operand1_size;
+		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_shift = operand1_size * chunk_size, op1_chunk_size = operand1_size * chunk_size;
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][1];
+			uint32_t new_counts[MAX_THREAD_COUNT][1];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+int32_t qb_dispatch_instruction_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t threshold) {
+	uint32_t op2_count = instr->operand2.count_pointer[0];
+	if(op2_count >= threshold) {
+		USE_TSRM
+		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op2_count / operand2_size;
 		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
 		uint32_t chunk_size = res_unit_count / thread_count;
@@ -26733,10 +34886,10 @@ int32_t qb_dispatch_instruction_ARR_ARR(qb_interpreter_context *__restrict cxt, 
 }
 
 int32_t qb_dispatch_instruction_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand3_size, uint32_t threshold) {
-	int32_t use_multithreading = TRUE;
 	uint32_t op3_count = instr->operand3.count_pointer[0];
-	if(op3_count >= threshold * operand3_size) {
+	if(op3_count >= threshold) {
 		USE_TSRM
+		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op3_count / operand3_size;
 		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
 		uint32_t chunk_size = res_unit_count / thread_count;
@@ -26794,11 +34947,151 @@ int32_t qb_dispatch_instruction_ARR_ARR_ARR(qb_interpreter_context *__restrict c
 	return FALSE;
 }
 
-int32_t qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_SCA_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand5_size, uint32_t threshold) {
-	int32_t use_multithreading = TRUE;
-	uint32_t op5_count = instr->operand5.count_pointer[0];
-	if(op5_count >= threshold * operand5_size) {
+int32_t qb_dispatch_instruction_ARR_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand3_size, uint32_t operand4_size, uint32_t threshold) {
+	uint32_t op4_count = instr->operand4.count_pointer[0];
+	if(op4_count >= threshold) {
 		USE_TSRM
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op4_count / operand4_size;
+		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_count = instr->operand1.count_pointer[0], op1_unit_count = op1_count / operand1_size, op1_shift, op1_chunk_size;
+		uint32_t op2_count = instr->operand2.count_pointer[0], op2_unit_count = op2_count / operand2_size, op2_shift, op2_chunk_size;
+		uint32_t op3_count = instr->operand3.count_pointer[0], op3_unit_count = op3_count / operand3_size, op3_shift, op3_chunk_size;
+		uint32_t op4_shift = operand4_size * chunk_size, op4_chunk_size = operand4_size * chunk_size;
+		if(op1_unit_count == res_unit_count) {
+			op1_shift = operand1_size * chunk_size;
+			op1_chunk_size = operand1_size * chunk_size;
+		} else if(op1_unit_count == 1) {
+			op1_shift = 0;
+			op1_chunk_size = operand1_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op2_unit_count == res_unit_count) {
+			op2_shift = operand2_size * chunk_size;
+			op2_chunk_size = operand2_size * chunk_size;
+		} else if(op2_unit_count == 1) {
+			op2_shift = 0;
+			op2_chunk_size = operand2_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op3_unit_count == res_unit_count) {
+			op3_shift = operand3_size * chunk_size;
+			op3_chunk_size = operand3_size * chunk_size;
+		} else if(op3_unit_count == 1) {
+			op3_shift = 0;
+			op3_chunk_size = operand3_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR_ARR_ARR_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][4];
+			uint32_t new_counts[MAX_THREAD_COUNT][4];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR_ARR_ARR_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_indices[i][1] = i * op2_shift;
+				new_counts[i][1] = (i == thread_count - 1) ? op2_count - (i * op2_shift) : op2_chunk_size;
+				new_instr->operand2.data_pointer = instr->operand2.data_pointer;
+				new_instr->operand2.index_pointer = &new_indices[i][1];
+				new_instr->operand2.count_pointer = &new_counts[i][1];
+				new_indices[i][2] = i * op3_shift;
+				new_counts[i][2] = (i == thread_count - 1) ? op3_count - (i * op3_shift) : op3_chunk_size;
+				new_instr->operand3.data_pointer = instr->operand3.data_pointer;
+				new_instr->operand3.index_pointer = &new_indices[i][2];
+				new_instr->operand3.count_pointer = &new_counts[i][2];
+				new_indices[i][3] = i * op4_shift;
+				new_counts[i][3] = (i == thread_count - 1) ? op4_count - (i * op4_shift) : op4_chunk_size;
+				new_instr->operand4.data_pointer = instr->operand4.data_pointer;
+				new_instr->operand4.index_pointer = &new_indices[i][3];
+				new_instr->operand4.count_pointer = &new_counts[i][3];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+int32_t qb_dispatch_instruction_ARR_ARR_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand4_size, uint32_t threshold) {
+	uint32_t op4_count = instr->operand4.count_pointer[0];
+	if(op4_count >= threshold) {
+		USE_TSRM
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op4_count / operand4_size;
+		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_count = instr->operand1.count_pointer[0], op1_unit_count = op1_count / operand1_size, op1_shift, op1_chunk_size;
+		uint32_t op2_count = instr->operand2.count_pointer[0], op2_unit_count = op2_count / operand2_size, op2_shift, op2_chunk_size;
+		uint32_t op4_shift = operand4_size * chunk_size, op4_chunk_size = operand4_size * chunk_size;
+		if(op1_unit_count == res_unit_count) {
+			op1_shift = operand1_size * chunk_size;
+			op1_chunk_size = operand1_size * chunk_size;
+		} else if(op1_unit_count == 1) {
+			op1_shift = 0;
+			op1_chunk_size = operand1_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op2_unit_count == res_unit_count) {
+			op2_shift = operand2_size * chunk_size;
+			op2_chunk_size = operand2_size * chunk_size;
+		} else if(op2_unit_count == 1) {
+			op2_shift = 0;
+			op2_chunk_size = operand2_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR_ARR_SCA_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][3];
+			uint32_t new_counts[MAX_THREAD_COUNT][3];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR_ARR_SCA_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_indices[i][1] = i * op2_shift;
+				new_counts[i][1] = (i == thread_count - 1) ? op2_count - (i * op2_shift) : op2_chunk_size;
+				new_instr->operand2.data_pointer = instr->operand2.data_pointer;
+				new_instr->operand2.index_pointer = &new_indices[i][1];
+				new_instr->operand2.count_pointer = &new_counts[i][1];
+				new_instr->operand3 = instr->operand3;
+				new_indices[i][2] = i * op4_shift;
+				new_counts[i][2] = (i == thread_count - 1) ? op4_count - (i * op4_shift) : op4_chunk_size;
+				new_instr->operand4.data_pointer = instr->operand4.data_pointer;
+				new_instr->operand4.index_pointer = &new_indices[i][2];
+				new_instr->operand4.count_pointer = &new_counts[i][2];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+int32_t qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_SCA_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand5_size, uint32_t threshold) {
+	uint32_t op5_count = instr->operand5.count_pointer[0];
+	if(op5_count >= threshold) {
+		USE_TSRM
+		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op5_count / operand5_size;
 		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
 		uint32_t chunk_size = res_unit_count / thread_count;
@@ -26858,6 +35151,247 @@ int32_t qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR(qb_interpreter_context *__re
 	return FALSE;
 }
 
+int32_t qb_dispatch_instruction_ARR_ARR_SCA_SCA_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand6_size, uint32_t threshold) {
+	uint32_t op6_count = instr->operand6.count_pointer[0];
+	if(op6_count >= threshold) {
+		USE_TSRM
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op6_count / operand6_size;
+		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_count = instr->operand1.count_pointer[0], op1_unit_count = op1_count / operand1_size, op1_shift, op1_chunk_size;
+		uint32_t op2_count = instr->operand2.count_pointer[0], op2_unit_count = op2_count / operand2_size, op2_shift, op2_chunk_size;
+		uint32_t op6_shift = operand6_size * chunk_size, op6_chunk_size = operand6_size * chunk_size;
+		if(op1_unit_count == res_unit_count) {
+			op1_shift = operand1_size * chunk_size;
+			op1_chunk_size = operand1_size * chunk_size;
+		} else if(op1_unit_count == 1) {
+			op1_shift = 0;
+			op1_chunk_size = operand1_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op2_unit_count == res_unit_count) {
+			op2_shift = operand2_size * chunk_size;
+			op2_chunk_size = operand2_size * chunk_size;
+		} else if(op2_unit_count == 1) {
+			op2_shift = 0;
+			op2_chunk_size = operand2_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][3];
+			uint32_t new_counts[MAX_THREAD_COUNT][3];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR_ARR_SCA_SCA_SCA_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_indices[i][1] = i * op2_shift;
+				new_counts[i][1] = (i == thread_count - 1) ? op2_count - (i * op2_shift) : op2_chunk_size;
+				new_instr->operand2.data_pointer = instr->operand2.data_pointer;
+				new_instr->operand2.index_pointer = &new_indices[i][1];
+				new_instr->operand2.count_pointer = &new_counts[i][1];
+				new_instr->operand3 = instr->operand3;
+				new_instr->operand4 = instr->operand4;
+				new_instr->operand5 = instr->operand5;
+				new_indices[i][2] = i * op6_shift;
+				new_counts[i][2] = (i == thread_count - 1) ? op6_count - (i * op6_shift) : op6_chunk_size;
+				new_instr->operand6.data_pointer = instr->operand6.data_pointer;
+				new_instr->operand6.index_pointer = &new_indices[i][2];
+				new_instr->operand6.count_pointer = &new_counts[i][2];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+int32_t qb_dispatch_instruction_ARR_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand3_size, uint32_t threshold) {
+	uint32_t op3_count = instr->operand3.count_pointer[0];
+	if(op3_count >= threshold) {
+		USE_TSRM
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op3_count / operand3_size;
+		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_count = instr->operand1.count_pointer[0], op1_unit_count = op1_count / operand1_size, op1_shift, op1_chunk_size;
+		uint32_t op3_shift = operand3_size * chunk_size, op3_chunk_size = operand3_size * chunk_size;
+		if(op1_unit_count == res_unit_count) {
+			op1_shift = operand1_size * chunk_size;
+			op1_chunk_size = operand1_size * chunk_size;
+		} else if(op1_unit_count == 1) {
+			op1_shift = 0;
+			op1_chunk_size = operand1_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR_SCA_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][2];
+			uint32_t new_counts[MAX_THREAD_COUNT][2];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR_SCA_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_instr->operand2 = instr->operand2;
+				new_indices[i][1] = i * op3_shift;
+				new_counts[i][1] = (i == thread_count - 1) ? op3_count - (i * op3_shift) : op3_chunk_size;
+				new_instr->operand3.data_pointer = instr->operand3.data_pointer;
+				new_instr->operand3.index_pointer = &new_indices[i][1];
+				new_instr->operand3.count_pointer = &new_counts[i][1];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+int32_t qb_dispatch_instruction_ARR_SCA_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_SCA_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand4_size, uint32_t threshold) {
+	uint32_t op4_count = instr->operand4.count_pointer[0];
+	if(op4_count >= threshold) {
+		USE_TSRM
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op4_count / operand4_size;
+		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_count = instr->operand1.count_pointer[0], op1_unit_count = op1_count / operand1_size, op1_shift, op1_chunk_size;
+		uint32_t op4_shift = operand4_size * chunk_size, op4_chunk_size = operand4_size * chunk_size;
+		if(op1_unit_count == res_unit_count) {
+			op1_shift = operand1_size * chunk_size;
+			op1_chunk_size = operand1_size * chunk_size;
+		} else if(op1_unit_count == 1) {
+			op1_shift = 0;
+			op1_chunk_size = operand1_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR_SCA_SCA_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][2];
+			uint32_t new_counts[MAX_THREAD_COUNT][2];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR_SCA_SCA_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_instr->operand2 = instr->operand2;
+				new_instr->operand3 = instr->operand3;
+				new_indices[i][1] = i * op4_shift;
+				new_counts[i][1] = (i == thread_count - 1) ? op4_count - (i * op4_shift) : op4_chunk_size;
+				new_instr->operand4.data_pointer = instr->operand4.data_pointer;
+				new_instr->operand4.index_pointer = &new_indices[i][1];
+				new_instr->operand4.count_pointer = &new_counts[i][1];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+int32_t qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand4_size, uint32_t operand5_size, uint32_t operand6_size, uint32_t threshold) {
+	uint32_t op6_count = instr->operand6.count_pointer[0];
+	if(op6_count >= threshold) {
+		USE_TSRM
+		int32_t use_multithreading = TRUE;
+		uint32_t res_unit_count = op6_count / operand6_size;
+		uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;
+		uint32_t chunk_size = res_unit_count / thread_count;
+		uint32_t op1_count = instr->operand1.count_pointer[0], op1_unit_count = op1_count / operand1_size, op1_shift, op1_chunk_size;
+		uint32_t op4_count = instr->operand4.count_pointer[0], op4_unit_count = op4_count / operand4_size, op4_shift, op4_chunk_size;
+		uint32_t op5_count = instr->operand5.count_pointer[0], op5_unit_count = op5_count / operand5_size, op5_shift, op5_chunk_size;
+		uint32_t op6_shift = operand6_size * chunk_size, op6_chunk_size = operand6_size * chunk_size;
+		if(op1_unit_count == res_unit_count) {
+			op1_shift = operand1_size * chunk_size;
+			op1_chunk_size = operand1_size * chunk_size;
+		} else if(op1_unit_count == 1) {
+			op1_shift = 0;
+			op1_chunk_size = operand1_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op4_unit_count == res_unit_count) {
+			op4_shift = operand4_size * chunk_size;
+			op4_chunk_size = operand4_size * chunk_size;
+		} else if(op4_unit_count == 1) {
+			op4_shift = 0;
+			op4_chunk_size = operand4_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(op5_unit_count == res_unit_count) {
+			op5_shift = operand5_size * chunk_size;
+			op5_chunk_size = operand5_size * chunk_size;
+		} else if(op5_unit_count == 1) {
+			op5_shift = 0;
+			op5_chunk_size = operand5_size;
+		} else {
+			use_multithreading = FALSE;
+		}
+		if(use_multithreading) {
+			// create temporary instruction structures
+			qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR new_instr_list[MAX_THREAD_COUNT];
+			uint32_t new_indices[MAX_THREAD_COUNT][4];
+			uint32_t new_counts[MAX_THREAD_COUNT][4];
+			int8_t *new_ips[MAX_THREAD_COUNT];
+			uint32_t i;
+			for(i = 0; i < thread_count; i++) {
+				qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *new_instr = &new_instr_list[i];
+				new_indices[i][0] = i * op1_shift;
+				new_counts[i][0] = (i == thread_count - 1) ? op1_count - (i * op1_shift) : op1_chunk_size;
+				new_instr->operand1.data_pointer = instr->operand1.data_pointer;
+				new_instr->operand1.index_pointer = &new_indices[i][0];
+				new_instr->operand1.count_pointer = &new_counts[i][0];
+				new_instr->operand2 = instr->operand2;
+				new_instr->operand3 = instr->operand3;
+				new_indices[i][1] = i * op4_shift;
+				new_counts[i][1] = (i == thread_count - 1) ? op4_count - (i * op4_shift) : op4_chunk_size;
+				new_instr->operand4.data_pointer = instr->operand4.data_pointer;
+				new_instr->operand4.index_pointer = &new_indices[i][1];
+				new_instr->operand4.count_pointer = &new_counts[i][1];
+				new_indices[i][2] = i * op5_shift;
+				new_counts[i][2] = (i == thread_count - 1) ? op5_count - (i * op5_shift) : op5_chunk_size;
+				new_instr->operand5.data_pointer = instr->operand5.data_pointer;
+				new_instr->operand5.index_pointer = &new_indices[i][2];
+				new_instr->operand5.count_pointer = &new_counts[i][2];
+				new_indices[i][3] = i * op6_shift;
+				new_counts[i][3] = (i == thread_count - 1) ? op6_count - (i * op6_shift) : op6_chunk_size;
+				new_instr->operand6.data_pointer = instr->operand6.data_pointer;
+				new_instr->operand6.index_pointer = &new_indices[i][3];
+				new_instr->operand6.count_pointer = &new_counts[i][3];
+				new_ips[i] = (int8_t *) new_instr;
+			}
+			qb_dispatch_instruction_to_threads(cxt, control_func, new_ips, thread_count);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 
 qb_native_symbol global_native_symbols[] = {
 	{	"_fpclass",	_fpclass,	0,	0	},
@@ -26906,6 +35440,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_report_vector_width_mismatch_exception",	qb_report_vector_width_mismatch_exception,	0,	0	},
 	{	"qb_report_divide_by_zero_exception",	qb_report_divide_by_zero_exception,	0,	0	},
 	{	"qb_report_missing_column_exception",	qb_report_missing_column_exception,	0,	0	},
+	{	"qb_report_element_size_mismatch_exception",	qb_report_element_size_mismatch_exception,	0,	0	},
 	{	"qb_report_out_of_bound_exception",	qb_report_out_of_bound_exception,	0,	0	},
 	{	"qb_dispatch_instruction_to_main_thread",	qb_dispatch_instruction_to_main_thread,	0,	0	},
 	{	"qb_dispatch_instruction_to_threads",	qb_dispatch_instruction_to_threads,	0,	0	},
@@ -27595,6 +36130,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_gather_8x_I16",	qb_do_gather_8x_I16,	0,	0	},
 	{	"qb_do_gather_8x_I32",	qb_do_gather_8x_I32,	0,	0	},
 	{	"qb_do_gather_8x_I64",	qb_do_gather_8x_I64,	0,	0	},
+	{	"qb_do_get_time_F64",	qb_do_get_time_F64,	0,	0	},
 	{	"qb_do_hsl2rgb_3x_multiple_times_F32",	qb_do_hsl2rgb_3x_multiple_times_F32,	0,	0	},
 	{	"qb_do_hsl2rgb_3x_multiple_times_F64",	qb_do_hsl2rgb_3x_multiple_times_F64,	0,	0	},
 	{	"qb_do_hsl2rgb_4x_multiple_times_F32",	qb_do_hsl2rgb_4x_multiple_times_F32,	0,	0	},
@@ -28160,22 +36696,454 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_utf8encode_U32",	qb_do_utf8encode_U32,	0,	0	},
 	{	"qb_do_utf8encode_count_U16",	qb_do_utf8encode_count_U16,	0,	0	},
 	{	"qb_do_utf8encode_count_U32",	qb_do_utf8encode_count_U32,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_U32",	qb_redirect_multiply_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_multiple_times_U32",	qb_redirect_multiply_accumulate_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_U32",	qb_redirect_shift_left_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_U32",	qb_redirect_shift_right_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_min_multiple_times_U32",	qb_redirect_min_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_max_multiple_times_U32",	qb_redirect_max_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_random_multiple_times_U32",	qb_redirect_random_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_U32",	qb_redirect_random_mt_multiple_times_U32,	0,	0	},
+	{	"qb_redirect_increment_multiple_times_I32",	qb_redirect_increment_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_decrement_multiple_times_I32",	qb_redirect_decrement_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_add_multiple_times_I32",	qb_redirect_add_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_S32",	qb_redirect_multiply_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_multiple_times_S32",	qb_redirect_multiply_accumulate_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_subtract_multiple_times_I32",	qb_redirect_subtract_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_negate_multiple_times_I32",	qb_redirect_negate_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_bitwise_and_multiple_times_I32",	qb_redirect_bitwise_and_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_bitwise_or_multiple_times_I32",	qb_redirect_bitwise_or_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_bitwise_xor_multiple_times_I32",	qb_redirect_bitwise_xor_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_bitwise_not_multiple_times_I32",	qb_redirect_bitwise_not_multiple_times_I32,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_S32",	qb_redirect_shift_left_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_S32",	qb_redirect_shift_right_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_abs_multiple_times_S32",	qb_redirect_abs_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_min_multiple_times_S32",	qb_redirect_min_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_max_multiple_times_S32",	qb_redirect_max_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_random_multiple_times_S32",	qb_redirect_random_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_S32",	qb_redirect_random_mt_multiple_times_S32,	0,	0	},
+	{	"qb_redirect_increment_multiple_times_F32",	qb_redirect_increment_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_decrement_multiple_times_F32",	qb_redirect_decrement_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_add_multiple_times_F32",	qb_redirect_add_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_F32",	qb_redirect_multiply_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_multiple_times_F32",	qb_redirect_multiply_accumulate_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_subtract_multiple_times_F32",	qb_redirect_subtract_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_divide_multiple_times_F32",	qb_redirect_divide_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_modulo_multiple_times_F32",	qb_redirect_modulo_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_floored_division_modulo_multiple_times_F32",	qb_redirect_floored_division_modulo_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_negate_multiple_times_F32",	qb_redirect_negate_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_abs_multiple_times_F32",	qb_redirect_abs_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_min_multiple_times_F32",	qb_redirect_min_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_max_multiple_times_F32",	qb_redirect_max_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sin_multiple_times_F32",	qb_redirect_sin_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_asin_multiple_times_F32",	qb_redirect_asin_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_cos_multiple_times_F32",	qb_redirect_cos_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_acos_multiple_times_F32",	qb_redirect_acos_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_tan_multiple_times_F32",	qb_redirect_tan_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_atan_multiple_times_F32",	qb_redirect_atan_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_atan2_multiple_times_F32",	qb_redirect_atan2_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sinh_multiple_times_F32",	qb_redirect_sinh_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_asinh_multiple_times_F32",	qb_redirect_asinh_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_cosh_multiple_times_F32",	qb_redirect_cosh_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_acosh_multiple_times_F32",	qb_redirect_acosh_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_tanh_multiple_times_F32",	qb_redirect_tanh_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_atanh_multiple_times_F32",	qb_redirect_atanh_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_ceil_multiple_times_F32",	qb_redirect_ceil_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_floor_multiple_times_F32",	qb_redirect_floor_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_round_multiple_times_F32",	qb_redirect_round_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_log_multiple_times_F32",	qb_redirect_log_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_log1p_multiple_times_F32",	qb_redirect_log1p_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_log2_multiple_times_F32",	qb_redirect_log2_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_log10_multiple_times_F32",	qb_redirect_log10_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_exp_multiple_times_F32",	qb_redirect_exp_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_exp_m1_multiple_times_F32",	qb_redirect_exp_m1_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_exp2_multiple_times_F32",	qb_redirect_exp2_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_pow_multiple_times_F32",	qb_redirect_pow_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sqrt_multiple_times_F32",	qb_redirect_sqrt_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_hypot_multiple_times_F32",	qb_redirect_hypot_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_lcg_multiple_times_F32",	qb_redirect_lcg_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_is_finite_multiple_times_F32",	qb_redirect_is_finite_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_is_infinite_multiple_times_F32",	qb_redirect_is_infinite_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_is_nan_multiple_times_F32",	qb_redirect_is_nan_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_rsqrt_multiple_times_F32",	qb_redirect_rsqrt_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_clamp_multiple_times_F32",	qb_redirect_clamp_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_fract_multiple_times_F32",	qb_redirect_fract_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_mix_multiple_times_F32",	qb_redirect_mix_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sign_multiple_times_F32",	qb_redirect_sign_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_step_multiple_times_F32",	qb_redirect_step_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_smooth_step_multiple_times_F32",	qb_redirect_smooth_step_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_radian_to_degree_multiple_times_F32",	qb_redirect_radian_to_degree_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_degree_to_radian_multiple_times_F32",	qb_redirect_degree_to_radian_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_nearest_4x_multiple_times_F32",	qb_redirect_sample_nearest_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_nearest_3x_multiple_times_F32",	qb_redirect_sample_nearest_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_nearest_2x_multiple_times_F32",	qb_redirect_sample_nearest_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_nearest_multiple_times_F32",	qb_redirect_sample_nearest_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_bilinear_4x_multiple_times_F32",	qb_redirect_sample_bilinear_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_bilinear_3x_multiple_times_F32",	qb_redirect_sample_bilinear_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_bilinear_2x_multiple_times_F32",	qb_redirect_sample_bilinear_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_sample_bilinear_multiple_times_F32",	qb_redirect_sample_bilinear_multiple_times_F32,	0,	0	},
 	{	"qb_redirect_alpha_blend_2x_multiple_times_F32",	qb_redirect_alpha_blend_2x_multiple_times_F32,	0,	0	},
 	{	"qb_redirect_alpha_blend_4x_multiple_times_F32",	qb_redirect_alpha_blend_4x_multiple_times_F32,	0,	0	},
 	{	"qb_redirect_apply_premultiplication_4x_multiple_times_F32",	qb_redirect_apply_premultiplication_4x_multiple_times_F32,	0,	0	},
 	{	"qb_redirect_remove_premultiplication_4x_multiple_times_F32",	qb_redirect_remove_premultiplication_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_rgb2hsv_3x_multiple_times_F32",	qb_redirect_rgb2hsv_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_rgb2hsv_4x_multiple_times_F32",	qb_redirect_rgb2hsv_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_hsv2rgb_3x_multiple_times_F32",	qb_redirect_hsv2rgb_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_hsv2rgb_4x_multiple_times_F32",	qb_redirect_hsv2rgb_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_rgb2hsl_3x_multiple_times_F32",	qb_redirect_rgb2hsl_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_rgb2hsl_4x_multiple_times_F32",	qb_redirect_rgb2hsl_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_hsl2rgb_3x_multiple_times_F32",	qb_redirect_hsl2rgb_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_hsl2rgb_4x_multiple_times_F32",	qb_redirect_hsl2rgb_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F32,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F32",	qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_transpose_matrix_4x_multiple_times_F32",	qb_redirect_transpose_matrix_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_invert_matrix_4x_multiple_times_F32",	qb_redirect_invert_matrix_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_determinant_4x_multiple_times_F32",	qb_redirect_determinant_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_dot_product_4x_multiple_times_F32",	qb_redirect_dot_product_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_length_4x_multiple_times_F32",	qb_redirect_length_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_distance_4x_multiple_times_F32",	qb_redirect_distance_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_normalize_4x_multiple_times_F32",	qb_redirect_normalize_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_cross_product_4x_multiple_times_F32",	qb_redirect_cross_product_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_face_forward_4x_multiple_times_F32",	qb_redirect_face_forward_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_reflect_4x_multiple_times_F32",	qb_redirect_reflect_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_refract_4x_multiple_times_F32",	qb_redirect_refract_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_transform_vector_4x_multiple_times_column_major_F32",	qb_redirect_transform_vector_4x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_transform_vector_4x_multiple_times_row_major_F32",	qb_redirect_transform_vector_4x_multiple_times_row_major_F32,	0,	0	},
+	{	"qb_redirect_add_4x_multiple_times_F32",	qb_redirect_add_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_subtract_4x_multiple_times_F32",	qb_redirect_subtract_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_4x_multiple_times_F32",	qb_redirect_multiply_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_divide_4x_multiple_times_F32",	qb_redirect_divide_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_modulo_4x_multiple_times_F32",	qb_redirect_modulo_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_negate_4x_multiple_times_F32",	qb_redirect_negate_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_increment_4x_multiple_times_F32",	qb_redirect_increment_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_decrement_4x_multiple_times_F32",	qb_redirect_decrement_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_4x_multiple_times_F32",	qb_redirect_multiply_accumulate_4x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F32,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F32",	qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_transpose_matrix_3x_multiple_times_F32",	qb_redirect_transpose_matrix_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_invert_matrix_3x_multiple_times_F32",	qb_redirect_invert_matrix_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_determinant_3x_multiple_times_F32",	qb_redirect_determinant_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_dot_product_3x_multiple_times_F32",	qb_redirect_dot_product_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_length_3x_multiple_times_F32",	qb_redirect_length_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_distance_3x_multiple_times_F32",	qb_redirect_distance_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_normalize_3x_multiple_times_F32",	qb_redirect_normalize_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_cross_product_3x_multiple_times_F32",	qb_redirect_cross_product_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_face_forward_3x_multiple_times_F32",	qb_redirect_face_forward_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_reflect_3x_multiple_times_F32",	qb_redirect_reflect_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_refract_3x_multiple_times_F32",	qb_redirect_refract_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_transform_vector_3x_multiple_times_column_major_F32",	qb_redirect_transform_vector_3x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_transform_vector_3x_multiple_times_row_major_F32",	qb_redirect_transform_vector_3x_multiple_times_row_major_F32,	0,	0	},
+	{	"qb_redirect_add_3x_multiple_times_F32",	qb_redirect_add_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_subtract_3x_multiple_times_F32",	qb_redirect_subtract_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_3x_multiple_times_F32",	qb_redirect_multiply_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_divide_3x_multiple_times_F32",	qb_redirect_divide_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_modulo_3x_multiple_times_F32",	qb_redirect_modulo_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_negate_3x_multiple_times_F32",	qb_redirect_negate_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_increment_3x_multiple_times_F32",	qb_redirect_increment_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_decrement_3x_multiple_times_F32",	qb_redirect_decrement_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_3x_multiple_times_F32",	qb_redirect_multiply_accumulate_3x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F32,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F32",	qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_transpose_matrix_2x_multiple_times_F32",	qb_redirect_transpose_matrix_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_invert_matrix_2x_multiple_times_F32",	qb_redirect_invert_matrix_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_determinant_2x_multiple_times_F32",	qb_redirect_determinant_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_dot_product_2x_multiple_times_F32",	qb_redirect_dot_product_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_length_2x_multiple_times_F32",	qb_redirect_length_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_distance_2x_multiple_times_F32",	qb_redirect_distance_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_normalize_2x_multiple_times_F32",	qb_redirect_normalize_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_cross_product_2x_multiple_times_F32",	qb_redirect_cross_product_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_face_forward_2x_multiple_times_F32",	qb_redirect_face_forward_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_reflect_2x_multiple_times_F32",	qb_redirect_reflect_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_refract_2x_multiple_times_F32",	qb_redirect_refract_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_transform_vector_2x_multiple_times_column_major_F32",	qb_redirect_transform_vector_2x_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_transform_vector_2x_multiple_times_row_major_F32",	qb_redirect_transform_vector_2x_multiple_times_row_major_F32,	0,	0	},
+	{	"qb_redirect_add_2x_multiple_times_F32",	qb_redirect_add_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_subtract_2x_multiple_times_F32",	qb_redirect_subtract_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_2x_multiple_times_F32",	qb_redirect_multiply_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_divide_2x_multiple_times_F32",	qb_redirect_divide_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_modulo_2x_multiple_times_F32",	qb_redirect_modulo_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_negate_2x_multiple_times_F32",	qb_redirect_negate_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_increment_2x_multiple_times_F32",	qb_redirect_increment_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_decrement_2x_multiple_times_F32",	qb_redirect_decrement_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_2x_multiple_times_F32",	qb_redirect_multiply_accumulate_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F32,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F32",	qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F32",	qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F32,	0,	0	},
+	{	"qb_redirect_transpose_matrix_multiple_times_F32",	qb_redirect_transpose_matrix_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_invert_matrix_multiple_times_F32",	qb_redirect_invert_matrix_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_determinant_multiple_times_F32",	qb_redirect_determinant_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_dot_product_multiple_times_F32",	qb_redirect_dot_product_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_length_multiple_times_F32",	qb_redirect_length_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_distance_multiple_times_F32",	qb_redirect_distance_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_normalize_multiple_times_F32",	qb_redirect_normalize_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_face_forward_multiple_times_F32",	qb_redirect_face_forward_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_reflect_multiple_times_F32",	qb_redirect_reflect_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_refract_multiple_times_F32",	qb_redirect_refract_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_abs_2x_multiple_times_F32",	qb_redirect_complex_abs_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_argument_2x_multiple_times_F32",	qb_redirect_complex_argument_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_multiply_2x_multiple_times_F32",	qb_redirect_complex_multiply_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_divide_2x_multiple_times_F32",	qb_redirect_complex_divide_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_exp_2x_multiple_times_F32",	qb_redirect_complex_exp_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_log_2x_multiple_times_F32",	qb_redirect_complex_log_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_square_root_2x_multiple_times_F32",	qb_redirect_complex_square_root_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_pow_2x_multiple_times_F32",	qb_redirect_complex_pow_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_sin_2x_multiple_times_F32",	qb_redirect_complex_sin_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_cos_2x_multiple_times_F32",	qb_redirect_complex_cos_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_tan_2x_multiple_times_F32",	qb_redirect_complex_tan_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_sinh_2x_multiple_times_F32",	qb_redirect_complex_sinh_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_cosh_2x_multiple_times_F32",	qb_redirect_complex_cosh_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_complex_tanh_2x_multiple_times_F32",	qb_redirect_complex_tanh_2x_multiple_times_F32,	0,	0	},
+	{	"qb_redirect_increment_multiple_times_F64",	qb_redirect_increment_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_decrement_multiple_times_F64",	qb_redirect_decrement_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_add_multiple_times_F64",	qb_redirect_add_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_F64",	qb_redirect_multiply_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_multiple_times_F64",	qb_redirect_multiply_accumulate_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_subtract_multiple_times_F64",	qb_redirect_subtract_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_divide_multiple_times_F64",	qb_redirect_divide_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_modulo_multiple_times_F64",	qb_redirect_modulo_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_floored_division_modulo_multiple_times_F64",	qb_redirect_floored_division_modulo_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_negate_multiple_times_F64",	qb_redirect_negate_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_abs_multiple_times_F64",	qb_redirect_abs_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_min_multiple_times_F64",	qb_redirect_min_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_max_multiple_times_F64",	qb_redirect_max_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sin_multiple_times_F64",	qb_redirect_sin_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_asin_multiple_times_F64",	qb_redirect_asin_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_cos_multiple_times_F64",	qb_redirect_cos_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_acos_multiple_times_F64",	qb_redirect_acos_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_tan_multiple_times_F64",	qb_redirect_tan_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_atan_multiple_times_F64",	qb_redirect_atan_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_atan2_multiple_times_F64",	qb_redirect_atan2_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sinh_multiple_times_F64",	qb_redirect_sinh_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_asinh_multiple_times_F64",	qb_redirect_asinh_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_cosh_multiple_times_F64",	qb_redirect_cosh_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_acosh_multiple_times_F64",	qb_redirect_acosh_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_tanh_multiple_times_F64",	qb_redirect_tanh_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_atanh_multiple_times_F64",	qb_redirect_atanh_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_ceil_multiple_times_F64",	qb_redirect_ceil_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_floor_multiple_times_F64",	qb_redirect_floor_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_round_multiple_times_F64",	qb_redirect_round_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_log_multiple_times_F64",	qb_redirect_log_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_log1p_multiple_times_F64",	qb_redirect_log1p_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_log2_multiple_times_F64",	qb_redirect_log2_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_log10_multiple_times_F64",	qb_redirect_log10_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_exp_multiple_times_F64",	qb_redirect_exp_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_exp_m1_multiple_times_F64",	qb_redirect_exp_m1_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_exp2_multiple_times_F64",	qb_redirect_exp2_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_pow_multiple_times_F64",	qb_redirect_pow_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sqrt_multiple_times_F64",	qb_redirect_sqrt_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_hypot_multiple_times_F64",	qb_redirect_hypot_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_lcg_multiple_times_F64",	qb_redirect_lcg_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_is_finite_multiple_times_F64",	qb_redirect_is_finite_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_is_infinite_multiple_times_F64",	qb_redirect_is_infinite_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_is_nan_multiple_times_F64",	qb_redirect_is_nan_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_rsqrt_multiple_times_F64",	qb_redirect_rsqrt_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_clamp_multiple_times_F64",	qb_redirect_clamp_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_fract_multiple_times_F64",	qb_redirect_fract_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_mix_multiple_times_F64",	qb_redirect_mix_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sign_multiple_times_F64",	qb_redirect_sign_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_step_multiple_times_F64",	qb_redirect_step_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_smooth_step_multiple_times_F64",	qb_redirect_smooth_step_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_radian_to_degree_multiple_times_F64",	qb_redirect_radian_to_degree_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_degree_to_radian_multiple_times_F64",	qb_redirect_degree_to_radian_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_nearest_4x_multiple_times_F64",	qb_redirect_sample_nearest_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_nearest_3x_multiple_times_F64",	qb_redirect_sample_nearest_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_nearest_2x_multiple_times_F64",	qb_redirect_sample_nearest_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_nearest_multiple_times_F64",	qb_redirect_sample_nearest_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_bilinear_4x_multiple_times_F64",	qb_redirect_sample_bilinear_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_bilinear_3x_multiple_times_F64",	qb_redirect_sample_bilinear_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_bilinear_2x_multiple_times_F64",	qb_redirect_sample_bilinear_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_sample_bilinear_multiple_times_F64",	qb_redirect_sample_bilinear_multiple_times_F64,	0,	0	},
 	{	"qb_redirect_alpha_blend_2x_multiple_times_F64",	qb_redirect_alpha_blend_2x_multiple_times_F64,	0,	0	},
 	{	"qb_redirect_alpha_blend_4x_multiple_times_F64",	qb_redirect_alpha_blend_4x_multiple_times_F64,	0,	0	},
 	{	"qb_redirect_apply_premultiplication_4x_multiple_times_F64",	qb_redirect_apply_premultiplication_4x_multiple_times_F64,	0,	0	},
 	{	"qb_redirect_remove_premultiplication_4x_multiple_times_F64",	qb_redirect_remove_premultiplication_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_rgb2hsv_3x_multiple_times_F64",	qb_redirect_rgb2hsv_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_rgb2hsv_4x_multiple_times_F64",	qb_redirect_rgb2hsv_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_hsv2rgb_3x_multiple_times_F64",	qb_redirect_hsv2rgb_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_hsv2rgb_4x_multiple_times_F64",	qb_redirect_hsv2rgb_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_rgb2hsl_3x_multiple_times_F64",	qb_redirect_rgb2hsl_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_rgb2hsl_4x_multiple_times_F64",	qb_redirect_rgb2hsl_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_hsl2rgb_3x_multiple_times_F64",	qb_redirect_hsl2rgb_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_hsl2rgb_4x_multiple_times_F64",	qb_redirect_hsl2rgb_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F64,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F64",	qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_transpose_matrix_4x_multiple_times_F64",	qb_redirect_transpose_matrix_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_invert_matrix_4x_multiple_times_F64",	qb_redirect_invert_matrix_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_determinant_4x_multiple_times_F64",	qb_redirect_determinant_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_dot_product_4x_multiple_times_F64",	qb_redirect_dot_product_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_length_4x_multiple_times_F64",	qb_redirect_length_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_distance_4x_multiple_times_F64",	qb_redirect_distance_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_normalize_4x_multiple_times_F64",	qb_redirect_normalize_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_cross_product_4x_multiple_times_F64",	qb_redirect_cross_product_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_face_forward_4x_multiple_times_F64",	qb_redirect_face_forward_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_reflect_4x_multiple_times_F64",	qb_redirect_reflect_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_refract_4x_multiple_times_F64",	qb_redirect_refract_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_transform_vector_4x_multiple_times_column_major_F64",	qb_redirect_transform_vector_4x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_transform_vector_4x_multiple_times_row_major_F64",	qb_redirect_transform_vector_4x_multiple_times_row_major_F64,	0,	0	},
+	{	"qb_redirect_add_4x_multiple_times_F64",	qb_redirect_add_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_subtract_4x_multiple_times_F64",	qb_redirect_subtract_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_4x_multiple_times_F64",	qb_redirect_multiply_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_divide_4x_multiple_times_F64",	qb_redirect_divide_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_modulo_4x_multiple_times_F64",	qb_redirect_modulo_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_negate_4x_multiple_times_F64",	qb_redirect_negate_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_increment_4x_multiple_times_F64",	qb_redirect_increment_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_decrement_4x_multiple_times_F64",	qb_redirect_decrement_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_4x_multiple_times_F64",	qb_redirect_multiply_accumulate_4x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_matrix_3x_multiple_times_column_major_F64,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_vector_3x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F64",	qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_transpose_matrix_3x_multiple_times_F64",	qb_redirect_transpose_matrix_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_invert_matrix_3x_multiple_times_F64",	qb_redirect_invert_matrix_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_determinant_3x_multiple_times_F64",	qb_redirect_determinant_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_dot_product_3x_multiple_times_F64",	qb_redirect_dot_product_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_length_3x_multiple_times_F64",	qb_redirect_length_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_distance_3x_multiple_times_F64",	qb_redirect_distance_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_normalize_3x_multiple_times_F64",	qb_redirect_normalize_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_cross_product_3x_multiple_times_F64",	qb_redirect_cross_product_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_face_forward_3x_multiple_times_F64",	qb_redirect_face_forward_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_reflect_3x_multiple_times_F64",	qb_redirect_reflect_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_refract_3x_multiple_times_F64",	qb_redirect_refract_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_transform_vector_3x_multiple_times_column_major_F64",	qb_redirect_transform_vector_3x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_transform_vector_3x_multiple_times_row_major_F64",	qb_redirect_transform_vector_3x_multiple_times_row_major_F64,	0,	0	},
+	{	"qb_redirect_add_3x_multiple_times_F64",	qb_redirect_add_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_subtract_3x_multiple_times_F64",	qb_redirect_subtract_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_3x_multiple_times_F64",	qb_redirect_multiply_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_divide_3x_multiple_times_F64",	qb_redirect_divide_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_modulo_3x_multiple_times_F64",	qb_redirect_modulo_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_negate_3x_multiple_times_F64",	qb_redirect_negate_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_increment_3x_multiple_times_F64",	qb_redirect_increment_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_decrement_3x_multiple_times_F64",	qb_redirect_decrement_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_3x_multiple_times_F64",	qb_redirect_multiply_accumulate_3x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F64,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F64",	qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_transpose_matrix_2x_multiple_times_F64",	qb_redirect_transpose_matrix_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_invert_matrix_2x_multiple_times_F64",	qb_redirect_invert_matrix_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_determinant_2x_multiple_times_F64",	qb_redirect_determinant_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_dot_product_2x_multiple_times_F64",	qb_redirect_dot_product_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_length_2x_multiple_times_F64",	qb_redirect_length_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_distance_2x_multiple_times_F64",	qb_redirect_distance_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_normalize_2x_multiple_times_F64",	qb_redirect_normalize_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_cross_product_2x_multiple_times_F64",	qb_redirect_cross_product_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_face_forward_2x_multiple_times_F64",	qb_redirect_face_forward_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_reflect_2x_multiple_times_F64",	qb_redirect_reflect_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_refract_2x_multiple_times_F64",	qb_redirect_refract_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_transform_vector_2x_multiple_times_column_major_F64",	qb_redirect_transform_vector_2x_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_transform_vector_2x_multiple_times_row_major_F64",	qb_redirect_transform_vector_2x_multiple_times_row_major_F64,	0,	0	},
+	{	"qb_redirect_add_2x_multiple_times_F64",	qb_redirect_add_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_subtract_2x_multiple_times_F64",	qb_redirect_subtract_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_2x_multiple_times_F64",	qb_redirect_multiply_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_divide_2x_multiple_times_F64",	qb_redirect_divide_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_modulo_2x_multiple_times_F64",	qb_redirect_modulo_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_negate_2x_multiple_times_F64",	qb_redirect_negate_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_increment_2x_multiple_times_F64",	qb_redirect_increment_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_decrement_2x_multiple_times_F64",	qb_redirect_decrement_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_2x_multiple_times_F64",	qb_redirect_multiply_accumulate_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_matrix_multiple_times_column_major_F64,	0,	0	},
 	{	"qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F64",	qb_redirect_multiply_matrix_by_vector_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F64",	qb_redirect_multiply_vector_by_matrix_multiple_times_column_major_F64,	0,	0	},
+	{	"qb_redirect_transpose_matrix_multiple_times_F64",	qb_redirect_transpose_matrix_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_invert_matrix_multiple_times_F64",	qb_redirect_invert_matrix_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_determinant_multiple_times_F64",	qb_redirect_determinant_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_dot_product_multiple_times_F64",	qb_redirect_dot_product_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_length_multiple_times_F64",	qb_redirect_length_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_distance_multiple_times_F64",	qb_redirect_distance_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_normalize_multiple_times_F64",	qb_redirect_normalize_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_face_forward_multiple_times_F64",	qb_redirect_face_forward_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_reflect_multiple_times_F64",	qb_redirect_reflect_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_refract_multiple_times_F64",	qb_redirect_refract_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_abs_2x_multiple_times_F64",	qb_redirect_complex_abs_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_argument_2x_multiple_times_F64",	qb_redirect_complex_argument_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_multiply_2x_multiple_times_F64",	qb_redirect_complex_multiply_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_divide_2x_multiple_times_F64",	qb_redirect_complex_divide_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_exp_2x_multiple_times_F64",	qb_redirect_complex_exp_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_log_2x_multiple_times_F64",	qb_redirect_complex_log_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_square_root_2x_multiple_times_F64",	qb_redirect_complex_square_root_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_pow_2x_multiple_times_F64",	qb_redirect_complex_pow_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_sin_2x_multiple_times_F64",	qb_redirect_complex_sin_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_cos_2x_multiple_times_F64",	qb_redirect_complex_cos_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_tan_2x_multiple_times_F64",	qb_redirect_complex_tan_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_sinh_2x_multiple_times_F64",	qb_redirect_complex_sinh_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_cosh_2x_multiple_times_F64",	qb_redirect_complex_cosh_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_complex_tanh_2x_multiple_times_F64",	qb_redirect_complex_tanh_2x_multiple_times_F64,	0,	0	},
+	{	"qb_redirect_increment_multiple_times_I08",	qb_redirect_increment_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_decrement_multiple_times_I08",	qb_redirect_decrement_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_add_multiple_times_I08",	qb_redirect_add_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_S08",	qb_redirect_multiply_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_subtract_multiple_times_I08",	qb_redirect_subtract_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_negate_multiple_times_I08",	qb_redirect_negate_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_bitwise_and_multiple_times_I08",	qb_redirect_bitwise_and_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_bitwise_or_multiple_times_I08",	qb_redirect_bitwise_or_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_bitwise_xor_multiple_times_I08",	qb_redirect_bitwise_xor_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_bitwise_not_multiple_times_I08",	qb_redirect_bitwise_not_multiple_times_I08,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_S08",	qb_redirect_shift_left_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_S08",	qb_redirect_shift_right_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_abs_multiple_times_S08",	qb_redirect_abs_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_min_multiple_times_S08",	qb_redirect_min_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_max_multiple_times_S08",	qb_redirect_max_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_random_multiple_times_S08",	qb_redirect_random_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_S08",	qb_redirect_random_mt_multiple_times_S08,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_U08",	qb_redirect_multiply_multiple_times_U08,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_U08",	qb_redirect_shift_left_multiple_times_U08,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_U08",	qb_redirect_shift_right_multiple_times_U08,	0,	0	},
+	{	"qb_redirect_min_multiple_times_U08",	qb_redirect_min_multiple_times_U08,	0,	0	},
+	{	"qb_redirect_max_multiple_times_U08",	qb_redirect_max_multiple_times_U08,	0,	0	},
+	{	"qb_redirect_random_multiple_times_U08",	qb_redirect_random_multiple_times_U08,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_U08",	qb_redirect_random_mt_multiple_times_U08,	0,	0	},
+	{	"qb_redirect_increment_multiple_times_I16",	qb_redirect_increment_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_decrement_multiple_times_I16",	qb_redirect_decrement_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_add_multiple_times_I16",	qb_redirect_add_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_S16",	qb_redirect_multiply_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_subtract_multiple_times_I16",	qb_redirect_subtract_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_negate_multiple_times_I16",	qb_redirect_negate_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_bitwise_and_multiple_times_I16",	qb_redirect_bitwise_and_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_bitwise_or_multiple_times_I16",	qb_redirect_bitwise_or_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_bitwise_xor_multiple_times_I16",	qb_redirect_bitwise_xor_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_bitwise_not_multiple_times_I16",	qb_redirect_bitwise_not_multiple_times_I16,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_S16",	qb_redirect_shift_left_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_S16",	qb_redirect_shift_right_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_abs_multiple_times_S16",	qb_redirect_abs_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_min_multiple_times_S16",	qb_redirect_min_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_max_multiple_times_S16",	qb_redirect_max_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_random_multiple_times_S16",	qb_redirect_random_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_S16",	qb_redirect_random_mt_multiple_times_S16,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_U16",	qb_redirect_multiply_multiple_times_U16,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_U16",	qb_redirect_shift_left_multiple_times_U16,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_U16",	qb_redirect_shift_right_multiple_times_U16,	0,	0	},
+	{	"qb_redirect_min_multiple_times_U16",	qb_redirect_min_multiple_times_U16,	0,	0	},
+	{	"qb_redirect_max_multiple_times_U16",	qb_redirect_max_multiple_times_U16,	0,	0	},
+	{	"qb_redirect_random_multiple_times_U16",	qb_redirect_random_multiple_times_U16,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_U16",	qb_redirect_random_mt_multiple_times_U16,	0,	0	},
+	{	"qb_redirect_increment_multiple_times_I64",	qb_redirect_increment_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_decrement_multiple_times_I64",	qb_redirect_decrement_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_add_multiple_times_I64",	qb_redirect_add_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_S64",	qb_redirect_multiply_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_multiple_times_S64",	qb_redirect_multiply_accumulate_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_subtract_multiple_times_I64",	qb_redirect_subtract_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_negate_multiple_times_I64",	qb_redirect_negate_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_bitwise_and_multiple_times_I64",	qb_redirect_bitwise_and_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_bitwise_or_multiple_times_I64",	qb_redirect_bitwise_or_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_bitwise_xor_multiple_times_I64",	qb_redirect_bitwise_xor_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_bitwise_not_multiple_times_I64",	qb_redirect_bitwise_not_multiple_times_I64,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_S64",	qb_redirect_shift_left_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_S64",	qb_redirect_shift_right_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_abs_multiple_times_S64",	qb_redirect_abs_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_min_multiple_times_S64",	qb_redirect_min_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_max_multiple_times_S64",	qb_redirect_max_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_random_multiple_times_S64",	qb_redirect_random_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_S64",	qb_redirect_random_mt_multiple_times_S64,	0,	0	},
+	{	"qb_redirect_multiply_multiple_times_U64",	qb_redirect_multiply_multiple_times_U64,	0,	0	},
+	{	"qb_redirect_multiply_accumulate_multiple_times_U64",	qb_redirect_multiply_accumulate_multiple_times_U64,	0,	0	},
+	{	"qb_redirect_shift_left_multiple_times_U64",	qb_redirect_shift_left_multiple_times_U64,	0,	0	},
+	{	"qb_redirect_shift_right_multiple_times_U64",	qb_redirect_shift_right_multiple_times_U64,	0,	0	},
+	{	"qb_redirect_min_multiple_times_U64",	qb_redirect_min_multiple_times_U64,	0,	0	},
+	{	"qb_redirect_max_multiple_times_U64",	qb_redirect_max_multiple_times_U64,	0,	0	},
+	{	"qb_redirect_random_multiple_times_U64",	qb_redirect_random_multiple_times_U64,	0,	0	},
+	{	"qb_redirect_random_mt_multiple_times_U64",	qb_redirect_random_mt_multiple_times_U64,	0,	0	},
 	{	"qb_redirect_print_variable_U32",	qb_redirect_print_variable_U32,	0,	0	},
 	{	"qb_redirect_print_variable_array_element_U32",	qb_redirect_print_variable_array_element_U32,	0,	0	},
 	{	"qb_redirect_print_variable_multiple_times_U32",	qb_redirect_print_variable_multiple_times_U32,	0,	0	},
@@ -28217,11 +37185,20 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_redirect_print_variable_array_element_U64",	qb_redirect_print_variable_array_element_U64,	0,	0	},
 	{	"qb_redirect_print_variable_multiple_times_U64",	qb_redirect_print_variable_multiple_times_U64,	0,	0	},
 	{	"qb_redirect_print_multidimensional_variable_U64",	qb_redirect_print_multidimensional_variable_U64,	0,	0	},
+	{	"qb_redirect_get_time_F64",	qb_redirect_get_time_F64,	0,	0	},
+	{	"qb_redirect_get_time_array_element_F64",	qb_redirect_get_time_array_element_F64,	0,	0	},
 	{	"qb_redirect_extension_op_U32",	qb_redirect_extension_op_U32,	0,	0	},
 	{	"qb_redirect_synchronize_shadow_variable_U32",	qb_redirect_synchronize_shadow_variable_U32,	0,	0	},
+	{	"qb_dispatch_instruction_ARR",	qb_dispatch_instruction_ARR,	0,	0	},
 	{	"qb_dispatch_instruction_ARR_ARR",	qb_dispatch_instruction_ARR_ARR,	0,	0	},
 	{	"qb_dispatch_instruction_ARR_ARR_ARR",	qb_dispatch_instruction_ARR_ARR_ARR,	0,	0	},
+	{	"qb_dispatch_instruction_ARR_ARR_ARR_ARR",	qb_dispatch_instruction_ARR_ARR_ARR_ARR,	0,	0	},
+	{	"qb_dispatch_instruction_ARR_ARR_SCA_ARR",	qb_dispatch_instruction_ARR_ARR_SCA_ARR,	0,	0	},
 	{	"qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR",	qb_dispatch_instruction_ARR_ARR_SCA_SCA_ARR,	0,	0	},
+	{	"qb_dispatch_instruction_ARR_ARR_SCA_SCA_SCA_ARR",	qb_dispatch_instruction_ARR_ARR_SCA_SCA_SCA_ARR,	0,	0	},
+	{	"qb_dispatch_instruction_ARR_SCA_ARR",	qb_dispatch_instruction_ARR_SCA_ARR,	0,	0	},
+	{	"qb_dispatch_instruction_ARR_SCA_SCA_ARR",	qb_dispatch_instruction_ARR_SCA_SCA_ARR,	0,	0	},
+	{	"qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR",	qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR,	0,	0	},
 	{	"qb_do_check_index_add_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_check_index_multiply_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_check_index_multiply_add_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
@@ -28242,6 +37219,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_guard_index_multiply_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_guard_index_multiply_add_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_guard_size_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
+	{	"qb_do_guard_size_exact_U32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_modulo_S08",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_modulo_S16",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"qb_do_modulo_S32",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
@@ -28831,5 +37809,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	"_libm_sse2_tan_precise",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 1969;
+uint32_t global_native_symbol_count = 2413;
 

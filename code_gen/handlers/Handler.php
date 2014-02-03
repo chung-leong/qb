@@ -3,6 +3,7 @@
 class Handler {
 	protected static $typeDecls = array();
 	protected static $compiler;
+	protected static $multithreadingThresholds;
 
 	protected $baseName;
 	protected $operandType;
@@ -368,7 +369,26 @@ class Handler {
 	}
 	
 	public function getMultithreadingThreshold() {
-		return 4096;
+		if(self::$multithreadingThresholds === null) {
+			self::$multithreadingThresholds = array();
+			$folder = dirname(__FILE__);
+			$lines = file("$folder/../listings/multithreading_threshold.txt", FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
+			foreach($lines as $line) {
+				if(!preg_match('/^\s*;', $line)) {
+					if(preg_match('/(\w+)\s+(\d+)/', $line, $m)) {
+						$name = $m[1];
+						$number = (int) $m[2];
+						self::$multithreadingThresholds[$name] = $number;
+					}
+				}
+			}
+		}
+		$class = get_class($this);
+		if(isset(self::$multithreadingThresholds[$class])) {
+			return self::$multithreadingThresholds[$class];
+		} else {
+			return "multithreading_threshold";
+		}
 	}
 	
 	public function performsWrapAround() {
@@ -688,10 +708,10 @@ class Handler {
 			$arrayCount = 1;
 			$lines = array();
 			$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
-			$lines[] =		"int32_t use_multithreading = TRUE;";
 			$lines[] =		"uint32_t op{$opCount}_count = instr->operand{$opCount}.count_pointer[0];";
-			$lines[] =		"if(op{$opCount}_count >= threshold * operand{$opCount}_size) {";
+			$lines[] =		"if(op{$opCount}_count >= threshold) {";
 			$lines[] =			"USE_TSRM";
+			$lines[] =			"int32_t use_multithreading = TRUE;";
 			$lines[] =			"uint32_t res_unit_count = op{$opCount}_count / operand{$opCount}_size;";
 			$lines[] =			"uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;";
 			$lines[] =			"uint32_t chunk_size = res_unit_count / thread_count;";

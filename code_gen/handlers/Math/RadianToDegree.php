@@ -2,7 +2,7 @@
 
 class RadianToDegree extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, FloatingPointOnly;
+	use MultipleAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
 
 	protected function getActionOnUnitData() {
 		$cType = $this->getOperandCType(2);

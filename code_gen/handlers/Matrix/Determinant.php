@@ -4,7 +4,7 @@
 
 class Determinant extends Handler {
 
-	use MultipleAddressMode, UnaryOperator, UnitResult, FloatingPointOnly;
+	use MultipleAddressMode, UnaryOperator, UnitResult, FloatingPointOnly, Multithreaded;
 	
 	public function getInputOperandCount() {
 		if($this->operandSize == "variable") {
