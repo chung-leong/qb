@@ -2,7 +2,7 @@
 
 class LCG extends Handler {
 
-	use MultipleAddressMode, NullaryOperator, FloatingPointOnly, Slow, Multithreaded;
+	use MultipleAddressMode, NullaryOperator, FloatingPointOnly, Slow;
 
 	public function needsInterpreterContext() {
 		return true;

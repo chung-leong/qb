@@ -1,5 +1,7 @@
 <?php
 
+$predefined_classes = get_declared_classes();
+
 trait SequentialNumbers {
 
 	function arguments($count) {
@@ -8,7 +10,17 @@ trait SequentialNumbers {
 	}
 }
 
-trait SequentialInverse {
+trait SequentialNumbersWithNegative {
+
+	function arguments($count) {
+		$start = (int) -$count / 4;
+		$end = $start + $count;
+		$arg1 = range($start, $end);
+		return array($arg1);
+	}
+}
+
+trait SequentialInverses {
 
 	function arguments($count) {
 		$arg1 = array();
@@ -37,7 +49,7 @@ require("Arithmetic.php");
 require("Math.php");
 require("Pixel.php");
 
-function check_if_faster($obj, $count, $iterations = 500) {
+function check_if_faster($obj, $count, $iterations = 100) {
 	$arguments = $obj->arguments($count);
 
 	$ratios = array();
@@ -57,7 +69,6 @@ function check_if_faster($obj, $count, $iterations = 500) {
 	}
 	sort($ratios);
 	$median = $ratios[$iterations >> 1];
-	echo "$count: $median\n";
 	return $median < 0.80;
 }
 
@@ -65,16 +76,18 @@ function find_optimal($class) {
 	$obj = new $class;
 	for($i = 1024; $i < 1024 * 1024; $i *= 2) {
 		if(check_if_faster($obj, $i)) {
-			for($j = $i / 2 + 1024; $j < $i; $j += 1024) {
-				if(check_if_faster($obj, $j)) {
-					return $j;
-				}
-			}
+			return $i;
 		}
 	}
 	return 0;
 }
 
-find_optimal('Add_F64');
+$classes = array_diff(get_declared_classes(), $predefined_classes);
+
+foreach($classes as $class) {
+	$threshold = find_optimal($class);
+	echo "$class	$threshold\n";
+}
+	
 
 ?>
