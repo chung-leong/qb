@@ -914,6 +914,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"acos",					1,		1,		&factory_acos				},
 	{	0,	"tan",					1,		1,		&factory_tan				},
 	{	0,	"atan",					1,		1,		&factory_atan				},
+	{	0,	"atan2",				2,		2,		&factory_atan2				},
 	{	0,	"sinh",					1,		1,		&factory_sinh				},
 	{	0,	"asinh",				1,		1,		&factory_asinh				},
 	{	0,	"cosh",					1,		1,		&factory_cosh				},
@@ -986,9 +987,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"array_column",			2,		2,		&factory_array_column		},
 	{	0,	"array_diff",			2,		-1,		&factory_array_diff			},
 	{	0,	"array_fill",			3,		3,		&factory_array_fill			},
-/*
 	{	0,	"array_filter",			1,		1,		&factory_array_diff			},
-*/
 	{	0,	"array_intersect",		2,		-1,		&factory_array_intersect	},
 	{	0,	"array_merge",			1,		-1,		&factory_array_merge		},
 	{	0,	"array_pad",			3,		3,		&factory_array_pad			},
