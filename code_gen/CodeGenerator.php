@@ -1038,6 +1038,9 @@ class CodeGenerator {
 				$this->handlers[] = new Floor("FLOOR", $elementType, $addressMode);
 			}
 			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new Rint("RINT", $elementType, $addressMode);
+			}
+			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new Round("ROUND", $elementType, $addressMode);
 			}
 			foreach($this->addressModes as $addressMode) {
@@ -1108,6 +1111,9 @@ class CodeGenerator {
 			}
 			foreach($this->addressModes as $addressMode) {
 				$this->handlers[] = new DegreeToRadian("DEG2RAD", $elementType, $addressMode);
+			}
+			foreach($this->addressModes as $addressMode) {
+				$this->handlers[] = new RoundToPrecision("ROUND", $elementType, $addressMode);
 			}
 		} else {
 			foreach($this->addressModes as $addressMode) {

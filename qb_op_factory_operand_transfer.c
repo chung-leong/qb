@@ -272,7 +272,7 @@ static void qb_transfer_operands_rand(qb_compiler_context *cxt, qb_op_factory *f
 	dest[2] = *result;
 }
 
-static void qb_transfer_operands_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
+static void qb_transfer_operands_round_to_precision(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	qb_operand *value = &operands[0], *precision = &operands[1], *mode = &operands[2];
 	dest[0] = *value;
 	dest[1].address = (precision->type == QB_OPERAND_ADDRESS) ? precision->address : qb_obtain_constant_S32(cxt, 0);

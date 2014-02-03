@@ -7774,65 +7774,95 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 			
-			case QB_ROUND_F32_I32_I32_F32_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+			case QB_RINT_F32_F32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
 #define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((int32_t *) INSTR->operand3.data_pointer)[0]
-#define res	((float32_t *) INSTR->operand4.data_pointer)[0]
+#define res	((float32_t *) INSTR->operand2.data_pointer)[0]
 			{
 				handler = INSTR->next_handler;
-				qb_do_round_F32(op1, op2, op3, &res);
-				ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+				qb_do_rint_F32(op1, &res);
+				ip += sizeof(qb_instruction_SCA_SCA);
 				break;
 			}
 #undef INSTR
 #undef op1
-#undef op2
-#undef op3
 #undef res
 			
-			case QB_ROUND_F32_I32_I32_F32_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+			case QB_RINT_F32_F32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
 #define op1	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((float32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+#define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 			{
 				handler = INSTR->next_handler;
-				qb_do_round_F32(op1, op2, op3, &res);
-				ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+				qb_do_rint_F32(op1, &res);
+				ip += sizeof(qb_instruction_ELE_ELE);
 				break;
 			}
 #undef INSTR
 #undef op1
-#undef op2
-#undef op3
 #undef res
 			
-			case QB_ROUND_F32_I32_I32_F32_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+			case QB_RINT_F32_F32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
 #define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
 			{
 				handler = INSTR->next_handler;
-				qb_redirect_round_multiple_times_F32(cxt, ip, 0);
-				ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+				qb_redirect_rint_multiple_times_F32(cxt, ip, 0);
+				ip += sizeof(qb_instruction_ARR_ARR);
 				break;
 			}
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
+#undef res_ptr
+#undef res_count
+			
+			case QB_ROUND_F32_F32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
+#define res	((float32_t *) INSTR->operand2.data_pointer)[0]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_F32(op1, &res);
+				ip += sizeof(qb_instruction_SCA_SCA);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef res
+			
+			case QB_ROUND_F32_F32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define res	((float32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_F32(op1, &res);
+				ip += sizeof(qb_instruction_ELE_ELE);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef res
+			
+			case QB_ROUND_F32_F32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+			{
+				handler = INSTR->next_handler;
+				qb_redirect_round_multiple_times_F32(cxt, ip, 0);
+				ip += sizeof(qb_instruction_ARR_ARR);
+				break;
+			}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
 #undef res_ptr
 #undef res_count
 			
@@ -8955,6 +8985,68 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+#undef res_ptr
+#undef res_count
+			
+			case QB_ROUND_F32_I32_I32_F32_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((int32_t *) INSTR->operand3.data_pointer)[0]
+#define res	((float32_t *) INSTR->operand4.data_pointer)[0]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_to_precision_F32(op1, op2, op3, &res);
+				ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+			
+			case QB_ROUND_F32_I32_I32_F32_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((float32_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((float32_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_to_precision_F32(op1, op2, op3, &res);
+				ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+			
+			case QB_ROUND_F32_I32_I32_F32_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float32_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float32_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+			{
+				handler = INSTR->next_handler;
+				qb_redirect_round_to_precision_multiple_times_F32(cxt, ip, 0);
+				ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+				break;
+			}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
 #undef res_ptr
 #undef res_count
 			
@@ -18104,65 +18196,95 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_ptr
 #undef res_count
 			
-			case QB_ROUND_F64_I32_I32_F64_SCA:
-#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+			case QB_RINT_F64_F64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
 #define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
-#define op3	((int32_t *) INSTR->operand3.data_pointer)[0]
-#define res	((float64_t *) INSTR->operand4.data_pointer)[0]
+#define res	((float64_t *) INSTR->operand2.data_pointer)[0]
 			{
 				handler = INSTR->next_handler;
-				qb_do_round_F64(op1, op2, op3, &res);
-				ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+				qb_do_rint_F64(op1, &res);
+				ip += sizeof(qb_instruction_SCA_SCA);
 				break;
 			}
 #undef INSTR
 #undef op1
-#undef op2
-#undef op3
 #undef res
 			
-			case QB_ROUND_F64_I32_I32_F64_ELE:
-#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+			case QB_RINT_F64_F64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
 #define op1	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
-#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
-#define op3	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
-#define res	((float64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+#define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 			{
 				handler = INSTR->next_handler;
-				qb_do_round_F64(op1, op2, op3, &res);
-				ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+				qb_do_rint_F64(op1, &res);
+				ip += sizeof(qb_instruction_ELE_ELE);
 				break;
 			}
 #undef INSTR
 #undef op1
-#undef op2
-#undef op3
 #undef res
 			
-			case QB_ROUND_F64_I32_I32_F64_MIO:
-#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+			case QB_RINT_F64_F64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
 #define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
 #define op1_count	INSTR->operand1.count_pointer[0]
-#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
-#define op2_count	INSTR->operand2.count_pointer[0]
-#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
-#define op3_count	INSTR->operand3.count_pointer[0]
-#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
-#define res_count	INSTR->operand4.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
 			{
 				handler = INSTR->next_handler;
-				qb_redirect_round_multiple_times_F64(cxt, ip, 0);
-				ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+				qb_redirect_rint_multiple_times_F64(cxt, ip, 0);
+				ip += sizeof(qb_instruction_ARR_ARR);
 				break;
 			}
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
-#undef op2_ptr
-#undef op2_count
-#undef op3_ptr
-#undef op3_count
+#undef res_ptr
+#undef res_count
+			
+			case QB_ROUND_F64_F64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
+#define res	((float64_t *) INSTR->operand2.data_pointer)[0]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_F64(op1, &res);
+				ip += sizeof(qb_instruction_SCA_SCA);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef res
+			
+			case QB_ROUND_F64_F64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define res	((float64_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_F64(op1, &res);
+				ip += sizeof(qb_instruction_ELE_ELE);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef res
+			
+			case QB_ROUND_F64_F64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define res_count	INSTR->operand2.count_pointer[0]
+			{
+				handler = INSTR->next_handler;
+				qb_redirect_round_multiple_times_F64(cxt, ip, 0);
+				ip += sizeof(qb_instruction_ARR_ARR);
+				break;
+			}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
 #undef res_ptr
 #undef res_count
 			
@@ -19285,6 +19407,68 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef INSTR
 #undef op1_ptr
 #undef op1_count
+#undef res_ptr
+#undef res_count
+			
+			case QB_ROUND_F64_I32_I32_F64_SCA:
+#define INSTR		((qb_instruction_SCA_SCA_SCA_SCA * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[0]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[0]
+#define op3	((int32_t *) INSTR->operand3.data_pointer)[0]
+#define res	((float64_t *) INSTR->operand4.data_pointer)[0]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_to_precision_F64(op1, op2, op3, &res);
+				ip += sizeof(qb_instruction_SCA_SCA_SCA_SCA);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+			
+			case QB_ROUND_F64_I32_I32_F64_ELE:
+#define INSTR		((qb_instruction_ELE_ELE_ELE_ELE * __restrict) ip)
+#define op1	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
+#define op2	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
+#define op3	((int32_t *) INSTR->operand3.data_pointer)[INSTR->operand3.index_pointer[0]]
+#define res	((float64_t *) INSTR->operand4.data_pointer)[INSTR->operand4.index_pointer[0]]
+			{
+				handler = INSTR->next_handler;
+				qb_do_round_to_precision_F64(op1, op2, op3, &res);
+				ip += sizeof(qb_instruction_ELE_ELE_ELE_ELE);
+				break;
+			}
+#undef INSTR
+#undef op1
+#undef op2
+#undef op3
+#undef res
+			
+			case QB_ROUND_F64_I32_I32_F64_MIO:
+#define INSTR		((qb_instruction_ARR_ARR_ARR_ARR * __restrict) ip)
+#define op1_ptr		(((float64_t *) INSTR->operand1.data_pointer) + INSTR->operand1.index_pointer[0])
+#define op1_count	INSTR->operand1.count_pointer[0]
+#define op2_ptr		(((int32_t *) INSTR->operand2.data_pointer) + INSTR->operand2.index_pointer[0])
+#define op2_count	INSTR->operand2.count_pointer[0]
+#define op3_ptr		(((int32_t *) INSTR->operand3.data_pointer) + INSTR->operand3.index_pointer[0])
+#define op3_count	INSTR->operand3.count_pointer[0]
+#define res_ptr		(((float64_t *) INSTR->operand4.data_pointer) + INSTR->operand4.index_pointer[0])
+#define res_count	INSTR->operand4.count_pointer[0]
+			{
+				handler = INSTR->next_handler;
+				qb_redirect_round_to_precision_multiple_times_F64(cxt, ip, 0);
+				ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
+				break;
+			}
+#undef INSTR
+#undef op1_ptr
+#undef op1_count
+#undef op2_ptr
+#undef op2_count
+#undef op3_ptr
+#undef op3_count
 #undef res_ptr
 #undef res_count
 			

@@ -459,7 +459,7 @@ static void qb_set_result_dimensions_rand(qb_compiler_context *cxt, qb_op_factor
 	}
 }
 
-static void qb_set_result_dimensions_round(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
+static void qb_set_result_dimensions_round_to_precision(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim) {
 	switch(operand_count) {
 		case 1: qb_set_result_dimensions_first_operand(cxt, f, operands, operand_count, dim); break;
 		case 2: qb_set_result_dimensions_larger_of_two(cxt, f, operands, operand_count, dim); break;

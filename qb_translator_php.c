@@ -924,6 +924,7 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"atanh",				1,		1,		&factory_atanh				},
 	{	0,	"ceil",					1,		1,		&factory_ceil				},
 	{	0,	"floor",				1,		1,		&factory_floor				},
+	{	0,	"rint",					1,		1,		&factory_rint				},
 	{	0,	"round",				1,		3,		&factory_round				},
 	{	0,	"log",					1,		1,		&factory_log				},
 	{	0,	"log1p",				1,		1,		&factory_log1p				},

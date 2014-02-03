@@ -1,6 +1,6 @@
 <?php
 
-class Round extends Handler {
+class Rint extends Handler {
 
 	use MultipleAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
 
@@ -8,7 +8,7 @@ class Round extends Handler {
 		$type = $this->getOperandType(2);
 		$cType = $this->getOperandCType(2);
 		$f = ($type == 'F32') ? 'f' : '';
-		return "res = round$f(op1);";
+		return "res = rint$f(op1);";
 	}
 }
 

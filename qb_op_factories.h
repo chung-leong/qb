@@ -78,6 +78,7 @@ typedef struct qb_minmax_decomposer				qb_minmax_decomposer;
 typedef struct qb_fetch_do_op_decomposer		qb_fetch_do_op_decomposer;
 typedef struct qb_set_op_chooser				qb_set_op_chooser;
 typedef struct qb_fork_decomposer				qb_fork_decomposer;
+typedef struct qb_round_decomposer				qb_round_decomposer;
 
 typedef int32_t (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
@@ -272,6 +273,12 @@ struct qb_fork_decomposer {
 	void *init_factory;
 	void *resume_factory;
 	void *result_factory;
+};
+
+struct qb_round_decomposer {
+	qb_produce_composite_proc produce_composite;
+	void *simple_factory;
+	void *precision_factory;
 };
 
 extern qb_op_factory factory_nop;
@@ -483,7 +490,8 @@ extern qb_float_op_factory factory_log2;
 extern qb_float_op_factory factory_mix;
 extern qb_float_op_factory factory_pow;
 extern qb_float_op_factory factory_rad2deg;
-extern qb_float_op_factory factory_round;
+extern qb_float_op_factory factory_rint;
+extern qb_round_decomposer factory_round;
 extern qb_float_op_factory factory_rsqrt;
 extern qb_float_op_factory factory_sign;
 extern qb_float_op_factory factory_sin;

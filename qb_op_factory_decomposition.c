@@ -447,3 +447,9 @@ static int32_t qb_decompose_array_splice(qb_compiler_context *cxt, void *factory
 	}
 	return TRUE;
 }
+
+static int32_t qb_decompose_round(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
+	qb_round_decomposer *d = factory;
+	factory = (operand_count == 1) ? d->simple_factory : d->precision_factory;
+	return qb_produce_op(cxt, factory, operands, operand_count, result, jump_target_indices, jump_target_count, result_prototype);
+}

@@ -9,7 +9,6 @@ class Cos extends Handler {
 		$cType = $this->getOperandCType(2);
 		$f = ($type == 'F32') ? 'f' : '';
 		return "res = cos$f(op1);";
-
 	}
 }
 

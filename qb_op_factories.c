@@ -3260,22 +3260,64 @@ qb_float_op_factory factory_fract = {
 	{	QB_FRACT_F64_F64,		QB_FRACT_F32_F32,	},
 };
 
-qb_float_op_factory factory_round = {
+qb_float_op_factory factory_rint = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
-	qb_coerce_operands_round,
+	qb_coerce_operands_all,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_temporary_value,
-	qb_set_result_dimensions_round,
+	qb_set_result_dimensions_first_operand,
 	qb_select_opcode_basic,
-	qb_transfer_operands_round,
+	qb_transfer_operands_all,
+	NULL,
+	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_RINT_F64_F64,	QB_RINT_F32_F32,	},
+};
+
+qb_float_op_factory factory_round_simple = {
+	NULL,
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_all,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_first_operand,
+	qb_select_opcode_basic,
+	qb_transfer_operands_all,
+	NULL,
+	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	QB_ADDRESS_TEMPORARY,
+	{	QB_ROUND_F64_F64,	QB_ROUND_F32_F32,	},
+};
+
+qb_float_op_factory factory_round_to_precision = {
+	NULL,
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_round_to_precision,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_temporary_value,
+	qb_set_result_dimensions_round_to_precision,
+	qb_select_opcode_basic,
+	qb_transfer_operands_round_to_precision,
 	NULL,
 	QB_COERCE_TO_LVALUE_TYPE | QB_COERCE_TO_FLOATING_POINT | QB_COERCE_TO_INTEGER_TO_DOUBLE,
 	QB_RESULT_FROM_PURE_FUNCTION,
 	QB_ADDRESS_TEMPORARY,
 	{	QB_ROUND_F64_I32_I32_F64,	QB_ROUND_F32_I32_I32_F32,	},
+};
+
+qb_round_decomposer factory_round = {
+	qb_decompose_round,
+	&factory_round_simple,
+	&factory_round_to_precision,
 };
 
 qb_float_op_factory factory_log = {

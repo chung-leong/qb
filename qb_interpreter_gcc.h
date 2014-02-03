@@ -2039,8 +2039,12 @@ void qb_do_rgb2hsv_3x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count,
 void qb_do_rgb2hsv_3x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_rgb2hsv_4x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_rgb2hsv_4x_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
-void qb_do_round_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count);
-void qb_do_round_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_rint_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
+void qb_do_rint_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_round_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
+void qb_do_round_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_round_to_precision_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float32_t *res_ptr, uint32_t res_count);
+void qb_do_round_to_precision_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, int32_t *op2_ptr, uint32_t op2_count, int32_t *op3_ptr, uint32_t op3_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_rsqrt_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_rsqrt_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_sample_bilinear_2x_F32(float32_t *op1_ptr, uint32_t op2, uint32_t op3, float32_t op4, float32_t op5, float32_t *res_ptr);
@@ -2298,6 +2302,7 @@ void qb_redirect_tanh_multiple_times_F32(qb_interpreter_context *__restrict cxt,
 void qb_redirect_atanh_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_ceil_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_floor_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_rint_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_round_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_log_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_log1p_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2322,6 +2327,7 @@ void qb_redirect_step_multiple_times_F32(qb_interpreter_context *__restrict cxt,
 void qb_redirect_smooth_step_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_radian_to_degree_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_degree_to_radian_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_round_to_precision_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_nearest_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_nearest_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_nearest_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2472,6 +2478,7 @@ void qb_redirect_tanh_multiple_times_F64(qb_interpreter_context *__restrict cxt,
 void qb_redirect_atanh_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_ceil_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_floor_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_rint_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_round_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_log_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_log1p_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2496,6 +2503,7 @@ void qb_redirect_step_multiple_times_F64(qb_interpreter_context *__restrict cxt,
 void qb_redirect_smooth_step_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_radian_to_degree_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_degree_to_radian_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_round_to_precision_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_nearest_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_nearest_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_sample_nearest_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -5257,11 +5265,27 @@ static zend_always_inline void qb_do_rgb2hsv_4x_F64(float64_t *op1_ptr, float64_
 	res_ptr[3] = op1_ptr[3];
 }
 
-static zend_always_inline void qb_do_round_F32(float32_t op1, int32_t op2, int32_t op3, float32_t *res_ptr) {
+static zend_always_inline void qb_do_rint_F32(float32_t op1, float32_t *res_ptr) {
+	(*res_ptr) = rintf(op1);
+}
+
+static zend_always_inline void qb_do_rint_F64(float64_t op1, float64_t *res_ptr) {
+	(*res_ptr) = rint(op1);
+}
+
+static zend_always_inline void qb_do_round_F32(float32_t op1, float32_t *res_ptr) {
+	(*res_ptr) = roundf(op1);
+}
+
+static zend_always_inline void qb_do_round_F64(float64_t op1, float64_t *res_ptr) {
+	(*res_ptr) = round(op1);
+}
+
+static zend_always_inline void qb_do_round_to_precision_F32(float32_t op1, int32_t op2, int32_t op3, float32_t *res_ptr) {
 	(*res_ptr) = (float32_t) _php_math_round(op1, op2, op3);
 }
 
-static zend_always_inline void qb_do_round_F64(float64_t op1, int32_t op2, int32_t op3, float64_t *res_ptr) {
+static zend_always_inline void qb_do_round_to_precision_F64(float64_t op1, int32_t op2, int32_t op3, float64_t *res_ptr) {
 	(*res_ptr) = (float64_t) _php_math_round(op1, op2, op3);
 }
 
