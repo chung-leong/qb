@@ -77,8 +77,9 @@ trait Sampling {
 }
 
 //require("Arithmetic.php");
+require("ComplexNumber.php");
 //require("Math.php");
-require("Matrix.php");
+//require("Matrix.php");
 //require("Pixel.php");
 
 function check_if_faster($obj, $count, $iterations = 100) {

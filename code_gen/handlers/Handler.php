@@ -372,7 +372,7 @@ class Handler {
 		if(self::$multithreadingThresholds === null) {
 			self::$multithreadingThresholds = array();
 			$folder = dirname(__FILE__);
-			$lines = file("$folder/../listings/multithreading_threshold.txt", FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
+			$lines = file("$folder/../threshold/multithreading_thresholds.txt", FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
 			foreach($lines as $line) {
 				if(!preg_match('/^\s*;', $line)) {
 					if(preg_match('/(\w+)\s+(\d+)/', $line, $m)) {
