@@ -545,7 +545,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 	cxt->function = qb_acquire_function(cxt, qfunc, TRUE);
 	cxt->instruction_pointer = cxt->function->instruction_start;
 
-	cxt->thread_count = qb_get_thread_count(TSRMLS_C);
+	cxt->thread_count = QB_G(thread_count);
 	if(cxt->thread_count == 1) {
 		cxt->thread_count = 0;
 	}
@@ -617,7 +617,10 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	new_context_count = fork_count - reusing_original_cxt;
 
 	// the number of threads that the each fork can use
-	remaining_thread_count = (cxt->thread_count > cxt->fork_count) ? (cxt->thread_count - cxt->fork_count) / cxt->fork_count : 0;
+	remaining_thread_count = (cxt->thread_count > cxt->fork_count) ? (cxt->thread_count - fork_count) / fork_count : 0;
+	if(remaining_thread_count == 1) {
+		remaining_thread_count = 0;
+	}
 
 	// initialize the group, allocating extra memory for new interpreter contexts
 	qb_initialize_task_group(group, fork_count, sizeof(qb_interpreter_context) * new_context_count);

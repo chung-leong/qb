@@ -864,7 +864,7 @@ void qb_terminate_associated_workers(qb_main_thread *main_thread) {
 }
 
 void qb_initialize_thread_pool(TSRMLS_D) {
-	pool->per_request_thread_limit = qb_get_thread_count(TSRMLS_C);
+	pool->per_request_thread_limit = QB_G(thread_count);
 	if(pool->per_request_thread_limit > 1) {
 		pool->global_thread_limit = pool->per_request_thread_limit * QB_GLOBAL_THREAD_COUNT_MULTIPLIER;
 	} else {

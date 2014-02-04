@@ -387,7 +387,7 @@ class Handler {
 		if(isset(self::$multithreadingThresholds[$class])) {
 			return self::$multithreadingThresholds[$class];
 		} else {
-			return "multithreading_threshold";
+			return 1;
 		}
 	}
 	

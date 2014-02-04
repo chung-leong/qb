@@ -76,12 +76,12 @@ trait Sampling {
 	}
 }
 
-//require("Arithmetic.php");
+require("Arithmetic.php");
 require("Bitwise.php");
-//require("ComplexNumber.php");
-//require("Math.php");
-//require("Matrix.php");
-//require("Pixel.php");
+require("ComplexNumber.php");
+require("Math.php");
+require("Matrix.php");
+require("Pixel.php");
 
 function check_if_faster($obj, $count, $iterations = 100) {
 	if(property_exists($obj, 'vector_size')) {
@@ -92,10 +92,10 @@ function check_if_faster($obj, $count, $iterations = 100) {
 	$ratios = array();
 	$func = array($obj, 'test');
 	for($i = 0; $i < $iterations; $i++) {
-		ini_set("qb.multithreading_threshold", 1);
+		ini_set("qb.thread_count", 0);
 		$mt_time = call_user_func_array($func, $arguments);
 
-		ini_set("qb.multithreading_threshold", $count * 2);
+		ini_set("qb.thread_count", 1);
 		$nmt_time = call_user_func_array($func, $arguments);
 
 		if($nmt_time > 0) {
@@ -121,9 +121,19 @@ function find_optimal($class) {
 
 $classes = array_diff(get_declared_classes(), $predefined_classes);
 
+$f = fopen("multithreading_thresholds.txt", "wb");
+
 foreach($classes as $class) {
-	$threshold = find_optimal($class);
-	echo "$class	$threshold\n";
+	if(preg_match('/(\w+)_(\w\d{2})_X(\d)/', $class, $m) || preg_match('/(\w+)_(\w\d{2})/', $class, $m)) {
+		$name = $m[1];
+		$type = $m[2];
+		$width = isset($m[3]) ? (int) $m[3] : 1;
+		$threshold = find_optimal($class);
+		fwrite($f, "$name	$type	$width" . PHP_EOL);
+	} else {
+		echo "$class\n";
+		die();
+	}
 }
 	
 

@@ -30,7 +30,7 @@
 
 int reserved_offset = -1;
 int debug_compatibility_mode = TRUE;
-long multithreading_threshold = 65535;
+int permitted_thread_count = 0;
 
 zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
 	char *error = NULL;
@@ -473,16 +473,6 @@ qb_function * qb_get_compiled_function(zend_function *zfunc) {
 	return NULL;
 }
 
-uint32_t qb_get_thread_count(TSRMLS_D) {
-	uint32_t thread_count;
-	if(QB_G(thread_count) > 0) {
-		thread_count = QB_G(thread_count);
-	} else {
-		thread_count = qb_get_cpu_count();
-	}
-	return thread_count;
-}
-
 qb_main_thread * qb_get_main_thread(TSRMLS_D) {
 	return &QB_G(main_thread);
 }
@@ -779,24 +769,23 @@ static ZEND_INI_MH(OnUpdatePath) {
 static ZEND_INI_MH(OnThreadCount) /* {{{ */
 {
 	OnUpdateLong(entry, new_value, new_value_length, mh_arg1, mh_arg2, mh_arg3, stage TSRMLS_CC);
-	if(QB_G(thread_count) < 0) {
-		QB_G(thread_count) = 0;
+
+	if(QB_G(thread_count) <= 0) {
+		QB_G(thread_count) = qb_get_cpu_count();
 	} else if(QB_G(thread_count) > MAX_THREAD_COUNT) {
 		QB_G(thread_count) = MAX_THREAD_COUNT;
 	}
-	return SUCCESS;
-}
 
-static ZEND_INI_MH(OnMTThreshold) /* {{{ */
-{
-	OnUpdateLong(entry, new_value, new_value_length, mh_arg1, mh_arg2, mh_arg3, stage TSRMLS_CC);
-	if(QB_G(multithreading_threshold) <= 0) {
-		QB_G(multithreading_threshold) = 1;
+	// allow the thread count to get smaller than the initial but not bigger
+	if(permitted_thread_count == 0) {
+		permitted_thread_count = QB_G(thread_count);
+	} else {
+		if(QB_G(thread_count) > permitted_thread_count) {
+			QB_G(thread_count) = permitted_thread_count;
+		}
 	}
-	multithreading_threshold = QB_G(multithreading_threshold);
 	return SUCCESS;
 }
-
 
 /* {{{ PHP_INI
  */
@@ -809,8 +798,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("qb.native_code_cache_path",  		"",		PHP_INI_SYSTEM, OnUpdatePath,	native_code_cache_path,			zend_qb_globals,	qb_globals)
 	STD_PHP_INI_ENTRY("qb.execution_log_path",  			"",		PHP_INI_SYSTEM, OnUpdatePath,	execution_log_path,				zend_qb_globals,	qb_globals)
 
-	STD_PHP_INI_ENTRY("qb.thread_count",					"0",	PHP_INI_SYSTEM, OnThreadCount,	thread_count,					zend_qb_globals,	qb_globals)
-	STD_PHP_INI_ENTRY("qb.multithreading_threshold",	"65535",	PHP_INI_ALL,	OnMTThreshold,	multithreading_threshold,		zend_qb_globals,	qb_globals)
+	STD_PHP_INI_ENTRY("qb.thread_count",					"0",	PHP_INI_ALL, 	OnThreadCount,	thread_count,					zend_qb_globals,	qb_globals)
 
 	STD_PHP_INI_BOOLEAN("qb.allow_bytecode_interpretation",	"1",	PHP_INI_ALL,	OnUpdateBool,	allow_bytecode_interpretation,	zend_qb_globals,	qb_globals)
 	STD_PHP_INI_BOOLEAN("qb.allow_debugger_inspection",		"1",	PHP_INI_ALL,	OnUpdateBool,	allow_debugger_inspection,		zend_qb_globals,	qb_globals)
