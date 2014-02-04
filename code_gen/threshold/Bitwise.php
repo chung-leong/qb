@@ -1,6 +1,6 @@
 <?php
 
-class Add_I08 {
+class BitwiseAnd_I08 {
 	use SequentialNumbers;
 
 	/**
@@ -11,13 +11,13 @@ class Add_I08 {
 	 */
 	function test($a) {
 		$s = time();
-		$a += M_PI;
+		$a &= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Decrememt_I08 {
+class BitwiseNot_I08 {
 	use SequentialNumbers;
 
 	/**
@@ -28,13 +28,13 @@ class Decrememt_I08 {
 	 */
 	function test($a) {
 		$s = time();
-		$a--;
+		$a = ~$a;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Divide_I08 {
+class BitwiseOr_I08 {
 	use SequentialNumbers;
 
 	/**
@@ -45,13 +45,13 @@ class Divide_I08 {
 	 */
 	function test($a) {
 		$s = time();
-		$a /= M_PI;
+		$a |= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Incrememt_I08 {
+class BitwiseXor_I08 {
 	use SequentialNumbers;
 
 	/**
@@ -62,13 +62,13 @@ class Incrememt_I08 {
 	 */
 	function test($a) {
 		$s = time();
-		$a++;
+		$a ^= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Modulo_I08 {
+class ShiftLeft_S08 {
 	use SequentialNumbers;
 
 	/**
@@ -79,13 +79,13 @@ class Modulo_I08 {
 	 */
 	function test($a) {
 		$s = time();
-		$a %= M_PI;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Multiply_I08 {
+class ShiftRight_S08 {
 	use SequentialNumbers;
 
 	/**
@@ -96,64 +96,47 @@ class Multiply_I08 {
 	 */
 	function test($a) {
 		$s = time();
-		$a *= M_PI;
+		$a >>= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Negate_I08 {
+class ShiftLeft_U08 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
-	 * @param int8[] $a
+	 * @param uint8[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Subtract_I08 {
+class ShiftRight_U08 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
-	 * @param int8[] $a
+	 * @param uint8[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Add_I16 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param int16[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a += M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Decrememt_I16 {
+class BitwiseAnd_I16 {
 	use SequentialNumbers;
 
 	/**
@@ -164,13 +147,13 @@ class Decrememt_I16 {
 	 */
 	function test($a) {
 		$s = time();
-		$a--;
+		$a &= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Divide_I16 {
+class BitwiseNot_I16 {
 	use SequentialNumbers;
 
 	/**
@@ -181,13 +164,13 @@ class Divide_I16 {
 	 */
 	function test($a) {
 		$s = time();
-		$a /= M_PI;
+		$a = ~$a;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Incrememt_I16 {
+class BitwiseOr_I16 {
 	use SequentialNumbers;
 
 	/**
@@ -198,13 +181,13 @@ class Incrememt_I16 {
 	 */
 	function test($a) {
 		$s = time();
-		$a++;
+		$a |= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Modulo_I16 {
+class BitwiseXor_I16 {
 	use SequentialNumbers;
 
 	/**
@@ -215,13 +198,13 @@ class Modulo_I16 {
 	 */
 	function test($a) {
 		$s = time();
-		$a %= M_PI;
+		$a ^= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Multiply_I16 {
+class ShiftLeft_S16 {
 	use SequentialNumbers;
 
 	/**
@@ -232,13 +215,13 @@ class Multiply_I16 {
 	 */
 	function test($a) {
 		$s = time();
-		$a *= M_PI;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Negate_I16 {
+class ShiftRight_S16 {
 	use SequentialNumbers;
 
 	/**
@@ -249,64 +232,47 @@ class Negate_I16 {
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
+		$a >>= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Subtract_I16 {
+class ShiftLeft_U16 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
-	 * @param int16[] $a
+	 * @param uint16[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Add_I32 {
+class ShiftRight_U16 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
-	 * @param int32[] $a
+	 * @param uint16[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
 	function test($a) {
 		$s = time();
-		$a += M_PI;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Decrememt_I32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param int32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a--;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Divide_I32 {
+class BitwiseAnd_I32 {
 	use SequentialNumbers;
 
 	/**
@@ -317,13 +283,13 @@ class Divide_I32 {
 	 */
 	function test($a) {
 		$s = time();
-		$a /= M_PI;
+		$a &= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Incrememt_I32 {
+class BitwiseNot_I32 {
 	use SequentialNumbers;
 
 	/**
@@ -334,13 +300,13 @@ class Incrememt_I32 {
 	 */
 	function test($a) {
 		$s = time();
-		$a++;
+		$a = ~$a;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Modulo_I32 {
+class BitwiseOr_I32 {
 	use SequentialNumbers;
 
 	/**
@@ -351,13 +317,13 @@ class Modulo_I32 {
 	 */
 	function test($a) {
 		$s = time();
-		$a %= M_PI;
+		$a |= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Multiply_I32 {
+class BitwiseXor_I32 {
 	use SequentialNumbers;
 
 	/**
@@ -368,13 +334,13 @@ class Multiply_I32 {
 	 */
 	function test($a) {
 		$s = time();
-		$a *= M_PI;
+		$a ^= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Negate_I32 {
+class ShiftLeft_S32 {
 	use SequentialNumbers;
 
 	/**
@@ -385,13 +351,13 @@ class Negate_I32 {
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Subtract_I32 {
+class ShiftRight_S32 {
 	use SequentialNumbers;
 
 	/**
@@ -402,13 +368,47 @@ class Subtract_I32 {
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
+		$a >>= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Add_I64 {
+class ShiftLeft_U32 {
+	use SequentialNumbers;
+
+	/**
+	 * @engine qb
+	 * @param uint32[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a <<= 2;
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class ShiftRight_U32 {
+	use SequentialNumbers;
+
+	/**
+	 * @engine qb
+	 * @param uint32[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a <<= 2;
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class BitwiseAnd_I64 {
 	use SequentialNumbers;
 
 	/**
@@ -419,13 +419,13 @@ class Add_I64 {
 	 */
 	function test($a) {
 		$s = time();
-		$a += M_PI;
+		$a &= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Decrememt_I64 {
+class BitwiseNot_I64 {
 	use SequentialNumbers;
 
 	/**
@@ -436,13 +436,13 @@ class Decrememt_I64 {
 	 */
 	function test($a) {
 		$s = time();
-		$a--;
+		$a = ~$a;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Divide_I64 {
+class BitwiseOr_I64 {
 	use SequentialNumbers;
 
 	/**
@@ -453,13 +453,13 @@ class Divide_I64 {
 	 */
 	function test($a) {
 		$s = time();
-		$a /= M_PI;
+		$a |= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Incrememt_I64 {
+class BitwiseXor_I64 {
 	use SequentialNumbers;
 
 	/**
@@ -470,13 +470,13 @@ class Incrememt_I64 {
 	 */
 	function test($a) {
 		$s = time();
-		$a++;
+		$a ^= 0x0001;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Modulo_I64 {
+class ShiftLeft_S64 {
 	use SequentialNumbers;
 
 	/**
@@ -487,13 +487,13 @@ class Modulo_I64 {
 	 */
 	function test($a) {
 		$s = time();
-		$a %= M_PI;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Multiply_I64 {
+class ShiftRight_S64 {
 	use SequentialNumbers;
 
 	/**
@@ -504,347 +504,41 @@ class Multiply_I64 {
 	 */
 	function test($a) {
 		$s = time();
-		$a *= M_PI;
+		$a >>= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Negate_I64 {
+class ShiftLeft_U64 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
-	 * @param int64[] $a
+	 * @param uint64[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}
 }
 
-class Subtract_I64 {
+class ShiftRight_U64 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
-	 * @param int64[] $a
+	 * @param uint64[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
 	function test($a) {
 		$s = time();
-		$a = -$a;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Add_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a += M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Decrememt_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a--;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Divide_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a /= M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class FlooredDivisionModulo_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a = mod($a, M_PI);
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Incrememt_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a++;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Modulo_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a %= M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Multiply_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a *= M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Negate_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a = -$a;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Subtract_F32 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float32[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a = -$a;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Add_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a += M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Decrememt_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a--;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Divide_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a /= M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class FlooredDivisionModulo_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a = mod($a, M_PI);
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Incrememt_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a++;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Modulo_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a %= M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Multiply_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a *= M_PI;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Negate_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a = -$a;
-		$e = time();
-		return ($e - $s);
-	}
-}
-
-class Subtract_F64 {
-	use SequentialNumbers;
-
-	/**
-	 * @engine qb
-	 * @param float64[] $a
-	 * @local float64 $(s|e)
-	 * @return float64
-	 */
-	function test($a) {
-		$s = time();
-		$a = -$a;
+		$a <<= 2;
 		$e = time();
 		return ($e - $s);
 	}

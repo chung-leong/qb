@@ -77,7 +77,8 @@ trait Sampling {
 }
 
 //require("Arithmetic.php");
-require("ComplexNumber.php");
+require("Bitwise.php");
+//require("ComplexNumber.php");
 //require("Math.php");
 //require("Matrix.php");
 //require("Pixel.php");
