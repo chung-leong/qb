@@ -27098,7 +27098,7 @@ void qb_redirect_sample_nearest_4x_multiple_times_F32(qb_interpreter_context *__
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_4x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_4x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 4, multithreading_threshold)) {
 		qb_do_sample_nearest_4x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -27126,7 +27126,7 @@ void qb_redirect_sample_nearest_3x_multiple_times_F32(qb_interpreter_context *__
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_3x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_3x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 3, multithreading_threshold)) {
 		qb_do_sample_nearest_3x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -27154,7 +27154,7 @@ void qb_redirect_sample_nearest_2x_multiple_times_F32(qb_interpreter_context *__
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_2x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_2x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 2, multithreading_threshold)) {
 		qb_do_sample_nearest_2x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -27182,7 +27182,7 @@ void qb_redirect_sample_nearest_multiple_times_F32(qb_interpreter_context *__res
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 1, multithreading_threshold)) {
 		qb_do_sample_nearest_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -27210,7 +27210,7 @@ void qb_redirect_sample_bilinear_4x_multiple_times_F32(qb_interpreter_context *_
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_4x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_4x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 4, multithreading_threshold)) {
 		qb_do_sample_bilinear_4x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -27238,7 +27238,7 @@ void qb_redirect_sample_bilinear_3x_multiple_times_F32(qb_interpreter_context *_
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_3x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_3x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 3, multithreading_threshold)) {
 		qb_do_sample_bilinear_3x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -27266,7 +27266,7 @@ void qb_redirect_sample_bilinear_2x_multiple_times_F32(qb_interpreter_context *_
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_2x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_2x_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 2, multithreading_threshold)) {
 		qb_do_sample_bilinear_2x_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -27294,7 +27294,7 @@ void qb_redirect_sample_bilinear_multiple_times_F32(qb_interpreter_context *__re
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float32_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_multiple_times_F32, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 1, multithreading_threshold)) {
 		qb_do_sample_bilinear_multiple_times_F32(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30326,7 +30326,7 @@ void qb_redirect_sample_nearest_4x_multiple_times_F64(qb_interpreter_context *__
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_4x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_4x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 4, multithreading_threshold)) {
 		qb_do_sample_nearest_4x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30354,7 +30354,7 @@ void qb_redirect_sample_nearest_3x_multiple_times_F64(qb_interpreter_context *__
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_3x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_3x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 3, multithreading_threshold)) {
 		qb_do_sample_nearest_3x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30382,7 +30382,7 @@ void qb_redirect_sample_nearest_2x_multiple_times_F64(qb_interpreter_context *__
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_2x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_2x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 2, multithreading_threshold)) {
 		qb_do_sample_nearest_2x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30410,7 +30410,7 @@ void qb_redirect_sample_nearest_multiple_times_F64(qb_interpreter_context *__res
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_nearest_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 1, multithreading_threshold)) {
 		qb_do_sample_nearest_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30438,7 +30438,7 @@ void qb_redirect_sample_bilinear_4x_multiple_times_F64(qb_interpreter_context *_
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_4x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 4, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_4x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 4, multithreading_threshold)) {
 		qb_do_sample_bilinear_4x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30466,7 +30466,7 @@ void qb_redirect_sample_bilinear_3x_multiple_times_F64(qb_interpreter_context *_
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_3x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 3, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_3x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 3, multithreading_threshold)) {
 		qb_do_sample_bilinear_3x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30494,7 +30494,7 @@ void qb_redirect_sample_bilinear_2x_multiple_times_F64(qb_interpreter_context *_
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_2x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 2, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_2x_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 2, multithreading_threshold)) {
 		qb_do_sample_bilinear_2x_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR
@@ -30522,7 +30522,7 @@ void qb_redirect_sample_bilinear_multiple_times_F64(qb_interpreter_context *__re
 #define op5_count	INSTR->operand5.count_pointer[0]
 #define res_ptr		(((float64_t *) INSTR->operand6.data_pointer) + INSTR->operand6.index_pointer[0])
 #define res_count	INSTR->operand6.count_pointer[0]
-	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, 0, 1, 1, 1, multithreading_threshold)) {
+	if(!cxt->thread_count || !qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(cxt, qb_redirect_sample_bilinear_multiple_times_F64, (qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *) ip, op1_count, 1, 1, 1, multithreading_threshold)) {
 		qb_do_sample_bilinear_multiple_times_F64(op1_ptr, op1_count, op2, op3, op4_ptr, op4_count, op5_ptr, op5_count, res_ptr, res_count);
 	}
 #undef INSTR

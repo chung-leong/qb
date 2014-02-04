@@ -76,11 +76,15 @@ trait Sampling {
 	}
 }
 
-require("Arithmetic.php");
-require("Math.php");
-require("Pixel.php");
+//require("Arithmetic.php");
+//require("Math.php");
+require("Matrix.php");
+//require("Pixel.php");
 
 function check_if_faster($obj, $count, $iterations = 100) {
+	if(property_exists($obj, 'vector_size')) {
+		$count -= $count % $obj->vector_size;
+	}
 	$arguments = $obj->arguments($count);
 
 	$ratios = array();

@@ -683,7 +683,13 @@ class Handler {
 				if($forDeclaration) {
 					$params[] = "uint32_t operand{$i}_size";
 				} else {
-					$params[] = $this->getOperandSize($i);
+					$operandSize = $this->getOperandSize($i);
+					if($operandSize) {
+						$params[] = $operandSize;
+					} else {
+						// put it the size of the array to indicate the pointer doesn't shift
+						$params[] = "op{$i}_count";
+					}
 				}
 			}
 		}
