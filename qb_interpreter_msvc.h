@@ -2249,14 +2249,12 @@ void qb_do_utf8encode_U32(uint32_t *op1_ptr, uint32_t op1_count, uint8_t *res_pt
 void qb_do_utf8encode_count_U16(uint16_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr);
 void qb_do_utf8encode_count_U32(uint32_t *op1_ptr, uint32_t op1_count, uint32_t *res_ptr);
 void qb_redirect_multiply_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_multiply_accumulate_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_shift_left_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_shift_right_multiple_times_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_increment_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_decrement_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_add_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_multiply_accumulate_multiple_times_S32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_subtract_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_negate_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_bitwise_and_multiple_times_I32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2337,8 +2335,6 @@ void qb_redirect_rgb2hsl_4x_multiple_times_F32(qb_interpreter_context *__restric
 void qb_redirect_hsl2rgb_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_hsl2rgb_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_matrix_by_matrix_4x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_multiply_matrix_by_vector_4x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_transpose_matrix_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_invert_matrix_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_determinant_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2350,8 +2346,6 @@ void qb_redirect_cross_product_4x_multiple_times_F32(qb_interpreter_context *__r
 void qb_redirect_face_forward_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_reflect_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_refract_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_transform_vector_4x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_transform_vector_4x_multiple_times_row_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_add_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_subtract_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_4x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2371,8 +2365,6 @@ void qb_redirect_cross_product_3x_multiple_times_F32(qb_interpreter_context *__r
 void qb_redirect_face_forward_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_reflect_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_refract_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_transform_vector_3x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_transform_vector_3x_multiple_times_row_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_add_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_subtract_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_3x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2383,7 +2375,6 @@ void qb_redirect_multiply_accumulate_3x_multiple_times_F32(qb_interpreter_contex
 void qb_redirect_multiply_matrix_by_matrix_2x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_transpose_matrix_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_invert_matrix_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_determinant_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_dot_product_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_length_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_distance_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2392,14 +2383,13 @@ void qb_redirect_cross_product_2x_multiple_times_F32(qb_interpreter_context *__r
 void qb_redirect_face_forward_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_reflect_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_refract_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_transform_vector_2x_multiple_times_column_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_transform_vector_2x_multiple_times_row_major_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_add_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_subtract_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_divide_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_modulo_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_negate_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_increment_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_accumulate_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_complex_abs_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_complex_argument_2x_multiple_times_F32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2491,7 +2481,6 @@ void qb_redirect_multiply_vector_by_matrix_4x_multiple_times_column_major_F64(qb
 void qb_redirect_transpose_matrix_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_invert_matrix_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_determinant_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_dot_product_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_length_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_distance_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_normalize_4x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2514,7 +2503,6 @@ void qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F64(qb
 void qb_redirect_transpose_matrix_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_invert_matrix_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_determinant_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_dot_product_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_length_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_distance_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_normalize_3x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2536,12 +2524,9 @@ void qb_redirect_multiply_matrix_by_vector_2x_multiple_times_column_major_F64(qb
 void qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_transpose_matrix_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_invert_matrix_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_determinant_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_dot_product_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_length_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_distance_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_normalize_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_cross_product_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_face_forward_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_reflect_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_refract_2x_multiple_times_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2604,7 +2589,6 @@ void qb_redirect_increment_multiple_times_I64(qb_interpreter_context *__restrict
 void qb_redirect_decrement_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_add_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_multiply_accumulate_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_subtract_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_negate_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_bitwise_and_multiple_times_I64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
@@ -2615,7 +2599,6 @@ void qb_redirect_shift_left_multiple_times_S64(qb_interpreter_context *__restric
 void qb_redirect_shift_right_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_abs_multiple_times_S64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_multiply_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_multiply_accumulate_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_shift_left_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_shift_right_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_variable_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);

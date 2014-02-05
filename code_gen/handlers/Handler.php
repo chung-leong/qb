@@ -318,19 +318,21 @@ class Handler {
 	}
 	
 	public function isMultithreaded() {
-		if($this->mayExitLoop()) {
-			return false;
-		} else {
-			$threshold = $this->getMultithreadingThreshold();
-			if($threshold === null) {
-				if(in_array('Multithreaded', class_uses($this))) {
+		if(in_array('Multithreaded', class_uses($this))) {
+			if($this->mayExitLoop()) {
+				return false;
+			} else {
+				$threshold = $this->getMultithreadingThreshold();
+				if($threshold === null) {
 					if($this->operandSize != 'variable') {
 						$class = get_class($this);
 						echo "Missing threshold for $class ($this->operandType, $this->operandSize)\n";
 					}
 				}
+				return ($threshold != 0);
 			}
-			return ($threshold != 0);
+		} else {
+			return false;
 		}
 	}	
 	
@@ -383,31 +385,42 @@ class Handler {
 	
 	public function getMultithreadingThreshold() {
 		if(self::$multithreadingThresholds === null) {
-			self::$multithreadingThresholds = array();
 			$folder = dirname(__FILE__);
-			$lines = file("$folder/../threshold/multithreading_thresholds.txt", FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
-			foreach($lines as $line) {
-				if(!preg_match('/^\s*;/', $line)) {
-					if(preg_match('/(\w+)\s+(\w+)\s+(\d+)\s+(\d+)/', $line, $m)) {
-						$name = $m[1];
-						$type = $m[2];
-						$width = (int) $m[3];
-						$threshold = (int) $m[4];
+			$path = "$folder/../threshold/multithreading_thresholds.txt";
+			if(file_exists($path)) { 
+				self::$multithreadingThresholds = array();
+				$lines = file($path, FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
+				foreach($lines as $line) {
+					if(!preg_match('/^\s*;/', $line)) {
+						if(preg_match('/(\w+)\s+(\w+)\s+(\d+)\s+(\d+)/', $line, $m)) {
+							$name = $m[1];
+							$type = $m[2];
+							$width = (int) $m[3];
+							$threshold = (int) $m[4];
 
-						$byType =& self::$multithreadingThresholds[$name];
-						$byWidth =& $byType[$type];
-						$byWidth[$width] = $threshold;
+							$byType =& self::$multithreadingThresholds[$name];
+							$byWidth =& $byType[$type];
+							$byWidth[$width] = $threshold;
+						}
 					}
 				}
+			} else {
+				// when the file is missing, we're trying to generate it
+				self::$multithreadingThresholds == "calc";
 			}
 		}
-		$class = get_class($this);
-		$type = $this->operandType;
-		$width = $this->operandSize;
-		if(isset(self::$multithreadingThresholds[$class][$type][$width])) {
-			return self::$multithreadingThresholds[$class][$type][$width];
+		if(is_array(self::$multithreadingThresholds)) {
+			$class = get_class($this);
+			$type = $this->operandType;
+			$width = $this->operandSize;
+			if(isset(self::$multithreadingThresholds[$class][$type][$width])) {
+				return self::$multithreadingThresholds[$class][$type][$width];
+			} else {
+				return null;
+			}
 		} else {
-			return null;
+			// use a low value so we can test it
+			return 1024;
 		}
 	}
 	
