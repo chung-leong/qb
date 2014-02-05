@@ -1,6 +1,6 @@
 <?php
 
-class ComplexAbs_F32 {
+class ComplexAbs_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -21,7 +21,7 @@ class ComplexAbs_F32 {
 	}
 }
 
-class ComplexArgument_F32 {
+class ComplexArgument_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -42,7 +42,7 @@ class ComplexArgument_F32 {
 	}
 }
 
-class ComplexCos_F32 {
+class ComplexCos_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -61,7 +61,7 @@ class ComplexCos_F32 {
 	}
 }
 
-class ComplexCosh_F32 {
+class ComplexCosh_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -80,7 +80,7 @@ class ComplexCosh_F32 {
 	}
 }
 
-class ComplexDivide_F32 {
+class ComplexDivide_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -101,7 +101,7 @@ class ComplexDivide_F32 {
 	}
 }
 
-class ComplexExp_F32 {
+class ComplexExp_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -120,7 +120,7 @@ class ComplexExp_F32 {
 	}
 }
 
-class ComplexLog_F32 {
+class ComplexLog_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -139,7 +139,7 @@ class ComplexLog_F32 {
 	}
 }
 
-class ComplexMultiply_F32 {
+class ComplexMultiply_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -160,7 +160,7 @@ class ComplexMultiply_F32 {
 	}
 }
 
-class ComplexPow_F32 {
+class ComplexPow_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -179,7 +179,7 @@ class ComplexPow_F32 {
 	}
 }
 
-class ComplexSin_F32 {
+class ComplexSin_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -198,7 +198,7 @@ class ComplexSin_F32 {
 	}
 }
 
-class ComplexSinh_F32 {
+class ComplexSinh_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -217,7 +217,7 @@ class ComplexSinh_F32 {
 	}
 }
 
-class ComplexSquareRoot_F32 {
+class ComplexSquareRoot_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -236,7 +236,7 @@ class ComplexSquareRoot_F32 {
 	}
 }
 
-class ComplexTan_F32 {
+class ComplexTan_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -255,7 +255,7 @@ class ComplexTan_F32 {
 	}
 }
 
-class ComplexTanh_F32 {
+class ComplexTanh_F32_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -274,7 +274,7 @@ class ComplexTanh_F32 {
 	}
 }
 
-class ComplexAbs_F64 {
+class ComplexAbs_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -295,7 +295,7 @@ class ComplexAbs_F64 {
 	}
 }
 
-class ComplexArgument_F64 {
+class ComplexArgument_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -316,7 +316,7 @@ class ComplexArgument_F64 {
 	}
 }
 
-class ComplexCos_F64 {
+class ComplexCos_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -335,7 +335,7 @@ class ComplexCos_F64 {
 	}
 }
 
-class ComplexCosh_F64 {
+class ComplexCosh_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -354,7 +354,7 @@ class ComplexCosh_F64 {
 	}
 }
 
-class ComplexDivide_F64 {
+class ComplexDivide_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -375,7 +375,7 @@ class ComplexDivide_F64 {
 	}
 }
 
-class ComplexExp_F64 {
+class ComplexExp_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -394,7 +394,7 @@ class ComplexExp_F64 {
 	}
 }
 
-class ComplexLog_F64 {
+class ComplexLog_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -413,7 +413,7 @@ class ComplexLog_F64 {
 	}
 }
 
-class ComplexMultiply_F64 {
+class ComplexMultiply_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -434,7 +434,7 @@ class ComplexMultiply_F64 {
 	}
 }
 
-class ComplexPow_F64 {
+class ComplexPow_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -453,7 +453,7 @@ class ComplexPow_F64 {
 	}
 }
 
-class ComplexSin_F64 {
+class ComplexSin_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -472,7 +472,7 @@ class ComplexSin_F64 {
 	}
 }
 
-class ComplexSinh_F64 {
+class ComplexSinh_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -491,7 +491,7 @@ class ComplexSinh_F64 {
 	}
 }
 
-class ComplexSquareRoot_F64 {
+class ComplexSquareRoot_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -510,7 +510,7 @@ class ComplexSquareRoot_F64 {
 	}
 }
 
-class ComplexTan_F64 {
+class ComplexTan_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;
@@ -529,7 +529,7 @@ class ComplexTan_F64 {
 	}
 }
 
-class ComplexTanh_F64 {
+class ComplexTanh_F64_X2 {
 	use SequentialNumbers;
 
 	var $vector_size = 2;

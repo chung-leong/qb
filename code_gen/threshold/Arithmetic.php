@@ -17,7 +17,7 @@ class Add_I08 {
 	}
 }
 
-class Decrememt_I08 {
+class Decrement_I08 {
 	use SequentialNumbers;
 
 	/**
@@ -34,7 +34,7 @@ class Decrememt_I08 {
 	}
 }
 
-class Incrememt_I08 {
+class Increment_I08 {
 	use SequentialNumbers;
 
 	/**
@@ -51,12 +51,29 @@ class Incrememt_I08 {
 	}
 }
 
-class Multiply_I08 {
+class Multiply_S08 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
 	 * @param int8[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a *= M_PI;
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class Multiply_U08 {
+	use SequentialNumbers;
+
+	/**
+	 * @engine qb
+	 * @param uint8[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
@@ -119,7 +136,7 @@ class Add_I16 {
 	}
 }
 
-class Decrememt_I16 {
+class Decrement_I16 {
 	use SequentialNumbers;
 
 	/**
@@ -136,7 +153,7 @@ class Decrememt_I16 {
 	}
 }
 
-class Incrememt_I16 {
+class Increment_I16 {
 	use SequentialNumbers;
 
 	/**
@@ -153,12 +170,29 @@ class Incrememt_I16 {
 	}
 }
 
-class Multiply_I16 {
+class Multiply_S16 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
 	 * @param int16[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a *= M_PI;
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class Multiply_U16 {
+	use SequentialNumbers;
+
+	/**
+	 * @engine qb
+	 * @param uint16[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
@@ -221,7 +255,7 @@ class Add_I32 {
 	}
 }
 
-class Decrememt_I32 {
+class Decrement_I32 {
 	use SequentialNumbers;
 
 	/**
@@ -238,7 +272,7 @@ class Decrememt_I32 {
 	}
 }
 
-class Incrememt_I32 {
+class Increment_I32 {
 	use SequentialNumbers;
 
 	/**
@@ -255,7 +289,7 @@ class Incrememt_I32 {
 	}
 }
 
-class Multiply_I32 {
+class Multiply_S32 {
 	use SequentialNumbers;
 
 	/**
@@ -272,12 +306,48 @@ class Multiply_I32 {
 	}
 }
 
-class MultiplyAccumlate_I32 {
+class Multiply_U32 {
+	use SequentialNumbers;
+
+	/**
+	 * @engine qb
+	 * @param uint32[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a *= M_PI;
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class MultiplyAccumlate_S32 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
 	 * @param int32[] $a
+	 * @local int32[] $b
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$b = $a + 9;
+		$s = time();
+		$a += $b * M_PI;
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class MultiplyAccumlate_U32 {
+	use SequentialNumbers;
+
+	/**
+	 * @engine qb
+	 * @param uint32[] $a
 	 * @local int32[] $b
 	 * @local float64 $(s|e)
 	 * @return float64
@@ -342,7 +412,7 @@ class Add_I64 {
 	}
 }
 
-class Decrememt_I64 {
+class Decrement_I64 {
 	use SequentialNumbers;
 
 	/**
@@ -359,7 +429,7 @@ class Decrememt_I64 {
 	}
 }
 
-class Incrememt_I64 {
+class Increment_I64 {
 	use SequentialNumbers;
 
 	/**
@@ -376,12 +446,29 @@ class Incrememt_I64 {
 	}
 }
 
-class Multiply_I64 {
+class Multiply_S64 {
 	use SequentialNumbers;
 
 	/**
 	 * @engine qb
 	 * @param int64[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a *= M_PI;
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class Multiply_U64 {
+	use SequentialNumbers;
+
+	/**
+	 * @engine qb
+	 * @param uint64[] $a
 	 * @local float64 $(s|e)
 	 * @return float64
 	 */
@@ -463,7 +550,7 @@ class Add_F32 {
 	}
 }
 
-class Decrememt_F32 {
+class Decrement_F32 {
 	use SequentialNumbers;
 
 	/**
@@ -497,7 +584,7 @@ class FlooredDivisionModulo_F32 {
 	}
 }
 
-class Incrememt_F32 {
+class Increment_F32 {
 	use SequentialNumbers;
 
 	/**
@@ -618,7 +705,7 @@ class Add_F64 {
 	}
 }
 
-class Decrememt_F64 {
+class Decrement_F64 {
 	use SequentialNumbers;
 
 	/**
@@ -669,7 +756,7 @@ class FlooredDivisionModulo_F64 {
 	}
 }
 
-class Incrememt_F64 {
+class Increment_F64 {
 	use SequentialNumbers;
 
 	/**

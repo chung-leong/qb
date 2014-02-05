@@ -318,7 +318,18 @@ class Handler {
 	}
 	
 	public function isMultithreaded() {
-		return false;
+		if($this->mayExitLoop()) {
+			return false;
+		} else {
+			$threshold = $this->getMultithreadingThreshold();
+			if($threshold === null) {
+				if(in_array('Multithreaded', class_uses($this))) {
+					$class = get_class($this);
+					echo "Missing threshold for $class ($this->operandType, $this->operandSize)\n";
+				}
+			}
+			return ($threshold != 0);
+		}
 	}	
 	
 	public function needsInterpreterContext() {
@@ -374,20 +385,27 @@ class Handler {
 			$folder = dirname(__FILE__);
 			$lines = file("$folder/../threshold/multithreading_thresholds.txt", FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
 			foreach($lines as $line) {
-				if(!preg_match('/^\s*;', $line)) {
-					if(preg_match('/(\w+)\s+(\d+)/', $line, $m)) {
+				if(!preg_match('/^\s*;/', $line)) {
+					if(preg_match('/(\w+)\s+(\w+)\s+(\d+)\s+(\d+)/', $line, $m)) {
 						$name = $m[1];
-						$number = (int) $m[2];
-						self::$multithreadingThresholds[$name] = $number;
+						$type = $m[2];
+						$width = (int) $m[3];
+						$threshold = (int) $m[4];
+
+						$byType =& self::$multithreadingThresholds[$name];
+						$byWidth =& $byType[$type];
+						$byWidth[$width] = $threshold;
 					}
 				}
 			}
 		}
 		$class = get_class($this);
-		if(isset(self::$multithreadingThresholds[$class])) {
-			return self::$multithreadingThresholds[$class];
+		$type = $this->operandType;
+		$width = $this->operandSize;
+		if(isset(self::$multithreadingThresholds[$class][$type][$width])) {
+			return self::$multithreadingThresholds[$class][$type][$width];
 		} else {
-			return 1;
+			return null;
 		}
 	}
 	
@@ -719,7 +737,7 @@ class Handler {
 			$lines[] =			"USE_TSRM";
 			$lines[] =			"int32_t use_multithreading = TRUE;";
 			$lines[] =			"uint32_t res_unit_count = op{$opCount}_count / operand{$opCount}_size;";
-			$lines[] =			"uint32_t thread_count = (cxt->thread_count * threshold <= res_unit_count) ? cxt->thread_count : res_unit_count / threshold + 1;";
+			$lines[] =			"uint32_t thread_count = cxt->thread_count;";
 			$lines[] =			"uint32_t chunk_size = res_unit_count / thread_count;";
 			for($i = 1; $i < $opCount; $i++) {
 				$addressMode = $this->getOperandAddressMode($i);
