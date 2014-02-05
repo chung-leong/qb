@@ -1,5 +1,73 @@
 <?php
 
+class Abs_S08 {
+	use SequentialNumbersWithNegative;
+
+	/**
+	 * @engine qb
+	 * @param int8[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a = abs($a);
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class Abs_S16 {
+	use SequentialNumbersWithNegative;
+
+	/**
+	 * @engine qb
+	 * @param int16[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a = abs($a);
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class Abs_S32 {
+	use SequentialNumbersWithNegative;
+
+	/**
+	 * @engine qb
+	 * @param int32[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a = abs($a);
+		$e = time();
+		return ($e - $s);
+	}
+}
+
+class Abs_S64 {
+	use SequentialNumbersWithNegative;
+
+	/**
+	 * @engine qb
+	 * @param int64[] $a
+	 * @local float64 $(s|e)
+	 * @return float64
+	 */
+	function test($a) {
+		$s = time();
+		$a = abs($a);
+		$e = time();
+		return ($e - $s);
+	}
+}
+
 class Abs_F32 {
 	use SequentialNumbersWithNegative;
 

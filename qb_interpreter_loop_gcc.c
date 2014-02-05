@@ -1238,7 +1238,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_U32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_multiple_times_U32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -2986,7 +2986,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_S32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_multiple_times_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -4024,7 +4024,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_abs_multiple_times_S32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_abs_multiple_times_S32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -6166,7 +6166,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -6276,7 +6276,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_divide_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_divide_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -8294,7 +8294,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_is_nan_F32(op1, &res);
+			qb_do_is_na_n_F32(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -8308,7 +8308,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			qb_do_is_nan_F32(op1, &res);
+			qb_do_is_na_n_F32(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -8324,7 +8324,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_is_nan_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_is_na_n_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -10664,7 +10664,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_alpha_blend_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_alpha_blend_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -10708,7 +10708,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_alpha_blend_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_alpha_blend_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -10818,7 +10818,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_rgb2hsv_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_rgb2hsv_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -10890,7 +10890,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_hsv2rgb_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_hsv2rgb_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -10962,7 +10962,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_rgb2hsl_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_rgb2hsl_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -11034,7 +11034,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_hsl2rgb_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_hsl2rgb_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -11888,7 +11888,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_add_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_add_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -11932,7 +11932,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_subtract_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_subtract_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -11976,7 +11976,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_multiply_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12020,7 +12020,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_divide_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_divide_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12064,7 +12064,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_modulo_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_modulo_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12102,7 +12102,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_negate_4x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_negate_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -12206,7 +12206,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_4x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_4x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -12340,7 +12340,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_redirect_multiply_vector_by_matrix_3x_multiple_times_column_major_F32(cxt, ip, 0);
+			qb_do_multiply_vector_by_matrix_3x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13086,7 +13086,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_add_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_add_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13130,7 +13130,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_subtract_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_subtract_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13174,7 +13174,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_multiply_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13218,7 +13218,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_divide_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_divide_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13262,7 +13262,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_modulo_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_modulo_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13300,7 +13300,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_negate_3x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_negate_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -13404,7 +13404,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_3x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_3x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -13538,7 +13538,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_redirect_multiply_vector_by_matrix_2x_multiple_times_column_major_F32(cxt, ip, 0);
+			qb_do_multiply_vector_by_matrix_2x_multiple_times_column_major_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14218,7 +14218,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_add_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_add_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14262,7 +14262,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_subtract_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_subtract_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14306,7 +14306,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_multiply_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14350,7 +14350,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_divide_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_divide_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14394,7 +14394,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_modulo_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_modulo_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -14432,7 +14432,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_negate_2x_multiple_times_F32(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_negate_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -14536,7 +14536,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_2x_multiple_times_F32(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_2x_multiple_times_F32(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -16532,7 +16532,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -18660,7 +18660,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_is_nan_F64(op1, &res);
+			qb_do_is_na_n_F64(op1, &res);
 			ip += sizeof(qb_instruction_SCA_SCA);
 			goto *handler;
 		}
@@ -18674,7 +18674,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((int32_t *) INSTR->operand2.data_pointer)[INSTR->operand2.index_pointer[0]]
 		{
 			handler = INSTR->next_handler;
-			qb_do_is_nan_F64(op1, &res);
+			qb_do_is_na_n_F64(op1, &res);
 			ip += sizeof(qb_instruction_ELE_ELE);
 			goto *handler;
 		}
@@ -18690,7 +18690,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_is_nan_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_is_na_n_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -21030,7 +21030,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_alpha_blend_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_alpha_blend_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -21074,7 +21074,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_alpha_blend_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_alpha_blend_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -21184,7 +21184,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_rgb2hsv_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_rgb2hsv_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -21256,7 +21256,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_hsv2rgb_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_hsv2rgb_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -21328,7 +21328,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_rgb2hsl_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_rgb2hsl_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -21400,7 +21400,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_hsl2rgb_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_hsl2rgb_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -22254,7 +22254,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_add_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_add_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22298,7 +22298,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_subtract_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_subtract_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22342,7 +22342,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_multiply_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22386,7 +22386,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_divide_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_divide_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22430,7 +22430,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_modulo_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_modulo_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -22468,7 +22468,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_negate_4x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_negate_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -22572,7 +22572,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_4x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_4x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23386,7 +23386,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_add_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_add_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23430,7 +23430,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_subtract_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_subtract_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23474,7 +23474,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_multiply_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23518,7 +23518,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_divide_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_divide_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23562,7 +23562,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_modulo_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_modulo_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -23600,7 +23600,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_negate_3x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_negate_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -23704,7 +23704,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_3x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_3x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24518,7 +24518,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_add_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_add_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24562,7 +24562,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_subtract_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_subtract_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24606,7 +24606,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_multiply_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24650,7 +24650,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_divide_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_divide_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24694,7 +24694,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand3.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_modulo_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, res_ptr, res_count);
+			qb_redirect_modulo_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -24732,7 +24732,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_negate_2x_multiple_times_F64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_negate_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -24836,7 +24836,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_2x_multiple_times_F64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_2x_multiple_times_F64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -27664,7 +27664,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_abs_multiple_times_S08(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_abs_multiple_times_S08(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -31576,7 +31576,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_abs_multiple_times_S16(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_abs_multiple_times_S16(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -34656,7 +34656,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_S64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_multiple_times_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}
@@ -35550,7 +35550,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand2.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_abs_multiple_times_S64(op1_ptr, op1_count, res_ptr, res_count);
+			qb_redirect_abs_multiple_times_S64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR);
 			goto *handler;
 		}
@@ -37068,7 +37068,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res_count	INSTR->operand4.count_pointer[0]
 		{
 			handler = INSTR->next_handler;
-			qb_do_multiply_accumulate_multiple_times_U64(op1_ptr, op1_count, op2_ptr, op2_count, op3_ptr, op3_count, res_ptr, res_count);
+			qb_redirect_multiply_accumulate_multiple_times_U64(cxt, ip, 0);
 			ip += sizeof(qb_instruction_ARR_ARR_ARR_ARR);
 			goto *handler;
 		}

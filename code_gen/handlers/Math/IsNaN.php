@@ -1,6 +1,6 @@
 <?php
 
-class IsNAN extends Handler {
+class IsNaN extends Handler {
 
 	use MultipleAddressMode, UnaryOperator, FloatingPointOnly, Multithreaded;
 	

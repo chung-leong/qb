@@ -2,7 +2,7 @@
 
 class RoundToPrecision extends Handler {
 
-	use MultipleAddressMode, TernaryOperator, FloatingPointOnly, Multithreaded;
+	use MultipleAddressMode, TernaryOperator, FloatingPointOnly;
 
 	public function getOperandType($i) {
 		return ($i == 2 || $i == 3) ? "I32" : $this->operandType;

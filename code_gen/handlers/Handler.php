@@ -324,8 +324,10 @@ class Handler {
 			$threshold = $this->getMultithreadingThreshold();
 			if($threshold === null) {
 				if(in_array('Multithreaded', class_uses($this))) {
-					$class = get_class($this);
-					echo "Missing threshold for $class ($this->operandType, $this->operandSize)\n";
+					if($this->operandSize != 'variable') {
+						$class = get_class($this);
+						echo "Missing threshold for $class ($this->operandType, $this->operandSize)\n";
+					}
 				}
 			}
 			return ($threshold != 0);
