@@ -2642,8 +2642,6 @@ void qb_redirect_print_variable_U64(qb_interpreter_context *__restrict cxt, int8
 void qb_redirect_print_variable_array_element_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_variable_multiple_times_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_multidimensional_variable_U64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_get_time_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
-void qb_redirect_get_time_array_element_F64(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_extension_op_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_synchronize_shadow_variable_U32(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 int32_t qb_dispatch_instruction_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR *__restrict instr, uint32_t operand1_size, uint32_t threshold);

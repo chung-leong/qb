@@ -14,15 +14,6 @@ class GetTime extends Handler {
 		$lines[] = "}";
 		return $lines;
 	}
-
-	public function runsInMainThread() {
-		if(self::$compiler == "MSVC") {
-			// the win32 implementation of gettimeofday() uses TSRM
-			return true;
-		} else {
-			return false;
-		}
-	}
 }
 
 ?>

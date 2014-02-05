@@ -4797,9 +4797,9 @@ const qb_op_info global_op_info[] = {
 	// VV_GUARD_U32_U32
 {	QB_OP_NEED_LINE_IDENTIFIER, sizeof(qb_instruction_SCA_SCA_line_id), "ss"	},
 	// TIME_F64_SCA
-{	QB_OP_VERSION_AVAILABLE_ELE | QB_OP_NEED_INSTRUCTION_STRUCT, sizeof(qb_instruction_SCA), "S"	},
+{	QB_OP_VERSION_AVAILABLE_ELE, sizeof(qb_instruction_SCA), "S"	},
 	// TIME_F64_ELE
-{	QB_OP_NEED_INSTRUCTION_STRUCT, sizeof(qb_instruction_ELE), "E"	},
+{	0, sizeof(qb_instruction_ELE), "E"	},
 	// EXT_U32
 {	QB_OP_NEED_LINE_IDENTIFIER | QB_OP_NEED_INSTRUCTION_STRUCT, sizeof(qb_instruction_SCA_line_id), "s"	},
 	// DBG_SYNC_U32

@@ -46173,7 +46173,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand1.data_pointer)[0]
 			{
 				handler = INSTR->next_handler;
-				qb_redirect_get_time_F64(cxt, ip, 0);
+				qb_do_get_time_F64(&res);
 				ip += sizeof(qb_instruction_SCA);
 				break;
 			}
@@ -46185,7 +46185,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #define res	((float64_t *) INSTR->operand1.data_pointer)[INSTR->operand1.index_pointer[0]]
 			{
 				handler = INSTR->next_handler;
-				qb_redirect_get_time_array_element_F64(cxt, ip, 0);
+				qb_do_get_time_F64(&res);
 				ip += sizeof(qb_instruction_ELE);
 				break;
 			}
