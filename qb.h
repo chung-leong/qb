@@ -35,6 +35,7 @@
 #ifdef _MSC_VER
 	#include "win32\php_stdint.h"
 	#include "win32\msc_inttypes.h"
+	#include "win32\time.h"
 #else
 	#include <stdint.h>
 	#include <inttypes.h>

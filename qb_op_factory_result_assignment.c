@@ -427,8 +427,10 @@ static void qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_factory
 				value = qb_get_special_constant(cxt, Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant));
 			}
 		}
-		result->type = QB_OPERAND_ZVAL;
-		result->constant = value;
+		if(value) {
+			result->type = QB_OPERAND_ZVAL;
+			result->constant = value;
+		}
 	}
 }
 

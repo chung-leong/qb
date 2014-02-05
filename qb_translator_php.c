@@ -753,7 +753,7 @@ static qb_php_op_translator op_translators[] = {
 	{	NULL,								NULL										},	// ZEND_HANDLE_EXCEPTION
 	{	qb_process_user_opcode,				NULL										},	// ZEND_USER_OPCODE
 	{	NULL,								NULL										},	// 151
-	{	qb_process_jump_set,				NULL										},	// ZEND_JMP_SET
+	{	qb_process_jump_set,				&factory_branch_on_true_set					},	// ZEND_JMP_SET
 	{	NULL,								NULL										},	// ZEND_DECLARE_LAMBDA_FUNCTION
 	{	NULL,								NULL										},	// ZEND_ADD_TRAIT
 	{	NULL,								NULL										},	// ZEND_BIND_TRAITS
@@ -800,11 +800,6 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 		znode_op *operand3 = (has_data_op) ? &cxt->zend_op[1].op1 : NULL;
 		znode_op *result1 = &cxt->zend_op->result;
 		znode_op *result2 = (has_data_op) ? &cxt->zend_op[1].result : NULL;
-
-		if(!RETURN_VALUE_USED(cxt->zend_op)) {
-			// in case the type isn't correctly set
-			result_type1 = Z_OPERAND_UNUSED;
-		}
 
 		// retrieve operands
 		if(operand_type1 != Z_OPERAND_UNUSED) {

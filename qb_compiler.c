@@ -1108,24 +1108,17 @@ static void qb_get_zend_array_dimensions(qb_compiler_context *cxt, zval *zvalue,
 	if((Z_TYPE_P(zvalue) == IS_ARRAY || Z_TYPE_P(zvalue) == IS_CONSTANT_ARRAY)) {
 		HashTable *ht = Z_ARRVAL_P(zvalue);
 		Bucket *p;
-		int32_t highest_index = -1;
-		uint32_t dimension;
-		for(p = ht->pListHead; p; p = p->pListNext) {
-			if(!p->arKey) {
-				if((long) p->h > highest_index) {
-					highest_index = p->h;
-				}
-			}
-		}
-		dimension = highest_index + 1;
+		uint32_t dimension = ht->nNextFreeElement;
 		if(dimension > dimensions[0]) {
 			dimensions[0] = dimension;
 		}
 		if(dimension_count > 1) {
 			dimensions[1] = 0;
 			for(p = ht->pListHead; p; p = p->pListNext) {
-				zval **p_element = p->pData;
-				qb_get_zend_array_dimensions(cxt, *p_element, element_type, dimensions + 1, dimension_count - 1);
+				if((long) p->h >= 0 && !p->nKeyLength) {
+					zval **p_element = p->pData;
+					qb_get_zend_array_dimensions(cxt, *p_element, element_type, dimensions + 1, dimension_count - 1);
+				}
 			}
 		}
 	} else if(Z_TYPE_P(zvalue) == IS_STRING) {

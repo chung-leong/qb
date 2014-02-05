@@ -215,6 +215,29 @@ float log2f(float x) {
 
 #endif
 
+#if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+zend_class_entry *zend_fetch_class_by_name(const char *class_name, uint class_name_len, void *key, int fetch_type TSRMLS_DC) /* {{{ */
+{
+	zend_class_entry **pce;
+	int use_autoload = (fetch_type & ZEND_FETCH_CLASS_NO_AUTOLOAD) == 0;
+
+	if (zend_lookup_class_ex(class_name, class_name_len, use_autoload, &pce TSRMLS_CC) == FAILURE) {
+		if (use_autoload) {
+			if ((fetch_type & ZEND_FETCH_CLASS_SILENT) == 0 && !EG(exception)) {
+				if ((fetch_type & ZEND_FETCH_CLASS_MASK) == ZEND_FETCH_CLASS_INTERFACE) {
+					zend_error(E_ERROR, "Interface '%s' not found", class_name);
+				} else {
+					zend_error(E_ERROR, "Class '%s' not found", class_name);
+				}	
+			}
+		}
+		return NULL;
+	}
+	return *pce;
+}
+/* }}} */
+#endif
+
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 /* {{{ php_intlog10abs
    Returns floor(log10(fabs(val))), uses fast binary search */

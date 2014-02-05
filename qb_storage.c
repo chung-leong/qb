@@ -359,7 +359,7 @@ static int32_t qb_capture_dimensions_from_array(zval *zarray, qb_dimension_mappi
 		m->src_dimension_count = dimension_index + 1;
 	}
 	for(p = ht->pListHead; p; p = p->pListNext) {
-		if(p->h >= 0 && !p->arKey) {
+		if(p->h >= 0 && !p->nKeyLength) {
 			zval **p_element = p->pData;
 			qb_capture_dimensions_from_zval(*p_element, m, dimension_index + 1);
 		}
@@ -623,7 +623,7 @@ static int32_t qb_copy_elements_from_array(zval *zarray, int8_t *dst_memory, qb_
 
 	// assume the elements are stored in order in the array
 	for(p = ht->pListHead; p && src_index < src_dimension; p = p->pListNext) {
-		if((uint32_t) p->h == src_index && !p->arKey) {
+		if((uint32_t) p->h == src_index && !p->nKeyLength) {
 			zval **p_element = p->pData;
 			qb_copy_elements_from_zval(*p_element, dst_pointer, m, dimension_index + 1);
 			src_index++;
@@ -941,7 +941,7 @@ static int32_t qb_copy_elements_to_array(int8_t *src_memory, zval *zarray, zval 
 
 	// assume the elements are stored in order in the array
 	for(p = ht->pListHead; p && dst_index < src_dimension; p = p->pListNext) {
-		if((uint32_t) p->h == dst_index && !p->arKey) {
+		if((uint32_t) p->h == dst_index && !p->nKeyLength) {
 			zval **p_element = p->pData, *element;
 			SEPARATE_ZVAL_TO_MAKE_IS_REF(p_element);
 			element = *p_element;
@@ -972,7 +972,7 @@ static int32_t qb_copy_elements_to_array(int8_t *src_memory, zval *zarray, zval 
 	// remove items with indices larger than the dimension
 	while(p) {
 		Bucket *next = p->pListNext;
-		if((uint32_t) p->h >= src_dimension && !p->arKey) {
+		if((uint32_t) p->h >= src_dimension && !p->nKeyLength) {
 			zend_hash_index_del(ht, p->h);
 		}
 		p = next;

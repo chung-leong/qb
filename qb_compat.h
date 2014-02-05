@@ -24,6 +24,8 @@
 #if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 	#define znode_op				znode
 	#define ZEND_FETCH_CLASS_MASK	0x0f
+
+	zend_class_entry *zend_fetch_class_by_name(const char *class_name, uint class_name_len, void *key, int fetch_type TSRMLS_DC);
 #endif
 
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1

@@ -8,7 +8,7 @@ Closure test (array)
 <?php
 
 function outer_function() {
-	$a = [1, 2, 3, 4];
+	$a = array(1, 2, 3, 4);
 
 	/**
 	 * A test function
@@ -21,7 +21,7 @@ function outer_function() {
 	 */
 	$f = function() use(&$a) {
 		echo "Inside qb: $a\n";
-		$a = [4, 5, 6, 7];
+		$a = array(4, 5, 6, 7);
 	};
 
 	$f();
