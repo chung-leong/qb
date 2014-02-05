@@ -7,22 +7,20 @@ Time test
  * A test function
  * 
  * @engine	qb
- * @param	float64	$a
  * @local	float64	$b
  * 
- * @return	void
+ * @return	float64
  * 
  */
-function test_function($a) {
-	$b = time() - $a;
-	echo "$b\n";
+function test_function() {
+	$b = time();
+	return $b;
 }
 
 $a = microtime(true);
-test_function($a);
+$b = test_function();
 
-$a = microtime(true);
-test_function($a);
+printf("%f\n", $b - $a);
 
 ?>
 --EXPECTREGEX--
