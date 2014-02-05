@@ -83,7 +83,7 @@ require("Math.php");
 require("Matrix.php");
 require("Pixel.php");
 
-function check_if_faster($obj, $count, $iterations = 100) {
+function get_multithreading_performance($obj, $count, $iterations = 10) {
 	if(property_exists($obj, 'vector_size')) {
 		$count -= $count % $obj->vector_size;
 	}
@@ -106,14 +106,23 @@ function check_if_faster($obj, $count, $iterations = 100) {
 	}
 	sort($ratios);
 	$median = $ratios[$iterations >> 1];
-	return $median < 0.80;
+	return $median;
 }
 
 function find_optimal($class) {
 	$obj = new $class;
-	for($i = 1024; $i <= 1024 * 1024; $i *= 2) {
-		if(check_if_faster($obj, $i)) {
+	$previous_ratio = 1;
+	for($i = 1024; $i <= 1024 * 1024 * 2; $i *= 2) {
+		$ratio = get_multithreading_performance($obj, $i);
+		if($ratio < 0.80) {
+			if($previous_ratio < 0.83) {
+				if(abs($previous_ratio - 0.80) < abs($ratio - 0.80)) {
+					return $i / 2;
+				}
+			}
 			return $i;
+		} else {
+			$previous_ratio = $ratio;
 		}
 	}
 	return 0;
@@ -121,20 +130,23 @@ function find_optimal($class) {
 
 $classes = array_diff(get_declared_classes(), $predefined_classes);
 
-$f = fopen("multithreading_thresholds.txt", "wb");
-
 foreach($classes as $class) {
 	if(preg_match('/(\w+)_(\w\d{2})_X(\d)/', $class, $m) || preg_match('/(\w+)_(\w\d{2})/', $class, $m)) {
 		$name = $m[1];
 		$type = $m[2];
 		$width = isset($m[3]) ? (int) $m[3] : 1;
 		$threshold = find_optimal($class);
-		fwrite($f, "$name	$type	$width" . PHP_EOL);
+		$line = "$name	$type	$width	$threshold" . PHP_EOL;
+		echo $line;
+		$lines[] = $line;
 	} else {
 		echo "$class\n";
 		die();
 	}
 }
 	
+sort($lines);
+$folder = dirname(__FILE__);
+file_put_contents("$folder/multithreading_thresholds.txt", implode('', $lines));
 
 ?>
