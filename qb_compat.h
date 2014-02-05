@@ -177,6 +177,7 @@ double log1p(double x);
 double expm1(double x);
 double log2(double x);
 double exp2(double x);
+double rint(double x);
 double round(double x);
 double rsqrt(double x);
 
@@ -189,6 +190,7 @@ float log1pf(float x);
 float asinhf(float x);
 float acoshf(float x);
 float atanhf(float x);
+float rintf(float x);
 float roundf(float x);
 
 #undef fabsf

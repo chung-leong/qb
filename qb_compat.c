@@ -63,6 +63,13 @@ double exp2(double x) {
 	return pow(2, x);
 }
 
+double rint(double x) {
+    __asm {
+        fld x
+        frndint
+    }
+}
+
 double round(double x) {
 	return floor(x + 0.5);
 }
@@ -169,6 +176,13 @@ float acoshf(float x) {
 
 float atanhf(float x) {
 	return (float) atanh(x);
+}
+
+float rintf(float x) {
+	_asm {	
+		fld x
+		frndint
+	}
 }
 
 float roundf(float x) {
