@@ -72,7 +72,11 @@ static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory
 	src_byte_count = php_stream_read(stream, (char *) dst_memory, dst_byte_count);
 	php_stream_seek(stream, position, SEEK_SET);
 	if(src_byte_count < dst_byte_count) {
-		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+		if(dimension_index == 0) {
+			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+		} else {
+			memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+		}
 	}
 	return TRUE;
 }

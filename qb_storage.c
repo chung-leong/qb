@@ -417,14 +417,6 @@ void qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t re
 	}
 }
 
-void qb_fill_array_gap(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count, uint32_t dimension_index) {
-	if(dimension_index == 0) {
-		qb_copy_wrap_around(memory, filled_byte_count, required_byte_count);
-	} else {
-		memset(memory + filled_byte_count, 0, required_byte_count - filled_byte_count);
-	}
-}
-
 #include "qb_storage_file.c"
 #include "qb_storage_gd_image.c"
 
@@ -654,8 +646,12 @@ static int32_t qb_copy_elements_from_array(zval *zarray, int8_t *dst_memory, qb_
 			dst_pointer += src_element_byte_count;
 		}
 	}
-	if(dimension_index == 0 && src_byte_count < dst_byte_count) {
-		qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+	if(src_byte_count < dst_byte_count) {
+		if(dimension_index == 0) {
+			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+		} else {
+			memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+		}
 	}
 	return TRUE;
 }
@@ -694,7 +690,11 @@ static int32_t qb_copy_elements_from_object(zval *zobject, int8_t *dst_memory, q
 		dst_pointer += src_element_byte_count;
 	}
 	if(src_byte_count < dst_byte_count) {
-		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+		if(dimension_index == 0) {
+			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+		} else {
+			memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+		}
 	}
 	return TRUE;
 }
@@ -706,7 +706,11 @@ static int32_t qb_copy_elements_from_string(zval *zstring, int8_t *dst_memory, q
 	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
 	memcpy(dst_memory, src_memory, src_byte_count);
 	if(src_byte_count < dst_byte_count) {
-		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+		if(dimension_index == 0) {
+			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+		} else {
+			memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+		}
 	}
 	return TRUE;
 }
@@ -718,11 +722,20 @@ static int32_t qb_copy_elements_from_long(zval *zlong, int8_t *dst_memory, qb_di
 #else
 	qb_copy_element(QB_TYPE_S32, (int8_t *) &src_value, m->dst_element_type, dst_memory);
 #endif
-	if(dimension_index < m->src_dimension_count) {
+	if(dimension_index == 0) {
+		if(m->dst_dimension_count > 0) {
+			uint32_t dst_element_count = m->dst_array_sizes[dimension_index];
+			uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+			uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
+			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+		}
+	} else if(dimension_index < m->src_dimension_count) {
 		uint32_t dst_element_count = m->src_array_sizes[dimension_index];
 		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
 		uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
-		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+		if(dst_byte_count < src_byte_count) {
+			memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+		}
 	}
 	return TRUE;
 }
@@ -730,19 +743,34 @@ static int32_t qb_copy_elements_from_long(zval *zlong, int8_t *dst_memory, qb_di
 static int32_t qb_copy_elements_from_double(zval *zdouble, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
 	double src_value = Z_DVAL_P(zdouble);
 	qb_copy_element(QB_TYPE_F64, (int8_t *) &src_value, m->dst_element_type, dst_memory);
-	if(dimension_index < m->src_dimension_count) {
+	if(dimension_index == 0) {
+		if(m->dst_dimension_count > 0) {
+			uint32_t dst_element_count = m->dst_array_sizes[dimension_index];
+			uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+			uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
+			qb_copy_wrap_around(dst_memory, src_byte_count, dst_byte_count);
+		}
+	} else if(dimension_index < m->src_dimension_count) {
 		uint32_t dst_element_count = m->src_array_sizes[dimension_index];
 		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
 		uint32_t src_byte_count = BYTE_COUNT(1, m->dst_element_type);
-		qb_fill_array_gap(dst_memory, src_byte_count, dst_byte_count, dimension_index);
+		if(dst_byte_count < src_byte_count) {
+			memset(dst_memory + src_byte_count, 0, dst_byte_count - src_byte_count);
+		}
 	}
 	return TRUE;
 }
 
 static int32_t qb_copy_elements_from_null(zval *znull, int8_t *dst_memory, qb_dimension_mappings *m, uint32_t dimension_index) {
-	uint32_t dst_element_count = (dimension_index < m->dst_dimension_count) ? m->dst_array_sizes[dimension_index] : 1;
-	uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
-	memset(dst_memory, 0, dst_byte_count);
+	if(dimension_index == 0) {
+		uint32_t dst_element_count = (m->dst_dimension_count > 0) ? m->dst_array_sizes[dimension_index] : 1;
+		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+		memset(dst_memory, 0, dst_byte_count);
+	} else if(dimension_index < m->src_dimension_count) {
+		uint32_t dst_element_count = m->src_array_sizes[dimension_index];
+		uint32_t dst_byte_count = BYTE_COUNT(dst_element_count, m->dst_element_type);
+		memset(dst_memory, 0, dst_byte_count);
+	}
 	return TRUE;
 }
 
