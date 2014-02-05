@@ -33,8 +33,9 @@
 #define QB_OP_FACTORY_STRING		5
 
 #define QB_OP_FACTORY_SELF			0
-#define QB_OP_FACTORY_PARENT		1
+#define QB_OP_FACTORY_GLOBAL		1
 #define QB_OP_FACTORY_STATIC		2
+#define QB_OP_FACTORY_PARENT		3
 
 #define QB_OP_FACTORY_LOCAL			0
 #define QB_OP_FACTORY_GLOBAL		1
@@ -305,7 +306,7 @@ extern qb_fetch_op_factory factory_fetch_object_property_isset;
 extern qb_op_factory factory_fetch_constant;
 
 extern void *factories_fetch_variable[4];
-extern void *factories_fetch_class[3];
+extern void *factories_fetch_class[4];
 
 extern qb_gather_op_factory factory_gather;
 extern qb_gather_op_factory factory_scatter;

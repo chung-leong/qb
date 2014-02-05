@@ -215,6 +215,17 @@ static int32_t qb_validate_operands_fetch_class_static(qb_compiler_context *cxt,
 	return TRUE;
 }
 
+static int32_t qb_validate_operands_fetch_class_global(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
+	USE_TSRM
+	qb_operand *name = &operands[1];
+	zend_class_entry *ce = zend_fetch_class_by_name(Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant), NULL, ZEND_FETCH_CLASS_SILENT TSRMLS_CC);
+	if(!ce) {
+		qb_report_missing_class_exception(cxt->line_id, Z_STRVAL_P(name->constant));
+		return FALSE;
+	}
+	return TRUE;
+}
+
 static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	USE_TSRM
 	qb_operand *scope = &operands[0], *name = &operands[1];
@@ -950,7 +961,11 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
 	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	zend_class_entry *ce = EG(called_scope);
+#else
+	zend_class_entry *ce = EG(scope);
+#endif
 	const char *class_name = (ce) ? ce->name : NULL;
 	uint32_t i;
 

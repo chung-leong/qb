@@ -11,8 +11,8 @@ Global
 		Release_TS|Win32 = Release_TS|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{802891C8-34EC-4E13-81A2-1CF225CF9052}.Debug_TS_VC6|Win32.ActiveCfg = Debug_TS|Win32
-		{802891C8-34EC-4E13-81A2-1CF225CF9052}.Debug_TS_VC6|Win32.Build.0 = Debug_TS|Win32
+		{802891C8-34EC-4E13-81A2-1CF225CF9052}.Debug_TS_VC6|Win32.ActiveCfg = Debug_TS_VC6|Win32
+		{802891C8-34EC-4E13-81A2-1CF225CF9052}.Debug_TS_VC6|Win32.Build.0 = Debug_TS_VC6|Win32
 		{802891C8-34EC-4E13-81A2-1CF225CF9052}.Debug_TS|Win32.ActiveCfg = Debug_TS|Win32
 		{802891C8-34EC-4E13-81A2-1CF225CF9052}.Debug_TS|Win32.Build.0 = Debug_TS|Win32
 		{802891C8-34EC-4E13-81A2-1CF225CF9052}.Release_TS_VC6|Win32.ActiveCfg = Release_TS_VC6|Win32

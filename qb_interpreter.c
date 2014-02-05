@@ -179,7 +179,11 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 	USE_TSRM
 	int32_t result = TRUE;
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
+#else
+	void **p = EG(argument_stack).top_element-1-1;
+#endif
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
 
@@ -279,7 +283,11 @@ static int32_t qb_transfer_variables_from_external_sources(qb_interpreter_contex
 
 static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 	USE_TSRM
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	void **p = EG(current_execute_data)->prev_execute_data->function_state.arguments;
+#else
+	void **p = EG(argument_stack).top_element-1-1;
+#endif
 	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
 	uint32_t i;
 
@@ -303,9 +311,10 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 
 	if(EG(return_value_ptr_ptr)) {
 		// copy value into return variable
-		zval *ret;
+		zval *ret, **p_ret = EG(return_value_ptr_ptr);
 		ALLOC_INIT_ZVAL(ret);
-		*EG(return_value_ptr_ptr) = ret;
+		Z_ADDREF_P(ret);
+		*p_ret = ret;
 		if(cxt->function->return_variable->address) {
 			if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
@@ -960,7 +969,11 @@ static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_functio
 	int call_result;
 	zend_execute_data *ex = EG(current_execute_data);
 
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	fcc.calling_scope = EG(called_scope);
+#else
+	fcc.calling_scope = EG(scope);
+#endif
 	fcc.function_handler = zfunc;
 	fcc.initialized = 1;
 	fci.size = sizeof(zend_fcall_info);
@@ -1120,7 +1133,11 @@ int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_i
 	qb_function *qfunc;
 
 	if(symbol->type == QB_EXT_SYM_STATIC_ZEND_FUNCTION) {
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 		zend_class_entry *called_scope = EG(called_scope);
+#else
+		zend_class_entry *called_scope = EG(scope);
+#endif
 		if(zfunc->common.scope != called_scope) {
 			zend_hash_find(&called_scope->function_table, zfunc->common.function_name, (uint32_t) strlen(zfunc->common.function_name) + 1, (void **) &zfunc);
 		}

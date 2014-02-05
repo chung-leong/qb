@@ -463,7 +463,24 @@ qb_op_factory factory_fetch_class_static = {
 	0,
 };
 
-void *factories_fetch_class[] = { &factory_fetch_class_self, &factory_fetch_class_parent, &factory_fetch_class_static };
+qb_op_factory factory_fetch_class_global = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_set_result_fetch_class_global,
+	qb_validate_operands_fetch_class_global,
+	qb_set_result_fetch_class_global,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+	QB_RESULT_FROM_PURE_FUNCTION,
+	0,
+};
+
+void *factories_fetch_class[] = { &factory_fetch_class_self, &factory_fetch_class_global, &factory_fetch_class_static, &factory_fetch_class_parent };
 
 qb_op_factory factory_fetch_constant = {
 	NULL,

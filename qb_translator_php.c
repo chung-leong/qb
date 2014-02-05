@@ -208,6 +208,8 @@ static int32_t qb_process_fetch_class(qb_php_translator_context *cxt, void *op_f
 	} else if(fetch_type == ZEND_FETCH_CLASS_STATIC) {
 		op_factory = list[QB_OP_FACTORY_STATIC];
 #endif
+	} else if(fetch_type == ZEND_FETCH_CLASS_GLOBAL) {
+		op_factory = list[QB_OP_FACTORY_GLOBAL];
 	}
 	return qb_produce_op(cxt->compiler_context, op_factory, operands, operand_count, result, NULL, 0, result_prototype);
 }
@@ -800,6 +802,24 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 		znode_op *operand3 = (has_data_op) ? &cxt->zend_op[1].op1 : NULL;
 		znode_op *result1 = &cxt->zend_op->result;
 		znode_op *result2 = (has_data_op) ? &cxt->zend_op[1].result : NULL;
+
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+		switch(zend_opcode) {
+			case ZEND_FETCH_CONSTANT:
+			case ZEND_INIT_METHOD_CALL:
+			case ZEND_INIT_STATIC_METHOD_CALL:
+				operand_type1 = Z_OPERAND_TMP_VAR;
+				break;
+			case ZEND_FETCH_R:
+			case ZEND_FETCH_W:
+			case ZEND_FETCH_RW:
+			case ZEND_FETCH_IS:
+			case ZEND_FETCH_FUNC_ARG:
+			case ZEND_FETCH_UNSET:
+				operand_type2 = Z_OPERAND_TMP_VAR;
+				break;
+		}
+#endif
 
 		// retrieve operands
 		if(operand_type1 != Z_OPERAND_UNUSED) {

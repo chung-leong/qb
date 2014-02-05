@@ -204,9 +204,11 @@ void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
 
+#if !ZEND_ENGINE_2_2
 	if(!EG(active_symbol_table)) {
 		zend_rebuild_symbol_table(TSRMLS_C);
 	}
+#endif
 
 	cxt->shadow_variables = ecalloc(cxt->function->variable_count, sizeof(zval *));
 	for(i = 0, j = 0; i < cxt->function->variable_count; i++) {
@@ -368,7 +370,12 @@ void qb_test_debug_interface(qb_interpreter_context *cxt) {
 			if(qvar->flags & QB_VARIABLE_CLASS_INSTANCE) {
 				qb->get_instance_variable_details(EG(This), qvar->name, &details);
 			} else if(qvar->flags & QB_VARIABLE_CLASS) {
-				qb->get_class_variable_details(EG(called_scope), qvar->name, &details);
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+				zend_class_entry *called_scope = EG(called_scope);
+#else
+				zend_class_entry *called_scope = EG(scope);
+#endif
+				qb->get_class_variable_details(called_scope, qvar->name, &details);
 			} else if(qvar->flags & QB_VARIABLE_GLOBAL) {
 				qb->get_global_variable_details(qvar->name, &details);
 			} else if(qvar->flags & QB_VARIABLE_CLASS_CONSTANT) {

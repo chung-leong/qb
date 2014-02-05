@@ -395,6 +395,16 @@ static void qb_set_result_fetch_class_static(qb_compiler_context *cxt, qb_op_fac
 	result->zend_class = NULL;
 }
 
+static void qb_set_result_fetch_class_global(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	USE_TSRM
+	qb_operand *name = &operands[1];
+	zend_class_entry *ce = zend_fetch_class_by_name(Z_STRVAL_P(name->constant), Z_STRLEN_P(name->constant), NULL, ZEND_FETCH_CLASS_SILENT TSRMLS_CC);
+	if(ce) {
+		result->type = QB_OPERAND_ZEND_CLASS;
+		result->zend_class = ce;
+	}
+}
+
 static void qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	USE_TSRM
 	qb_operand *scope = &operands[0], *name = &operands[1];
