@@ -985,6 +985,7 @@ PHP_MINFO_FUNCTION(qb)
 {
 	char buffer[256];
 	uint32_t i;
+	uint32_t cpu_count = qb_get_cpu_count();
 	qb_diagnostics diag;
 	php_info_print_table_start();
 	php_info_print_table_header(2, "qb support", "enabled");
@@ -1010,6 +1011,9 @@ PHP_MINFO_FUNCTION(qb)
 #if __AVX2__
 	php_info_print_table_row(2, "AVX version", "2");
 #endif
+
+	sprintf(buffer, "%u", cpu_count);
+	php_info_print_table_row(2, "CPU count", buffer);
 
 	qb_run_diagnostics(&diag TSRMLS_CC);
 	php_info_print_table_colspan_header(2, "Diagnostics");
