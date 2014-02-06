@@ -63,13 +63,18 @@ enum qb_pixel_format {
 	QB_PIXEL_2D_F64_4 = QB_PIXEL_F64_4 | QB_PIXEL_ARRANGEMENT_2D,
 };
 
+static int qb_get_gd_id(void) {
+	static int le_gd = -1;
+	if(le_gd == -1) {
+		le_gd = zend_fetch_list_dtor_id("gd");
+	}
+	return le_gd;
+}
+
 gdImagePtr qb_get_gd_image(zval *resource) {
 	if(Z_TYPE_P(resource) == IS_RESOURCE) {
-		static int le_gd = -1;
+		int le_gd = qb_get_gd_id();
 		TSRMLS_FETCH();
-		if(le_gd == -1) {
-			le_gd = zend_fetch_list_dtor_id("gd");
-		}
 		if(le_gd) {
 			gdImagePtr image = (gdImagePtr) zend_fetch_resource(&resource TSRMLS_CC, -1, NULL, NULL, 1, le_gd);
 			return image;
@@ -716,31 +721,44 @@ static int32_t qb_copy_elements_to_gd_image(int8_t *src_memory, gdImagePtr image
 	return TRUE;
 }
 
+static gdImagePtr gdImageCreateTrueColor(uint32_t sx, uint32_t sy) {
+	uint32_t i;
+	gdImagePtr im;
+
+	if(sx * sy > INT32_MAX || sizeof(unsigned char*) * sy > INT32_MAX || sizeof(int) * sx > INT32_MAX) {
+		return NULL;
+	}
+
+	im = (gdImage *) emalloc(sizeof(gdImage));
+	memset(im, 0, sizeof(gdImage));
+	im->tpixels = (int **) emalloc(sizeof(int *) * sy);
+	im->AA_opacity = (unsigned char **) emalloc(sizeof(unsigned char *) * sy);
+	for(i = 0; i < sy; i++) {
+		im->tpixels[i] = (int *) ecalloc(sx, sizeof(int));
+		im->AA_opacity[i] = (unsigned char *) ecalloc(sx, sizeof(unsigned char));
+	}
+	im->sx = sx;
+	im->sy = sy;
+	im->transparent = (-1);
+	im->trueColor = 1;
+	im->saveAlphaFlag = 0;
+	im->alphaBlendingFlag = 1;
+	im->thick = 1;
+	im->cx2 = im->sx - 1;
+	im->cy2 = im->sy - 1;
+	im->interpolation_id = GD_BILINEAR_FIXED;
+	return im;
+}
+
 static int32_t qb_initialize_zval_image(zval *zimage, qb_dimension_mappings *m, uint32_t dimension_index) {	
 	uint32_t height = m->src_dimensions[dimension_index];
 	uint32_t width = m->src_dimensions[dimension_index + 1];
-	zval *z_width, *z_height, *z_function_name, *z_retval = NULL;
-	zval **params[2];
-	TSRMLS_FETCH();
-
-	ALLOC_INIT_ZVAL(z_width);
-	ALLOC_INIT_ZVAL(z_height);
-	ALLOC_INIT_ZVAL(z_function_name);
-	ZVAL_LONG(z_width, width);
-	ZVAL_LONG(z_height, height);
-	ZVAL_STRING(z_function_name, "imagecreatetruecolor", TRUE);
-	params[0] = &z_width;
-	params[1] = &z_height;
-	call_user_function_ex(CG(function_table), NULL, z_function_name, &z_retval, 2, params, TRUE, NULL TSRMLS_CC);
-	zval_ptr_dtor(&z_width);
-	zval_ptr_dtor(&z_height);
-	zval_ptr_dtor(&z_function_name);
-	if(Z_TYPE_P(z_retval) != IS_RESOURCE) {
+	int le_gd = qb_get_gd_id();
+	gdImagePtr im = (le_gd != 0) ? gdImageCreateTrueColor(width, height) : NULL;
+	if(!im) {
 		qb_report_gd_image_exception(0, width, height);
 		return FALSE;
 	}
-	*zimage = *z_retval;
-	Z_TYPE_P(z_retval) = IS_NULL;
-	zval_ptr_dtor(&z_retval);
+	ZEND_REGISTER_RESOURCE(zimage, im, le_gd);
 	return TRUE;
 }

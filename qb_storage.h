@@ -160,6 +160,34 @@ struct qb_dimension_mappings {
 #define gdImagePalettePixel(im, x, y) (im)->pixels[(y)][(x)]
 #define gdImageTrueColorPixel(im, x, y) (im)->tpixels[(y)][(x)]
 
+typedef enum {
+	GD_DEFAULT          = 0,
+	GD_BELL,
+	GD_BESSEL,
+	GD_BILINEAR_FIXED,
+	GD_BICUBIC,
+	GD_BICUBIC_FIXED,
+	GD_BLACKMAN,
+	GD_BOX,
+	GD_BSPLINE,
+	GD_CATMULLROM,
+	GD_GAUSSIAN,
+	GD_GENERALIZED_CUBIC,
+	GD_HERMITE,
+	GD_HAMMING,
+	GD_HANNING,
+	GD_MITCHELL,
+	GD_NEAREST_NEIGHBOUR,
+	GD_POWER,
+	GD_QUADRATIC,
+	GD_SINC,
+	GD_TRIANGLE,
+	GD_WEIGHTED4,
+	GD_METHOD_COUNT = 21
+} gdInterpolationMethod;
+
+typedef double (* interpolation_method )(double);
+
 typedef struct gdImageStruct {
 	/* Palette-based image pixels */
 	unsigned char ** pixels;
@@ -247,6 +275,8 @@ typedef struct gdImageStruct {
 	int cy1;
 	int cx2;
 	int cy2;
+	gdInterpolationMethod interpolation_id;
+	interpolation_method interpolation;
 } gdImage;
 
 typedef gdImage * gdImagePtr;
