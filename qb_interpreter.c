@@ -995,7 +995,7 @@ static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_functio
 		if((zfunc->common.fn_flags & ZEND_ACC_STATIC)) {
 			fci.object_pp = fcc.object_pp = NULL;
 		} else {
-			fci.object_pp = fcc.object_pp = EG(This);
+			fci.object_pp = fcc.object_pp = &EG(This);
 		}
 	} else {
 		fci.function_table = EG(function_table);

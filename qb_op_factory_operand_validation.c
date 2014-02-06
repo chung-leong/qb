@@ -237,7 +237,11 @@ static int32_t qb_validate_operands_fetch_constant(qb_compiler_context *cxt, qb_
 		if(scope->type == QB_OPERAND_ZEND_CLASS) {
 			ce = scope->zend_class;
 		} else if(scope->type == QB_OPERAND_ZVAL) {
-			ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
+			if(Z_TYPE_P(scope->constant) == IS_STRING) {
+				ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
+			} else {
+				ce = cxt->zend_op_array->scope;
+			}
 		}
 		if(ce) {
 			ht = &ce->constants_table;

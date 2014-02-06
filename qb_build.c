@@ -175,6 +175,9 @@ static void qb_initialize_build_environment(qb_build_context *cxt) {
 			}	break;
 		}
 	}
+
+	// display warning and bail out on fatal errors
+	qb_dispatch_exceptions(TSRMLS_C);
 }
 
 static void qb_merge_function_dependencies(qb_build_context *cxt, qb_compiler_context *compiler_cxt, int32_t *p_changed) {

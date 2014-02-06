@@ -12,11 +12,11 @@ Environment variable retrieval test
  * 
  */
 function test_function() {
-	echo getenv("PATH"), "\n";
+	echo "PATH=", getenv("PATH"), "\n";
 }
 
 test_function();
 
 ?>
 --EXPECTREGEX--
-\S+
+PATH=.+

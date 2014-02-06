@@ -235,7 +235,13 @@ static void qb_set_result_fetch_object_property(qb_compiler_context *cxt, qb_op_
 static void qb_set_result_fetch_local(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *name = &operands[0];
 	result->address = qb_obtain_local_variable(cxt, name->constant);
-	result->type = QB_OPERAND_ADDRESS;
+	if(result->address) {
+		result->type = QB_OPERAND_ADDRESS;
+	} else {
+		// treat $this as constant so we can evaluate method_exists($this, ...) to a constant as compile-time
+		result->type = QB_OPERAND_THIS;
+		result_prototype->address_flags |= QB_ADDRESS_CONSTANT;
+	}
 }
 
 static void qb_set_result_fetch_global(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -423,7 +429,11 @@ static void qb_set_result_fetch_constant(qb_compiler_context *cxt, qb_op_factory
 		if(scope->type == QB_OPERAND_ZEND_CLASS) {
 			ce = scope->zend_class;
 		} else if(scope->type == QB_OPERAND_ZVAL) {
-			ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
+			if(Z_TYPE_P(scope->constant) == IS_STRING) {
+				ce = zend_fetch_class_by_name(Z_STRVAL_P(scope->constant), Z_STRLEN_P(scope->constant), NULL, 0 TSRMLS_CC);
+			} else {
+				ce = cxt->zend_op_array->scope;
+			}
 		}
 		if(ce) {
 			zval **p_value;
