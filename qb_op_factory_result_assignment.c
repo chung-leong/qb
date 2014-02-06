@@ -292,7 +292,11 @@ static void qb_set_result_array_append(qb_compiler_context *cxt, qb_op_factory *
 	element = qb_expand_array_initializer(cxt, initializer, element_index);
 	*element = *value;
 	if(value->type == QB_OPERAND_ADDRESS) {
-		initializer->flags |= QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS;
+		if(!CONSTANT(value->address)) {
+			initializer->flags |= QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS;
+		} else {
+			initializer->flags |= QB_ARRAY_INITIALIZER_CONSTANT_ELEMENTS;
+		}
 	} else if(value->type == QB_OPERAND_ARRAY_INITIALIZER) {
 		if(value->array_initializer->flags & QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS) {
 			initializer->flags |= QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS;
