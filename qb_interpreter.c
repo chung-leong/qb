@@ -968,16 +968,12 @@ static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_functio
 	int call_result;
 	zend_execute_data *ex = EG(current_execute_data);
 
-#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-	fcc.calling_scope = EG(called_scope);
-#else
-	fcc.calling_scope = EG(scope);
-#endif
 	fcc.function_handler = zfunc;
 	fcc.initialized = 1;
 	fci.size = sizeof(zend_fcall_info);
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	if(zfunc->common.scope) {
+		fcc.calling_scope = EG(called_scope);
 		fci.function_table = &zfunc->common.scope->function_table;
 		if((zfunc->common.fn_flags & ZEND_ACC_STATIC)) {
 			fci.object_ptr = fcc.object_ptr = NULL;
@@ -986,11 +982,13 @@ static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_functio
 		}
 		fcc.called_scope = zfunc->common.scope;
 	} else {
+		fcc.calling_scope = NULL;
 		fci.function_table = EG(function_table);
 		fci.object_ptr = fcc.object_ptr = NULL;
 	}
 #else 
 	if(zfunc->common.scope) {
+		fcc.calling_scope = EG(scope);
 		fci.function_table = &zfunc->common.scope->function_table;
 		if((zfunc->common.fn_flags & ZEND_ACC_STATIC)) {
 			fci.object_pp = fcc.object_pp = NULL;
@@ -998,6 +996,7 @@ static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_functio
 			fci.object_pp = fcc.object_pp = &EG(This);
 		}
 	} else {
+		fcc.calling_scope = NULL;
 		fci.function_table = EG(function_table);
 		fci.object_pp = fcc.object_pp = NULL;
 	}

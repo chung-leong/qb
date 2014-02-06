@@ -1,5 +1,9 @@
 --TEST--
 Multiple sampling test
+--SKIPIF--
+<?php 
+	if(!function_exists('imagecreatetruecolor')) print 'skip GD functions not available';
+?>
 --FILE--
 <?php
 

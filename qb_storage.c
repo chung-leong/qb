@@ -68,7 +68,7 @@ void qb_allocate_segment_memory(qb_memory_segment *segment, uint32_t byte_count)
 			if(qb_in_main_thread()) {
 				uint32_t new_allocation = ALIGN_TO(byte_count, 1024);
 				uint32_t extra = new_allocation - byte_count;
-				int8_t *memory = (segment->current_allocation) ? erealloc(segment->memory, new_allocation): emalloc(new_allocation);
+				int8_t *memory = (segment->current_allocation > 0) ? erealloc(segment->memory, new_allocation): emalloc(new_allocation);
 				int8_t *data_end = memory + byte_count;
 				segment->current_allocation = new_allocation;
 				memset(data_end, 0, extra);
@@ -86,6 +86,9 @@ static int32_t qb_connect_segment_to_memory(qb_memory_segment *segment, int8_t *
 		return qb_connect_segment_to_memory(segment->imported_segment, memory, byte_count, bytes_available, ownership);
 	} else {
 		if(byte_count <= bytes_available) {
+			if(segment->current_allocation > 0) {
+				qb_release_segment(segment);
+			}
 			segment->byte_count = byte_count;
 			segment->current_allocation = bytes_available;
 			if(!ownership) {
@@ -201,14 +204,12 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 					qb_dispatch_exceptions(TSRMLS_C);
 				}
 			} else {
-				int8_t *allocated_memory;
 				// segment->memory is valid only when current_allocation > 0
 				if(segment->current_allocation > 0) {
-					allocated_memory = segment->memory;
+					memory = erealloc(segment->memory, new_allocation);
 				} else {
-					allocated_memory = NULL;
+					memory = emalloc(new_allocation);
 				}
-				memory = erealloc(allocated_memory, new_allocation);
 			}
 
 			// clear the newly allcoated bytes
