@@ -64,10 +64,37 @@ double exp2(double x) {
 }
 
 double rint(double x) {
-    __asm {
-        fld x
-        frndint
-    }
+#if defined(__i386__)
+	__asm {
+		fld x
+		frndint
+	}
+#else
+	const double TWO52[2] = { 4.50359962737049600000e+15, -4.50359962737049600000e+15 };
+	int64_t i0, sx;
+	int32_t j0;
+	i0 = *((int64_t *) &x);
+	sx = (i0 >> 63) & 1;
+	j0 = ((i0 >> 52) & 0x7ff) - 0x3ff;
+	if(j0 < 52) {
+		if(j0 < 0) {
+			double w = TWO52[sx] + x;
+			double t = w - TWO52[sx];
+			i0 = *((int64_t *) &t);
+			*((int64_t *) &t) = ((i0 & 0x7fffffffffffffffLL) | (sx << 63));
+			return t;
+		} else {
+			double w = TWO52[sx] + x;
+			return w - TWO52[sx];
+		}
+	} else {
+		if(j0 == 0x400) {
+			return x + x;	/* inf or NaN */
+		} else {
+			return x;		/* x is integral */
+		}
+	}
+#endif
 }
 
 double round(double x) {
@@ -179,10 +206,7 @@ float atanhf(float x) {
 }
 
 float rintf(float x) {
-	_asm {	
-		fld x
-		frndint
-	}
+	return (float) rint(x);
 }
 
 float roundf(float x) {
