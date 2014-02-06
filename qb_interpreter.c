@@ -313,7 +313,6 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 		// copy value into return variable
 		zval *ret, **p_ret = EG(return_value_ptr_ptr);
 		ALLOC_INIT_ZVAL(ret);
-		Z_ADDREF_P(ret);
 		*p_ret = ret;
 		if(cxt->function->return_variable->address) {
 			if(!qb_transfer_value_to_zval(cxt->function->local_storage, cxt->function->return_variable->address, ret)) {

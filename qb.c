@@ -594,6 +594,9 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 			qb_free_interpreter_context(interpreter_cxt);
 			qb_stop_execution_timer(qfunc TSRMLS_CC);
 		}
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+		EG(current_execute_data) = EG(current_execute_data)->prev_execute_data;
+#endif
 		return ZEND_USER_OPCODE_RETURN;
 	} else {
 		execute_data->opline++;

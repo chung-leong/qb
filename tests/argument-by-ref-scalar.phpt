@@ -39,7 +39,7 @@ function test_function(&$a, &$b, &$c, &$d, &$e, &$f, &$g, &$h, &$i, &$j) {
 }
 
 test_function($a, $b, $c, $d, $e, $f, $g, $h, $i, $j);
-echo "$a $b $c $d $e $f $g $h $i $j";
+echo "$a $b $c $d $e $f $g $h $i $j\n";
 
 ?>
 --EXPECT--
