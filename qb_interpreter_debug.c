@@ -246,7 +246,7 @@ void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 #elif !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	ex->function_state.arguments = zend_vm_stack_push_args(cxt->function->argument_count TSRMLS_CC);
 #else
-	zend_ptr_stack_2_push(&EG(argument_stack), (void *) (zend_uintptr_t) cxt->function->argument_count, NULL);
+	zend_ptr_stack_2_push(&EG(argument_stack), (void *) (uintptr_t) cxt->function->argument_count, NULL);
 #endif
 }
 
@@ -276,10 +276,10 @@ void qb_destroy_shadow_variables(qb_interpreter_context *cxt) {
 
 	// pop the argument count
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-	arg_count = (uint32_t) (zend_uintptr_t) zend_vm_stack_pop(TSRMLS_C);
+	arg_count = (uint32_t) (uintptr_t) zend_vm_stack_pop(TSRMLS_C);
 #else
 	zend_ptr_stack_pop(&EG(argument_stack));
-	arg_count = (uint32_t) (zend_uintptr_t) zend_ptr_stack_pop(&EG(argument_stack));
+	arg_count = (uint32_t) (uintptr_t) zend_ptr_stack_pop(&EG(argument_stack));
 #endif
 
 	for(i = 0; i < arg_count; i++) {
