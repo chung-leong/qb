@@ -195,6 +195,9 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	const char **source_files;
 	uint32_t source_file_count;
 
+	zend_op_array **compiled_op_arrays;
+	uint32_t compiled_op_array_count;
+
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	zend_literal static_zvals[8];
 #else
@@ -223,7 +226,7 @@ ZEND_END_MODULE_GLOBALS(qb)
 
 int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 
-void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array);
+void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array TSRMLS_DC);
 qb_function * qb_get_compiled_function(zend_function *zfunc);
 qb_function * qb_find_compiled_function(zend_function *zfunc);
 int qb_is_compiled_function(zend_function *zfunc);

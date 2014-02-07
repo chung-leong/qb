@@ -272,7 +272,7 @@ void qb_generate_executables(qb_build_context *cxt) {
 		compiler_cxt->compiled_function = qb_encode_function(encoder_cxt);
 
 		// attach the function to the op array
-		qb_attach_compiled_function(compiler_cxt->compiled_function, compiler_cxt->zend_op_array);
+		qb_attach_compiled_function(compiler_cxt->compiled_function, compiler_cxt->zend_op_array TSRMLS_CC);
 
 		if(compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE) {
 			native_compile = TRUE;

@@ -406,11 +406,15 @@ qb_function * qb_find_compiled_function(zend_function *zfunc) {
 	return NULL;
 }
 
-void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array) {
+void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array TSRMLS_DC) {
+	zend_op_array **p_op_array;
+	if(!QB_G(compiled_op_arrays)) {
+		qb_create_array((void **) &QB_G(compiled_op_arrays), &QB_G(compiled_op_array_count), sizeof(zend_op_array *), 16);
+	}
+	p_op_array = qb_enlarge_array((void **) &QB_G(compiled_op_arrays), 1);
+	*p_op_array = op_array;
 	QB_SET_FUNCTION(op_array, qfunc);
-
-	// save the pointer in the reserved array so we can find it again in the destructor
-	op_array->reserved[reserved_offset] = qfunc;
+	op_array->reserved[reserved_offset] = NULL;
 }
 
 qb_function * qb_get_compiled_function(zend_function *zfunc) {
@@ -497,11 +501,32 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = QB_GET_FUNCTION(op_array);
 	if(!qfunc) {
-		qb_build_context *build_cxt = QB_G(build_context);
-		if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
-			qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
-		}
-		if(build_cxt) {
+		if(QB_IS_COMPILED(op_array)) {
+			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+			qb_function_tag *tag = op_array->reserved[reserved_offset];
+			int32_t in_build = FALSE;
+			uint32_t i;
+
+			// make sure the function is include in the current build
+			for(i = 0; i < build_cxt->function_tag_count; i++) {
+				if(tag == &build_cxt->function_tags[i]) {
+					in_build = TRUE;
+					break;
+				}
+			}
+			if(!in_build) {
+				// function is probably cached
+				tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
+				tag->scope = op_array->scope;
+				tag->file_path = op_array->filename;
+				tag->line_number = op_array->line_start;
+				op_array->reserved[reserved_offset] = tag;
+			}
+
+			if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
+				qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
+			}
+
 			qb_build(build_cxt);
 			qfunc = QB_GET_FUNCTION(op_array);
 			qb_discard_current_build(TSRMLS_C);
@@ -558,12 +583,10 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 	doc_comment = CG(doc_comment);
 	if(doc_comment && qb_find_engine_tag(doc_comment)) {
 		zend_op *user_op;
-		qb_build_context *build_cxt;
-		qb_function_tag *tag;
+		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+		qb_function_tag *tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
 
 		// tag the function
-		build_cxt = qb_get_current_build(TSRMLS_C);
-		tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
 		tag->scope = CG(active_class_entry);
 		tag->file_path = CG(compiled_filename);
 		tag->line_number = CG(zend_lineno);
@@ -574,6 +597,7 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 		Z_OPERAND_TYPE(user_op->op1) = IS_UNUSED;
 		Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
 		Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
+		QB_SET_FUNCTION(op_array, NULL);
 
 		// save the tag in the reserved location
 		op_array->reserved[reserved_offset] = tag;
@@ -609,13 +633,6 @@ zend_op_array *qb_find_zend_op_array(qb_function_tag *tag TSRMLS_DC) {
 		}
 	}
 	return (zfunc) ? &zfunc->op_array : NULL;
-}
-
-void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
-	qb_function *qfunc = op_array->reserved[reserved_offset];
-	if(qfunc) {
-		qb_free_function(qfunc);
-	}
 }
 
 extern zend_extension zend_extension_entry;
@@ -691,12 +708,12 @@ zend_extension zend_extension_entry = {
 	NULL,           /* activate_func_t */
 	NULL,           /* deactivate_func_t */
 	NULL,           /* message_handler_func_t */
-	qb_zend_ext_op_array_handler,           /* op_array_handler_func_t */
+	NULL,           /* op_array_handler_func_t */
 	NULL,			/* statement_handler_func_t */
 	NULL,           /* fcall_begin_handler_func_t */
 	NULL,           /* fcall_end_handler_func_t */
 	qb_zend_ext_op_array_ctor,			/* op_array_ctor_func_t */
-	qb_zend_ext_op_array_dtor,			/* op_array_dtor_func_t */
+	NULL,			/* op_array_dtor_func_t */
 	NULL,
 	NULL,
 	NULL,
@@ -872,6 +889,8 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(exception_count) = 0;
 	QB_G(source_files) = NULL;
 	QB_G(source_file_count) = 0;
+	QB_G(compiled_op_arrays) = NULL;
+	QB_G(compiled_op_array_count) = 0;
 #ifdef ZEND_ACC_GENERATOR
 	QB_G(generator_contexts) = NULL;
 	QB_G(generator_context_count) = 0;
@@ -925,6 +944,17 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 	qb_destroy_array((void **) &QB_G(external_symbols));
 	qb_destroy_array((void **) &QB_G(exceptions));
 	qb_destroy_array((void **) &QB_G(source_files));
+
+	if(QB_G(compiled_op_arrays)) {
+		// free the compiled functions
+		for(i = 0; i < QB_G(compiled_op_array_count); i++) {
+			zend_op_array *op_array = QB_G(compiled_op_arrays)[i];
+			qb_function *qfunc = QB_GET_FUNCTION(op_array);
+			qb_free_function(qfunc);
+			QB_SET_FUNCTION(op_array, NULL);
+		}
+		qb_destroy_array((void **) &QB_G(compiled_op_arrays));
+	}
 
 #ifdef ZEND_ACC_GENERATOR
 	for(i = 0; i < QB_G(generator_context_count); i++) {
