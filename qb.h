@@ -228,8 +228,6 @@ qb_function * qb_get_compiled_function(zend_function *zfunc);
 qb_function * qb_find_compiled_function(zend_function *zfunc);
 int qb_is_compiled_function(zend_function *zfunc);
 
-zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC);
-
 qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC);
 qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zval *object TSRMLS_DC);
 qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_import_scope *scope  TSRMLS_DC);

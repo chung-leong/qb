@@ -271,6 +271,58 @@ static int32_t qb_process_isset(qb_php_translator_context *cxt, void *op_factory
 	}
 }
 
+static zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
+	char *error = NULL;
+	zend_fcall_info_cache fcc;
+	zend_function *zfunc = NULL;
+
+	if(class_name) {
+		HashTable ht;
+		zval _callable, *callable = &_callable;
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+		int error_reporting_before;
+#endif
+
+		zend_hash_init(&ht, sizeof(zval *), NULL, NULL, 0);
+		Z_ARRVAL_P(callable) = &ht;
+		Z_TYPE_P(callable) = IS_ARRAY;
+
+		Z_ADDREF_P(class_name);
+		Z_ADDREF_P(name);
+		zend_hash_next_index_insert(&ht, &class_name, sizeof(zval *), NULL);
+		zend_hash_next_index_insert(&ht, &name, sizeof(zval *), NULL);
+
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(zend_is_callable_ex(callable, NULL, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
+		}
+#else
+		// suppress the non-static function being called as static warning message
+		error_reporting_before = EG(error_reporting);
+		EG(error_reporting) = 0;
+		if(zend_is_callable_ex(callable, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
+		}
+		EG(error_reporting) = error_reporting_before;
+#endif
+		zend_hash_destroy(&ht);
+	} else {
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+		if(zend_is_callable_ex(name, NULL, 0, NULL, NULL, &fcc, &error TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
+		}
+#else
+		if(zend_is_callable_ex(name, IS_CALLABLE_CHECK_NO_ACCESS, NULL, NULL, NULL, &fcc.function_handler, &fcc.object_pp TSRMLS_CC)) {
+			zfunc = fcc.function_handler;
+		}
+#endif
+	}
+	if(error) {
+		efree(error);
+	}
+	return zfunc;
+}
+
 static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void *op_factories, qb_operand *name, qb_operand *object, qb_operand **stack_pointer, uint32_t argument_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_intrinsic_function *ifunc = NULL;
 	zend_function *zfunc = NULL;
