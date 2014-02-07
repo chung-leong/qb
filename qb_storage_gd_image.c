@@ -755,6 +755,7 @@ static int32_t qb_initialize_zval_image(zval *zimage, qb_dimension_mappings *m, 
 	uint32_t width = m->src_dimensions[dimension_index + 1];
 	int le_gd = qb_get_gd_id();
 	gdImagePtr im = (le_gd != 0) ? gdImageCreateTrueColor(width, height) : NULL;
+	TSRMLS_FETCH();
 	if(!im) {
 		qb_report_gd_image_exception(0, width, height);
 		return FALSE;
