@@ -41,40 +41,6 @@ static qb_class_declaration * qb_find_class_declaration(qb_build_context *cxt, z
 	return NULL;
 }
 
-static zend_op_array *qb_find_zend_op_array(qb_build_context *cxt, qb_function_tag *tag) {
-	USE_TSRM
-	HashTable *ft;
-	zend_function *zfunc = NULL;
-	uint32_t name_len = (uint32_t) strlen(tag->function_name);
-	char *name;
-	ALLOCA_FLAG(use_heap)
-
-	if(tag->scope) {
-		ft = &tag->scope->function_table;
-	} else {
-		ft = EG(function_table);
-	}
-	name = do_alloca(name_len + 1, use_heap);
-	zend_str_tolower_copy(name, tag->function_name, name_len);
-	zend_hash_find(ft, name, name_len + 1, (void **) &zfunc);
-	free_alloca(name, use_heap);
-	if(!zfunc) {
-		Bucket *p;
-		for(p = ft->pListTail; p; p = p->pListLast) {
-			zend_function *f = p->pData;
-			if(f->type == ZEND_USER_FUNCTION) {
-				if(f->op_array.doc_comment == tag->doc_comment) {
-					zfunc = f;
-					break;
-				}
-			} else {
-				break;
-			}
-		}
-	}
-	return (zfunc) ? &zfunc->op_array : NULL;
-}
-
 qb_compiler_context * qb_find_compiler_context(qb_build_context *cxt, qb_function *function_prototype) {
 	uint32_t i;
 	for(i = 0; i < cxt->compiler_context_count; i++) {
@@ -93,24 +59,26 @@ static void qb_parse_declarations(qb_build_context *cxt) {
 		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
 		qb_function_tag *tag = &cxt->function_tags[i];
 		qb_function_declaration *func_decl;
-		zend_op_array *op_array = qb_find_zend_op_array(cxt, tag);
+		zend_op_array *op_array = qb_find_zend_op_array(tag TSRMLS_CC);
 
-		qb_initialize_parser_context(parser_cxt, cxt->pool, tag->scope, tag->file_path, tag->line_number TSRMLS_CC);
-		func_decl = qb_parse_function_doc_comment(parser_cxt, op_array);
+		if(op_array) {
+			qb_initialize_parser_context(parser_cxt, cxt->pool, tag->scope, tag->file_path, tag->line_number TSRMLS_CC);
+			func_decl = qb_parse_function_doc_comment(parser_cxt, op_array);
 
-		if(func_decl) {
-			qb_add_function_declaration(cxt, func_decl);
+			if(func_decl) {
+				qb_add_function_declaration(cxt, func_decl);
 
-			if(tag->scope) {
-				qb_class_declaration *class_decl = qb_find_class_declaration(cxt, tag->scope);
-				if(!class_decl) {
-					class_decl = qb_parse_class_doc_comment(parser_cxt, tag->scope);
-					qb_add_class_declaration(cxt, class_decl);
+				if(tag->scope) {
+					qb_class_declaration *class_decl = qb_find_class_declaration(cxt, tag->scope);
+					if(!class_decl) {
+						class_decl = qb_parse_class_doc_comment(parser_cxt, tag->scope);
+						qb_add_class_declaration(cxt, class_decl);
+					}
+					func_decl->class_declaration = class_decl;
 				}
-				func_decl->class_declaration = class_decl;
 			}
+			qb_free_parser_context(parser_cxt);
 		}
-		qb_free_parser_context(parser_cxt);
 	}
 
 }

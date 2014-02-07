@@ -238,6 +238,8 @@ qb_build_context * qb_get_current_build(TSRMLS_D);
 
 qb_main_thread * qb_get_main_thread(TSRMLS_D);
 
+zend_op_array *qb_find_zend_op_array(qb_function_tag *tag TSRMLS_DC);
+
 extern int debug_compatibility_mode;
 extern long multithreading_threshold;
 

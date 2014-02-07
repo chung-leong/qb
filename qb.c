@@ -565,7 +565,6 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 		build_cxt = qb_get_current_build(TSRMLS_C);
 		tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
 		tag->scope = CG(active_class_entry);
-		tag->function_name = NULL;
 		tag->file_path = CG(compiled_filename);
 		tag->line_number = CG(zend_lineno);
 
@@ -576,25 +575,40 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 		Z_OPERAND_TYPE(user_op->op2) = IS_UNUSED;
 		Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
 
-		// stash the tag in the node until the compilation is done
-		QB_SET_FUNCTION(op_array, tag);
+		// save the tag in the reserved location
+		op_array->reserved[reserved_offset] = tag;
 	}
 }
 
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	if(QB_IS_COMPILED(op_array)) {
-		qb_function_tag *tag = QB_GET_FUNCTION(op_array);
-
-		// save the function name so we can find the function later
-		// op_array might be temporary so we can't use this pointer
-		tag->function_name = op_array->function_name;
-
-		// save the doc comment pointer in case we can't locate
-		// the function by name
-		tag->doc_comment = op_array->doc_comment;
-
+		qb_function_tag *tag = op_array->reserved[reserved_offset];
 		QB_SET_FUNCTION(op_array, NULL);
 	}
+}
+
+zend_op_array *qb_find_zend_op_array(qb_function_tag *tag TSRMLS_DC) {
+	HashTable *ft;
+	Bucket *p;
+	zend_function *zfunc = NULL;
+
+	if(tag->scope) {
+		ft = &tag->scope->function_table;
+	} else {
+		ft = EG(function_table);
+	}
+	for(p = ft->pListTail; p; p = p->pListLast) {
+		zend_function *f = p->pData;
+		if(f->type == ZEND_USER_FUNCTION) {
+			if(f->op_array.reserved[reserved_offset] == tag) {
+				zfunc = f;
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+	return (zfunc) ? &zfunc->op_array : NULL;
 }
 
 void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
