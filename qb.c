@@ -35,7 +35,6 @@ int permitted_thread_count = 0;
 zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC) {
 	char *error = NULL;
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-	int error_reporting_before;
 #endif
 	zend_fcall_info_cache fcc;
 	zend_function *zfunc = NULL;
@@ -605,8 +604,9 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 }
 
 void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
+	const char *doc_comment;
 	TSRMLS_FETCH();
-	const char *doc_comment = CG(doc_comment);
+	doc_comment = CG(doc_comment);
 	if(doc_comment && qb_find_engine_tag(doc_comment)) {
 		zend_op *user_op;
 		qb_build_context *build_cxt;
@@ -649,7 +649,6 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 }
 
 void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
-	TSRMLS_FETCH();
 	qb_function *qfunc = op_array->reserved[reserved_offset];
 	if(qfunc) {
 		qb_free_function(qfunc);

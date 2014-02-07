@@ -690,9 +690,9 @@ static int32_t qb_copy_elements_to_gd_image(int8_t *src_memory, gdImagePtr image
 		}
 
 		if(proc) {
-			TSRMLS_FETCH();
 			int8_t *p = src_memory;
 			qb_task_group _group, *group = &_group;
+			TSRMLS_FETCH();
 			qb_initialize_task_group(group, image->sy, 0);
 			for(i = 0; i < (uint32_t) image->sy; i++) {
 				qb_add_task(group, proc, p, image->tpixels[i], image->sx);

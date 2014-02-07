@@ -111,9 +111,9 @@ static int32_t qb_connect_segment_to_file(qb_memory_segment *segment, php_stream
 	if(segment->flags & QB_SEGMENT_IMPORTED) {
 		return qb_connect_segment_to_file(segment->imported_segment, stream, byte_count, write_access);
 	} else {
-		TSRMLS_FETCH();
 		uint32_t bytes_available = byte_count;
 		int8_t *memory;
+		TSRMLS_FETCH();
 		if(!bytes_available) {
 			bytes_available = 1024;
 		}
