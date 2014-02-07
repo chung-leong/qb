@@ -21,6 +21,10 @@
 #include "qb.h"
 
 #ifndef WIN32
+#include <signal.h>
+#endif
+
+#ifndef WIN32
 #define THREAD_PROC_RETURN_TYPE		void *
 #define THREAD_PROC_RETURN_VALUE	NULL
 #define THREAD_PROC_DECLARATION(n)	void *(* n)(void *)
