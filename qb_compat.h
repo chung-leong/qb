@@ -114,7 +114,6 @@
 
 	#if ZEND_ENGINE_2_1
 		char *zend_get_type_by_const(int type);
-		typedef uintptr_t zend_uintptr_t;
 	#endif
 #endif
 

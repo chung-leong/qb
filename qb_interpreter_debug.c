@@ -242,7 +242,7 @@ void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 	// push the argument count
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	ex->function_state.arguments = zend_vm_stack_top(TSRMLS_C);
-	zend_vm_stack_push((void *) (zend_uintptr_t) cxt->function->argument_count TSRMLS_CC);
+	zend_vm_stack_push((void *) (uintptr_t) cxt->function->argument_count TSRMLS_CC);
 #elif !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	ex->function_state.arguments = zend_vm_stack_push_args(cxt->function->argument_count TSRMLS_CC);
 #else
