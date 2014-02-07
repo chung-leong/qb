@@ -548,11 +548,11 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = QB_GET_FUNCTION(op_array);
 	if(!qfunc) {
+		qb_build_context *build_cxt = QB_G(build_context);
 		if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
 			qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
 		}
-		if(QB_G(build_context)) {
-			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
+		if(build_cxt) {
 			qb_build(build_cxt);
 			qfunc = QB_GET_FUNCTION(op_array);
 			qb_discard_current_build(TSRMLS_C);
@@ -1045,23 +1045,20 @@ PHP_MINFO_FUNCTION(qb)
 }
 /* }}} */
 
-
-/* Remove the following function when you have succesfully modified config.m4
-   so that your module can be compiled into PHP, it exists only for testing
-   purposes. */
-
 /* Every user-visible function in PHP should document itself in the source */
 
-/* {{{ proto bool qb_compile(callable name, string return_type, array variable_types [, integer options])
+/* {{{ proto bool qb_compile(void)
    Convert PHP instructions to qb instructions */
 PHP_FUNCTION(qb_compile)
 {
-	zval *arg1 = NULL, *arg2 = NULL;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|zz", &arg1, &arg2) == FAILURE) {
-		return;
+	qb_build_context *build_cxt = QB_G(build_context);
+	if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
+		qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
 	}
-
+	if(build_cxt) {
+		qb_build(build_cxt);
+		qb_discard_current_build(TSRMLS_C);
+	}
 	RETURN_TRUE;
 }
 /* }}} */
@@ -1089,11 +1086,3 @@ PHP_FUNCTION(qb_extract)
 }
 /* }}} */
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
