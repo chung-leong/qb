@@ -1,0 +1,8 @@
+<?php
+
+trait Multithreaded {
+
+}
+
+
+?>

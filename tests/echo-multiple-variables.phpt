@@ -20,8 +20,6 @@ function test_function() {
 	echo $a, " ", $b, " ", $a + $b, " ", $c, " ", $c[1];
 }
 
-qb_compile();
-
 test_function();
 
 ?>

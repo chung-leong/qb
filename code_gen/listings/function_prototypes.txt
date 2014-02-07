@@ -1,0 +1,101 @@
+void *memcpy(void *__restrict dest, const void *__restrict src, size_t n);
+void *memmove(void * dest, const void * src, size_t n);
+
+double sin(double x);
+double asin(double x);
+double cos(double x);
+double acos(double x);
+double tan(double x);
+double atan(double x);
+double atan2(double x, double y);
+double sinh(double x);
+double asinh(double x);
+double cosh(double x);
+double acosh(double x);
+double tanh(double x);
+double atanh(double x);
+double exp(double x);
+double expm1(double x);
+double exp2(double x);
+double log(double x);
+double log1p(double x);
+double log10(double x);
+double log2(double x);
+double pow(double x, double y);
+double sqrt(double x);
+double ceil(double x);
+double floor(double x);
+double fabs(double x);
+double hypot(double x, double y);
+double fmod(double n, double d);
+double rint(double x);
+double round(double x);
+
+float sinf(float x);
+float asinf(float x);
+float cosf(float x);
+float acosf(float x);
+float tanf(float x);
+float atanf(float x);
+float atan2f(float x, float y);
+float sinhf(float x);
+float asinhf(float x);
+float coshf(float x);
+float acoshf(float x);
+float tanhf(float x);
+float atanhf(float x);
+float expf(float x);
+float expm1f(float x);
+float exp2f(float x);
+float logf(float x);
+float log1pf(float x);
+float log10f(float x);
+float log2f(float x);
+float powf(float x, float y);
+float sqrtf(float x);
+float ceilf(float x);
+float floorf(float x);
+float fabsf(float x);
+float hypotf(float x, float y);
+float fmodf(float n, float d);
+float rintf(float x);
+float roundf(float x);
+
+double php_combined_lcg(void);
+double _php_math_round(double x, int precision, int mode);
+
+int abs(int n);
+long long int llabs(long long int number);
+
+int php_write(const char *str, uint32_t str_length TSRMLS_DC);
+
+int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id);
+intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size);
+
+void qb_run_zend_extension_op(qb_interpreter_context *cxt, uint32_t zend_opcode, uint32_t line_id);
+void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index);
+
+float qb_fast_rsqrtf(float x);
+double qb_fast_rsqrt(double x);
+float qb_fast_sqrtf(float x);
+double qb_fast_sqrt(double x);
+
+void qb_dispatch_instruction_to_threads(qb_interpreter_context *cxt, void *control_func, int8_t **instruction_pointers, uint32_t thread_count);
+void qb_dispatch_instruction_to_main_thread(qb_interpreter_context *cxt, void *control_func, int8_t *instruction_pointer);
+
+void qb_report_out_of_bound_exception(uint32_t line_id, uint32_t index, uint32_t limit, int32_t inclusive);
+void qb_report_element_size_mismatch_exception(uint32_t line_id, uint32_t size1, uint32_t size2);
+void qb_report_missing_column_exception(uint32_t line_id, uint32_t column_offset, uint32_t column_count);
+void qb_report_divide_by_zero_exception(uint32_t line_id);
+void qb_report_vector_width_mismatch_exception(uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2);
+void qb_report_invalid_cross_product_exception(uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2);
+void qb_report_invalid_4d_cross_product_exception(uint32_t line_id, uint32_t vector_width1, uint32_t vector_width2, uint32_t vector_width3);
+void qb_report_invalid_transform_exception(uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row, uint32_t vector_width);
+void qb_report_invalid_matrix_multiplication_exception(uint32_t line_id, uint32_t matrix1_column, uint32_t matrix2_row, uint32_t matrix_flags);
+void qb_report_not_square_matrix_exception(uint32_t line_id, uint32_t matrix_column, uint32_t matrix_row);
+
+long strtol(const char* str, char** endptr, int base);
+long long int strtoll(const char* str, char** endptr, int base);
+unsigned long strtoul(const char* str, char** endptr, int base);
+unsigned long long int strtoull(const char* str, char** endptr, int base);
+double zend_strtod(const char *s00, const char **se);

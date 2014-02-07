@@ -18,6 +18,9 @@
 
 /* $Id$ */
 
+#ifndef QB_EXTRACTOR_PBJ_H_
+#define QB_EXTRACTOR_PBJ_H_
+
 enum {
 	QB_PBJ_DETAILS	= 1,
 	QB_PBJ_DECLARATION,
@@ -29,11 +32,16 @@ struct qb_extractor_context {
 	zval *input;
 	zval *return_value;
 
-	qb_compiler_data_pool *pool;
-	qb_compiler_data_pool _pool;
-
-	qb_compiler_context *compiler_cxt;
-	qb_compiler_context _compiler_cxt;
+	qb_data_pool *pool;
+	qb_compiler_context *compiler_context;
+	qb_pbj_translator_context *translator_context;
 
 	void ***tsrm_ls;
 };
+
+void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type);
+
+void qb_initialize_extractor_context(qb_extractor_context *cxt, zval *input, zval *return_value TSRMLS_DC);
+void qb_free_extractor_context(qb_extractor_context *cxt);
+
+#endif

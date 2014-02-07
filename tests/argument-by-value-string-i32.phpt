@@ -16,8 +16,6 @@ function test_function($a) {
 	echo "Numbers: $a";
 }
 
-qb_compile();
-
 $data = pack('i*', 165535, 365534, -1, 0, 444444444);
 
 test_function($data);

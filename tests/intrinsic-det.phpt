@@ -50,8 +50,6 @@ function test_function() {
 
 ini_set("qb.column_major_matrix", true);
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -23,8 +23,6 @@ function mirror(&$image) {
 	}
 }
 
-qb_compile();
-
 mirror($image);
 
 ob_start();

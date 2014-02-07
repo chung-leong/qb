@@ -29,18 +29,20 @@ function test_function() {
 	echo array_unique($d), "\n";
 	echo array_unique($e), "\n";
 	
-	$f[] = array(1, 2, 3);
-	$f[] = array(1, 2, 4);
-	$f[] = array(1, 2, 3);
-	$f[] = array(4, 5, 6);
-	$f[] = array(1, 2, 3);
-	$f[] = array(1, 2, 3);
-	$f[] = array(1, 2, 3);
-	$f[] = array(1, 2, 4);
-	echo array_unique($f), "\n";
+	echo "\n";
+	$f[0] = array(1, 2, 3);
+	$f[1] = array(1, 2, 4);
+	$f[2] = array(1, 2, 3);
+	$f[3] = array(4, 5, 6);
+	$f[4] = array(1, 2, 3);
+	$f[5] = array(1, 2, 3);
+	$f[6] = array(1, 2, 3);
+	$f[7] = array(1, 2, 4);	
+	foreach(array_unique($f) as $e) {
+		echo "$e\n";
+	}
 }
 
-qb_compile();
 test_function();
 
 ?>
@@ -55,4 +57,7 @@ test_function();
 [245, 5, 1]
 [1, 6, 100, 101, 5]
 [3, 14, 2]
-[[1, 2, 3], [1, 2, 4], [4, 5, 6]]
+
+[1, 2, 3]
+[1, 2, 4]
+[4, 5, 6]

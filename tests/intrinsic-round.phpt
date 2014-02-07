@@ -35,11 +35,12 @@ function test_function() {
 	
 	echo round($b, 1, PHP_ROUND_HALF_UP), "\n";
 	echo round($b, 1, PHP_ROUND_HALF_DOWN), "\n";
-	echo round($b, 1, PHP_ROUND_HALF_ODD), "\n";
-	echo round($b, 1, PHP_ROUND_HALF_EVEN), "\n";
-}
 
-qb_compile();
+	$b = 1.5;
+
+	echo round($b, 0, PHP_ROUND_HALF_ODD), "\n";
+	echo round($b, 0, PHP_ROUND_HALF_EVEN), "\n";
+}
 
 test_function();
 
@@ -53,5 +54,5 @@ test_function();
 12346000
 1.1
 1
-1.1
 1
+2

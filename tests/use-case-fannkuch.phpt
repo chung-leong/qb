@@ -65,10 +65,8 @@ function Fannkuch($n){
 
 $n = 10;
 
-qb_compile();
-
 list($checksum,$pf) = Fannkuch($n);
-printf("Checksum = %d\nPfannkuchen(%d) = %d", $checksum, $n, $pf);
+printf("Checksum = %d\nPfannkuchen(%d) = %d\n", $checksum, $n, $pf);
 
 ?>
 --EXPECT--

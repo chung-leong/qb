@@ -30,8 +30,6 @@ function test_function() {
 	echo not_equal($a, $k), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

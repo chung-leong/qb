@@ -19,8 +19,6 @@ function test_function() {
 	echo strrpos($a, "nose"), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

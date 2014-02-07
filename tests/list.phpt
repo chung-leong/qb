@@ -19,8 +19,6 @@ function test_function() {
 	echo "$b, $c, $d\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

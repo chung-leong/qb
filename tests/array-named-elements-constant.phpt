@@ -18,8 +18,6 @@ function test_function($a) {
 	echo "$a->r $a->g $a->b $a->a";
 }
 
-qb_compile();
-
 $object = new stdClass;
 $object->r = 1;
 $object->g = 0.2;

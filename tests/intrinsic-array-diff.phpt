@@ -45,8 +45,6 @@ function test_function() {
 	echo array_diff($d, $e, array(array(9, 10))), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -29,8 +29,6 @@ function test_function() {
 	$a = 103;
 }
 
-qb_compile();
-
 test_function();
 echo "$a\n";
 

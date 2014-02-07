@@ -30,8 +30,6 @@ function test_function() {
 	echo less_than($a, $k), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

@@ -17,8 +17,6 @@ function test_function() {
 	echo $a[0], $a[1];
 }
 
-qb_compile();
-
 test_function();
 
 ?>

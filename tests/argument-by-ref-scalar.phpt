@@ -38,10 +38,8 @@ function test_function(&$a, &$b, &$c, &$d, &$e, &$f, &$g, &$h, &$i, &$j) {
 	$j = 1.0E+20;
 }
 
-qb_compile();
-
 test_function($a, $b, $c, $d, $e, $f, $g, $h, $i, $j);
-echo "$a $b $c $d $e $f $g $h $i $j";
+echo "$a $b $c $d $e $f $g $h $i $j\n";
 
 ?>
 --EXPECT--

@@ -16,8 +16,6 @@ function test_function($a) {
 	echo "Numbers: $a";
 }
 
-qb_compile();
-
 $data = pack('f*', 3.14, 1000.5, 1/3);
 
 test_function($data);

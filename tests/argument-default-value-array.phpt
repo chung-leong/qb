@@ -12,8 +12,6 @@ function test_function($a, $b = array(5, 6, 7, 8)) {
 	echo "$a $b\n";
 }
 
-qb_compile();
-
 $a = array(1, 2, 3, 4);
 test_function($a);
 

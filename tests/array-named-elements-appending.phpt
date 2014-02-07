@@ -22,8 +22,6 @@ function test_function(&$a) {
 	}
 }
 
-qb_compile();
-
 class Point {
 	public $x;
 	public $y;

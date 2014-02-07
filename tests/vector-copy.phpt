@@ -33,8 +33,6 @@ function test_function() {
 	echo "$a1 $b1 $c1 $d1 $e1 $f1 $g1\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

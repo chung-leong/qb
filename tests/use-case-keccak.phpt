@@ -16,6 +16,8 @@ Use case: Keccak
  * 
  */
 function KeccakF(&$state, $in) {
+	// initialize 64-bit integers with pairs of 32-bit integers 
+	// so the script works in 32-bit version of PHP
 	static $KeccakF_RoundConstants = array(
 		array(	0x00000000, 0x00000001	),
 		array(	0x00000000, 0x00008082	),
@@ -311,8 +313,6 @@ function Keccak(&$state, $blocks) {
 	}
 }
 
-qb_compile();
-
 function calc($data) {
 	$len = strlen($data);
 	$extra = $len % 144;
@@ -327,8 +327,10 @@ function calc($data) {
 
 calc("");
 calc("The quick brown fox jumps over the lazy dog");
+calc(str_repeat("0", 1024 * 1024));
 
 ?>
 --EXPECT--
 f71837502ba8e10837bdd8d365adb85591895602fc552b48b7390abd
 310aee6b30c47350576ac2873fa89fd190cdc488442f3ef654cf23fe
+58ee5bb4ac7770ccbd76ef8336d3d28145523491b78e30fa88418616

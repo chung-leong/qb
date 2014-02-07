@@ -24,6 +24,8 @@
 #if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
 	#define znode_op				znode
 	#define ZEND_FETCH_CLASS_MASK	0x0f
+
+	zend_class_entry *zend_fetch_class_by_name(const char *class_name, uint class_name_len, void *key, int fetch_type TSRMLS_DC);
 #endif
 
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
@@ -39,6 +41,11 @@
 	#define Z_REFCOUNT_P(zv)		zv->refcount
 	#define Z_ADDREF_P(zv)			zv->refcount++
 	#define Z_DELREF_P(zv)			zv->refcount--
+
+	#define IS_LEXICAL_VAR			0x020
+	#define IS_LEXICAL_REF			0x040
+
+	#define ZEND_FETCH_CLASS_SILENT	0x0100
 
 	#define INIT_CLASS_ENTRY_EX(class_container, class_name, class_name_len, functions) \
 		{															\
@@ -135,6 +142,10 @@
 	#endif
 #endif
 
+#ifndef IS_INTERNED
+	#define IS_INTERNED(s)		FALSE
+#endif
+
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP16)
 static inline unsigned short __builtin_bswap16(unsigned short v) {
   return (v << 8) | (v >> 8);
@@ -160,7 +171,6 @@ static inline unsigned short __builtin_bswap16(unsigned short v) {
 	#endif
 
 	#define hypot		_hypot
-	#define hypotf		_hypotf
 	#define llabs		_abs64
 	#define isnan		_isnan
 
@@ -171,19 +181,101 @@ double log1p(double x);
 double expm1(double x);
 double log2(double x);
 double exp2(double x);
+double rint(double x);
 double round(double x);
 double rsqrt(double x);
 
 float rsqrtf(float x);
 
-__forceinline float exp2f(float x) { return (float) exp2(x); }
-__forceinline float expm1f(float x) { return (float) expm1(x); }
-__forceinline float log2f(float x) { return (float) log2(x); }
-__forceinline float log1pf(float x) { return (float) log1p(x); }
-__forceinline float asinhf(float x) { return (float) asinh(x); }
-__forceinline float acoshf(float x) { return (float) acosh(x); }
-__forceinline float atanhf(float x) { return (float) atanh(x); }
-__forceinline float roundf(float x) { return (float) round(x); }
+float exp2f(float x);
+float expm1f(float x);
+float log2f(float x);
+float log1pf(float x);
+float asinhf(float x);
+float acoshf(float x);
+float atanhf(float x);
+float rintf(float x);
+float roundf(float x);
+
+#undef fabsf
+#define fabsf	__fabsf
+float __fabsf(float x);
+
+#undef sinf
+#define sinf	__sinf
+float __sinf(float x);
+
+#undef asinf
+#define asinf	__asinf
+float __asinf(float x);
+
+#undef cosf
+#define cosf	__cosf
+float __cosf(float x);
+
+#undef acosf
+#define acosf	__acosf
+float __acosf(float x);
+
+#undef tanf
+#define tanf	__tanf
+float __tanf(float x);
+
+#undef atanf
+#define atanf	__atanf
+float __atanf(float x);
+
+#undef atan2f
+#define atan2f	__atan2f
+float __atan2f(float x, float y);
+
+#undef sinhf
+#define sinhf	__sinhf
+float __sinhf(float x);
+
+#undef coshf
+#define coshf	__coshf
+float __coshf(float x);
+
+#undef tanhf
+#define tanhf	__tanhf
+float __tanhf(float x);
+
+#undef expf
+#define expf	__expf
+float __expf(float x);
+
+#undef logf
+#define logf	__logf
+float __logf(float x);
+
+#undef log10f
+#define log10f	__log10f
+float __log10f(float x);
+
+#undef powf
+#define powf	__powf
+float __powf(float x, float y);
+
+#undef sqrtf
+#define sqrtf	__sqrtf
+float __sqrtf(float x);
+
+#undef ceilf
+#define ceilf	__ceilf
+float __ceilf(float x);
+
+#undef floorf
+#define floorf	__floorf
+float __floorf(float x);
+
+#undef hypotf
+#define hypotf	__hypotf
+float __hypotf(float x, float y);
+
+#undef fmodf
+#define fmodf	__fmodf
+float __fmodf(float n, float d);
 #else
 
 #ifndef HAVE_EXP2F
@@ -244,6 +336,7 @@ double _php_math_round(double value, int places, int mode);
 
 #ifdef _MSC_VER
 	#define strtoull	_strtoui64
+	#define strtoll		_strtoi64
 #endif
 
 #if defined(_MSC_VER) || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
@@ -310,12 +403,13 @@ extern char *	(*vc6_strdup)(const char * _Src);
 #undef strdup
 #define strdup				vc6_strdup
 
-int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void);
+int qb_get_vc6_msvcrt_functions(void);
 
 #endif
 
 #ifdef _MSC_VER
 	void _ftol2(void);
+	void _ftol2_sse(void);
 	void _allshr(void);
 	void _allshl(void);
 #endif
@@ -348,117 +442,25 @@ PHPAPI double php_combined_lcg(TSRMLS_D);
 PHPAPI long php_rand(TSRMLS_D);
 PHPAPI uint32_t php_mt_rand(TSRMLS_D);
 
-#define gdMaxColors 256
+#if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	#define Z_OBJ_GET_PROP_PTR_PTR(zv, n)		Z_OBJ_HT_P(zv)->get_property_ptr_ptr(zv, n, BP_VAR_W, NULL TSRMLS_CC)
+	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zv)->write_property(zv, n, v, NULL TSRMLS_CC)
+	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zv)->read_property(zv, n, BP_VAR_R, NULL TSRMLS_CC)
 
-#define gdAlphaMax 127
-#define gdAlphaOpaque 0
-#define gdAlphaTransparent 127
-#define gdRedMax 255
-#define gdGreenMax 255
-#define gdBlueMax 255
-#define gdTrueColorGetAlpha(c) (((c) & 0x7F000000) >> 24)
-#define gdTrueColorGetRed(c) (((c) & 0xFF0000) >> 16)
-#define gdTrueColorGetGreen(c) (((c) & 0x00FF00) >> 8)
-#define gdTrueColorGetBlue(c) ((c) & 0x0000FF)
+	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, n, len, TRUE, NULL TSRMLS_CC)
+#elif !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	#define Z_OBJ_GET_PROP_PTR_PTR(zv, n)		Z_OBJ_HT_P(zv)->get_property_ptr_ptr(zv, n, NULL TSRMLS_CC)
+	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zv)->write_property(zv, n, v, NULL TSRMLS_CC)
+	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zv)->read_property(zv, n, BP_VAR_R, NULL TSRMLS_CC)
 
-#define gdImagePalettePixel(im, x, y) (im)->pixels[(y)][(x)]
-#define gdImageTrueColorPixel(im, x, y) (im)->tpixels[(y)][(x)]
+	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, n, len, TRUE, NULL TSRMLS_CC)
+#else
+	#define Z_OBJ_GET_PROP_PTR_PTR(zv, n)		Z_OBJ_HT_P(zv)->get_property_ptr_ptr(zv, n TSRMLS_CC)
+	#define Z_OBJ_WRITE_PROP(zv, n, v)			Z_OBJ_HT_P(zv)->write_property(zv, n, v TSRMLS_CC)
+	#define Z_OBJ_READ_PROP(zv, n)				Z_OBJ_HT_P(zv)->read_property(zv, n, BP_VAR_R TSRMLS_CC)
 
-typedef struct gdImageStruct {
-	/* Palette-based image pixels */
-	unsigned char ** pixels;
-	int sx;
-	int sy;
-	/* These are valid in palette images only. See also
-		'alpha', which appears later in the structure to
-		preserve binary backwards compatibility */
-	int colorsTotal;
-	int red[gdMaxColors];
-	int green[gdMaxColors];
-	int blue[gdMaxColors];
-	int open[gdMaxColors];
-	/* For backwards compatibility, this is set to the
-		first palette entry with 100% transparency,
-		and is also set and reset by the
-		gdImageColorTransparent function. Newer
-		applications can allocate palette entries
-		with any desired level of transparency; however,
-		bear in mind that many viewers, notably
-		many web browsers, fail to implement
-		full alpha channel for PNG and provide
-		support for full opacity or transparency only. */
-	int transparent;
-	int *polyInts;
-	int polyAllocated;
-	struct gdImageStruct *brush;
-	struct gdImageStruct *tile;
-	int brushColorMap[gdMaxColors];
-	int tileColorMap[gdMaxColors];
-	int styleLength;
-	int stylePos;
-	int *style;
-	int interlace;
-	/* New in 2.0: thickness of line. Initialized to 1. */
-	int thick;
-	/* New in 2.0: alpha channel for palettes. Note that only
-		Macintosh Internet Explorer and (possibly) Netscape 6
-		really support multiple levels of transparency in
-		palettes, to my knowledge, as of 2/15/01. Most
-		common browsers will display 100% opaque and
-		100% transparent correctly, and do something
-		unpredictable and/or undesirable for levels
-		in between. TBB */
-	int alpha[gdMaxColors];
-	/* Truecolor flag and pixels. New 2.0 fields appear here at the
-		end to minimize breakage of existing object code. */
-	int trueColor;
-	int ** tpixels;
-	/* Should alpha channel be copied, or applied, each time a
-		pixel is drawn? This applies to truecolor images only.
-		No attempt is made to alpha-blend in palette images,
-		even if semitransparent palette entries exist.
-		To do that, build your image as a truecolor image,
-		then quantize down to 8 bits. */
-	int alphaBlendingFlag;
-	/* Should antialias functions be used */
-	int antialias;
-	/* Should the alpha channel of the image be saved? This affects
-		PNG at the moment; other future formats may also
-		have that capability. JPEG doesn't. */
-	int saveAlphaFlag;
-
-
-	/* 2.0.12: anti-aliased globals */
-	int AA;
-	int AA_color;
-	int AA_dont_blend;
-	unsigned char **AA_opacity;
-	int AA_polygon;
-	/* Stored and pre-computed variables for determining the perpendicular
-	 * distance from a point to the anti-aliased line being drawn:
-	 */
-	int AAL_x1;
-	int AAL_y1;
-	int AAL_x2;
-	int AAL_y2;
-	int AAL_Bx_Ax;
-	int AAL_By_Ay;
-	int AAL_LAB_2;
-	float AAL_LAB;
-
-	/* 2.0.12: simple clipping rectangle. These values must be checked for safety when set; please use gdImageSetClip */
-	int cx1;
-	int cy1;
-	int cx2;
-	int cy2;
-} gdImage;
-
-typedef gdImage * gdImagePtr;
-
-#define gdTrueColorAlpha(r, g, b, a) (((a) << 24) + \
-	((r) << 16) + \
-	((g) << 8) + \
-	(b))
+	#define Z_CLASS_GET_PROP(ce, n, len)		zend_std_get_static_property(ce, (char *) n, len, TRUE TSRMLS_CC)
+#endif
 
 typedef struct real_pcre pcre;
 

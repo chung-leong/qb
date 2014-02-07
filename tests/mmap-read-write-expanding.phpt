@@ -23,9 +23,8 @@ function test_function(&$a) {
 }
 
 
-qb_compile();
-
 $path = __FILE__ . ".dat";
+@unlink($path);
 $handle = fopen($path, "w+");
 
 test_function($handle);
@@ -36,7 +35,6 @@ echo "Length: ", strlen($contents), "\n";
 echo "Contents: ", $contents, "\n";
 
 unlink($path);
-
 
 ?>
 --EXPECT--

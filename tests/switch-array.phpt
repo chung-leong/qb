@@ -17,8 +17,6 @@ function test_function($a) {
 	}
 }
 
-qb_compile();
-
 test_function(array(1, 2));
 test_function(array(2, 3));
 test_function(array(3, 4));

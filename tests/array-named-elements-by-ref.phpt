@@ -19,8 +19,6 @@ function test_function(&$a) {
 	$a->a = 1;
 }
 
-qb_compile();
-
 $object = new stdClass;
 $object->r = 1;
 $object->g = 0.25;

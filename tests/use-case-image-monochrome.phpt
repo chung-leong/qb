@@ -19,8 +19,6 @@ Use case: Monochrome image
 function test_function(&$image) {
 }
 
-qb_compile();
-
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/malgorzata_socha.png");
 $correct_path = "$folder/output/image-monochrome.correct.png";

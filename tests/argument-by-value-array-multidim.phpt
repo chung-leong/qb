@@ -19,8 +19,6 @@ function test_function($a) {
 	}
 }
 
-qb_compile();
-
 $a = array(
 	range(1, 4),
 	range(5, 8),

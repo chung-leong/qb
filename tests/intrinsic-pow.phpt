@@ -19,11 +19,9 @@ function test_function() {
 	$b = pow($a, $b);
 	$c = 10;
 	$d = 4;
-	$d = pow($c, $d);
+	$d = pow(10, 4);
 	echo "$b $d\n";
 }
-
-qb_compile();
 
 test_function();
 

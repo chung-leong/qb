@@ -30,8 +30,6 @@ function test_function() {
 	echo cross($e, $f, $a), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

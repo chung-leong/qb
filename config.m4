@@ -69,7 +69,7 @@ if test "$PHP_QB" != "no"; then
     AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ ])
     AC_MSG_RESULT([yes])
   fi
-    
+
   PHP_SUBST(QB_SHARED_LIBADD)
   case $host_alias in
   *darwin*)
@@ -78,8 +78,35 @@ if test "$PHP_QB" != "no"; then
     PHP_ADD_LIBRARY(rt,, QB_SHARED_LIBADD)
     ;;
   esac
+  
+  PHP_RUN_ONCE(EXTRA_LIBS, -pthread, [EXTRA_LIBS="$EXTRA_LIBS -pthread"])
 
-  extra_sources="qb_types.c qb_compiler.c qb_native_compiler.c qb_interpreter.c qb_interpreter_gcc.c qb_interpreter_functions_gcc.c qb_extractor.c qb_data_tables_gcc.c qb_compat.c"
-
+  extra_sources="\
+	qb_build.c\
+	qb_compat.c\
+	qb_crc64.c\
+	qb_compiler.c\
+	qb_data_tables_gcc.c\
+	qb_debug_interface.c\
+	qb_encoder.c\
+	qb_exceptions.c\
+	qb_extractor.c\
+	qb_function_inliner.c\
+	qb_interpreter.c\
+	qb_interpreter_debug.c\
+	qb_interpreter_functions_gcc.c\
+	qb_interpreter_loop_gcc.c\
+	qb_native_compiler.c\
+	qb_op.c\
+	qb_op_factories.c\
+	qb_parser.c\
+	qb_printer.c\
+	qb_storage.c\
+	qb_thread.c\
+	qb_translator_pbj.c\
+	qb_translator_php.c\
+	qb_types.c\
+	"
+ 
   PHP_NEW_EXTENSION(qb, qb.c $extra_sources, $ext_shared, , $qb_cflags)
 fi

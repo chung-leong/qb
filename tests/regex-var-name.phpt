@@ -21,8 +21,6 @@ function test_function() {
 	echo "$x $y $width $height\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

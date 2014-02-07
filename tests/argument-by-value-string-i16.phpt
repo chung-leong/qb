@@ -16,8 +16,6 @@ function test_function($a) {
 	echo "Numbers: $a";
 }
 
-qb_compile();
-
 $data = pack('s*', 10255, 10234, -1077, 1054, -10200, 201, 0, 0, 7);
 
 test_function($data);

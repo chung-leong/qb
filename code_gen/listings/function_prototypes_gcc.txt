@@ -1,0 +1,2 @@
+void qsort(void *base, size_t nmemb, size_t size, void *compar);
+void qsort_r(void *base, size_t nmemb, size_t size, void *compar, void *arg);

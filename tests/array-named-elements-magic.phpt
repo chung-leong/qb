@@ -19,8 +19,6 @@ function test_function(&$a) {
 	$a->a = 1;
 }
 
-qb_compile();
-
 class RGBA {
 
 	private $components = array();

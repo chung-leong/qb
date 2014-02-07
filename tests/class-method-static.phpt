@@ -11,8 +11,6 @@ class TestClass {
 	}
 }
 
-qb_compile();
-
 TestClass::test();
 
 ?>

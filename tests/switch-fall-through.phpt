@@ -21,9 +21,8 @@ function test_function($a) {
 		case 10: echo "Even\n"; break;
 		default: echo "Other\n";
 	}
+	$a = 9;
 }
-
-qb_compile();
 
 test_function(1);
 test_function(2);

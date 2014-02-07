@@ -6,7 +6,7 @@ Function call test (echo array returned)
 /**
  * @engine qb
  * @local int32[4]		$a
- * @return int32[4]
+ * @return int32[]
  */
 function other_function() {
 	$a = array(1, 2, 3, 4);
@@ -17,10 +17,8 @@ function other_function() {
  * @engine qb
  */
 function test_function() {
-	echo other_function();
+	echo other_function(), "\n";
 }
-
-qb_compile();
 
 test_function();
 

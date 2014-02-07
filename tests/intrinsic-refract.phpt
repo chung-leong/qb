@@ -30,7 +30,6 @@ function test_function() {
 	echo refract($e, $f, 0.9), "\n";
 }
 
-qb_compile();
 ini_set('precision', 10);
 test_function();
 

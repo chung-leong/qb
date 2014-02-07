@@ -21,6 +21,12 @@
 #ifndef QB_H_
 #define QB_H_
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#define _GNU_SOURCE		1
+
 #include <limits.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -29,6 +35,7 @@
 #ifdef _MSC_VER
 	#include "win32\php_stdint.h"
 	#include "win32\msc_inttypes.h"
+	#include "win32\time.h"
 #else
 	#include <stdint.h>
 	#include <inttypes.h>
@@ -47,7 +54,12 @@
 #endif
 
 #include "php.h"
+#include "php_qb.h"
 #include "ext/standard/php_rand.h"
+
+#ifdef ZEND_ACC_GENERATOR
+	#include "zend_generators.h"
+#endif
 
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 1
 	#define ZEND_ENGINE_2_1		1
@@ -66,11 +78,11 @@
 #ifdef ZTS
 	#define USE_TSRM		void ***tsrm_ls = cxt->tsrm_ls;\
 
-	#define SAVE_TSRMLS()	cxt->tsrm_ls = tsrm_ls\
+	#define SAVE_TSRMLS		cxt->tsrm_ls = tsrm_ls;\
 
 #else
 	#define USE_TSRM
-	#define SAVE_TSRMLS()
+	#define SAVE_TSRMLS
 #endif
 
 #ifdef _MSC_VER
@@ -89,7 +101,6 @@
 	#elif defined(__MACH__)
 		#if defined(__i386__) || defined(__x86_64__)
 			#define NATIVE_COMPILE_ENABLED	1
-
 		#endif
 	#endif
 #endif
@@ -98,28 +109,34 @@
 	#define NATIVE_COMPILE_ENABLED	1
 #endif
 
-#ifdef ZEND_FASTCALL
-	#undef ZEND_FASTCALL
-#endif
-
-#if defined(__GNUC__) && ZEND_GCC_VERSION >= 3004 && defined(__i386__)
-	# define ZEND_FASTCALL __attribute__((fastcall))
-#elif defined(_MSC_VER) && defined(_M_IX86)
-	# define ZEND_FASTCALL __fastcall
-#else
-	# define ZEND_FASTCALL
-	# define FASTCALL_MATCHES_CDECL
-#endif
-
 #define QB_EXTNAME	"qb"
-#define QB_EXTVER	"1.0"
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "qb_debug_interface.h"
 #include "qb_version.h"
 #include "qb_compat.h"
+#include "qb_opcodes.h"
 #include "qb_types.h"
+#include "qb_op.h"
+#include "qb_thread.h"
+#include "qb_storage.h"
+#include "qb_function.h"
+#include "qb_exceptions.h"
+#include "qb_parser.h"
 #include "qb_compiler.h"
+#include "qb_function_inliner.h"
+#include "qb_op_factories.h"
+#include "qb_translator_php.h"
+#include "qb_translator_pbj.h"
+#include "qb_encoder.h"
+#include "qb_thread.h"
 #include "qb_interpreter.h"
+#include "qb_build.h"
 #include "qb_native_compiler.h"
+#include "qb_printer.h"
 #include "qb_extractor.h"
 
 enum {
@@ -129,9 +146,19 @@ enum {
 	QB_END_DEFERRAL				= 3,
 };
 
+#ifdef ZEND_ACC_GENERATOR
+typedef struct qb_generator_context			qb_generator_context;
+
+struct qb_generator_context {
+	zend_generator *generator;
+	qb_interpreter_context *interpreter_context;
+};
+#endif
+
 ZEND_BEGIN_MODULE_GLOBALS(qb)
-	const char *current_filename;
-	uint32_t current_line_number;
+	qb_main_thread main_thread;
+	long thread_count;
+	long debug_fork_id;
 
 	zend_bool allow_bytecode_interpretation;
 	zend_bool allow_native_compilation;
@@ -145,8 +172,7 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	zend_bool show_opcodes;
 	zend_bool show_native_source;
 	zend_bool show_compiler_errors;
-	zend_bool show_zend_opcodes;
-	zend_bool show_pbj_opcodes;
+	zend_bool show_source_opcodes;
 
 	char *compiler_path;
 	char *compiler_env_path;
@@ -154,16 +180,39 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	char *execution_log_path;
 
 	qb_build_context *build_context;
-	qb_interpreter_context *interpreter_context;
 
+	qb_import_scope **scopes;
+	uint32_t scope_count;
+
+	qb_external_symbol *external_symbols;
+	uint32_t external_symbol_count;
+
+	qb_interpreter_context *caller_interpreter_context;
+
+	qb_exception *exceptions;
+	uint32_t exception_count;
+
+	const char **source_files;
+	uint32_t source_file_count;
+
+#if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
+	zend_literal static_zvals[8];
+#else
 	zval static_zvals[8];
+#endif
 	uint32_t static_zval_index;
 
-	qb_function **compiled_functions;
-	uint32_t compiled_function_count;
-
+#ifdef NATIVE_COMPILE_ENABLED
 	qb_native_code_bundle *native_code_bundles;
 	uint32_t native_code_bundle_count;
+#endif
+
+#ifdef ZEND_ACC_GENERATOR
+	qb_generator_context *generator_contexts;
+	uint32_t generator_context_count;
+#endif
+
+	double execution_start_time;
 ZEND_END_MODULE_GLOBALS(qb)
 
 #ifdef ZTS
@@ -172,21 +221,27 @@ ZEND_END_MODULE_GLOBALS(qb)
 # define QB_G(v) (qb_globals.v)
 #endif
 
-int ZEND_FASTCALL qb_compile(zval *arg1, zval *arg2 TSRMLS_DC);
-int ZEND_FASTCALL qb_native_compile(TSRMLS_D);
-int ZEND_FASTCALL qb_execute(zend_function *function, zval *this, zval ***arguments, int argument_count, zval *return_value TSRMLS_DC);
-int ZEND_FASTCALL qb_extract(zval *input, int output_type, zval *return_value TSRMLS_DC);
-int ZEND_FASTCALL qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
+int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 
-int ZEND_FASTCALL qb_initialize_compiler(TSRMLS_D);
-int ZEND_FASTCALL qb_initialize_interpreter(TSRMLS_D);
+void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array);
+qb_function * qb_get_compiled_function(zend_function *zfunc);
+qb_function * qb_find_compiled_function(zend_function *zfunc);
+int qb_is_compiled_function(zend_function *zfunc);
 
-ZEND_ATTRIBUTE_FORMAT(printf, 1, 2) NO_RETURN 
-void qb_abort(const char *format, ...);
-void qb_warn(const char *format, ...);
+zend_function * qb_find_zend_function(zval *class_name, zval *name TSRMLS_DC);
 
-void ZEND_FASTCALL qb_free_function(qb_function *qfunc);
-void ZEND_FASTCALL qb_free_native_code(qb_native_code_bundle *bundle);
+qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC);
+qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zval *object TSRMLS_DC);
+qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_import_scope *scope  TSRMLS_DC);
+
+uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer TSRMLS_DC);
+
+qb_build_context * qb_get_current_build(TSRMLS_D);
+
+qb_main_thread * qb_get_main_thread(TSRMLS_D);
+
+extern int debug_compatibility_mode;
+extern long multithreading_threshold;
 
 ZEND_EXTERN_MODULE_GLOBALS(qb)
 

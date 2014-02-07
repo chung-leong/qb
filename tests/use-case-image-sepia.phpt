@@ -22,6 +22,8 @@ $incorrect_path = "$folder/output/sepia-2.incorrect.png";
  * @local float32[4]	$k
  */
 function sepia(&$image, $intensity) {
+	ini_set("qb.column_major_matrix", true);
+	
 	$YIQMatrix = array(
 		array(0.299,  0.596,  0.212, 0.000),
 		array(0.587, -0.275, -0.523, 0.000),
@@ -41,11 +43,9 @@ function sepia(&$image, $intensity) {
 		array(0.0,    0.0,    0.0,    1.0),
 	);	
 	$image = mv_mult($inverseYIQ, $image);
+	
+	ini_restore("qb.column_major_matrix");
 }
-
-ini_set("qb.column_major_matrix", true);
-
-qb_compile();
 
 sepia($image, 0.2);
 

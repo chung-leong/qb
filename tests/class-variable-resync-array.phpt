@@ -5,7 +5,7 @@ Class variable resync test (array)
 
 class TestClass {
 
-	/** @var int32[*] */
+	/** @var int32[] */
 	public $a = array(100, 2, 3);
 
 	public function other_function() {
@@ -19,13 +19,11 @@ class TestClass {
 		$this->a = 123;
 		$this->other_function();
 		echo "$this->a\n";
-		$this->a = array(1, 2, 3);
+		$this->a = array(1, 2, 3, 4);
 	}
 }
 
 $obj = new TestClass;
-
-qb_compile();
 
 $obj->test();
 print_r($obj->a);
@@ -36,8 +34,6 @@ print_r($obj->a);
 Array
 (
     [0] => 123
-    [1] => 123
-    [2] => 123
 )
 [90, 33]
 Array
@@ -45,5 +41,6 @@ Array
     [0] => 1
     [1] => 2
     [2] => 3
+    [3] => 4
 )
 

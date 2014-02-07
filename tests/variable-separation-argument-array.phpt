@@ -18,8 +18,6 @@ function test_function(&$a, $b) {
 	$b = 0;
 }
 
-qb_compile();
-
 $var1 = array(1, 2, 3, 4);
 $var2 = $var1;
 
@@ -33,9 +31,6 @@ print_r($var2);
 Array
 (
     [0] => 4321
-    [1] => 4321
-    [2] => 4321
-    [3] => 4321
 )
 Array
 (

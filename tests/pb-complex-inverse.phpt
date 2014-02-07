@@ -33,8 +33,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
  */
 function filter(&$dst, $src, $a, $b, $c, $d, $distort, $imagesize, $center, $focus, $scale, $fill) {}
 
-qb_compile();
-
 filter($output, $image, array(-0.2, -0.4), array(-0.7, -1.1), array(0, 0.1), array(2, -1.6), array(20, 20), array(500, 225), array(420, 420), 0, 300, 0.5);
 
 ob_start();

@@ -28,8 +28,6 @@ function test_function(&$image) {
 	echo "{$width}x{$height}\n";
 }
 
-qb_compile();
-
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/malgorzata_socha.png");
 $correct_path = "$folder/output/image-resize.correct.png";

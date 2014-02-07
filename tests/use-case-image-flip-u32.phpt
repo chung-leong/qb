@@ -20,8 +20,6 @@ function flip(&$image) {
 	$image = array_reverse($image);
 }
 
-qb_compile();
-
 flip($image);
 
 ob_start();

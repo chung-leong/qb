@@ -6,14 +6,18 @@ Error reporting test (unexpected keyword in type declaration for class property)
 class TestClass { 
 
 	/** @engine qb */
+	
+	
 	public $var;
 
 	/** @engine	qb */
 	function test_function() {
+		echo "Hello\n";
 	}
 }
 
-qb_compile();
+$obj = new TestClass;
+$obj->test_function();
 
 ?>
 --EXPECTREGEX--

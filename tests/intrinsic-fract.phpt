@@ -23,8 +23,6 @@ function test_function() {
 	echo fract($c), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

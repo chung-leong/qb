@@ -38,8 +38,6 @@ class TestClass {
 
 $obj = new TestClass;
 
-qb_compile();
-
 $obj->test();
 
 ?>

@@ -33,8 +33,6 @@ function test_function() {
 	echo "is_nan($d) = ", is_nan($d), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

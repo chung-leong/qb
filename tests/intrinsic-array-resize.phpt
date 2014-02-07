@@ -16,8 +16,7 @@ function test_function() {
 	echo "$a\n";
 	array_resize($a, 2, 2);
 	echo "$a\n";
-	$a = 1;
-	echo "$a\n";
+	$a = array(array(1, 1), array(1, 1));
 	array_resize($a, 3, 3);
 	echo "$a\n";
 	$a = array(array(1, 2, 3), array(4, 5, 6), array(7, 8, 9));
@@ -26,15 +25,12 @@ function test_function() {
 	echo "$a\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>
 --EXPECT--
 []
 [[0, 0], [0, 0]]
-[[1, 1], [1, 1]]
 [[1, 1, 0], [1, 1, 0], [0, 0, 0]]
 [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 [[1, 2], [4, 5]]

@@ -31,8 +31,6 @@ function test_function() {
 	echo min($e, $d), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

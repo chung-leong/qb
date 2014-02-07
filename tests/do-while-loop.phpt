@@ -22,8 +22,6 @@ function test_function() {
 	return $a;
 }
 
-qb_compile();
-
 echo test_function(), "\n";
 
 ?>

@@ -17,8 +17,6 @@ function test_function() {
 	echo max($a), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

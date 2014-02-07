@@ -11,8 +11,6 @@ function test_function($a) {
 	echo "$a\n";
 }
 
-qb_compile();
-
 test_function("\x08\x00\x00\x00\x09\x00\x00\x00\x0A\x00\x00\x00");
 
 ?>

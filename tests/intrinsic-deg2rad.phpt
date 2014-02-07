@@ -23,8 +23,6 @@ function test_function() {
 	echo deg2rad($b), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

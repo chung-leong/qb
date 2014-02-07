@@ -20,8 +20,6 @@ function other_function() {
 	return 1234;
 }
 
-qb_compile();
-
 test_function();
 
 ?>

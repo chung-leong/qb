@@ -25,7 +25,6 @@ function test_function() {
 	echo array_rand($c, 2), "\n";
 }
 
-qb_compile();
 test_function();
 
 ?>

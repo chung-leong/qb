@@ -25,13 +25,13 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
 function filter(&$dst, $src, $orientation) {
 } 
 
-qb_compile();
-
 $orientation =  
-	array( 1,  0,  0,  0, 
-		   0,  1,  0,  0,
-		   0,  0,  1,  0,
-		   0, 50, 50,  1);
+	array( 
+		array(1,  0,  0,  0), 
+		array(0,  1,  0,  0),
+		array(0,  0,  1,  0),
+		array(0, 50, 50,  1)
+	);
 
 filter($output, $image, $orientation);
 

@@ -1,3 +1,23 @@
+/*
+  +----------------------------------------------------------------------+
+  | PHP Version 5                                                        |
+  +----------------------------------------------------------------------+
+  | Copyright (c) 1997-2012 The PHP Group                                |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 3.01 of the PHP license,      |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.php.net/license/3_01.txt                                  |
+  | If you did not receive a copy of the PHP license and are unable to   |
+  | obtain it through the world-wide-web, please send a note to          |
+  | license@php.net so we can mail you a copy immediately.               |
+  +----------------------------------------------------------------------+
+  | Author: Chung Leong <cleong@cal.berkeley.edu>                        |
+  +----------------------------------------------------------------------+
+*/
+
+/* $Id$ */
+
 #include "qb.h"
 
 /* liblzma is the source of the following code  */
@@ -1082,7 +1102,7 @@ const uint64_t lzma_crc64_table[4][256] = {
 };
 #endif
 
-uint64_t ZEND_FASTCALL qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc) {
+uint64_t qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc) {
 	crc = ~crc;
 	crc = SWAP_LE_I64(crc);
 

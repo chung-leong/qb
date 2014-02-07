@@ -30,8 +30,6 @@ class TestClass {
 	}
 }
 
-qb_compile();
-
 $obj = new TestClass;
 $obj->var1 = 100;
 $obj->var2 = 200;

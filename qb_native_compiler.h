@@ -25,7 +25,21 @@
 
 typedef struct qb_native_compiler_context	qb_native_compiler_context;
 
-#define QB_NATIVE_FUNCTION_RET 			int32_t
+typedef enum qb_access_method				qb_access_method; 
+
+enum qb_access_method {
+	QB_SCALAR_LITERAL = 0,
+	QB_SCALAR_LOCAL_VARIABLE,
+	QB_SCALAR_POINTER,
+	QB_SCALAR_ELEMENT,
+	QB_ARRAY_POINTER,
+	QB_ARRAY_POINTER_POINTER,
+	QB_ARRAY_SLICE,
+	QB_SCALAR_UNUSED = -1,
+	QB_ARRAY_UNUSED = -1,
+};
+
+#define QB_NATIVE_FUNCTION_RET 			void
 #define QB_NATIVE_FUNCTION_ATTR
 #define QB_NATIVE_FUNCTION_ARGS 		qb_interpreter_context *__restrict cxt
 
@@ -36,34 +50,41 @@ struct qb_native_compiler_context {
 	FILE *read_stream;
 	FILE *error_stream;
 
+	qb_compiler_context **compiler_contexts;
+	uint32_t compiler_context_count;
+	qb_data_pool *pool;
+
 	qb_op **ops;
-	qb_op *current_op;
 	uint32_t op_count;
-	uint32_t *op_translations;
 	qb_variable **variables;
 	uint32_t variable_count;
-	qb_address **scalars;
-	uint32_t scalar_count;
-	qb_address **arrays;
-	uint32_t array_count;
+
+	qb_address **constant_scalars;
+	uint32_t constant_scalar_count;
+
+	qb_address **writable_scalars;
+	uint32_t writable_scalar_count;
+
+	qb_address **constant_arrays;
+	uint32_t constant_array_count;
+
+	qb_address **writable_arrays;
+	uint32_t writable_array_count;
+
+	qb_address *zero_address;
+	qb_address *one_address;
+
 	qb_external_symbol *external_symbols;
 	uint32_t external_symbol_count;
-	uint64_t instruction_crc64;
-	uint32_t options;
+
+	qb_function *compiled_function;
 	qb_storage *storage;
-	const char *function_name;
 
 	char * const *op_names;
 	char * const *op_actions;
-	char * const *op_result_size_codes;
-	char * const *op_result_size_variables;
 	int32_t * const *op_function_usages;
 	char * const *function_prototypes;
-
-	qb_compiler_context *compiler_contexts;
-	uint32_t compiler_context_count;
-	qb_compiler_data_pool *pool;
-
+	
 	char *cache_folder_path;
 	char *obj_file_path;
 	char *c_file_path;
@@ -91,6 +112,11 @@ struct qb_native_compiler_context {
 
 extern qb_native_symbol global_native_symbols[];
 extern uint32_t global_native_symbol_count;
+
+void qb_free_native_code(qb_native_code_bundle *bundle);
+void qb_compile_to_native_code(qb_native_compiler_context *cxt);
+void qb_initialize_native_compiler_context(qb_native_compiler_context *cxt, qb_build_context *build_cxt TSRMLS_DC);
+void qb_free_native_compiler_context(qb_native_compiler_context *cxt);
 
 #endif
 

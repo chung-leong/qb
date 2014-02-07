@@ -24,8 +24,6 @@ function test_function() {
 	echo all($k), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

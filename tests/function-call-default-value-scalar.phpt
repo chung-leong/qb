@@ -21,8 +21,6 @@ function test_function() {
 	other_function($a);
 }
 
-qb_compile();
-
 test_function();
 
 ?>

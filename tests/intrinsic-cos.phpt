@@ -22,8 +22,6 @@ function test_function($a, $b, $c, $d, $i) {
 	echo cos($i), "\n";
 }
 
-qb_compile();
-
 $a = M_PI / 4;
 $b = M_PI / 2;
 $c = 3;

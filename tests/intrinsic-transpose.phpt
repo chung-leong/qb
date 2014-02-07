@@ -53,8 +53,6 @@ function test_function() {
 	echo "$d\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

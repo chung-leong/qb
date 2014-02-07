@@ -28,7 +28,6 @@ function test_function() {
 	echo range($start, 9), "\n";
 }
 
-qb_compile();
 test_function();
 
 ?>

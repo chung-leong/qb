@@ -63,13 +63,13 @@ Use case: Droste Effect
 
 class Droste {
 
-	/** @var float 			The inner radius of the repeating annular */
+	/** @var float 				The inner radius of the repeating annular */
 	public $radiusInside = 25.0;
     
-	/** @var float 			The outer radius of the repeating annular */
+	/** @var float 				The outer radius of the repeating annular */
 	public $radiusOutside = 100.0;
 
-	/** @var float 			The number of image the image is repeated on each level */
+	/** @var float 				The number of image the image is repeated on each level */
     public $periodicity = 1.0;
     
     /** @var int				The number of strands of the spiral */
@@ -78,10 +78,10 @@ class Droste {
     /** @var bool				Smoother repeating when using more than one strand */
 	public $strandMirror = true;
 
-	/** @var float			Overall image magnification */
+	/** @var float				Overall image magnification */
 	public $zoom = 0.0;
 
-	/** @var float			Overall image rotation */
+	/** @var float				Overall image rotation */
 	public $rotate = 0.0;
 
     /** @var float[x,y]			Panning of the image in the output frame */
@@ -111,10 +111,10 @@ class Droste {
 	/** @var bool				Automatically set the ideal periodicity for the current radius settings */
     public $periodicityAuto = false;
 
-	/** @var float			Polar rotation */    
+	/** @var float				Polar rotation */    
 	public $rotatePolar = 0.0;
 
-	/** @var float			Spin mapped image. Best used with polar rotation */
+	/** @var float				Spin mapped image. Best used with polar rotation */
 	public $rotateSpin = 0.0;
 
     
@@ -124,16 +124,16 @@ class Droste {
      * @param image				$output
      * @param image				$image 
      *
-     * @local uint32				$(x|y)
-     * @local int					$(iteration|maxIteration)
-     * @local bool					$tileBasedOnTransparency
-     * @local float[r,g,b,a]		$(color|colorSoFar)
-	 * @local float[2][2]			$imageSpin
+     * @local uint32			$(x|y)
+     * @local int				$(iteration|maxIteration)
+     * @local bool				$tileBasedOnTransparency
+     * @local float[r,g,b,a]	$(color|colorSoFar)
+	 * @local float[2][2]		$imageSpin
      * @local float				$(height|width)
      * @local float				$(sign|signTransparentOutside|alphaRemaining|theta|radius)
      * @local float				$(r1|r2|p1|p2|sc|ss)
-     * @local float[min,max]		$[xy]Bounds
-     * @local float[x,y]			$.*				All other local variables are coordinate of some sort
+     * @local float[min,max]	$[xy]Bounds
+     * @local float[x,y]		$.*				All other local variables are coordinate of some sort
      *
      */
     
@@ -320,8 +320,6 @@ class Droste {
 
 // so the script wouldn't slow to a grind if xdebug is active
 ini_set("qb.allow_debugger_inspection", 0);
-
-qb_compile();
 
 $folder = dirname(__FILE__);
 $image = imagecreatefrompng("$folder/input/ipad.png");

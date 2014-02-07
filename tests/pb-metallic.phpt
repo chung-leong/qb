@@ -32,8 +32,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
 function filter(&$dst, $src, $stripe, $lightsource, $shininess, $shadow, $relief, $stripesize, $viewDirection) {
 }
 
-qb_compile();
-
 filter($output, $image, $stripe, array(260, 140, 40), 25, 0.4, 3.25, array(256, 10), array(0.5, 0.02, 1));
 
 ob_start();

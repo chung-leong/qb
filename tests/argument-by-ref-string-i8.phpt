@@ -20,8 +20,6 @@ function test_function(&$a) {
 	}
 }
 
-qb_compile();
-
 $data = pack('c*', 123, 124, 77, 54, 72);
 
 test_function($data);

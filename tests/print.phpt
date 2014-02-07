@@ -17,8 +17,6 @@ function test_function() {
 	($a < 0) or print "Hello world $a";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

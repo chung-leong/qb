@@ -33,8 +33,6 @@ $incorrect_path = "$folder/output/$filter_name.incorrect.png";
  */
 function TubeView(&$pxl, $src, $radius, $turbulence, $fade1, $fade2, $center, $bgColor) {}
 
-qb_compile();
-
 TubeView($output, $image, 50, 0.1, 0.1, 0.1, array(imagesx($image) / 2, imagesy($image) / 2), array(0, 0, 0, 1));
 
 ob_start();

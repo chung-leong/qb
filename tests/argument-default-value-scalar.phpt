@@ -12,8 +12,6 @@ function test_function($a, $b = 1234) {
 	echo "$a $b";
 }
 
-qb_compile();
-
 $a = array(1, 2, 3, 4);
 test_function($a);
 

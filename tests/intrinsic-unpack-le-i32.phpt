@@ -23,8 +23,6 @@ function test_function() {
 	echo unpack_le($data, 1, int16), "\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

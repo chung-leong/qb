@@ -18,10 +18,6 @@
 
 /* $Id$ */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "qb.h"
 
 #ifdef _MSC_VER
@@ -67,8 +63,158 @@ double exp2(double x) {
 	return pow(2, x);
 }
 
+double rint(double x) {
+#if defined(__i386__)
+	__asm {
+		fld x
+		frndint
+	}
+#else
+	const double TWO52[2] = { 4.50359962737049600000e+15, -4.50359962737049600000e+15 };
+	int64_t i0, sx;
+	int32_t j0;
+	i0 = *((int64_t *) &x);
+	sx = (i0 >> 63) & 1;
+	j0 = ((i0 >> 52) & 0x7ff) - 0x3ff;
+	if(j0 < 52) {
+		if(j0 < 0) {
+			double w = TWO52[sx] + x;
+			double t = w - TWO52[sx];
+			i0 = *((int64_t *) &t);
+			*((int64_t *) &t) = ((i0 & 0x7fffffffffffffffLL) | (sx << 63));
+			return t;
+		} else {
+			double w = TWO52[sx] + x;
+			return w - TWO52[sx];
+		}
+	} else {
+		if(j0 == 0x400) {
+			return x + x;	/* inf or NaN */
+		} else {
+			return x;		/* x is integral */
+		}
+	}
+#endif
+}
+
 double round(double x) {
 	return floor(x + 0.5);
+}
+
+float __sinf(float x) { 
+	return (float) sin(x); 
+}
+
+float __asinf(float x) { 
+	return (float) asin(x); 
+}
+
+float __cosf(float x) { 
+	return (float) cos(x); 
+}
+
+float __acosf(float x) { 
+	return (float) acos(x); 
+}
+
+float __tanf(float x) { 
+	return (float) tan(x); 
+}
+
+float __atanf(float x) { 
+	return (float) atan(x); 
+}
+
+float __atan2f(float x, float y) { 
+	return (float) atan2(x, y); 
+}
+
+float __sinhf(float x) { 
+	return (float) sinh(x); 
+}
+
+float __coshf(float x) { 
+	return (float) cosh(x); 
+}
+
+float __tanhf(float x) { 
+	return (float) tanh(x); 
+}
+
+float __expf(float x) { 
+	return (float) exp(x); 
+}
+
+float __logf(float x) { 
+	return (float) log(x); 
+}
+
+float __log10f(float x) { 
+	return (float) log10(x); 
+}
+
+float __powf(float x, float y) {
+	return (float) pow(x, y); 
+}
+
+float __sqrtf(float x) { 
+	return (float) sqrt(x); 
+}
+
+float __ceilf(float x) { 
+	return (float) ceil(x); 
+}
+
+float __floorf(float x) { 
+	return (float) floor(x); 
+}
+
+float __hypotf(float x, float y) { 
+	return (float) hypot(x, y); 
+}
+
+float __fmodf(float n, float d) { 
+	return (float) fmod(n, d); 
+}
+
+float exp2f(float x) {
+	return (float) exp2(x);
+}
+
+float expm1f(float x) {
+	return (float) expm1(x);
+}
+
+float log2f(float x) {
+	return (float) log2(x);
+}
+
+float log1pf(float x) {
+	return (float) log1p(x);
+}
+
+float asinhf(float x) {
+	return (float) asinh(x);
+}
+
+float acoshf(float x) {
+	return (float) acosh(x);
+}
+
+float atanhf(float x) {
+	return (float) atanh(x);
+}
+
+float rintf(float x) {
+	return (float) rint(x);
+}
+
+float roundf(float x) {
+	return (float) round(x);
+}
+
+float fabsf(float x) {
+	return (float) fabs(x);
 }
 
 #else
@@ -93,15 +239,27 @@ float log2f(float x) {
 
 #endif
 
-#ifdef __GNUC__
-#ifndef HAVE_SINCOS
-// gcc intrinsic functions--just make the symbols available if they doesn't exist
-void sincos() {
-}
+#if ZEND_ENGINE_2_3 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+zend_class_entry *zend_fetch_class_by_name(const char *class_name, uint class_name_len, void *key, int fetch_type TSRMLS_DC) /* {{{ */
+{
+	zend_class_entry **pce;
+	int use_autoload = (fetch_type & ZEND_FETCH_CLASS_NO_AUTOLOAD) == 0;
 
-void sincosf() {
+	if (zend_lookup_class_ex(class_name, class_name_len, use_autoload, &pce TSRMLS_CC) == FAILURE) {
+		if (use_autoload) {
+			if ((fetch_type & ZEND_FETCH_CLASS_SILENT) == 0 && !EG(exception)) {
+				if ((fetch_type & ZEND_FETCH_CLASS_MASK) == ZEND_FETCH_CLASS_INTERFACE) {
+					zend_error(E_ERROR, "Interface '%s' not found", class_name);
+				} else {
+					zend_error(E_ERROR, "Class '%s' not found", class_name);
+				}	
+			}
+		}
+		return NULL;
+	}
+	return *pce;
 }
-#endif
+/* }}} */
 #endif
 
 #if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
@@ -368,7 +526,7 @@ char *	(*vc6_strdup)(const char * _Src);
 
 
 
-int ZEND_FASTCALL qb_get_vc6_msvcrt_functions(void) {
+int qb_get_vc6_msvcrt_functions(void) {
 
 	HMODULE lib = GetModuleHandle("MSVCRT.DLL");
 

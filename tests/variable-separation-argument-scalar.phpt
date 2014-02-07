@@ -18,8 +18,6 @@ function test_function(&$a, $b) {
 	$b = 0;
 }
 
-qb_compile();
-
 $var1 = 1234;
 $var2 = $var1;
 

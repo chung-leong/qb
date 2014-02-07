@@ -24,52 +24,56 @@
 typedef float  float32_t;
 typedef double float64_t;
 
-typedef struct qb_complex_F64			qb_complex_F64;
-typedef struct qb_complex_F32			qb_complex_F32;
+typedef struct qb_block_allocator 			qb_block_allocator;
+typedef struct qb_intrinsic_function		qb_intrinsic_function;
+typedef struct qb_data_pool					qb_data_pool;
 
-typedef struct qb_address				qb_address;
-typedef struct qb_on_demand_address		qb_on_demand_address;
-typedef struct qb_variable				qb_variable;
-typedef struct qb_function				qb_function;
-typedef struct qb_memory_segment		qb_memory_segment;
-typedef struct qb_storage				qb_storage;
-typedef struct qb_index_alias_scheme	qb_index_alias_scheme;
-typedef struct qb_external_symbol		qb_external_symbol;
-typedef struct qb_native_code_bundle	qb_native_code_bundle;
-typedef struct qb_block_allocator 		qb_block_allocator;
+typedef struct qb_pointer_SCA				qb_pointer_SCA;
+typedef struct qb_pointer_ELE				qb_pointer_ELE;
+typedef struct qb_pointer_ARR				qb_pointer_ARR;
+typedef struct qb_pointer_adjustment		qb_pointer_adjustment;
 
-typedef enum qb_primitive_type			qb_primitive_type;
-typedef enum qb_address_mode			qb_address_mode;
+typedef struct qb_thread_parameters			qb_thread_parameters;
 
-#define MAKE_STRING(x)					#x
-#define STRING(x)						MAKE_STRING(x)
+typedef enum qb_primitive_type				qb_primitive_type;
 
-#define MAX_SEGMENT_COUNT			256
-#define MAX_DIMENSION				64
+#define MAKE_STRING(x)						#x
+#define STRING(x)							MAKE_STRING(x)
 
-#define CTYPE_I08					int8_t
-#define CTYPE_I16					int16_t
-#define CTYPE_I32					int32_t
-#define CTYPE_I64					int64_t
-#define CTYPE_F32					float32_t
-#define CTYPE_F64					float64_t
-#define CTYPE_S08					int8_t
-#define CTYPE_S16					int16_t
-#define CTYPE_S32					int32_t
-#define CTYPE_S64					int64_t
-#define CTYPE_U08					uint8_t
-#define CTYPE_U16					uint16_t
-#define CTYPE_U32					uint32_t
-#define CTYPE_U64					uint64_t
+#define MAX_DIMENSION						8
+#define MAX_THREAD_COUNT					288
 
-#define CTYPE(type)					CTYPE_##type
+#define CTYPE_I08							int8_t
+#define CTYPE_I16							int16_t
+#define CTYPE_I32							int32_t
+#define CTYPE_I64							int64_t
+#define CTYPE_F32							float32_t
+#define CTYPE_F64							float64_t
+#define CTYPE_S08							int8_t
+#define CTYPE_S16							int16_t
+#define CTYPE_S32							int32_t
+#define CTYPE_S64							int64_t
+#define CTYPE_U08							uint8_t
+#define CTYPE_U16							uint16_t
+#define CTYPE_U32							uint32_t
+#define CTYPE_U64							uint64_t
+
+#define CTYPE(type)							CTYPE_##type
+
+#define STORAGE_TYPE_MATCH(type1, type2)	((type1 == type2) || ((type1 & ~QB_TYPE_UNSIGNED) == (type2 & ~QB_TYPE_UNSIGNED) && (type1 < QB_TYPE_F32)))
+
+#define BYTE_COUNT(element_count, type)		((uint32_t) ((element_count) << type_size_shifts[type]))
+#define ELEMENT_COUNT(byte_count, type)		((byte_count) >> type_size_shifts[type])
+
+#define SHIFT_POINTER(p, shift)				*((uintptr_t *) &(p)) += shift
+
+#define INVALID_INDEX						((uint32_t) -1)
 
 enum qb_primitive_type {
 	QB_TYPE_I08						= 0,
 	QB_TYPE_I16						= 2,
 	QB_TYPE_I32						= 4,
 	QB_TYPE_I64						= 6,
-	QB_TYPE_UNSIGNED				= 0x0001,
 
 	QB_TYPE_S08						= 0,
 	QB_TYPE_U08						= 1,
@@ -82,201 +86,32 @@ enum qb_primitive_type {
 
 	QB_TYPE_F32						= 8,
 	QB_TYPE_F64						= 9,
-
-	QB_TYPE_COUNT					= 10,
-
-	// pseudo-types
-	QB_TYPE_VOID					= 100,
-	QB_TYPE_UNKNOWN,
-	QB_TYPE_ANY,
-	QB_TYPE_OPERAND,
 };
 
-enum qb_address_mode {
-	QB_ADDRESS_MODE_VAR				= 0,
-	QB_ADDRESS_MODE_ELV,
-	QB_ADDRESS_MODE_ARR,
-	QB_ADDRESS_MODE_ELC,
-};
+#define QB_TYPE_COUNT				10
 
-enum {
-	QB_ADDRESS_READ_ONLY			= 0x00000001,
-	QB_ADDRESS_CONSTANT				= 0x00000002,
-	QB_ADDRESS_STRING				= 0x00000004,
-	QB_ADDRESS_BOOLEAN				= 0x00000008,
-	QB_ADDRESS_SEGMENT				= 0x00000010,
-	QB_ADDRESS_TEMPORARY			= 0x00010000,
-	QB_ADDRESS_REUSED				= 0x00040000,
-	QB_ADDRESS_INITIALIZED			= 0x00080000,
-	QB_ADDRESS_ALWAYS_IN_BOUND		= 0x00100000,
-	QB_ADDRESS_AUTO_INCREMENT		= 0x00200000,
-	QB_ADDRESS_CAST					= 0x00400000,
-	QB_ADDRESS_NON_LOCAL			= 0x00800000,
-	QB_ADDRESS_FOREACH_INDEX		= 0x01000000,
-	QB_ADDRESS_ON_DEMAND_VALUE		= 0x02000000,
+#define QB_TYPE_VOID				((qb_primitive_type) 100)
+#define QB_TYPE_UNKNOWN				((qb_primitive_type) 101)
+#define QB_TYPE_ANY					((qb_primitive_type) 102)
 
-	QB_ADDRESS_IN_USE				= 0x80000000,
+#define QB_TYPE_UNSIGNED			0x0001
 
-
-	QB_ADDRESS_RUNTIME_FLAGS		= 0x0000FFFF,
-	QB_ADDRESS_COMPILE_TIME_FLAGS	= 0xFFFF0000,
-};
-
-enum {
-	// scalar constant and scalar variables are stored in segment 0
-	QB_SELECTOR_VARIABLE 			= 0,
-	// constant arrays are stored in segment 1 (to not impact negatively locality of variables)
-	QB_SELECTOR_CONSTANT_ARRAY 		= 1,
-	// larger array variables are stored in individual segments (so an offset doesn't need to be added to element indices)
-	QB_SELECTOR_DYNAMIC_ARRAY_START	= 2,
-
-	QB_SELECTOR_INVALID 			= 0xFFFF,
-};
-
-enum {
-	QB_OFFSET_INVALID 				= 0xFFFFFFFF,
-};
-
-struct qb_index_alias_scheme {
-	uint32_t dimension;
-	char **aliases;
-	uint32_t *alias_lengths;
-	const char *class_name;
-	uint32_t class_name_length;
-	zend_class_entry *zend_class;
-};
-
-struct qb_address {
-	qb_address_mode mode;
-	qb_primitive_type type;
-	uint32_t flags;
-	uint32_t dimension_count;
-	uint32_t segment_selector;
-	uint32_t segment_offset;
-	qb_address *array_index_address;
-	qb_address *array_size_address;
-	qb_address **dimension_addresses;
-	qb_address **array_size_addresses;
-	qb_address *source_address;
-	qb_index_alias_scheme **index_alias_schemes;
-};
-
-struct qb_on_demand_address {
-	qb_address_mode mode;
-	qb_primitive_type type;
-	uint32_t flags;
-	uint32_t dimension_count;
-	uint32_t segment_selector;
-	uint32_t segment_offset;
-	qb_address *operand_addresses[4];
-	uint32_t operand_count;
-	void *op_factory;
-};
-
-enum {
-	QB_TYPE_DECL_STRING				= 0x00010000,
-	QB_TYPE_DECL_EXPANDABLE			= 0x00020000,
-	QB_TYPE_DECL_HAS_ALIAS_SCHEMES	= 0x00040000,
-};
-
-enum {
-	QB_VARIABLE_LOCAL				= 0x00000001,
-	QB_VARIABLE_ARGUMENT			= 0x00000002,
-	QB_VARIABLE_STATIC				= 0x00000004,
-	QB_VARIABLE_GLOBAL				= 0x00000008,
-	QB_VARIABLE_CLASS				= 0x00000010,
-	QB_VARIABLE_CLASS_INSTANCE		= 0x00000020,
-	QB_VARIABLE_RETURN_VALUE		= 0x00000040,
-	QB_VARIABLE_TYPES				= 0x0000FFFF,
-
-	QB_VARIABLE_PASSED_BY_REF		= 0x00010000,
-};
-
-struct qb_variable {
-	uint32_t flags;
-	qb_address *address;
-	qb_address *default_value_address;
-	const char *name;
-	uint32_t name_length;
+struct qb_intrinsic_function {
 	ulong hash_value;
-	zend_class_entry *zend_class;
-};
-
-enum {
-	QB_STORAGE_IN_USE				= 0x0001,
-	QB_STORAGE_STATIC_INITIALIZED	= 0x0002,
-};
-
-enum {
-	QB_SEGMENT_STATIC				= 0x00000001,
-	QB_SEGMENT_EXPANDABLE			= 0x00000002,
-	QB_SEGMENT_PREALLOCATED			= 0x00000004,
-	QB_SEGMENT_TEMPORARY			= 0x00000008,
-	QB_SEGMENT_BORROWED				= 0x00000100,
-	QB_SEGMENT_MAPPED				= 0x00000200,
-};
-
-struct qb_memory_segment {
-	int8_t *memory;
-	uint32_t flags;
-	uint32_t type;								// type of elements contained in this segment
-	uint32_t element_count;						// number of elements in this segment
-	uint32_t current_allocation;				// number of elements allocated
-
-	uint32_t *array_size_pointer;				// pointer to array size variable accessible to user code (i.e. it points to a place in the first member of this struct)
-	uint32_t *dimension_pointer;				// pointer to the first array dimension, which would be different from array size if the array is multidimensional
-	uint32_t *increment_pointer;				// pointer to the size of each sub-array, populated only if array is multidimensional
-
-	php_stream *stream;							// memory-mapped file
-
-	int8_t *__restrict *stack_ref_memory;			// pointers to local variables in qb_run()
-	uint32_t *stack_ref_element_count;
-};
-
-struct qb_storage {
-	qb_memory_segment *segments;
-	uint32_t segment_count;
-	uint32_t size;
-	uint32_t flags;
-};
-
-enum {
-	QB_EXT_SYM_ZEND_FUNCTION			= 1,
-	QB_EXT_SYM_ZEND_CLASS				= 2,
-	QB_EXT_SYM_PCRE						= 3,
-};
-
-struct qb_external_symbol {
-	uint32_t type;
 	const char *name;
-	uint32_t name_length;
-	void *pointer;
+	uint32_t argument_count_min;
+	uint32_t argument_count_max;
+	void *extra;
 };
 
-enum {
-	QB_ENGINE_COMPILE_IF_POSSIBLE	= 0x00000001,
-	QB_ENGINE_NEVER_COMPILE			= 0x00000002,
-	QB_ENGINE_GO_THRU_ZEND			= 0x00000004,
+struct qb_pointer_adjustment {
+	uint32_t index;
+	uint32_t count;
 };
 
-struct qb_function {
-	int8_t *instructions;
-	uint32_t instruction_length;
-	uint64_t instruction_crc64;
-	uint32_t flags;
-	qb_variable *return_variable;
-	qb_variable **variables;
-	uint32_t variable_count;
-	uint32_t argument_count;
-	uint32_t required_argument_count;
-	qb_external_symbol **external_symbols;
-	uint32_t external_symbol_count;
-	qb_storage *local_storage;
-	const char *name;
-	const char *filename;
-	void *native_proc;
-
-	zend_function *zend_function;
+struct qb_thread_parameters {
+	void *pointer1;
+	void *pointer2;
 };
 
 #ifdef _MSC_VER
@@ -317,27 +152,16 @@ extern const char *type_cnames[];
 extern int64_t integer_lower_bounds[];
 extern uint64_t integer_upper_bounds[];
 
-void ZEND_FASTCALL qb_copy_wrap_around(int8_t *memory, uint32_t filled_byte_count, uint32_t required_byte_count);
-void ZEND_FASTCALL qb_copy_elements(uint32_t source_type, int8_t *restrict source_memory, uint32_t source_count, uint32_t dest_type, int8_t *restrict dest_memory, uint32_t dest_count);
+int64_t qb_zval_to_long(zval *zvalue);
+double qb_zval_to_double(zval *zvalue);
+int32_t qb_zval_array_to_int64(zval *zvalue, int64_t *p_integer);
 
-static zend_always_inline void qb_copy_element(uint32_t source_type, int8_t *restrict source_memory, uint32_t dest_type, int8_t *restrict dest_memory) {
-	qb_copy_elements(source_type, source_memory, 1, dest_type, dest_memory, 1);
-}
+zval * qb_cstring_to_zval(const char *s TSRMLS_DC);
+zval * qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC);
+zval * qb_cstring_to_zend_literal(const char *s TSRMLS_DC);
+zval * qb_string_to_zend_literal(const char *s, uint32_t len TSRMLS_DC);
 
-PHP_FUNCTION(qb_execute);
-
-static zend_always_inline int32_t qb_is_compiled_function(zend_function *zfunc) {
-	return (zfunc->type == ZEND_INTERNAL_FUNCTION && zfunc->internal_function.handler == PHP_FN(qb_execute));
-}
-
-int64_t ZEND_FASTCALL qb_zval_to_long(zval *zvalue);
-double ZEND_FASTCALL qb_zval_to_double(zval *zvalue);
-int64_t ZEND_FASTCALL qb_zval_array_to_int64(zval *zvalue);
-
-zval * ZEND_FASTCALL qb_cstring_to_zval(const char *s TSRMLS_DC);
-zval * ZEND_FASTCALL qb_string_to_zval(const char *s, uint32_t len TSRMLS_DC);
-
-uint32_t ZEND_FASTCALL qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type);
+uint32_t qb_element_to_string(char *buffer, uint32_t buffer_len, int8_t *bytes, uint32_t type);
 
 #define __qb_clamp_float32(f, max)				qb_clamp_float32_0_##max(f)
 #define qb_clamp_float32(f, max)				__qb_clamp_float32(f, max)
@@ -440,7 +264,7 @@ static zend_always_inline int32_t qb_clamp_float64_0_127(float64_t f) {
 #endif
 }
 
-int32_t ZEND_FASTCALL qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent);
+int32_t qb_uncompress_table(const char *data, void ***p_table, uint32_t *p_item_count, int32_t persistent);
 
 struct qb_block_allocator {
 	uint32_t count;
@@ -451,26 +275,57 @@ struct qb_block_allocator {
 	char data[4];
 };
 
-struct qb_native_code_bundle {
-	void *memory;
-	uint32_t size;
+struct qb_data_pool {
+	void ***arrays;
+	uint32_t array_count;
+
+	qb_block_allocator *op_allocator;
+	qb_block_allocator *address_allocator;
+	qb_block_allocator *expression_allocator;
+	qb_block_allocator *pointer_allocator;
+	qb_block_allocator *operand_allocator;
+	qb_block_allocator *index_alias_scheme_allocator;
+	qb_block_allocator *string_allocator;
+	qb_block_allocator *uint32_allocator;
+	qb_block_allocator *type_declaration_allocator;
+	qb_block_allocator *variable_allocator;
+	qb_block_allocator *function_declaration_allocator;
+	qb_block_allocator *class_declaration_allocator;
+	qb_block_allocator *array_initializer_allocator;
+	qb_block_allocator *result_destination_allocator;
+
+	char * const *op_names;
+	uint32_t op_name_count;
+	char * const *op_actions;
+	uint32_t op_action_count;
+	int32_t * const *op_function_usages;
+	uint32_t op_function_usage_count;
+	char * const *function_prototypes;
+	uint32_t function_prototype_count;
+	char * const *zend_op_names;
+	uint32_t zend_op_name_count;
+	char * const *pbj_op_names;
+	uint32_t pbj_op_name_count;
 };
 
-void ZEND_FASTCALL qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);
-void * ZEND_FASTCALL qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count);
-void ZEND_FASTCALL qb_destroy_block_allocator(qb_block_allocator **p_allocator);
+void qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);
+void * qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count);
+void qb_destroy_block_allocator(qb_block_allocator **p_allocator);
 
-void ZEND_FASTCALL qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t increment);
-void * ZEND_FASTCALL qb_enlarge_array(void **p_array, uint32_t count);
-void ZEND_FASTCALL qb_destroy_array(void **p_array);
+void qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t increment);
+void * qb_enlarge_array(void **p_array, uint32_t count);
+void qb_destroy_array(void **p_array);
 
 float qb_fast_rsqrtf(float a);
 double qb_fast_rsqrt(double a);
 float qb_fast_sqrtf(float a);
 double qb_fast_sqrt(double a);
 
-uint64_t ZEND_FASTCALL qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc);
-double ZEND_FASTCALL qb_get_high_res_timestamp(void);
+uint64_t qb_calculate_crc64(const uint8_t *buf, size_t size, uint64_t crc);
+double qb_get_high_res_timestamp(void);
+
+void qb_initialize_data_pool(qb_data_pool *pool);
+void qb_free_data_pool(qb_data_pool *pool);
 
 // Copyright (c) 2008-2010 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 // See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.

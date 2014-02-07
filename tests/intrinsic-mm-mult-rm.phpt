@@ -3,6 +3,8 @@ Matrix-matrix multiplication test (row-major)
 --FILE--
 <?php
 
+ini_set('precision', 10);
+
 /**
  * A test function
  * 
@@ -54,8 +56,6 @@ function test_function() {
 	$r5 = mm_mult_rm($m5, $n5);
 	echo "$r5\n";
 }
-
-qb_compile();
 
 test_function();
 

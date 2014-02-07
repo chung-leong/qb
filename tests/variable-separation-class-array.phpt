@@ -21,8 +21,6 @@ test_class::$b = test_class::$a;
 
 $object = new test_class;
 
-qb_compile();
-
 $object->test();
 
 print_r(test_class::$a);
@@ -33,9 +31,6 @@ print_r(test_class::$b);
 Array
 (
     [0] => 4321
-    [1] => 4321
-    [2] => 4321
-    [3] => 4321
 )
 Array
 (

@@ -21,8 +21,6 @@ function test_function($n) {
 	return $k;
 }
 
-qb_compile();
-
 echo test_function(99), "\n";
 echo test_function(5), "\n";
 

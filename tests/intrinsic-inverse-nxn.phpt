@@ -38,8 +38,6 @@ function test_function() {
 	echo "$r2\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

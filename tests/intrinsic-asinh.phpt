@@ -24,8 +24,6 @@ function test_function($a, $b, $c, $d) {
 	echo asinh($d), "\n";
 }
 
-qb_compile();
-
 $a = 1;
 $b = 2;
 $c = 3;

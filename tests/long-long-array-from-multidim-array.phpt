@@ -20,8 +20,6 @@ function test_function($a) {
 	echo "$a\n";
 }
 
-qb_compile();
-
 $a = array(
 	array(0xFFFFFFFFF, 0xFFFFFFFF), 
 	array(0x00FFFFFF, 0x00FFFFFF),

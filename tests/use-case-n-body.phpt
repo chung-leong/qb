@@ -126,7 +126,7 @@ function calc($n, &$bodies) {
 	} while(++$i < $n);
 }
 
-qb_compile();
+printf("%0.9f\n", energy($bodies));
 
 calc($n, $bodies);
 
@@ -134,4 +134,5 @@ printf("%0.9f\n", energy($bodies));
 
 ?>
 --EXPECT--
+-0.169075164
 -0.169096567

@@ -7,7 +7,7 @@ class TestClass {
 
 	/** @var int32 */
 	public $a = 1234;
-
+	
 	/** @engine qb */
 	public function test() {
 		echo "Inside qb: $this->a\n";
@@ -19,8 +19,6 @@ class TestClass {
 }
 
 $obj = new TestClass;
-
-qb_compile();
 
 $obj->test();
 

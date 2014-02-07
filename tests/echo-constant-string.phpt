@@ -15,8 +15,6 @@ function test_function() {
 	echo "Hello World";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

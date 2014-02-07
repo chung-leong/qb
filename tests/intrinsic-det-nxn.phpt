@@ -37,8 +37,6 @@ function test_function() {
 	echo "$r\n";
 }
 
-qb_compile();
-
 test_function();
 
 ?>

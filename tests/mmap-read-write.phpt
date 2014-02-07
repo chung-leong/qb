@@ -21,8 +21,6 @@ function test_function(&$a) {
 	$a[4] = 'S';
 }
 
-qb_compile();
-
 $contents = str_repeat("\xFF\x7F\xAA\x00\xCC", 200);
 
 $path = __FILE__ . ".dat";
@@ -40,7 +38,6 @@ echo "Length: ", strlen($contents), "\n";
 echo substr($contents, 0, 5);
 
 unlink($path);
-
 
 ?>
 --EXPECT--

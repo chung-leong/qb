@@ -20,8 +20,6 @@ function test_function() {
 	$a = 2021;
 }
 
-qb_compile();
-
 test_function();
 
 echo "Outside qb: $a\n";

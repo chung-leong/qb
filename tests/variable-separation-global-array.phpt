@@ -17,8 +17,6 @@ function test_function() {
 	$a = 4321;
 }
 
-qb_compile();
-
 $a = array(1, 2, 3, 4);
 $b = $a;
 
@@ -32,9 +30,6 @@ print_r($b);
 Array
 (
     [0] => 4321
-    [1] => 4321
-    [2] => 4321
-    [3] => 4321
 )
 Array
 (
