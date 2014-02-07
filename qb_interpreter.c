@@ -184,7 +184,7 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 #else
 	void **p = EG(argument_stack).top_element-1-1;
 #endif
-	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
+	uint32_t received_argument_count = (uint32_t) (uintptr_t) *p;
 	uint32_t i;
 
 	for(i = 0; i < cxt->function->argument_count; i++) {
@@ -288,7 +288,7 @@ static int32_t qb_transfer_arguments_to_php(qb_interpreter_context *cxt) {
 #else
 	void **p = EG(argument_stack).top_element-1-1;
 #endif
-	uint32_t received_argument_count = (uint32_t) (zend_uintptr_t) *p;
+	uint32_t received_argument_count = (uint32_t) (uintptr_t) *p;
 	uint32_t i;
 
 	// copy changes to by-ref arguments
