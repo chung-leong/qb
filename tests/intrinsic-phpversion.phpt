@@ -20,5 +20,5 @@ test_function();
 
 ?>
 --EXPECTREGEX--
-5\.\d\.\d+
+5\.\d\.\d+.*
 2\.\d+
