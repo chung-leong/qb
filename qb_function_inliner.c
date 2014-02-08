@@ -364,6 +364,12 @@ int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 	uint32_t caller_op_offset;
 	int32_t multiple_returns = FALSE;
 
+#ifdef ZEND_DEBUG
+	if(cxt->callee_context->op_count == 0) {
+		qb_debug_abort("%s() is trying to inline %s(), but it has not been compiled yet", cxt->caller_context->function_prototype.name, cxt->callee_context->function_prototype.name);
+	}
+#endif
+
 	// create the constants used by the function 
 	for(i = 0; i < cxt->callee_context->constant_scalar_count; i++) {
 		qb_address *callee_address = cxt->callee_context->constant_scalars[i];

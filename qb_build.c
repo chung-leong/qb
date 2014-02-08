@@ -59,23 +59,20 @@ static void qb_parse_declarations(qb_build_context *cxt) {
 		qb_parser_context _parser_cxt, *parser_cxt = &_parser_cxt;
 		qb_function_tag *tag = &cxt->function_tags[i];
 		qb_function_declaration *func_decl;
-		zend_op_array *op_array = qb_find_zend_op_array(tag TSRMLS_CC);
 
-		if(op_array) {
-			qb_initialize_parser_context(parser_cxt, cxt->pool, tag->scope, op_array->filename, op_array->line_start TSRMLS_CC);
-			func_decl = qb_parse_function_doc_comment(parser_cxt, op_array);
+		qb_initialize_parser_context(parser_cxt, cxt->pool, tag->scope, tag->op_array->filename, tag->op_array->line_start TSRMLS_CC);
+		func_decl = qb_parse_function_doc_comment(parser_cxt, tag->op_array);
 
-			if(func_decl) {
-				qb_add_function_declaration(cxt, func_decl);
+		if(func_decl) {
+			qb_add_function_declaration(cxt, func_decl);
 
-				if(tag->scope) {
-					qb_class_declaration *class_decl = qb_find_class_declaration(cxt, tag->scope);
-					if(!class_decl) {
-						class_decl = qb_parse_class_doc_comment(parser_cxt, tag->scope);
-						qb_add_class_declaration(cxt, class_decl);
-					}
-					func_decl->class_declaration = class_decl;
+			if(tag->scope) {
+				qb_class_declaration *class_decl = qb_find_class_declaration(cxt, tag->scope);
+				if(!class_decl) {
+					class_decl = qb_parse_class_doc_comment(parser_cxt, tag->scope);
+					qb_add_class_declaration(cxt, class_decl);
 				}
+				func_decl->class_declaration = class_decl;
 			}
 			qb_free_parser_context(parser_cxt);
 		}
@@ -169,30 +166,37 @@ static void qb_merge_function_dependencies(qb_build_context *cxt, qb_compiler_co
 	}
 }
 
-static int qb_compare_dependencies(const void *a, const void *b) {
-	const qb_compiler_context *cxt_a = *((const qb_compiler_context **) a);
-	const qb_compiler_context *cxt_b = *((const qb_compiler_context **) b);
-	if(cxt_a->dependencies[cxt_b->dependency_index]) {
-		// a is dependent on b, so it needs to be translated after b
-		return 1;
-	} else if(cxt_b->dependencies[cxt_a->dependency_index]) {
-		// b is dependent on a, so it needs to be translated after a
-		return -1;
-	} else {
-		// break the tie based on the dependency index
-		if(cxt_a->dependency_index < cxt_b->dependency_index) {
-			return -1;
-		} else {
-			return 1;
+static void qb_reinsert_function(qb_build_context *cxt, qb_compiler_context **compiler_cxts, uint32_t index, uint32_t count) {
+	uint32_t i;
+	qb_compiler_context *cxt_a = compiler_cxts[index];
+	for(i = 0; i < cxt->compiler_context_count; i++) {
+		if(cxt->compiler_contexts[i] == cxt_a) {
+			// already inserted
+			return;
 		}
 	}
+	for(i = 0; i < count; i++) {
+		if(i != index) {
+			qb_compiler_context *cxt_b = compiler_cxts[i];
+			if(cxt_a->dependencies[cxt_b->dependency_index]) {
+				if(cxt_b->function_flags & QB_FUNCTION_INLINEABLE) {
+					// A calls B and B is inlineable--B needs to be inserted first
+					qb_reinsert_function(cxt, compiler_cxts, i, count);
+				}
+			}
+		}
+	}
+	cxt->compiler_contexts[cxt->compiler_context_count++] = cxt_a;
 }
 
 static void qb_resolve_dependencies(qb_build_context *cxt) {
-	uint32_t i;
+	uint32_t i, j;
 	if(cxt->compiler_context_count > 1) {
-		// keep merging until there's no change
 		int32_t changed;
+		qb_compiler_context **compiler_contexts = alloca(sizeof(qb_compiler_context *) * cxt->compiler_context_count);
+		uint32_t compiler_context_count = cxt->compiler_context_count;
+
+		// keep merging until there's no change
 		do {
 			changed = FALSE;
 			for(i = 0; i < cxt->compiler_context_count; i++) {
@@ -200,9 +204,25 @@ static void qb_resolve_dependencies(qb_build_context *cxt) {
 			}
 		} while(changed);
 
-		// sort the contexts by dependencies so when we translate a function call,
-		// the op-tree of the target function will be available
-		qsort(cxt->compiler_contexts, cxt->compiler_context_count, sizeof(qb_compiler_context *), qb_compare_dependencies);
+		for(i = 0; i < cxt->compiler_context_count; i++) {
+			for(j = 0; j < cxt->compiler_context_count; j++) {
+				if(i != j) {
+					qb_compiler_context *cxt_a = cxt->compiler_contexts[i];
+					qb_compiler_context *cxt_b = cxt->compiler_contexts[j];
+					if(cxt_a->dependencies[cxt_b->dependency_index] && cxt_b->dependencies[cxt_a->dependency_index]) {
+						// cross-dependency: neither one can be inlined
+						cxt_a->function_flags &= ~QB_FUNCTION_INLINEABLE;
+						cxt_b->function_flags &= ~QB_FUNCTION_INLINEABLE;
+					}
+				}
+			}
+		}
+
+		memcpy(compiler_contexts, cxt->compiler_contexts, sizeof(qb_compiler_context *) * cxt->compiler_context_count);
+		cxt->compiler_context_count = 0;
+		for(i = 0; i < compiler_context_count; i++) {
+			qb_reinsert_function(cxt, compiler_contexts, i, compiler_context_count);
+		}
 	}
 }
 

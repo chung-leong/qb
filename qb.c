@@ -369,37 +369,19 @@ uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *nam
 	return i;
 }
 
-qb_build_context * qb_get_current_build(TSRMLS_D) {
-	qb_build_context *cxt = QB_G(build_context);
-	if(!cxt) {
-		cxt = emalloc(sizeof(qb_build_context));
-		qb_initialize_build_context(cxt TSRMLS_CC);
-		QB_G(build_context) = cxt;
-	}
-	return cxt;
-}
 
-static void qb_discard_current_build(TSRMLS_D) {
-	qb_build_context *cxt = QB_G(build_context);
-	if(cxt) {
-		qb_free_build_context(cxt);
-		efree(cxt);
-		QB_G(build_context) = NULL;
-	}
-}
-
-qb_function * qb_find_compiled_function(zend_function *zfunc) {
+qb_function * qb_find_compiled_function(zend_function *zfunc TSRMLS_DC) {
 	uint32_t i;
 	qb_function *qfunc = qb_get_compiled_function(zfunc);
 	if(!qfunc) {
 		// see if the function in question in also in the middle of being compiled
-		qb_build_context *build_context;
-		TSRMLS_FETCH();
-		build_context = QB_G(build_context);
-		for(i = 0; i < build_context->compiler_context_count; i++) {
-			qb_compiler_context *compiler_cxt = build_context->compiler_contexts[i];
-			if(compiler_cxt->function_prototype.zend_op_array == &zfunc->op_array) {
-				return &compiler_cxt->function_prototype;
+		qb_build_context *build_cxt = QB_G(build_context);
+		if(build_cxt) {
+			for(i = 0; i < build_cxt->compiler_context_count; i++) {
+				qb_compiler_context *compiler_cxt = build_cxt->compiler_contexts[i];
+				if(compiler_cxt->function_prototype.zend_op_array == &zfunc->op_array) {
+					return &compiler_cxt->function_prototype;
+				}
 			}
 		}
 	}
@@ -407,12 +389,14 @@ qb_function * qb_find_compiled_function(zend_function *zfunc) {
 }
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array TSRMLS_DC) {
-	zend_op_array **p_op_array;
-	if(!QB_G(compiled_op_arrays)) {
-		qb_create_array((void **) &QB_G(compiled_op_arrays), &QB_G(compiled_op_array_count), sizeof(zend_op_array *), 16);
+	if(!(op_array->fn_flags & ZEND_ACC_CLOSURE)) {
+		zend_op_array **p_op_array;
+		if(!QB_G(compiled_op_arrays)) {
+			qb_create_array((void **) &QB_G(compiled_op_arrays), &QB_G(compiled_op_array_count), sizeof(zend_op_array *), 16);
+		}
+		p_op_array = qb_enlarge_array((void **) &QB_G(compiled_op_arrays), 1);
+		*p_op_array = op_array;
 	}
-	p_op_array = qb_enlarge_array((void **) &QB_G(compiled_op_arrays), 1);
-	*p_op_array = op_array;
 	QB_SET_FUNCTION(op_array, qfunc);
 	op_array->reserved[reserved_offset] = NULL;
 }
@@ -423,10 +407,6 @@ qb_function * qb_get_compiled_function(zend_function *zfunc) {
 		return QB_GET_FUNCTION(op_array);
 	}
 	return NULL;
-}
-
-qb_main_thread * qb_get_main_thread(TSRMLS_D) {
-	return &QB_G(main_thread);
 }
 
 static void qb_start_execution_timer(qb_function *qfunc TSRMLS_DC) {
@@ -497,37 +477,73 @@ static void qb_remove_generator_context(zend_generator *generator TSRMLS_DC) {
 }
 #endif
 
+static void qb_scan_function(qb_build_context *cxt, zend_function *function, zend_class_entry *scope) {
+	if(QB_IS_COMPILED(&function->op_array)) {
+		qb_function_tag *tag = qb_enlarge_array((void **) &cxt->function_tags, 1);
+		tag->scope = scope;
+		tag->op_array = &function->op_array; 
+	}
+}
+
+static void qb_scan_function_table(qb_build_context *cxt, HashTable *function_table, zend_class_entry *scope) {
+	Bucket *p;
+	for(p = function_table->pListTail; p; p = p->pListLast) {
+		zend_function *zfunc = p->pData;
+		if(zfunc->type == ZEND_USER_FUNCTION) {
+			qb_scan_function(cxt, zfunc, scope);
+		} else {
+			break;
+		}
+	}
+}
+
+static void qb_scan_class_table(qb_build_context *cxt, HashTable *class_table) {
+	Bucket *p;
+	for(p = class_table->pListTail; p; p = p->pListLast) {
+		zend_class_entry **p_ce = (zend_class_entry **) p->pData, *ce = *p_ce;
+		if(ce->type == ZEND_USER_CLASS) {
+			qb_scan_function_table(cxt, &ce->function_table, ce);
+		} else {
+			break;
+		}
+	}
+}
+
+static int32_t qb_compile_functions(zend_op_array *op_array TSRMLS_DC) {
+	qb_build_context _build_cxt, *build_cxt = &_build_cxt;
+	int32_t result = FALSE;
+
+	// make sure the main thread is initialized
+	if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
+		qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
+	}
+
+	qb_initialize_build_context(build_cxt TSRMLS_CC);
+	QB_G(build_context) = build_cxt;
+
+	qb_scan_function_table(build_cxt, EG(function_table), NULL);
+	qb_scan_class_table(build_cxt, EG(class_table));
+	if(op_array) {
+		if(op_array->fn_flags & ZEND_ACC_CLOSURE) {
+			qb_scan_function(build_cxt, (zend_function *) op_array, NULL);
+		}
+	}
+	if(build_cxt->function_tag_count) {
+		qb_build(build_cxt);
+		result = TRUE;
+	}
+	qb_free_build_context(build_cxt);
+	QB_G(build_context) = NULL;
+	return result;
+}
+
 int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	zend_op_array *op_array = EG(active_op_array);
 	qb_function *qfunc = QB_GET_FUNCTION(op_array);
 	if(!qfunc) {
 		if(QB_IS_COMPILED(op_array)) {
-			qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
-			qb_function_tag *tag = op_array->reserved[reserved_offset];
-			int32_t in_build = FALSE;
-			uint32_t i;
-
-			// make sure the function is include in the current build
-			for(i = 0; i < build_cxt->function_tag_count; i++) {
-				if(tag == &build_cxt->function_tags[i]) {
-					in_build = TRUE;
-					break;
-				}
-			}
-			if(!in_build) {
-				// function is probably cached
-				tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
-				op_array->reserved[reserved_offset] = tag;
-			}
-			tag->scope = op_array->scope;
-
-			if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
-				qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
-			}
-
-			qb_build(build_cxt);
+			qb_compile_functions(op_array TSRMLS_CC);
 			qfunc = QB_GET_FUNCTION(op_array);
-			qb_discard_current_build(TSRMLS_C);
 		}
 	}
 	if(qfunc) {
@@ -612,12 +628,6 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 	doc_comment = CG(doc_comment);
 	if(doc_comment && qb_find_engine_tag(doc_comment)) {
 		zend_op *user_op;
-		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
-		qb_function_tag *tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
-
-		// save the tag in the reserved location
-		tag->scope = NULL;
-		op_array->reserved[reserved_offset] = tag;
 
 		// add QB instruction
 		user_op = &op_array->opcodes[op_array->last++];
@@ -639,28 +649,13 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	}
 }
 
-zend_op_array *qb_find_zend_op_array(qb_function_tag *tag TSRMLS_DC) {
-	HashTable *ft;
-	Bucket *p;
-	zend_function *zfunc = NULL;
-
-	if(tag->scope) {
-		ft = &tag->scope->function_table;
-	} else {
-		ft = EG(function_table);
-	}
-	for(p = ft->pListTail; p; p = p->pListLast) {
-		zend_function *f = p->pData;
-		if(f->type == ZEND_USER_FUNCTION) {
-			if(f->op_array.reserved[reserved_offset] == tag) {
-				zfunc = f;
-				break;
-			}
-		} else {
-			break;
+void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
+	if(op_array->fn_flags & ZEND_ACC_CLOSURE) {
+		if(QB_IS_COMPILED(op_array)) {
+			qb_function *qfunc = QB_GET_FUNCTION(op_array);
+			qb_free_function(qfunc);
 		}
 	}
-	return (zfunc) ? &zfunc->op_array : NULL;
 }
 
 extern zend_extension zend_extension_entry;
@@ -741,7 +736,7 @@ zend_extension zend_extension_entry = {
 	NULL,           /* fcall_begin_handler_func_t */
 	NULL,           /* fcall_end_handler_func_t */
 	qb_zend_ext_op_array_ctor,			/* op_array_ctor_func_t */
-	NULL,			/* op_array_dtor_func_t */
+	qb_zend_ext_op_array_dtor,			/* op_array_dtor_func_t */
 	NULL,
 	NULL,
 	NULL,
@@ -936,7 +931,6 @@ PHP_RINIT_FUNCTION(qb)
 PHP_RSHUTDOWN_FUNCTION(qb)
 {
 	uint32_t i, j;
-	qb_discard_current_build(TSRMLS_C);
 
 	if(QB_G(main_thread).type != QB_THREAD_UNINITIALIZED) {
 		if(CG(unclean_shutdown)) {
@@ -1073,14 +1067,11 @@ PHP_MINFO_FUNCTION(qb)
 PHP_FUNCTION(qb_compile)
 {
 	qb_build_context *build_cxt = QB_G(build_context);
-	if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
-		qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
+	if(qb_compile_functions(NULL TSRMLS_CC)) {
+		RETURN_TRUE
+	} else {
+		RETURN_FALSE
 	}
-	if(build_cxt) {
-		qb_build(build_cxt);
-		qb_discard_current_build(TSRMLS_C);
-	}
-	RETURN_TRUE;
 }
 /* }}} */
 

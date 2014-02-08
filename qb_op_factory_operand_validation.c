@@ -964,7 +964,7 @@ static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_facto
 static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	zend_class_entry *ce = EG(called_scope);
 #else

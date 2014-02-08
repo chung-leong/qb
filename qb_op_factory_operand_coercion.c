@@ -277,8 +277,9 @@ static void qb_coerce_operands_convert_string(qb_compiler_context *cxt, qb_op_fa
 }
 
 static void qb_coerce_operands_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
 	uint32_t i;
 	for(i = 0; i < (uint32_t) argument_count->number; i++) {
 		qb_operand *argument = &arguments->arguments[i];

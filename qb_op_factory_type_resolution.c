@@ -194,8 +194,9 @@ static qb_primitive_type qb_resolve_expression_type_unpack(qb_compiler_context *
 }
 
 static qb_primitive_type qb_resolve_expression_type_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count) {
+	USE_TSRM
 	qb_operand *func = &operands[0];
-	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
 	f->address_flags &= ~(QB_ADDRESS_BOOLEAN | QB_ADDRESS_STRING);
 	if(qfunc->return_variable->address) {
 		// should handle the address flag in a cleaner way

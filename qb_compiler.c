@@ -2016,51 +2016,56 @@ int32_t qb_perform_static_initialization(qb_compiler_context *cxt, qb_variable *
 	qb_operand assignment_result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_address *initial_value_address = NULL;
 
-	qvar->flags = QB_VARIABLE_STATIC;
+	qvar->flags = QB_VARIABLE_STATIC | QB_VARIABLE_LEXICAL;
 	if(!qb_apply_type_declaration(cxt, qvar)) {
 		return FALSE;
 	}
-	qb_mark_as_static(cxt, qvar->address);
 
-	// function that uses static variables cannot be inlined
-	cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+	if(qvar->flags & QB_VARIABLE_STATIC) {
+		qb_mark_as_static(cxt, qvar->address);
 
-	if(qvar->address->type == QB_TYPE_S64 || qvar->address->type == QB_TYPE_U64) {
-		// initializing 64-bit integer might require special handling
-		qb_primitive_type desired_type = qvar->address->type;
-		uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, initial_value, desired_type);
-		if(qvar->address->dimension_count + 1 == dimension_count) {
-			// the array has one less dimension than the variable
-			uint32_t dimensions[MAX_DIMENSION] = { 0 };
-			qb_get_zend_array_dimensions(cxt, initial_value, desired_type, dimensions, dimension_count);
-			if(dimensions[dimension_count - 1] == 2) {
-				// treat the last level as scalars
-				dimension_count--;
-				if(dimension_count > 0) {
-					initial_value_address = qb_create_constant_array(cxt, desired_type, dimensions, dimension_count);
-					if(!qb_copy_elements_from_zend_array(cxt, initial_value, initial_value_address)) {
-						return FALSE;
-					}
-				} else {
-					initial_value_address = qb_create_constant_scalar(cxt, desired_type);
-					if(!qb_copy_element_from_zval(cxt, initial_value, initial_value_address)) {
-						return FALSE;
+		// function that uses static variables cannot be inlined
+		cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+
+		if(qvar->address->type == QB_TYPE_S64 || qvar->address->type == QB_TYPE_U64) {
+			// initializing 64-bit integer might require special handling
+			qb_primitive_type desired_type = qvar->address->type;
+			uint32_t dimension_count = qb_get_zend_array_dimension_count(cxt, initial_value, desired_type);
+			if(qvar->address->dimension_count + 1 == dimension_count) {
+				// the array has one less dimension than the variable
+				uint32_t dimensions[MAX_DIMENSION] = { 0 };
+				qb_get_zend_array_dimensions(cxt, initial_value, desired_type, dimensions, dimension_count);
+				if(dimensions[dimension_count - 1] == 2) {
+					// treat the last level as scalars
+					dimension_count--;
+					if(dimension_count > 0) {
+						initial_value_address = qb_create_constant_array(cxt, desired_type, dimensions, dimension_count);
+						if(!qb_copy_elements_from_zend_array(cxt, initial_value, initial_value_address)) {
+							return FALSE;
+						}
+					} else {
+						initial_value_address = qb_create_constant_scalar(cxt, desired_type);
+						if(!qb_copy_element_from_zval(cxt, initial_value, initial_value_address)) {
+							return FALSE;
+						}
 					}
 				}
 			}
 		}
-	}
 
-	assignment_operands[0].address = qvar->address;
-	assignment_operands[0].type = QB_OPERAND_ADDRESS;
-	if(initial_value_address) {
-		assignment_operands[1].address = initial_value_address;
-		assignment_operands[1].type = QB_OPERAND_ADDRESS;
+		assignment_operands[0].address = qvar->address;
+		assignment_operands[0].type = QB_OPERAND_ADDRESS;
+		if(initial_value_address) {
+			assignment_operands[1].address = initial_value_address;
+			assignment_operands[1].type = QB_OPERAND_ADDRESS;
+		} else {
+			assignment_operands[1].constant = initial_value;
+			assignment_operands[1].type = QB_OPERAND_ZVAL;
+		}
+		return qb_produce_op(cxt, &factory_assign, assignment_operands, 2, &assignment_result, NULL, 0, NULL);
 	} else {
-		assignment_operands[1].constant = initial_value;
-		assignment_operands[1].type = QB_OPERAND_ZVAL;
+		return TRUE;
 	}
-	return qb_produce_op(cxt, &factory_assign, assignment_operands, 2, &assignment_result, NULL, 0, NULL);
 }
 
 int32_t qb_add_variables(qb_compiler_context *cxt) {

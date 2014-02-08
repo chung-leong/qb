@@ -369,7 +369,7 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 				return FALSE;
 			}
 #endif
-			qfunc = qb_find_compiled_function(zfunc);
+			qfunc = qb_find_compiled_function(zfunc TSRMLS_CC);
 		} else {
 			if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) { 
 				qb_report_missing_function_exception(cxt->compiler_context->line_id, (class_name) ? Z_STRVAL_P(class_name) : NULL, Z_STRVAL_P(name->constant));
@@ -440,6 +440,8 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 			qb_compiler_context *other_compiler_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
 			if(other_compiler_cxt) {
 				cxt->compiler_context->dependencies[other_compiler_cxt->dependency_index] = TRUE;
+			} else {
+				printf("???");
 			}
 		}
 	}

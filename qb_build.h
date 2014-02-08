@@ -46,6 +46,7 @@ struct qb_build_context {
 
 struct qb_function_tag {
 	zend_class_entry *scope;
+	zend_op_array *op_array;
 };
 
 struct qb_function_dependencies {

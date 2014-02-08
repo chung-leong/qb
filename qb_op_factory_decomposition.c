@@ -92,7 +92,7 @@ static int32_t qb_produce_intrinsic_op(qb_compiler_context *cxt, void *factory, 
 static int32_t qb_inline_function(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	USE_TSRM
 	qb_operand *func = &operands[0], *arguments = &operands[1], *argument_count = &operands[2];
-	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
 	qb_compiler_context *callee_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
 	qb_function_inliner_context _inliner_cxt, *inliner_cxt = &_inliner_cxt;
 	int32_t succeeded;

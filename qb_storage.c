@@ -981,7 +981,7 @@ static int32_t qb_copy_elements_to_array(int8_t *src_memory, zval *zarray, zval 
 	return TRUE;
 }
 
-static int32_t qb_copy_elements_to_object(int8_t *src_memory, zval *zobject, zval *container, qb_dimension_mappings *m, uint32_t dimension_index) {
+static int32_t qb_copy_elements_to_object(int8_t *src_memory, zval *zobject, qb_dimension_mappings *m, uint32_t dimension_index) {
 	int8_t *src_pointer = src_memory;
 	uint32_t src_element_count = (dimension_index + 1 < m ->src_dimension_count) ? m->src_array_sizes[dimension_index + 1] : 1;
 	uint32_t src_element_byte_count = BYTE_COUNT(src_element_count, m->src_element_type);
@@ -1033,7 +1033,7 @@ static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_
 static int32_t qb_copy_elements_to_zval(int8_t *src_memory, zval *zvalue, zval *container, qb_dimension_mappings *m, uint32_t dimension_index) {
 	switch(Z_TYPE_P(zvalue)) {
 		case IS_ARRAY:	return qb_copy_elements_to_array(src_memory, zvalue, container, m, dimension_index);
-		case IS_OBJECT:	return qb_copy_elements_to_object(src_memory, zvalue, container, m, dimension_index);
+		case IS_OBJECT:	return qb_copy_elements_to_object(src_memory, zvalue, m, dimension_index);
 		case IS_STRING:	return qb_copy_elements_to_string(src_memory, zvalue, m, dimension_index);
 		case IS_RESOURCE:	{
 			gdImagePtr image;

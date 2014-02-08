@@ -228,7 +228,7 @@ int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *zop_array TSRMLS_DC);
 qb_function * qb_get_compiled_function(zend_function *zfunc);
-qb_function * qb_find_compiled_function(zend_function *zfunc);
+qb_function * qb_find_compiled_function(zend_function *zfunc TSRMLS_DC);
 int qb_is_compiled_function(zend_function *zfunc);
 
 qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC);
@@ -236,12 +236,6 @@ qb_import_scope * qb_get_import_scope(qb_storage *storage, qb_variable *var, zva
 qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_import_scope *scope  TSRMLS_DC);
 
 uint32_t qb_import_external_symbol(qb_external_symbol_type type, const char *name, uint32_t name_len, void *pointer TSRMLS_DC);
-
-qb_build_context * qb_get_current_build(TSRMLS_D);
-
-qb_main_thread * qb_get_main_thread(TSRMLS_D);
-
-zend_op_array *qb_find_zend_op_array(qb_function_tag *tag TSRMLS_DC);
 
 extern int debug_compatibility_mode;
 extern long multithreading_threshold;

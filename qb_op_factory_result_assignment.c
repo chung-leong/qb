@@ -481,8 +481,9 @@ static void qb_set_preliminary_result_unpack(qb_compiler_context *cxt, qb_op_fac
 }
 
 static void qb_set_result_function_call(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	USE_TSRM
 	qb_operand *func = &operands[0];
-	qb_function *qfunc = qb_find_compiled_function(func->zend_function);
+	qb_function *qfunc = qb_find_compiled_function(func->zend_function TSRMLS_CC);
 	if(qfunc->return_variable->address) {
 		qb_address *src_address = qfunc->return_variable->address;
 		qb_variable_dimensions _dim, *dim = &_dim;
