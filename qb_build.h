@@ -45,9 +45,7 @@ struct qb_build_context {
 };
 
 struct qb_function_tag {
-	const char *file_path;
 	zend_class_entry *scope;
-	uint32_t line_number;
 };
 
 struct qb_function_dependencies {

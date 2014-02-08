@@ -7,8 +7,8 @@ Ternary operator test (constants)
  * A test function
  * 
  * @engine	qb
- * @param	int32	$a
- * @local	int32	$b
+ * @param	int64	$a
+ * @local	int64	$b
  * 
  * @return	void
  * 

@@ -169,7 +169,7 @@ struct qb_result_prototype {
 	qb_address *constant_result_address;
 #ifdef ZEND_DEBUG
 	zend_op *zend_op;
-	void *extra;
+	void *factory;
 #endif
 };
 

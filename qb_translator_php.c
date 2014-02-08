@@ -687,6 +687,14 @@ static int32_t qb_process_extension_op(qb_php_translator_context *cxt, void *op_
 	return qb_produce_op(cxt->compiler_context, op_factory, &opcode, 1, result, NULL, 0, result_prototype);
 }
 
+static int32_t qb_process_begin_silence(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	return TRUE;
+}
+
+static int32_t qb_process_end_silence(qb_php_translator_context *cxt, void *op_factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	return TRUE;
+}
+
 static qb_php_op_translator op_translators[] = {
 	{	qb_process_basic_op,				&factory_nop								},	// ZEND_NOP
 	{	qb_process_basic_op,				&factory_add								},	// ZEND_ADD
@@ -891,71 +899,72 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 		znode_op *result1 = &cxt->zend_op->result;
 		znode_op *result2 = (has_data_op) ? &cxt->zend_op[1].result : NULL;
 
-#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
-		switch(zend_opcode) {
-			case ZEND_FETCH_CLASS:
-				result_type1 = Z_OPERAND_TMP_VAR;
-				break;
-			case ZEND_INIT_METHOD_CALL:
-			case ZEND_INIT_STATIC_METHOD_CALL:
-				operand_type1 = Z_OPERAND_TMP_VAR;
-				break;
-			case ZEND_FETCH_R:
-			case ZEND_FETCH_W:
-			case ZEND_FETCH_RW:
-			case ZEND_FETCH_IS:
-			case ZEND_FETCH_FUNC_ARG:
-			case ZEND_FETCH_UNSET:
-				operand_type2 = Z_OPERAND_TMP_VAR;
-				break;
-		}
-#endif
-
-		// retrieve operands
-		if(operand_type1 != Z_OPERAND_UNUSED) {
-			operand_count = 1;
-			if(!qb_retrieve_operand(cxt, operand_type1, operand1, &operands[0])) {
-				return FALSE;
-			}
-		}
-		if(operand_type2 != Z_OPERAND_UNUSED) {
-			operand_count = 2;
-			if(!qb_retrieve_operand(cxt, operand_type2, operand2, &operands[1])) {
-				return FALSE;
-			}
-		}
-		if(operand_type3 != Z_OPERAND_UNUSED) {
-			operand_count = 3;
-			if(!qb_retrieve_operand(cxt, operand_type3, operand3, &operands[2])) {
-				return FALSE;
-			}
-		}
-		if(result_type1 != Z_OPERAND_UNUSED) {
-			result_count = 1;
-			if(!qb_retrieve_operand(cxt, result_type1, result1, &results[0])) {
-				return FALSE;
-			}
-		}
-		if(result_type2 != Z_OPERAND_UNUSED) {
-			result_count = 2;
-			if(!qb_retrieve_operand(cxt, result_type2, result2, &results[1])) {
-				return FALSE;
-			}
-		}
-
 		// look up the translator for this opcode
 		if(EXPECTED(zend_opcode < sizeof(op_translators) / sizeof(op_translators[0]))) {
 			t = &op_translators[zend_opcode];
 		} else {
 			t = NULL;
 		}
+
 		if(t && t->translate) {
-			if(!t->translate(cxt, t->extra, operands, operand_count, &results[0], result_prototype)) {
+#if ZEND_ENGINE_2_2 || ZEND_ENGINE_2_1
+			switch(zend_opcode) {
+				case ZEND_FETCH_CLASS:
+					result_type1 = Z_OPERAND_TMP_VAR;
+					break;
+				case ZEND_INIT_METHOD_CALL:
+				case ZEND_INIT_STATIC_METHOD_CALL:
+					operand_type1 = Z_OPERAND_TMP_VAR;
+					break;
+				case ZEND_FETCH_R:
+				case ZEND_FETCH_W:
+				case ZEND_FETCH_RW:
+				case ZEND_FETCH_IS:
+				case ZEND_FETCH_FUNC_ARG:
+				case ZEND_FETCH_UNSET:
+					operand_type2 = Z_OPERAND_TMP_VAR;
+					break;
+			}
+#endif
+
+			// retrieve operands
+			if(operand_type1 != Z_OPERAND_UNUSED) {
+				operand_count = 1;
+				if(!qb_retrieve_operand(cxt, operand_type1, operand1, &operands[0])) {
+					return FALSE;
+				}
+			}
+			if(operand_type2 != Z_OPERAND_UNUSED) {
+				operand_count = 2;
+				if(!qb_retrieve_operand(cxt, operand_type2, operand2, &operands[1])) {
+					return FALSE;
+				}
+			}
+			if(operand_type3 != Z_OPERAND_UNUSED) {
+				operand_count = 3;
+				if(!qb_retrieve_operand(cxt, operand_type3, operand3, &operands[2])) {
+					return FALSE;
+				}
+			}
+			if(result_type1 != Z_OPERAND_UNUSED) {
+				result_count = 1;
+				if(!qb_retrieve_operand(cxt, result_type1, result1, &results[0])) {
+					return FALSE;
+				}
+			}
+			if(result_type2 != Z_OPERAND_UNUSED) {
+				result_count = 2;
+				if(!qb_retrieve_operand(cxt, result_type2, result2, &results[1])) {
+					return FALSE;
+				}
+			}
+
+			if(!t->translate(cxt, t->factory, operands, operand_count, &results[0], result_prototype)) {
 				return FALSE;
 			}
 
 #ifdef ZEND_DEBUG
-			result_prototype->extra = t->extra;
+			result_prototype->factory = t->factory;
 #endif
 
 			if(operand_count >= 1) {
@@ -1221,7 +1230,7 @@ qb_intrinsic_function * qb_find_intrinsic_function(qb_php_translator_context *cx
 	return NULL;
 }
 
-static int32_t qb_process_instruction_range(qb_php_translator_context *cxt, uint32_t start_index, uint32_t end_index) {
+static int32_t qb_process_instruction_range(qb_php_translator_context *cxt, uint32_t start_index, uint32_t end_index, uint32_t depth) {
 	uint32_t zend_op_index;
 
 	// save states
@@ -1263,7 +1272,7 @@ static int32_t qb_process_instruction_range(qb_php_translator_context *cxt, uint
 				break;
 			} else if(op_index2) {
 				if(op_index1) {
-					qb_process_instruction_range(cxt, op_index1, op_index2);
+					qb_process_instruction_range(cxt, op_index1, op_index2, depth + 1);
 				}
 				cxt->zend_op = ZEND_OP(op_index2);
 				cxt->zend_op_index = op_index2;
@@ -1314,7 +1323,7 @@ static void qb_clear_completion_flags(qb_php_translator_context *cxt) {
 }
 
 static int32_t qb_process_instructions(qb_php_translator_context *cxt) {
-	return qb_process_instruction_range(cxt, 0, cxt->zend_op_array->last);
+	return qb_process_instruction_range(cxt, 0, cxt->zend_op_array->last, 0);
 }
 
 int32_t qb_survey_instructions(qb_php_translator_context *cxt) {

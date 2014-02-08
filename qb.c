@@ -517,11 +517,9 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 			if(!in_build) {
 				// function is probably cached
 				tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
-				tag->scope = op_array->scope;
-				tag->file_path = op_array->filename;
-				tag->line_number = op_array->line_start;
 				op_array->reserved[reserved_offset] = tag;
 			}
+			tag->scope = op_array->scope;
 
 			if(QB_G(main_thread).type == QB_THREAD_UNINITIALIZED) {
 				qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
@@ -577,6 +575,37 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 	}
 }
 
+
+int32_t qb_is_zend_optimizer_present(void) {
+	static int32_t optimizer_checked = FALSE;
+	static int32_t optimizer_present = FALSE;
+	if(!optimizer_checked) {
+		zend_extension *opcache = zend_get_extension("Zend OPcache");
+		if(opcache) {
+			optimizer_present = TRUE;
+		}
+		optimizer_checked = TRUE;
+	}
+	return optimizer_present;
+}
+
+void qb_disable_zend_optimizer(TSRMLS_D) {
+	if(qb_is_zend_optimizer_present()) {
+		char *entry_name = "opcache.optimization_level";
+		char *entry_value = "0";
+		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE TSRMLS_CC);
+	}
+}
+
+void qb_reenable_zend_optimizer(TSRMLS_D) {
+	if(qb_is_zend_optimizer_present()) {
+		char *entry_name = "opcache.optimization_level";
+		// since there isn't a "force" parameter for zend_restore_ini_entry()
+		// we'll pass something other than PHP_INI_STAGE_RUNTIME so the function succeeds
+		zend_restore_ini_entry(entry_name, strlen(entry_name) + 1, PHP_INI_STAGE_ACTIVATE);
+	}
+}
+
 void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 	const char *doc_comment;
 	TSRMLS_FETCH();
@@ -586,10 +615,9 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 		qb_build_context *build_cxt = qb_get_current_build(TSRMLS_C);
 		qb_function_tag *tag = qb_enlarge_array((void **) &build_cxt->function_tags, 1);
 
-		// tag the function
-		tag->scope = CG(active_class_entry);
-		tag->file_path = CG(compiled_filename);
-		tag->line_number = CG(zend_lineno);
+		// save the tag in the reserved location
+		tag->scope = NULL;
+		op_array->reserved[reserved_offset] = tag;
 
 		// add QB instruction
 		user_op = &op_array->opcodes[op_array->last++];
@@ -599,15 +627,15 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 		Z_OPERAND_TYPE(user_op->result) = IS_UNUSED;
 		QB_SET_FUNCTION(op_array, NULL);
 
-		// save the tag in the reserved location
-		op_array->reserved[reserved_offset] = tag;
+		// prevent Zend Optimizer from optimizing the opcodes
+		qb_disable_zend_optimizer(TSRMLS_C);
 	}
 }
 
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	if(QB_IS_COMPILED(op_array)) {
-		qb_function_tag *tag = op_array->reserved[reserved_offset];
-		QB_SET_FUNCTION(op_array, NULL);
+		TSRMLS_FETCH();
+		qb_reenable_zend_optimizer(TSRMLS_C);
 	}
 }
 
@@ -708,7 +736,7 @@ zend_extension zend_extension_entry = {
 	NULL,           /* activate_func_t */
 	NULL,           /* deactivate_func_t */
 	NULL,           /* message_handler_func_t */
-	NULL,           /* op_array_handler_func_t */
+	qb_zend_ext_op_array_handler,		/* op_array_handler_func_t */
 	NULL,			/* statement_handler_func_t */
 	NULL,           /* fcall_begin_handler_func_t */
 	NULL,           /* fcall_end_handler_func_t */

@@ -62,7 +62,7 @@ static void qb_parse_declarations(qb_build_context *cxt) {
 		zend_op_array *op_array = qb_find_zend_op_array(tag TSRMLS_CC);
 
 		if(op_array) {
-			qb_initialize_parser_context(parser_cxt, cxt->pool, tag->scope, tag->file_path, tag->line_number TSRMLS_CC);
+			qb_initialize_parser_context(parser_cxt, cxt->pool, tag->scope, op_array->filename, op_array->line_start TSRMLS_CC);
 			func_decl = qb_parse_function_doc_comment(parser_cxt, op_array);
 
 			if(func_decl) {
