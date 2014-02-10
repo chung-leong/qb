@@ -23,14 +23,14 @@ static void qb_transfer_operands_all(qb_compiler_context *cxt, qb_op_factory *f,
 	for(i = 0; i < operand_count; i++) {
 		dest[i] = operands[i];
 	}
-	if(result) {
+	if(i < dest_count) {
 		dest[i] = *result;
 	}
 }
 
 static void qb_transfer_operands_first(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count) {
 	dest[0] = operands[0];
-	if(result) {
+	if(1 < dest_count) {
 		dest[1] = *result;
 	}
 }

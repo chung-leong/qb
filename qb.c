@@ -1,6 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2012 The PHP Group                                |
   +----------------------------------------------------------------------+
@@ -28,7 +27,6 @@
 #include "ext/standard/info.h"
 #include "zend_extensions.h"
 
-int reserved_offset = -1;
 int debug_compatibility_mode = TRUE;
 int permitted_thread_count = 0;
 
@@ -389,16 +387,13 @@ qb_function * qb_find_compiled_function(zend_function *zfunc TSRMLS_DC) {
 }
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array TSRMLS_DC) {
-	if(!(op_array->fn_flags & ZEND_ACC_CLOSURE)) {
-		zend_op_array **p_op_array;
-		if(!QB_G(compiled_op_arrays)) {
-			qb_create_array((void **) &QB_G(compiled_op_arrays), &QB_G(compiled_op_array_count), sizeof(zend_op_array *), 16);
-		}
-		p_op_array = qb_enlarge_array((void **) &QB_G(compiled_op_arrays), 1);
-		*p_op_array = op_array;
+	zend_op_array **p_op_array;
+	if(!QB_G(compiled_op_arrays)) {
+		qb_create_array((void **) &QB_G(compiled_op_arrays), &QB_G(compiled_op_array_count), sizeof(zend_op_array *), 16);
 	}
+	p_op_array = qb_enlarge_array((void **) &QB_G(compiled_op_arrays), 1);
+	*p_op_array = op_array;
 	QB_SET_FUNCTION(op_array, qfunc);
-	op_array->reserved[reserved_offset] = NULL;
 }
 
 qb_function * qb_get_compiled_function(zend_function *zfunc) {
@@ -478,10 +473,13 @@ static void qb_remove_generator_context(zend_generator *generator TSRMLS_DC) {
 #endif
 
 static void qb_scan_function(qb_build_context *cxt, zend_function *function, zend_class_entry *scope) {
-	if(QB_IS_COMPILED(&function->op_array)) {
-		qb_function_tag *tag = qb_enlarge_array((void **) &cxt->function_tags, 1);
-		tag->scope = scope;
-		tag->op_array = &function->op_array; 
+	zend_op_array *op_array = &function->op_array;
+	if(QB_IS_COMPILED(op_array)) {
+		if(!QB_GET_FUNCTION(op_array)) {
+			qb_function_tag *tag = qb_enlarge_array((void **) &cxt->function_tags, 1);
+			tag->scope = scope;
+			tag->op_array = op_array;
+		}
 	}
 }
 
@@ -649,24 +647,9 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	}
 }
 
-void qb_zend_ext_op_array_dtor(zend_op_array *op_array) {
-	if(op_array->fn_flags & ZEND_ACC_CLOSURE) {
-		if(QB_IS_COMPILED(op_array)) {
-			qb_function *qfunc = QB_GET_FUNCTION(op_array);
-			qb_free_function(qfunc);
-		}
-	}
-}
-
 extern zend_extension zend_extension_entry;
 
 int qb_install_user_opcode_handler() {
-	// get a reserved offset
-	reserved_offset = zend_get_resource_handle(&zend_extension_entry);
-	if(reserved_offset == -1) {
-		return FAILURE;
-	}
-
 	// set the opcode handler
 	if(zend_set_user_opcode_handler(QB_USER_OPCODE, qb_user_opcode_handler) == FAILURE) {
 		return FAILURE;
@@ -736,7 +719,7 @@ zend_extension zend_extension_entry = {
 	NULL,           /* fcall_begin_handler_func_t */
 	NULL,           /* fcall_end_handler_func_t */
 	qb_zend_ext_op_array_ctor,			/* op_array_ctor_func_t */
-	qb_zend_ext_op_array_dtor,			/* op_array_dtor_func_t */
+	NULL,			/* op_array_dtor_func_t */
 	NULL,
 	NULL,
 	NULL,
@@ -972,8 +955,10 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 		for(i = 0; i < QB_G(compiled_op_array_count); i++) {
 			zend_op_array *op_array = QB_G(compiled_op_arrays)[i];
 			qb_function *qfunc = QB_GET_FUNCTION(op_array);
-			qb_free_function(qfunc);
-			QB_SET_FUNCTION(op_array, NULL);
+			if(qfunc) {
+				qb_free_function(qfunc);
+				QB_SET_FUNCTION(op_array, NULL);
+			}
 		}
 		qb_destroy_array((void **) &QB_G(compiled_op_arrays));
 	}
