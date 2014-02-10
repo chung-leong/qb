@@ -456,6 +456,7 @@ void qb_mark_op_reachability(qb_compiler_context *cxt, uint32_t start_index) {
 
 void qb_fuse_instructions(qb_compiler_context *cxt, int32_t pass) {
 	uint32_t i;
+	return;
 	if(pass == 1) {
 		// opcodes are not address mode specific at this point
 		// the last op is always RET: there's no need to scan it

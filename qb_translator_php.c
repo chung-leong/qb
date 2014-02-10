@@ -440,8 +440,6 @@ static int32_t qb_process_function_call_ex(qb_php_translator_context *cxt, void 
 			qb_compiler_context *other_compiler_cxt = qb_find_compiler_context(QB_G(build_context), qfunc);
 			if(other_compiler_cxt) {
 				cxt->compiler_context->dependencies[other_compiler_cxt->dependency_index] = TRUE;
-			} else {
-				printf("???");
 			}
 		}
 	}

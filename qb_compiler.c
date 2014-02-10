@@ -2710,8 +2710,9 @@ qb_address * qb_obtain_on_demand_value(qb_compiler_context *cxt, void *factory, 
 		qb_op_factory *f = factory;
 		qb_address *result_address;
 		qb_primitive_type expr_type;
+		uint32_t address_flags;
 		// ask the factory to set the result and return that 
-		expr_type = f->resolve_type(cxt, f, expr->operands, expr->operand_count);
+		f->resolve_type(cxt, f, expr->operands, expr->operand_count, &expr_type, &address_flags);
 		f->set_final_result(cxt, f, expr_type, expr->operands, expr->operand_count, expr->result, NULL);
 		result_address = expr->result->address;
 		qb_mark_as_tagged(cxt, result_address);
@@ -3432,12 +3433,13 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 	} else {
 		qb_primitive_type expr_type = QB_TYPE_VOID;
 		int32_t result_used = (!result || result->type != QB_OPERAND_NONE);
+		uint32_t address_flags = 0;
 		uint32_t i;
 
 		switch(cxt->stage) {
 			case QB_STAGE_VARIABLE_INITIALIZATION: {
 				if(f->resolve_type) {
-					expr_type = f->resolve_type(cxt, f, operands, operand_count);
+					f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
 				}
 
 				if(f->coerce_operands) {
@@ -3453,7 +3455,7 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 			case QB_STAGE_RESULT_TYPE_RESOLUTION: {
 				// determine the expression type
 				if(f->resolve_type) {
-					expr_type = f->resolve_type(cxt, f, operands, operand_count);
+					f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
 
 					if(result_prototype) {
 						// indicate in the prototype that the expression has this type
@@ -3463,8 +3465,8 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 							// we're certain about the type 
 							result_prototype->final_type = expr_type;
 						}
+						result_prototype->address_flags = address_flags;
 						result_prototype->coercion_flags = f->coercion_flags;
-						result_prototype->address_flags = f->address_flags;
 					}
 				}
 
@@ -3534,7 +3536,7 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 					}
 				} else {
 					if(f->resolve_type) {
-						expr_type = f->resolve_type(cxt, f, operands, operand_count);
+						f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
 					}
 				}
 
@@ -3555,7 +3557,7 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 						// couldn't figure it out the first time around
 						// after type coercion, we should know what the expresion is
 						if(f->resolve_type) {
-							expr_type = f->resolve_type(cxt, f, operands, operand_count);
+							f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
 						}
 					}
 					f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);

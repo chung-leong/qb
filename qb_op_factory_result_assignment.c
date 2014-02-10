@@ -28,7 +28,7 @@ static void qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *f, 
 	}
 }
 
-static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+static void qb_set_result_temporary_value_ex(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype, uint32_t address_flags) {
 	// if an address is provided and it isn't a constant value, then use that address
 	// a constant can show up here if one clause of a short-circuited logical statement is constant
 	if(result->type != QB_OPERAND_ADDRESS || CONSTANT(result->address)) {
@@ -50,10 +50,14 @@ static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factor
 				result->address = qb_create_constant_scalar(cxt, expr_type);
 			}
 		} else {
-			result->address = qb_obtain_write_target(cxt, expr_type, &dim, f->address_flags, result_prototype, TRUE);
+			result->address = qb_obtain_write_target(cxt, expr_type, &dim, address_flags, result_prototype, TRUE);
 		}
 		result->type = QB_OPERAND_ADDRESS;
 	}
+}
+
+static void qb_set_result_temporary_value(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
+	qb_set_result_temporary_value_ex(cxt, f, expr_type, operands, operand_count, result, result_prototype, f->address_flags);
 }
 
 static void qb_set_result_first_operand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
@@ -177,8 +181,7 @@ static void qb_set_final_result_assign_branching(qb_compiler_context *cxt, qb_op
 		qb_attach_bound_checking_expression(cxt, result->address, &dim, TRUE);
 	} else {
 		// copy the address flags of the value (not a very elegant way of doing this)
-		f->address_flags = value->address->flags;
-		qb_set_result_temporary_value(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+		qb_set_result_temporary_value_ex(cxt, f, expr_type, operands, operand_count, result, result_prototype, value->address->flags);
 	}
 }
 
