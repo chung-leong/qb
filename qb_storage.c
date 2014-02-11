@@ -1022,7 +1022,9 @@ static int32_t qb_copy_elements_to_string(int8_t *src_memory, zval *zstring, qb_
 	} else {
 		dst_memory = emalloc(src_byte_count + 1);
 		dst_memory[src_byte_count] = '\0';
-		efree(Z_STRVAL_P(zstring));
+		if(!IS_INTERNED(Z_STRVAL_P(zstring))) {
+			efree(Z_STRVAL_P(zstring));
+		}
 		Z_STRVAL_P(zstring) = (char *) dst_memory;
 		Z_STRLEN_P(zstring) = src_byte_count;
 	}

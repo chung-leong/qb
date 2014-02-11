@@ -3798,6 +3798,11 @@ void qb_initialize_compiler_context(qb_compiler_context *cxt, qb_data_pool *pool
 			cxt->function_flags |= QB_FUNCTION_GENERATOR;
 		}
 #endif
+#ifdef ZEND_ACC_CLOSURE
+		if(cxt->zend_op_array->fn_flags & ZEND_ACC_CLOSURE) {
+			cxt->function_flags |= QB_FUNCTION_CLOSURE;
+		}
+#endif
 	}
 	SAVE_TSRMLS
 

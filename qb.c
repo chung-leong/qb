@@ -387,12 +387,12 @@ qb_function * qb_find_compiled_function(zend_function *zfunc TSRMLS_DC) {
 }
 
 void qb_attach_compiled_function(qb_function *qfunc, zend_op_array *op_array TSRMLS_DC) {
-	zend_op_array **p_op_array;
-	if(!QB_G(compiled_op_arrays)) {
-		qb_create_array((void **) &QB_G(compiled_op_arrays), &QB_G(compiled_op_array_count), sizeof(zend_op_array *), 16);
+	qb_function **p_function;
+	if(!QB_G(compiled_functions)) {
+		qb_create_array((void **) &QB_G(compiled_functions), &QB_G(compiled_function_count), sizeof(qb_function *), 16);
 	}
-	p_op_array = qb_enlarge_array((void **) &QB_G(compiled_op_arrays), 1);
-	*p_op_array = op_array;
+	p_function = qb_enlarge_array((void **) &QB_G(compiled_functions), 1);
+	*p_function = qfunc;
 	QB_SET_FUNCTION(op_array, qfunc);
 }
 
@@ -588,7 +588,6 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 		return ZEND_USER_OPCODE_CONTINUE;
 	}
 }
-
 
 int32_t qb_is_zend_optimizer_present(void) {
 	static int32_t optimizer_checked = FALSE;
@@ -895,8 +894,8 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(exception_count) = 0;
 	QB_G(source_files) = NULL;
 	QB_G(source_file_count) = 0;
-	QB_G(compiled_op_arrays) = NULL;
-	QB_G(compiled_op_array_count) = 0;
+	QB_G(compiled_functions) = NULL;
+	QB_G(compiled_function_count) = 0;
 #ifdef ZEND_ACC_GENERATOR
 	QB_G(generator_contexts) = NULL;
 	QB_G(generator_context_count) = 0;
@@ -950,17 +949,17 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 	qb_destroy_array((void **) &QB_G(exceptions));
 	qb_destroy_array((void **) &QB_G(source_files));
 
-	if(QB_G(compiled_op_arrays)) {
+	if(QB_G(compiled_functions)) {
 		// free the compiled functions
-		for(i = 0; i < QB_G(compiled_op_array_count); i++) {
-			zend_op_array *op_array = QB_G(compiled_op_arrays)[i];
-			qb_function *qfunc = QB_GET_FUNCTION(op_array);
-			if(qfunc) {
-				qb_free_function(qfunc);
+		for(i = 0; i < QB_G(compiled_function_count); i++) {
+			qb_function *qfunc = QB_G(compiled_functions)[i];
+			if(!(qfunc->flags & QB_FUNCTION_CLOSURE)) {
+				zend_op_array *op_array = qfunc->zend_op_array;
 				QB_SET_FUNCTION(op_array, NULL);
 			}
+			qb_free_function(qfunc);
 		}
-		qb_destroy_array((void **) &QB_G(compiled_op_arrays));
+		qb_destroy_array((void **) &QB_G(compiled_functions));
 	}
 
 #ifdef ZEND_ACC_GENERATOR

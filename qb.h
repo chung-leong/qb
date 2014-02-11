@@ -195,8 +195,8 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 	const char **source_files;
 	uint32_t source_file_count;
 
-	zend_op_array **compiled_op_arrays;
-	uint32_t compiled_op_array_count;
+	qb_function **compiled_functions;
+	uint32_t compiled_function_count;
 
 #if !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	zend_literal static_zvals[8];
