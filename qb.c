@@ -818,8 +818,6 @@ int zend_shutdown_strtod(void);
  */
 PHP_MINIT_FUNCTION(qb)
 {
-	qb_main_thread main_thread;
-
 	ZEND_INIT_MODULE_GLOBALS(qb, php_qb_init_globals, NULL);
 
 	REGISTER_INI_ENTRIES();
@@ -838,11 +836,6 @@ PHP_MINIT_FUNCTION(qb)
 #endif
 
 	qb_install_user_opcode_handler();
-
-	qb_initialize_thread_pool(TSRMLS_C);
-	qb_initialize_main_thread(&main_thread TSRMLS_CC);
-	qb_add_workers(&main_thread);
-	qb_free_main_thread(&main_thread);
 
 #if ZEND_ENGINE_2_1
 	zend_startup_strtod();
@@ -904,6 +897,11 @@ PHP_RINIT_FUNCTION(qb)
 	QB_G(native_code_bundles) = NULL;
 	QB_G(native_code_bundle_count) = 0;
 #endif
+
+	if(qb_initialize_thread_pool(TSRMLS_C)) {
+		qb_initialize_main_thread(&QB_G(main_thread) TSRMLS_CC);
+		qb_add_workers(&QB_G(main_thread));
+	}
 	return SUCCESS;
 }
 /* }}} */

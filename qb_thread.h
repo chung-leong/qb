@@ -27,7 +27,11 @@
 #include <pthread.h>
 #endif
 
+#ifdef ZTS
+#define QB_GLOBAL_THREAD_COUNT_MULTIPLIER		8
+#else
 #define QB_GLOBAL_THREAD_COUNT_MULTIPLIER		1
+#endif
 
 typedef struct qb_condition			qb_condition;
 typedef struct qb_mutex				qb_mutex;
@@ -187,14 +191,14 @@ void ***qb_get_tsrm_ls(void);
 void qb_initialize_task_group(qb_task_group *group, long task_count, long extra_bytes);
 void qb_free_task_group(qb_task_group *group);
 void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3);
-void qb_run_task_group(qb_task_group *group, int32_t iterative);
+void qb_run_task_group(qb_task_group *group, int iterative);
 void qb_run_in_main_thread(qb_thread_proc proc, void *param1, void *param2, int param3);
 void qb_terminate_associated_workers(qb_main_thread *main_thread);
 
 qb_thread *qb_get_current_thread(void);
-int32_t qb_in_main_thread(void);
+int qb_in_main_thread(void);
 
-void qb_initialize_thread_pool(TSRMLS_D);
+int qb_initialize_thread_pool(TSRMLS_D);
 void qb_add_workers(qb_main_thread *thread);
 void qb_free_thread_pool(void);
 
