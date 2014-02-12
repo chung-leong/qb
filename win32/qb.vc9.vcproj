@@ -636,6 +636,20 @@
 				RelativePath="..\qb_crc64.c"
 				>
 				<FileConfiguration
+					Name="Debug_TS|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_TS|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug_TS_VC6|Win32"
 					>
 					<Tool
@@ -644,7 +658,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release_TS_VC6|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -652,7 +665,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

@@ -521,11 +521,13 @@ static int32_t qb_compile_functions(zend_op_array *op_array TSRMLS_DC) {
 
 	qb_scan_function_table(build_cxt, EG(function_table), NULL);
 	qb_scan_class_table(build_cxt, EG(class_table));
+#ifdef ZEND_ACC_CLOSURE
 	if(op_array) {
 		if(op_array->fn_flags & ZEND_ACC_CLOSURE) {
 			qb_scan_function(build_cxt, (zend_function *) op_array, NULL);
 		}
 	}
+#endif
 	if(build_cxt->function_tag_count) {
 		qb_build(build_cxt);
 		result = TRUE;
