@@ -702,13 +702,18 @@ zend_module_entry qb_module_entry = {
 
 extern qb_debug_interface debug_interface;
 
+int qb_extension_startup(zend_extension *extension) {
+	// ionCube loader calls this for some reason
+	return 0;
+}
+
 zend_extension zend_extension_entry = {
 	"QB",
 	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION),
 	"Chung Leong",
 	"http://www.php-qb.net/",
 	"Copyright (c) 2013-2014",
-	NULL,
+	qb_extension_startup,
 	NULL,
 	NULL,           /* activate_func_t */
 	NULL,           /* deactivate_func_t */
