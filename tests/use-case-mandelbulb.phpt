@@ -103,7 +103,7 @@ class Mandelbulb {
 	public $light = array(38, -42, 38);
 
 	/** @var float[r,g,b]	Background colour. */
-	public $colorBackground = array(0, 0, 0);
+	public $colorBackground = array(0.0, 0, 0);
 
 	/** @var float	 		Background transparency. */
 	public $colorBackgroundTransparency = 1.0;
@@ -219,6 +219,7 @@ class Mandelbulb {
 	 *   0.5 * |z| * log(|z|) / |dz|
 	 *
 	 * @engine qb
+	 * @inline never
 	 *
 	 * @param float[x,y,z]	$z0
 	 * @param float			$minDist
@@ -235,7 +236,7 @@ class Mandelbulb {
 		$z = $z0;
 
 		$dr = 1.0;
-		$r	 = length($z);
+		$r = length($z);
 		if ($r < $minDist) $minDist = $r;
 
 		for ($n = 0; $n < $this->maxIterations; $n++) {
@@ -248,7 +249,6 @@ class Mandelbulb {
 			if ($r < $minDist) $minDist = $r;
 			if ($r > $this->bailout) break;
 		}
-
 		return 0.5 * log($r) * $r / $dr;
 	}
 	
@@ -314,7 +314,7 @@ class Mandelbulb {
 	 * @param float			$e
 	 *
 	 * @local float			$minDst
-	 * @local float			$(z1|z2|z3|z4|z5|z6)
+	 * @local float[3]		$(z1|z2|z3|z4|z5|z6)
 	 * @local float[x,y,z]	$d
 	 *
 	 * @return float[3]
@@ -451,7 +451,6 @@ class Mandelbulb {
 				$eps = max(self::MIN_EPSILON, $this->pixelScale * $rayLength);
 			}
 
-
 			// Found intersection?
 			if ($dist < $eps) {
 				$ao	= 1.0 - clamp(1.0 - $minDist * $minDist, 0.0, 1.0) * $this->ambientOcclusion;
@@ -567,7 +566,7 @@ class Mandelbulb {
 		$s3 = sin(deg2rad(-$this->rotation->z));
 		$objRotationX = array(1, 0, 0, 0, $c3, -$s3, 0, $s3, $c3);
 
-		$this->viewRotation = mm_mult(mm_mult($objRotationY, $objRotationX), $objRotationZ);
+		$this->objRotation = mm_mult(mm_mult($objRotationY, $objRotationX), $objRotationZ);
 		
 		$this->eye = ($this->cameraPosition + $this->cameraPositionFine);
 		if ($this->eye == array(0, 0, 0)) $this->eye = array(0, 0.0001, 0);
@@ -580,7 +579,6 @@ class Mandelbulb {
 		$this->pixelScale = 1.0 / max($this->size->x, $this->size->y);
 		
 		for ($y = 0, $coord->y = 0.5; $y < $height; $y++, $coord->y++) {
-			echo "$y\n";
 			for ($x = 0, $coord->x = 0.5; $x < $width; $x++, $coord->x++) {
 				$c = array(0, 0, 0, 0);
 				if ($this->antialiasing > 1) {
@@ -603,7 +601,7 @@ ini_set("qb.allow_debugger_inspection", 0);
 ini_set("qb.column_major_matrix", 1);
 
 $folder = dirname(__FILE__);
-$output = imagecreatetruecolor(640, 480);
+$output = imagecreatetruecolor(480, 480);
 $correct_path = "$folder/output/mandelbulb.correct.png";
 $incorrect_path = "$folder/output/mandelbulb.incorrect.png";
 
