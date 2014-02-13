@@ -1,5 +1,5 @@
 --TEST--
-Use case: Mandelbulb fractal 
+Use case: Mandelbulb julia fractal (multicore)
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';
@@ -586,20 +586,21 @@ class Mandelbulb {
 		$this->sampleContribution = 1.0 / pow($this->antialiasing, 2.0);
 		$this->pixelScale = 1.0 / max($this->width, $this->height);
 		
-		for ($y = 0, $coord->y = 0.5; $y < $height; $y++, $coord->y++) {
-			for ($x = 0, $coord->x = 0.5; $x < $width; $x++, $coord->x++) {
-				$c = array(0, 0, 0, 0);
-				if ($this->antialiasing > 1) {
-					// Average antialiasing^2 points per pixel
-					for ($i = 0.0; $i < 1.0; $i += $this->sampleStep)
-						for ($j = 0.0; $j < 1.0; $j += $this->sampleStep)
-							$c += $this->sampleContribution * $this->renderPixel(array($coord->x + $i, $coord->y + $j));
-				} else {
-					$c = $this->renderPixel($coord);
-				}
-				// Return the final color which is still the background color if we didn't hit anything.
-				$dst[$y][$x] = $c;
+		$y = fork($height);
+		$coord->y = $y + 0.5;
+		
+		for ($x = 0, $coord->x = 0.5; $x < $width; $x++, $coord->x++) {
+			$c = array(0, 0, 0, 0);
+			if ($this->antialiasing > 1) {
+				// Average antialiasing^2 points per pixel
+				for ($i = 0.0; $i < 1.0; $i += $this->sampleStep)
+					for ($j = 0.0; $j < 1.0; $j += $this->sampleStep)
+						$c += $this->sampleContribution * $this->renderPixel(array($coord->x + $i, $coord->y + $j));
+			} else {
+				$c = $this->renderPixel($coord);
 			}
+			// Return the final color which is still the background color if we didn't hit anything.
+			$dst[$y][$x] = $c;
 		}
 	}
 
@@ -610,10 +611,11 @@ ini_set("qb.column_major_matrix", 1);
 
 $folder = dirname(__FILE__);
 $output = imagecreatetruecolor(480, 480);
-$correct_path = "$folder/output/mandelbulb.correct.png";
-$incorrect_path = "$folder/output/mandelbulb.incorrect.png";
+$correct_path = "$folder/output/mandelbulb-julia.correct.png";
+$incorrect_path = "$folder/output/mandelbulb-julia.incorrect.png";
 
 $rayTracer = new Mandelbulb;
+$rayTracer->julia = true;
 $rayTracer->generate($output);
 
 ob_start();
