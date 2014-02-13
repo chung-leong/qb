@@ -3402,6 +3402,9 @@ static int32_t qb_is_constant_expression(qb_compiler_context *cxt, qb_operand *o
 
 #ifdef ZEND_DEBUG
 void qb_validate_address(qb_compiler_context *cxt, qb_address *address) {
+	if(!address) {
+		qb_debug_abort("Address is null");
+	}
 	if(address->dimension_count > 0) {
 		uint32_t i;
 		if(!address->dimension_addresses) {
@@ -3548,7 +3551,9 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 
 				// perform validation
 				if(f->validate_operands) {
-					f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype) ? result_prototype->destination : NULL);
+					if(!f->validate_operands(cxt, f, expr_type, operands, operand_count, (result_prototype) ? result_prototype->destination : NULL)) {
+						return FALSE;
+					}
 				}
 
 				// then, assign result to result object
