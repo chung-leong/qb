@@ -1712,7 +1712,7 @@ qb_basic_op_factory factory_boolean_cast = {
 	NULL,
 	qb_resolve_expression_type_boolean,
 	NULL,
-	NULL,
+	qb_coerce_operands_boolean_cast,
 	qb_set_result_prototype,
 	NULL,
 	qb_set_result_temporary_value,

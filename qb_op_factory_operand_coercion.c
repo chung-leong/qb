@@ -70,6 +70,13 @@ static void qb_coerce_operands_no_cast(qb_compiler_context *cxt, qb_op_factory *
 	}
 }
 
+static void qb_coerce_operands_boolean_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
+	qb_operand *operand = &operands[0];
+	if(operand->type != QB_OPERAND_ADDRESS) {
+		qb_perform_boolean_coercion(cxt, operand);
+	}
+}
+
 static void qb_coerce_operands_all_to_first(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count) {
 	qb_primitive_type operand_type = qb_get_operand_type(cxt, &operands[0], f->coercion_flags);
 	uint32_t i;
