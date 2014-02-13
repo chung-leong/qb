@@ -582,7 +582,7 @@ class QuaternionJulia {
 		$s3 = sin(deg2rad(-$this->camera[2]));
         $viewRotationX = array(1, 0, 0, 0, $c3, -$s3, 0, $s3, $c3);
         
-        $this->viewRotation = mm_mult(mm_mult($viewRotationY, $viewRotationX), $viewRotationZ);
+		$this->viewRotation = mm_mult($viewRotationZ, mm_mult($viewRotationY, $viewRotationX));
         
 		$this->eye = vm_mult(array(0, 0, $this->camera[3]), $this->viewRotation);
         $this->lightSource = vm_mult($this->light, $this->viewRotation);

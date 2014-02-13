@@ -551,7 +551,7 @@ class Mandelbulb {
 		$s3 = sin(deg2rad(-$this->cameraRotation->z));
 		$viewRotationX = array(1, 0, 0, 0, $c3, -$s3, 0, $s3, $c3);
 
-		$this->viewRotation = mm_mult(mm_mult($viewRotationY, $viewRotationX), $viewRotationZ);
+		$this->viewRotation = mm_mult($viewRotationZ, mm_mult($viewRotationY, $viewRotationX));
 
 		// Object rotation
 		$c1 = cos(deg2rad(-$this->rotation->x));
@@ -566,7 +566,7 @@ class Mandelbulb {
 		$s3 = sin(deg2rad(-$this->rotation->z));
 		$objRotationX = array(1, 0, 0, 0, $c3, -$s3, 0, $s3, $c3);
 
-		$this->objRotation = mm_mult(mm_mult($objRotationY, $objRotationX), $objRotationZ);
+		$this->objRotation = mm_mult($objRotationZ, mm_mult($objRotationY, $objRotationX));
 		
 		$this->eye = ($this->cameraPosition + $this->cameraPositionFine);
 		if ($this->eye == array(0, 0, 0)) $this->eye = array(0, 0.0001, 0);
