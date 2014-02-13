@@ -1156,7 +1156,6 @@ static qb_intrinsic_function intrinsic_functions[] = {
 	{	0,	"hsl2rgb",				1,		1,		&factory_hsl2rgb			},
 	{	0,	"rgb_premult",			1,		1,		&factory_apply_premult		},
 	{	0,	"rgb_demult",			1,		1,		&factory_remove_premult		},
-	{	0,	"rgb_demult",			1,		1,		&factory_remove_premult		},
 	{	0,	"intval",				1,		1,		&factory_intval				},
 	{	0,	"floatval",				1,		1,		&factory_floatval			},
 	{	0,	"doubleval",			1,		1,		&factory_floatval			},
