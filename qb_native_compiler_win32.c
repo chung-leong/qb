@@ -160,7 +160,7 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	}
 
 	// delete the temporary c file
-	//DeleteFile(cxt->c_file_path);
+	DeleteFile(cxt->c_file_path);
 	return TRUE;
 }
 
