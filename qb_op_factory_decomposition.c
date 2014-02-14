@@ -149,7 +149,7 @@ static int32_t qb_decompose_fetch_do_op(qb_compiler_context *cxt, void *factory,
 static int32_t qb_decompose_branch_set(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_op_decomposer *d = factory;
 	qb_operand branch_condition = operands[0];
-	qb_operand branch_result = { QB_OPERAND_EMPTY, { NULL } };
+	qb_operand branch_result = { QB_OPERAND_NONE, { NULL } };
 	qb_result_prototype branch_result_prototype;
 
 	// do the branch first

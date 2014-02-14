@@ -1795,6 +1795,7 @@ int32_t qb_survey_pbj_instructions(qb_pbj_translator_context *cxt) {
 		prototype->preliminary_type = prototype->final_type = QB_TYPE_UNKNOWN;
 	}
 
+	cxt->compiler_context->no_short_circuting = TRUE;
 	cxt->compiler_context->stage = QB_STAGE_RESULT_TYPE_RESOLUTION;
 
 	if(!qb_start_pbj_filter_loop(cxt)) {

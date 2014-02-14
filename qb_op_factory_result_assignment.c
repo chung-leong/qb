@@ -98,10 +98,20 @@ static void qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, qb_
 			// link the previous prototype to this one
 			result->result_prototype->parent = result_prototype;		
 		}
-		if(condition->type == QB_OPERAND_ADDRESS) {
-			// the condition needs to be marked as reused so the branch op doesn't get merge with the comparison op
-			condition->address = qb_obtain_reused_alias(cxt, condition->address);
+		if(!cxt->no_short_circuting) {
+			if(condition->type == QB_OPERAND_ADDRESS) {
+				if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+					if(!TEMPORARY(condition->address)) {
+						// need to copy the condition to a temporary variable
+						condition->address = qb_retrieve_unary_op_result(cxt, &factory_boolean_cast, condition->address);
+					}
+				}
+
+				// the condition needs to be marked as reused so the branch op doesn't get merge with the comparison op
+				condition->address = qb_obtain_reused_alias(cxt, condition->address);
+			}
 		}
+
 		*result = *condition;
 	}
 }
