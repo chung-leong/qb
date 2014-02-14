@@ -225,7 +225,6 @@ class Mandelbulb {
 	 *   0.5 * |z| * log(|z|) / |dz|
 	 *
 	 * @engine qb
-	 * @inline never
 	 *
 	 * @param float[x,y,z]	$z0
 	 * @param float			$minDist
@@ -257,7 +256,7 @@ class Mandelbulb {
 		}
 		return 0.5 * log($r) * $r / $dr;
 	}
-	
+
 
 	/**
 	 * Intersect bounding sphere
@@ -315,6 +314,7 @@ class Mandelbulb {
 	 * Calculate the gradient in each dimension from the intersection point
 	 *
 	 * @engine qb
+	 * @inline never
 	 * 
 	 * @param float[3]		$z
 	 * @param float			$e
