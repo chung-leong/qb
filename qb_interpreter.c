@@ -332,7 +332,12 @@ static void qb_transfer_arguments_from_generator(qb_interpreter_context *cxt) {
 
 	if(cxt->function->sent_variable->address) {
 		if(generator->send_target) {
+#if PHP_RELEASE_VERSION < 8
 			zval *value = &generator->send_target->tmp_var;
+#else
+			zval *value = *generator->send_target;
+			Z_DELREF_P(value);
+#endif
 			qb_transfer_value_from_zval(cxt->function->local_storage, cxt->function->sent_variable->address, value, QB_TRANSFER_CAN_BORROW_MEMORY);
 		}
 	}
@@ -370,11 +375,23 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 		}
 	}
 	if(cxt->function->sent_variable->address) {
+#if PHP_RELEASE_VERSION < 8
 		if(!generator->send_target) {
 			cxt->send_target = emalloc(sizeof(temp_variable));
 			memset(cxt->send_target, 0, sizeof(temp_variable));
 			generator->send_target = cxt->send_target;
 		}
+#else
+		static zval _dummy_value, *dummy_value = &_dummy_value;
+		if(generator->send_target) {
+			zval_ptr_dtor(generator->send_target);
+		}
+		generator->send_target = (zval **) &cxt->send_target;
+
+		// Zend will call Z_DELREF_PP() on what generator->send_target points to
+		// put a dummy value there so it doesn't crash
+		*generator->send_target = dummy_value;
+#endif
 	}
 }
 #endif
@@ -579,7 +596,10 @@ void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 	}
 	if(cxt->send_target) {
 		// this should not happen inside a worker thread
+#if PHP_RELEASE_VERSION < 8
 		efree(cxt->send_target);
+#else
+#endif
 	}
 }
 
