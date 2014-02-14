@@ -1864,7 +1864,7 @@ static qb_address * qb_retrieve_array_from_initializer(qb_compiler_context *cxt,
 
 	if(initializer->flags & QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS) {
 		// need to use temporary fixed-length array, since the elements can change 
-		// not using qb_obtain_temporary_fixed_length_array() since the address cannot be reused
+		// not using qb_obtain_temporary_variable() since the address cannot be reused
 		address = qb_create_writable_array(cxt, element_type, dimensions, dimension_count);
 		qb_mark_as_temporary(cxt, address);
 

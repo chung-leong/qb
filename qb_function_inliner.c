@@ -258,25 +258,47 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 				}
 			}
 		} else {
-			qb_variable_dimensions dim;
-			if(SCALAR(callee_address)) {
-				dim.array_size_address =  NULL;
-				dim.dimension_count = 0;
-			} else {
-				// base address of arrays always point to linear arrays
-				dim.dimension_count = 1;
-				if(FIXED_LENGTH(callee_address)) {
-					// find equivalent constant address in the caller storage
-					dim.array_size_address = qb_find_substitution_address(cxt, callee_address->array_size_address);
-				} else {
-					// it's variable length
-					dim.array_size_address = NULL;
+			if(NON_REUSABLE(callee_address)) {
+				// it's an array initializer
+				uint32_t dimensions[MAX_DIMENSION];
+				uint32_t dimension_count = callee_address->dimension_count, i;
+				uint32_t element_count, byte_count;
+				int8_t *src_memory, *dst_memory;
+				for(i = 0; i < dimension_count; i++) {
+					dimensions[i] = VALUE_IN(cxt->callee_context->storage, U32, callee_address->dimension_addresses[i]);
 				}
-			}
-			caller_address = qb_obtain_temporary_variable(cxt->caller_context, callee_address->type, &dim);
-			if(callee_var && (callee_var->flags & QB_VARIABLE_RETURN_VALUE)) {
-				cxt->result->address = caller_address;
-				cxt->result->type = QB_OPERAND_ADDRESS;
+				caller_address = qb_create_writable_array(cxt->caller_context, type, dimensions, dimension_count);
+				qb_mark_as_temporary(cxt->caller_context, caller_address);
+
+				// allocate space for it and copy the contents at the callee address
+				qb_allocate_storage_space(cxt->caller_context, caller_address, TRUE);
+				element_count = ARRAY_SIZE_IN(cxt->caller_context->storage, caller_address);
+				byte_count = BYTE_COUNT(element_count, type);
+				src_memory = ARRAY_IN(cxt->callee_context->storage, I08, callee_address);
+				dst_memory = ARRAY_IN(cxt->caller_context->storage, I08, caller_address);
+				memcpy(dst_memory, src_memory, byte_count);
+			} else {
+				qb_variable_dimensions dim;
+				if(SCALAR(callee_address)) {
+					dim.array_size_address =  NULL;
+					dim.dimension_count = 0;
+				} else {
+					// base address of arrays always point to linear arrays
+					dim.dimension_count = 1;
+					if(FIXED_LENGTH(callee_address)) {
+						// find equivalent constant address in the caller storage
+						dim.array_size_address = qb_find_substitution_address(cxt, callee_address->array_size_address);
+					} else {
+						// it's variable length
+						dim.array_size_address = NULL;
+					}
+				}
+
+				caller_address = qb_obtain_temporary_variable(cxt->caller_context, callee_address->type, &dim);
+				if(callee_var && (callee_var->flags & QB_VARIABLE_RETURN_VALUE)) {
+					cxt->result->address = caller_address;
+					cxt->result->type = QB_OPERAND_ADDRESS;
+				}
 			}
 		}
 	}

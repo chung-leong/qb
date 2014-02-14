@@ -314,7 +314,6 @@ class Mandelbulb {
 	 * Calculate the gradient in each dimension from the intersection point
 	 *
 	 * @engine qb
-	 * @inline never
 	 * 
 	 * @param float[3]		$z
 	 * @param float			$e
