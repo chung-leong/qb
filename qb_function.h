@@ -139,10 +139,10 @@ struct qb_native_code_bundle {
 	uint32_t size;
 };
 
-#if PHP_MAJOR_VERSION == 5 && (PHP_MINOR_VERSION == 1 || PHP_MINOR_VERSION == 2 || PHP_MINOR_VERSION == 3)
+#if ZEND_ENGINE_2_1 || ZEND_ENGINE_2_2 || ZEND_ENGINE_2_3
 	#define QB_GET_FUNCTION(op_array)		((void *) (op_array)->opcodes[0].op2.u.jmp_addr)
 	#define QB_SET_FUNCTION(op_array, p)	(op_array)->opcodes[0].op2.u.jmp_addr = (void *) p
-#elif PHP_MAJOR_VERSION == 5 && (PHP_MINOR_VERSION == 4 || PHP_MINOR_VERSION == 5)
+#elif ZEND_ENGINE_2_4 || ZEND_ENGINE_2_5 || ZEND_ENGINE_2_6
 	#define QB_GET_FUNCTION(op_array)		((op_array)->opcodes[0].op2.ptr)
 	#define QB_SET_FUNCTION(op_array, p)	(op_array)->opcodes[0].op2.ptr = (void *) p
 #endif
