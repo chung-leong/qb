@@ -332,7 +332,7 @@ static void qb_transfer_arguments_from_generator(qb_interpreter_context *cxt) {
 
 	if(cxt->function->sent_variable->address) {
 		if(generator->send_target) {
-#if PHP_MINOR_VERSION >= 5 && PHP_RELEASE_VERSION >= 8
+#if PHP_MINOR_VERSION > 5 || PHP_RELEASE_VERSION > 7
 			zval *value = *generator->send_target;
 			Z_DELREF_P(value);
 #else
@@ -375,7 +375,7 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 		}
 	}
 	if(cxt->function->sent_variable->address) {
-#if PHP_MINOR_VERSION >= 5 && PHP_RELEASE_VERSION >= 8
+#if PHP_MINOR_VERSION > 5 || PHP_RELEASE_VERSION > 8
 		static zval _dummy_value, *dummy_value = &_dummy_value;
 		if(generator->send_target) {
 			zval_ptr_dtor(generator->send_target);
@@ -596,7 +596,7 @@ void qb_free_interpreter_context(qb_interpreter_context *cxt) {
 	}
 	if(cxt->send_target) {
 		// this should not happen inside a worker thread
-#if PHP_MINOR_RELEASE >= 5 && PHP_RELEASE_VERSION >= 8
+#if PHP_MINOR_RELEASE > 5 && PHP_RELEASE_VERSION > 7
 #else
 		efree(cxt->send_target);
 #endif
