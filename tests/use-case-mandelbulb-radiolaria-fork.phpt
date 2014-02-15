@@ -645,7 +645,7 @@ if(file_exists($correct_path)) {
 	} else {
 		$correct_output = imagecreatefrompng($correct_path);
 		$diff = _image_diff($output, $correct_output);
-		if($diff < 3) {
+		if($diff < 10) {
 			// the output is different ever so slightly
 			$match = true;
 		} else {
