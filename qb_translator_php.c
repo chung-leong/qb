@@ -863,6 +863,10 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_return,					&factory_leave,								},	// ZEND_GENERATOR_RETURN
 	{	NULL,								NULL,										},	// ZEND_FAST_CALL
 	{	NULL,								NULL,										},	// ZEND_FAST_RET
+	{	NULL,								NULL,										},	// ZEND_RECV_VARIADIC
+	{	NULL,								NULL,										},	// ZEND_SEND_UNPACK
+	{	NULL,								NULL,										},	// ZEND_POW
+	{	NULL,								NULL,										},	// ZEND_ASSIGN_POW
 };
 
 extern const char compressed_table_zend_op_names[];

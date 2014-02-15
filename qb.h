@@ -71,6 +71,8 @@
 	#define ZEND_ENGINE_2_4		1
 #elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 5
 	#define ZEND_ENGINE_2_5		1
+#elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 6
+	#define ZEND_ENGINE_2_6		1
 #else
 	#error Incompatible version of PHP
 #endif
