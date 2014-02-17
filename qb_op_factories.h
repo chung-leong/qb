@@ -62,7 +62,6 @@ typedef struct qb_comparison_branch_op_factory	qb_comparison_branch_op_factory;
 typedef struct qb_arithmetic_op_factory			qb_arithmetic_op_factory;
 typedef struct qb_string_op_factory				qb_string_op_factory;
 typedef struct qb_fcall_op_factory				qb_fcall_op_factory;
-typedef struct qb_vector_op_factory				qb_vector_op_factory;
 typedef struct qb_matrix_op_factory				qb_matrix_op_factory;
 typedef struct qb_equivalent_matrix_op_factory	qb_equivalent_matrix_op_factory;
 typedef struct qb_matrix_op_factory_selector	qb_matrix_op_factory_selector;
@@ -83,23 +82,23 @@ typedef struct qb_round_decomposer				qb_round_decomposer;
 
 typedef int32_t (*qb_produce_composite_proc)(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
 
-typedef void (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags);
+typedef int32_t (*qb_resolve_expression_type_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags);
 
-typedef void (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
+typedef int32_t (*qb_link_results_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_result_prototype *result_prototype);
 
 typedef int32_t (*qb_validate_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination);
 
-typedef void (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
+typedef int32_t (*qb_coerce_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count);
 
-typedef void (*qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
+typedef int32_t (*qb_set_result_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype);
 
-typedef void (*qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
+typedef int32_t (*qb_set_dimensions_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_variable_dimensions *dim);
 
-typedef qb_opcode (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+typedef int32_t (*qb_select_opcode_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *opcode);
 
-typedef void (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
+typedef int32_t (*qb_transfer_operands_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_operand *dest, uint32_t dest_count);
 
-typedef void (*qb_set_function_flags_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+typedef int32_t (*qb_set_function_flags_proc)(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
 #define OP_FACTORY_COMMON_ELEMENTS		\
 	qb_produce_composite_proc produce_composite;	\
@@ -194,12 +193,6 @@ struct qb_string_op_factory {
 struct qb_fcall_op_factory {
 	OP_FACTORY_COMMON_ELEMENTS
 	qb_opcode opcode;
-};
-
-struct qb_vector_op_factory {
-	OP_FACTORY_COMMON_ELEMENTS
-	qb_opcode opcodes_any_size[2];
-	qb_opcode opcodes_fixed_size[3][2];
 };
 
 struct qb_matrix_op_factory {
@@ -527,14 +520,14 @@ extern qb_float_op_factory factory_complex_sqrt;
 extern qb_float_op_factory factory_complex_tan;
 extern qb_float_op_factory factory_complex_tanh;
 
-extern qb_vector_op_factory factory_cross_product;
-extern qb_vector_op_factory factory_distance;
-extern qb_vector_op_factory factory_dot_product;
-extern qb_vector_op_factory factory_faceforward;
-extern qb_vector_op_factory factory_length;
-extern qb_vector_op_factory factory_normalize;
-extern qb_vector_op_factory factory_reflect;
-extern qb_vector_op_factory factory_refract;
+extern qb_matrix_op_factory factory_cross_product;
+extern qb_matrix_op_factory factory_distance;
+extern qb_matrix_op_factory factory_dot_product;
+extern qb_matrix_op_factory factory_faceforward;
+extern qb_matrix_op_factory factory_length;
+extern qb_matrix_op_factory factory_normalize;
+extern qb_matrix_op_factory factory_reflect;
+extern qb_matrix_op_factory factory_refract;
 
 extern qb_simple_op_factory factory_validate_cross_product_2d;
 extern qb_simple_op_factory factory_validate_cross_product_3d;

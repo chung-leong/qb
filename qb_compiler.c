@@ -2543,24 +2543,22 @@ qb_primitive_type qb_get_highest_rank_type(qb_compiler_context *cxt, qb_operand 
 }
 
 qb_address * qb_retrieve_unary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address) {
-	qb_operand operand, result;
-	operand.type = QB_OPERAND_ADDRESS;
-	operand.address = address;
-	result.type = QB_OPERAND_EMPTY;
+	qb_operand operand = { QB_OPERAND_ADDRESS, { address } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_produce_op(cxt, factory, &operand, 1, &result, NULL, 0, NULL);
-	qb_lock_address(cxt, result.address);
+	if(result.type == QB_OPERAND_ADDRESS) {
+		qb_lock_address(cxt, result.address);
+	}
 	return result.address;
 }
 
 qb_address * qb_retrieve_binary_op_result(qb_compiler_context *cxt, void *factory, qb_address *address1, qb_address *address2) {
-	qb_operand operands[2], result;
-	operands[0].type = QB_OPERAND_ADDRESS;
-	operands[0].address = address1;
-	operands[1].type = QB_OPERAND_ADDRESS;
-	operands[1].address = address2;
-	result.type = QB_OPERAND_EMPTY;
+	qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { address1 } }, { QB_OPERAND_ADDRESS, { address2 } } };
+	qb_operand result = { QB_OPERAND_EMPTY, { NULL } };
 	qb_produce_op(cxt, factory, operands, 2, &result, NULL, 0, NULL);
-	qb_lock_address(cxt, result.address);
+	if(result.type == QB_OPERAND_ADDRESS) {
+		qb_lock_address(cxt, result.address);
+	}
 	return result.address;
 }
 
@@ -2581,33 +2579,39 @@ qb_address * qb_retrieve_temporary_copy(qb_compiler_context *cxt, qb_address *ad
 	return qb_retrieve_unary_op_result(cxt, cf, address);
 }
 
-void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags) {
-	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-			// no type information to record if we don't have any
-			if(desired_type != QB_TYPE_ANY) {
-				// change the type only if there's flexibility 
-				if(operand->result_prototype->final_type == QB_TYPE_ANY || operand->result_prototype->final_type == QB_TYPE_UNKNOWN) {
-					if(desired_type >= QB_TYPE_F32 && (operand->result_prototype->coercion_flags & QB_COERCE_TO_INTEGER)) {
-						// operand cannot be floating point (e.g. result of bitwise operator) 
-						// use the largest integer type instead
-						desired_type = QB_TYPE_I64;
-					} else if(desired_type < QB_TYPE_F32 && (operand->result_prototype->coercion_flags & QB_COERCE_TO_FLOATING_POINT)) {
-						desired_type = QB_TYPE_F64;
-					}
-					if(desired_type > operand->result_prototype->preliminary_type || operand->result_prototype->preliminary_type == QB_TYPE_ANY || operand->result_prototype->preliminary_type == QB_TYPE_UNKNOWN) {
-						operand->result_prototype->preliminary_type = desired_type;
-						if(!(operand->result_prototype->coercion_flags & QB_COERCE_TO_LVALUE_TYPE)) {
-							operand->result_prototype->final_type = desired_type;
+int32_t qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags) {
+	switch(operand->type) {
+		case QB_OPERAND_RESULT_PROTOTYPE: {
+			if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+				// no type information to record if we don't have any
+				if(desired_type != QB_TYPE_ANY) {
+					// change the type only if there's flexibility 
+					if(operand->result_prototype->final_type == QB_TYPE_ANY || operand->result_prototype->final_type == QB_TYPE_UNKNOWN) {
+						if(desired_type >= QB_TYPE_F32 && (operand->result_prototype->coercion_flags & QB_COERCE_TO_INTEGER)) {
+							// operand cannot be floating point (e.g. result of bitwise operator) 
+							// use the largest integer type instead
+							desired_type = QB_TYPE_I64;
+						} else if(desired_type < QB_TYPE_F32 && (operand->result_prototype->coercion_flags & QB_COERCE_TO_FLOATING_POINT)) {
+							desired_type = QB_TYPE_F64;
+						}
+						if(desired_type > operand->result_prototype->preliminary_type || operand->result_prototype->preliminary_type == QB_TYPE_ANY || operand->result_prototype->preliminary_type == QB_TYPE_UNKNOWN) {
+							operand->result_prototype->preliminary_type = desired_type;
+							if(!(operand->result_prototype->coercion_flags & QB_COERCE_TO_LVALUE_TYPE)) {
+								operand->result_prototype->final_type = desired_type;
+							}
 						}
 					}
 				}
+			} else {
+				qb_report_internal_error(cxt->line_id, "Invalid operand");
+				return FALSE;
 			}
-		} else if(operand->type == QB_OPERAND_THIS) {
-			qb_report_illegal_use_of_this(cxt->line_id);
-		}
-	} else {
-		if(operand->type == QB_OPERAND_ADDRESS) {
+		}	break;
+		case QB_OPERAND_ADDRESS: {
+			if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+				// don't need to do anything yet
+				return TRUE;
+			}
 			if(desired_type != QB_TYPE_VOID) {
 				qb_address *new_address = NULL;
 				if(operand->address->type != desired_type && desired_type != QB_TYPE_ANY) {
@@ -2621,7 +2625,12 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 						}
 					} else {
 						// the bit pattern is different--need to do a copy
-						new_address = qb_retrieve_temporary_copy(cxt, operand->address, desired_type);
+						if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+							new_address = qb_retrieve_temporary_copy(cxt, operand->address, desired_type);
+						} else {
+							qb_report_internal_error(cxt->line_id, "Invalid operand");
+							return FALSE;
+						}
 					}
 					operand->address = new_address;
 				}
@@ -2629,7 +2638,8 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 				operand->address = NULL;
 				operand->type = QB_OPERAND_NONE;
 			}
-		} else if(operand->type == QB_OPERAND_ZVAL) {
+		}	break;
+		case QB_OPERAND_ZVAL: {
 			if(desired_type != QB_TYPE_VOID) {
 				if(desired_type == QB_TYPE_ANY) {
 					desired_type = qb_get_zval_type(cxt, operand->constant, coercion_flags);
@@ -2640,24 +2650,38 @@ void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_
 				operand->address = NULL;
 				operand->type = QB_OPERAND_NONE;
 			}
-		} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
+		}	break;
+		case QB_OPERAND_ARRAY_INITIALIZER: {
 			if(desired_type == QB_TYPE_ANY) {
 				desired_type = qb_get_array_initializer_type(cxt, operand->array_initializer, coercion_flags);
 			}
-			operand->address = qb_retrieve_array_from_initializer(cxt, operand->array_initializer, desired_type);
-			operand->type = QB_OPERAND_ADDRESS;
+			if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION || !(operand->array_initializer->flags & QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS)) {
+				operand->address = qb_retrieve_array_from_initializer(cxt, operand->array_initializer, desired_type);
+				operand->type = QB_OPERAND_ADDRESS;
+			}
+		}	break;
+		case QB_OPERAND_THIS: {
+			qb_report_illegal_use_of_this(cxt->line_id);
+		}	break;
+		default: {
+			qb_report_internal_error(cxt->line_id, "Invalid operand");
+			return FALSE;
 		}
 	}
+	return TRUE;
 }
 
-void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand) {
-	if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
-		if(operand->type == QB_OPERAND_RESULT_PROTOTYPE) {
-			operand->result_prototype->preliminary_type = operand->result_prototype->final_type = QB_TYPE_I32;
-			operand->result_prototype->address_flags |= QB_ADDRESS_BOOLEAN;
-		}
-	} else if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-		if(operand->type == QB_OPERAND_ADDRESS) {
+int32_t qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand) {
+	switch(operand->type) {
+		case QB_OPERAND_RESULT_PROTOTYPE: {
+			if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+				operand->result_prototype->preliminary_type = operand->result_prototype->final_type = QB_TYPE_I32;
+				operand->result_prototype->address_flags |= QB_ADDRESS_BOOLEAN;
+			} else {
+				return FALSE;
+			}
+		}	break;
+		case QB_OPERAND_ADDRESS: {
 			if(!(operand->address->flags & QB_ADDRESS_BOOLEAN)) {
 				if(CONSTANT(operand->address)) {
 					int32_t is_true;
@@ -2679,19 +2703,34 @@ void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand) 
 					}
 					operand->address = qb_obtain_constant_boolean(cxt, is_true);
 				} else {
-					operand->address = qb_retrieve_unary_op_result(cxt, &factory_boolean_cast, operand->address);
+					if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
+						operand->address = qb_retrieve_unary_op_result(cxt, &factory_boolean_cast, operand->address);
+					} else {
+						// can't do it
+						return FALSE;
+					}
 				}
 			}
-		} else if(operand->type == QB_OPERAND_ZVAL) {
+		}	break;
+		case QB_OPERAND_ZVAL: {
 			int32_t is_true = zend_is_true(operand->constant);
 			operand->type = QB_OPERAND_ADDRESS;
 			operand->address = qb_obtain_constant_boolean(cxt, is_true);
-		} else if(operand->type == QB_OPERAND_ARRAY_INITIALIZER) {
+		}	break;
+		case QB_OPERAND_ARRAY_INITIALIZER: {
 			int32_t is_true = (operand->array_initializer->element_count > 0);
 			operand->type = QB_OPERAND_ADDRESS;
 			operand->address = qb_obtain_constant_boolean(cxt, is_true);
+		}	break;
+		case QB_OPERAND_THIS: {
+			operand->type = QB_OPERAND_ADDRESS;
+			operand->address = qb_obtain_constant_boolean(cxt, TRUE);
+		}	break;
+		default: {
+			return FALSE;
 		}
 	}
+	return TRUE;
 }
 
 qb_address * qb_obtain_scalar_value(qb_compiler_context *cxt, qb_address *address) {
@@ -3178,7 +3217,7 @@ static void qb_finalize_result_prototype(qb_compiler_context *cxt, qb_result_pro
 
 void qb_create_on_demand_op(qb_compiler_context *cxt, qb_op *qop, uint32_t flags);
 
-void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used) {
+int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used) {
 	qb_op_factory *f = factory;
 	qb_opcode opcode = QB_NOP;
 	qb_op *qop;
@@ -3188,7 +3227,9 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 	// get the opcode for the operands 
 	// at this point, the operands should have the correct type
 	if(f->select_opcode) {
-		opcode = f->select_opcode(cxt, f, expr_type, operands, operand_count, result);
+		if(!f->select_opcode(cxt, f, expr_type, operands, operand_count, result, &opcode)) {
+			return FALSE;
+		}
 	}
 	op_flags = qb_get_op_flags(opcode);
 
@@ -3210,7 +3251,9 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 		// move the operands into the op
 		qop->operands = qb_allocate_operands(cxt->pool, qop->operand_count);
 		if(f->transfer_operands) {
-			f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands, qop->operand_count);
+			if(!f->transfer_operands(cxt, f, operands, operand_count, result, qop->operands, qop->operand_count)) {
+				return FALSE;
+			}
 		}
 
 		// add the ops for calculating on-demand values 
@@ -3266,18 +3309,22 @@ void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type exp
 
 		// set function flags
 		if(f->set_function_flags) {
-			f->set_function_flags(cxt, f, operands, operand_count, result);
+			if(!f->set_function_flags(cxt, f, operands, operand_count, result)) {
+				return FALSE;
+			}
 		}
 	} else {
 		// it's a nop
 		qb_add_op(cxt, qop);
 	}
+	return TRUE;
 }
 
-void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+int32_t qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	USE_TSRM
 	int8_t instructions[256];
 	qb_op *ops[2], target_op, ret_op;
+	qb_opcode opcode;
 	qb_function _qfunc, *qfunc = &_qfunc;
 	qb_compiler_context _compiler_cxt, *compiler_cxt = &_compiler_cxt;
 	qb_encoder_context _encoder_cxt, *encoder_cxt = &_encoder_cxt;
@@ -3285,7 +3332,11 @@ void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type ex
 	qb_op_factory *f = factory;
 	ALLOCA_FLAG(use_heap);
 
-	target_op.opcode = f->select_opcode(cxt, f, expr_type, operands, operand_count, result);
+	if(!f->select_opcode(cxt, f, expr_type, operands, operand_count, result, &opcode)) {
+		return FALSE;
+	}
+
+	target_op.opcode = opcode;
 	target_op.flags = qb_get_op_flags(target_op.opcode);
 	target_op.operand_count = qb_get_operand_count(target_op.opcode);
 	target_op.operands = do_alloca(sizeof(qb_operand) * target_op.operand_count, use_heap);
@@ -3295,7 +3346,9 @@ void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type ex
 	target_op.line_id = 0;
 
 	if(f->transfer_operands) {
-		f->transfer_operands(cxt, f, operands, operand_count, result, target_op.operands, target_op.operand_count);
+		if(!f->transfer_operands(cxt, f, operands, operand_count, result, target_op.operands, target_op.operand_count)) {
+			return FALSE;
+		}
 	}
 
 	ret_op.opcode = QB_RET;
@@ -3327,6 +3380,7 @@ void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type ex
 	qb_free_interpreter_context(interpreter_cxt);
 
 	free_alloca(target_op.operands, use_heap);
+	return TRUE;
 }
 
 static void qb_update_on_demand_result_no_recursion(qb_compiler_context *cxt, qb_address *address, uint32_t flags) {
@@ -3442,15 +3496,21 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 		switch(cxt->stage) {
 			case QB_STAGE_VARIABLE_INITIALIZATION: {
 				if(f->resolve_type) {
-					f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
+					if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+						return FALSE;
+					}
 				}
 
 				if(f->coerce_operands) {
-					f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+					if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+						return FALSE;
+					}
 				}
 
 				if(f->set_final_result) {
-					f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+					if(!f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+						return FALSE;
+					}
 				}
 
 				qb_create_op(cxt, factory, expr_type, operands, operand_count, result, jump_target_indices, jump_target_count, TRUE);
@@ -3458,7 +3518,9 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 			case QB_STAGE_RESULT_TYPE_RESOLUTION: {
 				// determine the expression type
 				if(f->resolve_type) {
-					f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
+					if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+						return FALSE;
+					}
 
 					if(result_prototype) {
 						// indicate in the prototype that the expression has this type
@@ -3474,15 +3536,21 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 				}
 
 				if(f->coerce_operands) {
-					f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+					if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+						return FALSE;
+					}
 				}
 
 				if(f->link_results) {
-					f->link_results(cxt, f, operands, operand_count, result_prototype);
+					if(!f->link_results(cxt, f, operands, operand_count, result_prototype)) {
+						return FALSE;
+					}
 				}
 
 				if(f->set_preliminary_result) {
-					f->set_preliminary_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+					if(!f->set_preliminary_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+						return FALSE;
+					}
 				}
 
 				if(result_prototype) {
@@ -3506,7 +3574,9 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 					expr_type = result_prototype->final_type;
 					
 					if(f->coerce_operands) {
-						f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+						if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+							return FALSE;
+						}
 					}
 
 					if(f->validate_operands) {
@@ -3516,7 +3586,9 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 					}
 
 					if(f->set_final_result) {
-						f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+						if(!f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+							return FALSE;
+						}
 					}
 
 					if(result->type == QB_OPERAND_ADDRESS) {
@@ -3539,14 +3611,18 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 					}
 				} else {
 					if(f->resolve_type) {
-						f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
+						if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+							return FALSE;
+						}
 					}
 				}
 
 				// perform type coercion on operands
 				if(f->coerce_operands) {
 					// note that the handler might not necessarily convert all the operands to expr_type
-					f->coerce_operands(cxt, f, expr_type, operands, operand_count);
+					if(!f->coerce_operands(cxt, f, expr_type, operands, operand_count)) {
+						return FALSE;
+					}
 				}
 
 				// perform validation
@@ -3562,10 +3638,14 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 						// couldn't figure it out the first time around
 						// after type coercion, we should know what the expresion is
 						if(f->resolve_type) {
-							f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags);
+							if(!f->resolve_type(cxt, f, operands, operand_count, &expr_type, &address_flags)) {
+								return FALSE;
+							}
 						}
 					}
-					f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype);
+					if(!f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
+						return FALSE;
+					}
 #ifdef ZEND_DEBUG
 					// validate the address here so it's easily to see who's producing an invalid one
 					if(result->type == QB_OPERAND_ADDRESS) {

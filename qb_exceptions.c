@@ -146,6 +146,10 @@ void qb_report_illegal_use_of_this(uint32_t line_id) {
 	qb_report_exception(line_id, E_ERROR, "Illegal use of $this");
 }
 
+void qb_report_internal_error(uint32_t line_id, const char *problem) {
+	qb_report_exception(line_id, E_ERROR, "Internal error: %s", problem);
+}
+
 void qb_report_fork_in_fork_exception(uint32_t line_id) {
 	qb_report_exception(line_id, E_ERROR, "Cannot fork again inside a forked section");
 }

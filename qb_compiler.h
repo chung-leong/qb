@@ -397,8 +397,8 @@ qb_address * qb_create_constant_array(qb_compiler_context *cxt, qb_primitive_typ
 qb_address * qb_create_constant_scalar(qb_compiler_context *cxt, qb_primitive_type element_type);
 qb_address * qb_create_address_alias(qb_compiler_context *cxt, qb_address *address);
 
-void qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
-void qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
+int32_t qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, qb_primitive_type desired_type, uint32_t coercion_flags);
+int32_t qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operand);
 void qb_update_on_demand_result(qb_compiler_context *cxt, qb_address *address, uint32_t flags);
 void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, int32_t need_actual_memory);
 
@@ -408,8 +408,8 @@ void qb_add_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index);
 int32_t qb_is_jump_target(qb_compiler_context *cxt, uint32_t jump_target_index);
 
 int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype);
-void qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
-void qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result);
+int32_t qb_create_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, int32_t result_used);
+int32_t qb_execute_op(qb_compiler_context *cxt, void *factory, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result);
 
 int32_t qb_add_variables(qb_compiler_context *cxt);
 void qb_initialize_function_prototype(qb_compiler_context *cxt);

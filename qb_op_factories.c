@@ -3871,7 +3871,7 @@ qb_float_op_factory factory_lcg = {
 	{	QB_LCG_F64,				QB_LCG_F32,	},
 };
 
-qb_vector_op_factory factory_cross_product = {
+qb_matrix_op_factory factory_cross_product = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -3949,7 +3949,7 @@ qb_simple_op_factory factory_validate_cross_product_4d = {
 };
 
 
-qb_vector_op_factory factory_distance = {
+qb_matrix_op_factory factory_distance = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -3972,7 +3972,7 @@ qb_vector_op_factory factory_distance = {
 	},
 };
 
-qb_vector_op_factory factory_dot_product = {
+qb_matrix_op_factory factory_dot_product = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -4013,7 +4013,7 @@ qb_simple_op_factory factory_validate_vector_width = {
 	QB_VV_GUARD_U32_U32,
 };
 
-qb_vector_op_factory factory_faceforward = {
+qb_matrix_op_factory factory_faceforward = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -4036,7 +4036,7 @@ qb_vector_op_factory factory_faceforward = {
 	},
 };
 
-qb_vector_op_factory factory_length = {
+qb_matrix_op_factory factory_length = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -4059,7 +4059,7 @@ qb_vector_op_factory factory_length = {
 	},
 };
 
-qb_vector_op_factory factory_normalize = {
+qb_matrix_op_factory factory_normalize = {
 	NULL,
 	qb_resolve_expression_type_first_operand,
 	qb_link_results_all_operands,
@@ -4083,7 +4083,7 @@ qb_vector_op_factory factory_normalize = {
 };
 
 
-qb_vector_op_factory factory_reflect = {
+qb_matrix_op_factory factory_reflect = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,
@@ -4106,7 +4106,7 @@ qb_vector_op_factory factory_reflect = {
 	},
 };
 
-qb_vector_op_factory factory_refract = {
+qb_matrix_op_factory factory_refract = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
 	qb_link_results_all_operands,

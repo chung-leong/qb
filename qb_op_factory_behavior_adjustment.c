@@ -18,25 +18,29 @@
 
 /* $Id$ */
 
-static void qb_indicate_non_inlineable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static int32_t qb_indicate_non_inlineable(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
+	return TRUE;
 }
 
-static void qb_indicate_fork(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static int32_t qb_indicate_fork(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
 	cxt->function_flags |= QB_FUNCTION_MULTITHREADED;
+	return TRUE;
 }
 
-static void qb_indicate_debugger_presence(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static int32_t qb_indicate_debugger_presence(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	USE_TSRM
 	cxt->debugger_present = TRUE;
 
 	// don't inline the function when debugger is active
 	cxt->function_flags &= ~QB_FUNCTION_INLINEABLE;
 	cxt->function_flags |= QB_FUNCTION_HAS_BREAKPOINTS;
+	return TRUE;
 }
 
-static void qb_indicate_shadow_variables(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
+static int32_t qb_indicate_shadow_variables(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
 	cxt->function_flags |= QB_FUNCTION_NEED_SHADOWS;
+	return TRUE;
 }
 
