@@ -13980,6 +13980,11 @@ void qb_do_floored_division_modulo_multiple_times_F64(float64_t *op1_ptr, uint32
 	}
 }
 
+void qb_do_flush(qb_interpreter_context *__restrict cxt) {
+	USE_TSRM
+	sapi_flush(TSRMLS_C);
+}
+
 void qb_do_fract_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count) {
 	if(op1_count && res_count) {
 		float32_t *op1_start = op1_ptr, *op1_end = op1_ptr + op1_count;
@@ -32688,6 +32693,16 @@ void qb_redirect_print_string_U08(qb_interpreter_context *__restrict cxt, int8_t
 #undef op1_count
 }
 
+void qb_redirect_flush(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
+#define INSTR		((qb_instruction * __restrict) ip)
+	if(!qb_in_main_thread()) {
+		qb_dispatch_instruction_to_main_thread(cxt, qb_redirect_flush, ip);
+	} else {
+		qb_do_flush(cxt);
+	}
+#undef INSTR
+}
+
 void qb_redirect_print_variable_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused) {
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
 #define op1	((uint8_t *) INSTR->operand1.data_pointer)[0]
@@ -33383,6 +33398,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_run_zend_extension_op",	qb_run_zend_extension_op,	0,	0	},
 	{	"qb_resize_segment",	qb_resize_segment,	0,	0	},
 	{	"qb_dispatch_function_call",	qb_dispatch_function_call,	0,	0	},
+	{	"sapi_flush",	sapi_flush,	0,	0	},
 	{	"php_write",	php_write,	0,	0	},
 	{	"llabs",	llabs,	0,	0	},
 	{	"abs",	abs,	0,	0	},
@@ -34060,6 +34076,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_floor_multiple_times_F64",	qb_do_floor_multiple_times_F64,	0,	0	},
 	{	"qb_do_floored_division_modulo_multiple_times_F32",	qb_do_floored_division_modulo_multiple_times_F32,	0,	0	},
 	{	"qb_do_floored_division_modulo_multiple_times_F64",	qb_do_floored_division_modulo_multiple_times_F64,	0,	0	},
+	{	"qb_do_flush",	qb_do_flush,	0,	0	},
 	{	"qb_do_fract_multiple_times_F32",	qb_do_fract_multiple_times_F32,	0,	0	},
 	{	"qb_do_fract_multiple_times_F64",	qb_do_fract_multiple_times_F64,	0,	0	},
 	{	"qb_do_gather_4x_F32",	qb_do_gather_4x_F32,	0,	0	},
@@ -35036,6 +35053,7 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_redirect_print_variable_multiple_times_S08",	qb_redirect_print_variable_multiple_times_S08,	0,	0	},
 	{	"qb_redirect_print_multidimensional_variable_S08",	qb_redirect_print_multidimensional_variable_S08,	0,	0	},
 	{	"qb_redirect_print_string_U08",	qb_redirect_print_string_U08,	0,	0	},
+	{	"qb_redirect_flush",	qb_redirect_flush,	0,	0	},
 	{	"qb_redirect_print_variable_U08",	qb_redirect_print_variable_U08,	0,	0	},
 	{	"qb_redirect_print_variable_array_element_U08",	qb_redirect_print_variable_array_element_U08,	0,	0	},
 	{	"qb_redirect_print_variable_multiple_times_U08",	qb_redirect_print_variable_multiple_times_U08,	0,	0	},
@@ -35630,5 +35648,5 @@ qb_native_symbol global_native_symbols[] = {
 	{	"__libm_sse2_sincosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 2272;
+uint32_t global_native_symbol_count = 2275;
 

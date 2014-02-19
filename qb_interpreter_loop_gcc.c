@@ -42690,6 +42690,16 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_count
 #undef res_count_ptr
 		
+		label_FLUSH:
+#define INSTR		((qb_instruction * __restrict) ip)
+		{
+			handler = INSTR->next_handler;
+			qb_redirect_flush(cxt, ip, 0);
+			ip += sizeof(qb_instruction);
+			goto *handler;
+		}
+#undef INSTR
+		
 		label_PRN_U08_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
 #define op1	((uint8_t *) INSTR->operand1.data_pointer)[0]
@@ -47941,6 +47951,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 		op_handlers[QB_MOV_U08_I64_MIO] = &&label_MOV_U08_I64_MIO;
 		op_handlers[QB_PRN_STR_U08] = &&label_PRN_STR_U08;
 		op_handlers[QB_APP_STR_U08_U32_U08] = &&label_APP_STR_U08_U32_U08;
+		op_handlers[QB_FLUSH] = &&label_FLUSH;
 		op_handlers[QB_PRN_U08_SCA] = &&label_PRN_U08_SCA;
 		op_handlers[QB_PRN_U08_ELE] = &&label_PRN_U08_ELE;
 		op_handlers[QB_PRN_U08_MIO] = &&label_PRN_U08_MIO;

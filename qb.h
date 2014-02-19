@@ -56,6 +56,7 @@
 #include "php.h"
 #include "php_qb.h"
 #include "ext/standard/php_rand.h"
+#include "SAPI.h"
 
 #ifdef ZEND_ACC_GENERATOR
 	#include "zend_generators.h"

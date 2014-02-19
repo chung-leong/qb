@@ -22,7 +22,7 @@ static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_o
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
 
-	if(container->type != QB_OPERAND_ADDRESS) {
+	if(container->type != QB_OPERAND_ADDRESS || SCALAR(container->address)) {
 		qb_report_not_an_array_exception(cxt->line_id);
 		return FALSE;
 	}

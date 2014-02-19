@@ -1191,6 +1191,7 @@ class CodeGenerator {
 		if($elementType == "U08") {
 			$this->handlers[] = new PrintString("PRN_STR", $elementType);
 			$this->handlers[] = new AppendString("APP_STR", $elementType);
+			$this->handlers[] = new Flush("FLUSH");
 			
 		}
 		if($elementType == "U16" || $elementType == "U32") {

@@ -511,7 +511,7 @@ class Handler {
 		$parts[] = "qb";
 		$parts[] = $prefix;
 		$parts[] = strtolower(preg_replace("/([a-z])([A-Z])/", "$1_$2", $className));
-		if($this->operandSize != 1 && is_int($this->operandSize)) {
+		if($this->operandSize && $this->operandSize != 1 && is_int($this->operandSize)) {
 			$parts[] = "{$this->operandSize}x";
 		}
 		if($this->isMultipleData()) {

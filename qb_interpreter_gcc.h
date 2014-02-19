@@ -1646,6 +1646,7 @@ void qb_do_floor_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, floa
 void qb_do_floor_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_floored_division_modulo_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_floored_division_modulo_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *op2_ptr, uint32_t op2_count, float64_t *res_ptr, uint32_t res_count);
+void qb_do_flush(qb_interpreter_context *__restrict cxt);
 void qb_do_fract_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *res_ptr, uint32_t res_count);
 void qb_do_fract_multiple_times_F64(float64_t *op1_ptr, uint32_t op1_count, float64_t *res_ptr, uint32_t res_count);
 void qb_do_gather_4x_F32(uint32_t op1, float32_t *op2_ptr, float32_t *res_ptr);
@@ -2622,6 +2623,7 @@ void qb_redirect_print_variable_array_element_S08(qb_interpreter_context *__rest
 void qb_redirect_print_variable_multiple_times_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_multidimensional_variable_S08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_string_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
+void qb_redirect_flush(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_variable_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_variable_array_element_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);
 void qb_redirect_print_variable_multiple_times_U08(qb_interpreter_context *__restrict cxt, int8_t *__restrict ip, int unused);

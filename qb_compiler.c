@@ -3667,12 +3667,14 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 					if(!f->set_final_result(cxt, f, expr_type, operands, operand_count, result, result_prototype)) {
 						return FALSE;
 					}
-#ifdef ZEND_DEBUG
-					// validate the address here so it's easily to see who's producing an invalid one
+
 					if(result->type == QB_OPERAND_ADDRESS) {
-						qb_validate_address(cxt, result->address);
+						if(!result->address) {
+							result->type = QB_OPERAND_EMPTY;
+							qb_report_internal_error(cxt->line_id, "Null address");
+							return FALSE;
+						}
 					}
-#endif
 				}
 
 				// create the op

@@ -453,6 +453,7 @@ extern qb_simple_op_factory factory_add_string;
 extern qb_derived_op_factory factory_concat;
 extern qb_derived_op_factory factory_concat_assign;
 extern qb_string_op_factory factory_print;
+extern qb_simple_op_factory factory_flush;
 extern qb_derived_op_factory factory_echo;
 
 extern qb_basic_op_factory factory_abs;

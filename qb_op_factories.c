@@ -2643,6 +2643,24 @@ qb_string_op_factory factory_print = {
 	QB_PRN_STR_U08,
 };
 
+qb_simple_op_factory factory_flush = {
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	qb_select_opcode_simple,
+	NULL,
+	NULL,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	QB_FLUSH,
+};
+
 qb_derived_op_factory factory_echo = {
 	NULL,
 	NULL,

@@ -43182,6 +43182,16 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #undef res_count
 #undef res_count_ptr
 			
+			case QB_FLUSH:
+#define INSTR		((qb_instruction * __restrict) ip)
+			{
+				handler = INSTR->next_handler;
+				qb_redirect_flush(cxt, ip, 0);
+				ip += sizeof(qb_instruction);
+				break;
+			}
+#undef INSTR
+			
 			case QB_PRN_U08_SCA:
 #define INSTR		((qb_instruction_SCA * __restrict) ip)
 #define op1	((uint8_t *) INSTR->operand1.data_pointer)[0]

@@ -68,6 +68,7 @@ int abs(int n);
 long long int llabs(long long int number);
 
 int php_write(const char *str, uint32_t str_length TSRMLS_DC);
+int sapi_flush(TSRMLS_D);
 
 int32_t qb_dispatch_function_call(qb_interpreter_context *cxt, uint32_t symbol_index, uint32_t *variable_indices, uint32_t argument_count, uint32_t result_index, uint32_t line_id);
 intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size);
