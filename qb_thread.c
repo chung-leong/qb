@@ -460,10 +460,12 @@ static void qb_free_worker_thread(qb_worker_thread *thread) {
 	}
 }
 
-void qb_initialize_task_group(qb_task_group *group, long task_count, long extra_bytes) {
+qb_task_group * qb_allocate_task_group(long task_count, long extra_bytes) {
 	// emalloc() isn't thread-safe, so we're using malloc(), which hopefully is
-	long memory_required = sizeof(qb_task) * task_count + extra_bytes;
-	group->tasks = malloc(memory_required);
+	long memory_required = sizeof(qb_task_group) + sizeof(qb_task) * task_count + extra_bytes;
+	char *memory = malloc(memory_required);
+	qb_task_group *group = (qb_task_group *) memory;
+	group->tasks = (qb_task *) (memory + sizeof(qb_task_group));
 	group->completion_count = 0;
 	group->task_count = 0;
 	group->task_index = 0;
@@ -471,10 +473,11 @@ void qb_initialize_task_group(qb_task_group *group, long task_count, long extra_
 	group->extra_memory = (extra_bytes) ? &group->tasks[task_count] : NULL;
 	group->previous_group = NULL;
 	group->next_group = NULL;
+	return group;
 }
 
 void qb_free_task_group(qb_task_group *group) {
-	free(group->tasks);
+	free(group);
 }
 
 void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3) {
@@ -797,7 +800,7 @@ void qb_run_in_main_thread(qb_thread_proc proc, void *param1, void *param2, int 
 }
 
 void qb_terminate_associated_workers(qb_main_thread *main_thread) {
-	qb_task_group *group, *queue_head = NULL, *queue_tail = NULL;
+	qb_task_group *group, *queue_head = NULL, *queue_tail = NULL, *next_group;
 	long i;
 	long workers_terminated = 0;
 
@@ -862,7 +865,8 @@ void qb_terminate_associated_workers(qb_main_thread *main_thread) {
 	}
 
 	// free the group
-	for(group = queue_head; group; group = group->next_group) {
+	for(group = queue_head; group; group = next_group) {
+		next_group = group->next_group;
 		qb_free_task_group(group);
 	}
 }

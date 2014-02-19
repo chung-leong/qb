@@ -188,7 +188,7 @@ void qb_free_main_thread(qb_main_thread *thread);
 void ***qb_get_tsrm_ls(void);
 #endif
 
-void qb_initialize_task_group(qb_task_group *group, long task_count, long extra_bytes);
+qb_task_group * qb_allocate_task_group(long task_count, long extra_bytes);
 void qb_free_task_group(qb_task_group *group);
 void qb_add_task(qb_task_group *group, qb_thread_proc proc, void *param1, void *param2, int param3);
 void qb_run_task_group(qb_task_group *group, int iterative);

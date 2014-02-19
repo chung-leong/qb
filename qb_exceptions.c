@@ -76,14 +76,25 @@ static void qb_show_error(int32_t type, const char *filename, uint32_t line_numb
 	va_end(args);
 }
 
+void qb_dispatch_exceptions_in_main_thread(void *param1, void *param2, int param3) {
+	TSRMLS_FETCH();
+	qb_dispatch_exceptions(TSRMLS_C);
+}
+
 void qb_dispatch_exceptions(TSRMLS_D) {
-	uint32_t i;
-	for(i = 0; i < QB_G(exception_count); i++) {
-		qb_exception *exception = &QB_G(exceptions)[i];
-		uint32_t file_id = FILE_ID(exception->line_id);
-		uint32_t line_number = LINE_NUMBER(exception->line_id);
-		const char *source_file = qb_get_source_file_path(file_id TSRMLS_CC);
-		qb_show_error(exception->type, source_file, line_number, "%s", exception->message);
+	if(QB_G(exception_count)) {
+		if(!qb_in_main_thread()) {
+			qb_run_in_main_thread(qb_dispatch_exceptions_in_main_thread, NULL, NULL, 0);
+		} else {
+			uint32_t i;
+			for(i = 0; i < QB_G(exception_count); i++) {
+				qb_exception *exception = &QB_G(exceptions)[i];
+				uint32_t file_id = FILE_ID(exception->line_id);
+				uint32_t line_number = LINE_NUMBER(exception->line_id);
+				const char *source_file = qb_get_source_file_path(file_id TSRMLS_CC);
+				qb_show_error(exception->type, source_file, line_number, "%s", exception->message);
+			}
+		}
 	}
 }
 

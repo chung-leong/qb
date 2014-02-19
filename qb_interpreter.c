@@ -620,7 +620,7 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3);
 
 static void qb_fork_execution(qb_interpreter_context *cxt) {
 	qb_interpreter_context *fork_contexts;
-	qb_task_group _group, *group = &_group;
+	qb_task_group *group;
 	qb_function *function = cxt->function;
 	uint32_t original_fork_id = cxt->fork_id;
 	uint32_t original_thread_count = cxt->thread_count;
@@ -651,7 +651,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 	}
 
 	// initialize the group, allocating extra memory for new interpreter contexts
-	qb_initialize_task_group(group, fork_count, sizeof(qb_interpreter_context) * new_context_count);
+	group = qb_allocate_task_group(fork_count, sizeof(qb_interpreter_context) * new_context_count);
 	fork_contexts = group->extra_memory;
 
 	// initialize new interpreter contexts
