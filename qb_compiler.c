@@ -2627,6 +2627,21 @@ int32_t qb_perform_type_coercion(qb_compiler_context *cxt, qb_operand *operand, 
 						// the bit pattern is different--need to do a copy
 						if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 							new_address = qb_retrieve_temporary_copy(cxt, operand->address, desired_type);
+						} else if(cxt->stage == QB_STAGE_CONSTANT_EXPRESSION_EVALUATION && CONSTANT(operand->address)) {
+							uint32_t element_count;
+							if(SCALAR(operand->address)) {
+								new_address = qb_create_constant_scalar(cxt, desired_type);
+								element_count = 1;
+							} else {
+								uint32_t dimension_count = operand->address->dimension_count, i;
+								uint32_t dimensions[MAX_DIMENSION];
+								for(i = 0; i < dimension_count; i++) {
+									dimensions[i] = VALUE(U32, operand->address->dimension_addresses[i]);
+								}
+								new_address = qb_create_constant_array(cxt, desired_type, dimensions, dimension_count);
+								element_count = ARRAY_SIZE(new_address);
+							}
+							qb_copy_elements(operand->address->type, ARRAY(I08, operand->address), element_count, new_address->type, ARRAY(I08, new_address), element_count);
 						} else {
 							qb_report_internal_error(cxt->line_id, "Invalid operand");
 							return FALSE;
@@ -2682,6 +2697,10 @@ int32_t qb_perform_boolean_coercion(qb_compiler_context *cxt, qb_operand *operan
 			}
 		}	break;
 		case QB_OPERAND_ADDRESS: {
+			if(cxt->stage == QB_STAGE_RESULT_TYPE_RESOLUTION) {
+				// don't need to do anything yet
+				return TRUE;
+			}
 			if(!(operand->address->flags & QB_ADDRESS_BOOLEAN)) {
 				if(CONSTANT(operand->address)) {
 					int32_t is_true;
@@ -3433,7 +3452,7 @@ void qb_create_on_demand_op(qb_compiler_context *cxt, qb_op *qop, uint32_t flags
 	}
 }
 
-static int32_t qb_is_constant_expression(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
+int32_t qb_is_constant_expression(qb_compiler_context *cxt, qb_operand *operands, uint32_t operand_count) {
 	uint32_t i;
 	for(i = 0; i < operand_count; i++) {
 		qb_operand *operand = &operands[i];
@@ -3592,7 +3611,9 @@ int32_t qb_produce_op(qb_compiler_context *cxt, void *factory, qb_operand *opera
 					}
 
 					if(result->type == QB_OPERAND_ADDRESS) {
-						qb_execute_op(cxt, f, expr_type, operands, operand_count, result);
+						if(f->select_opcode) {
+							qb_execute_op(cxt, f, expr_type, operands, operand_count, result);
+						}
 						result_prototype->constant_result_address = result->address;
 					}
 				}

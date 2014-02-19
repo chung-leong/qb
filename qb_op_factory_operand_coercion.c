@@ -196,11 +196,15 @@ static int32_t qb_coerce_operands_round_to_precision(qb_compiler_context *cxt, q
 	if(!qb_perform_type_coercion(cxt, value, expr_type, f->coercion_flags)) {
 		return FALSE;
 	}
-	if(!qb_perform_type_coercion(cxt, precision, QB_TYPE_I32, 0)) {
-		return FALSE;
+	if(precision->type != QB_OPERAND_NONE) {
+		if(!qb_perform_type_coercion(cxt, precision, QB_TYPE_I32, 0)) {
+			return FALSE;
+		}
 	}
-	if(!qb_perform_type_coercion(cxt, mode, QB_TYPE_I32, 0)) {
-		return FALSE;
+	if(mode->type != QB_OPERAND_NONE) {
+		if(!qb_perform_type_coercion(cxt, mode, QB_TYPE_I32, 0)) {
+			return FALSE;
+		}
 	}
 	return TRUE;
 }

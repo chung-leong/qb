@@ -143,6 +143,20 @@ static int32_t qb_resolve_expression_type_cast(qb_compiler_context *cxt, qb_op_f
 	return TRUE;
 }
 
+static int32_t qb_resolve_expression_type_array_size(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
+	qb_operand *container = &operands[0], *recursive = &operands[1];
+	*p_type = QB_TYPE_U32;
+	*p_flags = 0;
+	if(qb_is_constant_expression(cxt, recursive, 1)) {
+		if(container->type == QB_OPERAND_ADDRESS && FIXED_LENGTH(container->address)) {
+			*p_flags |= QB_ADDRESS_CONSTANT;
+		} else if(container->type == QB_OPERAND_ARRAY_INITIALIZER) {
+			*p_flags |= QB_ADDRESS_CONSTANT;
+		}
+	}
+	return TRUE;
+}
+
 static int32_t qb_resolve_expression_type_object_property(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_primitive_type *p_type, uint32_t *p_flags) {
 	qb_operand *container = &operands[0], *name = &operands[1];
 	if(container->type == QB_OPERAND_RESULT_PROTOTYPE) {
