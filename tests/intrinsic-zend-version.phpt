@@ -19,4 +19,4 @@ test_function();
 
 ?>
 --EXPECTREGEX--
-2\.\d\.\d+
+2\.\d\.\d+(-\w+)?

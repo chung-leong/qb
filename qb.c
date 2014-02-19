@@ -547,6 +547,7 @@ int qb_user_opcode_handler(ZEND_OPCODE_HANDLER_ARGS) {
 		}
 	}
 	if(qfunc) {
+		op_array->fn_flags &= ~ZEND_ACC_INTERACTIVE; 
 		if(qfunc->flags & QB_FUNCTION_GENERATOR) {
 #ifdef ZEND_ACC_GENERATOR
 			zend_generator *generator = (zend_generator *) EG(return_value_ptr_ptr);
@@ -644,6 +645,7 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	if(QB_IS_COMPILED(op_array)) {
 		TSRMLS_FETCH();
+		op_array->fn_flags |= ZEND_ACC_INTERACTIVE; 
 		qb_reenable_zend_optimizer(TSRMLS_C);
 	}
 }
