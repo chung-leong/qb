@@ -645,6 +645,8 @@ void qb_zend_ext_op_array_ctor(zend_op_array *op_array) {
 void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	if(QB_IS_COMPILED(op_array)) {
 		TSRMLS_FETCH();
+		// OpCache in Zend 2.6 and above doesn't the optimization elsewhere
+		// turn on the flag to keep it from running
 		op_array->fn_flags |= ZEND_ACC_INTERACTIVE; 
 		qb_reenable_zend_optimizer(TSRMLS_C);
 	}
