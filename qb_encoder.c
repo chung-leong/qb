@@ -50,33 +50,43 @@ static void qb_add_segment_reference(qb_encoder_context *cxt, qb_address *addres
 	}
 }
 
-static zend_always_inline void * qb_get_pointer(qb_encoder_context *cxt, qb_address *address) {
-	qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-	if(segment->flags & QB_SEGMENT_PREALLOCATED) {
-		if(cxt->position_independent) {
-			// add the base address so we know it's pointing to a preallocated segment
-			return (void *) (cxt->storage_base_address + address->segment_offset + ((uintptr_t) segment->memory - (uintptr_t) cxt->storage));
+static int32_t qb_get_pointer(qb_encoder_context *cxt, qb_address *address, void **p_pointer) {
+	if(address->segment_selector < cxt->storage->segment_count) {
+		qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+		if(segment->flags & QB_SEGMENT_PREALLOCATED) {
+			if(cxt->position_independent) {
+				// add the base address so we know it's pointing to a preallocated segment
+				*p_pointer = (void *) (cxt->storage_base_address + address->segment_offset + ((uintptr_t) segment->memory - (uintptr_t) cxt->storage));
+			} else {
+				*p_pointer = (void *) (segment->memory + address->segment_offset);
+			}
 		} else {
-			return (void *) (segment->memory + address->segment_offset);
+			*p_pointer = (void *) (uintptr_t) (0 + address->segment_offset);
 		}
+		return TRUE;
 	} else {
-		return (void *) (uintptr_t) (0 + address->segment_offset);
+		qb_report_internal_error(0, "Invalid segment");
+		return FALSE;
 	}
 }
 
-static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
+static int32_t qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
 	switch(address->mode) {
 		case QB_ADDRESS_MODE_SCA: {
 			qb_pointer_SCA *p = ((qb_pointer_SCA *) *p_ip);
-			p->data_pointer = qb_get_pointer(cxt, address);
+			if(!qb_get_pointer(cxt, address, &p->data_pointer)) {
+				return FALSE;
+			}
 			*p_ip += sizeof(qb_pointer_SCA);
 
 			qb_add_segment_reference(cxt, address, &p->data_pointer);
 		}	break;
 		case QB_ADDRESS_MODE_ELE: {
 			qb_pointer_ELE *p = ((qb_pointer_ELE *) *p_ip);
-			p->data_pointer = qb_get_pointer(cxt, address);
-			p->index_pointer = qb_get_pointer(cxt, address->array_index_address);
+			if(!qb_get_pointer(cxt, address, &p->data_pointer)
+			|| !qb_get_pointer(cxt, address->array_index_address, &p->index_pointer)) {
+				return FALSE;
+			}
 			*p_ip += sizeof(qb_pointer_ELE);
 
 			qb_add_segment_reference(cxt, address, &p->data_pointer);
@@ -84,9 +94,11 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 		}	break;
 		case QB_ADDRESS_MODE_ARR: {
 			qb_pointer_ARR *p = ((qb_pointer_ARR *) *p_ip);
-			p->data_pointer = qb_get_pointer(cxt, address);
-			p->index_pointer = qb_get_pointer(cxt, address->array_index_address);
-			p->count_pointer = qb_get_pointer(cxt, address->array_size_address);
+			if(!qb_get_pointer(cxt, address, &p->data_pointer)
+			|| !qb_get_pointer(cxt, address->array_index_address, &p->index_pointer)
+			|| !qb_get_pointer(cxt, address->array_size_address, &p->count_pointer)) {
+				return FALSE;
+			}
 			*p_ip += sizeof(qb_pointer_ARR);
 
 			qb_add_segment_reference(cxt, address, &p->data_pointer);
@@ -94,11 +106,11 @@ static void qb_encode_address(qb_encoder_context *cxt, qb_address *address, int8
 			qb_add_segment_reference(cxt, address->array_size_address, (void **) &p->count_pointer);
 		}	break;
 		default: {
-#ifdef ZEND_DEBUG
-			qb_debug_abort("Invalid address type");
-#endif
+			qb_report_internal_error(0, "Invalid address type");
+			return FALSE;
 		}
 	}
+	return TRUE;
 }
 
 static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *qop) {
@@ -118,21 +130,21 @@ static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *q
 #endif
 }
 
-static void qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
+static int32_t qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
 	qb_op *target_qop = cxt->ops[target_index];
 
-#ifdef ZEND_DEBUG
-	if(target_index >= cxt->op_count) {
-		qb_debug_abort("invalid op index");
-	}
-#endif
+	if(target_index < cxt->op_count) {
+		while(target_qop->opcode == QB_NOP) {
+			target_qop = cxt->ops[++target_index];
+		}
 
-	while(target_qop->opcode == QB_NOP) {
-		target_qop = cxt->ops[++target_index];
+		*((void **) *p_ip) = qb_get_handler(cxt, target_qop); 
+		*p_ip += sizeof(void *);
+		return TRUE;
+	} else {
+		qb_report_internal_error(0, "Invalid op index");
+		return FALSE;
 	}
-
-	*((void **) *p_ip) = qb_get_handler(cxt, target_qop); 
-	*p_ip += sizeof(void *);
 }
 
 static zend_always_inline int8_t *qb_get_instruction_pointer(qb_encoder_context *cxt, qb_op *qop) {
@@ -145,43 +157,49 @@ static zend_always_inline int8_t *qb_get_instruction_pointer(qb_encoder_context 
 	return p;
 }
 
-static void qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
+static int32_t qb_encode_jump_target(qb_encoder_context *cxt, uint32_t target_index, int8_t **p_ip) {
 	qb_op *target_qop = cxt->ops[target_index];
 
-#ifdef ZEND_DEBUG
-	if(target_index >= cxt->op_count) {
-		qb_debug_abort("invalid jump target");
-	}
-#endif
-	while(target_qop->opcode == QB_NOP) {
-		target_qop = cxt->ops[++target_index];
-	}
+	if(target_index < cxt->op_count) {
+		while(target_qop->opcode == QB_NOP) {
+			target_qop = cxt->ops[++target_index];
+		}
 
-	*((void **) *p_ip) = qb_get_handler(cxt, target_qop);
-	*p_ip += sizeof(void *);
+		*((void **) *p_ip) = qb_get_handler(cxt, target_qop);
+		*p_ip += sizeof(void *);
 
-	*((int8_t **) *p_ip) = qb_get_instruction_pointer(cxt, target_qop); 
-	*p_ip += sizeof(int8_t *);
+		*((int8_t **) *p_ip) = qb_get_instruction_pointer(cxt, target_qop); 
+		*p_ip += sizeof(int8_t *);
+
+		return TRUE;
+	} else {
+		qb_report_internal_error(0, "Invalid jump target");
+		return FALSE;
+	}
 }
 
-static void qb_encode_line_id(qb_encoder_context *cxt, uint32_t line_id, int8_t **p_ip) {
+static int32_t qb_encode_line_id(qb_encoder_context *cxt, uint32_t line_id, int8_t **p_ip) {
 	*((uint32_t *) *p_ip) = line_id; 
 	*p_ip += sizeof(uint32_t);
+	return TRUE;
 }
 
-static void qb_encode_segment_selector(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
+static int32_t qb_encode_segment_selector(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
 	*((uint32_t *) *p_ip) = address->segment_selector;
 	*p_ip += sizeof(uint32_t);
+	return TRUE;
 }
 
-static void qb_encode_element_size(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
+static int32_t qb_encode_element_size(qb_encoder_context *cxt, qb_address *address, int8_t **p_ip) {
 	*((uint32_t *) *p_ip) = BYTE_COUNT(1, address->type);
 	*p_ip += sizeof(uint32_t);
+	return TRUE;
 }
 
-static void qb_encode_number(qb_encoder_context *cxt, int32_t number, int8_t **p_ip) {
+static int32_t qb_encode_number(qb_encoder_context *cxt, int32_t number, int8_t **p_ip) {
 	*((int32_t *) *p_ip) = number;
 	*p_ip += sizeof(uint32_t);
+	return TRUE;
 }
 
 int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
@@ -227,34 +245,45 @@ int8_t * qb_encode_instruction_stream(qb_encoder_context *cxt, int8_t *memory) {
 
 				switch(operand->type) {
 					case QB_OPERAND_ADDRESS: {
-						qb_encode_address(cxt, operand->address, &ip);
+						if(!qb_encode_address(cxt, operand->address, &ip)) {
+							return NULL;
+						}
 					}	break;
 					case QB_OPERAND_SEGMENT_SELECTOR: {
-						qb_encode_segment_selector(cxt, operand->address, &ip);
+						if(!qb_encode_segment_selector(cxt, operand->address, &ip)) {
+							return NULL;
+						}
 					}	break;
 					case QB_OPERAND_ELEMENT_SIZE: {
-						qb_encode_element_size(cxt, operand->address, &ip);
+						if(!qb_encode_element_size(cxt, operand->address, &ip)) {
+							return NULL;
+						}
 					}	break;
 					case QB_OPERAND_NUMBER: {
-						qb_encode_number(cxt, operand->number, &ip);
+						if(!qb_encode_number(cxt, operand->number, &ip)) {
+							return NULL;
+						}
 					}	break;
 					default: {
-#ifdef ZEND_DEBUG
-						qb_debug_abort("unknown operand type: %d", operand->type);
-#endif
+						qb_report_internal_error(qop->line_id, "Invalid operand type");
+						return NULL;
 					}	break;
 				}
 			}
 
 			if(qop->flags & QB_OP_BRANCH_TABLE) {
 				for(j = 0; j < qop->jump_target_count; j++) {
-					qb_encode_jump_target(cxt, qop->jump_target_indices[j], &ip);
+					if(!qb_encode_jump_target(cxt, qop->jump_target_indices[j], &ip)) {
+						return NULL;
+					}
 				}
 			}
 
 			// put the line number at the end if it's needed
 			if(qop->flags & QB_OP_NEED_LINE_IDENTIFIER) {
-				qb_encode_line_id(cxt, qop->line_id, &ip);
+				if(!qb_encode_line_id(cxt, qop->line_id, &ip)) {
+					return NULL;
+				}
 			}
 		}
 	}
@@ -688,6 +717,10 @@ qb_function * qb_encode_function(qb_encoder_context *cxt) {
 	// encode the instructions
 	qfunc->instructions = cxt->instructions = p;
 	p = qb_encode_instruction_stream(cxt, p);
+
+	if(!p) {
+		return NULL;
+	}
 
 	// store the opcodes for use during relocation
 	qfunc->instruction_opcodes = (uint16_t *) p;
