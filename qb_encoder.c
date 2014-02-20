@@ -864,11 +864,13 @@ intptr_t qb_relocate_function(qb_function *qfunc, int32_t reentrance) {
 		// update the instruction start pointer
 		SHIFT_POINTER(qfunc->instruction_start, instruction_shift);
 
-		// update the reallocation pointers
-		for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < qfunc->local_storage->segment_count; i++) {
-			qb_memory_segment *segment = &qfunc->local_storage->segments[i];
-			for(j = 0; j < segment->reference_count; j++) {
-				SHIFT_POINTER(segment->references[j], instruction_shift);
+		if(!(qfunc->flags & QB_FUNCTION_INITIALIZED)) {
+			// update the reallocation pointers
+			for(i = QB_SELECTOR_LAST_PREALLOCATED + 1; i < qfunc->local_storage->segment_count; i++) {
+				qb_memory_segment *segment = &qfunc->local_storage->segments[i];
+				for(j = 0; j < segment->reference_count; j++) {
+					SHIFT_POINTER(segment->references[j], instruction_shift);
+				}
 			}
 		}
 	}

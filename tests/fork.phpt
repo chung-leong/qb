@@ -14,8 +14,7 @@ function test_function($c) {
 	$b = 8;
 	$text = "Hello";
 	$fork_id = fork($c);
-	$fork_count = fork_count();
-	echo "$text: $a, $b, $c, $fork_id, $fork_count\n";
+	echo "$text: $a, $b, $c, $fork_id\n";
 }
 
 test_function(6);
@@ -24,9 +23,9 @@ test_function(6);
 
 ?>
 --EXPECTREGEX--
-Hello: 88, 8, 6, [0-5], 6
-Hello: 88, 8, 6, [0-5], 6
-Hello: 88, 8, 6, [0-5], 6
-Hello: 88, 8, 6, [0-5], 6
-Hello: 88, 8, 6, [0-5], 6
-Hello: 88, 8, 6, [0-5], 6
+Hello: 88, 8, 6, [0-5]
+Hello: 88, 8, 6, [0-5]
+Hello: 88, 8, 6, [0-5]
+Hello: 88, 8, 6, [0-5]
+Hello: 88, 8, 6, [0-5]
+Hello: 88, 8, 6, [0-5]

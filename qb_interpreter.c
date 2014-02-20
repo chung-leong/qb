@@ -503,28 +503,15 @@ static void qb_unlock_function(qb_function *f) {
 	f->in_use = 0;
 }
 
-static void qb_create_function_copy_in_main_thread(void *param1, void *param2, int param3) {
-	qb_function *last = param1, *f, **p_new = param2;
+static qb_function * qb_acquire_function(qb_function *base, int32_t reentrance);
+
+static void qb_acquire_function_in_main_thread(void *param1, void *param2, int param3) {
+	qb_function *base = param1, **p_new = param2;
 	int32_t reentrance = param3;
-	if(reentrance) {
-		while(last->next_reentrance_copy) {
-			last = last->next_reentrance_copy;
-		}
-	} else {
-		while(last->next_forked_copy) {
-			last = last->next_forked_copy;
-		}
-	}
-	f = qb_create_function_copy(last, reentrance);
-	if(reentrance) {
-		last->next_reentrance_copy = f;
-	} else {
-		last->next_forked_copy = f;
-	}
-	*p_new = f;
+	*p_new = qb_acquire_function(base, reentrance);
 }
 
-static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_function *base, int32_t reentrance) {
+static qb_function * qb_acquire_function(qb_function *base, int32_t reentrance) {
 	qb_function *f, *last;
 	if(reentrance) {
 		for(f = base; f; f = f->next_reentrance_copy) {
@@ -546,9 +533,9 @@ static qb_function * qb_acquire_function(qb_interpreter_context *cxt, qb_functio
 		// need to create a copy
 		if(!qb_in_main_thread()) {
 			// do it in the main thread
-			qb_run_in_main_thread(qb_create_function_copy_in_main_thread, last, &f, reentrance);
+			qb_run_in_main_thread(qb_acquire_function_in_main_thread, base, &f, reentrance);
 		} else {
-			f = qb_create_function_copy(last, reentrance);
+			f = qb_create_function_copy(base, reentrance);
 			if(reentrance) {
 				last->next_reentrance_copy = f;
 			} else {
@@ -567,7 +554,7 @@ void qb_initialize_interpreter_context(qb_interpreter_context *cxt, qb_function 
 		cxt->call_depth = 1;
 		cxt->caller_context = NULL;
 	}
-	cxt->function = qb_acquire_function(cxt, qfunc, TRUE);
+	cxt->function = qb_acquire_function(qfunc, TRUE);
 	cxt->instruction_pointer = cxt->function->instruction_start;
 
 	cxt->thread_count = QB_G(thread_count);
@@ -663,7 +650,7 @@ static void qb_fork_execution(qb_interpreter_context *cxt) {
 			if(i < function_count && qb_in_main_thread()) {
 				// acquire the function in the main thread now to avoid context switching from the worker
 				// (since emalloc() does not work inside worker threads)
-				fork_cxt->function = qb_acquire_function(cxt, function, FALSE);
+				fork_cxt->function = qb_acquire_function(function, FALSE);
 				fork_cxt->instruction_pointer = (int8_t *) (fork_cxt->function->instruction_base_address + instr_offset);
 			} else {
 				// let the worker acquire a copy relinquished by another that has finished
@@ -799,7 +786,7 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 		// if we're acquiring the function now, then it's because there were more forks than workers
 		// a properly relocated function should be available
 		qb_function *qfunc = param2;
-		cxt->function = qb_acquire_function(cxt, qfunc, FALSE);
+		cxt->function = qb_acquire_function(qfunc, FALSE);
 		cxt->instruction_pointer += cxt->function->instruction_base_address;
 
 		// copy the original function state
@@ -819,7 +806,7 @@ static void qb_execute_in_worker_thread(void *param1, void *param2, int param3) 
 	}
 }
 
-static int32_t qb_execute_in_main_thread(qb_interpreter_context *cxt) {
+static int32_t qb_execute_in_current_thread(qb_interpreter_context *cxt) {
 	qb_handle_execution(cxt, FALSE);
 
 	if(cxt->exit_type == QB_VM_EXCEPTION) {
@@ -838,6 +825,7 @@ static int32_t qb_initialize_local_variables(qb_interpreter_context *cxt) {
 
 	// make sure the function is relocated first
 	if(UNEXPECTED(!(cxt->function->flags & QB_FUNCTION_RELOCATED))) {
+		int8_t *pointer = cxt->instruction_pointer;
 		cxt->instruction_pointer += qb_relocate_function(cxt->function, TRUE);
 	}
 
@@ -895,7 +883,7 @@ int32_t qb_execute(qb_interpreter_context *cxt) {
 		// copy values from arguments, class variables, object variables, and global variables
 		if(qb_transfer_variables_from_external_sources(cxt)) {
 			// enter the vm
-			if(qb_execute_in_main_thread(cxt)) {
+			if(qb_execute_in_current_thread(cxt)) {
 				// move values back into caller space
 				if(qb_transfer_variables_to_external_sources(cxt)) {
 					success = TRUE;
@@ -916,7 +904,7 @@ int32_t qb_execute_resume(qb_interpreter_context *cxt) {
 	qb_transfer_arguments_from_generator(cxt);
 
 	// enter the vm
-	if(!qb_execute_in_main_thread(cxt)) {
+	if(!qb_execute_in_current_thread(cxt)) {
 		// there're more values still
 		qb_transfer_variables_to_generator(cxt);
 		return FALSE;
@@ -941,7 +929,7 @@ int32_t qb_execute_rewind(qb_interpreter_context *cxt) {
 int32_t qb_execute_internal(qb_interpreter_context *cxt) {
 	int32_t success = TRUE;
 	qb_initialize_local_variables(cxt);
-	if(!qb_execute_in_main_thread(cxt)) {
+	if(!qb_execute_in_current_thread(cxt)) {
 		success = FALSE;
 	}
 	qb_finalize_variables(cxt);

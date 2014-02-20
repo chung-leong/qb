@@ -232,7 +232,7 @@ intptr_t qb_resize_segment(qb_memory_segment *segment, uint32_t new_size) {
 qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift, int32_t reentrance) {
 	qb_storage *storage;
 	intptr_t shift;
-	uint32_t i;
+	uint32_t i, j;
 
 	storage = emalloc(base->size);
 	memcpy(storage, base, base->size);
@@ -259,8 +259,13 @@ qb_storage * qb_create_storage_copy(qb_storage *base, intptr_t instruction_shift
 			}
 		} else {
 			if(dst->references) {
-				// only adjust the pointer--the references themselves will get shifted during relocation
+				// shift the point of pointers
 				SHIFT_POINTER(dst->references, shift);
+
+				// shift the relocations themselves
+				for(j = 0; j < dst->reference_count; j++) {
+					SHIFT_POINTER(dst->references[j], instruction_shift);
+				}
 			}
 
 			if(separation) {
