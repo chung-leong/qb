@@ -312,6 +312,10 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 			// NOTE: not handling array expansion here
 			// functions that changes the size of the arugment shouldn't be inlinable
 			qb_perform_assignment(cxt, caller_address, argument_address);
+
+			// qb_perform_assignment() release the temporary variable
+			// need to relocked it
+			qb_lock_address(cxt, caller_address);
 		} else {
 			// unset read-only flag on the caller variable
 			uint32_t i;
