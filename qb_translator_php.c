@@ -20,9 +20,7 @@
 
 #include "qb.h"
 
-#define RETRIEVE_TEMP_VAR				0x0001
-
-static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_type zoperand_type, znode_op *zoperand, qb_operand *operand, uint32_t flags) {
+static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_type zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	switch(zoperand_type) {
 		case Z_OPERAND_CV: {
 			uint32_t var_index = Z_OPERAND_INFO(*zoperand, var);
@@ -50,27 +48,22 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_
 		}	break;
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
-			if(flags & RETRIEVE_TEMP_VAR) {
-				uint32_t temp_var_index = Z_OPERAND_TMP_INDEX(zoperand);
-				if(temp_var_index < cxt->temp_variable_count) {
-					qb_temporary_variable *temp_variable = &cxt->temp_variables[temp_var_index];
-					*operand = temp_variable->operand;
-					if(cxt->compiler_context->stage == QB_STAGE_CONSTANT_EXPRESSION_EVALUATION) {
-						temp_variable->last_access_op_index = cxt->zend_op_index;
-					} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
+			uint32_t temp_var_index = Z_OPERAND_TMP_INDEX(zoperand);
+			if(temp_var_index < cxt->temp_variable_count) {
+				qb_temporary_variable *temp_variable = &cxt->temp_variables[temp_var_index];
+				*operand = temp_variable->operand;
+				if(cxt->compiler_context->stage == QB_STAGE_CONSTANT_EXPRESSION_EVALUATION) {
+					temp_variable->last_access_op_index = cxt->zend_op_index;
+				} else if(cxt->compiler_context->stage == QB_STAGE_OPCODE_TRANSLATION) {
 #ifdef ZEND_DEBUG
-						if(temp_variable->freed) {
-							qb_debug_abort("Op %d is accessing temporary varaible #%d which was freed by op %d", cxt->zend_op_index, temp_var_index, temp_variable->last_access_op_index);
-						}
-#endif
+					if(temp_variable->freed) {
+						qb_debug_abort("Op %d is accessing temporary varaible #%d which was freed by op %d", cxt->zend_op_index, temp_var_index, temp_variable->last_access_op_index);
 					}
-					break;
-				} else {
-					// temp_var_index can be -1 sometimes
+#endif
 				}
+				break;
 			} else {
-				operand->type = QB_OPERAND_EMPTY;
-				operand->generic_pointer = NULL;
+				// temp_var_index can be -1 sometimes
 			}
 		}	break;
 		default: {
@@ -81,7 +74,7 @@ static int32_t qb_retrieve_operand(qb_php_translator_context *cxt, zend_operand_
 	return TRUE;
 }
 
-static void qb_retire_operand(qb_php_translator_context *cxt, zend_operand_type zoperand_type, znode_op *zoperand, qb_operand *operand, uint32_t flags) {
+static void qb_retire_operand(qb_php_translator_context *cxt, zend_operand_type zoperand_type, znode_op *zoperand, qb_operand *operand) {
 	switch(zoperand_type) {
 		case Z_OPERAND_TMP_VAR:
 		case Z_OPERAND_VAR: {
@@ -703,177 +696,177 @@ static int32_t qb_process_end_silence(qb_php_translator_context *cxt, void *op_f
 }
 
 static qb_php_op_translator op_translators[] = {
-	{	qb_process_basic_op,				&factory_nop,								0,					},	// ZEND_NOP
-	{	qb_process_basic_op,				&factory_add,								0,					},	// ZEND_ADD
-	{	qb_process_basic_op,				&factory_subtract,							0,					},	// ZEND_SUB
-	{	qb_process_basic_op,				&factory_multiply,							0,					},	// ZEND_MUL
-	{	qb_process_basic_op,				&factory_divide,							0,					},	// ZEND_DIV
-	{	qb_process_basic_op,				&factory_modulo,							0,					},	// ZEND_MOD
-	{	qb_process_basic_op,				&factory_shift_left,						0,					},	// ZEND_SL
-	{	qb_process_basic_op,				&factory_shift_right,						0,					},	// ZEND_SR
-	{	qb_process_basic_op,				&factory_concat,							0,					},	// ZEND_CONCAT
-	{	qb_process_basic_op,				&factory_bitwise_or,						0,					},	// ZEND_BW_OR
-	{	qb_process_basic_op,				&factory_bitwise_and,						0,					},	// ZEND_BW_AND
-	{	qb_process_basic_op,				&factory_bitwise_xor,						0,					},	// ZEND_BW_XOR
-	{	qb_process_basic_op,				&factory_bitwise_not,						0,					},	// ZEND_BW_NOT
-	{	qb_process_basic_op,				&factory_logical_not,						0,					},	// ZEND_BOOL_NOT
-	{	qb_process_basic_op,				&factory_logical_xor,						0,					},	// ZEND_BOOL_XOR
-	{	qb_process_basic_op,				&factory_identical,							0,					},	// ZEND_IS_IDENTICAL
-	{	qb_process_basic_op,				&factory_not_identical,						0,					},	// ZEND_IS_NOT_IDENTICAL
-	{	qb_process_basic_op,				&factory_equal,								0,					},	// ZEND_IS_EQUAL
-	{	qb_process_basic_op,				&factory_not_equal,							0,					},	// ZEND_IS_NOT_EQUAL
-	{	qb_process_basic_op,				&factory_less_than,							0,					},	// ZEND_IS_SMALLER
-	{	qb_process_basic_op,				&factory_less_equal,						0,					},	// ZEND_IS_SMALLER_OR_EQUAL
-	{	qb_process_cast_op,					factories_cast,								0,					},	// ZEND_CAST
-	{	qb_process_basic_op,				&factory_assign_branching,					RETRIEVE_TEMP_VAR,	},	// ZEND_QM_ASSIGN
-	{	qb_process_combo_op,				factories_add_assign,						0,					},	// ZEND_ASSIGN_ADD
-	{	qb_process_combo_op,				factories_subtract_assign,					0,					},	// ZEND_ASSIGN_SUB
-	{	qb_process_combo_op,				factories_multiply_assign,					0,					},	// ZEND_ASSIGN_MUL
-	{	qb_process_combo_op,				factories_divide_assign,					0,					},	// ZEND_ASSIGN_DIV
-	{	qb_process_combo_op,				factories_modulo_assign,					0,					},	// ZEND_ASSIGN_MOD
-	{	qb_process_combo_op,				factories_shift_left_assign,				0,					},	// ZEND_ASSIGN_SL
-	{	qb_process_combo_op,				factories_shift_right_assign,				0,					},	// ZEND_ASSIGN_SR
-	{	qb_process_basic_op,				&factory_concat_assign,						0,					},	// ZEND_ASSIGN_CONCAT
-	{	qb_process_combo_op,				factories_bitwise_or_assign,				0,					},	// ZEND_ASSIGN_BW_OR
-	{	qb_process_combo_op,				factories_bitwise_and_assign,				0,					},	// ZEND_ASSIGN_BW_AND
-	{	qb_process_combo_op,				factories_bitwise_xor_assign,				0,					},	// ZEND_ASSIGN_BW_XOR
-	{	qb_process_basic_op,				&factory_increment_pre,						0,					},	// ZEND_PRE_INC
-	{	qb_process_basic_op,				&factory_decrement_pre,						0,					},	// ZEND_PRE_DEC
-	{	qb_process_basic_op,				&factory_increment_post,					0,					},	// ZEND_POST_INC
-	{	qb_process_basic_op,				&factory_decrement_post,					0,					},	// ZEND_POST_DEC
-	{	qb_process_basic_op,				&factory_assign,							0,					},	// ZEND_ASSIGN
-	{	qb_process_basic_op,				&factory_assign_ref,						0,					},	// ZEND_ASSIGN_REF
-	{	qb_process_basic_op,				&factory_echo,								0,					},	// ZEND_ECHO
-	{	qb_process_basic_op,				&factory_print,								0,					},	// ZEND_PRINT
-	{	qb_process_jump,					&factory_jump,								0,					},	// ZEND_JMP
-	{	qb_process_branch,					&factory_branch_on_false,					0,					},	// ZEND_JMPZ
-	{	qb_process_branch,					&factory_branch_on_true,					0,					},	// ZEND_JMPNZ
-	{	qb_process_for_loop,				&factory_branch_on_true,					0,					},	// ZEND_JMPZNZ
-	{	qb_process_branch,					&factory_branch_on_false,					0,					},	// ZEND_JMPZ_EX
-	{	qb_process_branch,					&factory_branch_on_true,					0,					},	// ZEND_JMPNZ_EX
-	{	qb_process_basic_op,				&factory_case,								0,					},	// ZEND_CASE
-	{	qb_process_basic_op,				&factory_free,								0,					},	// ZEND_SWITCH_FREE
-	{	qb_process_break,					&factory_jump,								0,					},	// ZEND_BRK
-	{	qb_process_continue,				&factory_jump,								0,					},	// ZEND_CONT
-	{	qb_process_basic_op,				&factory_boolean_cast,						0,					},	// ZEND_BOOL
-	{	qb_process_basic_op,				&factory_empty_string,						0,					},	// ZEND_INIT_STRING
-	{	qb_process_basic_op,				&factory_add_string,						0,					},	// ZEND_ADD_CHAR
-	{	qb_process_basic_op,				&factory_add_string,						0,					},	// ZEND_ADD_STRING
-	{	qb_process_basic_op,				&factory_add_variable,						0,					},	// ZEND_ADD_VAR
-	{	qb_process_begin_silence,			NULL,										0,					},	// ZEND_BEGIN_SILENCE
-	{	qb_process_end_silence,				NULL,										0,					},	// ZEND_END_SILENCE
-	{	qb_process_init_function_call,		NULL,										0,					},	// ZEND_INIT_FCALL_BY_NAME
-	{	qb_process_function_call,			factories_fcall,							0,					},	// ZEND_DO_FCALL
-	{	qb_process_function_call_by_name,	factories_fcall,							0,					},	// ZEND_DO_FCALL_BY_NAME
-	{	qb_process_return,					&factory_return,							0,					},	// ZEND_RETURN
-	{	qb_process_receive_argument,		NULL,										0,					},	// ZEND_RECV
-	{	qb_process_receive_argument,		NULL,										0,					},	// ZEND_RECV_INIT
-	{	qb_process_send_argument,			NULL,										0,					},	// ZEND_SEND_VAL
-	{	qb_process_send_argument,			NULL,										0,					},	// ZEND_SEND_VAR
-	{	qb_process_send_argument,			NULL,										0,					},	// ZEND_SEND_REF
-	{	NULL,								NULL,										0,					},	// ZEND_NEW
-	{	NULL,								NULL,										0,					},	// ZEND_INIT_NS_FCALL_BY_NAME
-	{	qb_process_basic_op,				&factory_free,								0,					},	// ZEND_FREE
-	{	qb_process_basic_op,				&factory_array_init,						0,					},	// ZEND_INIT_ARRAY
-	{	qb_process_basic_op,				&factory_array_append,						RETRIEVE_TEMP_VAR,	},	// ZEND_ADD_ARRAY_ELEMENT
-	{	NULL,								NULL,										0,					},	// ZEND_INCLUDE_OR_EVAL
-	{	qb_process_unset,					&factory_unset,								0,					},	// ZEND_UNSET_VAR
-	{	qb_process_basic_op,				&factory_unset_array_element,				0,					},	// ZEND_UNSET_DIM
-	{	qb_process_basic_op,				&factory_unset_object_property,				0,					},	// ZEND_UNSET_OBJ
-	{	qb_process_basic_op,				&factory_foreach_reset,						0,					},	// ZEND_FE_RESET
-	{	qb_process_foreach_fetch,			&factory_foreach_fetch,						0,					},	// ZEND_FE_FETCH
-	{	qb_process_exit,					&factory_exit,								0,					},	// ZEND_EXIT
-	{	qb_process_fetch,					factories_fetch_variable,					0,					},	// ZEND_FETCH_R
-	{	qb_process_basic_op,				&factory_fetch_array_element_read,			0,					},	// ZEND_FETCH_DIM_R
-	{	qb_process_basic_op,				&factory_fetch_object_property_read,		0,					},	// ZEND_FETCH_OBJ_R
-	{	qb_process_fetch,					factories_fetch_variable,					0,					},	// ZEND_FETCH_W
-	{	qb_process_basic_op,				&factory_fetch_array_element_write,			0,					},	// ZEND_FETCH_DIM_W
-	{	qb_process_basic_op,				&factory_fetch_object_property_write,		0,					},	// ZEND_FETCH_OBJ_W
-	{	qb_process_fetch,					factories_fetch_variable,					0,					},	// ZEND_FETCH_RW
-	{	qb_process_basic_op,				&factory_fetch_array_element_write,			0,					},	// ZEND_FETCH_DIM_RW
-	{	qb_process_basic_op,				&factory_fetch_object_property_write,		0,					},	// ZEND_FETCH_OBJ_RW
-	{	qb_process_fetch,					factories_fetch_variable,					0,					},	// ZEND_FETCH_IS
-	{	qb_process_basic_op,				&factory_fetch_array_element_isset,			0,					},	// ZEND_FETCH_DIM_IS
-	{	qb_process_basic_op,				&factory_fetch_object_property_isset,		0,					},	// ZEND_FETCH_OBJ_IS
-	{	qb_process_fetch,					factories_fetch_variable,					0,					},	// ZEND_FETCH_FUNC_ARG
+	{	qb_process_basic_op,				&factory_nop,								},	// ZEND_NOP
+	{	qb_process_basic_op,				&factory_add,								},	// ZEND_ADD
+	{	qb_process_basic_op,				&factory_subtract,							},	// ZEND_SUB
+	{	qb_process_basic_op,				&factory_multiply,							},	// ZEND_MUL
+	{	qb_process_basic_op,				&factory_divide,							},	// ZEND_DIV
+	{	qb_process_basic_op,				&factory_modulo,							},	// ZEND_MOD
+	{	qb_process_basic_op,				&factory_shift_left,						},	// ZEND_SL
+	{	qb_process_basic_op,				&factory_shift_right,						},	// ZEND_SR
+	{	qb_process_basic_op,				&factory_concat,							},	// ZEND_CONCAT
+	{	qb_process_basic_op,				&factory_bitwise_or,						},	// ZEND_BW_OR
+	{	qb_process_basic_op,				&factory_bitwise_and,						},	// ZEND_BW_AND
+	{	qb_process_basic_op,				&factory_bitwise_xor,						},	// ZEND_BW_XOR
+	{	qb_process_basic_op,				&factory_bitwise_not,						},	// ZEND_BW_NOT
+	{	qb_process_basic_op,				&factory_logical_not,						},	// ZEND_BOOL_NOT
+	{	qb_process_basic_op,				&factory_logical_xor,						},	// ZEND_BOOL_XOR
+	{	qb_process_basic_op,				&factory_identical,							},	// ZEND_IS_IDENTICAL
+	{	qb_process_basic_op,				&factory_not_identical,						},	// ZEND_IS_NOT_IDENTICAL
+	{	qb_process_basic_op,				&factory_equal,								},	// ZEND_IS_EQUAL
+	{	qb_process_basic_op,				&factory_not_equal,							},	// ZEND_IS_NOT_EQUAL
+	{	qb_process_basic_op,				&factory_less_than,							},	// ZEND_IS_SMALLER
+	{	qb_process_basic_op,				&factory_less_equal,						},	// ZEND_IS_SMALLER_OR_EQUAL
+	{	qb_process_cast_op,					factories_cast,								},	// ZEND_CAST
+	{	qb_process_basic_op,				&factory_assign_branching,					},	// ZEND_QM_ASSIGN
+	{	qb_process_combo_op,				factories_add_assign,						},	// ZEND_ASSIGN_ADD
+	{	qb_process_combo_op,				factories_subtract_assign,					},	// ZEND_ASSIGN_SUB
+	{	qb_process_combo_op,				factories_multiply_assign,					},	// ZEND_ASSIGN_MUL
+	{	qb_process_combo_op,				factories_divide_assign,					},	// ZEND_ASSIGN_DIV
+	{	qb_process_combo_op,				factories_modulo_assign,					},	// ZEND_ASSIGN_MOD
+	{	qb_process_combo_op,				factories_shift_left_assign,				},	// ZEND_ASSIGN_SL
+	{	qb_process_combo_op,				factories_shift_right_assign,				},	// ZEND_ASSIGN_SR
+	{	qb_process_basic_op,				&factory_concat_assign,						},	// ZEND_ASSIGN_CONCAT
+	{	qb_process_combo_op,				factories_bitwise_or_assign,				},	// ZEND_ASSIGN_BW_OR
+	{	qb_process_combo_op,				factories_bitwise_and_assign,				},	// ZEND_ASSIGN_BW_AND
+	{	qb_process_combo_op,				factories_bitwise_xor_assign,				},	// ZEND_ASSIGN_BW_XOR
+	{	qb_process_basic_op,				&factory_increment_pre,						},	// ZEND_PRE_INC
+	{	qb_process_basic_op,				&factory_decrement_pre,						},	// ZEND_PRE_DEC
+	{	qb_process_basic_op,				&factory_increment_post,					},	// ZEND_POST_INC
+	{	qb_process_basic_op,				&factory_decrement_post,					},	// ZEND_POST_DEC
+	{	qb_process_basic_op,				&factory_assign,							},	// ZEND_ASSIGN
+	{	qb_process_basic_op,				&factory_assign_ref,						},	// ZEND_ASSIGN_REF
+	{	qb_process_basic_op,				&factory_echo,								},	// ZEND_ECHO
+	{	qb_process_basic_op,				&factory_print,								},	// ZEND_PRINT
+	{	qb_process_jump,					&factory_jump,								},	// ZEND_JMP
+	{	qb_process_branch,					&factory_branch_on_false,					},	// ZEND_JMPZ
+	{	qb_process_branch,					&factory_branch_on_true,					},	// ZEND_JMPNZ
+	{	qb_process_for_loop,				&factory_branch_on_true,					},	// ZEND_JMPZNZ
+	{	qb_process_branch,					&factory_branch_on_false,					},	// ZEND_JMPZ_EX
+	{	qb_process_branch,					&factory_branch_on_true,					},	// ZEND_JMPNZ_EX
+	{	qb_process_basic_op,				&factory_case,								},	// ZEND_CASE
+	{	qb_process_basic_op,				&factory_free,								},	// ZEND_SWITCH_FREE
+	{	qb_process_break,					&factory_jump,								},	// ZEND_BRK
+	{	qb_process_continue,				&factory_jump,								},	// ZEND_CONT
+	{	qb_process_basic_op,				&factory_boolean_cast,						},	// ZEND_BOOL
+	{	qb_process_basic_op,				&factory_empty_string,						},	// ZEND_INIT_STRING
+	{	qb_process_basic_op,				&factory_add_string,						},	// ZEND_ADD_CHAR
+	{	qb_process_basic_op,				&factory_add_string,						},	// ZEND_ADD_STRING
+	{	qb_process_basic_op,				&factory_add_variable,						},	// ZEND_ADD_VAR
+	{	qb_process_begin_silence,			NULL,										},	// ZEND_BEGIN_SILENCE
+	{	qb_process_end_silence,				NULL,										},	// ZEND_END_SILENCE
+	{	qb_process_init_function_call,		NULL,										},	// ZEND_INIT_FCALL_BY_NAME
+	{	qb_process_function_call,			factories_fcall,							},	// ZEND_DO_FCALL
+	{	qb_process_function_call_by_name,	factories_fcall,							},	// ZEND_DO_FCALL_BY_NAME
+	{	qb_process_return,					&factory_return,							},	// ZEND_RETURN
+	{	qb_process_receive_argument,		NULL,										},	// ZEND_RECV
+	{	qb_process_receive_argument,		NULL,										},	// ZEND_RECV_INIT
+	{	qb_process_send_argument,			NULL,										},	// ZEND_SEND_VAL
+	{	qb_process_send_argument,			NULL,										},	// ZEND_SEND_VAR
+	{	qb_process_send_argument,			NULL,										},	// ZEND_SEND_REF
+	{	NULL,								NULL,										},	// ZEND_NEW
+	{	NULL,								NULL,										},	// ZEND_INIT_NS_FCALL_BY_NAME
+	{	qb_process_basic_op,				&factory_free,								},	// ZEND_FREE
+	{	qb_process_basic_op,				&factory_array_init,						},	// ZEND_INIT_ARRAY
+	{	qb_process_basic_op,				&factory_array_append,						},	// ZEND_ADD_ARRAY_ELEMENT
+	{	NULL,								NULL,										},	// ZEND_INCLUDE_OR_EVAL
+	{	qb_process_unset,					&factory_unset,								},	// ZEND_UNSET_VAR
+	{	qb_process_basic_op,				&factory_unset_array_element,				},	// ZEND_UNSET_DIM
+	{	qb_process_basic_op,				&factory_unset_object_property,				},	// ZEND_UNSET_OBJ
+	{	qb_process_basic_op,				&factory_foreach_reset,						},	// ZEND_FE_RESET
+	{	qb_process_foreach_fetch,			&factory_foreach_fetch,						},	// ZEND_FE_FETCH
+	{	qb_process_exit,					&factory_exit,								},	// ZEND_EXIT
+	{	qb_process_fetch,					factories_fetch_variable,					},	// ZEND_FETCH_R
+	{	qb_process_basic_op,				&factory_fetch_array_element_read,			},	// ZEND_FETCH_DIM_R
+	{	qb_process_basic_op,				&factory_fetch_object_property_read,		},	// ZEND_FETCH_OBJ_R
+	{	qb_process_fetch,					factories_fetch_variable,					},	// ZEND_FETCH_W
+	{	qb_process_basic_op,				&factory_fetch_array_element_write,			},	// ZEND_FETCH_DIM_W
+	{	qb_process_basic_op,				&factory_fetch_object_property_write,		},	// ZEND_FETCH_OBJ_W
+	{	qb_process_fetch,					factories_fetch_variable,					},	// ZEND_FETCH_RW
+	{	qb_process_basic_op,				&factory_fetch_array_element_write,			},	// ZEND_FETCH_DIM_RW
+	{	qb_process_basic_op,				&factory_fetch_object_property_write,		},	// ZEND_FETCH_OBJ_RW
+	{	qb_process_fetch,					factories_fetch_variable,					},	// ZEND_FETCH_IS
+	{	qb_process_basic_op,				&factory_fetch_array_element_isset,			},	// ZEND_FETCH_DIM_IS
+	{	qb_process_basic_op,				&factory_fetch_object_property_isset,		},	// ZEND_FETCH_OBJ_IS
+	{	qb_process_fetch,					factories_fetch_variable,					},	// ZEND_FETCH_FUNC_ARG
 
 	// TODO: fix this so the correct factory is used when the function accepts reference
-	{	qb_process_basic_op,				&factory_fetch_array_element_read,			0,					},	// ZEND_FETCH_DIM_FUNC_ARG
-	{	qb_process_basic_op,				&factory_fetch_object_property_read,		0,					},	// ZEND_FETCH_OBJ_FUNC_ARG
+	{	qb_process_basic_op,				&factory_fetch_array_element_read,			},	// ZEND_FETCH_DIM_FUNC_ARG
+	{	qb_process_basic_op,				&factory_fetch_object_property_read,		},	// ZEND_FETCH_OBJ_FUNC_ARG
 
-	{	qb_process_fetch,					factories_fetch_variable,					0,					},	// ZEND_FETCH_UNSET
-	{	qb_process_basic_op,				&factory_fetch_array_element_isset,			0,					},	// ZEND_FETCH_DIM_UNSET
-	{	qb_process_basic_op,				&factory_fetch_object_property_isset,		0,					},	// ZEND_FETCH_OBJ_UNSET
-	{	qb_process_basic_op,				&factory_fetch_array_element_read,			0,					},	// ZEND_FETCH_DIM_TMP_VAR
-	{	qb_process_basic_op,				&factory_fetch_constant,					0,					},	// ZEND_FETCH_CONSTANT
-	{	NULL,								NULL,										0,					},	// ZEND_GOTO
-	{	qb_process_extension_op,			&factory_ext,								0,					},	// ZEND_EXT_STMT
-	{	qb_process_extension_op,			&factory_ext,								0,					},	// ZEND_EXT_FCALL_BEGIN
-	{	qb_process_extension_op,			&factory_ext,								0,					},	// ZEND_EXT_FCALL_END
-	{	qb_process_extension_op,			&factory_ext,								0,					},	// ZEND_EXT_NOP
-	{	qb_process_basic_op,				&factory_nop,								0,					},	// ZEND_TICKS
-	{	qb_process_send_argument,			NULL,										0,					},	// ZEND_SEND_VAR_NO_REF
-	{	NULL,								NULL,										0,					},	// ZEND_CATCH
-	{	NULL,								NULL,										0,					},	// ZEND_THROW
-	{	qb_process_fetch_class,				factories_fetch_class,						0,					},	// ZEND_FETCH_CLASS
-	{	NULL,								NULL,										0,					},	// ZEND_CLONE
-	{	NULL,								NULL,										0,					},	// ZEND_RETURN_BY_REF
-	{	qb_process_init_method_call,		NULL,										0,					},	// ZEND_INIT_METHOD_CALL
-	{	qb_process_init_method_call,		NULL,										0,					},	// ZEND_INIT_STATIC_METHOD_CALL
-	{	qb_process_isset,					&factory_boolean_cast,						0,					},	// ZEND_ISSET_ISEMPTY_VAR
-	{	qb_process_basic_op,				&factory_array_element_isset,				0,					},	// ZEND_ISSET_ISEMPTY_DIM_OBJ
-	{	NULL,								NULL,										0,					},	// 116
-	{	NULL,								NULL,										0,					},	// 117
-	{	NULL,								NULL,										0,					},	// 118
-	{	NULL,								NULL,										0,					},	// 119
-	{	NULL,								NULL,										0,					},	// 120
-	{	NULL,								NULL,										0,					},	// 121
-	{	NULL,								NULL,										0,					},	// 122
-	{	NULL,								NULL,										0,					},	// 123
-	{	NULL,								NULL,										0,					},	// 124
-	{	NULL,								NULL,										0,					},	// 125
-	{	NULL,								NULL,										0,					},	// 126
-	{	NULL,								NULL,										0,					},	// 127
-	{	NULL,								NULL,										0,					},	// 128
-	{	NULL,								NULL,										0,					},	// 129
-	{	NULL,								NULL,										0,					},	// 130
-	{	NULL,								NULL,										0,					},	// 131
-	{	qb_process_basic_op,				&factory_increment_object_property_pre,		0,					},	// ZEND_PRE_INC_OBJ
-	{	qb_process_basic_op,				&factory_decrement_object_property_pre,		0,					},	// ZEND_PRE_DEC_OBJ
-	{	qb_process_basic_op,				&factory_increment_object_property_post,	0,					},	// ZEND_POST_INC_OBJ
-	{	qb_process_basic_op,				&factory_decrement_object_property_post,	0,					},	// ZEND_POST_DEC_OBJ
-	{	qb_process_basic_op,				&factory_assign_object_property,			0,					},	// ZEND_ASSIGN_OBJ
-	{	NULL,								NULL,										0,					},	// ZEND_OP_DATA
-	{	NULL,								NULL,										0,					},	// ZEND_INSTANCEOF
-	{	NULL,								NULL,										0,					},	// ZEND_DECLARE_CLASS
-	{	NULL,								NULL,										0,					},	// ZEND_DECLARE_INHERITED_CLASS
-	{	NULL,								NULL,										0,					},	// ZEND_DECLARE_FUNCTION
-	{	NULL,								NULL,										0,					},	// ZEND_RAISE_ABSTRACT_ERROR
-	{	NULL,								NULL,										0,					},	// ZEND_DECLARE_CONST
-	{	NULL,								NULL,										0,					},	// ZEND_ADD_INTERFACE
-	{	NULL,								NULL,										0,					},	// ZEND_DECLARE_INHERITED_CLASS_DELAYED
-	{	NULL,								NULL,										0,					},	// ZEND_VERIFY_ABSTRACT_CLASS
-	{	qb_process_basic_op,				&factory_assign_array_element,				0,					},	// ZEND_ASSIGN_DIM
-	{	qb_process_basic_op,				&factory_object_property_isset,				0,					},	// ZEND_ISSET_ISEMPTY_PROP_OBJ
-	{	NULL,								NULL,										0,					},	// ZEND_HANDLE_EXCEPTION
-	{	qb_process_user_opcode,				NULL,										0,					},	// ZEND_USER_OPCODE
-	{	NULL,								NULL,										0,					},	// 151
-	{	qb_process_jump_set,				&factory_branch_on_true_set,				RETRIEVE_TEMP_VAR,	},	// ZEND_JMP_SET
-	{	NULL,								NULL,										0,					},	// ZEND_DECLARE_LAMBDA_FUNCTION
-	{	NULL,								NULL,										0,					},	// ZEND_ADD_TRAIT
-	{	NULL,								NULL,										0,					},	// ZEND_BIND_TRAITS
-	{	NULL,								NULL,										0,					},	// ZEND_SEPARATE
-	{	qb_process_basic_op,				&factory_assign_branching,					RETRIEVE_TEMP_VAR,	},	// ZEND_QM_ASSIGN_VAR
-	{	qb_process_jump_set,				&factory_branch_on_true_set,				RETRIEVE_TEMP_VAR,	},	// ZEND_JMP_SET_VAR
-	{	NULL,								NULL,										0,					},	// ZEND_DISCARD_EXCEPTION
-	{	qb_process_basic_op,				&factory_yield,								0,					},	// ZEND_YIELD
-	{	qb_process_return,					&factory_leave,								0,					},	// ZEND_GENERATOR_RETURN
-	{	NULL,								NULL,										0,					},	// ZEND_FAST_CALL
-	{	NULL,								NULL,										0,					},	// ZEND_FAST_RET
-	{	NULL,								NULL,										0,					},	// ZEND_RECV_VARIADIC
-	{	NULL,								NULL,										0,					},	// ZEND_SEND_UNPACK
-	{	NULL,								NULL,										0,					},	// ZEND_POW
-	{	NULL,								NULL,										0,					},	// ZEND_ASSIGN_POW
+	{	qb_process_fetch,					factories_fetch_variable,					},	// ZEND_FETCH_UNSET
+	{	qb_process_basic_op,				&factory_fetch_array_element_isset,			},	// ZEND_FETCH_DIM_UNSET
+	{	qb_process_basic_op,				&factory_fetch_object_property_isset,		},	// ZEND_FETCH_OBJ_UNSET
+	{	qb_process_basic_op,				&factory_fetch_array_element_read,			},	// ZEND_FETCH_DIM_TMP_VAR
+	{	qb_process_basic_op,				&factory_fetch_constant,					},	// ZEND_FETCH_CONSTANT
+	{	NULL,								NULL,										},	// ZEND_GOTO
+	{	qb_process_extension_op,			&factory_ext,								},	// ZEND_EXT_STMT
+	{	qb_process_extension_op,			&factory_ext,								},	// ZEND_EXT_FCALL_BEGIN
+	{	qb_process_extension_op,			&factory_ext,								},	// ZEND_EXT_FCALL_END
+	{	qb_process_extension_op,			&factory_ext,								},	// ZEND_EXT_NOP
+	{	qb_process_basic_op,				&factory_nop,								},	// ZEND_TICKS
+	{	qb_process_send_argument,			NULL,										},	// ZEND_SEND_VAR_NO_REF
+	{	NULL,								NULL,										},	// ZEND_CATCH
+	{	NULL,								NULL,										},	// ZEND_THROW
+	{	qb_process_fetch_class,				factories_fetch_class,						},	// ZEND_FETCH_CLASS
+	{	NULL,								NULL,										},	// ZEND_CLONE
+	{	NULL,								NULL,										},	// ZEND_RETURN_BY_REF
+	{	qb_process_init_method_call,		NULL,										},	// ZEND_INIT_METHOD_CALL
+	{	qb_process_init_method_call,		NULL,										},	// ZEND_INIT_STATIC_METHOD_CALL
+	{	qb_process_isset,					&factory_boolean_cast,						},	// ZEND_ISSET_ISEMPTY_VAR
+	{	qb_process_basic_op,				&factory_array_element_isset,				},	// ZEND_ISSET_ISEMPTY_DIM_OBJ
+	{	NULL,								NULL,										},	// 116
+	{	NULL,								NULL,										},	// 117
+	{	NULL,								NULL,										},	// 118
+	{	NULL,								NULL,										},	// 119
+	{	NULL,								NULL,										},	// 120
+	{	NULL,								NULL,										},	// 121
+	{	NULL,								NULL,										},	// 122
+	{	NULL,								NULL,										},	// 123
+	{	NULL,								NULL,										},	// 124
+	{	NULL,								NULL,										},	// 125
+	{	NULL,								NULL,										},	// 126
+	{	NULL,								NULL,										},	// 127
+	{	NULL,								NULL,										},	// 128
+	{	NULL,								NULL,										},	// 129
+	{	NULL,								NULL,										},	// 130
+	{	NULL,								NULL,										},	// 131
+	{	qb_process_basic_op,				&factory_increment_object_property_pre,		},	// ZEND_PRE_INC_OBJ
+	{	qb_process_basic_op,				&factory_decrement_object_property_pre,		},	// ZEND_PRE_DEC_OBJ
+	{	qb_process_basic_op,				&factory_increment_object_property_post,	},	// ZEND_POST_INC_OBJ
+	{	qb_process_basic_op,				&factory_decrement_object_property_post,	},	// ZEND_POST_DEC_OBJ
+	{	qb_process_basic_op,				&factory_assign_object_property,			},	// ZEND_ASSIGN_OBJ
+	{	NULL,								NULL,										},	// ZEND_OP_DATA
+	{	NULL,								NULL,										},	// ZEND_INSTANCEOF
+	{	NULL,								NULL,										},	// ZEND_DECLARE_CLASS
+	{	NULL,								NULL,										},	// ZEND_DECLARE_INHERITED_CLASS
+	{	NULL,								NULL,										},	// ZEND_DECLARE_FUNCTION
+	{	NULL,								NULL,										},	// ZEND_RAISE_ABSTRACT_ERROR
+	{	NULL,								NULL,										},	// ZEND_DECLARE_CONST
+	{	NULL,								NULL,										},	// ZEND_ADD_INTERFACE
+	{	NULL,								NULL,										},	// ZEND_DECLARE_INHERITED_CLASS_DELAYED
+	{	NULL,								NULL,										},	// ZEND_VERIFY_ABSTRACT_CLASS
+	{	qb_process_basic_op,				&factory_assign_array_element,				},	// ZEND_ASSIGN_DIM
+	{	qb_process_basic_op,				&factory_object_property_isset,				},	// ZEND_ISSET_ISEMPTY_PROP_OBJ
+	{	NULL,								NULL,										},	// ZEND_HANDLE_EXCEPTION
+	{	qb_process_user_opcode,				NULL,										},	// ZEND_USER_OPCODE
+	{	NULL,								NULL,										},	// 151
+	{	qb_process_jump_set,				&factory_branch_on_true_set,				},	// ZEND_JMP_SET
+	{	NULL,								NULL,										},	// ZEND_DECLARE_LAMBDA_FUNCTION
+	{	NULL,								NULL,										},	// ZEND_ADD_TRAIT
+	{	NULL,								NULL,										},	// ZEND_BIND_TRAITS
+	{	NULL,								NULL,										},	// ZEND_SEPARATE
+	{	qb_process_basic_op,				&factory_assign_branching,					},	// ZEND_QM_ASSIGN_VAR
+	{	qb_process_jump_set,				&factory_branch_on_true_set,				},	// ZEND_JMP_SET_VAR
+	{	NULL,								NULL,										},	// ZEND_DISCARD_EXCEPTION
+	{	qb_process_basic_op,				&factory_yield,								},	// ZEND_YIELD
+	{	qb_process_return,					&factory_leave,								},	// ZEND_GENERATOR_RETURN
+	{	NULL,								NULL,										},	// ZEND_FAST_CALL
+	{	NULL,								NULL,										},	// ZEND_FAST_RET
+	{	NULL,								NULL,										},	// ZEND_RECV_VARIADIC
+	{	NULL,								NULL,										},	// ZEND_SEND_UNPACK
+	{	NULL,								NULL,										},	// ZEND_POW
+	{	NULL,								NULL,										},	// ZEND_ASSIGN_POW
 };
 
 extern const char compressed_table_zend_op_names[];
@@ -941,31 +934,31 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 			// retrieve operands
 			if(operand_type1 != Z_OPERAND_UNUSED) {
 				operand_count = 1;
-				if(!qb_retrieve_operand(cxt, operand_type1, operand1, &operands[0], RETRIEVE_TEMP_VAR)) {
+				if(!qb_retrieve_operand(cxt, operand_type1, operand1, &operands[0])) {
 					return FALSE;
 				}
 			}
 			if(operand_type2 != Z_OPERAND_UNUSED) {
 				operand_count = 2;
-				if(!qb_retrieve_operand(cxt, operand_type2, operand2, &operands[1], RETRIEVE_TEMP_VAR)) {
+				if(!qb_retrieve_operand(cxt, operand_type2, operand2, &operands[1])) {
 					return FALSE;
 				}
 			}
 			if(operand_type3 != Z_OPERAND_UNUSED) {
 				operand_count = 3;
-				if(!qb_retrieve_operand(cxt, operand_type3, operand3, &operands[2], RETRIEVE_TEMP_VAR)) {
+				if(!qb_retrieve_operand(cxt, operand_type3, operand3, &operands[2])) {
 					return FALSE;
 				}
 			}
 			if(result_type1 != Z_OPERAND_UNUSED) {
 				result_count = 1;
-				if(!qb_retrieve_operand(cxt, result_type1, result1, &results[0], t->result_flags)) {
+				if(!qb_retrieve_operand(cxt, result_type1, result1, &results[0])) {
 					return FALSE;
 				}
 			}
 			if(result_type2 != Z_OPERAND_UNUSED) {
 				result_count = 2;
-				if(!qb_retrieve_operand(cxt, result_type2, result2, &results[1], t->result_flags)) {
+				if(!qb_retrieve_operand(cxt, result_type2, result2, &results[1])) {
 					return FALSE;
 				}
 			}
@@ -979,18 +972,18 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 #endif
 
 			if(operand_count >= 1) {
-				qb_retire_operand(cxt, operand_type1, operand1, &operands[0], 0);
+				qb_retire_operand(cxt, operand_type1, operand1, &operands[0]);
 				if(operand_count >= 2) {
-					qb_retire_operand(cxt, operand_type2, operand2, &operands[1], 0);
+					qb_retire_operand(cxt, operand_type2, operand2, &operands[1]);
 					if(operand_count >= 3) {
-						qb_retire_operand(cxt, operand_type3, operand3, &operands[2], 0);
+						qb_retire_operand(cxt, operand_type3, operand3, &operands[2]);
 					}
 				}
 			}
 			if(result_count >= 1) {
-				qb_retire_operand(cxt, result_type1, result1, &results[0], t->result_flags);
+				qb_retire_operand(cxt, result_type1, result1, &results[0]);
 				if(result_count >= 2) {
-					qb_retire_operand(cxt, result_type2, result2, &results[1], t->result_flags);
+					qb_retire_operand(cxt, result_type2, result2, &results[1]);
 				}
 			}
 

@@ -1,5 +1,5 @@
 --TEST--
-Use case: Droste Effect (multicore)
+Use case: Landscape generator (multicore)
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';
