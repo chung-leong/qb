@@ -538,7 +538,7 @@ static int32_t qb_add_source_dimensions_from_zval(zval *zvalue, qb_dimension_map
 	return FALSE;
 }
 
-static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *address, qb_dimension_mappings *m) {
+static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *address, qb_dimension_mappings *m, int32_t autovivification) {
 	uint32_t src_array_size = (m->src_dimension_count > 0) ? m->src_dimensions[0] : 1;
 	if(m->dst_dimension_count > 0) {
 		uint32_t dst_array_size = m->dst_array_sizes[0];
@@ -581,8 +581,12 @@ static int32_t qb_apply_dimension_mappings(qb_storage *storage, qb_address *addr
 						m->dst_array_sizes[0] = dst_array_size;
 					}
 				} else {
-					qb_report_incompatible_array_structure_exception(0, m->src_element_type, m->src_dimensions, m->src_dimension_count, m->dst_element_type, m->dst_dimensions, m->dst_dimension_count);
-					return FALSE;
+					if(autovivification) {
+						src_array_size = 0;
+					} else {
+						qb_report_incompatible_array_structure_exception(0, m->src_element_type, m->src_dimensions, m->src_dimension_count, m->dst_element_type, m->dst_dimensions, m->dst_dimension_count);
+						return FALSE;
+					}
 				}
 				for(i = 0; i < unknown_dimension_count; i++) {
 					qb_address *dimension_address = address->dimension_addresses[i];
@@ -1406,7 +1410,7 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 	if(!qb_add_destination_dimensions(storage, address, m) || !qb_add_source_dimensions_from_zval(zvalue, m)) {
 		return FALSE;
 	}
-	if(!qb_apply_dimension_mappings(storage, address, m)) {
+	if(!qb_apply_dimension_mappings(storage, address, m, (transfer_flags & QB_TRANSFER_CAN_AUTOVIVIFICATE) && Z_TYPE_P(zvalue) == IS_NULL)) {
 		return FALSE;
 	}
 
@@ -1454,7 +1458,7 @@ int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address 
 	if(!qb_add_destination_dimensions(storage, address, m) || !qb_add_source_dimensions(src_storage, src_address, m)) {
 		return FALSE;
 	}
-	if(!qb_apply_dimension_mappings(storage, address, m)) {
+	if(!qb_apply_dimension_mappings(storage, address, m, FALSE)) {
 		return FALSE;
 	}
 
@@ -1558,7 +1562,7 @@ int32_t qb_transfer_value_to_storage_location(qb_storage *storage, qb_address *a
 	if(!qb_add_destination_dimensions(dst_storage, dst_address, m) || !qb_add_source_dimensions(storage, address, m)) {
 		return FALSE;
 	}
-	if(!qb_apply_dimension_mappings(dst_storage, dst_address, m)) {
+	if(!qb_apply_dimension_mappings(dst_storage, dst_address, m, FALSE)) {
 		return FALSE;
 	}
 
