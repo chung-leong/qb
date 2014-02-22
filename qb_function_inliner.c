@@ -315,7 +315,7 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 
 			// qb_perform_assignment() release the temporary variable
 			// need to relocked it
-			qb_lock_address(cxt, caller_address);
+			qb_lock_address(cxt->caller_context, caller_address);
 		} else {
 			// unset read-only flag on the caller variable
 			uint32_t i;

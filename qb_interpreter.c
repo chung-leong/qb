@@ -70,13 +70,13 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 			zvalue = *p_zvalue;
 		}
 		if(zvalue) {
-			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY)) {
+			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_AUTOVIVIFICATE)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
 				result = FALSE;
 			}
 		} else {
-			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY)) {
+			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_AUTOVIVIFICATE)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
 				result = FALSE;
@@ -189,15 +189,18 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 
 	for(i = 0; i < cxt->function->argument_count; i++) {
 		qb_variable *qvar = cxt->function->variables[i];
+		uint32_t transfer_flags = 0;
+		if(qvar->flags & QB_VARIABLE_BY_REF) {
+			// avoid allocating new memory and copying contents if changes will be copied back anyway
+			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_AUTOVIVIFICATE;
+		} else if(READ_ONLY(qvar->address)) {
+			// or if no changes will be made
+			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
+		}
 
 		if(i < received_argument_count) {
 			zval **p_zarg = (zval**) p - received_argument_count + i;
 			zval *zarg = *p_zarg;
-			uint32_t transfer_flags = 0;
-			if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
-				// avoid allocating new memory and copying contents if changes will be copied back anyway (or no changes will be made)
-				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
-			}
 			if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 				qb_set_exception_line_id(line_id TSRMLS_CC);
@@ -207,10 +210,6 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 		} else {
 			if(qvar->default_value) {
 				zval *zarg = qvar->default_value;
-				uint32_t transfer_flags = 0;
-				if(READ_ONLY(qvar->address)) {
-					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
-				}
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
 					uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
 					qb_set_exception_line_id(line_id TSRMLS_CC);

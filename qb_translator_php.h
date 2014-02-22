@@ -32,7 +32,6 @@ typedef int32_t (*qb_php_op_translator_proc)(qb_php_translator_context *cxt, voi
 struct qb_php_op_translator {
 	qb_php_op_translator_proc translate;
 	void *factory;
-	uint32_t result_flags;
 };
 
 struct qb_temporary_variable {

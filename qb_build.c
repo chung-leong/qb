@@ -291,6 +291,10 @@ void qb_generate_executables(qb_build_context *cxt) {
 		// encode the instruction stream
 		compiler_cxt->compiled_function = qb_encode_function(encoder_cxt);
 
+		if(!compiler_cxt->compiled_function) {
+			qb_dispatch_exceptions(TSRMLS_C);
+		}
+
 		// relocate the function now, so the base function won't be in the middle of relcoation while it's being copied
 		qb_relocate_function(compiler_cxt->compiled_function, TRUE);
 

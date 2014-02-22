@@ -22,7 +22,7 @@
 #define QB_VERSION_H_
 
 #define QB_MAJOR_VERSION			2
-#define QB_MINOR_VERSION			0
+#define QB_MINOR_VERSION			1
 #define QB_VERSION_SIGNATURE		((QB_MAJOR_VERSION << 16) | QB_MINOR_VERSION)
 
 #define QB_RELEASE_NAME_1			"Agnieszka"
