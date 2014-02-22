@@ -36,17 +36,42 @@
 static qb_thread_pool _pool;
 static qb_thread_pool *pool = NULL;
 
-#ifdef _MSC_VER
-__declspec(thread) qb_thread *current_thread = NULL;
+#if defined(_MSC_VER)
+__declspec(thread) qb_thread *tls_current_thread = NULL;
+#elif defined(__GNUC__) && defined(__ELF__)
+__thread qb_thread *tls_current_thread = NULL;
 #else
-__thread qb_thread *current_thread = NULL;
+static pthread_key_t key;
+static pthread_once_t key_once = PTHREAD_ONCE_INIT;
+
+static void qb_make_pthread_key() {
+    pthread_key_create(&key, NULL);
+}
 #endif
 
+static void qb_set_current_thread(qb_thread *thread) {
+#if defined(_MSC_VER)
+	tls_current_thread = thread;
+#elif defined(__GNUC__) && defined(__ELF__)
+	tls_current_thread = thread;
+#else
+	pthread_once(&key_once, qb_make_pthread_key);
+	pthread_setspecific(key, thread);
+#endif
+}
+
 qb_thread *qb_get_current_thread(void) {
-	return current_thread;
+#if defined(_MSC_VER)
+	return tls_current_thread;
+#elif defined(__GNUC__) && defined(__ELF__)
+	return tls_current_thread;
+#else
+	return pthread_getspecific(key);
+#endif
 }
 
 int qb_in_main_thread(void) {
+	qb_thread *current_thread = qb_get_current_thread();
 	return (current_thread->type == QB_THREAD_MAIN);
 }
 
@@ -323,7 +348,8 @@ int qb_initialize_main_thread(qb_main_thread *thread TSRMLS_DC) {
 	thread->tsrm_ls = tsrm_ls;
 #endif
 
-	current_thread = (qb_thread*) thread;
+
+	qb_set_current_thread((qb_thread*) thread);
 
 	qb_lock_event_sink(&thread->event_sink);
 	return TRUE;
@@ -367,6 +393,7 @@ static qb_main_thread * qb_get_thread_owner(qb_thread *thread) {
 
 #ifdef ZTS
 void ***qb_get_tsrm_ls() {
+	qb_thread *current_thread = qb_get_current_thread();
 	if(current_thread) {
 		qb_main_thread *main_thread = qb_get_thread_owner(current_thread);
 		return main_thread->tsrm_ls;
@@ -469,7 +496,7 @@ qb_task_group * qb_allocate_task_group(long task_count, long extra_bytes) {
 	group->completion_count = 0;
 	group->task_count = 0;
 	group->task_index = 0;
-	group->owner = current_thread;
+	group->owner = qb_get_current_thread();
 	group->extra_memory = (extra_bytes) ? &group->tasks[task_count] : NULL;
 	group->previous_group = NULL;
 	group->next_group = NULL;
@@ -644,7 +671,7 @@ THREAD_PROC_RETURN_TYPE qb_worker_thread_proc(void *arg) {
 	qb_worker_thread *worker = arg;
 	qb_lock_event_sink(&worker->event_sink);
 
-	current_thread = (qb_thread *) worker;
+	qb_set_current_thread((qb_thread *) worker);
 
 	// event to the creator that the thread is ready
 	qb_send_event(&worker->creator->event_sink, (qb_thread *) worker, QB_EVENT_WORKER_ADDED, FALSE);
@@ -772,7 +799,8 @@ void qb_run_task_group(qb_task_group *group, int iterative) {
 }
 
 void qb_run_in_main_thread(qb_thread_proc proc, void *param1, void *param2, int param3) {
-	if(!qb_in_main_thread()) {
+	qb_thread *current_thread = qb_get_current_thread();
+	if(current_thread && current_thread->type != QB_THREAD_MAIN) {
 		qb_main_thread *main_thread = qb_get_thread_owner(current_thread);
 		qb_worker_thread *worker = (qb_worker_thread *) current_thread;
 		qb_task task;
