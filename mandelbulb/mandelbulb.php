@@ -8,12 +8,12 @@
  *		1.0		- Initial release
  *		1.0.1	- Fixed a missing asymmetry thanks to Chris King (http://www.dhushara.com)
  *				- Refinements in the colouring
- *      1.0.2   - Added radiolaria option for a funky hair-like effect
- * 				- Incorporated the scalar derivative method as described here:
- *			    - http://www.fractalforums.com/mandelbulb-implementation/realtime-renderingoptimisations/
+ *		1.0.2	- Added radiolaria option for a funky hair-like effect
+ *				- Incorporated the scalar derivative method as described here:
+ *				  http://www.fractalforums.com/mandelbulb-implementation/realtime-renderingoptimisations/
  *		1.0.3	- Created a quick version of the script as using a boolean flag to determine
  *				  which distance estimation method created long compilation times.
- * 		1.0.4 	- Fixed issue with older graphic cards and the specular highlights
+ *		1.0.4	- Fixed issue with older graphic cards and the specular highlights
  *
  * 
  * Copyright (c) 2009 Tom Beddard
@@ -100,7 +100,7 @@ class Mandelbulb {
 
 	/** @var float	 		Background transparency. */
 	public $colorBackgroundTransparency = 1.0;
-    
+	 
 	/** @var float[r,g,b]	Diffuse colour. */
 	public $colorDiffuse = array(0.0, 0.85, 0.99);
 
@@ -215,7 +215,7 @@ class Mandelbulb {
 	 *
 	 * The distance estimation is then calculated with:
 	 *
-	 *   0.5 * |z| * log(|z|) / |dz|
+	 *	0.5 * |z| * log(|z|) / |dz|
 	 *
 	 * @engine qb
 	 *
@@ -356,7 +356,7 @@ class Mandelbulb {
 	 */
 	protected function Phong($pt, $N, &$specular)
 	{
-        $specular = 0.0;
+		$specular = 0.0;
 		$L = normalize(vm_mult($this->light, $this->objRotation) - $pt); // find the vector to the light
 		$NdotL = dot($N, $L);			// find the cosine of the angle between light and normal
 
@@ -372,7 +372,7 @@ class Mandelbulb {
 
 			if ($RdE <= 0.0) {
 				$specular = $this->specularity * pow(abs($RdE), $this->specularExponent);
-            }
+			}
 		} else {
 			$diffuse = $this->colorDiffuse * abs($NdotL) * $this->rimLight;
 		}
@@ -421,8 +421,8 @@ class Mandelbulb {
 	protected function renderPixel($pixel)
 	{
 		$rayDirection = $this->rayDirection($pixel);
-        $color->rgb = $this->colorBackground;
-        $color->a = $this->colorBackgroundTransparency;
+		$color->rgb = $this->colorBackground;
+		$color->a = $this->colorBackgroundTransparency;
 
 		if ($this->intersectBoundingSphere($this->eye, $rayDirection, $tmin, $tmax)) {
 			$ray = $this->eye + $tmin * $rayDirection;
@@ -497,7 +497,7 @@ class Mandelbulb {
 
 				$ao *= 1.0 - ($i / $maxSteps) * $this->ambientOcclusionEmphasis * 2.0;
 				$color->rgb *= $ao;
-                $color->a = 1.0;
+				$color->a = 1.0;
 			}
 		}
 
@@ -605,6 +605,7 @@ $output = imagecreatetruecolor(800, 800);
 $rayTracer = new Mandelbulb;
 $rayTracer->julia = false;
 $rayTracer->radiolaria = false;
+$rayTracer->power = 10;
 $rayTracer->generate($output);
 
 header("Content-Type: image/png");
