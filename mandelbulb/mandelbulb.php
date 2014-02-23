@@ -605,7 +605,7 @@ $output = imagecreatetruecolor(800, 800);
 $rayTracer = new Mandelbulb;
 $rayTracer->julia = false;
 $rayTracer->radiolaria = false;
-$rayTracer->power = 10;
+$rayTracer->power = 8;
 $rayTracer->generate($output);
 
 header("Content-Type: image/png");
