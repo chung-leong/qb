@@ -26,19 +26,19 @@ class RayTracer {
 	/** @var float32[4] */
 	public $sphere0Material = array(0.05, 0.1, 1.0, 1.0);
 	
-	const SPECULAR_EXPONENT			= 50.0;
-	const MAX_RAY_SHOTS				= 4;
+	const SPECULAR_EXPONENT = 50.0;
+	const MAX_RAY_SHOTS = 4;
     
-    /** @var float32[NUM_SPHERES][x, y, z] */
+ 	/** @var float32[NUM_SPHERES][x, y, z] */
 	public $spherePositions;
     
-    /** @var float32[NUM_SPHERES] */
+	/** @var float32[NUM_SPHERES] */
 	public $sphereRadii;
     
-    /** @var float32[NUM_SPHERES][r, g, b] */
+	/** @var float32[NUM_SPHERES][r, g, b] */
 	public $sphereColors;
     
-    /** @var float32[NUM_SPHERES][ambient, diffuse, specular, reflectivity] */
+	/** @var float32[NUM_SPHERES][ambient, diffuse, specular, reflectivity] */
 	public $sphereMaterials;
     
 	/** 
@@ -76,6 +76,49 @@ class RayTracer {
 		}
 	}
 
+	/**
+	 * shootRay():  fires a ray from origin, toward dir
+	 *              returns first intersection
+	 *
+	 * @engine qb
+	 *
+	 * @param float32[x, y, z]	$origin
+	 * @param float32[x, y, z]	$dir
+	 * @param bool				$hit
+	 * @param float32[3]		$pos
+	 * @param float32			$t
+	 * @param uint32			$sphereNum
+	 *
+	 * @local uint32			$i
+	 * @local float32[3]		$sphereToOrigin
+	 * @local float32			$B
+	 * @local float32			$C
+	 * @local float32			$disc
+	 * @local float32 			$curT
+	 */
+	protected function shootRay($origin, $dir, &$hit, &$pos, &$t, &$sphereNum) {
+		$hit = false;
+		$t = 99999.0;
+        
+        // cycle through all spheres and find the smallest t>0 that we hit
+		for($i = 0; $i < NUM_SPHERES; $i++) {
+			$sphereToOrigin = $origin - $this->spherePositions[$i];
+			$B = dot($sphereToOrigin, $dir);
+			$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
+		
+			$disc = $B * $B - $C;
+			if($disc > 0.0) {
+				$curT = -$B - sqrt($disc);
+				if($curT > 0.0 && $curT < $t) {
+					$sphereNum = $i;
+					$t = $curT;
+					$hit = true;
+				}
+			}
+		}        
+		$pos = $origin + $dir * $t;
+	}
+
 	/** 
 	 * generate():	generate raytraced image
 	 *
@@ -90,11 +133,11 @@ class RayTracer {
 	 * @local float32[3]		$dst
 	 * @local float32[x, y, z]	$origin
 	 * @local float32[x, y, z]	$dir
-     * @local float32[3]		$sphereHit		hit point relative to sphere
-     * @local float32[3]		$n				surface normal
-     * @local float32[3]		$lightVector	surface to light
-     * @local float32			$lightVectorLen
-     * @local float32[3]		$l				normalized light vector
+	 * @local float32[3]		$sphereHit		hit point relative to sphere
+	 * @local float32[3]		$n				surface normal
+	 * @local float32[3]		$lightVector	surface to light
+	 * @local float32			$lightVectorLen
+	 * @local float32[3]		$l				normalized light vector
 	 * @local float32[3]		$lReflect		reflected off surface
 	 * @local float32[3]		$dirReflect
 	 * @local float32[3]		$colorScale
@@ -112,12 +155,8 @@ class RayTracer {
 	 * @local float32			$phi
 	 * @local float32			$u
 	 * @local float32			$v
-	 * @local float32 			$curT
-	 * @local float32			$B
-	 * @local float32			$C
-	 * @local float32			$disc
-	 * @local float32[3]		$sphereToOrigin
-	 * @local uint32			$i
+	 * @local float32[3]		$temp
+	 * @local uint32			$temp2
 	 */
 	public function generate(&$image) {
 		$this->initialize();
@@ -126,131 +165,95 @@ class RayTracer {
 		$height = count($image);
 		$width = count($image[0]);
 		
-		for($y = 0; $y < $height; $y++) {
-			for($x = 0; $x < $width; $x++) {
-				$dst = 0;
-				$origin = 0;
-				
-		        // calculate direction vector for this pixel        
-		        $dir->x = 2.0 * $x / $width - 1.0;
-		        $dir->y = -2.0 * $y / $height + 1.0;
-				$dir->z = -$this->viewPlaneDistance;
-        
-		        $colorScale = 1;
-        		$rayShots = self::MAX_RAY_SHOTS;
-        
-				while($rayShots > 0 ) {
-		            // let's make sure dir is properly normalized
-					$dir = normalize($dir);
-		            
-					// INTERSECTION TEST
-					// find the first sphere we intersect with
-					$hit = false;
-					$t = 99999.0;
-			        
-			        // cycle through all spheres and find the smallest t>0 that we hit
-					for($i = 0; $i < NUM_SPHERES; $i++) {
-						$sphereToOrigin = $origin - $this->spherePositions[$i];
-						$B = dot($sphereToOrigin, $dir);
-						$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
-					
-						$disc = $B * $B - $C;
-						if($disc > 0.0) {
-							$curT = -$B - sqrt($disc);
-							if($curT > 0.0 && $curT < $t) {
-								$sphereNum = $i;
-								$t = $curT;
-								$hit = true;
-							}
-						}
-					}
-					
-					if($hit) {
-						$hitPoint = $origin + $dir * $t;
-		                $sphereColor = $this->sphereColors[$sphereNum];
-		                $sphereMaterial = $this->sphereMaterials[$sphereNum];
-						$sphereHit = $hitPoint - $this->spherePositions[$sphereNum];
-						$n = $sphereHit / $this->sphereRadii[$sphereNum];				// normal at the point we hit
-		                $lightVector = $this->lightPos - $hitPoint;						// hit point to light
-						$lightVectorLen = length($lightVector);
-		                $l = $lightVector / $lightVectorLen;
-		                
-						// SHADOW TEST
-						// fire a ray from our hit position towards the light
-						$shadowTest = false;
-						$t = 99999.0;
-						for($i = 0; $i < NUM_SPHERES; $i++) {
-							$sphereToOrigin = $hitPoint - $this->spherePositions[$i];
-							$B = dot($sphereToOrigin, $l);
-							$C = dot($sphereToOrigin, $sphereToOrigin) - $this->sphereRadii[$i] * $this->sphereRadii[$i];
-						
-							$disc = $B * $B - $C;
-							if($disc > 0.0) {
-								$curT = -$B - sqrt($disc);
-								if($curT > 0.0 && $curT < $t) {
-									$t = $curT;
-									$shadowTest = true;
-								}
-							}
-						}
-		                
-						if(!$shadowTest) {					// if we didn't hit anything, we can see the light
-							$shadowTest = 1;
-						} else if($t < $lightVectorLen)	{	// if we hit something before the light, we are in shadow
-							$shadowTest = 0;
-						}
-		                
-		                $diffuse = dot($l, $n);
+		$y = fork($height);
 		
-						$lReflect = reflect($l, $n);		// reflect the light vector
-						$specular = dot($dir, $lReflect);
+		for($x = 0; $x < $width; $x++) {
+			$dst = 0;
+			$origin = 0;
+			
+			// calculate direction vector for this pixel        
+			$dir->x = 2.0 * $x / $width - 1.0;
+			$dir->y = -2.0 * $y / $height + 1.0;
+			$dir->z = -$this->viewPlaneDistance;
+    
+			$colorScale = 1;
+			$rayShots = self::MAX_RAY_SHOTS;
+    
+			while($rayShots > 0 ) {
+				// let's make sure dir is properly normalized
+				$dir = normalize($dir);
+	            
+				// INTERSECTION TEST
+				// find the first sphere we intersect with
+				$this->shootRay($origin, $dir, $hit, $hitPoint, $t, $sphereNum);
+				
+				if($hit) {
+					$sphereColor = $this->sphereColors[$sphereNum];
+					$sphereMaterial = $this->sphereMaterials[$sphereNum];
+					$sphereHit = $hitPoint - $this->spherePositions[$sphereNum];
+					$n = $sphereHit / $this->sphereRadii[$sphereNum];				// normal at the point we hit
+					$lightVector = $this->lightPos - $hitPoint;					// hit point to light
+					$lightVectorLen = length($lightVector);
+					$l = $lightVector / $lightVectorLen;
+	                
+					// SHADOW TEST
+					// fire a ray from our hit position towards the light
+					$this->shootRay($hitPoint, $l, $shadowTest, $temp, $t, $temp2);
+
+					if(!$shadowTest) {					// if we didn't hit anything, we can see the light
+						$shadowTest = 1;
+					} else if($t < $lightVectorLen)	{	// if we hit something before the light, we are in shadow
+						$shadowTest = 0;
+					}
+	                
+					$diffuse = dot($l, $n);
+	
+					$lReflect = reflect($l, $n);		// reflect the light vector
+					$specular = dot($dir, $lReflect);
+					
+					$diffuse = max($diffuse, 0.0);
+					$specular = pow(max($specular, 0.0), self::SPECULAR_EXPONENT);
+					
+					// ground checkboard texture
+					if($sphereNum == 1) {
+						$phi = acos(-$n[0]);
+						$u = acos($n[2] / sin($phi)) / (2.0 * M_PI);
+						$v = $phi / M_PI;
+	                 
+						// we could do sample_linear here to do some actual texturing. :)
+						$sphereColor *= ((floor($u * 2000.0) + floor($v * 2000.0)) % 2.0 == 0.0) ? 0.5 : 1.0;
+					}
+	                
+					// finally, blend our color into this pixel
+					$lightVal = $sphereMaterial->ambient + float32($shadowTest) * (($diffuse * $sphereMaterial->diffuse) + ($specular * $sphereMaterial->specular));
+					$dst += $colorScale * $lightVal * $sphereColor;
+	                
+					// reflection
+					if($sphereMaterial->reflectivity > 0.0) {
+						$dirReflect = reflect($dir, $n);		// reflect our view vector
+						$dirReflect = normalize($dirReflect);
 						
-		                $diffuse = max($diffuse, 0.0);
-						$specular = pow(max($specular, 0.0), self::SPECULAR_EXPONENT);
-						
-		                // ground checkboard texture
-						if($sphereNum == 1) {
-							$phi = acos(-$n[0]);
-							$u = acos($n[2] / sin($phi)) / (2.0 * M_PI);
-							$v = $phi / M_PI;
-		                 
-							// we could do sample_linear here to do some actual texturing. :)
-							$sphereColor *= ((floor($u * 2000.0) + floor($v * 2000.0)) % 2.0 == 0.0) ? 0.5 : 1.0;
-		                }
-		                
-						// finally, blend our color into this pixel
-						$lightVal = $sphereMaterial->ambient + float32($shadowTest) * (($diffuse * $sphereMaterial->diffuse) + ($specular * $sphereMaterial->specular));
-						$dst += $colorScale * $lightVal * $sphereColor;
-		                
-		                // reflection
-						if($sphereMaterial->reflectivity > 0.0) {
-							$dirReflect = reflect($dir, $n);		// reflect our view vector
-							$dirReflect = normalize($dirReflect);
-							
-		                    // originate at our hit position, fire at reflected angle
-							$origin = $hitPoint;
-							$dir = $dirReflect;
-							$rayShots--;
-		                    
-		                    // blend according to reflectivity
-							$colorScale *= $sphereMaterial->reflectivity * $sphereColor;
-		                } else {
-							$rayShots = 0;
-						}
+						// originate at our hit position, fire at reflected angle
+						$origin = $hitPoint;
+						$dir = $dirReflect;
+						$rayShots--;
+	                    
+						// blend according to reflectivity
+						$colorScale *= $sphereMaterial->reflectivity * $sphereColor;
 					} else {
 						$rayShots = 0;
 					}
-		        }
-		        $image[$y][$x] = $dst;
-		    }
+				} else {
+					$rayShots = 0;
+				}
+			}
+			$image[$y][$x] = $dst;
 		}
 	}
 }
 
 // so the script wouldn't slow to a grind if xdebug is active
 ini_set("qb.allow_debugger_inspection", 0);
-
-qb_compile();
 
 $output = imagecreatetruecolor(512, 512);
 
@@ -272,8 +275,9 @@ if(isset($_GET['distance'])) {
 }	
 $rayTracer->generate($output);
 
-header("Content-Type: image/jpeg");
+header("Content-Type: image/png");
 
-imagejpeg($output);
+imagesavealpha($output, true);
+imagepng($output);
 
 ?>

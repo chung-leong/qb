@@ -21,7 +21,7 @@ function free_transform(&$dst, &$src, $A, $B, $C, $D) {
 	
 	$srcWidth = count($src[0]);
 	$srcHeight = count($src);
-
+	
 	$AB = $A - $B;
 	$BC = $B - $C;
 	$CD = $C - $D;
@@ -42,29 +42,27 @@ function free_transform(&$dst, &$src, $A, $B, $C, $D) {
 			
 			$srcX = $srcWidth * $dda / ($dda + $dbc);
 			$srcY = $srcHeight * $dab / ($dab + $dcd);
-			
+		
 			$dst[$dstY][$dstX] = sample_bilinear($src, $srcX, $srcY);
 		}
 	}
 }
 
-qb_compile();
-
 $folder =  dirname(__FILE__);
-
 $src = imagecreatefromjpeg("$folder/socha.jpg");
 $width = imagesx($src);
 $height = imagesy($src);
-$dst = imagecreatetruecolor($width, $height);
+$output = imagecreatetruecolor($width, $height);
 
 $A = array(150, 10);
 $B = array($width - 80, 150);
 $C = array($width - 100, $height - 100);
 $D = array(0, $height - 50);
 
-free_transform($dst, $src, $A, $B, $C, $D);
+free_transform($output, $src, $A, $B, $C, $D);
 
-imagesavealpha($dst, true);
-imagepng($dst, "$folder/output.png");
+header("Content-Type: image/png");
+imagesavealpha($output, true);
+imagepng($output);
 
 ?>
