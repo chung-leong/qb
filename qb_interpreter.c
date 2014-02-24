@@ -27,6 +27,7 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 		zval *zvalue = NULL, **p_zvalue = NULL;
 		if(ivar->value_pointer) {
 			p_zvalue = ivar->value_pointer;
+			Z_ADDREF_PP(p_zvalue);
 		} else {
 			switch(scope->type) {
 				case QB_IMPORT_SCOPE_GLOBAL:
