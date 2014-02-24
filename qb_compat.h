@@ -41,6 +41,9 @@
 	#define Z_REFCOUNT_P(zv)		zv->refcount
 	#define Z_ADDREF_P(zv)			zv->refcount++
 	#define Z_DELREF_P(zv)			zv->refcount--
+	#define Z_REFCOUNT_PP(pzv)		Z_REFCOUNT_P((*pzv))
+	#define Z_ADDREF_PP(pzv)		Z_ADDREF_P((*pzv))
+	#define Z_DELREF_PP(pzv)		Z_DELREF_P((*pzv))
 
 	#define IS_LEXICAL_VAR			0x020
 	#define IS_LEXICAL_REF			0x040
