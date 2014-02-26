@@ -535,7 +535,8 @@ int qb_get_vc6_msvcrt_functions(void) {
 }
 #endif
 
-#if !defined(HAVE_QSORT_S) && !defined(HAVE_QSORT_R)
+#ifndef _MSC_VER
+#if !HAVE_QSORT_R
 __thread void *qsort_r_arg;
 __thread int (*qsort_r_func)(const void *, const void *, void *);
 
@@ -548,4 +549,5 @@ void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, 
 	qsort_r_func = compar;
 	qsort(base, nmemb, size, call_qsort_r_func);
 }
+#endif
 #endif

@@ -425,12 +425,10 @@ int qb_get_vc6_msvcrt_functions(void);
 	extern double log2 (double __x);
 #endif
 
-#ifdef _MSC_VER
-#define HAVE_QSORT_S
-#endif
-
-#if !defined(HAVE_QSORT_S) && !defined(HAVE_QSORT_R)
+#ifndef _MSC_VER
+#if !HAVE_QSORT_R
 void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *, void *), void *arg);
+#endif
 #endif
 
 // the following is copied from the PHP source so we can build without the
