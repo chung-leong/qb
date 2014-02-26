@@ -48,7 +48,7 @@ if test "$PHP_QB" != "no"; then
     AC_DEFINE(HAVE_GCC_MARCH_NATIVE,1,[ ])
   fi
   
-  AC_CHECK_FUNCS([exp2f log2f roundf])
+  AC_CHECK_FUNCS([exp2f log2f roundf qsort_r])
 
   AC_MSG_CHECKING([for sincos])  
   `echo "void sincos(double x, double *ps, double *pc); int main(int argc, const char *argv[]) { sincos(0, 0, 0); return 0; }" | $CC -o sincos -xc - 2> /dev/null`

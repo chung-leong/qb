@@ -58,7 +58,7 @@ class Sort extends Handler {
 			),
 			array(
 				"int qb_compare_{$dir}_{$type}_array(const void *p1, const void *p2, const void *p3) {",
-					"#ifdef __linux__",
+					"#ifdef __GLIBC__",
 					"// the GNU version of qsort_r expects the extra parameter to come last",
 					"uint32_t len = *((const uint32_t *) p3);",
 					"return qb_compare_array_$type(($cType *) $a1, len, ($cType *) $b1, len);",
@@ -80,10 +80,10 @@ class Sort extends Handler {
 		$lines[] = "if(op1 == 1) {";
 		$lines[] = 		"qsort(res_ptr, res_count, sizeof($cType) * 1, (void *) qb_compare_{$dir}_{$type});";
 		$lines[] = "} else {";
-		$lines[] = "#if defined(__linux__)";
-		$lines[] = 		"qsort_r(res_ptr, res_count / op1, sizeof($cType) * op1, (void *) qb_compare_{$dir}_{$type}_array, &op1);";
-		$lines[] = "#elif defined(_MSC_VER)";		
+		$lines[] = "#if defined(HAVE_QSORT_S)";
 		$lines[] = 		"qsort_s(res_ptr, res_count / op1, sizeof($cType) * op1, (void *) qb_compare_{$dir}_{$type}_array, &op1);";
+		$lines[] = "#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)";		
+		$lines[] = 		"qsort_r(res_ptr, res_count / op1, sizeof($cType) * op1, (void *) qb_compare_{$dir}_{$type}_array, &op1);";
 		$lines[] = "#else";
 		$lines[] = 		"qsort_r(res_ptr, res_count / op1, sizeof($cType) * op1, &op1, (void *) qb_compare_{$dir}_{$type}_array);";
 		$lines[] = "#endif";

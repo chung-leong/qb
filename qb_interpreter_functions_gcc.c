@@ -32,7 +32,7 @@ int qb_compare_ascending_F32(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_F32_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_F32((float32_t *) p1, len, (float32_t *) p2, len);
@@ -53,7 +53,7 @@ int qb_compare_ascending_F64(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_F64_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_F64((float64_t *) p1, len, (float64_t *) p2, len);
@@ -74,7 +74,7 @@ int qb_compare_ascending_S08(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_S08_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S08((int8_t *) p1, len, (int8_t *) p2, len);
@@ -95,7 +95,7 @@ int qb_compare_ascending_S16(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_S16_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S16((int16_t *) p1, len, (int16_t *) p2, len);
@@ -116,7 +116,7 @@ int qb_compare_ascending_S32(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_S32_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S32((int32_t *) p1, len, (int32_t *) p2, len);
@@ -137,7 +137,7 @@ int qb_compare_ascending_S64(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_S64_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S64((int64_t *) p1, len, (int64_t *) p2, len);
@@ -158,7 +158,7 @@ int qb_compare_ascending_U08(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_U08_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U08((uint8_t *) p1, len, (uint8_t *) p2, len);
@@ -179,7 +179,7 @@ int qb_compare_ascending_U16(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_U16_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U16((uint16_t *) p1, len, (uint16_t *) p2, len);
@@ -200,7 +200,7 @@ int qb_compare_ascending_U32(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_U32_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U32((uint32_t *) p1, len, (uint32_t *) p2, len);
@@ -221,7 +221,7 @@ int qb_compare_ascending_U64(const void *p1, const void *p2) {
 }
 
 int qb_compare_ascending_U64_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U64((uint64_t *) p1, len, (uint64_t *) p2, len);
@@ -242,7 +242,7 @@ int qb_compare_descending_F32(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_F32_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_F32((float32_t *) p2, len, (float32_t *) p1, len);
@@ -263,7 +263,7 @@ int qb_compare_descending_F64(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_F64_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_F64((float64_t *) p2, len, (float64_t *) p1, len);
@@ -284,7 +284,7 @@ int qb_compare_descending_S08(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_S08_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S08((int8_t *) p2, len, (int8_t *) p1, len);
@@ -305,7 +305,7 @@ int qb_compare_descending_S16(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_S16_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S16((int16_t *) p2, len, (int16_t *) p1, len);
@@ -326,7 +326,7 @@ int qb_compare_descending_S32(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_S32_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S32((int32_t *) p2, len, (int32_t *) p1, len);
@@ -347,7 +347,7 @@ int qb_compare_descending_S64(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_S64_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_S64((int64_t *) p2, len, (int64_t *) p1, len);
@@ -368,7 +368,7 @@ int qb_compare_descending_U08(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_U08_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U08((uint8_t *) p2, len, (uint8_t *) p1, len);
@@ -389,7 +389,7 @@ int qb_compare_descending_U16(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_U16_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U16((uint16_t *) p2, len, (uint16_t *) p1, len);
@@ -410,7 +410,7 @@ int qb_compare_descending_U32(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_U32_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U32((uint32_t *) p2, len, (uint32_t *) p1, len);
@@ -431,7 +431,7 @@ int qb_compare_descending_U64(const void *p1, const void *p2) {
 }
 
 int qb_compare_descending_U64_array(const void *p1, const void *p2, const void *p3) {
-#ifdef __linux__
+#ifdef __GLIBC__
 	// the GNU version of qsort_r expects the extra parameter to come last
 	uint32_t len = *((const uint32_t *) p3);
 	return qb_compare_array_U64((uint64_t *) p2, len, (uint64_t *) p1, len);
@@ -20786,10 +20786,10 @@ void qb_do_reverse_sort_F32(uint32_t op1, float32_t *res_ptr, uint32_t res_count
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(float32_t) * 1, (void *) qb_compare_descending_F32);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(float32_t) * op1, (void *) qb_compare_descending_F32_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(float32_t) * op1, (void *) qb_compare_descending_F32_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(float32_t) * op1, (void *) qb_compare_descending_F32_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(float32_t) * op1, &op1, (void *) qb_compare_descending_F32_array);
 #endif
@@ -20800,10 +20800,10 @@ void qb_do_reverse_sort_F64(uint32_t op1, float64_t *res_ptr, uint32_t res_count
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(float64_t) * 1, (void *) qb_compare_descending_F64);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(float64_t) * op1, (void *) qb_compare_descending_F64_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(float64_t) * op1, (void *) qb_compare_descending_F64_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(float64_t) * op1, (void *) qb_compare_descending_F64_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(float64_t) * op1, &op1, (void *) qb_compare_descending_F64_array);
 #endif
@@ -20814,10 +20814,10 @@ void qb_do_reverse_sort_S08(uint32_t op1, int8_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int8_t) * 1, (void *) qb_compare_descending_S08);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int8_t) * op1, (void *) qb_compare_descending_S08_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int8_t) * op1, (void *) qb_compare_descending_S08_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int8_t) * op1, (void *) qb_compare_descending_S08_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int8_t) * op1, &op1, (void *) qb_compare_descending_S08_array);
 #endif
@@ -20828,10 +20828,10 @@ void qb_do_reverse_sort_S16(uint32_t op1, int16_t *res_ptr, uint32_t res_count) 
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int16_t) * 1, (void *) qb_compare_descending_S16);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int16_t) * op1, (void *) qb_compare_descending_S16_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int16_t) * op1, (void *) qb_compare_descending_S16_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int16_t) * op1, (void *) qb_compare_descending_S16_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int16_t) * op1, &op1, (void *) qb_compare_descending_S16_array);
 #endif
@@ -20842,10 +20842,10 @@ void qb_do_reverse_sort_S32(uint32_t op1, int32_t *res_ptr, uint32_t res_count) 
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int32_t) * 1, (void *) qb_compare_descending_S32);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int32_t) * op1, (void *) qb_compare_descending_S32_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int32_t) * op1, (void *) qb_compare_descending_S32_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int32_t) * op1, (void *) qb_compare_descending_S32_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int32_t) * op1, &op1, (void *) qb_compare_descending_S32_array);
 #endif
@@ -20856,10 +20856,10 @@ void qb_do_reverse_sort_S64(uint32_t op1, int64_t *res_ptr, uint32_t res_count) 
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int64_t) * 1, (void *) qb_compare_descending_S64);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int64_t) * op1, (void *) qb_compare_descending_S64_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int64_t) * op1, (void *) qb_compare_descending_S64_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int64_t) * op1, (void *) qb_compare_descending_S64_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int64_t) * op1, &op1, (void *) qb_compare_descending_S64_array);
 #endif
@@ -20870,10 +20870,10 @@ void qb_do_reverse_sort_U08(uint32_t op1, uint8_t *res_ptr, uint32_t res_count) 
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint8_t) * 1, (void *) qb_compare_descending_U08);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint8_t) * op1, (void *) qb_compare_descending_U08_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint8_t) * op1, (void *) qb_compare_descending_U08_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint8_t) * op1, (void *) qb_compare_descending_U08_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint8_t) * op1, &op1, (void *) qb_compare_descending_U08_array);
 #endif
@@ -20884,10 +20884,10 @@ void qb_do_reverse_sort_U16(uint32_t op1, uint16_t *res_ptr, uint32_t res_count)
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint16_t) * 1, (void *) qb_compare_descending_U16);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint16_t) * op1, (void *) qb_compare_descending_U16_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint16_t) * op1, (void *) qb_compare_descending_U16_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint16_t) * op1, (void *) qb_compare_descending_U16_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint16_t) * op1, &op1, (void *) qb_compare_descending_U16_array);
 #endif
@@ -20898,10 +20898,10 @@ void qb_do_reverse_sort_U32(uint32_t op1, uint32_t *res_ptr, uint32_t res_count)
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint32_t) * 1, (void *) qb_compare_descending_U32);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint32_t) * op1, (void *) qb_compare_descending_U32_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint32_t) * op1, (void *) qb_compare_descending_U32_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint32_t) * op1, (void *) qb_compare_descending_U32_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint32_t) * op1, &op1, (void *) qb_compare_descending_U32_array);
 #endif
@@ -20912,10 +20912,10 @@ void qb_do_reverse_sort_U64(uint32_t op1, uint64_t *res_ptr, uint32_t res_count)
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint64_t) * 1, (void *) qb_compare_descending_U64);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint64_t) * op1, (void *) qb_compare_descending_U64_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint64_t) * op1, (void *) qb_compare_descending_U64_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint64_t) * op1, (void *) qb_compare_descending_U64_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint64_t) * op1, &op1, (void *) qb_compare_descending_U64_array);
 #endif
@@ -24285,10 +24285,10 @@ void qb_do_sort_F32(uint32_t op1, float32_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(float32_t) * 1, (void *) qb_compare_ascending_F32);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(float32_t) * op1, (void *) qb_compare_ascending_F32_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(float32_t) * op1, (void *) qb_compare_ascending_F32_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(float32_t) * op1, (void *) qb_compare_ascending_F32_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(float32_t) * op1, &op1, (void *) qb_compare_ascending_F32_array);
 #endif
@@ -24299,10 +24299,10 @@ void qb_do_sort_F64(uint32_t op1, float64_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(float64_t) * 1, (void *) qb_compare_ascending_F64);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(float64_t) * op1, (void *) qb_compare_ascending_F64_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(float64_t) * op1, (void *) qb_compare_ascending_F64_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(float64_t) * op1, (void *) qb_compare_ascending_F64_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(float64_t) * op1, &op1, (void *) qb_compare_ascending_F64_array);
 #endif
@@ -24313,10 +24313,10 @@ void qb_do_sort_S08(uint32_t op1, int8_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int8_t) * 1, (void *) qb_compare_ascending_S08);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int8_t) * op1, (void *) qb_compare_ascending_S08_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int8_t) * op1, (void *) qb_compare_ascending_S08_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int8_t) * op1, (void *) qb_compare_ascending_S08_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int8_t) * op1, &op1, (void *) qb_compare_ascending_S08_array);
 #endif
@@ -24327,10 +24327,10 @@ void qb_do_sort_S16(uint32_t op1, int16_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int16_t) * 1, (void *) qb_compare_ascending_S16);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int16_t) * op1, (void *) qb_compare_ascending_S16_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int16_t) * op1, (void *) qb_compare_ascending_S16_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int16_t) * op1, (void *) qb_compare_ascending_S16_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int16_t) * op1, &op1, (void *) qb_compare_ascending_S16_array);
 #endif
@@ -24341,10 +24341,10 @@ void qb_do_sort_S32(uint32_t op1, int32_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int32_t) * 1, (void *) qb_compare_ascending_S32);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int32_t) * op1, (void *) qb_compare_ascending_S32_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int32_t) * op1, (void *) qb_compare_ascending_S32_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int32_t) * op1, (void *) qb_compare_ascending_S32_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int32_t) * op1, &op1, (void *) qb_compare_ascending_S32_array);
 #endif
@@ -24355,10 +24355,10 @@ void qb_do_sort_S64(uint32_t op1, int64_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(int64_t) * 1, (void *) qb_compare_ascending_S64);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(int64_t) * op1, (void *) qb_compare_ascending_S64_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(int64_t) * op1, (void *) qb_compare_ascending_S64_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(int64_t) * op1, (void *) qb_compare_ascending_S64_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(int64_t) * op1, &op1, (void *) qb_compare_ascending_S64_array);
 #endif
@@ -24369,10 +24369,10 @@ void qb_do_sort_U08(uint32_t op1, uint8_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint8_t) * 1, (void *) qb_compare_ascending_U08);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint8_t) * op1, (void *) qb_compare_ascending_U08_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint8_t) * op1, (void *) qb_compare_ascending_U08_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint8_t) * op1, (void *) qb_compare_ascending_U08_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint8_t) * op1, &op1, (void *) qb_compare_ascending_U08_array);
 #endif
@@ -24383,10 +24383,10 @@ void qb_do_sort_U16(uint32_t op1, uint16_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint16_t) * 1, (void *) qb_compare_ascending_U16);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint16_t) * op1, (void *) qb_compare_ascending_U16_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint16_t) * op1, (void *) qb_compare_ascending_U16_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint16_t) * op1, (void *) qb_compare_ascending_U16_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint16_t) * op1, &op1, (void *) qb_compare_ascending_U16_array);
 #endif
@@ -24397,10 +24397,10 @@ void qb_do_sort_U32(uint32_t op1, uint32_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint32_t) * 1, (void *) qb_compare_ascending_U32);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint32_t) * op1, (void *) qb_compare_ascending_U32_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint32_t) * op1, (void *) qb_compare_ascending_U32_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint32_t) * op1, (void *) qb_compare_ascending_U32_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint32_t) * op1, &op1, (void *) qb_compare_ascending_U32_array);
 #endif
@@ -24411,10 +24411,10 @@ void qb_do_sort_U64(uint32_t op1, uint64_t *res_ptr, uint32_t res_count) {
 	if(op1 == 1) {
 		qsort(res_ptr, res_count, sizeof(uint64_t) * 1, (void *) qb_compare_ascending_U64);
 	} else {
-#if defined(__linux__)
-		qsort_r(res_ptr, res_count / op1, sizeof(uint64_t) * op1, (void *) qb_compare_ascending_U64_array, &op1);
-#elif defined(_MSC_VER)
+#if defined(HAVE_QSORT_S)
 		qsort_s(res_ptr, res_count / op1, sizeof(uint64_t) * op1, (void *) qb_compare_ascending_U64_array, &op1);
+#elif defined(HAVE_QSORT_R) && defined(__GLIBC__)
+		qsort_r(res_ptr, res_count / op1, sizeof(uint64_t) * op1, (void *) qb_compare_ascending_U64_array, &op1);
 #else
 		qsort_r(res_ptr, res_count / op1, sizeof(uint64_t) * op1, &op1, (void *) qb_compare_ascending_U64_array);
 #endif
