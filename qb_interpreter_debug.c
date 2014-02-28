@@ -204,7 +204,7 @@ void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 	uint32_t i, j;
 	zend_execute_data *ex = EG(current_execute_data);
 
-#if !ZEND_ENGINE_2_2
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	if(!EG(active_symbol_table)) {
 		zend_rebuild_symbol_table(TSRMLS_C);
 	}

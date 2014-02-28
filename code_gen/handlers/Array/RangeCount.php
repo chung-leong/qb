@@ -55,10 +55,8 @@ class RangeCount extends Handler {
 		$lines[] = "}";
 		$lines[] = "distance += interval;";
 		$lines[] = "count = (interval != 1) ? distance / interval : distance;";
-		if($type == 'F32' || $type == 'F64') {
-			$lines[] =	"res = (count > 4294967295.0) ? 4294967295 : (uint32_t) count;";
-		} else if($type == 'I64' || $type == 'U64') {
-			$lines[] =	"res = (count > 4294967295) ? 4294967295 : (uint32_t) count;";
+		if($type == 'F32' || $type == 'F64' || $type == 'I64' || $type == 'U64') {
+			$lines[] =	"res = ((uint64_t) count > UINT32_MAX) ? UINT32_MAX : (uint32_t) count;";
 		} else {
 			$lines[] =	"res = (uint32_t) count;";
 		}

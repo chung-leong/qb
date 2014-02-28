@@ -19892,7 +19892,7 @@ void qb_do_range_count_F32(float32_t op1, float32_t op2, float32_t op3, uint32_t
 	}
 	distance += interval;
 	count = (interval != 1) ? distance / interval : distance;
-	(*res_ptr) = (count > 4294967295.0) ? 4294967295 : (uint32_t) count;
+	(*res_ptr) = ((uint64_t) count > UINT32_MAX) ? UINT32_MAX : (uint32_t) count;
 }
 
 void qb_do_range_count_F64(float64_t op1, float64_t op2, float64_t op3, uint32_t *res_ptr) {
@@ -19911,7 +19911,7 @@ void qb_do_range_count_F64(float64_t op1, float64_t op2, float64_t op3, uint32_t
 	}
 	distance += interval;
 	count = (interval != 1) ? distance / interval : distance;
-	(*res_ptr) = (count > 4294967295.0) ? 4294967295 : (uint32_t) count;
+	(*res_ptr) = ((uint64_t) count > UINT32_MAX) ? UINT32_MAX : (uint32_t) count;
 }
 
 void qb_do_range_count_S08(int8_t op1, int8_t op2, int8_t op3, uint32_t *res_ptr) {
@@ -20063,7 +20063,7 @@ void qb_do_range_count_U64(uint64_t op1, uint64_t op2, int64_t op3, uint32_t *re
 	}
 	distance += interval;
 	count = (interval != 1) ? distance / interval : distance;
-	(*res_ptr) = (count > 4294967295) ? 4294967295 : (uint32_t) count;
+	(*res_ptr) = ((uint64_t) count > UINT32_MAX) ? UINT32_MAX : (uint32_t) count;
 }
 
 void qb_do_reflect_2x_multiple_times_F32(float32_t *op1_ptr, uint32_t op1_count, float32_t *op2_ptr, uint32_t op2_count, float32_t *res_ptr, uint32_t res_count) {
