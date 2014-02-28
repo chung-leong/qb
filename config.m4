@@ -76,7 +76,7 @@ if test "$PHP_QB" != "no"; then
     `rm -f bswap64.o`
     AC_MSG_RESULT([no])
   else
-    AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ ])
+    AC_DEFINE(HAVE_BUILTIN_BSWAP64,1,[ ])
     AC_MSG_RESULT([yes])
   fi
 
