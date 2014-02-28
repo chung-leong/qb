@@ -52,9 +52,9 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 	int gcc_pipe_write[2];
 	int gcc_pipe_read[2];
 	int gcc_pipe_error[2];
-	pipe(gcc_pipe_read);
-	pipe(gcc_pipe_write);
-	pipe(gcc_pipe_error);
+	if(pipe(gcc_pipe_write) != 0 || pipe(gcc_pipe_read) != 0 || pipe(gcc_pipe_error) != 0) {
+		return FALSE;
+	}
 
 	const char *compiler_path = QB_G(compiler_path);
 	const char *compiler_env_path = QB_G(compiler_env_path);

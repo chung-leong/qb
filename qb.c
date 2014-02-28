@@ -1065,7 +1065,6 @@ PHP_MINFO_FUNCTION(qb)
    Convert PHP instructions to qb instructions */
 PHP_FUNCTION(qb_compile)
 {
-	qb_build_context *build_cxt = QB_G(build_context);
 	if(qb_compile_functions(NULL TSRMLS_CC)) {
 		RETURN_TRUE
 	} else {

@@ -825,7 +825,6 @@ static int32_t qb_initialize_local_variables(qb_interpreter_context *cxt) {
 
 	// make sure the function is relocated first
 	if(UNEXPECTED(!(cxt->function->flags & QB_FUNCTION_RELOCATED))) {
-		int8_t *pointer = cxt->instruction_pointer;
 		cxt->instruction_pointer += qb_relocate_function(cxt->function, TRUE);
 	}
 
