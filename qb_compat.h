@@ -154,6 +154,12 @@ static inline unsigned short __builtin_bswap16(unsigned short v) {
 }
 #endif
 
+#if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP64)
+static inline unsigned short __builtin_bswap64(unsigned short v) {
+  return ((__builtin_bswap32(x) << 32) | __builtin_bswap32((x) >> 32));
+}
+#endif
+
 #ifndef M_E
 	#define M_E				2.7182818284590452354   /* e */
 #endif
