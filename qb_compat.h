@@ -150,13 +150,23 @@
 
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP16)
 static inline unsigned short __builtin_bswap16(unsigned short v) {
-  return (v << 8) | (v >> 8);
+  return (((v) >> 8) & 0x00FF) | (((v) << 8) & 0xFF00);
+}
+#endif
+
+#if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP32)
+static inline unsigned long __builtin_bswap32(unsigned long v) {
+  return (((v) >> 24) & 0x000000FF) | (((v) >>  8) & 0x0000FF00) 
+	   | (((v) <<  8) & 0x00FF0000) | (((v) << 24) & 0xFF000000);
 }
 #endif
 
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP64)
 static inline unsigned long long __builtin_bswap64(unsigned long long v) {
-  return ((__builtin_bswap32(v) << 32) | __builtin_bswap32((v) >> 32));
+  return (((v) >> 56) & 0x00000000000000FF) | (((v) >> 40) & 0x000000000000FF00) 
+	   | (((v) >> 24) & 0x0000000000FF0000) | (((v) >>  8) & 0x00000000FF000000) 
+	   | (((v) <<  8) & 0x000000FF00000000) | (((v) << 24) & 0x0000FF0000000000) 
+	   | (((v) << 40) & 0x00FF000000000000) | (((v) << 56) & 0xFF00000000000000);
 }
 #endif
 

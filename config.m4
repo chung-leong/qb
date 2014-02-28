@@ -70,6 +70,16 @@ if test "$PHP_QB" != "no"; then
     AC_MSG_RESULT([yes])
   fi
 
+  AC_MSG_CHECKING([for __builtin_bswap32])  
+  `echo "void __builtin_bswap32(void) {}" | $CC -Werror -o bswap32.o -xc -c - 2> /dev/null`
+  if [[ $? -eq 0 ]]; then
+    `rm -f bswap32.o`
+    AC_MSG_RESULT([no])
+  else
+    AC_DEFINE(HAVE_BUILTIN_BSWAP32,1,[ ])
+    AC_MSG_RESULT([yes])
+  fi
+
   AC_MSG_CHECKING([for __builtin_bswap64])  
   `echo "void __builtin_bswap64(void) {}" | $CC -Werror -o bswap64.o -xc -c - 2> /dev/null`
   if [[ $? -eq 0 ]]; then
