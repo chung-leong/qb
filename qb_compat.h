@@ -155,8 +155,8 @@ static inline unsigned short __builtin_bswap16(unsigned short v) {
 #endif
 
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP64)
-static inline unsigned short __builtin_bswap64(unsigned short v) {
-  return ((__builtin_bswap32(x) << 32) | __builtin_bswap32((x) >> 32));
+static inline unsigned long long __builtin_bswap64(unsigned long long v) {
+  return ((__builtin_bswap32(v) << 32) | __builtin_bswap32((v) >> 32));
 }
 #endif
 
