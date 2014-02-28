@@ -84,7 +84,7 @@ static int32_t qb_encode_address(qb_encoder_context *cxt, qb_address *address, i
 		case QB_ADDRESS_MODE_ELE: {
 			qb_pointer_ELE *p = ((qb_pointer_ELE *) *p_ip);
 			if(!qb_get_pointer(cxt, address, &p->data_pointer)
-			|| !qb_get_pointer(cxt, address->array_index_address, &p->index_pointer)) {
+			|| !qb_get_pointer(cxt, address->array_index_address, (void **) &p->index_pointer)) {
 				return FALSE;
 			}
 			*p_ip += sizeof(qb_pointer_ELE);
@@ -95,8 +95,8 @@ static int32_t qb_encode_address(qb_encoder_context *cxt, qb_address *address, i
 		case QB_ADDRESS_MODE_ARR: {
 			qb_pointer_ARR *p = ((qb_pointer_ARR *) *p_ip);
 			if(!qb_get_pointer(cxt, address, &p->data_pointer)
-			|| !qb_get_pointer(cxt, address->array_index_address, &p->index_pointer)
-			|| !qb_get_pointer(cxt, address->array_size_address, &p->count_pointer)) {
+			|| !qb_get_pointer(cxt, address->array_index_address, (void **) &p->index_pointer)
+			|| !qb_get_pointer(cxt, address->array_size_address, (void **) &p->count_pointer)) {
 				return FALSE;
 			}
 			*p_ip += sizeof(qb_pointer_ARR);

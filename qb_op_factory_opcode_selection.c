@@ -471,7 +471,6 @@ static int32_t qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_fact
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	qb_opcode opcode = QB_NOP;
 	uint32_t dimension = 0;
 	if(CONSTANT_DIMENSION(address1, -1)) {
 		dimension = DIMENSION(address1, -1);
@@ -496,7 +495,6 @@ static int32_t qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_fact
 
 static int32_t qb_select_opcode_cross_product(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
-	qb_opcode opcode = QB_NOP;
 	if(operand_count == 3) {
 		qb_address *address1 = operands[0].address;
 		qb_address *address2 = operands[1].address;
