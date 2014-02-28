@@ -3,7 +3,7 @@ require 'formula'
 class PhpQb < Formula
   homepage 'http://www.php-qb.net/'
   url 'https://bitbucket.org/chung_leong/qb/downloads/qb-2.1-source-code.tar.bz2'
-  sha1 '824c1d4a4ff9c28e470a79febebf25f118996171'
+  sha1 '1714591973ec082e7a902374658e951be0d4d245'
 
   depends_on 'autoconf' => :build
   
