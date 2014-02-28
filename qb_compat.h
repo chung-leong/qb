@@ -41,6 +41,9 @@
 	#define Z_REFCOUNT_P(zv)		zv->refcount
 	#define Z_ADDREF_P(zv)			zv->refcount++
 	#define Z_DELREF_P(zv)			zv->refcount--
+	#define Z_REFCOUNT_PP(pzv)		Z_REFCOUNT_P((*pzv))
+	#define Z_ADDREF_PP(pzv)		Z_ADDREF_P((*pzv))
+	#define Z_DELREF_PP(pzv)		Z_DELREF_P((*pzv))
 
 	#define IS_LEXICAL_VAR			0x020
 	#define IS_LEXICAL_REF			0x040
@@ -148,6 +151,12 @@
 #if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP16)
 static inline unsigned short __builtin_bswap16(unsigned short v) {
   return (v << 8) | (v >> 8);
+}
+#endif
+
+#if defined(__GNUC__) && !defined(HAVE_BUILTIN_BSWAP64)
+static inline unsigned long long __builtin_bswap64(unsigned long long v) {
+  return ((__builtin_bswap32(v) << 32) | __builtin_bswap32((v) >> 32));
 }
 #endif
 
@@ -420,6 +429,12 @@ int qb_get_vc6_msvcrt_functions(void);
 	extern double log1p (double __x);
 	extern double exp2 (double __x);
 	extern double log2 (double __x);
+#endif
+
+#ifndef _MSC_VER
+#if !HAVE_QSORT_R
+void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *, void *), void *arg);
+#endif
 #endif
 
 // the following is copied from the PHP source so we can build without the
