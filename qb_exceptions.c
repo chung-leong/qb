@@ -93,6 +93,7 @@ void qb_dispatch_exceptions(TSRMLS_D) {
 				uint32_t line_number = LINE_NUMBER(exception->line_id);
 				const char *source_file = qb_get_source_file_path(file_id TSRMLS_CC);
 				qb_show_error(exception->type, source_file, line_number, "%s", exception->message);
+				efree(exception->message);
 			}
 			QB_G(exception_count) = 0;
 		}
