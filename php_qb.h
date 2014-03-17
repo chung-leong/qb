@@ -21,6 +21,8 @@
 #ifndef PHP_QB_H
 #define PHP_QB_H
 
+#define PHP_QB_VERSION 	"2.1.1"
+
 extern zend_module_entry qb_module_entry;
 #define phpext_qb_ptr &qb_module_entry
 
