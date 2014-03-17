@@ -423,6 +423,9 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		return FALSE;
 	}
 
+	int64_t crc64 = qb_calculate_crc64(cxt->binary, cxt->binary_size, 0);
+	printf("crc64 = %016x\n", crc64);
+
 	// look for symbol section
 	uint32_t count = 0;
 	for(i = 0; i < section_count; i++) {
