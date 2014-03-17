@@ -2,21 +2,18 @@
 <package version="2.1" xmlns="http://pear.php.net/dtd/package-2.1" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.1     http://pear.php.net/dtd/package-2.1.xsd">
  <name>qb</name>
  <channel>pecl.php.net</channel>
- <summary>Accelerator designed mainly for graphic work
-</summary>
- <description>
-QB stands for “Quick Binary.” It’s a PHP extension designed to enable faster handling of binary data. It takes a function written in PHP and translate it for a specialized virtual machine. The use of static type information leads significantly higher performance than under PHP’s regular dynamic type system. A PHP+QB function can run anywhere from five to twenty times faster than regular PHP code. For even higher level of performance, one can compile PHP+QB functions to native code (on supported platforms).
+ <summary>Accelerator designed mainly for graphic work</summary>
+ <description>QB stands for “Quick Binary.” It’s a PHP extension designed to enable faster handling of binary data. It takes a function written in PHP and translate it for a specialized virtual machine. The use of static type information leads significantly higher performance than under PHP’s regular dynamic type system. A PHP+QB function can run anywhere from five to twenty times faster than regular PHP code. For even higher level of performance, one can compile PHP+QB functions to native code (on supported platforms).
 
-QB performs code translation on a per-function basis. It does not affect in anyway code not specially marked. Interaction between PHP+QB functions and regular PHP code is basically seamless. A key design objective of QB is to let developers harness greater processing power than what baseline PHP offers without the risk involved in adopting a brand new platform. 
-</description>
+QB performs code translation on a per-function basis. It does not affect in anyway code not specially marked. Interaction between PHP+QB functions and regular PHP code is basically seamless. A key design objective of QB is to let developers harness greater processing power than what baseline PHP offers without the risk involved in adopting a brand new platform.</description>
  <lead>
   <name>Chung Leong</name>
-  <user>cleong</user>
+  <user>cleong728</user>
   <email>cleong728@gmail.com</email>
   <active>yes</active>
  </lead>
  <date>2014-03-17</date>
- <time>01:04:26</time>
+ <time>01:29:03</time>
  <version>
   <release>2.1.1</release>
   <api>0.1.0</api>
@@ -26,13 +23,17 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP License</license>
- <notes/>
+ <notes>Initial release
+</notes>
  <contents>
   <dir name="/">
    <dir name="win32">
     <file role="src" name="msc_inttypes.h"/>
     <file role="src" name="php_stdint.h"/>
    </dir>
+   <file role="doc" name="CREDITS"/>
+   <file role="doc" name="LICENSE"/>
+   <file role="doc" name="README"/>
    <file role="src" name="config.m4"/>
    <file role="src" name="config.w32"/>
    <file role="src" name="php_qb.h"/>
@@ -122,3 +123,4 @@ QB performs code translation on a per-function basis. It does not affect in anyw
  <providesextension>qb</providesextension>
  <extsrcrelease/>
 </package>
+
