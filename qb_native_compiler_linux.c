@@ -96,7 +96,6 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 #elif defined(__SSE__)
 		args[argc++] = "-msse";
 #endif
-
 #if defined(__ARM_ARCH_7A__)
 		args[argc++] = "-mlong-calls";
 #	ifdef __thumb__
@@ -105,7 +104,6 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		args[argc++] = "-marm";
 #	endif
 #endif
-
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
