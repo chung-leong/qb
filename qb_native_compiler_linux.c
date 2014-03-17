@@ -215,10 +215,10 @@ static void * qb_find_symbol_plt_entry(qb_native_compiler_context *cxt, const ch
 #define ELF_R_SYM(r)			ELF64_R_SYM(r)
 #define ELF_ST_BIND(r)			ELF64_ST_BIND(r)
 #define ELF_ST_TYPE(s)			ELF64_ST_TYPE(s)
-#define SHT_REL_EXPECTED		SHT_RELA
 typedef Elf64_Ehdr				Elf_Ehdr;
 typedef Elf64_Shdr				Elf_Shdr;
-typedef Elf64_Rela				Elf_Rel;
+typedef Elf64_Rel				Elf_Rel;
+typedef Elf64_Rela				Elf_Rela;
 typedef Elf64_Sym				Elf_Sym;
 #else
 #define ELF_SIGNATURE_GCC		"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -227,10 +227,10 @@ typedef Elf64_Sym				Elf_Sym;
 #define ELF_R_SYM(r)			ELF32_R_SYM(r)
 #define ELF_ST_BIND(r)			ELF32_ST_BIND(r)
 #define ELF_ST_TYPE(s)			ELF32_ST_TYPE(s)
-#define SHT_REL_EXPECTED		SHT_REL
 typedef Elf32_Ehdr				Elf_Ehdr;
 typedef Elf32_Shdr				Elf_Shdr;
 typedef Elf32_Rel				Elf_Rel;
+typedef Elf32_Rel				Elf_Rela;
 typedef Elf32_Sym				Elf_Sym;
 #endif
 
@@ -316,19 +316,22 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 
 	// look for relocation sections
 	for(i = 0; i < section_count; i++) {
-		if(section_headers[i].sh_type == SHT_REL_EXPECTED) {
+		if(section_headers[i].sh_type == SHT_REL || section_headers[i].sh_type == SHT_RELA) {
+			int with_addend = (section_headers[i].sh_type == SHT_RELA);
 			Elf_Shdr *reloc_section_header = &section_headers[i];
 			Elf_Shdr *text_section_header = &section_headers[reloc_section_header->sh_info];
 			Elf_Shdr *symbol_section_header = &section_headers[reloc_section_header->sh_link];
 			Elf_Shdr *string_section_header = &section_headers[symbol_section_header->sh_link];
-			Elf_Rel *relocations = (Elf_Rel *) (cxt->binary + reloc_section_header->sh_addr);
-			uint32_t relocation_count = (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rel));
 			char *text_section = (char *) (cxt->binary + text_section_header->sh_addr);
 			char *string_section = (char *) (cxt->binary + string_section_header->sh_addr);
 			Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_addr);
+			Elf_Rel *relocations = (Elf_Rel *) (cxt->binary + reloc_section_header->sh_addr);
+			Elf_Rela *relocation_addends = (Elf_Rela *) (cxt->binary + reloc_section_header->sh_addr);
+			uint32_t relocation_count = (with_addend) ? (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rela)) : (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rel));
 
 			for(j = 0; j < relocation_count; j++) {
-				Elf_Rel *relocation = &relocations[j];
+				Elf_Rela *relocation_addend = (with_addend) ? &relocation_addends[j] : NULL;
+				Elf_Rel *relocation = (with_addend) ? (Elf_Rel *) relocation_addend : &relocations[j];
 				int reloc_type = ELF_R_TYPE(relocation->r_info);
 				int symbol_index = ELF_R_SYM(relocation->r_info);
 				Elf_Sym *symbol = &symbols[symbol_index];
@@ -363,42 +366,46 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 
 				intptr_t P = (intptr_t) target_address;
 				intptr_t S = (intptr_t) symbol_address;
-#ifdef __LP64__
-				intptr_t A = relocation->r_addend;
-#endif
+				intptr_t A = (with_addend) ? relocation_addend->r_addend : *((intptr_t *) target_address);
 
 				switch(reloc_type) {
 #if defined(__x86_64__)
 					case R_X86_64_NONE:
 						break;
 					case R_X86_64_64:
-						*((intptr_t *) target_address) = A + S;
+						*((intptr_t *) target_address) = S + A;
 						break;
 					case R_X86_64_PLT32:
 					case R_X86_64_PC32:
-						*((int32_t *) target_address) = A + S - P;
+						*((int32_t *) target_address) = S - P + A;
 						break;
 					case R_X86_64_32:
-						*((uint32_t *) target_address) = A + S;
+						*((uint32_t *) target_address) = S + A;
 						break;
 					case R_X86_64_32S:
-						*((int32_t *) target_address) = A + S;
+						*((int32_t *) target_address) = S + A;
 						break;
 #elif defined(__i386__)
 					case R_386_NONE:
 						break;
 					case R_386_32:
-						*((intptr_t *) target_address) += S;
+						*((intptr_t *) target_address) = S + A;
 						break;
 					case R_386_PC32:
-						*((intptr_t *) target_address) += S - P;
+						*((intptr_t *) target_address) = S - P + A;
 						break;
 #elif defined(__ARM_ARCH_7A__)
+					case R_ARM_PC24:
+						*((intptr_t *) target_address) = S - P + A;
+						break;
 					case R_ARM_ABS32:
-						*((intptr_t *) target_address) += S;
+						*((intptr_t *) target_address) = S + A;
 						break;
 					case R_ARM_REL32:
-						*((intptr_t *) target_address) += S - P;
+						*((intptr_t *) target_address) = S - P + A;
+						break;
+					case R_ARM_THM_PC22:
+						*((intptr_t *) target_address) = S - P + A;
 						break;
 #endif
 					default:
