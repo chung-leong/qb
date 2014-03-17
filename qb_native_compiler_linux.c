@@ -27,7 +27,9 @@
 
 #include <elf.h>
 
-#define LP64_USE_PIC	1
+#ifdef __LP64__
+#	define LP64_USE_PIC		1
+#endif
 
 static void qb_create_cache_folder(qb_native_compiler_context *cxt) {
 	uint32_t len = (uint32_t) strlen(cxt->cache_folder_path);
@@ -101,11 +103,11 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
 #if defined(__LP64__)
-#if LP64_USE_PIC
+#	if LP64_USE_PIC
 		args[argc++] = "-fpic";										// in 64-bit function call needs PIC since external function could be anywhere
-#else
+#	else
 		args[argc++] = "-mcmodel=large";							// use large memory model instead of PIC,
-#endif
+#	endif
 #endif
 		args[argc++] = "-o";
 		args[argc++] = cxt->obj_file_path;
@@ -207,31 +209,37 @@ static void * qb_find_symbol_plt_entry(qb_native_compiler_context *cxt, const ch
 #endif
 
 #ifdef __LP64__
-#define EM_EXPECTED						EM_X86_64
-#define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_R_TYPE(r)					ELF64_R_TYPE(r)
-#define ELF_R_SYM(r)					ELF64_R_SYM(r)
-#define ELF_ST_BIND(r)					ELF64_ST_BIND(r)
-#define ELF_ST_TYPE(s)					ELF64_ST_TYPE(s)
-#define SHT_REL_EXPECTED				SHT_RELA
+#define ELF_SIGNATURE_GCC		"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_SIGNATURE_ICC		"\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_R_TYPE(r)			ELF64_R_TYPE(r)
+#define ELF_R_SYM(r)			ELF64_R_SYM(r)
+#define ELF_ST_BIND(r)			ELF64_ST_BIND(r)
+#define ELF_ST_TYPE(s)			ELF64_ST_TYPE(s)
+#define SHT_REL_EXPECTED		SHT_RELA
 typedef Elf64_Ehdr				Elf_Ehdr;
 typedef Elf64_Shdr				Elf_Shdr;
 typedef Elf64_Rela				Elf_Rel;
 typedef Elf64_Sym				Elf_Sym;
 #else
-#define EM_EXPECTED						EM_386
-#define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_R_TYPE(r)					ELF32_R_TYPE(r)
-#define ELF_R_SYM(r)					ELF32_R_SYM(r)
-#define ELF_ST_BIND(r)					ELF32_ST_BIND(r)
-#define ELF_ST_TYPE(s)					ELF32_ST_TYPE(s)
-#define SHT_REL_EXPECTED				SHT_REL
+#define ELF_SIGNATURE_GCC		"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_SIGNATURE_ICC		"\x7f\x45\x4c\x46\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_R_TYPE(r)			ELF32_R_TYPE(r)
+#define ELF_R_SYM(r)			ELF32_R_SYM(r)
+#define ELF_ST_BIND(r)			ELF32_ST_BIND(r)
+#define ELF_ST_TYPE(s)			ELF32_ST_TYPE(s)
+#define SHT_REL_EXPECTED		SHT_REL
 typedef Elf32_Ehdr				Elf_Ehdr;
 typedef Elf32_Shdr				Elf_Shdr;
 typedef Elf32_Rel				Elf_Rel;
 typedef Elf32_Sym				Elf_Sym;
+#endif
+
+#if defined(__x86_64__)
+#	define EM_EXPECTED			EM_X86_64
+#elif defined(__i386__)
+#	define EM_EXPECTED			EM_386
+#elif defined(__ARM_ARCH_7A__)
+#	define EM_EXPECTED			EM_ARM
 #endif
 
 static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
@@ -360,7 +368,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 #endif
 
 				switch(reloc_type) {
-#ifdef __LP64__
+#if defined(__x86_64__)
 					case R_X86_64_NONE:
 						break;
 					case R_X86_64_64:
@@ -376,13 +384,20 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 					case R_X86_64_32S:
 						*((int32_t *) target_address) = A + S;
 						break;
-#else
+#elif defined(__i386__)
 					case R_386_NONE:
 						break;
 					case R_386_32:
 						*((intptr_t *) target_address) += S;
 						break;
 					case R_386_PC32:
+						*((intptr_t *) target_address) += S - P;
+						break;
+#elif defined(__ARM_ARCH_7A__)
+					case R_ARM_ABS32:
+						*((intptr_t *) target_address) += S;
+						break;
+					case R_ARM_REL32:
 						*((intptr_t *) target_address) += S - P;
 						break;
 #endif
@@ -466,8 +481,8 @@ void qb_free_native_code(qb_native_code_bundle *bundle) {
 }
 
 #ifdef __INTEL_COMPILER
-extern void __libm_sse2_sincos(void);
-extern void __libm_sse2_sincosf(void);
+	extern void __libm_sse2_sincos(void);
+	extern void __libm_sse2_sincosf(void);
 #endif
 
 static void * qb_get_intrinsic_function_address(const char *name) {
