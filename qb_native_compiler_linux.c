@@ -95,6 +95,12 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 #elif defined(__SSE__)
 		args[argc++] = "-msse";
 #endif
+#ifdef __thumb__
+		args[argc++] = "-mthumb";
+#else
+		args[argc++] = "-marm";
+#endif		
+		args[argc++] = "-mlong-calls";
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
@@ -230,7 +236,7 @@ typedef Elf64_Sym				Elf_Sym;
 typedef Elf32_Ehdr				Elf_Ehdr;
 typedef Elf32_Shdr				Elf_Shdr;
 typedef Elf32_Rel				Elf_Rel;
-typedef Elf32_Rel				Elf_Rela;
+typedef Elf32_Rela				Elf_Rela;
 typedef Elf32_Sym				Elf_Sym;
 #endif
 
@@ -368,6 +374,10 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 				intptr_t S = (intptr_t) symbol_address;
 				intptr_t A = (with_addend) ? relocation_addend->r_addend : *((intptr_t *) target_address);
 
+				printf("Reloc %d %d %d\n", with_addend, reloc_type, relocation_count);
+				printf("P = %08x\n", P);
+				printf("S = %08x\n", S);
+				printf("A = %08x\n", A);
 				switch(reloc_type) {
 #if defined(__x86_64__)
 					case R_X86_64_NONE:
@@ -405,7 +415,7 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 						*((intptr_t *) target_address) = S - P + A;
 						break;
 					case R_ARM_THM_PC22:
-						*((intptr_t *) target_address) = S - P + A;
+						*((intptr_t *) target_address) = (((S - P - 4) >> 1) + (A & 0x003FFFFF)) | (A & 0xFFC00000);
 						break;
 #endif
 					default:
