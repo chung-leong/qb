@@ -377,10 +377,6 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 				intptr_t S = (intptr_t) symbol_address;
 				intptr_t A = (with_addend) ? relocation_addend->r_addend : *((intptr_t *) target_address);
 
-				printf("Reloc (%d) %d\n", with_addend, reloc_type);
-				printf("P = %08x\n", P);
-				printf("S = %08x\n", S);
-				printf("A = %08x\n", A);
 				switch(reloc_type) {
 #if defined(__x86_64__)
 					case R_X86_64_NONE:
@@ -412,10 +408,11 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 						*((intptr_t *) target_address) = S + A;
 						break;
 					case R_ARM_REL32:
-						*((intptr_t *) target_address) = S - P + A;
+						*((intptr_t *) target_address) = S - (P + 8) + A;
 						break;
 #endif
 					default:
+						printf("Missing relocation type (%d) for %s\n", reloc_type, symbol_name);
 						return FALSE;
 				}
 			}
