@@ -98,11 +98,6 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 #endif
 #if defined(__ARM_ARCH_7A__)
 		args[argc++] = "-mlong-calls";
-#	ifdef __thumb__
-		args[argc++] = "-mthumb";
-#	else
-		args[argc++] = "-marm";
-#	endif
 #endif
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG
@@ -423,8 +418,15 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		return FALSE;
 	}
 
-	int64_t crc64 = qb_calculate_crc64(cxt->binary, cxt->binary_size, 0);
-	printf("crc64 = %016x\n", crc64);
+#if defined(__ARM_ARCH_7A__)
+// ARM employs separate data and instruction caches. It's possible for the
+// I-cache to hold a stale copy of the code (i.e. before relocation happened),
+// since our the modifications will only show up in the D-cache. We therefore
+// need to flush the memory range.
+//
+// see: http://community.arm.com/groups/processors/blog/2010/02/17/caches-and-self-modifying-code
+	__clear_cache(cxt->binary, cxt->binary + cxt->binary_size);
+#endif
 
 	// look for symbol section
 	uint32_t count = 0;
