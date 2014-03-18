@@ -31,6 +31,15 @@
 #	define LP64_USE_PIC		1
 #endif
 
+#if defined(__ARM_ARCH_7A__)
+#	ifndef R_ARM_THM_MOVW_ABS_NC
+#		define R_ARM_THM_MOVW_ABS_NC	47
+#	endif
+#	ifndef R_ARM_THM_MOVT_ABS
+#		define R_ARM_THM_MOVT_ABS		48
+#	endif
+#endif
+
 static void qb_create_cache_folder(qb_native_compiler_context *cxt) {
 	uint32_t len = (uint32_t) strlen(cxt->cache_folder_path);
 	if(len == 0) {
@@ -399,12 +408,47 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 						*((intptr_t *) target_address) = S - P + A;
 						break;
 #elif defined(__ARM_ARCH_7A__)
+
+						typedef struct {
+							unsigned int bit19_16:4;
+							unsigned int bit25_20:6;
+							unsigned int bit26:1;
+							unsigned int bit31_27:5;
+							unsigned int bit7_0:8;
+							unsigned int bit11_8:4;
+							unsigned int bit14_12:3;
+							unsigned int bit15:1;
+						} __attribute__ ((__packed__)) thumb32_movw, thumb32_movt;
+
 					case R_ARM_ABS32:
 						*((intptr_t *) target_address) = S + A;
 						break;
-					case R_ARM_REL32:
-						*((intptr_t *) target_address) = S - (P + 8) + A;
-						break;
+					case R_ARM_THM_MOVW_ABS_NC: {
+						int32_t R;
+						thumb32_movw *insn = (thumb32_movw *) target_address;
+						A = (insn->bit14_12 << 8) | insn->bit7_0;
+						if(A & 0x0400) {
+							A |= 0xFC00;
+						}
+						R = (S + A) & 0x0000FFFF;
+						insn->bit19_16 = (R >> 12);
+						insn->bit26 = (R >> 11) & 0x1;
+						insn->bit14_12 = (R >> 8) & 0x7;
+						insn->bit7_0 = (R >> 0) & 0xFF;
+					}	break;
+					case R_ARM_THM_MOVT_ABS:  {
+						int32_t R;
+						thumb32_movt *insn = (thumb32_movt *) target_address;
+						A = (insn->bit14_12 << 8) | insn->bit7_0;
+						if(A & 0x0400) {
+							A |= 0xFC00;
+						}
+						R = (S + A) & 0xFFFF0000;
+						insn->bit19_16 = (R >> 28);
+						insn->bit26 = (R >> 27) & 0x1;
+						insn->bit14_12 = (R >> 24) & 0x7;
+						insn->bit7_0 = (R >> 16) & 0xFF;
+					}	break;
 #endif
 					default:
 						printf("Missing relocation type (%d) for %s\n", reloc_type, symbol_name);
