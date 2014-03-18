@@ -35606,7 +35606,17 @@ qb_native_symbol global_native_symbols[] = {
 	{	"sincosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 	{	"__libm_sse2_sincos",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 	{	"__libm_sse2_sincosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_d2f",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_f2d",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_f2ulz",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_f2lz",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_d2ulz",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_d2lz",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_ul2f",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_l2f",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_ul2d",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"__aeabi_l2d",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 };
 
-uint32_t global_native_symbol_count = 2275;
+uint32_t global_native_symbol_count = 2285;
 

@@ -573,11 +573,6 @@ void qb_free_native_code(qb_native_code_bundle *bundle) {
 	munmap(bundle->memory, bundle->size);
 }
 
-#ifdef __INTEL_COMPILER
-	extern void __libm_sse2_sincos(void);
-	extern void __libm_sse2_sincosf(void);
-#endif
-
 static void * qb_get_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #ifdef HAVE_SINCOS
@@ -590,11 +585,50 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 	}
 #endif
 #ifdef __INTEL_COMPILER
+	extern void __libm_sse2_sincos(void);
+	extern void __libm_sse2_sincosf(void);
+
 	if(!address) {
 		if(strcmp(name, "__libm_sse2_sincos") == 0) {
 			address = __libm_sse2_sincos;
 		} else if(strcmp(name, "__libm_sse2_sincosf") == 0) {
 			address = __libm_sse2_sincosf;
+		}
+	}
+#endif
+#if defined(__ARM_ARCH_7A__)
+	extern void __aeabi_d2f(void);
+	extern void __aeabi_f2d(void);
+	extern void __aeabi_f2ulz(void);
+	extern void __aeabi_f2lz(void);
+	extern void __aeabi_d2ulz(void);
+	extern void __aeabi_d2lz(void);
+	extern void __aeabi_ul2f(void);
+	extern void __aeabi_l2f(void);
+	extern void __aeabi_ul2d(void);
+	extern void __aeabi_l2d(void);
+
+	if(!address) {
+		if(strcmp(name, "__aeabi_d2f") == 0) {
+			address = __aeabi_d2f;
+		} else if(strcmp(name, "__aeabi_f2d") == 0) {
+			address = __aeabi_f2d;
+		} else if(strcmp(name, "__aeabi_f2ulz") == 0) {
+			address = __aeabi_f2ulz;
+		} else if(strcmp(name, "__aeabi_f2lz") == 0) {
+			address = __aeabi_f2lz;
+		} else if(strcmp(name, "__aeabi_d2ulz") == 0) {
+			address = __aeabi_d2ulz;
+		} else if(strcmp(name, "__aeabi_d2lz") == 0) {
+			address = __aeabi_d2lz;
+		} else if(strcmp(name, "__aeabi_ul2f") == 0) {
+			address = __aeabi_ul2f;
+		} else if(strcmp(name, "__aeabi_l2f") == 0) {
+			address = __aeabi_l2f;
+		} else if(strcmp(name, "__aeabi_ul2d") == 0) {
+			address = __aeabi_ul2d;
+		} else if(strcmp(name, "__aeabi_l2d") == 0) {
+			address = __aeabi_l2d;
 		}
 	}
 #endif
