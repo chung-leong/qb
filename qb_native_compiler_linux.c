@@ -31,15 +31,6 @@
 #	define LP64_USE_PIC		1
 #endif
 
-#if defined(__ARM_ARCH_7A__)
-#	ifndef R_ARM_THM_MOVW_ABS_NC
-#		define R_ARM_THM_MOVW_ABS_NC	47
-#	endif
-#	ifndef R_ARM_THM_MOVT_ABS
-#		define R_ARM_THM_MOVT_ABS		48
-#	endif
-#endif
-
 static void qb_create_cache_folder(qb_native_compiler_context *cxt) {
 	uint32_t len = (uint32_t) strlen(cxt->cache_folder_path);
 	if(len == 0) {
@@ -409,20 +400,62 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 						break;
 #elif defined(__ARM_ARCH_7A__)
 
-						typedef struct {
-							unsigned int bit19_16:4;
-							unsigned int bit25_20:6;
-							unsigned int bit26:1;
-							unsigned int bit31_27:5;
-							unsigned int bit7_0:8;
-							unsigned int bit11_8:4;
-							unsigned int bit14_12:3;
-							unsigned int bit15:1;
-						} __attribute__ ((__packed__)) thumb32_movw, thumb32_movt;
+#	ifndef R_ARM_MOVW_ABS_NC
+#		define R_ARM_MOVW_ABS_NC		43
+#	endif
+#	ifndef R_ARM_MOVT_ABS
+#		define R_ARM_MOVT_ABS			44
+#	endif
+#	ifndef R_ARM_THM_MOVW_ABS_NC
+#		define R_ARM_THM_MOVW_ABS_NC	47
+#	endif
+#	ifndef R_ARM_THM_MOVT_ABS
+#		define R_ARM_THM_MOVT_ABS		48
+#	endif
+
+typedef struct {
+	unsigned int bit19_16:4;
+	unsigned int bit25_20:6;
+	unsigned int bit26:1;
+	unsigned int bit31_27:5;
+	unsigned int bit7_0:8;
+	unsigned int bit11_8:4;
+	unsigned int bit14_12:3;
+	unsigned int bit15:1;
+} __attribute__ ((__packed__)) thumb32_movw, thumb32_movt;
+
+typedef struct {
+	unsigned int bit11_0:12;
+	unsigned int bit15_12:4;
+	unsigned int bit19_16:4;
+	unsigned int bit31_20:12;
+} __attribute__ ((__packed__)) arm_movw, arm_movt;
 
 					case R_ARM_ABS32:
 						*((intptr_t *) target_address) = S + A;
 						break;
+					case R_ARM_MOVW_ABS_NC: {
+						int32_t R;
+						arm_movw *insn = (arm_movw *) target_address;
+						A = insn->bit11_0;
+						if(A & 0x0800) {
+							A |= 0xF800;
+						}
+						R = (S + A) & 0x0000FFFF;
+						insn->bit19_16 = (R >> 12);
+						insn->bit11_0 = (R >> 0) & 0xFFF;
+					}	break;
+					case R_ARM_MOVT_ABS: {
+						int32_t R;
+						arm_movt *insn = (arm_movt *) target_address;
+						A = insn->bit11_0;
+						if(A & 0x0800) {
+							A |= 0xF800;
+						}
+						R = (S + A) & 0xFFFF0000;
+						insn->bit19_16 = (R >> 28);
+						insn->bit11_0 = (R >> 16) & 0xFFF;
+					}	break;
 					case R_ARM_THM_MOVW_ABS_NC: {
 						int32_t R;
 						thumb32_movw *insn = (thumb32_movw *) target_address;
