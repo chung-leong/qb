@@ -37,7 +37,7 @@ typedef struct qb_thread_parameters			qb_thread_parameters;
 
 typedef enum qb_primitive_type				qb_primitive_type;
 
-#define MAKE_STRING(x)						#x
+#define MAKE_STRING(...)					#__VA_ARGS__
 #define STRING(x)							MAKE_STRING(x)
 
 #define MAX_DIMENSION						8

@@ -609,7 +609,13 @@ void qb_disable_zend_optimizer(TSRMLS_D) {
 	if(qb_is_zend_optimizer_present()) {
 		char *entry_name = "opcache.optimization_level";
 		char *entry_value = "0";
+#if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE TSRMLS_CC);
+#elif !ZEND_ENGINE_2_1
+		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE);
+#else
+		zend_alter_ini_entry(entry_name, strlen(entry_name) + 1, entry_value, strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_ACTIVATE);
+#endif
 	}
 }
 
@@ -1059,7 +1065,6 @@ PHP_MINFO_FUNCTION(qb)
    Convert PHP instructions to qb instructions */
 PHP_FUNCTION(qb_compile)
 {
-	qb_build_context *build_cxt = QB_G(build_context);
 	if(qb_compile_functions(NULL TSRMLS_CC)) {
 		RETURN_TRUE
 	} else {

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="2.1" xmlns="http://pear.php.net/dtd/package-2.1" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.1     http://pear.php.net/dtd/package-2.1.xsd">
+ <name>qb</name>
+ <channel>pecl.php.net</channel>
+ <summary>Accelerator designed mainly for graphic work</summary>
+ <description>QB stands for "Quick Binary". It's a PHP extension designed to enable faster handling of binary data. It takes a function written in PHP and translate it for a specialized virtual machine. The use of static type information leads significantly higher performance than under PHP’s regular dynamic type system. A PHP+QB function can run anywhere from five to twenty times faster than regular PHP code. For even higher level of performance, one can compile PHP+QB functions to native code (on supported platforms).
+
+QB performs code translation on a per-function basis. It does not affect in anyway code not specially marked. Interaction between PHP+QB functions and regular PHP code is basically seamless. A key design objective of QB is to let developers harness greater processing power than what baseline PHP offers without the risk involved in adopting a brand new platform.</description>
+ <lead>
+  <name>Chung Leong</name>
+  <user>cleong728</user>
+  <email>cleong728@gmail.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2014-03-17</date>
+ <time>01:29:03</time>
+ <version>
+  <release>2.1.1</release>
+  <api>0.1.0</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license uri="http://www.php.net/license">PHP License</license>
+ <notes>Initial release
+</notes>
+ <contents>
+  <dir name="/">
+   <dir name="win32">
+    <file role="src" name="msc_inttypes.h"/>
+    <file role="src" name="php_stdint.h"/>
+   </dir>
+   <file role="doc" name="CREDITS"/>
+   <file role="doc" name="LICENSE"/>
+   <file role="doc" name="README"/>
+   <file role="src" name="config.m4"/>
+   <file role="src" name="config.w32"/>
+   <file role="src" name="php_qb.h"/>
+   <file role="src" name="qb.c"/>
+   <file role="src" name="qb.h"/>
+   <file role="src" name="qb_build.c"/>
+   <file role="src" name="qb_build.h"/>
+   <file role="src" name="qb_compat.c"/>
+   <file role="src" name="qb_compat.h"/>
+   <file role="src" name="qb_compat_snprintf.c"/>
+   <file role="src" name="qb_compiler.c"/>
+   <file role="src" name="qb_compiler.h"/>
+   <file role="src" name="qb_compiler_optimization.c"/>
+   <file role="src" name="qb_crc64.c"/>
+   <file role="src" name="qb_data_tables_gcc.c"/>
+   <file role="src" name="qb_data_tables_msvc.c"/>
+   <file role="src" name="qb_debug_interface.c"/>
+   <file role="src" name="qb_debug_interface.h"/>
+   <file role="src" name="qb_encoder.c"/>
+   <file role="src" name="qb_encoder.h"/>
+   <file role="src" name="qb_exceptions.c"/>
+   <file role="src" name="qb_exceptions.h"/>
+   <file role="src" name="qb_extractor.c"/>
+   <file role="src" name="qb_extractor.h"/>
+   <file role="src" name="qb_function.h"/>
+   <file role="src" name="qb_function_inliner.c"/>
+   <file role="src" name="qb_function_inliner.h"/>
+   <file role="src" name="qb_interpreter.c"/>
+   <file role="src" name="qb_interpreter.h"/>
+   <file role="src" name="qb_interpreter_debug.c"/>
+   <file role="src" name="qb_interpreter_functions_gcc.c"/>
+   <file role="src" name="qb_interpreter_functions_msvc.c"/>
+   <file role="src" name="qb_interpreter_gcc.h"/>
+   <file role="src" name="qb_interpreter_loop_gcc.c"/>
+   <file role="src" name="qb_interpreter_loop_msvc.c"/>
+   <file role="src" name="qb_interpreter_msvc.h"/>
+   <file role="src" name="qb_native_compiler.c"/>
+   <file role="src" name="qb_native_compiler.h"/>
+   <file role="src" name="qb_native_compiler_linux.c"/>
+   <file role="src" name="qb_native_compiler_osx.c"/>
+   <file role="src" name="qb_native_compiler_win32.c"/>
+   <file role="src" name="qb_native_proc_debug.c"/>
+   <file role="src" name="qb_op.c"/>
+   <file role="src" name="qb_op.h"/>
+   <file role="src" name="qb_opcodes.h"/>
+   <file role="src" name="qb_op_factories.c"/>
+   <file role="src" name="qb_op_factories.h"/>
+   <file role="src" name="qb_op_factory_behavior_adjustment.c"/>
+   <file role="src" name="qb_op_factory_decomposition.c"/>
+   <file role="src" name="qb_op_factory_dimension_calculation.c"/>
+   <file role="src" name="qb_op_factory_opcode_selection.c"/>
+   <file role="src" name="qb_op_factory_operand_coercion.c"/>
+   <file role="src" name="qb_op_factory_operand_transfer.c"/>
+   <file role="src" name="qb_op_factory_operand_validation.c"/>
+   <file role="src" name="qb_op_factory_result_assignment.c"/>
+   <file role="src" name="qb_op_factory_result_linkage.c"/>
+   <file role="src" name="qb_op_factory_type_resolution.c"/>
+   <file role="src" name="qb_parser.c"/>
+   <file role="src" name="qb_parser.h"/>
+   <file role="src" name="qb_printer.c"/>
+   <file role="src" name="qb_printer.h"/>
+   <file role="src" name="qb_storage.c"/>
+   <file role="src" name="qb_storage.h"/>
+   <file role="src" name="qb_storage_file.c"/>
+   <file role="src" name="qb_storage_gd_image.c"/>
+   <file role="src" name="qb_thread.c"/>
+   <file role="src" name="qb_thread.h"/>
+   <file role="src" name="qb_translator_pbj.c"/>
+   <file role="src" name="qb_translator_pbj.h"/>
+   <file role="src" name="qb_translator_php.c"/>
+   <file role="src" name="qb_translator_php.h"/>
+   <file role="src" name="qb_types.c"/>
+   <file role="src" name="qb_types.h"/>
+   <file role="src" name="qb_version.h"/>
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.2.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.8</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>qb</providesextension>
+ <extsrcrelease/>
+</package>
+

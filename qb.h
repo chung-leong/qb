@@ -22,7 +22,7 @@
 #define QB_H_
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#	include "config.h"
 #endif
 
 #define _GNU_SOURCE		1
@@ -33,24 +33,24 @@
 #include <math.h>
 
 #ifdef _MSC_VER
-	#include "win32\php_stdint.h"
-	#include "win32\msc_inttypes.h"
-	#include "win32\time.h"
+#	include "win32\php_stdint.h"
+#	include "win32\msc_inttypes.h"
+#	include "win32\time.h"
 #else
-	#include <stdint.h>
-	#include <inttypes.h>
-	#include <sys/types.h>
-	#include <sys/param.h>
+#	include <stdint.h>
+#	include <inttypes.h>
+#	include <sys/types.h>
+#	include <sys/param.h>
 #endif
 
 #ifdef _MSC_VER
-	#define QB_LITTLE_ENDIAN
+#	define QB_LITTLE_ENDIAN
 #else
-	#if __BYTE_ORDER == __LITTLE_ENDIAN
-		#define QB_LITTLE_ENDIAN
-	#else
-		#define QB_BIG_ENDIAN
-	#endif
+#	if __BYTE_ORDER == __LITTLE_ENDIAN
+#		define QB_LITTLE_ENDIAN
+#	else
+#		define QB_BIG_ENDIAN
+#	endif
 #endif
 
 #include "php.h"
@@ -59,63 +59,65 @@
 #include "SAPI.h"
 
 #ifdef ZEND_ACC_GENERATOR
-	#include "zend_generators.h"
+#	include "zend_generators.h"
 #endif
 
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 1
-	#define ZEND_ENGINE_2_1		1
+#	define ZEND_ENGINE_2_1		1
 #elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 2
-	#define ZEND_ENGINE_2_2		1
+#	define ZEND_ENGINE_2_2		1
 #elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 3
-	#define ZEND_ENGINE_2_3		1
+#	define ZEND_ENGINE_2_3		1
 #elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 4
-	#define ZEND_ENGINE_2_4		1
+#	define ZEND_ENGINE_2_4		1
 #elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 5
-	#define ZEND_ENGINE_2_5		1
+#	define ZEND_ENGINE_2_5		1
 #elif PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 6
-	#define ZEND_ENGINE_2_6		1
+#	define ZEND_ENGINE_2_6		1
 #else
-	#error Incompatible version of PHP
+#	error Incompatible version of PHP
 #endif
 
 #ifdef ZTS
-	#define USE_TSRM		void ***tsrm_ls = cxt->tsrm_ls;\
+#	define USE_TSRM			void ***tsrm_ls = cxt->tsrm_ls;\
 
-	#define SAVE_TSRMLS		cxt->tsrm_ls = tsrm_ls;\
+#	define SAVE_TSRMLS		cxt->tsrm_ls = tsrm_ls;\
 
 #else
-	#define USE_TSRM
-	#define SAVE_TSRMLS
+#	define USE_TSRM
+#	define SAVE_TSRMLS
 #endif
 
 #ifdef _MSC_VER
-	#define NO_RETURN	__declspec(noreturn)
+#	define NO_RETURN	__declspec(noreturn)
 #endif
 
 #ifdef __GNUC__
-	#define NO_RETURN	__attribute__ ((noreturn))
+#	define NO_RETURN	__attribute__ ((noreturn))
 #endif
 
 #ifdef __GNUC__
-	#ifdef __linux__
-		#if defined(__i386__) || defined(__x86_64__)
-			#define NATIVE_COMPILE_ENABLED	1
-		#endif
-	#elif defined(__MACH__)
-		#if defined(__i386__) || defined(__x86_64__)
-			#define NATIVE_COMPILE_ENABLED	1
-		#endif
-	#endif
+#	ifdef __linux__
+#		if defined(__i386__) || defined(__x86_64__)
+#			define NATIVE_COMPILE_ENABLED	1
+#		elif defined(__ARM_ARCH_7A__)
+#			define NATIVE_COMPILE_ENABLED	1
+#		endif
+#		elif defined(__MACH__)
+#		if defined(__i386__) || defined(__x86_64__)
+#			define NATIVE_COMPILE_ENABLED	1
+#		endif
+#	endif
 #endif
 
 #ifdef _MSC_VER
-	#define NATIVE_COMPILE_ENABLED	1
+#	define NATIVE_COMPILE_ENABLED	1
 #endif
 
 #define QB_EXTNAME	"qb"
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#	include "config.h"
 #endif
 
 #include "qb_debug_interface.h"
@@ -222,9 +224,9 @@ ZEND_BEGIN_MODULE_GLOBALS(qb)
 ZEND_END_MODULE_GLOBALS(qb)
 
 #ifdef ZTS
-# define QB_G(v) TSRMG(qb_globals_id, zend_qb_globals *, v)
+#	define QB_G(v) TSRMG(qb_globals_id, zend_qb_globals *, v)
 #else
-# define QB_G(v) (qb_globals.v)
+#	define QB_G(v) (qb_globals.v)
 #endif
 
 int qb_run_diagnostics(qb_diagnostics *info TSRMLS_DC);

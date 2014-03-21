@@ -27,7 +27,9 @@
 
 #include <elf.h>
 
-#define LP64_USE_PIC	1
+#ifdef __LP64__
+#	define LP64_USE_PIC		1
+#endif
 
 static void qb_create_cache_folder(qb_native_compiler_context *cxt) {
 	uint32_t len = (uint32_t) strlen(cxt->cache_folder_path);
@@ -52,9 +54,9 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 	int gcc_pipe_write[2];
 	int gcc_pipe_read[2];
 	int gcc_pipe_error[2];
-	pipe(gcc_pipe_read);
-	pipe(gcc_pipe_write);
-	pipe(gcc_pipe_error);
+	if(pipe(gcc_pipe_write) != 0 || pipe(gcc_pipe_read) != 0 || pipe(gcc_pipe_error) != 0) {
+		return FALSE;
+	}
 
 	const char *compiler_path = QB_G(compiler_path);
 	const char *compiler_env_path = QB_G(compiler_env_path);
@@ -82,6 +84,7 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		}
 		args[argc++] = "-c";
 		args[argc++] = "-O2";										// optimization level
+
 #ifdef HAVE_GCC_MARCH_NATIVE
 		args[argc++] = "-march=native";								// optimize for current CPU
 #elif defined(__SSE4__)
@@ -93,6 +96,9 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 #elif defined(__SSE__)
 		args[argc++] = "-msse";
 #endif
+#if defined(__ARM_ARCH_7A__)
+		args[argc++] = "-mlong-calls";
+#endif
 		args[argc++] = "-pipe";										// use pipes for internal communication
 #if !ZEND_DEBUG
 		args[argc++] = "-Wp,-w";									// disable preprocessor warning
@@ -101,11 +107,11 @@ static int32_t qb_launch_compiler(qb_native_compiler_context *cxt) {
 		args[argc++] = "-Werror=implicit-function-declaration";		// elevate implicit function declaration to an error
 		args[argc++] = "-fno-stack-protector"; 						// disable stack protector
 #if defined(__LP64__)
-#if LP64_USE_PIC
+#	if LP64_USE_PIC
 		args[argc++] = "-fpic";										// in 64-bit function call needs PIC since external function could be anywhere
-#else
+#	else
 		args[argc++] = "-mcmodel=large";							// use large memory model instead of PIC,
-#endif
+#	endif
 #endif
 		args[argc++] = "-o";
 		args[argc++] = cxt->obj_file_path;
@@ -207,31 +213,37 @@ static void * qb_find_symbol_plt_entry(qb_native_compiler_context *cxt, const ch
 #endif
 
 #ifdef __LP64__
-#define EM_EXPECTED						EM_X86_64
-#define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_R_TYPE(r)					ELF64_R_TYPE(r)
-#define ELF_R_SYM(r)					ELF64_R_SYM(r)
-#define ELF_ST_BIND(r)					ELF64_ST_BIND(r)
-#define ELF_ST_TYPE(s)					ELF64_ST_TYPE(s)
-#define SHT_REL_EXPECTED				SHT_RELA
+#define ELF_SIGNATURE_GCC		"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_SIGNATURE_ICC		"\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_R_TYPE(r)			ELF64_R_TYPE(r)
+#define ELF_R_SYM(r)			ELF64_R_SYM(r)
+#define ELF_ST_BIND(r)			ELF64_ST_BIND(r)
+#define ELF_ST_TYPE(s)			ELF64_ST_TYPE(s)
 typedef Elf64_Ehdr				Elf_Ehdr;
 typedef Elf64_Shdr				Elf_Shdr;
-typedef Elf64_Rela				Elf_Rel;
+typedef Elf64_Rel				Elf_Rel;
+typedef Elf64_Rela				Elf_Rela;
 typedef Elf64_Sym				Elf_Sym;
 #else
-#define EM_EXPECTED						EM_386
-#define ELF_SIGNATURE_GCC				"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_SIGNATURE_ICC				"\x7f\x45\x4c\x46\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_R_TYPE(r)					ELF32_R_TYPE(r)
-#define ELF_R_SYM(r)					ELF32_R_SYM(r)
-#define ELF_ST_BIND(r)					ELF32_ST_BIND(r)
-#define ELF_ST_TYPE(s)					ELF32_ST_TYPE(s)
-#define SHT_REL_EXPECTED				SHT_REL
+#define ELF_SIGNATURE_GCC		"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_SIGNATURE_ICC		"\x7f\x45\x4c\x46\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
+#define ELF_R_TYPE(r)			ELF32_R_TYPE(r)
+#define ELF_R_SYM(r)			ELF32_R_SYM(r)
+#define ELF_ST_BIND(r)			ELF32_ST_BIND(r)
+#define ELF_ST_TYPE(s)			ELF32_ST_TYPE(s)
 typedef Elf32_Ehdr				Elf_Ehdr;
 typedef Elf32_Shdr				Elf_Shdr;
 typedef Elf32_Rel				Elf_Rel;
+typedef Elf32_Rela				Elf_Rela;
 typedef Elf32_Sym				Elf_Sym;
+#endif
+
+#if defined(__x86_64__)
+#	define EM_EXPECTED			EM_X86_64
+#elif defined(__i386__)
+#	define EM_EXPECTED			EM_386
+#elif defined(__ARM_ARCH_7A__)
+#	define EM_EXPECTED			EM_ARM
 #endif
 
 static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
@@ -308,19 +320,22 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 
 	// look for relocation sections
 	for(i = 0; i < section_count; i++) {
-		if(section_headers[i].sh_type == SHT_REL_EXPECTED) {
+		if(section_headers[i].sh_type == SHT_REL || section_headers[i].sh_type == SHT_RELA) {
+			int with_addend = (section_headers[i].sh_type == SHT_RELA);
 			Elf_Shdr *reloc_section_header = &section_headers[i];
 			Elf_Shdr *text_section_header = &section_headers[reloc_section_header->sh_info];
 			Elf_Shdr *symbol_section_header = &section_headers[reloc_section_header->sh_link];
 			Elf_Shdr *string_section_header = &section_headers[symbol_section_header->sh_link];
-			Elf_Rel *relocations = (Elf_Rel *) (cxt->binary + reloc_section_header->sh_addr);
-			uint32_t relocation_count = (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rel));
 			char *text_section = (char *) (cxt->binary + text_section_header->sh_addr);
 			char *string_section = (char *) (cxt->binary + string_section_header->sh_addr);
 			Elf_Sym *symbols = (Elf_Sym *) (cxt->binary + symbol_section_header->sh_addr);
+			Elf_Rel *relocations = (Elf_Rel *) (cxt->binary + reloc_section_header->sh_addr);
+			Elf_Rela *relocation_addends = (Elf_Rela *) (cxt->binary + reloc_section_header->sh_addr);
+			uint32_t relocation_count = (with_addend) ? (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rela)) : (uint32_t) (reloc_section_header->sh_size / sizeof(Elf_Rel));
 
 			for(j = 0; j < relocation_count; j++) {
-				Elf_Rel *relocation = &relocations[j];
+				Elf_Rela *relocation_addend = (with_addend) ? &relocation_addends[j] : NULL;
+				Elf_Rel *relocation = (with_addend) ? (Elf_Rel *) relocation_addend : &relocations[j];
 				int reloc_type = ELF_R_TYPE(relocation->r_info);
 				int symbol_index = ELF_R_SYM(relocation->r_info);
 				Elf_Sym *symbol = &symbols[symbol_index];
@@ -355,38 +370,121 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 
 				intptr_t P = (intptr_t) target_address;
 				intptr_t S = (intptr_t) symbol_address;
-#ifdef __LP64__
-				intptr_t A = relocation->r_addend;
-#endif
+				intptr_t A = (with_addend) ? relocation_addend->r_addend : *((intptr_t *) target_address);
 
 				switch(reloc_type) {
-#ifdef __LP64__
+#if defined(__x86_64__)
 					case R_X86_64_NONE:
 						break;
 					case R_X86_64_64:
-						*((intptr_t *) target_address) = A + S;
+						*((intptr_t *) target_address) = S + A;
 						break;
 					case R_X86_64_PLT32:
 					case R_X86_64_PC32:
-						*((int32_t *) target_address) = A + S - P;
+						*((int32_t *) target_address) = S - P + A;
 						break;
 					case R_X86_64_32:
-						*((uint32_t *) target_address) = A + S;
+						*((uint32_t *) target_address) = S + A;
 						break;
 					case R_X86_64_32S:
-						*((int32_t *) target_address) = A + S;
+						*((int32_t *) target_address) = S + A;
 						break;
-#else
+#elif defined(__i386__)
 					case R_386_NONE:
 						break;
 					case R_386_32:
-						*((intptr_t *) target_address) += S;
+						*((intptr_t *) target_address) = S + A;
 						break;
 					case R_386_PC32:
-						*((intptr_t *) target_address) += S - P;
+						*((intptr_t *) target_address) = S - P + A;
 						break;
+#elif defined(__ARM_ARCH_7A__)
+
+#	ifndef R_ARM_MOVW_ABS_NC
+#		define R_ARM_MOVW_ABS_NC		43
+#	endif
+#	ifndef R_ARM_MOVT_ABS
+#		define R_ARM_MOVT_ABS			44
+#	endif
+#	ifndef R_ARM_THM_MOVW_ABS_NC
+#		define R_ARM_THM_MOVW_ABS_NC	47
+#	endif
+#	ifndef R_ARM_THM_MOVT_ABS
+#		define R_ARM_THM_MOVT_ABS		48
+#	endif
+
+typedef struct {
+	unsigned int bit19_16:4;
+	unsigned int bit25_20:6;
+	unsigned int bit26:1;
+	unsigned int bit31_27:5;
+	unsigned int bit7_0:8;
+	unsigned int bit11_8:4;
+	unsigned int bit14_12:3;
+	unsigned int bit15:1;
+} __attribute__ ((__packed__)) thumb32_movw, thumb32_movt;
+
+typedef struct {
+	unsigned int bit11_0:12;
+	unsigned int bit15_12:4;
+	unsigned int bit19_16:4;
+	unsigned int bit31_20:12;
+} __attribute__ ((__packed__)) arm_movw, arm_movt;
+
+					case R_ARM_ABS32:
+						*((intptr_t *) target_address) = S + A;
+						break;
+					case R_ARM_MOVW_ABS_NC: {
+						int32_t R;
+						arm_movw *insn = (arm_movw *) target_address;
+						A = insn->bit11_0;
+						if(A & 0x0800) {
+							A |= 0xF800;
+						}
+						R = (S + A) & 0x0000FFFF;
+						insn->bit19_16 = (R >> 12);
+						insn->bit11_0 = (R >> 0) & 0xFFF;
+					}	break;
+					case R_ARM_MOVT_ABS: {
+						int32_t R;
+						arm_movt *insn = (arm_movt *) target_address;
+						A = insn->bit11_0;
+						if(A & 0x0800) {
+							A |= 0xF800;
+						}
+						R = (S + A) & 0xFFFF0000;
+						insn->bit19_16 = (R >> 28);
+						insn->bit11_0 = (R >> 16) & 0xFFF;
+					}	break;
+					case R_ARM_THM_MOVW_ABS_NC: {
+						int32_t R;
+						thumb32_movw *insn = (thumb32_movw *) target_address;
+						A = (insn->bit14_12 << 8) | insn->bit7_0;
+						if(A & 0x0400) {
+							A |= 0xFC00;
+						}
+						R = (S + A) & 0x0000FFFF;
+						insn->bit19_16 = (R >> 12);
+						insn->bit26 = (R >> 11) & 0x1;
+						insn->bit14_12 = (R >> 8) & 0x7;
+						insn->bit7_0 = (R >> 0) & 0xFF;
+					}	break;
+					case R_ARM_THM_MOVT_ABS:  {
+						int32_t R;
+						thumb32_movt *insn = (thumb32_movt *) target_address;
+						A = (insn->bit14_12 << 8) | insn->bit7_0;
+						if(A & 0x0400) {
+							A |= 0xFC00;
+						}
+						R = (S + A) & 0xFFFF0000;
+						insn->bit19_16 = (R >> 28);
+						insn->bit26 = (R >> 27) & 0x1;
+						insn->bit14_12 = (R >> 24) & 0x7;
+						insn->bit7_0 = (R >> 16) & 0xFF;
+					}	break;
 #endif
 					default:
+						printf("Missing relocation type (%d) for %s\n", reloc_type, symbol_name);
 						return FALSE;
 				}
 			}
@@ -396,6 +494,16 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 	if(missing_symbol_count > 0) {
 		return FALSE;
 	}
+
+#if defined(__ARM_ARCH_7A__)
+// ARM employs separate data and instruction caches. It's possible for the
+// I-cache to hold a stale copy of the code (i.e. before relocation happened),
+// since our the modifications will only show up in the D-cache. We therefore
+// need to flush the memory range.
+//
+// see: http://community.arm.com/groups/processors/blog/2010/02/17/caches-and-self-modifying-code
+	__clear_cache(cxt->binary, cxt->binary + cxt->binary_size);
+#endif
 
 	// look for symbol section
 	uint32_t count = 0;
@@ -465,11 +573,6 @@ void qb_free_native_code(qb_native_code_bundle *bundle) {
 	munmap(bundle->memory, bundle->size);
 }
 
-#ifdef __INTEL_COMPILER
-extern void __libm_sse2_sincos(void);
-extern void __libm_sse2_sincosf(void);
-#endif
-
 static void * qb_get_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #ifdef HAVE_SINCOS
@@ -482,11 +585,50 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 	}
 #endif
 #ifdef __INTEL_COMPILER
+	extern void __libm_sse2_sincos(void);
+	extern void __libm_sse2_sincosf(void);
+
 	if(!address) {
 		if(strcmp(name, "__libm_sse2_sincos") == 0) {
 			address = __libm_sse2_sincos;
 		} else if(strcmp(name, "__libm_sse2_sincosf") == 0) {
 			address = __libm_sse2_sincosf;
+		}
+	}
+#endif
+#if defined(__ARM_ARCH_7A__)
+	extern void __aeabi_d2f(void);
+	extern void __aeabi_f2d(void);
+	extern void __aeabi_f2ulz(void);
+	extern void __aeabi_f2lz(void);
+	extern void __aeabi_d2ulz(void);
+	extern void __aeabi_d2lz(void);
+	extern void __aeabi_ul2f(void);
+	extern void __aeabi_l2f(void);
+	extern void __aeabi_ul2d(void);
+	extern void __aeabi_l2d(void);
+
+	if(!address) {
+		if(strcmp(name, "__aeabi_d2f") == 0) {
+			address = __aeabi_d2f;
+		} else if(strcmp(name, "__aeabi_f2d") == 0) {
+			address = __aeabi_f2d;
+		} else if(strcmp(name, "__aeabi_f2ulz") == 0) {
+			address = __aeabi_f2ulz;
+		} else if(strcmp(name, "__aeabi_f2lz") == 0) {
+			address = __aeabi_f2lz;
+		} else if(strcmp(name, "__aeabi_d2ulz") == 0) {
+			address = __aeabi_d2ulz;
+		} else if(strcmp(name, "__aeabi_d2lz") == 0) {
+			address = __aeabi_d2lz;
+		} else if(strcmp(name, "__aeabi_ul2f") == 0) {
+			address = __aeabi_ul2f;
+		} else if(strcmp(name, "__aeabi_l2f") == 0) {
+			address = __aeabi_l2f;
+		} else if(strcmp(name, "__aeabi_ul2d") == 0) {
+			address = __aeabi_ul2d;
+		} else if(strcmp(name, "__aeabi_l2d") == 0) {
+			address = __aeabi_l2d;
 		}
 	}
 #endif
