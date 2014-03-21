@@ -398,6 +398,7 @@ extern void *factories_subtract_assign[3];
 extern void *factories_multiply_assign[3];
 extern void *factories_divide_assign[3];
 extern void *factories_modulo_assign[3];
+extern void *factories_pow_assign[3];
 
 extern qb_basic_op_factory factory_set_equal;
 extern qb_basic_op_factory factory_set_not_equal;

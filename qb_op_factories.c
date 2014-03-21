@@ -3535,6 +3535,38 @@ qb_float_op_factory factory_pow = {
 	{	QB_POW_F64_F64_F64,		QB_POW_F32_F32_F32,	},
 };
 
+qb_derived_op_factory factory_pow_assign = {
+	NULL,
+	qb_resolve_expression_type_first_operand,
+	qb_link_results_all_operands,
+	qb_coerce_operands_assign,
+	qb_set_result_prototype,
+	NULL,
+	qb_set_result_first_operand,
+	NULL,
+	qb_select_opcode_derived_modify_assign,
+	qb_transfer_operands_modify_assign,
+	NULL,
+	0,
+	QB_RESULT_HAS_SIDE_EFFECT,
+	0,
+	&factory_pow,
+};
+
+qb_fetch_do_op_decomposer factory_pow_assign_element = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_array_element_write,
+	&factory_pow_assign,
+};
+
+qb_fetch_do_op_decomposer factory_pow_assign_object_property = {
+	qb_decompose_fetch_do_op,
+	&factory_fetch_object_property_write,
+	&factory_pow_assign,
+};
+
+void *factories_pow_assign[3] = { &factory_pow_assign, &factory_pow_assign_element, &factory_pow_assign_object_property };
+
 qb_float_op_factory factory_hypot = {
 	NULL,
 	qb_resolve_expression_type_highest_rank,
