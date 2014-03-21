@@ -658,7 +658,7 @@ void qb_zend_ext_op_array_handler(zend_op_array *op_array) {
 	}
 }
 
-extern zend_extension zend_extension_entry;
+extern zend_extension qb_zend_extension_entry;
 
 int qb_install_user_opcode_handler() {
 	// set the opcode handler
@@ -667,7 +667,7 @@ int qb_install_user_opcode_handler() {
 	}
 
 	// register extension
-	zend_register_extension(&zend_extension_entry, NULL);
+	zend_register_extension(&qb_zend_extension_entry, NULL);
 	return SUCCESS;
 }
 
@@ -719,7 +719,7 @@ int qb_extension_startup(zend_extension *extension) {
 	return 0;
 }
 
-zend_extension zend_extension_entry = {
+zend_extension qb_zend_extension_entry = {
 	"QB",
 	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION),
 	"Chung Leong",
