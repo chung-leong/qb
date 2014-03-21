@@ -101,7 +101,7 @@ enum zend_operand_type {
 #if !ZEND_ENGINE_2_4 && !ZEND_ENGINE_2_3 && !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	#define Z_OPERAND_TMP_INDEX(op)			((- (int) Z_OPERAND_INFO(*op, var)) / sizeof(temp_variable) - 1)
 #else
-	#define Z_OPERAND_TMP_INDEX(op)			(Z_OPERAND_INFO(*op, var) / sizeof(temp_variable))
+	#define Z_OPERAND_TMP_INDEX(op)			(Z_OPERAND_INFO(*op, var) / ZEND_MM_ALIGNED_SIZE(sizeof(temp_variable)))
 #endif
 
 #define ZEND_OP_INDEX(zop)						((uint32_t) (((uintptr_t) zop) - ((uintptr_t) cxt->zend_op_array->opcodes)) / sizeof(zend_op))
