@@ -148,7 +148,7 @@ static int32_t qb_resolve_expression_type_array_size(qb_compiler_context *cxt, q
 	*p_type = QB_TYPE_U32;
 	*p_flags = 0;
 	if(qb_is_constant_expression(cxt, recursive, 1)) {
-		if(container->type == QB_OPERAND_ADDRESS && FIXED_LENGTH(container->address)) {
+		if(container->type == QB_OPERAND_ADDRESS && IS_FIXED_LENGTH(container->address)) {
 			*p_flags |= QB_ADDRESS_CONSTANT;
 		} else if(container->type == QB_OPERAND_ARRAY_INITIALIZER) {
 			*p_flags |= QB_ADDRESS_CONSTANT;

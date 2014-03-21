@@ -65,7 +65,7 @@ static int32_t qb_select_opcode_boolean_cast(qb_compiler_context *cxt, qb_op_fac
 	qb_basic_op_factory *bf = (qb_basic_op_factory *) f;
 	qb_operand *variable = &operands[0];
 	qb_primitive_type operand_type = variable->address->type;
-	if(SCALAR(variable->address)) {
+	if(IS_SCALAR(variable->address)) {
 		return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type, p_opcode);
 	} else {
 		// will be checking the length of the array
@@ -93,7 +93,7 @@ static int32_t qb_select_opcode_object_property_isset(qb_compiler_context *cxt, 
 	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
 	qb_primitive_type operand_type = container->address->type;
 
-	if(SCALAR(address)) {
+	if(IS_SCALAR(address)) {
 		return qb_select_type_dependent_opcode(cxt, bf->opcodes, operand_type, p_opcode);
 	} else {
 		*p_opcode = bf->opcodes[QB_TYPE_F64 - QB_TYPE_U32];
@@ -105,11 +105,11 @@ static int32_t qb_select_opcode_unset(qb_compiler_context *cxt, qb_op_factory *f
 	qb_unset_op_factory *uf = (qb_unset_op_factory *) f;
 	qb_operand *variable = &operands[0];
 	qb_primitive_type operand_type = variable->address->type;
-	if(SCALAR(variable->address)) {
+	if(IS_SCALAR(variable->address)) {
 		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, operand_type, p_opcode);
 	} else {
-		if(RESIZABLE(variable->address)) {
-			if(MULTIDIMENSIONAL(variable->address)) {
+		if(IS_RESIZABLE(variable->address)) {
+			if(IS_MULTIDIMENSIONAL(variable->address)) {
 				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, operand_type, p_opcode);
 			} else {
 				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, operand_type, p_opcode);
@@ -124,8 +124,8 @@ static int32_t qb_select_opcode_unset_array_element(qb_compiler_context *cxt, qb
 	qb_unset_element_op_factory *uf = (qb_unset_element_op_factory *) f;
 	qb_operand *container = &operands[0];
 	qb_primitive_type operand_type = container->address->type;
-	if(RESIZABLE(container->address)) {
-		if(MULTIDIMENSIONAL(container->address)) {
+	if(IS_RESIZABLE(container->address)) {
+		if(IS_MULTIDIMENSIONAL(container->address)) {
 			return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, operand_type, p_opcode);
 		} else {
 			return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, operand_type, p_opcode);
@@ -140,11 +140,11 @@ static int32_t qb_select_opcode_unset_object_property(qb_compiler_context *cxt, 
 	qb_operand *container = &operands[0], *name = &operands[1];
 	qb_address *address = qb_obtain_object_property(cxt, container, name, 0);
 	qb_primitive_type operand_type = address->type;
-	if(SCALAR(address)) {
+	if(IS_SCALAR(address)) {
 		return qb_select_type_dependent_opcode(cxt, uf->scalar_opcodes, operand_type, p_opcode);
 	} else {
-		if(RESIZABLE(address)) {
-			if(MULTIDIMENSIONAL(address)) {
+		if(IS_RESIZABLE(address)) {
+			if(IS_MULTIDIMENSIONAL(address)) {
 				return qb_select_type_dependent_opcode(cxt, uf->resizing_dim_opcodes, operand_type, p_opcode);
 			} else {
 				return qb_select_type_dependent_opcode(cxt, uf->resizing_opcodes, operand_type, p_opcode);
@@ -174,7 +174,7 @@ static uint32_t qb_get_minimum_width(qb_compiler_context *cxt, qb_operand *opera
 	uint32_t i, width = 1;
 	for(i = 0; i < address->dimension_count; i++) {
 		qb_address *array_size_address = address->array_size_addresses[i];
-		if(CONSTANT(array_size_address)) {
+		if(IS_IMMUTABLE(array_size_address)) {
 			width = VALUE(U32, array_size_address);
 			break;
 		}
@@ -234,7 +234,7 @@ static int32_t qb_select_vectorized_unary_opcode(qb_compiler_context *cxt, qb_op
 		if(!qb_select_type_dependent_opcode(cxt, opcodes[denominator - 2], operand1->address->type, p_opcode)) {
 			return FALSE;
 		}
-		if(!FIXED_LENGTH(operand1->address) || !FIXED_LENGTH(result->address) || width1 > denominator || width2 > denominator) {
+		if(!IS_FIXED_LENGTH(operand1->address) || !IS_FIXED_LENGTH(result->address) || width1 > denominator || width2 > denominator) {
 			qb_select_multidata_opcode(cxt, p_opcode);
 		}
 		return TRUE;
@@ -268,7 +268,7 @@ static int32_t qb_select_vectorized_binary_opcode(qb_compiler_context *cxt, qb_o
 		if(!qb_select_type_dependent_opcode(cxt, opcodes[denominator - 2], operand1->address->type, p_opcode)) {
 			return FALSE;
 		}
-		if(!FIXED_LENGTH(operand1->address) || !FIXED_LENGTH(operand2->address) || !FIXED_LENGTH(result->address) || width1 > denominator || width2 > denominator || width3 > denominator) {
+		if(!IS_FIXED_LENGTH(operand1->address) || !IS_FIXED_LENGTH(operand2->address) || !IS_FIXED_LENGTH(result->address) || width1 > denominator || width2 > denominator || width3 > denominator) {
 			qb_select_multidata_opcode(cxt, p_opcode);
 		}
 		return TRUE;
@@ -448,7 +448,7 @@ static int32_t qb_select_opcode_one_vector(qb_compiler_context *cxt, qb_op_facto
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address = operands[0].address;
 	uint32_t dimension = 0;
-	if(CONSTANT_DIMENSION(address, -1)) {
+	if(HAS_CONSTANT_DIMENSION(address, -1)) {
 		dimension = DIMENSION(address, -1);
 	}
 	if(2 <= dimension && dimension <= 4) {
@@ -472,9 +472,9 @@ static int32_t qb_select_opcode_two_vectors(qb_compiler_context *cxt, qb_op_fact
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
 	uint32_t dimension = 0;
-	if(CONSTANT_DIMENSION(address1, -1)) {
+	if(HAS_CONSTANT_DIMENSION(address1, -1)) {
 		dimension = DIMENSION(address1, -1);
-	} else if(CONSTANT_DIMENSION(address2, -1)) {
+	} else if(HAS_CONSTANT_DIMENSION(address2, -1)) {
 		dimension = DIMENSION(address2, -1);
 	}
 	if(2 <= dimension && dimension <= 4) {
@@ -512,9 +512,9 @@ static int32_t qb_select_opcode_cross_product(qb_compiler_context *cxt, qb_op_fa
 		qb_address *address1 = operands[0].address;
 		qb_address *address2 = operands[1].address;
 		uint32_t dimension = 0;
-		if(CONSTANT_DIMENSION(address1, -1)) {
+		if(HAS_CONSTANT_DIMENSION(address1, -1)) {
 			dimension = DIMENSION(address1, -1);
-		} else if(CONSTANT_DIMENSION(address2, -1)) {
+		} else if(HAS_CONSTANT_DIMENSION(address2, -1)) {
 			dimension = DIMENSION(address2, -1);
 		}
 		if(!(2 <= dimension && dimension <= 3)) {
@@ -569,10 +569,10 @@ static int32_t qb_select_opcode_mm_mult_cm(qb_compiler_context *cxt, qb_op_facto
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m1_cols = CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) : INVALID_INDEX;
-	uint32_t m1_rows = CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
-	uint32_t m2_cols = CONSTANT_DIMENSION(address2, -2) ? DIMENSION(address2, -2) : INVALID_INDEX;
-	uint32_t m2_rows = CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
+	uint32_t m1_cols = HAS_CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) : INVALID_INDEX;
+	uint32_t m1_rows = HAS_CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
+	uint32_t m2_cols = HAS_CONSTANT_DIMENSION(address2, -2) ? DIMENSION(address2, -2) : INVALID_INDEX;
+	uint32_t m2_rows = HAS_CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
 	int32_t multidata = (address1->dimension_count > 2 || address2->dimension_count > 2);
 
 	return qb_select_matrix_opcode(cxt, mf, m1_cols, m1_rows, m2_cols, m2_rows, multidata, expr_type, p_opcode);
@@ -582,9 +582,9 @@ static int32_t qb_select_opcode_mv_mult_cm(qb_compiler_context *cxt, qb_op_facto
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m1_cols = CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) : INVALID_INDEX;
-	uint32_t m1_rows = CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
-	uint32_t m2_cols = CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
+	uint32_t m1_cols = HAS_CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) : INVALID_INDEX;
+	uint32_t m1_rows = HAS_CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
+	uint32_t m2_cols = HAS_CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
 	uint32_t m2_rows = 0;
 	int32_t multidata = (address1->dimension_count > 2 || address2->dimension_count > 1);
 
@@ -595,9 +595,9 @@ static int32_t qb_select_opcode_vm_mult_cm(qb_compiler_context *cxt, qb_op_facto
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m1_cols = CONSTANT_DIMENSION(address2, -2) ? DIMENSION(address2, -2) : INVALID_INDEX;
-	uint32_t m1_rows = CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
-	uint32_t m2_cols = CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
+	uint32_t m1_cols = HAS_CONSTANT_DIMENSION(address2, -2) ? DIMENSION(address2, -2) : INVALID_INDEX;
+	uint32_t m1_rows = HAS_CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
+	uint32_t m2_cols = HAS_CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
 	uint32_t m2_rows = 0;
 	int32_t multidata = (address1->dimension_count > 1 || address2->dimension_count > 2);
 
@@ -627,8 +627,8 @@ static int32_t qb_select_opcode_matrix_current_mode(qb_compiler_context *cxt, qb
 static int32_t qb_select_opcode_matrix_unary(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_opcode *p_opcode) {
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address = operands[0].address;
-	uint32_t m1_cols = CONSTANT_DIMENSION(address, -2) ? DIMENSION(address, -2) : INVALID_INDEX;
-	uint32_t m1_rows = CONSTANT_DIMENSION(address, -1) ? DIMENSION(address, -1) : INVALID_INDEX;
+	uint32_t m1_cols = HAS_CONSTANT_DIMENSION(address, -2) ? DIMENSION(address, -2) : INVALID_INDEX;
+	uint32_t m1_rows = HAS_CONSTANT_DIMENSION(address, -1) ? DIMENSION(address, -1) : INVALID_INDEX;
 	uint32_t m2_cols = 0;
 	uint32_t m2_rows = 0;
 	int32_t multidata = address->dimension_count > 2;
@@ -640,9 +640,9 @@ static int32_t qb_select_opcode_transform_cm(qb_compiler_context *cxt, qb_op_fac
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m1_cols = CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) - 1 : INVALID_INDEX;
-	uint32_t m1_rows = CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
-	uint32_t m2_cols = CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
+	uint32_t m1_cols = HAS_CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) - 1 : INVALID_INDEX;
+	uint32_t m1_rows = HAS_CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) : INVALID_INDEX;
+	uint32_t m2_cols = HAS_CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
 	uint32_t m2_rows = 0;
 	int32_t multidata = (address1->dimension_count > 2 || address2->dimension_count > 1);
 
@@ -653,9 +653,9 @@ static int32_t qb_select_opcode_transform_rm(qb_compiler_context *cxt, qb_op_fac
 	qb_matrix_op_factory *mf = (qb_matrix_op_factory *) f;
 	qb_address *address1 = operands[0].address;
 	qb_address *address2 = operands[1].address;
-	uint32_t m1_cols = CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) - 1 : INVALID_INDEX;
-	uint32_t m1_rows = CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) : INVALID_INDEX;
-	uint32_t m2_cols = CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
+	uint32_t m1_cols = HAS_CONSTANT_DIMENSION(address1, -1) ? DIMENSION(address1, -1) - 1 : INVALID_INDEX;
+	uint32_t m1_rows = HAS_CONSTANT_DIMENSION(address1, -2) ? DIMENSION(address1, -2) : INVALID_INDEX;
+	uint32_t m2_cols = HAS_CONSTANT_DIMENSION(address2, -1) ? DIMENSION(address2, -1) : INVALID_INDEX;
 	uint32_t m2_rows = 0;
 	int32_t multidata = (address1->dimension_count > 2 || address2->dimension_count > 1);
 

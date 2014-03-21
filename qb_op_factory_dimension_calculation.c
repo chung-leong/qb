@@ -161,7 +161,7 @@ static uint32_t qb_get_minimum_size_address(qb_compiler_context *cxt, qb_variabl
 	uint32_t i;
 	for(i = 0; i < dim->dimension_count; i++) {
 		qb_address *size_address = dim->array_size_addresses[i];
-		if(CONSTANT(size_address)) {
+		if(IS_IMMUTABLE(size_address)) {
 			return VALUE(U32, size_address);
 		}
 	}
@@ -170,13 +170,13 @@ static uint32_t qb_get_minimum_size_address(qb_compiler_context *cxt, qb_variabl
 
 static int32_t qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variable_dimensions *dim1, qb_variable_dimensions *dim2, qb_variable_dimensions *dim) {
 	qb_variable_dimensions *dim_chosen = NULL;
-	if(SCALAR(dim1)) {
+	if(IS_SCALAR(dim1)) {
 		// use the second if the first is a scalar
 		dim_chosen = dim2;
-	} else if(SCALAR(dim2)) {
+	} else if(IS_SCALAR(dim2)) {
 		// use the first if the second is a scalar
 		dim_chosen = dim1;
-	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2)) {
+	} else if(IS_FIXED_LENGTH(dim1) && IS_FIXED_LENGTH(dim2)) {
 		if(ARRAY_SIZE(dim1) > ARRAY_SIZE(dim2)) {
 			// use the first if it's bigger
 			dim_chosen = dim1;
@@ -190,13 +190,13 @@ static int32_t qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variab
 			// use the first otherwise
 			dim_chosen = dim1;
 		}
-	} else if(FIXED_LENGTH(dim1)) {
+	} else if(IS_FIXED_LENGTH(dim1)) {
 		uint32_t min_width2 = qb_get_minimum_size_address(cxt, dim2);
 		if(min_width2 >= ARRAY_SIZE(dim1)) {
 			// two is either zero-length (which results in a zero-length result) or it's bigger than one
 			dim_chosen = dim2;
 		}
-	} else if(FIXED_LENGTH(dim2)) {
+	} else if(IS_FIXED_LENGTH(dim2)) {
 		uint32_t min_width1 = qb_get_minimum_size_address(cxt, dim1);
 		if(min_width1 >= ARRAY_SIZE(dim2)) {
 			dim_chosen = dim1;
@@ -234,9 +234,9 @@ static int32_t qb_choose_dimensions_from_two(qb_compiler_context *cxt, qb_variab
 }
 
 static int32_t qb_choose_dimensions_from_two_addresses(qb_compiler_context *cxt, qb_address *address1, int32_t offset1, qb_address *address2, int32_t offset2, qb_variable_dimensions *dim) {
-	if(SCALAR(address1)) {
+	if(IS_SCALAR(address1)) {
 		return qb_copy_address_dimensions(cxt, address2, offset2, dim);
-	} else if(SCALAR(address2)) {
+	} else if(IS_SCALAR(address2)) {
 		return qb_copy_address_dimensions(cxt, address1, offset1, dim);
 	} else {
 		qb_variable_dimensions dim1, dim2;
@@ -271,16 +271,16 @@ static qb_address * qb_obtain_largest_of_three(qb_compiler_context *cxt, qb_addr
 
 static int32_t qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_variable_dimensions *dim1, qb_variable_dimensions *dim2, qb_variable_dimensions *dim3, qb_variable_dimensions *dim) {
 	qb_variable_dimensions *dim_chosen = NULL;
-	if(SCALAR(dim1) && SCALAR(dim2)) {
+	if(IS_SCALAR(dim1) && IS_SCALAR(dim2)) {
 		// use the third if the first and second are scalars
 		dim_chosen = dim3;
-	} else if(SCALAR(dim1) && SCALAR(dim3)) {
+	} else if(IS_SCALAR(dim1) && IS_SCALAR(dim3)) {
 		// use the second if the first and third are scalars
 		dim_chosen = dim2;
-	} else if(SCALAR(dim2) && SCALAR(dim3)) {
+	} else if(IS_SCALAR(dim2) && IS_SCALAR(dim3)) {
 		// use the first if the second and third are scalars
 		dim_chosen = dim1;
-	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2) && FIXED_LENGTH(dim3)) {
+	} else if(IS_FIXED_LENGTH(dim1) && IS_FIXED_LENGTH(dim2) && IS_FIXED_LENGTH(dim3)) {
 		if(ARRAY_SIZE(dim1) > ARRAY_SIZE(dim2) && ARRAY_SIZE(dim1) > ARRAY_SIZE(dim3)) {
 			// use the first if it's bigger
 			dim_chosen = dim1;
@@ -300,17 +300,17 @@ static int32_t qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_vari
 			// use the first otherwise
 			dim_chosen = dim1;
 		}
-	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim2)) {
+	} else if(IS_FIXED_LENGTH(dim1) && IS_FIXED_LENGTH(dim2)) {
 		uint32_t min_width3 = qb_get_minimum_size_address(cxt, dim3);
 		if(min_width3 >= ARRAY_SIZE(dim1) && min_width3 >= ARRAY_SIZE(dim2)) {
 			dim_chosen = dim3;
 		}
-	} else if(FIXED_LENGTH(dim1) && FIXED_LENGTH(dim3)) {
+	} else if(IS_FIXED_LENGTH(dim1) && IS_FIXED_LENGTH(dim3)) {
 		uint32_t min_width2 = qb_get_minimum_size_address(cxt, dim2);
 		if(min_width2 >= ARRAY_SIZE(dim1) && min_width2 >= ARRAY_SIZE(dim3)) {
 			dim_chosen = dim2;
 		}
-	} else if(FIXED_LENGTH(dim2) && FIXED_LENGTH(dim3)) {
+	} else if(IS_FIXED_LENGTH(dim2) && IS_FIXED_LENGTH(dim3)) {
 		uint32_t min_width1 = qb_get_minimum_size_address(cxt, dim1);
 		if(min_width1 >= ARRAY_SIZE(dim2) && min_width1 >= ARRAY_SIZE(dim3)) {
 			dim_chosen = dim1;
@@ -329,13 +329,13 @@ static int32_t qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_vari
 		} else {
 			dim->array_size_addresses[0] = dim->dimension_addresses[0] = cxt->one_address;
 		}
-	} else if(SCALAR(dim1)) {
+	} else if(IS_SCALAR(dim1)) {
 		// only need to choose between the second and third
 		return qb_choose_dimensions_from_two(cxt, dim2, dim3, dim);
-	} else if(SCALAR(dim2)) {
+	} else if(IS_SCALAR(dim2)) {
 		// only need to choose between the first and third
 		return qb_choose_dimensions_from_two(cxt, dim1, dim3, dim);
-	} else if(SCALAR(dim3)) {
+	} else if(IS_SCALAR(dim3)) {
 		// only need to choose between the first and second
 		return qb_choose_dimensions_from_two(cxt, dim1, dim2, dim);
 	} else {
@@ -358,11 +358,11 @@ static int32_t qb_choose_dimensions_from_three(qb_compiler_context *cxt, qb_vari
 }
 
 static int32_t qb_choose_dimensions_from_three_addresses(qb_compiler_context *cxt, qb_address *address1, int32_t offset1, qb_address *address2, int32_t offset2, qb_address *address3, int32_t offset3, qb_variable_dimensions *dim) {
-	if(SCALAR(address1) && SCALAR(address2)) {
+	if(IS_SCALAR(address1) && IS_SCALAR(address2)) {
 		return qb_copy_address_dimensions(cxt, address3, offset3, dim);
-	} else if(SCALAR(address1) && SCALAR(address3)) {
+	} else if(IS_SCALAR(address1) && IS_SCALAR(address3)) {
 		return qb_copy_address_dimensions(cxt, address2, offset2, dim);
-	} else if(SCALAR(address2) && SCALAR(address3)) {
+	} else if(IS_SCALAR(address2) && IS_SCALAR(address3)) {
 		return qb_copy_address_dimensions(cxt, address1, offset1, dim);
 	} else {
 		qb_variable_dimensions dim1, dim2, dim3;
@@ -423,7 +423,7 @@ static qb_address * qb_get_vector_width_address(qb_compiler_context *cxt, qb_ope
 	for(i = 0; i < operand_count; i++) {
 		// use the constant dimension if there's one
 		qb_address *address = operands[i].address;
-		if(CONSTANT_DIMENSION(address, -1)) {
+		if(HAS_CONSTANT_DIMENSION(address, -1)) {
 			from_address = address;
 			break;
 		}
@@ -627,12 +627,12 @@ static int32_t qb_set_result_dimensions_sampling(qb_compiler_context *cxt, qb_op
 	qb_address *x_address = operands[1].address;
 	qb_address *y_address = operands[2].address;
 
-	if(SCALAR(x_address) && SCALAR(y_address)) {
+	if(IS_SCALAR(x_address) && IS_SCALAR(y_address)) {
 		return qb_copy_address_dimensions(cxt, image_address, 2, dim);
-	} else if(SCALAR(x_address)) {
+	} else if(IS_SCALAR(x_address)) {
 		// merge the dimensions of y with the last dimension of image
 		return qb_merge_address_dimensions(cxt, y_address, 0, image_address, 2, dim);
-	} else if(SCALAR(y_address)) {
+	} else if(IS_SCALAR(y_address)) {
 		// merge the dimensions of x with the last dimension of image
 		return qb_merge_address_dimensions(cxt, x_address, 0, image_address, 2, dim);
 	} else {
@@ -685,7 +685,7 @@ static int32_t qb_set_result_dimensions_array_fill(qb_compiler_context *cxt, qb_
 	uint32_t count;
 	if(index_address == cxt->zero_address) {
 		first_dimension_address = number_address;
-	} else if(CONSTANT(index_address) && CONSTANT(number_address)) {
+	} else if(IS_IMMUTABLE(index_address) && IS_IMMUTABLE(number_address)) {
 		uint32_t start_index = VALUE(U32, index_address);
 		uint32_t number = VALUE(U32, number_address);
 		count = start_index + number;

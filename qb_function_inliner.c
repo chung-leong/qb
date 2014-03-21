@@ -25,7 +25,7 @@ static void qb_add_substitution(qb_function_inliner_context *cxt, qb_address *ca
 	substitution->original = callee_address;
 	substitution->current = caller_address;
 	if(caller_address) {
-		if(!READ_ONLY(callee_address)) {
+		if(!IS_READ_ONLY(callee_address)) {
 			qb_mark_as_writable(cxt->caller_context, caller_address);
 		}
 	}
@@ -56,7 +56,7 @@ static qb_variable * qb_find_variable_with_address(qb_function_inliner_context *
 static void qb_add_constant_substitution(qb_function_inliner_context *cxt, qb_address *callee_address) {
 	qb_address *caller_address;
 	qb_primitive_type type = callee_address->type;
-	if(SCALAR(callee_address)) {
+	if(IS_SCALAR(callee_address)) {
 		switch(type) {
 			case QB_TYPE_S08: {
 				CTYPE(S08) value = VALUE_IN(cxt->callee_context->storage, S08, callee_address);
@@ -118,7 +118,7 @@ static void qb_perform_assignment(qb_function_inliner_context *cxt, qb_address *
 
 static int32_t qb_initialization_required(qb_function_inliner_context *cxt, qb_address *callee_address) {
 	uint32_t i, j;
-	if(VARIABLE_LENGTH(callee_address)) {
+	if(IS_VARIABLE_LENGTH(callee_address)) {
 		return TRUE;
 	}
 	for(i = 0; i < cxt->callee_context->op_count; i++) {
@@ -179,23 +179,23 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 					qb_perform_type_coercion(cxt->caller_context, argument, callee_address->type, 0);
 				}
 				argument_address = argument->address;				
-				if((callee_var->flags & QB_VARIABLE_BY_REF) || READ_ONLY(callee_address)) {
+				if((callee_var->flags & QB_VARIABLE_BY_REF) || IS_READ_ONLY(callee_address)) {
 					if(argument_address->type == callee_address->type) {
 						int32_t compatible = FALSE;
-						if(FIXED_LENGTH(argument_address)) {
-							if(FIXED_LENGTH(callee_address)) {
+						if(IS_FIXED_LENGTH(argument_address)) {
+							if(IS_FIXED_LENGTH(callee_address)) {
 								uint32_t length1 = ARRAY_SIZE_IN(cxt->caller_context->storage, argument_address);
 								uint32_t length2 = ARRAY_SIZE_IN(cxt->callee_context->storage, callee_address);
 								if(length1 == length2) {
 									compatible = TRUE;
 								}
-							} else if(READ_ONLY(callee_address->array_size_address)) {
+							} else if(IS_READ_ONLY(callee_address->array_size_address)) {
 								// the function doesn't change the length
 								uint32_t length1 = ARRAY_SIZE_IN(cxt->caller_context->storage, argument_address);
 								uint32_t length2 = 1, i;
 								for(i = 1; i < callee_address->dimension_count; i++) {
 									qb_address *element_size_address = callee_address->array_size_addresses[i];
-									if(CONSTANT(element_size_address)) {
+									if(IS_IMMUTABLE(element_size_address)) {
 										length2 = VALUE_IN(cxt->callee_context->storage, U32, element_size_address);
 										break;
 									}
@@ -204,7 +204,7 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 									compatible = TRUE;
 								}
 							}
-						} else if(VARIABLE_LENGTH(argument_address) && VARIABLE_LENGTH(callee_address)) {
+						} else if(IS_VARIABLE_LENGTH(argument_address) && IS_VARIABLE_LENGTH(callee_address)) {
 							compatible = TRUE;
 						}
 						if(compatible) {
@@ -244,7 +244,7 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 			if(callee_address->dimension_count == 0) {
 				caller_address = qb_create_writable_scalar(cxt->caller_context, type);
 			} else {
-				uint32_t dimension = FIXED_LENGTH(callee_address) ? ARRAY_SIZE_IN(cxt->callee_context->storage, callee_address) : 0;
+				uint32_t dimension = IS_FIXED_LENGTH(callee_address) ? ARRAY_SIZE_IN(cxt->callee_context->storage, callee_address) : 0;
 				caller_address = qb_create_writable_array(cxt->caller_context, type, &dimension, 1);
 			}
 			caller_address->flags = callee_address->flags;
@@ -258,7 +258,7 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 				}
 			}
 		} else {
-			if(NON_REUSABLE(callee_address)) {
+			if(IS_NON_REUSABLE(callee_address)) {
 				// it's an array initializer
 				uint32_t dimensions[MAX_DIMENSION];
 				uint32_t dimension_count = callee_address->dimension_count, i;
@@ -279,13 +279,13 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 				memcpy(dst_memory, src_memory, byte_count);
 			} else {
 				qb_variable_dimensions dim;
-				if(SCALAR(callee_address)) {
+				if(IS_SCALAR(callee_address)) {
 					dim.array_size_address =  NULL;
 					dim.dimension_count = 0;
 				} else {
 					// base address of arrays always point to linear arrays
 					dim.dimension_count = 1;
-					if(FIXED_LENGTH(callee_address)) {
+					if(IS_FIXED_LENGTH(callee_address)) {
 						// find equivalent constant address in the caller storage
 						dim.array_size_address = qb_find_substitution_address(cxt, callee_address->array_size_address);
 					} else {
@@ -303,7 +303,7 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 		}
 	}
 	if(caller_address) {
-		if(VARIABLE_LENGTH(caller_address)) {
+		if(IS_VARIABLE_LENGTH(caller_address)) {
 			// add a substitution for the address of the array length as well
 			qb_add_substitution(cxt, callee_address->array_size_address, caller_address->array_size_address);
 		}
@@ -319,7 +319,7 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 		} else {
 			// unset read-only flag on the caller variable
 			uint32_t i;
-			if(!READ_ONLY(callee_address)) {
+			if(!IS_READ_ONLY(callee_address)) {
 				caller_address->flags &= ~QB_ADDRESS_READ_ONLY;
 			}
 			for(i = 0; i < caller_address->dimension_count; i++) {
@@ -327,10 +327,10 @@ static void qb_add_writable_substitution(qb_function_inliner_context *cxt, qb_ad
 				qb_address *caller_dimension_address = caller_address->dimension_addresses[i];
 				qb_address *callee_array_size_address = callee_address->array_size_addresses[i];
 				qb_address *caller_array_size_address = caller_address->array_size_addresses[i];
-				if(!READ_ONLY(callee_dimension_address)) {
+				if(!IS_READ_ONLY(callee_dimension_address)) {
 					caller_dimension_address->flags &= ~QB_ADDRESS_READ_ONLY;
 				}
-				if(!READ_ONLY(callee_array_size_address)) {
+				if(!IS_READ_ONLY(callee_array_size_address)) {
 					caller_array_size_address->flags &= ~QB_ADDRESS_READ_ONLY;
 				}
 			}
@@ -353,7 +353,7 @@ static void qb_add_alias_substitution(qb_function_inliner_context *cxt, qb_addre
 	caller_alias->dimension_count = callee_alias->dimension_count;
 	caller_alias->mode = callee_alias->mode;
 
-	if(SCALAR(callee_alias)) {
+	if(IS_SCALAR(callee_alias)) {
 		caller_alias->array_size_address = cxt->caller_context->one_address;
 	} else {
 		if(callee_alias->dimension_count > 1) {
@@ -521,7 +521,7 @@ int32_t qb_transfer_inlined_function_ops(qb_function_inliner_context *cxt) {
 	// release temporary variables
 	for(i = cxt->callee_context->constant_scalar_count + cxt->callee_context->constant_array_count; i < cxt->substitution_count; i++) {
 		qb_address_substitution *substitution = &cxt->substitutions[i];
-		if(substitution->current && TEMPORARY(substitution->current)) {
+		if(substitution->current && IS_TEMPORARY(substitution->current)) {
 			qb_unlock_address(cxt->caller_context, substitution->current);
 		}
 	}

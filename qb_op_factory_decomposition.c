@@ -208,7 +208,7 @@ static int32_t qb_decompose_select(qb_compiler_context *cxt, void *factory, qb_o
 
 static int32_t qb_choose_set_or_scalar_op(qb_compiler_context *cxt, void *factory, qb_operand *operands, uint32_t operand_count, qb_operand *result, uint32_t *jump_target_indices, uint32_t jump_target_count, qb_result_prototype *result_prototype) {
 	qb_set_op_chooser *c = factory;
-	if(SCALAR(operands[0].address)) {
+	if(IS_SCALAR(operands[0].address)) {
 		factory = c->scalar_factory;
 	} else {
 		factory = c->set_factory;

@@ -799,7 +799,7 @@ static void qb_print_op(qb_native_compiler_context *cxt, qb_op *qop, uint32_t qo
 			qb_print(cxt, "\n");
 		} else if(qop->opcode == QB_RET) {
 			if(cxt->compiled_function->return_variable->address) {
-				if(SCALAR(cxt->compiled_function->return_variable->address)) {
+				if(IS_SCALAR(cxt->compiled_function->return_variable->address)) {
 					qb_copy_local_scalar_to_storage(cxt, cxt->compiled_function->return_variable->address);
 					qb_print(cxt, "\n");
 				}

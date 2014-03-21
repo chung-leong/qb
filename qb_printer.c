@@ -74,13 +74,13 @@ static qb_variable * qb_find_variable_with_size_address(qb_printer_context *cxt,
 
 static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 	uint32_t i;
-	if(CONSTANT(address)) {
+	if(IS_IMMUTABLE(address)) {
 		if(address->flags & QB_ADDRESS_STRING) {
 			uint32_t len = VALUE(U32, address->array_size_address);
 			char *string = (char *) ARRAY(U08, address);
 			php_printf("\"%.*s\"", len, string);
 		} else {
-			if(SCALAR(address)) {
+			if(IS_SCALAR(address)) {
 				qb_print_value(cxt, ARRAY(I08, address), address->type);
 			} else {
 				uint32_t count = ARRAY_SIZE(address);
@@ -128,7 +128,7 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 		} else if(address->source_address->dimension_count == address->dimension_count 
 			  && (address->array_index_address != address->source_address->array_index_address || address->array_size_address != address->source_address->array_size_address)) {
 			// array slice
-			if(CONSTANT(address->array_index_address) && CONSTANT(address->array_size_address)) {
+			if(IS_IMMUTABLE(address->array_index_address) && IS_IMMUTABLE(address->array_size_address)) {
 				uint32_t index = VALUE(U32, address->array_index_address);
 				uint32_t size = VALUE(U32, address->array_size_address);
 				php_printf("(%u:%u..%u:%u)", address->segment_selector, address->segment_offset + index, address->segment_selector, address->segment_offset + index + size - 1);
@@ -165,14 +165,14 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 			}
 			php_printf((recursive) ? ", true)" : ")");
 		} else {
-			if(SCALAR(address)) {
+			if(IS_SCALAR(address)) {
 				if(address->flags & QB_ADDRESS_FOREACH_INDEX) {
 					php_printf("(fe:%u:%u)", address->segment_selector, address->segment_offset);
 				} else {
 					php_printf("(%u:%u)", address->segment_selector, address->segment_offset);
 				}
 			} else {
-				if(VARIABLE_LENGTH(address)) {
+				if(IS_VARIABLE_LENGTH(address)) {
 					php_printf("(%u:%u...)", address->segment_selector, address->segment_offset);
 				} else {
 					php_printf("(%u:%u..%u:%u)", address->segment_selector, address->segment_offset, address->segment_selector, address->segment_offset + (ARRAY_SIZE(address) - 1));

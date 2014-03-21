@@ -471,12 +471,12 @@ static int32_t qb_add_destination_dimensions(qb_storage *storage, qb_address *ad
 	for(i = 0; i < address->dimension_count; i++) {
 		qb_address *dimension_address = address->dimension_addresses[i];
 		qb_address *array_size_address = address->array_size_addresses[i];
-		if(CONSTANT(dimension_address)) {
+		if(IS_IMMUTABLE(dimension_address)) {
 			m->dst_dimensions[i] = VALUE_IN(storage, U32, dimension_address);
 		} else {
 			m->dst_dimensions[i] = 0;
 		}
-		if(CONSTANT(array_size_address)) {
+		if(IS_IMMUTABLE(array_size_address)) {
 			m->dst_array_sizes[i] = VALUE_IN(storage, U32, array_size_address);
 		} else {
 			m->dst_array_sizes[i] = 0;
@@ -1436,7 +1436,7 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 			} else if(Z_TYPE_P(zvalue) == IS_RESOURCE) {
 				php_stream *stream = qb_get_file_stream(zvalue);
 				if(stream) {
-					if(qb_connect_segment_to_file(dst_segment, stream, dst_byte_count, !READ_ONLY(address))) {
+					if(qb_connect_segment_to_file(dst_segment, stream, dst_byte_count, !IS_READ_ONLY(address))) {
 						return TRUE;
 					}
 				}
@@ -1477,14 +1477,14 @@ int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address 
 			if(src_address->segment_selector < QB_SELECTOR_ARRAY_START) {
 				// the incoming value is a fixed length array or scalar
 				// use the memory there unless the function resizes the argument
-				if(READ_ONLY(address->array_size_address)) {
+				if(IS_READ_ONLY(address->array_size_address)) {
 					uint32_t src_byte_count = m->src_array_sizes[0];
 					if(qb_connect_segment_to_memory(dst_segment, src_memory, dst_byte_count, src_byte_count, FALSE)) {
 						return TRUE;
 					}
 				}
 			} else {
-				if(VARIABLE_LENGTH(src_address)) {
+				if(IS_VARIABLE_LENGTH(src_address)) {
 					qb_memory_segment *src_segment = &src_storage->segments[src_address->segment_selector];
 					if(src_segment->flags & QB_SEGMENT_IMPORTED) {
 						// the incoming value is an imported segment--import it 
@@ -1496,7 +1496,7 @@ int32_t qb_transfer_value_from_storage_location(qb_storage *storage, qb_address 
 						qb_resize_segment(dst_segment->imported_segment, dst_byte_count);
 					}
 					return TRUE;
-				} else if(FIXED_LENGTH(address) && ARRAY_SIZE_IN(src_storage, src_address) >= dst_byte_count)  {
+				} else if(IS_FIXED_LENGTH(address) && ARRAY_SIZE_IN(src_storage, src_address) >= dst_byte_count)  {
 					int8_t *memory = ARRAY_IN(src_storage, I08, src_address);
 					uint32_t bytes_available = ARRAY_SIZE_IN(src_storage, src_address);
 					if(qb_connect_segment_to_memory(dst_segment, memory, dst_byte_count, bytes_available, FALSE)) {

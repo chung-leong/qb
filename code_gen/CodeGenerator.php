@@ -21,7 +21,11 @@ class CodeGenerator {
 		$this->setCompiler($compiler);
 		$this->currentIndentationLevel = 0;
 	
-		fwrite($handle, "#pragma pack(push,1)\n\n");
+		fwrite($handle, "#if defined(__sun) || defined(__sun__)\n");
+		fwrite($handle, "#pragma pack(1)\n");
+		fwrite($handle, "#else\n");
+		fwrite($handle, "#pragma pack(push, 1)\n");
+		fwrite($handle, "#endif\n\n");
 		
 		$branchTableEntry = array(
 			"typedef struct qb_branch_table_entry {",
@@ -40,7 +44,11 @@ class CodeGenerator {
 			}
 		}
 		
-		fwrite($handle, "#pragma pack(pop)\n\n");
+		fwrite($handle, "#if defined(__sun) || defined(__sun__)\n\n");
+		fwrite($handle, "#pragma pack()\n");
+		fwrite($handle, "#else\n");
+		fwrite($handle, "#pragma pack(pop)\n");
+		fwrite($handle, "#endif\n");
 
 		$lines = array();
 		$lines[] = "extern void *op_handlers[];";

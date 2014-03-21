@@ -742,7 +742,7 @@ static qb_pbj_register * qb_get_pbj_register(qb_pbj_translator_context *cxt, qb_
 
 static int32_t qb_is_image(qb_pbj_translator_context *cxt, qb_address *address, uint32_t channel_count) {
 	if(address && address->type == QB_TYPE_F32 && address->dimension_count == 3) {
-		if(CONSTANT_DIMENSION(address, -1) && DIMENSION(address, -1) == channel_count) {
+		if(HAS_CONSTANT_DIMENSION(address, -1) && DIMENSION(address, -1) == channel_count) {
 			return TRUE;
 		}
 	}
@@ -944,7 +944,7 @@ static qb_address * qb_create_pbj_constant(qb_compiler_context *cxt, qb_pbj_valu
 
 static int32_t qb_match_pbj_parameter_dimensions(qb_pbj_translator_context *cxt, qb_pbj_parameter *parameter, qb_address *address) {
 	qb_pbj_address *dest = &parameter->destination;
-	if(!FIXED_LENGTH(address)) {
+	if(!IS_FIXED_LENGTH(address)) {
 		return FALSE;
 	}
 	if(dest->dimension > 1) {

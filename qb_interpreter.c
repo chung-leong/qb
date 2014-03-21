@@ -83,7 +83,7 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 	if(ivar->flags & QB_VARIABLE_IMPORTED) {
 		USE_TSRM
 		zval *zvalue = ivar->value, **p_zvalue = ivar->value_pointer;
-		if(!READ_ONLY(ivar->address)) {
+		if(!IS_READ_ONLY(ivar->address)) {
 			if(zvalue) {
 				// separate the zval first, since we're modifying it
 				SEPARATE_ZVAL_IF_NOT_REF(&zvalue);
@@ -131,7 +131,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 			qb_variable *caller_qvar = cxt->caller_context->function->variables[argument_index];
 			qb_storage *caller_storage = cxt->caller_context->function->local_storage;
 			uint32_t transfer_flags = 0;
-			if((qvar->flags & QB_VARIABLE_BY_REF) || READ_ONLY(qvar->address)) {
+			if((qvar->flags & QB_VARIABLE_BY_REF) || IS_READ_ONLY(qvar->address)) {
 				transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 			}
 			if(!qb_transfer_value_from_storage_location(cxt->function->local_storage, qvar->address, caller_storage, caller_qvar->address, transfer_flags)) {
@@ -143,7 +143,7 @@ static int32_t qb_transfer_arguments_from_caller(qb_interpreter_context *cxt) {
 			if(qvar->default_value) {
 				zval *zarg = qvar->default_value;
 				uint32_t transfer_flags = 0;
-				if(READ_ONLY(qvar->address)) {
+				if(IS_READ_ONLY(qvar->address)) {
 					transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 				}
 				if(!qb_transfer_value_from_zval(cxt->function->local_storage, qvar->address, zarg, transfer_flags)) {
@@ -178,7 +178,7 @@ static int32_t qb_transfer_arguments_from_php(qb_interpreter_context *cxt) {
 		if(qvar->flags & QB_VARIABLE_BY_REF) {
 			// avoid allocating new memory and copying contents if changes will be copied back anyway
 			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_AUTOVIVIFICATE;
-		} else if(READ_ONLY(qvar->address)) {
+		} else if(IS_READ_ONLY(qvar->address)) {
 			// or if no changes will be made
 			transfer_flags = QB_TRANSFER_CAN_BORROW_MEMORY;
 		}
@@ -235,7 +235,7 @@ static int32_t qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
 				qb_import_segment(local_segment, scope_segment);
 
 				// import the scalar segment holding the size and dimensions as well
-				if(ivar->address->dimension_count > 0 && !CONSTANT(ivar->address->array_size_address)) {
+				if(ivar->address->dimension_count > 0 && !IS_IMMUTABLE(ivar->address->array_size_address)) {
 					local_segment = &cxt->function->local_storage->segments[qvar->address->array_size_address->segment_selector];
 					scope_segment = &scope->storage->segments[ivar->address->array_size_address->segment_selector];
 					if(local_segment->imported_segment != scope_segment) {
@@ -243,13 +243,13 @@ static int32_t qb_transfer_variables_from_php(qb_interpreter_context *cxt) {
 					}
 				}
 			}
-			if(READ_ONLY(qvar->address) && !(ivar->flags & QB_VARIABLE_IMPORTED)) {
+			if(IS_READ_ONLY(qvar->address) && !(ivar->flags & QB_VARIABLE_IMPORTED)) {
 				// the mark it as read-only
 				ivar->address->flags |= QB_ADDRESS_READ_ONLY;
 			}
 			// transfer the value from PHP
 			qb_transfer_value_from_import_source(cxt, ivar, scope);
-			if(!READ_ONLY(qvar->address)) {
+			if(!IS_READ_ONLY(qvar->address)) {
 				ivar->address->flags &= ~QB_ADDRESS_READ_ONLY;
 			}
 		}

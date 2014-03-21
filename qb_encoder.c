@@ -311,7 +311,7 @@ int8_t * qb_copy_instruction_opcodes(qb_encoder_context *cxt, int8_t *memory) {
 static uint32_t qb_get_address_length(qb_address *address) {
 	uint32_t i, j;
 	uint32_t length = sizeof(qb_address);	// the address itself
-	if(!SCALAR(address)) {
+	if(!IS_SCALAR(address)) {
 		if(address->dimension_count > 1) {
 			length += sizeof(qb_address *) * address->dimension_count * 2;
 			length += sizeof(qb_address) * (address->dimension_count * 2 - 1);
@@ -362,7 +362,7 @@ static int8_t * qb_copy_address(qb_address *address, int8_t *memory) {
 	dst->source_address = NULL;
 	dst->expression = NULL;
 
-	if(SCALAR(src)) {
+	if(IS_SCALAR(src)) {
 		dst->mode = QB_ADDRESS_MODE_SCA;
 		dst->array_size_address = NULL;
 		dst->array_size_addresses = NULL;

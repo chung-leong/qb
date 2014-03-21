@@ -32,7 +32,7 @@ static int32_t qb_set_result_prototype(qb_compiler_context *cxt, qb_op_factory *
 static int32_t qb_set_result_temporary_value_ex(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype, uint32_t address_flags) {
 	// if an address is provided and it isn't a constant value, then use that address
 	// a constant can show up here if one clause of a short-circuited logical statement is constant
-	if(result->type != QB_OPERAND_ADDRESS || CONSTANT(result->address)) {
+	if(result->type != QB_OPERAND_ADDRESS || IS_IMMUTABLE(result->address)) {
 		qb_variable_dimensions dim = { 0, cxt->one_address };
 
 		// figure out the result size (it's a scalar if set_dimensions is null)
@@ -107,7 +107,7 @@ static int32_t qb_set_result_branch(qb_compiler_context *cxt, qb_op_factory *f, 
 		if(!cxt->no_short_circuting) {
 			if(condition->type == QB_OPERAND_ADDRESS) {
 				if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
-					if(!TEMPORARY(condition->address)) {
+					if(!IS_TEMPORARY(condition->address)) {
 						// need to copy the condition to a temporary variable
 						condition->address = qb_retrieve_unary_op_result(cxt, &factory_boolean_cast, condition->address);
 					}
@@ -222,7 +222,7 @@ static int32_t qb_set_result_fetch_array_size(qb_compiler_context *cxt, qb_op_fa
 	qb_address *dimension_address = container->address->dimension_addresses[0];
 	qb_address *array_size_address = container->address->array_size_address;
 	if(recursive->type == QB_OPERAND_ADDRESS) {
-		if(CONSTANT(recursive->address)) {
+		if(IS_IMMUTABLE(recursive->address)) {
 			result->address = VALUE(I32, recursive->address) ? array_size_address : dimension_address;
 		} else {
 			result->address = qb_obtain_larger_of_two(cxt, cxt->zero_address, dimension_address, recursive->address, array_size_address);
@@ -328,7 +328,7 @@ static int32_t qb_set_result_array_append(qb_compiler_context *cxt, qb_op_factor
 	element = qb_expand_array_initializer(cxt, initializer, element_index);
 	*element = *value;
 	if(value->type == QB_OPERAND_ADDRESS) {
-		if(!CONSTANT(value->address)) {
+		if(!IS_IMMUTABLE(value->address)) {
 			initializer->flags |= QB_ARRAY_INITIALIZER_VARIABLE_ELEMENTS;
 		} else {
 			initializer->flags |= QB_ARRAY_INITIALIZER_CONSTANT_ELEMENTS;
@@ -380,7 +380,7 @@ static int32_t qb_set_result_add_string(qb_compiler_context *cxt, qb_op_factory 
 
 static int32_t qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *augend = &operands[0];
-	if(augend->type == QB_OPERAND_ADDRESS && TEMPORARY(augend->address) && (augend->address->flags & QB_ADDRESS_STRING)) {
+	if(augend->type == QB_OPERAND_ADDRESS && IS_TEMPORARY(augend->address) && (augend->address->flags & QB_ADDRESS_STRING)) {
 		// append to the augend
 		*result = *augend;
 	} else {
@@ -394,7 +394,7 @@ static int32_t qb_set_result_concat(qb_compiler_context *cxt, qb_op_factory *f, 
 
 static int32_t qb_set_result_array_cast(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
 	qb_operand *value = &operands[0];
-	if(SCALAR(value->address)) {
+	if(IS_SCALAR(value->address)) {
 		result->address = qb_obtain_array_alias(cxt, value->address);
 	} else {
 		result->address = value->address;
@@ -548,7 +548,7 @@ static int32_t qb_set_result_function_call(qb_compiler_context *cxt, qb_op_facto
 			uint32_t i;
 			for(i = 0; i < src_address->dimension_count; i++) {
 				qb_address *dimension_address = src_address->dimension_addresses[i];
-				if(CONSTANT(dimension_address)) {
+				if(IS_IMMUTABLE(dimension_address)) {
 					uint32_t dimension = VALUE_IN(src_storage, U32, dimension_address);
 					dim->dimension_addresses[i] = qb_obtain_constant_U32(cxt, dimension);
 				} else {

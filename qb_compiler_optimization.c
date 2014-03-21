@@ -64,7 +64,7 @@ static int32_t qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t ind
 		qb_address *condition_address = qop->operands[0].address;
 
 		// don't fuse the instructions if the condition is going to be reused (in a short-circuited expression)
-		if(TEMPORARY(condition_address) && !(condition_address->flags & QB_ADDRESS_REUSED)) {
+		if(IS_TEMPORARY(condition_address) && !(condition_address->flags & QB_ADDRESS_REUSED)) {
 			qb_op *prev_qop = qb_get_previous_op(cxt, index);
 
 			if(prev_qop && prev_qop->operand_count == 3 && (prev_qop->operands[2].address == condition_address || prev_qop->operands[2].address->source_address == condition_address)) {
@@ -140,7 +140,7 @@ static int32_t qb_fuse_conditional_branch(qb_compiler_context *cxt, uint32_t ind
 static int32_t qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t index) {
 	qb_op *qop = cxt->ops[index];
 
-	if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && qop->operands[2].type == QB_OPERAND_ADDRESS && TEMPORARY(qop->operands[2].address)) {
+	if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && qop->operands[2].type == QB_OPERAND_ADDRESS && IS_TEMPORARY(qop->operands[2].address)) {
 		qb_op *next_qop = qb_get_next_op(cxt, index);
 
 		if(next_qop && next_qop->operand_count == 3 && !(next_qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT))) {
@@ -287,7 +287,7 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 		if(qop->opcode == QB_IF_EQ_I08_I08 || qop->opcode == QB_IF_EQ_I16_I16 || qop->opcode == QB_IF_EQ_I32_I32 || qop->opcode == QB_IF_EQ_I64_I64) {
 			qb_address *address1 = qop->operands[0].address;
 			qb_address *address2 = qop->operands[1].address;
-			if(SCALAR(address1) && CONSTANT(address2)) {
+			if(IS_SCALAR(address1) && IS_IMMUTABLE(address2)) {
 				first_case = qop;
 				variable_address = address1;
 			}
@@ -303,7 +303,7 @@ uint32_t qb_convert_switch_statement(qb_compiler_context *cxt, uint32_t index) {
 						if(next_qop->opcode == first_case->opcode) {
 							qb_address *address1 = next_qop->operands[0].address;
 							qb_address *address2 = next_qop->operands[1].address;
-							if(address1 == variable_address && CONSTANT(address2)) {
+							if(address1 == variable_address && IS_IMMUTABLE(address2)) {
 								case_count++;
 								previous_jump_target = next_qop->jump_target_indices[1];
 								last_index = i;
