@@ -50,10 +50,9 @@ struct qb_import_scope {
 	qb_storage *storage;
 
 	union {
-		zend_class_entry *zend_class;
-		zval *zend_object;
+		zend_class_entry *class_entry;
+		zval *object;
 		HashTable *symbol_table;
-		void *associated_object;
 	};
 };
 

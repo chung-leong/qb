@@ -953,7 +953,7 @@ static int32_t qb_copy_elements_to_array(int8_t *src_memory, zval *zarray, zval 
 	for(p = ht->pListHead; p && dst_index < src_dimension; p = p->pListNext) {
 		if((uint32_t) p->h == dst_index && !p->nKeyLength) {
 			zval **p_element = p->pData, *element;
-			SEPARATE_ZVAL_TO_MAKE_IS_REF(p_element);
+			SEPARATE_ZVAL_IF_NOT_REF(p_element);
 			element = *p_element;
 			if(!qb_copy_elements_to_zval(src_pointer, element, zarray, m, dimension_index + 1)) {
 				return FALSE;
@@ -967,7 +967,7 @@ static int32_t qb_copy_elements_to_array(int8_t *src_memory, zval *zarray, zval 
 	while(dst_index < src_dimension) {
 		zval **p_element, *element;
 		if(zend_hash_index_find(ht, dst_index, (void **) &p_element) == SUCCESS) {
-			SEPARATE_ZVAL_TO_MAKE_IS_REF(p_element);
+			SEPARATE_ZVAL_IF_NOT_REF(p_element);
 			element = *p_element;
 		} else {
 			ALLOC_INIT_ZVAL(element);
@@ -1003,7 +1003,7 @@ static int32_t qb_copy_elements_to_object(int8_t *src_memory, zval *zobject, qb_
 		zval *alias = qb_cstring_to_zval(scheme->aliases[dst_index] TSRMLS_CC);
 		p_element = Z_OBJ_GET_PROP_PTR_PTR(zobject, alias);
 		if(p_element) {
-			SEPARATE_ZVAL_TO_MAKE_IS_REF(p_element);
+			SEPARATE_ZVAL_IF_NOT_REF(p_element);
 			element = *p_element;
 		} else {
 			ALLOC_INIT_ZVAL(element);

@@ -35,8 +35,27 @@ qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associat
 	qb_import_scope *scope;
 	for(i = 0; i < QB_G(scope_count); i++) {
 		scope = QB_G(scopes)[i];
-		if(scope->type == type && scope->associated_object == associated_object) {
-			return scope;
+		if(scope->type == type) {
+			int match = FALSE;
+			switch(scope->type) {
+				case QB_IMPORT_SCOPE_CLASS:
+				case QB_IMPORT_SCOPE_ABSTRACT_OBJECT: {
+					zend_class_entry *class_entry = associated_object;
+					match = (scope->class_entry == class_entry);
+				}	break;
+				case QB_IMPORT_SCOPE_OBJECT: {
+					zval *object = associated_object;
+					match = (Z_OBJ_HANDLE_P(scope->object) == Z_OBJ_HANDLE_P(object));
+				}	break;
+				case QB_IMPORT_SCOPE_LEXICAL:
+				case QB_IMPORT_SCOPE_GLOBAL: {
+					HashTable *symbol_table = associated_object;
+					match = (scope->symbol_table == symbol_table);
+				}	break;
+			}
+			if(match) {
+				return scope;
+			}
 		}
 	}
 	return NULL;
@@ -46,7 +65,24 @@ qb_import_scope * qb_create_import_scope(qb_import_scope_type type, void *associ
 	qb_import_scope *scope = emalloc(sizeof(qb_import_scope)), **p_scope;
 	memset(scope, 0, sizeof(qb_import_scope));
 	scope->type = type;
-	scope->associated_object = associated_object;
+	switch(type) {
+		case QB_IMPORT_SCOPE_CLASS:
+		case QB_IMPORT_SCOPE_ABSTRACT_OBJECT: {
+			zend_class_entry *class_entry = associated_object;
+			scope->class_entry = class_entry;
+		}	break;
+		case QB_IMPORT_SCOPE_OBJECT: {
+			zval *object = associated_object;
+			Z_ADDREF_P(object);
+			SEPARATE_ZVAL(&object);
+			scope->object = object;
+		}	break;
+		case QB_IMPORT_SCOPE_LEXICAL:
+		case QB_IMPORT_SCOPE_GLOBAL: {
+			HashTable *symbol_table = associated_object;
+			scope->symbol_table = symbol_table;
+		}	break;
+	}
 
 	if(!QB_G(scopes)) {
 		qb_create_array((void **) &QB_G(scopes), &QB_G(scope_count), sizeof(qb_import_scope *), 4);

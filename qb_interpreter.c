@@ -25,70 +25,55 @@ static int32_t qb_transfer_value_from_import_source(qb_interpreter_context *cxt,
 	if(!(ivar->flags & QB_VARIABLE_IMPORTED)) {
 		USE_TSRM
 		zval *zvalue = NULL, **p_zvalue = NULL;
-		if(ivar->value_pointer) {
-			p_zvalue = ivar->value_pointer;
-			Z_ADDREF_PP(p_zvalue);
-		} else {
-			switch(scope->type) {
-				case QB_IMPORT_SCOPE_GLOBAL:
-				case QB_IMPORT_SCOPE_LEXICAL: {
-					// copy value from symbol table
-					if(zend_hash_quick_find(scope->symbol_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_zvalue) == SUCCESS) {
-						SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
-					}
-				}	break;
-				case QB_IMPORT_SCOPE_CLASS: {
-					if(ivar->flags & QB_VARIABLE_CLASS_CONSTANT) {
-						// static:: constants are treated like variables
-						zend_class_entry *ce = scope->zend_class;
-						zval **p_value;
-						zend_hash_quick_find(&ce->constants_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_value);
-					} else {
-						zend_class_entry *ce = scope->zend_class;
-						p_zvalue = Z_CLASS_GET_PROP(ce, ivar->name, ivar->name_length);
-						if(p_zvalue) {
-							SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
-						}
-					}
-				}	break;
-				case QB_IMPORT_SCOPE_OBJECT: {
-					// copy value from class instance
-					zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
-					zval *container = scope->zend_object;
-					p_zvalue = Z_OBJ_GET_PROP_PTR_PTR(container, name);
-					if(p_zvalue) {
-						SEPARATE_ZVAL_TO_MAKE_IS_REF(p_zvalue);
-					} else if(Z_OBJ_HT_P(container)->read_property) {
+		switch(scope->type) {
+			case QB_IMPORT_SCOPE_GLOBAL:
+			case QB_IMPORT_SCOPE_LEXICAL: {
+				// copy value from symbol table
+				zend_hash_quick_find(scope->symbol_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_zvalue);
+			}	break;
+			case QB_IMPORT_SCOPE_CLASS: {
+				if(ivar->flags & QB_VARIABLE_CLASS_CONSTANT) {
+					// static:: constants are treated like variables
+					zend_class_entry *ce = scope->class_entry;
+					zval **p_value;
+					zend_hash_quick_find(&ce->constants_table, ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &p_value);
+				} else {
+					zend_class_entry *ce = scope->class_entry;
+					p_zvalue = Z_CLASS_GET_PROP(ce, ivar->name, ivar->name_length);
+				}
+			}	break;
+			case QB_IMPORT_SCOPE_OBJECT: {
+				// copy value from class instance
+				zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
+				zval *container = scope->object;
+				p_zvalue = Z_OBJ_GET_PROP_PTR_PTR(container, name);
+				if(!p_zvalue) {
+					if(Z_OBJ_HT_P(container)->read_property) {
 						zvalue = Z_OBJ_READ_PROP(container, name);
-						Z_ADDREF_P(zvalue);
 					}
-				}	break;
-				default: {
-				}	break;
-			}
+				}
+			}	break;
+			default: {
+			}	break;
 		}
 		if(p_zvalue) {
 			zvalue = *p_zvalue;
 		}
-		if(zvalue) {
-			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, zvalue, QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_AUTOVIVIFICATE)) {
-				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
-				qb_set_exception_line_id(line_id TSRMLS_CC);
-				result = FALSE;
+		if(qb_transfer_value_from_zval(scope->storage, ivar->address, (zvalue) ? zvalue : &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_AUTOVIVIFICATE)) {
+			ivar->flags |= QB_VARIABLE_IMPORTED;
+			ivar->value_pointer = p_zvalue;
+			ivar->value = zvalue;
+
+			if(!p_zvalue && zvalue) {
+				// we got the zval from a getter function
+				// need to up the reference count
+				Z_ADDREF_P(zvalue);
 			}
 		} else {
-			if(!qb_transfer_value_from_zval(scope->storage, ivar->address, &zval_used_for_init, QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_AUTOVIVIFICATE)) {
-				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
-				qb_set_exception_line_id(line_id TSRMLS_CC);
-				result = FALSE;
-			}
+			uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
+			qb_set_exception_line_id(line_id TSRMLS_CC);
+			result = FALSE;
 		}
-		ivar->flags |= QB_VARIABLE_IMPORTED;
-		ivar->value_pointer = p_zvalue;
-		if(ivar->value) {
-			zval_ptr_dtor(&ivar->value);
-		}
-		ivar->value = zvalue;
 	}
 	return result;
 }
@@ -97,20 +82,13 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 	int32_t result = TRUE;
 	if(ivar->flags & QB_VARIABLE_IMPORTED) {
 		USE_TSRM
+		zval *zvalue = ivar->value, **p_zvalue = ivar->value_pointer;
 		if(!READ_ONLY(ivar->address)) {
-			zval *zvalue;
-			if(ivar->value_pointer) {
-				zvalue = *ivar->value_pointer;
-			} else {
-				zvalue = ivar->value;
+			if(zvalue) {
 				// separate the zval first, since we're modifying it
-				SEPARATE_ZVAL_TO_MAKE_IS_REF(&zvalue);
-			}
-			if(!zvalue) {
+				SEPARATE_ZVAL_IF_NOT_REF(&zvalue);
+			} else {
 				ALLOC_INIT_ZVAL(zvalue);
-				if(ivar->value_pointer) {
-					*ivar->value_pointer = zvalue;
-				}
 			}
 			if(!qb_transfer_value_to_zval(scope->storage, ivar->address, zvalue)) {
 				uint32_t line_id = qb_get_zend_line_id(TSRMLS_C);
@@ -118,19 +96,25 @@ static int32_t qb_transfer_value_to_import_source(qb_interpreter_context *cxt, q
 				result = FALSE;
 			}
 
-			if(!ivar->value_pointer) {
+			if(p_zvalue) {
+				*p_zvalue = zvalue;
+			} else {
 				if(ivar->flags & QB_VARIABLE_GLOBAL) {
 					zend_hash_quick_update(&EG(symbol_table), ivar->name, ivar->name_length + 1, ivar->hash_value, (void **) &zvalue, sizeof(zval *), NULL);
 				} else if(ivar->flags & QB_VARIABLE_CLASS_INSTANCE) {
-					zval *container = scope->zend_object;
+					zval *container = scope->object;
 					zval *name = qb_string_to_zval(ivar->name, ivar->name_length TSRMLS_CC);
 					Z_OBJ_WRITE_PROP(container, name, zvalue);
-					zval_ptr_dtor(&zvalue);
 				}
 			}
-			ivar->value_pointer = NULL;
-			ivar->value = NULL;
 		}
+		if(!p_zvalue && zvalue) {
+			// if p_zvalue isn't null, then something else has put a refcount 
+			// on the zval (and we didn't increment it earlier)
+			zval_ptr_dtor(&zvalue);
+		}
+		ivar->value_pointer = NULL;
+		ivar->value = NULL;
 		ivar->flags &= ~QB_VARIABLE_IMPORTED;
 	}
 	return result;
