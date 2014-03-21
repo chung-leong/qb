@@ -570,11 +570,10 @@ void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, in
 				new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_REENTRY;
 			} else {
 				new_segment_flags = QB_SEGMENT_FREE_ON_RETURN | QB_SEGMENT_CLEAR_ON_CALL | QB_SEGMENT_SEPARATE_ON_FORK | QB_SEGMENT_SEPARATE_ON_REENTRY;
-				if(byte_count > 0) {
-					new_segment_flags |= QB_SEGMENT_REALLOCATE_ON_CALL;
-				}
 			}
-			if(byte_count == 0) {
+			if(byte_count > 0) {
+					new_segment_flags |= QB_SEGMENT_REALLOCATE_ON_CALL;
+			} else {
 				if(new_segment_flags & QB_SEGMENT_FREE_ON_RETURN) {
 					// don't just free the memory--set the segment length to 0 as well
 					// so it doesn't get reallocated on the next call
