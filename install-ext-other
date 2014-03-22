@@ -1,0 +1,14 @@
+#!/bin/sh
+
+#cp modules/qb.so `php -i 2> /dev/null | sed -n 's/extension_dir => \(.*\) => .*/\1/p'`
+inidir=`php --ini 2> /dev/null | sed -n 's/.*ini files in: \(.*\)/\1/p'`
+if [ ! -z "$inidir" ] ; then
+  if [ -f "$inidir" ] ; then
+    if [ ! -f $inidir/qb.ini ] ; then
+      `cp qb.ini $inidir/`
+    fi
+  fi
+else
+  echo "Unable to determine PHP .ini path"
+fi
+
