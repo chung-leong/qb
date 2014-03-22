@@ -19,7 +19,11 @@
 /* $Id$ */
 
 
-#pragma pack(push,1)
+#if defined(__sun) || defined(__sun__)
+#pragma pack(1)
+#else
+#pragma pack(push, 1)
+#endif
 
 typedef struct qb_branch_table_entry {
 	void *next_handler;
@@ -1030,8 +1034,12 @@ typedef struct qb_instruction_jump {
 	int8_t *instruction_pointer;
 } qb_instruction_jump;
 
-#pragma pack(pop)
+#if defined(__sun) || defined(__sun__)
 
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
 extern void *op_handlers[];
 
 int qb_compare_ascending_F32(const void *p1, const void *p2);

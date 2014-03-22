@@ -35,8 +35,27 @@ qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associat
 	qb_import_scope *scope;
 	for(i = 0; i < QB_G(scope_count); i++) {
 		scope = QB_G(scopes)[i];
-		if(scope->type == type && scope->associated_object == associated_object) {
-			return scope;
+		if(scope->type == type) {
+			int match = FALSE;
+			switch(scope->type) {
+				case QB_IMPORT_SCOPE_CLASS:
+				case QB_IMPORT_SCOPE_ABSTRACT_OBJECT: {
+					zend_class_entry *class_entry = associated_object;
+					match = (scope->class_entry == class_entry);
+				}	break;
+				case QB_IMPORT_SCOPE_OBJECT: {
+					zval *object = associated_object;
+					match = (Z_OBJ_HANDLE_P(scope->object) == Z_OBJ_HANDLE_P(object));
+				}	break;
+				case QB_IMPORT_SCOPE_LEXICAL:
+				case QB_IMPORT_SCOPE_GLOBAL: {
+					HashTable *symbol_table = associated_object;
+					match = (scope->symbol_table == symbol_table);
+				}	break;
+			}
+			if(match) {
+				return scope;
+			}
 		}
 	}
 	return NULL;
@@ -46,7 +65,24 @@ qb_import_scope * qb_create_import_scope(qb_import_scope_type type, void *associ
 	qb_import_scope *scope = emalloc(sizeof(qb_import_scope)), **p_scope;
 	memset(scope, 0, sizeof(qb_import_scope));
 	scope->type = type;
-	scope->associated_object = associated_object;
+	switch(type) {
+		case QB_IMPORT_SCOPE_CLASS:
+		case QB_IMPORT_SCOPE_ABSTRACT_OBJECT: {
+			zend_class_entry *class_entry = associated_object;
+			scope->class_entry = class_entry;
+		}	break;
+		case QB_IMPORT_SCOPE_OBJECT: {
+			zval *object = associated_object;
+			Z_ADDREF_P(object);
+			SEPARATE_ZVAL(&object);
+			scope->object = object;
+		}	break;
+		case QB_IMPORT_SCOPE_LEXICAL:
+		case QB_IMPORT_SCOPE_GLOBAL: {
+			HashTable *symbol_table = associated_object;
+			scope->symbol_table = symbol_table;
+		}	break;
+	}
 
 	if(!QB_G(scopes)) {
 		qb_create_array((void **) &QB_G(scopes), &QB_G(scope_count), sizeof(qb_import_scope *), 4);
@@ -114,15 +150,15 @@ static int32_t qb_check_address_compatibility(qb_storage *storage1, qb_address *
 		for(j = 0; j < address1->dimension_count; j++) {
 			qb_address *dim_address1 = address1->array_size_addresses[j];
 			qb_address *dim_address2 = address2->array_size_addresses[j];
-			if(CONSTANT(dim_address1) && CONSTANT(dim_address2)) {
+			if(IS_IMMUTABLE(dim_address1) && IS_IMMUTABLE(dim_address2)) {
 				uint32_t dim1 = VALUE_IN(storage1, U32, dim_address1);
 				uint32_t dim2 = VALUE_IN(storage2, U32, dim_address2);
 				if(dim1 != dim2) {
 					return FALSE;
 				}
-			} else if(CONSTANT(dim_address1)) {
+			} else if(IS_IMMUTABLE(dim_address1)) {
 				return FALSE;
-			} else if(CONSTANT(dim_address2)) {
+			} else if(IS_IMMUTABLE(dim_address2)) {
 				return FALSE;
 			}
 		}
@@ -158,7 +194,7 @@ static int32_t qb_check_address_compatibility(qb_storage *storage1, qb_address *
 static void qb_transfer_dimension(qb_storage *src_storage, qb_address *src_address, qb_storage *dst_storage, qb_address *dst_address, uint32_t variable_selector) {
 	qb_memory_segment *segment;
 	uint32_t index, *indices, index_count, i;
-	if(CONSTANT(src_address)) {
+	if(IS_IMMUTABLE(src_address)) {
 		index = VALUE_IN(src_storage, U32, src_address);
 		dst_address->segment_selector = QB_SELECTOR_CONSTANT_SCALAR;
 		segment = &dst_storage->segments[QB_SELECTOR_CONSTANT_SCALAR];
@@ -237,13 +273,13 @@ qb_variable * qb_import_variable(qb_storage *storage, qb_variable *var, qb_impor
 	}
 
 	// assign space to the variable
-	if(SCALAR(ivar->address)) {
+	if(IS_SCALAR(ivar->address)) {
 		byte_count = BYTE_COUNT(1, ivar->address->type);
 		alignment = max(byte_count, 4);
 		selector = scalar_selector;
 	} else {
 		alignment = 16;
-		if(FIXED_LENGTH(ivar->address)) {
+		if(IS_FIXED_LENGTH(ivar->address)) {
 			element_count = ARRAY_SIZE_IN(scope->storage, ivar->address);
 			byte_count = BYTE_COUNT(element_count, ivar->address->type);
 			if(byte_count < 10240) {
@@ -333,7 +369,7 @@ qb_variable * qb_get_import_variable(qb_storage *storage, qb_variable *var, qb_i
 					}
 					return ivar;
 				} else {
-					if(READ_ONLY(ivar->address) && READ_ONLY(var->address)) {
+					if(IS_READ_ONLY(ivar->address) && IS_READ_ONLY(var->address)) {
 						// permit a variable to be imported differently if it's not modified 
 					} else {
 						return NULL;
@@ -610,11 +646,11 @@ void qb_disable_zend_optimizer(TSRMLS_D) {
 		char *entry_name = "opcache.optimization_level";
 		char *entry_value = "0";
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
-		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE TSRMLS_CC);
+		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, (uint) strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE TSRMLS_CC);
 #elif !ZEND_ENGINE_2_1
-		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE);
+		zend_alter_ini_entry_ex(entry_name, strlen(entry_name) + 1, entry_value, (uint) strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME, TRUE);
 #else
-		zend_alter_ini_entry(entry_name, strlen(entry_name) + 1, entry_value, strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_ACTIVATE);
+		zend_alter_ini_entry(entry_name, strlen(entry_name) + 1, entry_value, (uint) strlen(entry_value), PHP_INI_USER, PHP_INI_STAGE_ACTIVATE);
 #endif
 	}
 }

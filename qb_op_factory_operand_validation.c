@@ -22,12 +22,12 @@ static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_o
 	qb_operand *container = &operands[0];
 	qb_operand *index = &operands[1];
 
-	if(container->type != QB_OPERAND_ADDRESS || SCALAR(container->address)) {
+	if(container->type != QB_OPERAND_ADDRESS || IS_SCALAR(container->address)) {
 		qb_report_not_an_array_exception(cxt->line_id);
 		return FALSE;
 	}
 
-	if((index->type == QB_OPERAND_ADDRESS && !SCALAR(index->address)) || (index->type == QB_OPERAND_ARRAY_INITIALIZER)) {
+	if((index->type == QB_OPERAND_ADDRESS && !IS_SCALAR(index->address)) || (index->type == QB_OPERAND_ARRAY_INITIALIZER)) {
 		qb_report_illegal_array_index_exception(cxt->line_id);
 		return FALSE;
 	} else if(index->type == QB_OPERAND_ZVAL) {
@@ -40,7 +40,7 @@ static int32_t qb_validate_operands_array_element(qb_compiler_context *cxt, qb_o
 		}
 	} else if(index->type == QB_OPERAND_NONE) {
 		// an append operation
-		if(!RESIZABLE(container->address)) {
+		if(!IS_RESIZABLE(container->address)) {
 			qb_report_fixed_length_array_exception(cxt->line_id);
 			return FALSE;
 		}
@@ -64,7 +64,7 @@ static int32_t qb_validate_operands_object_property(qb_compiler_context *cxt, qb
 		}
 	} else if(container->type == QB_OPERAND_ADDRESS) {
 		uint32_t index;
-		if(SCALAR(container->address)) {
+		if(IS_SCALAR(container->address)) {
 			qb_report_not_an_array_exception(cxt->line_id);
 			return FALSE;
 		}
@@ -131,7 +131,7 @@ static int32_t qb_validate_operands_minmax_array(qb_compiler_context *cxt, qb_op
 	qb_operand *container = &operands[0];
 
 	if(operand_count == 1) {
-		if(SCALAR(container->address)) {
+		if(IS_SCALAR(container->address)) {
 			qb_report_unmet_intrinsic_condition_exception(cxt->line_id, cxt->intrinsic_function, "an array as parameter when only one parameter is given");
 			return FALSE;
 		}
@@ -272,7 +272,7 @@ static int32_t qb_validate_operands_assign_ref(qb_compiler_context *cxt, qb_op_f
 static int32_t qb_validate_operands_one_array(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand = &operands[0];
 
-	if(SCALAR(operand->address)) {
+	if(IS_SCALAR(operand->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
@@ -301,11 +301,11 @@ static int32_t qb_validate_operands_one_array_variable(qb_compiler_context *cxt,
 static int32_t qb_validate_operands_two_arrays(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 
-	if(SCALAR(operand1->address)) {
+	if(IS_SCALAR(operand1->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
-	if(SCALAR(operand2->address)) {
+	if(IS_SCALAR(operand2->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 1, "array");
 		return FALSE;
 	}
@@ -321,7 +321,7 @@ static int32_t qb_validate_operands_matching_vector_width(qb_compiler_context *c
 		return FALSE;
 	}
 
-	if(CONSTANT(v1_width_address) && CONSTANT(v2_width_address)) {
+	if(IS_IMMUTABLE(v1_width_address) && IS_IMMUTABLE(v2_width_address)) {
 		uint32_t v1_width = VALUE(U32, v1_width_address);
 		uint32_t v2_width = VALUE(U32, v2_width_address);
 		if(v1_width != v2_width) {
@@ -340,7 +340,7 @@ static int32_t qb_validate_operands_refract(qb_compiler_context *cxt, qb_op_fact
 
 	qb_validate_operands_matching_vector_width(cxt, f, expr_type, operands, operand_count, result_destination);
 
-	if(!SCALAR(operand3->address)) {
+	if(!IS_SCALAR(operand3->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 2, "scalar");
 		return FALSE;
 	}
@@ -352,7 +352,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 
 	for(i = 0; i < operand_count; i++) {
 		qb_operand *operand = &operands[0];
-		if(SCALAR(operand->address)) {
+		if(IS_SCALAR(operand->address)) {
 			qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, i, "array");
 			return FALSE;
 		}
@@ -363,7 +363,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 		qb_address *v1_width_address = DIMENSION_ADDRESS(operand1->address, -1);
 		qb_address *v2_width_address = DIMENSION_ADDRESS(operand2->address, -1);
 		qb_address *v3_width_address = DIMENSION_ADDRESS(operand3->address, -1);
-		if(CONSTANT(v1_width_address) && CONSTANT(v2_width_address) && CONSTANT(v3_width_address)) {
+		if(IS_IMMUTABLE(v1_width_address) && IS_IMMUTABLE(v2_width_address) && IS_IMMUTABLE(v3_width_address)) {
 			uint32_t v1_width = VALUE(U32, v1_width_address);
 			uint32_t v2_width = VALUE(U32, v2_width_address);
 			uint32_t v3_width = VALUE(U32, v3_width_address);
@@ -380,7 +380,7 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 		qb_operand *operand1 = &operands[0], *operand2 = &operands[1];
 		qb_address *v1_width_address = DIMENSION_ADDRESS(operand1->address, -1);
 		qb_address *v2_width_address = DIMENSION_ADDRESS(operand2->address, -1);
-		if(CONSTANT(v1_width_address) && CONSTANT(v2_width_address)) {
+		if(IS_IMMUTABLE(v1_width_address) && IS_IMMUTABLE(v2_width_address)) {
 			uint32_t v1_width = VALUE(U32, v1_width_address);
 			uint32_t v2_width = VALUE(U32, v2_width_address);
 
@@ -391,10 +391,10 @@ static int32_t qb_validate_operands_cross_product(qb_compiler_context *cxt, qb_o
 		} else {
 			qb_operand operands[2] = { { QB_OPERAND_ADDRESS, { v1_width_address } }, { QB_OPERAND_ADDRESS, { v2_width_address } } };
 			uint32_t width = 3;
-			if(CONSTANT(v1_width_address)) {
+			if(IS_IMMUTABLE(v1_width_address)) {
 				width = VALUE(U32, v1_width_address);
 			}
-			if(CONSTANT(v2_width_address)) {
+			if(IS_IMMUTABLE(v2_width_address)) {
 				width = VALUE(U32, v2_width_address);
 			}
 			if(width == 2) {
@@ -450,7 +450,7 @@ static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_o
 
 	qb_validate_operands_one_matrix(cxt, f, expr_type, operands, operand_count, result_destination);
 
-	if(CONSTANT(m_col_address) && CONSTANT(m_row_address)) {
+	if(IS_IMMUTABLE(m_col_address) && IS_IMMUTABLE(m_row_address)) {
 		uint32_t row = VALUE(U32, m_col_address);
 		uint32_t col = VALUE(U32, m_row_address);
 		if(row != col) {
@@ -467,7 +467,7 @@ static int32_t qb_validate_operands_square_matrix(qb_compiler_context *cxt, qb_o
 static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0];
 
-	if(CONSTANT_DIMENSION(operand1->address, -1)) {
+	if(HAS_CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
 		if(!(3 <= channel_count && channel_count <= 4)) {
 			qb_report_invalid_pixel_format_exception(cxt->line_id, cxt->intrinsic_function, channel_count);
@@ -483,7 +483,7 @@ static int32_t qb_validate_operands_pixel(qb_compiler_context *cxt, qb_op_factor
 static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0];
 
-	if(CONSTANT_DIMENSION(operand1->address, -1)) {
+	if(HAS_CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
 		if(channel_count != 4) {
 			qb_report_missing_alpha_channel_exception(cxt->line_id, cxt->intrinsic_function, channel_count);
@@ -499,7 +499,7 @@ static int32_t qb_validate_operands_rgba(qb_compiler_context *cxt, qb_op_factory
 static int32_t qb_validate_operands_blend(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand1 = &operands[0];
 
-	if(CONSTANT_DIMENSION(operand1->address, -1)) {
+	if(HAS_CONSTANT_DIMENSION(operand1->address, -1)) {
 		uint32_t channel_count = DIMENSION(operand1->address, -1);
 		if(channel_count != 2 && channel_count != 4) {
 			qb_report_missing_alpha_channel_exception(cxt->line_id, cxt->intrinsic_function, channel_count);
@@ -519,7 +519,7 @@ static int32_t qb_validate_operands_sampling(qb_compiler_context *cxt, qb_op_fac
 	if(image->address->dimension_count != 3) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "three-dimensional array");
 	}
-	if(CONSTANT_DIMENSION(image->address, -1)) {
+	if(HAS_CONSTANT_DIMENSION(image->address, -1)) {
 		channel_count = DIMENSION(image->address, -1);
 	}
 	if(!(1 <= channel_count && channel_count <= 4)) {
@@ -539,7 +539,7 @@ static int32_t qb_validate_operands_multidimensional_array(qb_compiler_context *
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "multidimensional array");
 		return FALSE;
 	}
-	if(!SCALAR(column_index->address)) {
+	if(!IS_SCALAR(column_index->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
@@ -562,7 +562,7 @@ static int32_t qb_validate_operands_mm_mult(qb_compiler_context *cxt, qb_op_fact
 	}
 
 	if(m1_col_address != m2_row_address) {
-		if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
+		if(IS_IMMUTABLE(m1_col_address) && IS_IMMUTABLE(m2_row_address)) {
 			uint32_t m1_col_count = VALUE(U32, m1_col_address);
 			uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
@@ -596,7 +596,7 @@ static int32_t qb_validate_operands_mv_mult(qb_compiler_context *cxt, qb_op_fact
 	}
 
 	if(m1_col_address != m2_row_address) {
-		if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
+		if(IS_IMMUTABLE(m1_col_address) && IS_IMMUTABLE(m2_row_address)) {
 			uint32_t m1_col_count = VALUE(U32, m1_col_address);
 			uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
@@ -630,7 +630,7 @@ static int32_t qb_validate_operands_vm_mult(qb_compiler_context *cxt, qb_op_fact
 	}
 
 	if(m1_col_address != m2_row_address) {
-		if(CONSTANT(m1_col_address) && CONSTANT(m2_row_address)) {
+		if(IS_IMMUTABLE(m1_col_address) && IS_IMMUTABLE(m2_row_address)) {
 			uint32_t m1_col_count = VALUE(U32, m1_col_address);
 			uint32_t m2_row_count = VALUE(U32, m2_row_address);
 
@@ -671,7 +671,7 @@ static int32_t qb_validate_operands_transform(qb_compiler_context *cxt, qb_op_fa
 		return FALSE;
 	}
 
-	if(CONSTANT_DIMENSION(matrix1->address, -2) && CONSTANT_DIMENSION(matrix1->address, -1) && CONSTANT_DIMENSION(matrix2->address, -1)) {
+	if(HAS_CONSTANT_DIMENSION(matrix1->address, -2) && HAS_CONSTANT_DIMENSION(matrix1->address, -1) && HAS_CONSTANT_DIMENSION(matrix2->address, -1)) {
 		qb_matrix_order order = qb_get_matrix_order(cxt, f);
 		qb_address *m1_col_address = qb_obtain_matrix_column_address(cxt, matrix1->address, order);
 		qb_address *m1_row_address = qb_obtain_matrix_row_address(cxt, matrix1->address, order);
@@ -695,15 +695,15 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 	qb_address *container_element_size_address;
 	uint32_t i;
 
-	if(TEMPORARY(container->address)) {
+	if(IS_TEMPORARY(container->address)) {
 		qb_report_unexpected_value_as_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0);
 		return FALSE;
 	}
-	if(SCALAR(container->address)) {
+	if(IS_SCALAR(container->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
-	if(FIXED_LENGTH(container->address)) {
+	if(IS_FIXED_LENGTH(container->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "variable-length array");
 		return FALSE;
 	}
@@ -720,7 +720,7 @@ static int32_t qb_validate_operands_array_push(qb_compiler_context *cxt, qb_op_f
 		qb_address *element_size_address = address->array_size_address;
 
 		if(container_element_size_address != element_size_address) {
-			if(CONSTANT(container_element_size_address) && CONSTANT(element_size_address)) {
+			if(IS_IMMUTABLE(container_element_size_address) && IS_IMMUTABLE(element_size_address)) {
 				uint32_t container_element_size = VALUE(U32, container_element_size_address);
 				uint32_t element_size = VALUE(U32, element_size_address);
 				if(container_element_size != element_size) {
@@ -764,7 +764,7 @@ static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_
 		}
 
 		if(result_element_size_address != element_size_address) {
-			if(CONSTANT(result_element_size_address) && CONSTANT(element_size_address)) {
+			if(IS_IMMUTABLE(result_element_size_address) && IS_IMMUTABLE(element_size_address)) {
 				uint32_t result_element_size = VALUE(U32, result_element_size_address);
 				uint32_t element_size = VALUE(U32, element_size_address);
 				if(result_element_size != element_size) {
@@ -784,7 +784,7 @@ static int32_t qb_validate_operands_array_merge(qb_compiler_context *cxt, qb_op_
 static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *value = &operands[0];
 	if(cxt->argument_offset == 0) {
-		if(SCALAR(value->address)) {
+		if(IS_SCALAR(value->address)) {
 			qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 			return FALSE;
 		} 
@@ -794,11 +794,11 @@ static int32_t qb_validate_operands_array_diff(qb_compiler_context *cxt, qb_op_f
 
 static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *start_index = &operands[0], *number = &operands[1];
-	if(!SCALAR(start_index->address)) {
+	if(!IS_SCALAR(start_index->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
-	if(!SCALAR(number->address)) {
+	if(!IS_SCALAR(number->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
@@ -808,11 +808,11 @@ static int32_t qb_validate_operands_array_fill(qb_compiler_context *cxt, qb_op_f
 static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *input = &operands[0], *size = &operands[1], *value = &operands[2];
 
-	if(SCALAR(input->address)) {
+	if(IS_SCALAR(input->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
-	if(!SCALAR(size->address)) {
+	if(!IS_SCALAR(size->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
@@ -820,7 +820,7 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 	if(input->address->dimension_count > 1) {
 		qb_address *element_size_address = input->address->array_size_addresses[1];
 		qb_address *value_size_address = value->address->array_size_address;
-		if(CONSTANT(element_size_address) && CONSTANT(value_size_address)) {
+		if(IS_IMMUTABLE(element_size_address) && IS_IMMUTABLE(value_size_address)) {
 			uint32_t element_size = VALUE(U32, element_size_address);
 			uint32_t value_size = VALUE(U32, value_size_address);
 			if(element_size != value_size) {
@@ -833,7 +833,7 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 			qb_produce_op(cxt, &factory_guard_array_size_exact, guard_operands, 2, &guard_result, NULL, 0, NULL);
 		}
 	} else {
-		if(!SCALAR(value->address)) {
+		if(!IS_SCALAR(value->address)) {
 			qb_report_unmet_intrinsic_condition_exception(cxt->line_id, cxt->intrinsic_function, "the third parameter to be a scalar when the input array is not multidimensional");
 			return FALSE;
 		}
@@ -844,7 +844,7 @@ static int32_t qb_validate_operands_array_pad(qb_compiler_context *cxt, qb_op_fa
 static int32_t qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *operand = &operands[0];
 
-	if(SCALAR(operand->address)) {
+	if(IS_SCALAR(operand->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
@@ -854,12 +854,12 @@ static int32_t qb_validate_operands_array_pos(qb_compiler_context *cxt, qb_op_fa
 static int32_t qb_validate_operands_array_rand(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *count = &operands[1];
 
-	if(SCALAR(container->address)) {
+	if(IS_SCALAR(container->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	}
 	if(count->type == QB_OPERAND_ADDRESS) {
-		if(!SCALAR(count->address)) {
+		if(!IS_SCALAR(count->address)) {
 			qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 			return FALSE;
 		}
@@ -874,16 +874,16 @@ static int32_t qb_validate_operands_array_resize(qb_compiler_context *cxt, qb_op
 static int32_t qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *container = &operands[0], *offset = &operands[1], *length = &operands[2];
 
-	if(SCALAR(container->address)) {
+	if(IS_SCALAR(container->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array");
 		return FALSE;
 	} 
-	if(!SCALAR(offset->address)) {
+	if(!IS_SCALAR(offset->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
 	if(length->type == QB_OPERAND_ADDRESS) {
-		if(!SCALAR(length->address)) {
+		if(!IS_SCALAR(length->address)) {
 			qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 2, "scalar");
 			return FALSE;
 		}
@@ -894,15 +894,15 @@ static int32_t qb_validate_operands_array_slice(qb_compiler_context *cxt, qb_op_
 static int32_t qb_validate_operands_range(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *start = &operands[0], *end = &operands[1], *interval = &operands[2];
 
-	if(!SCALAR(start->address)) {
+	if(!IS_SCALAR(start->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
-	if(!SCALAR(end->address)) {
+	if(!IS_SCALAR(end->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 1, "scalar");
 		return FALSE;
 	}
-	if(interval->type == QB_OPERAND_ADDRESS && !SCALAR(interval->address)) {
+	if(interval->type == QB_OPERAND_ADDRESS && !IS_SCALAR(interval->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 2, "scalar");
 		return FALSE;
 	}
@@ -930,7 +930,7 @@ static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory
 		}
 		return FALSE;
 	}
-	if(!SCALAR(value->address)) {
+	if(!IS_SCALAR(value->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "scalar");
 		return FALSE;
 	}
@@ -939,12 +939,12 @@ static int32_t qb_validate_operands_pack(qb_compiler_context *cxt, qb_op_factory
 
 static int32_t qb_validate_operands_unpack(qb_compiler_context *cxt, qb_op_factory *f, qb_primitive_type expr_type, qb_operand *operands, uint32_t operand_count, qb_result_destination *result_destination) {
 	qb_operand *value = &operands[0], *index = &operands[1], *type = &operands[2];
-	if(SCALAR(value->address)) {
+	if(IS_SCALAR(value->address)) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "array of bytes");
 		return FALSE;
 	}
 	if(index->type == QB_OPERAND_ADDRESS) {
-		if(!SCALAR(index->address)) {
+		if(!IS_SCALAR(index->address)) {
 			qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "index value");
 			return FALSE;
 		}
@@ -978,7 +978,7 @@ static int32_t qb_validate_operands_function_call(qb_compiler_context *cxt, qb_o
 			qb_variable *arg = qfunc->variables[i];
 			qb_operand *val = &arguments->arguments[i];
 			if(arg->flags & QB_VARIABLE_BY_REF) {
-				if(val->type != QB_OPERAND_ADDRESS || TEMPORARY(val->address)) {
+				if(val->type != QB_OPERAND_ADDRESS || IS_TEMPORARY(val->address)) {
 					qb_report_unexpected_value_as_function_argument_exception(cxt->line_id, class_name, qfunc->name, i);
 					return FALSE;
 				}
@@ -1068,7 +1068,7 @@ static int32_t qb_validate_operands_define(qb_compiler_context *cxt, qb_op_facto
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "constant string");
 		return FALSE;
 	}
-	if(!(value->type == QB_OPERAND_ZVAL || (value->type == QB_OPERAND_ADDRESS && CONSTANT(value->address) && SCALAR(value->address)))) {
+	if(!(value->type == QB_OPERAND_ZVAL || (value->type == QB_OPERAND_ADDRESS && IS_IMMUTABLE(value->address) && IS_SCALAR(value->address)))) {
 		qb_report_unexpected_intrinsic_argument_exception(cxt->line_id, cxt->intrinsic_function, 0, "constant expression");
 		return FALSE;
 	}

@@ -579,7 +579,7 @@ static int32_t qb_process_branch(qb_php_translator_context *cxt, void *op_factor
 		qb_perform_boolean_coercion(cxt->compiler_context, condition);
 	}
 
-	if(condition->type == QB_OPERAND_ADDRESS && CONSTANT(condition->address)) {
+	if(condition->type == QB_OPERAND_ADDRESS && IS_IMMUTABLE(condition->address)) {
 		// the condition is constant--eliminate the branch
 		condition_constant = TRUE;
 		condition_true = VALUE_IN(cxt->compiler_context->storage, I32, condition->address);

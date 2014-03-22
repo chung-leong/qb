@@ -70,7 +70,7 @@ static void qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_addr
 	USE_TSRM
 	int32_t store_as_string;
 	qb_storage *storage = cxt->function->local_storage;
-	if(SCALAR(address)) {
+	if(IS_SCALAR(address)) {
 		if(address->flags & QB_ADDRESS_STRING) {
 			store_as_string = TRUE;
 		} else {
@@ -139,7 +139,7 @@ static void qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_addr
 					ZVAL_STRING(zvalue, "image", TRUE);
 				}
 			} else {
-				if(Z_TYPE_P(zvalue) != IS_STRING || VARIABLE_LENGTH(address)) {
+				if(Z_TYPE_P(zvalue) != IS_STRING || IS_VARIABLE_LENGTH(address)) {
 					char buffer[64];
 					uint32_t dimension = VALUE_IN(storage, U32, address->dimension_addresses[0]);
 					uint32_t len = snprintf(buffer, sizeof(buffer), "(%d elements)", dimension);
