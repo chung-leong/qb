@@ -4,7 +4,7 @@ phpize
 ./configure --with-cpu=native
 make clean
 export EXTRA_CFLAGS
-EXTRA_CFLAGS="-fprofile-generate"
+EXTRA_CFLAGS="-fprofile-generate -DQB_DISABLE_MULTITHREADING"
 make
 export NO_INTERACTION=1
 make test TESTS=ext/qb/tests/use-case-*.phpt

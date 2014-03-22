@@ -818,11 +818,14 @@ static ZEND_INI_MH(OnThreadCount) /* {{{ */
 
 	// allow the thread count to get smaller than the initial but not bigger
 	if(permitted_thread_count == 0) {
+#ifdef QB_DISABLE_MULTITHREADING
+		permitted_thread_count = 1;
+#else
 		permitted_thread_count = QB_G(thread_count);
-	} else {
-		if(QB_G(thread_count) > permitted_thread_count) {
-			QB_G(thread_count) = permitted_thread_count;
-		}
+#endif
+	}
+	if(QB_G(thread_count) > permitted_thread_count) {
+		QB_G(thread_count) = permitted_thread_count;
 	}
 	return SUCCESS;
 }
