@@ -1048,6 +1048,17 @@ PHP_MINFO_FUNCTION(qb)
 	php_info_print_table_row(2, "Version", STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION));
 	php_info_print_table_row(2, "Release Name", QB_FULL_RELEASE_NAME);
 
+	sprintf(buffer, "%u", cpu_count);
+	php_info_print_table_row(2, "CPU count", buffer);
+
+#if defined(__x86_64__)
+	php_info_print_table_row(2, "CPU architecture", "x86-64");
+#elif defined(__i386__)
+	php_info_print_table_row(2, "CPU architecture", "x86");
+#elif defined(__ARM_ARCH_7A__)
+	php_info_print_table_row(2, "CPU architecture", "ARMv7-A");
+#endif
+
 #if __SSE4_2__
 	php_info_print_table_row(2, "SSE version", "4.2");
 #elif __SSE4_1__
@@ -1066,9 +1077,6 @@ PHP_MINFO_FUNCTION(qb)
 #if __AVX2__
 	php_info_print_table_row(2, "AVX version", "2");
 #endif
-
-	sprintf(buffer, "%u", cpu_count);
-	php_info_print_table_row(2, "CPU count", buffer);
 
 	qb_run_diagnostics(&diag TSRMLS_CC);
 	php_info_print_table_colspan_header(2, "Diagnostics");

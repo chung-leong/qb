@@ -4036,7 +4036,7 @@ void qb_open_diagnostic_loop(qb_compiler_context *cxt) {
 	cxt->stage = QB_STAGE_OPCODE_TRANSLATION;
 }
 
-#define DIAGNOSTIC_ITERATION	2000000
+#define DIAGNOSTIC_ITERATION	500000
 
 void qb_close_diagnostic_loop(qb_compiler_context *cxt) {
 	qb_operand iteration, counter;
