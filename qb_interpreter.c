@@ -399,7 +399,7 @@ static int32_t qb_sync_imported_variables(qb_interpreter_context *cxt) {
 	uint32_t i, j;
 	for(i = 0; i < QB_G(scope_count); i++) {
 		qb_import_scope *scope = QB_G(scopes)[i];
-		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT) {
+		if(scope->type != QB_IMPORT_SCOPE_ABSTRACT_OBJECT && scope->type != QB_IMPORT_SCOPE_FREED_OBJECT) {
 			for(j = 0; j < scope->variable_count; j++) {
 				qb_variable *ivar = scope->variables[j];
 				if(!qb_transfer_value_to_import_source(cxt, ivar, scope)) {
@@ -419,8 +419,22 @@ void qb_sync_imported_variable(qb_interpreter_context *cxt, qb_variable *qvar) {
 	qb_transfer_value_to_import_source(cxt, ivar, scope);
 }
 
+static int32_t qb_release_object_instances(qb_interpreter_context *cxt) {
+	USE_TSRM
+	uint32_t i;
+	for(i = 0; i < QB_G(scope_count); i++) {
+		qb_import_scope *scope = QB_G(scopes)[i];
+		if(scope->type == QB_IMPORT_SCOPE_OBJECT) {
+			// release the object
+			zval_ptr_dtor(&scope->object);
+			scope->type = QB_IMPORT_SCOPE_FREED_OBJECT;
+		}
+	}
+	return TRUE;
+}
+
 static int32_t qb_transfer_variables_to_php(qb_interpreter_context *cxt) {
-	return qb_sync_imported_variables(cxt);
+	return qb_sync_imported_variables(cxt) && qb_release_object_instances(cxt);
 }
 
 static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
@@ -855,6 +869,10 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 	if(cxt->shadow_variables) {
 		qb_destroy_shadow_variables(cxt);
 	}
+}
+
+static void qb_release_objects(qb_interpreter_context *cxt) {
+
 }
 
 int32_t qb_execute(qb_interpreter_context *cxt) {

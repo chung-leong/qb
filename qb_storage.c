@@ -1423,7 +1423,15 @@ int32_t qb_transfer_value_from_zval(qb_storage *storage, qb_address *address, zv
 		// use memory from the source if possible
 		if(transfer_flags & (QB_TRANSFER_CAN_BORROW_MEMORY | QB_TRANSFER_CAN_SEIZE_MEMORY)) {
 			if(Z_TYPE_P(zvalue) == IS_STRING) {
-				if(!IS_INTERNED(Z_STRVAL_P(zvalue))) {
+				int32_t can_modify_zval = TRUE;
+				if(IS_INTERNED(Z_STRVAL_P(zvalue))) {
+					// the zval is a constant
+					can_modify_zval = FALSE;
+				} else if(!Z_ISREF_P(zvalue) && Z_REFCOUNT_P(zvalue) > 1) {
+					// the zval is copy-on-write
+					can_modify_zval = FALSE;
+				}
+				if(can_modify_zval) {
 					int8_t *src_memory = (int8_t *) Z_STRVAL_P(zvalue);
 					uint32_t src_bytes_available = Z_STRLEN_P(zvalue) + 1;
 					if(qb_connect_segment_to_memory(dst_segment, src_memory, dst_byte_count, src_bytes_available, (transfer_flags & QB_TRANSFER_CAN_SEIZE_MEMORY))) {
@@ -1534,7 +1542,7 @@ int32_t qb_transfer_value_to_zval(qb_storage *storage, qb_address *address, zval
 			return TRUE;
 		} else if(src_segment->flags & QB_SEGMENT_BORROWED) {
 			int8_t *memory;
-			if(src_segment->byte_count == src_segment->current_allocation || (src_segment->byte_count - src_segment->current_allocation) > 1024) {
+			if(src_segment->byte_count == src_segment->current_allocation || (src_segment->current_allocation - src_segment->byte_count) > 1024) {
 				// allocate there's no room for null terminator or there's a lot of unused space
 				memory = erealloc(src_segment->memory, src_segment->byte_count + 1);
 				memory[src_segment->byte_count] = '\0';

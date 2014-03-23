@@ -2,7 +2,7 @@
 Random number test (assignment to array)
 --SKIPIF--
 <?php 
-	if(version_compare(PHP_VERSION, '5.2.0') < 0) print 'skip old mt_rand implementation';
+	if(version_compare(PHP_VERSION, '5.2') < 0) print 'skip old mt_rand implementation';
 ?>
 --FILE--
 <?php

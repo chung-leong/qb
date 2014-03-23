@@ -31,8 +31,8 @@ int debug_compatibility_mode = TRUE;
 int permitted_thread_count = 0;
 
 qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC) {
-	uint32_t i;
 	qb_import_scope *scope;
+	uint32_t i;
 	for(i = 0; i < QB_G(scope_count); i++) {
 		scope = QB_G(scopes)[i];
 		if(scope->type == type) {
@@ -52,9 +52,28 @@ qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associat
 					HashTable *symbol_table = associated_object;
 					match = (scope->symbol_table == symbol_table);
 				}	break;
+				default: {
+					break;
+				}
 			}
 			if(match) {
 				return scope;
+			}
+		}
+	}
+	if(type == QB_IMPORT_SCOPE_OBJECT) {
+		// see if we can reuse a scope from an object released earlier
+		zval *object = associated_object;
+		zend_class_entry *class_entry = Z_OBJCE_P(object);
+		for(i = 0; i < QB_G(scope_count); i++) {
+			scope = QB_G(scopes)[i];
+			if(scope->type == QB_IMPORT_SCOPE_FREED_OBJECT) {
+				if(scope->parent->class_entry == class_entry) {
+					Z_ADDREF_P(object);
+					scope->object = object;
+					scope->type = QB_IMPORT_SCOPE_OBJECT;
+					return scope;
+				}
 			}
 		}
 	}
@@ -82,6 +101,9 @@ qb_import_scope * qb_create_import_scope(qb_import_scope_type type, void *associ
 			HashTable *symbol_table = associated_object;
 			scope->symbol_table = symbol_table;
 		}	break;
+		default: {
+			break;
+		}
 	}
 
 	if(!QB_G(scopes)) {
@@ -102,6 +124,7 @@ qb_import_scope * qb_create_import_scope(qb_import_scope_type type, void *associ
 			abstract_scope = qb_create_import_scope(QB_IMPORT_SCOPE_ABSTRACT_OBJECT, ce TSRMLS_CC);
 		}
 
+		scope->parent = abstract_scope;
 		scope->variables = abstract_scope->variables;
 		scope->variable_count = abstract_scope->variable_count;
 		scope->storage = emalloc(sizeof(qb_storage));
@@ -258,6 +281,9 @@ qb_variable * qb_import_variable(qb_storage *storage, qb_variable *var, qb_impor
 			scalar_selector = QB_SELECTOR_OBJECT_SCALAR;
 			array_selector = QB_SELECTOR_OBJECT_ARRAY;
 		}	break;
+		default: {
+			break;
+		}
 	}
 
 	if(var->address->dimension_count > 0) {
@@ -978,15 +1004,21 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 
 	for(i = 0; i < QB_G(scope_count); i++) {
 		qb_import_scope *scope = QB_G(scopes)[i];
-		if(scope->type != QB_IMPORT_SCOPE_OBJECT) {
+		// object scopes just point to the variables of the abstract scope
+		if(scope->type != QB_IMPORT_SCOPE_OBJECT && scope->type != QB_IMPORT_SCOPE_FREED_OBJECT) {
 			for(j = (scope->parent) ? scope->parent->variable_count : 0; j < scope->variable_count; j++) {
 				qb_variable *var = scope->variables[j];
 				efree(var);
 			}
 			efree(scope->variables);
+		} else {
+			if(scope->type == QB_IMPORT_SCOPE_OBJECT) {
+				zval_ptr_dtor(&scope->object);
+			}
 		}
 		
-		if(!scope->parent) {
+		// release the storage unless it's pointing to the parent's
+		if(!scope->parent || scope->parent->storage != scope->storage) {
 			for(j = 0; j < scope->storage->segment_count; j++) {
 				qb_memory_segment *segment = &scope->storage->segments[j];
 				if(!segment->flags & QB_SEGMENT_PREALLOCATED) {

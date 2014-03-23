@@ -2,7 +2,7 @@
 Yield test (with key)
 --SKIPIF--
 <?php 
-	if(version_compare(PHP_VERSION, '5.5.0') < 0) print 'skip feature not available';
+	if(version_compare(PHP_VERSION, '5.5') < 0) print 'skip feature not available';
 ?>
 --FILE--
 <?php

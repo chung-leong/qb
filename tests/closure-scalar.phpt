@@ -2,7 +2,7 @@
 Closure test (scalar)
 --SKIPIF--
 <?php 
-	if(version_compare(PHP_VERSION, '5.3.0') < 0) print 'skip feature not available';
+	if(version_compare(PHP_VERSION, '5.3') < 0) print 'skip feature not available';
 ?>
 --FILE--
 <?php
