@@ -768,7 +768,7 @@ zend_module_entry qb_module_entry = {
 	PHP_RSHUTDOWN(qb),	/* Replace with NULL if there's nothing to do at request end */
 	PHP_MINFO(qb),
 #if ZEND_MODULE_API_NO >= 20010901
-	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION), /* Replace with version number for your extension */
+	PHP_QB_VERSION, /* Replace with version number for your extension */
 #endif
 	STANDARD_MODULE_PROPERTIES
 };
@@ -783,7 +783,7 @@ int qb_extension_startup(zend_extension *extension) {
 
 zend_extension qb_zend_extension_entry = {
 	"QB",
-	STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION),
+	PHP_QB_VERSION,
 	"Chung Leong",
 	"http://www.php-qb.net/",
 	"Copyright (c) 2013-2014",
@@ -1077,7 +1077,7 @@ PHP_MINFO_FUNCTION(qb)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "qb support", "enabled");
 
-	php_info_print_table_row(2, "Version", STRING(QB_MAJOR_VERSION) "." STRING(QB_MINOR_VERSION));
+	php_info_print_table_row(2, "Version", PHP_QB_VERSION);
 	php_info_print_table_row(2, "Release Name", QB_FULL_RELEASE_NAME);
 
 	sprintf(buffer, "%u", cpu_count);
