@@ -7,6 +7,9 @@
 *.o
 *.lo
 *.la
+*.gcda
+*.gcov
+*.gcno
 .libs
 
 #Visual Studio files
