@@ -34,13 +34,10 @@ static php_stream * qb_get_file_stream(zval *resource) {
 
 static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
 	// get the file size
-	off_t position, size;
 	TSRMLS_FETCH();
-	position = php_stream_tell(stream);
-	php_stream_seek(stream, 0, SEEK_END);		
-	size = php_stream_tell(stream);
-	php_stream_seek(stream, position, SEEK_SET);
-	return qb_capture_dimensions_from_byte_count(size, m, dimension_index);
+	php_stream_statbuf ssb;
+	php_stream_stat(stream, &ssb);
+	return qb_capture_dimensions_from_byte_count((uint32_t) ssb.sb.st_size, m, dimension_index);
 }
 
 static int32_t qb_copy_elements_to_file(int8_t *src_memory, php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
@@ -84,15 +81,11 @@ static int32_t qb_copy_elements_from_file(php_stream *stream, int8_t *dst_memory
 static void * qb_map_file_to_memory(php_stream *stream, uint32_t byte_count, int32_t write_access TSRMLS_DC) {
 	if(QB_G(allow_memory_map)) {
 		php_stream_mmap_range range;
-		size_t file_size;
 		if(write_access) {
 			// make sure the file is large enough
-			off_t position;
-			position = php_stream_tell(stream);
-			php_stream_seek(stream, 0, SEEK_END);
-			file_size = php_stream_tell(stream);
-			php_stream_seek(stream, position, SEEK_SET);
-			if(byte_count > file_size) {
+			php_stream_statbuf ssb;
+			php_stream_stat(stream, &ssb);
+			if(byte_count > (uint32_t) ssb.sb.st_size) {
 				php_stream_truncate_set_size(stream, byte_count);
 			}
 		}
