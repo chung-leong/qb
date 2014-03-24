@@ -21,6 +21,11 @@
 #ifndef QB_H_
 #define QB_H_
 
+#if _FILE_OFFSET_BITS != 64
+#	undef _FILE_OFFSET_BITS
+#	define _FILE_OFFSET_BITS 64
+#endif
+
 #ifdef HAVE_CONFIG_H
 #	include "config.h"
 #endif
