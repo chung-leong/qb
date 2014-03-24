@@ -67,7 +67,6 @@ static void qb_element_to_zval(zval *zvalue, int8_t *bytes, uint32_t type) {
 }
 
 static void qb_transfer_value_to_debug_zval(qb_interpreter_context *cxt, qb_address *address, zval *zvalue) {
-	USE_TSRM
 	int32_t store_as_string;
 	qb_storage *storage = cxt->function->local_storage;
 	if(IS_SCALAR(address)) {
@@ -252,7 +251,6 @@ void qb_create_shadow_variables(qb_interpreter_context *cxt) {
 
 void qb_sync_shadow_variable(qb_interpreter_context *cxt, uint32_t index) {
 	if(debug_compatibility_mode) {
-		USE_TSRM
 		qb_variable *qvar = cxt->function->variables[index];
 		if(cxt->shadow_variables) {
 			zval *shadow_variable = cxt->shadow_variables[index];

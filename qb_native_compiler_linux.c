@@ -147,7 +147,8 @@ static int32_t qb_wait_for_compiler_response(qb_native_compiler_context *cxt) {
 	int count;
 	while((count = fread(buffer, 1, sizeof(buffer), cxt->error_stream))) {
 		if(cxt->print_errors) {
-			php_write(buffer, count);
+			USE_TSRM
+			php_write(buffer, count TSRMLS_CC);
 		}
 	}
 

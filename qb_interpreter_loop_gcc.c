@@ -26,7 +26,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 	if(cxt) {
 		register void *__restrict handler;
 		register int8_t *__restrict ip;
-		USE_TSRM
 		
 		{
 			handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;

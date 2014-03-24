@@ -27,7 +27,6 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 	register int8_t *__restrict ip;
 	uint32_t windows_timeout_check_counter = 0;
 	volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;
-	USE_TSRM
 	
 	{
 		handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;

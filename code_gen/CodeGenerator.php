@@ -118,7 +118,6 @@ class CodeGenerator {
 			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
 			$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
 		}
-		$lines[] =			"USE_TSRM";
 		$lines[] = 			"";
 		$lines[] = 			"{";
 		$lines[] = 				"handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";

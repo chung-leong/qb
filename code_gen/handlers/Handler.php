@@ -749,7 +749,6 @@ class Handler {
 			$lines[] = "$dispatcherTypeDecl $dispatcherFunction($dispatcherParameterList) {";
 			$lines[] =		"uint32_t op{$opCount}_count = instr->operand{$opCount}.count_pointer[0];";
 			$lines[] =		"if(op{$opCount}_count >= threshold) {";
-			$lines[] =			"USE_TSRM";
 			$lines[] =			"int32_t use_multithreading = TRUE;";
 			$lines[] =			"uint32_t res_unit_count = op{$opCount}_count / operand{$opCount}_size;";
 			$lines[] =			"uint32_t thread_count = cxt->thread_count;";

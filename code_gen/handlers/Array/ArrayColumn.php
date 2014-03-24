@@ -40,7 +40,6 @@ class ArrayColumn extends Handler {
 		$lines[] = "$cType *op1_end = op1_ptr + op1_count;";
 		$lines[] = "uint32_t column_offset = op4, column_count = op2, element_size = op3;";
 		$lines[] = "if(UNEXPECTED(column_offset >= column_count)) {";
-		$lines[] =		"USE_TSRM";
 		$lines[] =		"qb_report_missing_column_exception(line_id, column_offset, column_count);";
 		$lines[] =		"cxt->exit_type = QB_VM_ERROR;";
 		$lines[] =		"return;";

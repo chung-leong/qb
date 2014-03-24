@@ -452,7 +452,6 @@ static void qb_find_doc_comment_line_number(qb_parser_context *cxt, const char *
 
 static void qb_report_unexpected_doc_comment_tag(qb_parser_context *cxt, const char *comment, uint32_t comment_length, int matches, int *offsets) {
 	int i;
-	TSRMLS_FETCH();
 	for(i = 1; i < matches; i++) {
 		if(FOUND_GROUP(i)) {
 			uint32_t tag_len = GROUP_LENGTH(i);

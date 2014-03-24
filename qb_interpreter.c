@@ -474,8 +474,6 @@ static int32_t qb_transfer_arguments_to_caller(qb_interpreter_context *cxt) {
 }
 
 static int32_t qb_transfer_variables_to_external_sources(qb_interpreter_context *cxt) {
-	USE_TSRM
-
 	if(cxt->caller_context) {
 		return qb_transfer_arguments_to_caller(cxt);
 	} else {
@@ -869,10 +867,6 @@ static void qb_finalize_variables(qb_interpreter_context *cxt) {
 	if(cxt->shadow_variables) {
 		qb_destroy_shadow_variables(cxt);
 	}
-}
-
-static void qb_release_objects(qb_interpreter_context *cxt) {
-
 }
 
 int32_t qb_execute(qb_interpreter_context *cxt) {

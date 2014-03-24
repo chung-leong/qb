@@ -171,7 +171,6 @@ uint32_t qb_set_source_file(qb_compiler_context *cxt, const char *file_path) {
 }
 
 uint32_t qb_set_source_op_index(qb_compiler_context *cxt, uint32_t source_index, uint32_t line_number) {
-	USE_TSRM
 	uint32_t op_index;
 	if(cxt->stage == QB_STAGE_OPCODE_TRANSLATION) {
 		if(source_index >= cxt->op_translation_table_size) {

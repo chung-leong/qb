@@ -190,7 +190,6 @@ static void qb_append_string(zval *string, const char *format, ...) {
 }
 
 void qb_extract_pbj_info(qb_extractor_context *cxt, int output_type) {
-	USE_TSRM
 	qb_pbj_translator_context *translator_cxt = cxt->translator_context;
 	zval path = *cxt->input, *parameters;
 	uint32_t i;

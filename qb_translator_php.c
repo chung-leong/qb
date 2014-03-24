@@ -215,7 +215,6 @@ static int32_t qb_process_fetch_class(qb_php_translator_context *cxt, void *op_f
 }
 
 static int32_t qb_process_fetch(qb_php_translator_context *cxt, void *op_factories, qb_operand *operands, uint32_t operand_count, qb_operand *result, qb_result_prototype *result_prototype) {
-	USE_TSRM
 	uint32_t fetch_type = FETCH_TYPE(cxt->zend_op);
 	void **list = op_factories, *op_factory;
 

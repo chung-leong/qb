@@ -1719,7 +1719,6 @@ int32_t qb_do_array_column_F32(qb_interpreter_context *__restrict cxt, float32_t
 	float32_t *op1_end = op1_ptr + op1_count;
 	uint32_t column_offset = op4, column_count = op2, element_size = op3;
 	if(UNEXPECTED(column_offset >= column_count)) {
-		USE_TSRM
 		qb_report_missing_column_exception(line_id, column_offset, column_count);
 		cxt->exit_type = QB_VM_ERROR;
 		return FALSE;
@@ -1745,7 +1744,6 @@ int32_t qb_do_array_column_F64(qb_interpreter_context *__restrict cxt, float64_t
 	float64_t *op1_end = op1_ptr + op1_count;
 	uint32_t column_offset = op4, column_count = op2, element_size = op3;
 	if(UNEXPECTED(column_offset >= column_count)) {
-		USE_TSRM
 		qb_report_missing_column_exception(line_id, column_offset, column_count);
 		cxt->exit_type = QB_VM_ERROR;
 		return FALSE;
@@ -1771,7 +1769,6 @@ int32_t qb_do_array_column_I08(qb_interpreter_context *__restrict cxt, int8_t *o
 	int8_t *op1_end = op1_ptr + op1_count;
 	uint32_t column_offset = op4, column_count = op2, element_size = op3;
 	if(UNEXPECTED(column_offset >= column_count)) {
-		USE_TSRM
 		qb_report_missing_column_exception(line_id, column_offset, column_count);
 		cxt->exit_type = QB_VM_ERROR;
 		return FALSE;
@@ -1797,7 +1794,6 @@ int32_t qb_do_array_column_I16(qb_interpreter_context *__restrict cxt, int16_t *
 	int16_t *op1_end = op1_ptr + op1_count;
 	uint32_t column_offset = op4, column_count = op2, element_size = op3;
 	if(UNEXPECTED(column_offset >= column_count)) {
-		USE_TSRM
 		qb_report_missing_column_exception(line_id, column_offset, column_count);
 		cxt->exit_type = QB_VM_ERROR;
 		return FALSE;
@@ -1823,7 +1819,6 @@ int32_t qb_do_array_column_I32(qb_interpreter_context *__restrict cxt, int32_t *
 	int32_t *op1_end = op1_ptr + op1_count;
 	uint32_t column_offset = op4, column_count = op2, element_size = op3;
 	if(UNEXPECTED(column_offset >= column_count)) {
-		USE_TSRM
 		qb_report_missing_column_exception(line_id, column_offset, column_count);
 		cxt->exit_type = QB_VM_ERROR;
 		return FALSE;
@@ -1849,7 +1844,6 @@ int32_t qb_do_array_column_I64(qb_interpreter_context *__restrict cxt, int64_t *
 	int64_t *op1_end = op1_ptr + op1_count;
 	uint32_t column_offset = op4, column_count = op2, element_size = op3;
 	if(UNEXPECTED(column_offset >= column_count)) {
-		USE_TSRM
 		qb_report_missing_column_exception(line_id, column_offset, column_count);
 		cxt->exit_type = QB_VM_ERROR;
 		return FALSE;
@@ -32772,7 +32766,6 @@ void qb_redirect_synchronize_shadow_variable_U32(qb_interpreter_context *__restr
 int32_t qb_dispatch_instruction_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR *__restrict instr, uint32_t operand1_size, uint32_t threshold) {
 	uint32_t op1_count = instr->operand1.count_pointer[0];
 	if(op1_count >= threshold) {
-		USE_TSRM
 		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op1_count / operand1_size;
 		uint32_t thread_count = cxt->thread_count;
@@ -32804,7 +32797,6 @@ int32_t qb_dispatch_instruction_ARR(qb_interpreter_context *__restrict cxt, void
 int32_t qb_dispatch_instruction_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t threshold) {
 	uint32_t op2_count = instr->operand2.count_pointer[0];
 	if(op2_count >= threshold) {
-		USE_TSRM
 		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op2_count / operand2_size;
 		uint32_t thread_count = cxt->thread_count;
@@ -32851,7 +32843,6 @@ int32_t qb_dispatch_instruction_ARR_ARR(qb_interpreter_context *__restrict cxt, 
 int32_t qb_dispatch_instruction_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand3_size, uint32_t threshold) {
 	uint32_t op3_count = instr->operand3.count_pointer[0];
 	if(op3_count >= threshold) {
-		USE_TSRM
 		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op3_count / operand3_size;
 		uint32_t thread_count = cxt->thread_count;
@@ -32913,7 +32904,6 @@ int32_t qb_dispatch_instruction_ARR_ARR_ARR(qb_interpreter_context *__restrict c
 int32_t qb_dispatch_instruction_ARR_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand3_size, uint32_t operand4_size, uint32_t threshold) {
 	uint32_t op4_count = instr->operand4.count_pointer[0];
 	if(op4_count >= threshold) {
-		USE_TSRM
 		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op4_count / operand4_size;
 		uint32_t thread_count = cxt->thread_count;
@@ -32990,7 +32980,6 @@ int32_t qb_dispatch_instruction_ARR_ARR_ARR_ARR(qb_interpreter_context *__restri
 int32_t qb_dispatch_instruction_ARR_ARR_SCA_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_ARR_SCA_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand2_size, uint32_t operand4_size, uint32_t threshold) {
 	uint32_t op4_count = instr->operand4.count_pointer[0];
 	if(op4_count >= threshold) {
-		USE_TSRM
 		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op4_count / operand4_size;
 		uint32_t thread_count = cxt->thread_count;
@@ -33053,7 +33042,6 @@ int32_t qb_dispatch_instruction_ARR_ARR_SCA_ARR(qb_interpreter_context *__restri
 int32_t qb_dispatch_instruction_ARR_SCA_SCA_ARR_ARR_ARR(qb_interpreter_context *__restrict cxt, void *control_func, qb_instruction_ARR_SCA_SCA_ARR_ARR_ARR *__restrict instr, uint32_t operand1_size, uint32_t operand4_size, uint32_t operand5_size, uint32_t operand6_size, uint32_t threshold) {
 	uint32_t op6_count = instr->operand6.count_pointer[0];
 	if(op6_count >= threshold) {
-		USE_TSRM
 		int32_t use_multithreading = TRUE;
 		uint32_t res_unit_count = op6_count / operand6_size;
 		uint32_t thread_count = cxt->thread_count;

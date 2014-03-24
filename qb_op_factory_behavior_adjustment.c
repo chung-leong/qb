@@ -30,7 +30,6 @@ static int32_t qb_indicate_fork(qb_compiler_context *cxt, qb_op_factory *f, qb_o
 }
 
 static int32_t qb_indicate_debugger_presence(qb_compiler_context *cxt, qb_op_factory *f, qb_operand *operands, uint32_t operand_count, qb_operand *result) {
-	USE_TSRM
 	cxt->debugger_present = TRUE;
 
 	// don't inline the function when debugger is active
