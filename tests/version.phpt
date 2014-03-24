@@ -6,5 +6,6 @@ Version test
 echo phpversion("qb"), "\n";
 
 ?>
---EXPECT--
-2.1
+--EXPECTREGEX--
+2\.\d\.\d+.*
+

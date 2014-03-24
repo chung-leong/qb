@@ -176,6 +176,7 @@ struct qb_thread_pool {
 #ifndef WIN32
 	qb_main_thread *current_main_thread;
 	pthread_t signal_thread;
+	int signal_thread_state;
 #endif
 };
 

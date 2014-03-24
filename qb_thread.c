@@ -311,21 +311,23 @@ THREAD_PROC_RETURN_TYPE qb_signal_thread_proc(void *arg) {
 	sigaddset(&set, SIGQUIT);
 	sigaddset(&set, TIME_OUT_SIGNAL);
 
-	// keep waiting for signals
-	for(;;) {
-		int signal;
-		sigwait(&set, &signal);
-		if(signal == TIME_OUT_SIGNAL) {
-			// note: it's unclear how PHP handles timeout when ZTS is on
-			qb_main_thread *main_thread = pool->current_main_thread;
-			if(main_thread) {
-				pool->current_main_thread = NULL;
-				qb_send_event(&main_thread->event_sink, NULL, QB_EVENT_TIMEOUT, FALSE);
-			} else {
-				zend_timeout(0);
+	// keep waiting for signals (unless signal_thread_state has been incremented already)
+	if(__sync_add_and_fetch(&pool->signal_thread_state, 1) == 1) {
+		for(;;) {
+			int signal;
+			sigwait(&set, &signal);
+			if(signal == TIME_OUT_SIGNAL) {
+				// note: it's unclear how PHP handles timeout when ZTS is on
+				qb_main_thread *main_thread = pool->current_main_thread;
+				if(main_thread) {
+					pool->current_main_thread = NULL;
+					qb_send_event(&main_thread->event_sink, NULL, QB_EVENT_TIMEOUT, FALSE);
+				} else {
+					zend_timeout(0);
+				}
+			} else if(signal == SIGQUIT) {
+				break;
 			}
-		} else if(signal == SIGQUIT) {
-			break;
 		}
 	}
 	return THREAD_PROC_RETURN_VALUE;
@@ -919,6 +921,7 @@ int qb_initialize_thread_pool(TSRMLS_D) {
 #ifndef WIN32
 		pool->current_main_thread = NULL;
 		pool->signal_thread = 0;
+		pool->signal_thread_state = 0;
 		if(pool->global_thread_limit > 0) {
 			pthread_create(&pool->signal_thread, NULL, qb_signal_thread_proc, pool);
 		}
@@ -934,7 +937,9 @@ void qb_free_thread_pool(void) {
 		long i;
 #ifndef WIN32
 		if(pool->signal_thread) {
-			pthread_kill(pool->signal_thread, SIGQUIT);
+			if(__sync_add_and_fetch(&pool->signal_thread_state, 1) == 2) {
+				pthread_kill(pool->signal_thread, SIGQUIT);
+			}
 			pthread_join(pool->signal_thread, NULL);
 		}
 #endif
