@@ -496,7 +496,7 @@
 #	endif
 #endif
 
-#ifndef _FILE_OFFSET_BITS
+#if _FILE_OFFSET_BITS != 64
 #	define _FILE_OFFSET_BITS 64
 #endif
 
