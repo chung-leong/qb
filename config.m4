@@ -72,10 +72,7 @@ if test "$PHP_QB" != "no"; then
   AC_TRY_COMPILE(
     [ void __builtin_bswap16(void); ], 
     [ ], 
-    [ 
-      AC_MSG_RESULT([no]) 
-      exit
-    ],
+    [ AC_MSG_RESULT([no]) ],
     [ 
       AC_DEFINE(HAVE_BUILTIN_BSWAP16,1,[ ])
       AC_MSG_RESULT([yes])
