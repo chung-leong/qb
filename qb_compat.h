@@ -496,6 +496,10 @@
 #	endif
 #endif
 
+#ifndef _FILE_OFFSET_BITS
+#	define _FILE_OFFSET_BITS 64
+#endif
+
 // the following is copied from the PHP source so we can build without the
 // full source code--i.e. using just phpize
 
