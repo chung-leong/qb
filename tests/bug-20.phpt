@@ -1,5 +1,9 @@
 --TEST--
 Bug #20
+--SKIPIF--
+<?php 
+	if(!function_exists('gc_enable')) print 'skip gc function not available';
+?>
 --FILE--
 <?php 
 
