@@ -34,8 +34,8 @@ static php_stream * qb_get_file_stream(zval *resource) {
 
 static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
 	// get the file size
-	TSRMLS_FETCH();
 	php_stream_statbuf ssb;
+	TSRMLS_FETCH();
 	php_stream_stat(stream, &ssb);
 	return qb_capture_dimensions_from_byte_count((uint32_t) ssb.sb.st_size, m, dimension_index);
 }
