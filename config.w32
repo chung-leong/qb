@@ -8,10 +8,12 @@ ARG_WITH("sse", "Use SSE instructions on x86 processors", "no");
 if (PHP_QB != "no") {
 	var cflags = "/GS-";
 	if (PHP_SSE != "no") {
-		if(PHP_SSE == "1") {
-			cflags += " /arch:SSE";
-		} else {
-			cflags += " /arch:SSE2";
+		if(!X64) {
+			if(PHP_SSE == "1") {
+				cflags += " /arch:SSE";
+			} else {
+				cflags += " /arch:SSE2";
+			}
 		}
 	}
 	var extra_sources="\
