@@ -65,7 +65,7 @@ typedef enum qb_primitive_type				qb_primitive_type;
 #define BYTE_COUNT(element_count, type)		((uint32_t) ((element_count) << type_size_shifts[type]))
 #define ELEMENT_COUNT(byte_count, type)		((byte_count) >> type_size_shifts[type])
 
-#define SHIFT_POINTER(p, shift)				*((uintptr_t *) &(p)) += shift
+#define SHIFT_POINTER(p, shift)				p = (void *) (((char *) (p)) + shift)
 
 #define INVALID_INDEX						((uint32_t) -1)
 
