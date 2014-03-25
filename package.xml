@@ -2,18 +2,21 @@
 <package version="2.1" xmlns="http://pear.php.net/dtd/package-2.1" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.1     http://pear.php.net/dtd/package-2.1.xsd">
  <name>qb</name>
  <channel>pecl.php.net</channel>
- <summary>Accelerator designed mainly for graphic work</summary>
- <description>QB stands for "Quick Binary". It's a PHP extension designed to enable faster handling of binary data. It takes a function written in PHP and translate it for a specialized virtual machine. The use of static type information leads significantly higher performance than under PHP’s regular dynamic type system. A PHP+QB function can run anywhere from five to twenty times faster than regular PHP code. For even higher level of performance, one can compile PHP+QB functions to native code (on supported platforms).
+ <summary>Accelerator designed mainly for graphic work
+</summary>
+ <description>
+QB stands for &quot;Quick Binary.&quot; It’s a PHP extension designed to enable faster handling of binary data. It takes a function written in PHP and translate it for a specialized virtual machine. The use of static type information leads significantly higher performance than under PHP’s regular dynamic type system. A PHP+QB function can run anywhere from five to twenty times faster than regular PHP code. For even higher level of performance, one can compile PHP+QB functions to native code (on supported platforms).
 
-QB performs code translation on a per-function basis. It does not affect in anyway code not specially marked. Interaction between PHP+QB functions and regular PHP code is basically seamless. A key design objective of QB is to let developers harness greater processing power than what baseline PHP offers without the risk involved in adopting a brand new platform.</description>
+QB performs code translation on a per-function basis. It does not affect in anyway code not specially marked. Interaction between PHP+QB functions and regular PHP code is basically seamless. A key design objective of QB is to let developers harness greater processing power than what baseline PHP offers without the risk involved in adopting a brand new platform. 
+</description>
  <lead>
   <name>Chung Leong</name>
   <user>cleong728</user>
   <email>cleong728@gmail.com</email>
   <active>yes</active>
  </lead>
- <date>2014-03-17</date>
- <time>01:29:03</time>
+ <date>2014-03-25</date>
+ <time>19:01:58</time>
  <version>
   <release>2.1.2</release>
   <api>0.1.0</api>
@@ -23,17 +26,423 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP License</license>
- <notes>Initial release
+ <notes>Fixed issue #17 - Segfault with large fixed length array
+Fixed issue #19, #28 - Errors in Solaris 11
+Fixed issue #20 - Corruption of pass-by-ref variables
+Fixed issue #21 - Conflict with xdebug in FreeBSD
+Fixed issue #24 - Broken ZTS build
+Fixed issue #27 - Incorrect object import
 </notes>
  <contents>
   <dir name="/">
+   <dir name="tests">
+    <file role="test" name=".gitignore"/>
+    <file role="test" name="001.phpt"/>
+    <file role="test" name="argument-array-wrap-around-internal.phpt"/>
+    <file role="test" name="argument-array-wrap-around-scalar.phpt"/>
+    <file role="test" name="argument-array-wrap-around-string.phpt"/>
+    <file role="test" name="argument-array-wrap-around.phpt"/>
+    <file role="test" name="argument-by-ref-array-multidim.phpt"/>
+    <file role="test" name="argument-by-ref-array.phpt"/>
+    <file role="test" name="argument-by-ref-scalar.phpt"/>
+    <file role="test" name="argument-by-ref-string-i8.phpt"/>
+    <file role="test" name="argument-by-value-array-multidim.phpt"/>
+    <file role="test" name="argument-by-value-array-unknown-dim.phpt"/>
+    <file role="test" name="argument-by-value-array.phpt"/>
+    <file role="test" name="argument-by-value-linear-to-multidim.phpt"/>
+    <file role="test" name="argument-by-value-scalar.phpt"/>
+    <file role="test" name="argument-by-value-string-f32.phpt"/>
+    <file role="test" name="argument-by-value-string-f64.phpt"/>
+    <file role="test" name="argument-by-value-string-i8.phpt"/>
+    <file role="test" name="argument-by-value-string-i16.phpt"/>
+    <file role="test" name="argument-by-value-string-i32.phpt"/>
+    <file role="test" name="argument-by-value-string-i64.phpt"/>
+    <file role="test" name="argument-by-value-string-u8.phpt"/>
+    <file role="test" name="argument-by-value-string-u16.phpt"/>
+    <file role="test" name="argument-by-value-string-u32.phpt"/>
+    <file role="test" name="argument-by-value-string-u64.phpt"/>
+    <file role="test" name="argument-default-value-array.phpt"/>
+    <file role="test" name="argument-default-value-scalar.phpt"/>
+    <file role="test" name="argument-default-value-string.phpt"/>
+    <file role="test" name="argument-ref-count-array.phpt"/>
+    <file role="test" name="array-appending.phpt"/>
+    <file role="test" name="array-assignment-undefined-dim.phpt"/>
+    <file role="test" name="array-compare-equal.phpt"/>
+    <file role="test" name="array-compare-greater-than.phpt"/>
+    <file role="test" name="array-compare-less-than.phpt"/>
+    <file role="test" name="array-compare-not-equal.phpt"/>
+    <file role="test" name="array-element-increment-scalar.phpt"/>
+    <file role="test" name="array-element-isset.phpt"/>
+    <file role="test" name="array-element-reference.phpt"/>
+    <file role="test" name="array-expansion-multidim.phpt"/>
+    <file role="test" name="array-expansion.phpt"/>
+    <file role="test" name="array-float-index.phpt"/>
+    <file role="test" name="array-initialization-class-var.phpt"/>
+    <file role="test" name="array-initialization-non-const.phpt"/>
+    <file role="test" name="array-initialization-undefined-dim.phpt"/>
+    <file role="test" name="array-isset.phpt"/>
+    <file role="test" name="array-named-elements-appending-class-autoload.phpt"/>
+    <file role="test" name="array-named-elements-appending-class.phpt"/>
+    <file role="test" name="array-named-elements-appending.phpt"/>
+    <file role="test" name="array-named-elements-as-index-multidim.phpt"/>
+    <file role="test" name="array-named-elements-as-index.phpt"/>
+    <file role="test" name="array-named-elements-by-ref.phpt"/>
+    <file role="test" name="array-named-elements-constant.phpt"/>
+    <file role="test" name="array-named-elements-magic.phpt"/>
+    <file role="test" name="array-named-elements-returning-class.phpt"/>
+    <file role="test" name="array-named-elements-returning.phpt"/>
+    <file role="test" name="array-named-elements.phpt"/>
+    <file role="test" name="assignment-multiple-variables.phpt"/>
+    <file role="test" name="branch-elimination-short-circuited.phpt"/>
+    <file role="test" name="bug-4.phpt"/>
+    <file role="test" name="bug-20.phpt"/>
+    <file role="test" name="chained-assignment-array.phpt"/>
+    <file role="test" name="chained-assignment-element.phpt"/>
+    <file role="test" name="chained-assignment-scalar.phpt"/>
+    <file role="test" name="class-constant-as-array-length.phpt"/>
+    <file role="test" name="class-constant-parent.phpt"/>
+    <file role="test" name="class-constant.phpt"/>
+    <file role="test" name="class-method-call-by-ref-zend.phpt"/>
+    <file role="test" name="class-method-call-by-ref.phpt"/>
+    <file role="test" name="class-method-call-by-value.phpt"/>
+    <file role="test" name="class-method-call-zend.phpt"/>
+    <file role="test" name="class-method-call.phpt"/>
+    <file role="test" name="class-method-private.phpt"/>
+    <file role="test" name="class-method-static.phpt"/>
+    <file role="test" name="class-method.phpt"/>
+    <file role="test" name="class-static-method-call-zend.phpt"/>
+    <file role="test" name="class-static-variable-array.phpt"/>
+    <file role="test" name="class-static-variable-scalar.phpt"/>
+    <file role="test" name="class-var-ref-count-array.phpt"/>
+    <file role="test" name="class-variable-increment-array.phpt"/>
+    <file role="test" name="class-variable-increment-scalar.phpt"/>
+    <file role="test" name="class-variable-resync-array.phpt"/>
+    <file role="test" name="class-variable-resync-magic-array.phpt"/>
+    <file role="test" name="class-variable-resync-magic.phpt"/>
+    <file role="test" name="class-variable-resync.phpt"/>
+    <file role="test" name="class-variable-scalar.phpt"/>
+    <file role="test" name="class-variable-unset.phpt"/>
+    <file role="test" name="closure-array.phpt"/>
+    <file role="test" name="closure-scalar.phpt"/>
+    <file role="test" name="concatenation-constant-assign.phpt"/>
+    <file role="test" name="concatenation-i32-assign.phpt"/>
+    <file role="test" name="concatenation-named-constant.phpt"/>
+    <file role="test" name="concatenation-string-assign.phpt"/>
+    <file role="test" name="concatenation-string.phpt"/>
+    <file role="test" name="constant-as-array-length.phpt"/>
+    <file role="test" name="constant-dimension-cast.phpt"/>
+    <file role="test" name="coroutine.phpt"/>
+    <file role="test" name="debug-backtrace.phpt"/>
+    <file role="test" name="divide-by-zero-float.phpt"/>
+    <file role="test" name="divide-by-zero-int.phpt"/>
+    <file role="test" name="do-while-loop.phpt"/>
+    <file role="test" name="echo-array-multidim.phpt"/>
+    <file role="test" name="echo-constant-string.phpt"/>
+    <file role="test" name="echo-element-i32.phpt"/>
+    <file role="test" name="echo-multiple-variables.phpt"/>
+    <file role="test" name="echo-scalar-f32.phpt"/>
+    <file role="test" name="echo-scalar-f64.phpt"/>
+    <file role="test" name="echo-scalar-i8.phpt"/>
+    <file role="test" name="echo-scalar-i16.phpt"/>
+    <file role="test" name="echo-scalar-i32.phpt"/>
+    <file role="test" name="echo-scalar-i64.phpt"/>
+    <file role="test" name="echo-scalar-u8.phpt"/>
+    <file role="test" name="echo-scalar-u16.phpt"/>
+    <file role="test" name="echo-scalar-u32.phpt"/>
+    <file role="test" name="echo-scalar-u64.phpt"/>
+    <file role="test" name="error-type-decl-class-property.phpt"/>
+    <file role="test" name="error-type-decl.phpt"/>
+    <file role="test" name="exception.phpt"/>
+    <file role="test" name="float-as-boolean.phpt"/>
+    <file role="test" name="foreach-list.phpt"/>
+    <file role="test" name="fork-array-appending.phpt"/>
+    <file role="test" name="fork-array-resize.phpt"/>
+    <file role="test" name="fork.phpt"/>
+    <file role="test" name="function-argument-by-ref-sub-array-inline.phpt"/>
+    <file role="test" name="function-argument-by-ref-sub-array-oob.phpt"/>
+    <file role="test" name="function-argument-by-ref-sub-array.phpt"/>
+    <file role="test" name="function-argument-by-value-sub-array-inline-oob.phpt"/>
+    <file role="test" name="function-argument-by-value-sub-array-inline.phpt"/>
+    <file role="test" name="function-argument-by-value-sub-array-oob.phpt"/>
+    <file role="test" name="function-argument-by-value-sub-array.phpt"/>
+    <file role="test" name="function-call-by-value-modification.phpt"/>
+    <file role="test" name="function-call-default-value-scalar.phpt"/>
+    <file role="test" name="function-call-mismatch-dimensions-scalar-zend.phpt"/>
+    <file role="test" name="function-call-mismatch-dimensions-scalar.phpt"/>
+    <file role="test" name="function-call-mismatch-dimensions-zend.phpt"/>
+    <file role="test" name="function-call-mismatch-dimensions.phpt"/>
+    <file role="test" name="function-call-returning-array-echo.phpt"/>
+    <file role="test" name="function-call-returning-array-ignored.phpt"/>
+    <file role="test" name="function-call-returning-array-to-scalar.phpt"/>
+    <file role="test" name="function-call-returning-array.phpt"/>
+    <file role="test" name="function-call-returning-scalar.phpt"/>
+    <file role="test" name="global-variable-resync.phpt"/>
+    <file role="test" name="global-variable-scalar.phpt"/>
+    <file role="test" name="if-loop-short-circuit.phpt"/>
+    <file role="test" name="if-loop.phpt"/>
+    <file role="test" name="increment-element.phpt"/>
+    <file role="test" name="inline-function-argument-element.phpt"/>
+    <file role="test" name="inline-function-class-variable.phpt"/>
+    <file role="test" name="inline-function-conditional.phpt"/>
+    <file role="test" name="inline-function-for-loop.phpt"/>
+    <file role="test" name="inline-function-local-array.phpt"/>
+    <file role="test" name="inline-function-nested-calls.phpt"/>
+    <file role="test" name="inline-function-nested-if.phpt"/>
+    <file role="test" name="inline-function-ternary-operator.phpt"/>
+    <file role="test" name="interpolation-array-multidim.phpt"/>
+    <file role="test" name="interpolation-array.phpt"/>
+    <file role="test" name="interpolation-element.phpt"/>
+    <file role="test" name="interpolation-scalar.phpt"/>
+    <file role="test" name="interpolation-string.phpt"/>
+    <file role="test" name="intrinsic-abs.phpt"/>
+    <file role="test" name="intrinsic-acos.phpt"/>
+    <file role="test" name="intrinsic-acosh.phpt"/>
+    <file role="test" name="intrinsic-array-column.phpt"/>
+    <file role="test" name="intrinsic-array-diff.phpt"/>
+    <file role="test" name="intrinsic-array-fill.phpt"/>
+    <file role="test" name="intrinsic-array-intersect.phpt"/>
+    <file role="test" name="intrinsic-array-merge.phpt"/>
+    <file role="test" name="intrinsic-array-pad.phpt"/>
+    <file role="test" name="intrinsic-array-pop.phpt"/>
+    <file role="test" name="intrinsic-array-product.phpt"/>
+    <file role="test" name="intrinsic-array-push.phpt"/>
+    <file role="test" name="intrinsic-array-rand.phpt"/>
+    <file role="test" name="intrinsic-array-resize.phpt"/>
+    <file role="test" name="intrinsic-array-reverse.phpt"/>
+    <file role="test" name="intrinsic-array-search.phpt"/>
+    <file role="test" name="intrinsic-array-shift.phpt"/>
+    <file role="test" name="intrinsic-array-slice.phpt"/>
+    <file role="test" name="intrinsic-array-splice.phpt"/>
+    <file role="test" name="intrinsic-array-sum.phpt"/>
+    <file role="test" name="intrinsic-array-unique.phpt"/>
+    <file role="test" name="intrinsic-array-unshift.phpt"/>
+    <file role="test" name="intrinsic-asin.phpt"/>
+    <file role="test" name="intrinsic-asinh.phpt"/>
+    <file role="test" name="intrinsic-atan.phpt"/>
+    <file role="test" name="intrinsic-atan2.phpt"/>
+    <file role="test" name="intrinsic-atanh.phpt"/>
+    <file role="test" name="intrinsic-cabs.phpt"/>
+    <file role="test" name="intrinsic-ccos.phpt"/>
+    <file role="test" name="intrinsic-ccosh.phpt"/>
+    <file role="test" name="intrinsic-cdiv.phpt"/>
+    <file role="test" name="intrinsic-cexp.phpt"/>
+    <file role="test" name="intrinsic-clamp.phpt"/>
+    <file role="test" name="intrinsic-class-exists.phpt"/>
+    <file role="test" name="intrinsic-clog.phpt"/>
+    <file role="test" name="intrinsic-cmult.phpt"/>
+    <file role="test" name="intrinsic-cos.phpt"/>
+    <file role="test" name="intrinsic-cosh.phpt"/>
+    <file role="test" name="intrinsic-cpow.phpt"/>
+    <file role="test" name="intrinsic-cross-product-2d.phpt"/>
+    <file role="test" name="intrinsic-cross-product-4d-variable-dim.phpt"/>
+    <file role="test" name="intrinsic-cross-product-4d.phpt"/>
+    <file role="test" name="intrinsic-cross-product.phpt"/>
+    <file role="test" name="intrinsic-csin.phpt"/>
+    <file role="test" name="intrinsic-csinh.phpt"/>
+    <file role="test" name="intrinsic-csqrt.phpt"/>
+    <file role="test" name="intrinsic-ctan.phpt"/>
+    <file role="test" name="intrinsic-ctanh.phpt"/>
+    <file role="test" name="intrinsic-define.phpt"/>
+    <file role="test" name="intrinsic-defined.phpt"/>
+    <file role="test" name="intrinsic-deg2rad.phpt"/>
+    <file role="test" name="intrinsic-det-cm.phpt"/>
+    <file role="test" name="intrinsic-det-nxn.phpt"/>
+    <file role="test" name="intrinsic-det-rm.phpt"/>
+    <file role="test" name="intrinsic-det-variable-dim.phpt"/>
+    <file role="test" name="intrinsic-det.phpt"/>
+    <file role="test" name="intrinsic-distance.phpt"/>
+    <file role="test" name="intrinsic-dot-product.phpt"/>
+    <file role="test" name="intrinsic-equal.phpt"/>
+    <file role="test" name="intrinsic-exp.phpt"/>
+    <file role="test" name="intrinsic-exp2.phpt"/>
+    <file role="test" name="intrinsic-faceforward.phpt"/>
+    <file role="test" name="intrinsic-floatval.phpt"/>
+    <file role="test" name="intrinsic-floor.phpt"/>
+    <file role="test" name="intrinsic-flush.phpt"/>
+    <file role="test" name="intrinsic-fract.phpt"/>
+    <file role="test" name="intrinsic-function-exists.phpt"/>
+    <file role="test" name="intrinsic-get-cfg-var.phpt"/>
+    <file role="test" name="intrinsic-getenv.phpt"/>
+    <file role="test" name="intrinsic-greater-than-equal.phpt"/>
+    <file role="test" name="intrinsic-greater-than.phpt"/>
+    <file role="test" name="intrinsic-hsl2rgb.phpt"/>
+    <file role="test" name="intrinsic-hsv2rgb.phpt"/>
+    <file role="test" name="intrinsic-in-array-multidim.phpt"/>
+    <file role="test" name="intrinsic-in-array.phpt"/>
+    <file role="test" name="intrinsic-ini-get.phpt"/>
+    <file role="test" name="intrinsic-ini-set.phpt"/>
+    <file role="test" name="intrinsic-intval.phpt"/>
+    <file role="test" name="intrinsic-inverse-cm.phpt"/>
+    <file role="test" name="intrinsic-inverse-nxn.phpt"/>
+    <file role="test" name="intrinsic-inverse-rm.phpt"/>
+    <file role="test" name="intrinsic-inverse.phpt"/>
+    <file role="test" name="intrinsic-is-finite.phpt"/>
+    <file role="test" name="intrinsic-is-infinite.phpt"/>
+    <file role="test" name="intrinsic-is-nan.phpt"/>
+    <file role="test" name="intrinsic-lcg-value.phpt"/>
+    <file role="test" name="intrinsic-length.phpt"/>
+    <file role="test" name="intrinsic-less-than-equal.phpt"/>
+    <file role="test" name="intrinsic-less-than.phpt"/>
+    <file role="test" name="intrinsic-log.phpt"/>
+    <file role="test" name="intrinsic-log2.phpt"/>
+    <file role="test" name="intrinsic-log10.phpt"/>
+    <file role="test" name="intrinsic-max-array.phpt"/>
+    <file role="test" name="intrinsic-max-multi.phpt"/>
+    <file role="test" name="intrinsic-max.phpt"/>
+    <file role="test" name="intrinsic-method-exists.phpt"/>
+    <file role="test" name="intrinsic-min-array.phpt"/>
+    <file role="test" name="intrinsic-min-multi.phpt"/>
+    <file role="test" name="intrinsic-min.phpt"/>
+    <file role="test" name="intrinsic-mix.phpt"/>
+    <file role="test" name="intrinsic-mm-mult-cm.phpt"/>
+    <file role="test" name="intrinsic-mm-mult-rm.phpt"/>
+    <file role="test" name="intrinsic-mm-mult-variable-dim.phpt"/>
+    <file role="test" name="intrinsic-mm-mult.phpt"/>
+    <file role="test" name="intrinsic-mv-mult-cm.phpt"/>
+    <file role="test" name="intrinsic-mv-mult-rm.phpt"/>
+    <file role="test" name="intrinsic-mv-mult-variable-dim.phpt"/>
+    <file role="test" name="intrinsic-mv-mult.phpt"/>
+    <file role="test" name="intrinsic-normalize.phpt"/>
+    <file role="test" name="intrinsic-not-equal.phpt"/>
+    <file role="test" name="intrinsic-pack-be-i32.phpt"/>
+    <file role="test" name="intrinsic-pack-le-i32.phpt"/>
+    <file role="test" name="intrinsic-phpversion.phpt"/>
+    <file role="test" name="intrinsic-pow.phpt"/>
+    <file role="test" name="intrinsic-property-exists.phpt"/>
+    <file role="test" name="intrinsic-putenv.phpt"/>
+    <file role="test" name="intrinsic-rad2deg.phpt"/>
+    <file role="test" name="intrinsic-rand-array.phpt"/>
+    <file role="test" name="intrinsic-rand.phpt"/>
+    <file role="test" name="intrinsic-range.phpt"/>
+    <file role="test" name="intrinsic-reflect.phpt"/>
+    <file role="test" name="intrinsic-refract.phpt"/>
+    <file role="test" name="intrinsic-rgb2hsl.phpt"/>
+    <file role="test" name="intrinsic-rgb2hsv.phpt"/>
+    <file role="test" name="intrinsic-rint.phpt"/>
+    <file role="test" name="intrinsic-round.phpt"/>
+    <file role="test" name="intrinsic-rsqrt.phpt"/>
+    <file role="test" name="intrinsic-set-all.phpt"/>
+    <file role="test" name="intrinsic-set-any.phpt"/>
+    <file role="test" name="intrinsic-set-not.phpt"/>
+    <file role="test" name="intrinsic-shuffle.phpt"/>
+    <file role="test" name="intrinsic-sign.phpt"/>
+    <file role="test" name="intrinsic-sin.phpt"/>
+    <file role="test" name="intrinsic-sinh.phpt"/>
+    <file role="test" name="intrinsic-smooth-step.phpt"/>
+    <file role="test" name="intrinsic-sort-subarray.phpt"/>
+    <file role="test" name="intrinsic-sort.phpt"/>
+    <file role="test" name="intrinsic-step.phpt"/>
+    <file role="test" name="intrinsic-strpos-scalar.phpt"/>
+    <file role="test" name="intrinsic-strpos.phpt"/>
+    <file role="test" name="intrinsic-strrpos.phpt"/>
+    <file role="test" name="intrinsic-substr.phpt"/>
+    <file role="test" name="intrinsic-tan.phpt"/>
+    <file role="test" name="intrinsic-time.phpt"/>
+    <file role="test" name="intrinsic-transform-cm.phpt"/>
+    <file role="test" name="intrinsic-transform-rm.phpt"/>
+    <file role="test" name="intrinsic-transpose-nxm.phpt"/>
+    <file role="test" name="intrinsic-transpose.phpt"/>
+    <file role="test" name="intrinsic-unpack-be-i32.phpt"/>
+    <file role="test" name="intrinsic-unpack-le-i32.phpt"/>
+    <file role="test" name="intrinsic-utf8-decode-expandable.phpt"/>
+    <file role="test" name="intrinsic-utf8-decode-u16.phpt"/>
+    <file role="test" name="intrinsic-utf8-decode-u32.phpt"/>
+    <file role="test" name="intrinsic-utf8-encode-u16.phpt"/>
+    <file role="test" name="intrinsic-utf8-encode-u32.phpt"/>
+    <file role="test" name="intrinsic-version-compare.phpt"/>
+    <file role="test" name="intrinsic-vm-mult-cm.phpt"/>
+    <file role="test" name="intrinsic-vm-mult-rm.phpt"/>
+    <file role="test" name="intrinsic-vm-mult.phpt"/>
+    <file role="test" name="intrinsic-zend-version.phpt"/>
+    <file role="test" name="large-fixed-length-array-parameter-inline.phpt"/>
+    <file role="test" name="large-fixed-length-array-parameter.phpt"/>
+    <file role="test" name="large-fixed-length-array.phpt"/>
+    <file role="test" name="list.phpt"/>
+    <file role="test" name="long-long-array-from-multidim-array.phpt"/>
+    <file role="test" name="long-long-from-array.phpt"/>
+    <file role="test" name="missing-type-declaration.phpt"/>
+    <file role="test" name="mmap-read-only-i32.phpt"/>
+    <file role="test" name="mmap-read-only-u8.phpt"/>
+    <file role="test" name="mmap-read-write-expanding.phpt"/>
+    <file role="test" name="mmap-read-write.phpt"/>
+    <file role="test" name="modulo-by-zero-int.phpt"/>
+    <file role="test" name="modulo-float.phpt"/>
+    <file role="test" name="multidim-temp-mm-mult.phpt"/>
+    <file role="test" name="multidim-temp-mv-mult.phpt"/>
+    <file role="test" name="multidim-temp-same-size.phpt"/>
+    <file role="test" name="multidim-temp-vm-mult.phpt"/>
+    <file role="test" name="multidim-temp.phpt"/>
+    <file role="test" name="multiply-accumulate-scalar.phpt"/>
+    <file role="test" name="multiply-accumulate-vector.phpt"/>
+    <file role="test" name="multiply-by-literal-array.phpt"/>
+    <file role="test" name="operator-exponential.phpt"/>
+    <file role="test" name="php-info.phpt"/>
+    <file role="test" name="print.phpt"/>
+    <file role="test" name="recursion.phpt"/>
+    <file role="test" name="regex-var-name.phpt"/>
+    <file role="test" name="return-array-as-scalar.phpt"/>
+    <file role="test" name="return-array-i32.phpt"/>
+    <file role="test" name="return-array-size-mismatch.phpt"/>
+    <file role="test" name="return-element-i32.phpt"/>
+    <file role="test" name="return-expandable-array-diff-dim.phpt"/>
+    <file role="test" name="return-expandable-array.phpt"/>
+    <file role="test" name="return-scalar-i32.phpt"/>
+    <file role="test" name="return-temporary-array-i32.phpt"/>
+    <file role="test" name="return-temporary-scalar-i32.phpt"/>
+    <file role="test" name="shared-variable.phpt"/>
+    <file role="test" name="short-circuit-and.phpt"/>
+    <file role="test" name="special-constant.phpt"/>
+    <file role="test" name="static-variable-scalar-recursion.phpt"/>
+    <file role="test" name="static-variable-scalar.phpt"/>
+    <file role="test" name="switch-array.phpt"/>
+    <file role="test" name="switch-fall-through.phpt"/>
+    <file role="test" name="switch-negative-values.phpt"/>
+    <file role="test" name="switch-scalar-no-default.phpt"/>
+    <file role="test" name="switch-scalar.phpt"/>
+    <file role="test" name="swizzle-write.phpt"/>
+    <file role="test" name="swizzle.phpt"/>
+    <file role="test" name="ternary-operator-constant.phpt"/>
+    <file role="test" name="ternary-operator-empty.phpt"/>
+    <file role="test" name="ternary-operator-expression.phpt"/>
+    <file role="test" name="ternary-operator-interpolation.phpt"/>
+    <file role="test" name="ternary-operator-nested.phpt"/>
+    <file role="test" name="timeout.phpt"/>
+    <file role="test" name="type-promotion.phpt"/>
+    <file role="test" name="unset-fixed-length-array-element.phpt"/>
+    <file role="test" name="unset-fixed-length-array.phpt"/>
+    <file role="test" name="unset-variable-length-array-element.phpt"/>
+    <file role="test" name="unset-variable-length-array-subarray.phpt"/>
+    <file role="test" name="unset-variable-length-array.phpt"/>
+    <file role="test" name="unset-variable.phpt"/>
+    <file role="test" name="unsupported-feature.phpt"/>
+    <file role="test" name="use-case-crc32.phpt"/>
+    <file role="test" name="use-case-fannkuch.phpt"/>
+    <file role="test" name="use-case-keccak.phpt"/>
+    <file role="test" name="use-case-mandelbrot-benchmark.phpt"/>
+    <file role="test" name="use-case-n-body.phpt"/>
+    <file role="test" name="use-case-spectral-norm.phpt"/>
+    <file role="test" name="variable-separation-argument-array.phpt"/>
+    <file role="test" name="variable-separation-argument-scalar.phpt"/>
+    <file role="test" name="variable-separation-class-array.phpt"/>
+    <file role="test" name="variable-separation-global-array.phpt"/>
+    <file role="test" name="variable-separation-instance-array.phpt"/>
+    <file role="test" name="vector-add.phpt"/>
+    <file role="test" name="vector-copy.phpt"/>
+    <file role="test" name="vector-increment.phpt"/>
+    <file role="test" name="version.phpt"/>
+    <file role="test" name="while-loop.phpt"/>
+    <file role="test" name="yield-key.phpt"/>
+    <file role="test" name="yield-multiple-generators.phpt"/>
+    <file role="test" name="yield.phpt"/>
+    <file role="test" name="zend-function-call-argument-this.phpt"/>
+    <file role="test" name="zend-function-call-generator.phpt"/>
+    <file role="test" name="zend-function-call-returning-array.phpt"/>
+    <file role="test" name="zend-function-call-returning-scalar.phpt"/>
+   </dir>
    <dir name="win32">
     <file role="src" name="msc_inttypes.h"/>
     <file role="src" name="php_stdint.h"/>
    </dir>
-   <file role="doc" name="CREDITS"/>
-   <file role="doc" name="LICENSE"/>
-   <file role="doc" name="README"/>
    <file role="src" name="config.m4"/>
    <file role="src" name="config.w32"/>
    <file role="src" name="php_qb.h"/>
@@ -123,4 +532,3 @@ QB performs code translation on a per-function basis. It does not affect in anyw
  <providesextension>qb</providesextension>
  <extsrcrelease/>
 </package>
-
