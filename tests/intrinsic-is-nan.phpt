@@ -21,7 +21,7 @@ Not-a-number check test
  */
 function test_function() {
 	$a = NAN;
-	$b = acos(8);
+	$b = INF + (-INF);
 	$c = 100;
 	$d[0] = 1;
 	$d[1] = 2;
