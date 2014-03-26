@@ -1,5 +1,7 @@
 --TEST--
 Pixel Bender test: Smart Normal Map
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';

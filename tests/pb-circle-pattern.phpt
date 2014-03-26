@@ -1,5 +1,7 @@
 --TEST--
 Pixel Bender test: Circle Pattern
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';

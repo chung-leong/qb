@@ -1,5 +1,7 @@
 --TEST--
 Yield test
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(version_compare(PHP_VERSION, '5.5') < 0) print 'skip feature not available';

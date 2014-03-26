@@ -1,5 +1,7 @@
 --TEST--
 RGB-to-HSV test (image)
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';

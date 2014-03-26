@@ -1,5 +1,7 @@
 --TEST--
 Use case: Image flip (uint32)
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';

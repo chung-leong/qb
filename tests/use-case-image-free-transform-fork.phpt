@@ -1,5 +1,7 @@
 --TEST--
 Use case: Image free transform
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';

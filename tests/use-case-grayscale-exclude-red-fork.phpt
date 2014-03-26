@@ -1,5 +1,7 @@
 --TEST--
 Use case: Gray scale exclude red (using fork)
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';
