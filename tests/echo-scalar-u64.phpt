@@ -2,7 +2,7 @@
 Echo variable test (scalar, u64)
 --SKIPIF--
 <?php 
-	if(version_compare(PHP_VERSION, '5.2') < 0) print 'skip broken 64 bit output';
+	if(version_compare(PHP_VERSION, '5.2.1') < 0) print 'skip broken 64 bit output';
 ?>
 --FILE--
 <?php
