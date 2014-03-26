@@ -1,7 +1,7 @@
 #!/bin/sh
 
-cp modules/qb.so `php -i 2> /dev/null | sed -n 's/extension_dir => \(.*\) => .*/\1/p'`
-inidir=`php --ini 2> /dev/null | sed -n 's/.*ini files in: \(.*\)/\1/p'`
+cp modules/qb.so `php -i 2> /dev/null | sed -n '/extension_dir => \(.*\) => .*/{s//\1/p;q}'`
+inidir=`php --ini 2> /dev/null | sed -n '/.*ini files in: \(.*\)/{s//\1/p;q}'`
 if [ ! -z "$inidir" ] ; then
   if [ -f "$inidir" ] ; then
     if [ ! -f $inidir/qb.ini ] ; then

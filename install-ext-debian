@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cp modules/qb.so `php -i 2> /dev/null | sed -n 's/extension_dir => \(.*\) => .*/\1/p'`
+cp modules/qb.so `php -i 2> /dev/null | sed -n '/extension_dir => \(.*\) => .*/{s//\1/p;q}'`
 if [ ! -f /etc/php5/mods-available/qb.ini ] ; then
   `cp qb.ini /etc/php5/mods-available/`
 fi
