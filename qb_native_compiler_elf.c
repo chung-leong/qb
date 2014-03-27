@@ -396,6 +396,16 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 						*((int32_t *) target_address) = S + A;
 						break;
 #elif defined(__i386__)
+#	ifndef R_386_NONE
+#		define R_386_NONE		0
+#	endif
+#	ifndef R_386_32
+#		define R_386_32			1
+#	endif
+#	ifndef R_386_PC32
+#		define R_386_PC32		2
+#	endif
+
 					case R_386_NONE:
 						break;
 					case R_386_32:
@@ -579,6 +589,10 @@ void qb_free_native_code(qb_native_code_bundle *bundle) {
 	munmap(bundle->memory, bundle->size);
 }
 
+#if defined(HAVE_CEXP) || defined(HAVE_CEXPF)
+	#include <complex.h>
+#endif
+
 static void * qb_get_intrinsic_function_address(const char *name) {
 	void *address = NULL;
 #ifdef HAVE_SINCOS
@@ -587,6 +601,20 @@ static void * qb_get_intrinsic_function_address(const char *name) {
 			address = sincos;
 		} else if(strcmp(name, "sincosf") == 0) {
 			address = sincosf;
+		}
+	}
+#endif
+#ifdef HAVE_CEXP
+	if(!address) {
+		if(strcmp(name, "cexp") == 0) {
+			address = cexp;
+		}
+	}
+#endif
+#ifdef HAVE_CEXPF
+	if(!address) {
+		if(strcmp(name, "cexpf") == 0) {
+			address = cexpf;
 		}
 	}
 #endif
