@@ -4,7 +4,7 @@ extdir=`php -i 2> /dev/null | sed -n '/extension_dir => \(.*\) => .*/{s//\1/p;q;
 if [ ! -d "$extdir" ] ; then
   mkdir "$extdir"
 fi
-cp modules/qb.so "$extdir\qb.so"
+cp modules/qb.so "$extdir/qb.so"
 
 inidir="/etc/php5/mods-available"
 if [ ! -f $inidir/qb.ini ] ; then
