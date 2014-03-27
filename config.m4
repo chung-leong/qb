@@ -53,18 +53,7 @@ if test "$PHP_QB" != "no"; then
   )
   CFLAGS="$ac_saved_cflags"
   
-  AC_CHECK_FUNCS([exp2f log2f roundf qsort_r])
-
-  AC_MSG_CHECKING([for sincos])  
-  AC_TRY_LINK(
-    [ void sincos(double x, double *ps, double *pc); ], 
-    [ int main(int argc, const char *argv[]) { sincos(0, 0, 0); return 0; } ], 
-    [ 
-      AC_DEFINE(HAVE_SINCOS,1,[ ])
-      AC_MSG_RESULT([yes])
-    ],
-    [ AC_MSG_RESULT([no]) ]
-  )
+  AC_CHECK_FUNCS([exp2f log2f roundf qsort_r sincos])
 
   ac_saved_cflags="$CFLAGS"
   CFLAGS="$CFLAGS -Werror"
