@@ -733,6 +733,15 @@ int qb_install_user_opcode_handler() {
 	return SUCCESS;
 }
 
+void qb_uninstall_user_opcode_handler() {
+	int compare(void *a, void *b) {
+		return a == b;
+	}
+
+	zend_llist_del_element(&zend_extensions, &qb_zend_extension_entry, compare);
+	zend_set_user_opcode_handler(QB_USER_OPCODE, NULL);
+}
+
 int qb_is_compiled_function(zend_function *zfunc) {
 	return qb_get_compiled_function(zfunc) != NULL;
 }
@@ -931,6 +940,8 @@ PHP_MINIT_FUNCTION(qb)
 PHP_MSHUTDOWN_FUNCTION(qb)
 {
 	UNREGISTER_INI_ENTRIES();
+
+	qb_uninstall_user_opcode_handler();
 
 	qb_free_thread_pool();
 

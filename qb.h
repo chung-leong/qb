@@ -102,12 +102,12 @@
 #endif
 
 #ifdef __GNUC__
-#	ifdef __linux__
+#	ifdef __ELF__
 #		if defined(__i386__) || defined(__x86_64__)
 #			define NATIVE_COMPILE_ENABLED	1
 #		elif defined(__ARM_ARCH_7A__)
 #			define NATIVE_COMPILE_ENABLED	1
-#		endif
+#	endif
 #		elif defined(__MACH__)
 #		if defined(__i386__) || defined(__x86_64__)
 #			define NATIVE_COMPILE_ENABLED	1

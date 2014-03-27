@@ -214,8 +214,6 @@ static void * qb_find_symbol_plt_entry(qb_native_compiler_context *cxt, const ch
 #endif
 
 #ifdef __LP64__
-#define ELF_SIGNATURE_GCC		"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_SIGNATURE_ICC		"\x7f\x45\x4c\x46\x02\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_R_TYPE(r)			ELF64_R_TYPE(r)
 #define ELF_R_SYM(r)			ELF64_R_SYM(r)
 #define ELF_ST_BIND(r)			ELF64_ST_BIND(r)
@@ -226,8 +224,6 @@ typedef Elf64_Rel				Elf_Rel;
 typedef Elf64_Rela				Elf_Rela;
 typedef Elf64_Sym				Elf_Sym;
 #else
-#define ELF_SIGNATURE_GCC		"\x7f\x45\x4c\x46\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-#define ELF_SIGNATURE_ICC		"\x7f\x45\x4c\x46\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00"
 #define ELF_R_TYPE(r)			ELF32_R_TYPE(r)
 #define ELF_R_SYM(r)			ELF32_R_SYM(r)
 #define ELF_ST_BIND(r)			ELF32_ST_BIND(r)
@@ -245,6 +241,12 @@ typedef Elf32_Sym				Elf_Sym;
 #	define EM_EXPECTED			EM_386
 #elif defined(__ARM_ARCH_7A__)
 #	define EM_EXPECTED			EM_ARM
+#endif
+
+#ifdef QB_LITTLE_ENDIAN
+#	define ELF_ENDIANNESS		1
+#else
+#	define ELF_ENDIANNESS		2
 #endif
 
 static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
@@ -265,7 +267,10 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 	}
 	if(header->e_machine != EM_EXPECTED) {
 		return FALSE;
+	}	if(header->e_ident[EI_DATA] != 1) {
+		return FALSE;
 	}
+
 
 	// check the size
 	int section_header_end = header->e_shoff + header->e_shentsize * header->e_shnum;
@@ -273,12 +278,12 @@ static int32_t qb_parse_object_file(qb_native_compiler_context *cxt, int fd) {
 		return FALSE;
 	}
 
-	// see if it's has the ELF signature (the fifth byte indicates whether it's 32 or 64 bit)
-	if(memcmp(header->e_ident, ELF_SIGNATURE_GCC, 16) != 0) {
-		// icc sets the ABI (8th) byte to 0x03
-		if(memcmp(header->e_ident, ELF_SIGNATURE_ICC, 16) != 0) {
-			return FALSE;
-		}
+	// see if it's has the ELF signature
+	if(memcmp(header->e_ident, "\x7f""ELF", 4) != 0) {
+		return FALSE;
+	}
+	if(header->e_ident[EI_DATA] != ELF_ENDIANNESS || header->e_ident[EI_VERSION] != 1) {
+		return FALSE;
 	}
 
 	int section_count = header->e_shnum;

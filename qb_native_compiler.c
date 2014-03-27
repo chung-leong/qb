@@ -1240,10 +1240,10 @@ int32_t qb_decompress_code(qb_native_compiler_context *cxt) {
 }
 
 #if defined(__MACH__)
-#include "qb_native_compiler_osx.c"
+#include "qb_native_compiler_mach.c"
 #elif defined(__ELF__)
-#include "qb_native_compiler_linux.c"
-#elif defined(_MSC_VER)
+#include "qb_native_compiler_elf.c"
+#elif defined(_WIN32)
 #include "qb_native_compiler_win32.c"
 #endif
 

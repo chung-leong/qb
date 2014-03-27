@@ -481,8 +481,8 @@ Fixed issue #27 - Incorrect object import
    <file role="src" name="qb_interpreter_msvc.h"/>
    <file role="src" name="qb_native_compiler.c"/>
    <file role="src" name="qb_native_compiler.h"/>
-   <file role="src" name="qb_native_compiler_linux.c"/>
-   <file role="src" name="qb_native_compiler_osx.c"/>
+   <file role="src" name="qb_native_compiler_elf.c"/>
+   <file role="src" name="qb_native_compiler_mach.c"/>
    <file role="src" name="qb_native_compiler_win32.c"/>
    <file role="src" name="qb_native_proc_debug.c"/>
    <file role="src" name="qb_op.c"/>
