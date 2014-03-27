@@ -1,5 +1,7 @@
 --TEST--
 Pixel Bender test: Complex Mapping z = d/[(z-a)(z-b)(z-c)]
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';

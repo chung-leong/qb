@@ -1,5 +1,7 @@
 --TEST--
 Use case: Quaternion Julia Set Raytracer (multicore)
+--EXTENSIONS--
+gd
 --SKIPIF--
 <?php 
 	if(!function_exists('imagepng')) print 'skip PNG function not available';
