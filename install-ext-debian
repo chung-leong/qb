@@ -1,6 +1,6 @@
 #!/bin/sh
 
-extdir=`php -i 2> /dev/null | sed -n '/extension_dir => \(.*\) => .*/{s//\1/p;q}'`
+extdir=`php -i 2> /dev/null | sed -n '/extension_dir => \(.*\) => .*/{s//\1/p;q;}'`
 if [ ! -d "$extdir" ] ; then
   mkdir "$extdir"
 fi
