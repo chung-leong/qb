@@ -733,12 +733,12 @@ int qb_install_user_opcode_handler() {
 	return SUCCESS;
 }
 
-void qb_uninstall_user_opcode_handler() {
-	int compare(void *a, void *b) {
-		return a == b;
-	}
+static int compare_pointers(void *a, void *b) {
+	return a == b;
+}
 
-	zend_llist_del_element(&zend_extensions, &qb_zend_extension_entry, compare);
+void qb_uninstall_user_opcode_handler() {
+	zend_llist_del_element(&zend_extensions, &qb_zend_extension_entry, compare_pointers);
 	zend_set_user_opcode_handler(QB_USER_OPCODE, NULL);
 }
 
