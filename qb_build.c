@@ -278,6 +278,13 @@ void qb_perform_translation(qb_build_context *cxt) {
 	}
 }
 
+#ifndef QB_DISABLE_NATIVE_COMPILATION
+#	define NATIVE_COMPILATION_DISABLED	0
+#else
+#	define NATIVE_COMPILATION_DISABLED	1
+#endif
+int32_t native_compilation_disabled = NATIVE_COMPILATION_DISABLED;
+
 void qb_generate_executables(qb_build_context *cxt) {
 	USE_TSRM
 	int32_t native_compile = FALSE;
@@ -302,7 +309,8 @@ void qb_generate_executables(qb_build_context *cxt) {
 		qb_attach_compiled_function(compiler_cxt->compiled_function, compiler_cxt->zend_op_array TSRMLS_CC);
 
 		if(compiler_cxt->function_flags & QB_FUNCTION_NATIVE_IF_POSSIBLE) {
-			native_compile = TRUE;
+			// compile to native code unless it's been disabled during profiling
+			native_compile = !native_compilation_disabled;
 		}
 	}
 
@@ -316,7 +324,7 @@ void qb_generate_executables(qb_build_context *cxt) {
 			qb_free_native_compiler_context(native_compiler_cxt);
 		}
 	}
-	if(!QB_G(allow_bytecode_interpretation)) {
+	if(!QB_G(allow_bytecode_interpretation) && !native_compilation_disabled) {
 		for(i = 0; i < cxt->compiler_context_count; i++) {
 			qb_compiler_context *compiler_cxt = cxt->compiler_contexts[i];
 			if(!compiler_cxt->compiled_function->native_proc) {

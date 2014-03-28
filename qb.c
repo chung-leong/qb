@@ -28,7 +28,14 @@
 #include "zend_extensions.h"
 
 int debug_compatibility_mode = TRUE;
-int permitted_thread_count = 0;
+
+#ifndef QB_DISABLE_MULTITHREADING
+#	define PERMITTED_THREAD_COUNT	0
+#else
+#	define PERMITTED_THREAD_COUNT	1
+#endif
+
+int permitted_thread_count = PERMITTED_THREAD_COUNT;
 
 qb_import_scope * qb_find_import_scope(qb_import_scope_type type, void *associated_object TSRMLS_DC) {
 	qb_import_scope *scope;
@@ -853,11 +860,7 @@ static ZEND_INI_MH(OnThreadCount) /* {{{ */
 
 	// allow the thread count to get smaller than the initial but not bigger
 	if(permitted_thread_count == 0) {
-#ifdef QB_DISABLE_MULTITHREADING
-		permitted_thread_count = 1;
-#else
 		permitted_thread_count = QB_G(thread_count);
-#endif
 	}
 	if(QB_G(thread_count) > permitted_thread_count) {
 		QB_G(thread_count) = permitted_thread_count;

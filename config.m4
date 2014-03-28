@@ -38,8 +38,24 @@ if test "$PHP_QB" != "no"; then
     fi
   fi
 
-  AC_SEARCH_LIBS(exp,m,[ ])
- 
+  AC_MSG_CHECKING([if compiling with clang])
+  AC_COMPILE_IFELSE(
+    [  AC_LANG_PROGRAM([], 
+      [[
+#ifndef __clang__
+	not clang
+#endif
+      ]])
+    ],
+    [CLANG=yes], 
+    [CLANG=no]
+  )
+  AC_MSG_RESULT([$CLANG])
+
+  if test "$CLANG" == "yes"; then
+    AC_MSG_ERROR(Cannot compile with clang)
+  fi
+  
   AC_MSG_CHECKING([whether CC supports -march=native])
   ac_saved_cflags="$CFLAGS"
   CFLAGS=-march=native
@@ -52,6 +68,8 @@ if test "$PHP_QB" != "no"; then
     [ AC_MSG_RESULT([no])] 
   )
   CFLAGS="$ac_saved_cflags"
+  
+  AC_SEARCH_LIBS(exp,m,[ ])
   
   AC_CHECK_FUNCS([exp2f log2f roundf qsort_r sincos cexp cexpf])
 
