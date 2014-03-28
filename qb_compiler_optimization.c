@@ -143,7 +143,7 @@ static int32_t qb_fuse_multiply_accumulate(qb_compiler_context *cxt, uint32_t in
 	if(qop->operand_count == 3 && !(qop->flags & QB_OP_JUMP) && qop->operands[2].type == QB_OPERAND_ADDRESS && IS_TEMPORARY(qop->operands[2].address)) {
 		qb_op *next_qop = qb_get_next_op(cxt, index);
 
-		if(next_qop && next_qop->operand_count == 3 && !(next_qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT))) {
+		if(next_qop && next_qop->operand_count == 3 && !(next_qop->flags & (QB_OP_JUMP | QB_OP_BRANCH | QB_OP_EXIT)) && next_qop->operands[0].type == QB_OPERAND_ADDRESS) {
 			if(next_qop->operands[0].address == qop->operands[2].address || next_qop->operands[1].address == qop->operands[2].address) {
 				qb_opcode new_opcode = 0;
 				if((qop->opcode == QB_MUL_S32_S32_S32) && (next_qop->opcode == QB_ADD_I32_I32_I32)) {

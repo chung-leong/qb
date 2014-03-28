@@ -1406,6 +1406,8 @@ static int32_t qb_process_current_pbj_instruction(qb_pbj_translator_context *cxt
 			qb_pbj_address scalar_destination, comparison_result, *result_pbj_address = NULL;
 			uint32_t operand_count = 0;
 
+			result.type = 999;
+
 			if(t->flags & PBJ_READ_IMAGE) {
 				qb_pbj_texture *texture = qb_find_pbj_texture_by_id(cxt, pop->image_id);
 				qb_operand *image = &operands[operand_count++];
@@ -1459,6 +1461,9 @@ static int32_t qb_process_current_pbj_instruction(qb_pbj_translator_context *cxt
 					result_pbj_address = (pop->eventual_destination) ? pop->eventual_destination : &pop->destination;
 				}
 				qb_fetch_pbj_write_target(cxt, result_pbj_address, &result, result_prototype);
+			} else {
+				result.type = QB_OPERAND_NONE;
+				result.generic_pointer = NULL;
 			}
 
 			if(!t->translate(cxt, t, operands, operand_count, &result, result_prototype)) {

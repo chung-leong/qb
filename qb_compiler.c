@@ -290,7 +290,13 @@ qb_expression * qb_get_on_demand_expression(qb_compiler_context *cxt, void *op_f
 		if(expr->op_factory == op_factory && expr->operand_count == operand_count) {
 			int32_t match = TRUE;
 			for(j = 0; j < expr->operand_count; j++) {
-				if(expr->operands[j].type != operands[j].type || expr->operands[j].address != operands[j].address) {
+				if(expr->operands[j].type == operands[j].type) {
+					switch(operands[j].type ) {
+						case QB_OPERAND_ADDRESS: match = (expr->operands[j].address == operands[j].address); break;
+						case QB_OPERAND_NUMBER: match = (expr->operands[j].number == operands[j].number); break;
+						case QB_OPERAND_ZEND_CLASS: match = (expr->operands[j].zend_class == operands[j].zend_class); break;
+					}
+				} else {
 					match = FALSE;
 				}
 			}
@@ -604,6 +610,11 @@ void qb_allocate_storage_space(qb_compiler_context *cxt, qb_address *address, in
 					segment->current_allocation = end_offset;
 				}
 				segment->memory = erealloc(segment->memory, segment->current_allocation);
+			}
+			if(start_offset > segment->byte_count) {
+				// clear the padding bytes since we might calculate the checksum of the memory segment
+				// (and we want the same value for the same constants)
+				memset(segment->memory + segment->byte_count, 0, start_offset - segment->byte_count);
 			}
 		}
 		segment->byte_count = end_offset;
@@ -3810,19 +3821,17 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 			for(j = 0; j < qop->operand_count; j++) {
 				if(qop->operands[j].type == QB_OPERAND_ADDRESS) {
 					qb_address *address = qop->operands[j].address;
-					qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-					if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
-						segment->reference_count++;
+					if(address->segment_selector != INVALID_INDEX) {
+						qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+						if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
+							segment->reference_count++;
+						}
 					}
 					if(address->mode == QB_ADDRESS_MODE_ELE || address->mode == QB_ADDRESS_MODE_ARR) {
-						qb_memory_segment *index_segment = &cxt->storage->segments[address->array_index_address->segment_selector];
-						if(!(index_segment->flags & QB_SEGMENT_PREALLOCATED)) {
-							index_segment->reference_count++;
-						}
-						if(address->mode == QB_ADDRESS_MODE_ARR) {
-							qb_memory_segment *size_segment = &cxt->storage->segments[address->array_size_address->segment_selector]; 
-							if(!(size_segment->flags & QB_SEGMENT_PREALLOCATED)) {
-								size_segment->reference_count++;
+						if(address->array_index_address->segment_selector != INVALID_INDEX) {
+							qb_memory_segment *index_segment = &cxt->storage->segments[address->array_index_address->segment_selector];
+							if(!(index_segment->flags & QB_SEGMENT_PREALLOCATED)) {
+								index_segment->reference_count++;
 							}
 						}
 					}

@@ -977,15 +977,16 @@ static int32_t qb_invoke_zend_function(qb_interpreter_context *cxt, zend_functio
 #if !ZEND_ENGINE_2_2 && !ZEND_ENGINE_2_1
 	if(zfunc->common.scope) {
 		fcc.calling_scope = EG(called_scope);
+		fcc.called_scope = zfunc->common.scope;
 		fci.function_table = &zfunc->common.scope->function_table;
 		if((zfunc->common.fn_flags & ZEND_ACC_STATIC)) {
 			fci.object_ptr = fcc.object_ptr = NULL;
 		} else {
 			fci.object_ptr = fcc.object_ptr = EG(This);
 		}
-		fcc.called_scope = zfunc->common.scope;
 	} else {
 		fcc.calling_scope = NULL;
+		fcc.called_scope = NULL;
 		fci.function_table = EG(function_table);
 		fci.object_ptr = fcc.object_ptr = NULL;
 	}

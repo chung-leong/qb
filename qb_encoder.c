@@ -629,16 +629,12 @@ static int8_t * qb_preallocate_segments(qb_encoder_context *cxt, int8_t *memory,
 
 			if(src->memory) {
 				memcpy(dst->memory, src->memory, src->current_allocation);
-			} else {
-#if ZEND_DEBUG
-				memset(dst->memory, 'K', segment_length);
-#endif
 			}
 			if(dst->byte_count > 0 && !(dst->flags & QB_SEGMENT_CLEAR_ON_CALL)) {
 				// the segment won't be cleared when the function is called
 				// we need to zero out the bytes now
-				if(src->current_allocation != dst->byte_count) {
-					memset(dst->memory + src->current_allocation, 0, dst->byte_count - src->current_allocation);
+				if(src->current_allocation > dst->byte_count) {
+					memset(dst->memory + dst->byte_count, 0, src->current_allocation - dst->byte_count);
 				}
 			}
 			p += segment_length;

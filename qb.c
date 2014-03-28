@@ -1016,7 +1016,7 @@ PHP_RSHUTDOWN_FUNCTION(qb)
 		qb_free_main_thread(&QB_G(main_thread));
 	}
 
-	for(i = 0; i < QB_G(scope_count); i++) {
+	for(i = QB_G(scope_count) - 1; (int32_t) i >= 0; i--) {
 		qb_import_scope *scope = QB_G(scopes)[i];
 		// object scopes just point to the variables of the abstract scope
 		if(scope->type != QB_IMPORT_SCOPE_OBJECT && scope->type != QB_IMPORT_SCOPE_FREED_OBJECT) {

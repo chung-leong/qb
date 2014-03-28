@@ -888,12 +888,13 @@ static int32_t qb_process_current_instruction(qb_php_translator_context *cxt) {
 		qb_php_op_translator *t;
 		uint32_t operand_count = 0;
 		int32_t result_count = 0;
-		int32_t has_data_op = (cxt->zend_op[1].opcode == ZEND_OP_DATA);
+		int32_t has_data_op = (cxt->zend_op_index + 1 < cxt->zend_op_array->last && cxt->zend_op[1].opcode == ZEND_OP_DATA);
 		uint32_t zend_opcode = cxt->zend_op->opcode;
 
 		zend_operand_type operand_type1 = Z_OPERAND_TYPE(cxt->zend_op->op1);
 		zend_operand_type operand_type2 = Z_OPERAND_TYPE(cxt->zend_op->op2);
 		zend_operand_type operand_type3 = (has_data_op) ? Z_OPERAND_TYPE(cxt->zend_op[1].op1) : Z_OPERAND_UNUSED;
+
 		zend_operand_type result_type1 = Z_OPERAND_TYPE(cxt->zend_op->result);
 		zend_operand_type result_type2 = (has_data_op) ? Z_OPERAND_TYPE(cxt->zend_op->result) : Z_OPERAND_UNUSED;
 		znode_op *operand1 = &cxt->zend_op->op1;
