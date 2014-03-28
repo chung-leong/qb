@@ -187,6 +187,9 @@ typedef enum {
 	GD_METHOD_COUNT = 21
 } gdInterpolationMethod;
 
+/* resolution affects ttf font rendering, particularly hinting */
+#define GD_RESOLUTION           96      /* pixels per inch */
+
 typedef double (* interpolation_method )(double);
 
 typedef struct gdImageStruct {
@@ -244,41 +247,8 @@ typedef struct gdImageStruct {
 		even if semitransparent palette entries exist.
 		To do that, build your image as a truecolor image,
 		then quantize down to 8 bits. */
-	int alphaBlendingFlag;
-	/* Should antialias functions be used */
-	int antialias;
-	/* Should the alpha channel of the image be saved? This affects
-		PNG at the moment; other future formats may also
-		have that capability. JPEG doesn't. */
-	int saveAlphaFlag;
-
-
-	/* 2.0.12: anti-aliased globals */
-	int AA;
-	int AA_color;
-	int AA_dont_blend;
-	unsigned char **AA_opacity;
-	int AA_polygon;
-	/* Stored and pre-computed variables for determining the perpendicular
-	 * distance from a point to the anti-aliased line being drawn:
-	 */
-	int AAL_x1;
-	int AAL_y1;
-	int AAL_x2;
-	int AAL_y2;
-	int AAL_Bx_Ax;
-	int AAL_By_Ay;
-	int AAL_LAB_2;
-	float AAL_LAB;
-
-	/* 2.0.12: simple clipping rectangle. These values must be checked for safety when set; please use gdImageSetClip */
-	int cx1;
-	int cy1;
-	int cx2;
-	int cy2;
-	gdInterpolationMethod interpolation_id;
-	interpolation_method interpolation;
-} gdImage;
+}
+gdImage;
 
 typedef gdImage * gdImagePtr;
 

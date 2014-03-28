@@ -32,6 +32,19 @@ imagesavealpha($image, true);
 imagepng($image);
 $output_png = ob_get_clean();
 
+/**
+ * @engine qb
+ *
+ * @param image	$img2;
+ * @param image	$img1;
+ * @return float32
+ */
+function _image_diff($img1, $img2) {
+	$img2 -= $img1;
+	$img2 *= $img2;
+	return sqrt(array_sum($img2));
+}
+
 if(file_exists($correct_path)) {
 	$correct_md5 = md5_file($correct_path);
 	$output_md5 = md5($output_png);
@@ -39,7 +52,14 @@ if(file_exists($correct_path)) {
 		// exact match
 		$match = true;
 	} else {
-		$match = false;
+		$correct_output = imagecreatefrompng($correct_path);
+		$diff = _image_diff($image, $correct_output);
+		if($diff < 0.01) {
+			// the output is different ever so slightly
+			$match = true;
+		} else {
+			$match = false;
+		}
 	}
 	if($match) {
 		echo "CORRECT\n";
@@ -47,7 +67,7 @@ if(file_exists($correct_path)) {
 			unlink($incorrect_path);
 		}
 	} else {
-		echo "INCORRECT (diff = $diff)\n";
+		echo "INCORRECT\n";
 		file_put_contents($incorrect_path, $output_png);
 	}
 } else {

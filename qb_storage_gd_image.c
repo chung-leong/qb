@@ -207,64 +207,6 @@ static int32_t qb_capture_dimensions_from_image(gdImagePtr image, qb_dimension_m
 	return TRUE;
 }
 
-static int32_t qb_reallocate_gd_image(gdImagePtr image, int width, int height) {
-	int i, scanline_size, pixel_size;
-	unsigned char ***p_scanlines;
-
-	if(width <= 0 || height <= 0 || width > INT_MAX / sizeof(int) || height > INT_MAX / sizeof(void *)) {
-		qb_report_gd_image_exception(0, width, height);
-		return FALSE;
-	}
-
-	if(image->trueColor) {
-		p_scanlines = (unsigned char ***) &image->tpixels;
-		scanline_size = sizeof(int) * width;
-		pixel_size = sizeof(int);
-	} else {
-		p_scanlines = &image->pixels;
-		scanline_size = sizeof(unsigned char) * width;
-		pixel_size = sizeof(unsigned char);
-	}
-
-	// free scanlines that aren't needed
-	for(i = height; i < image->sy; i++) {
-		efree((*p_scanlines)[i]);
-		efree(image->AA_opacity[i]);
-	}
-
-	// reallocate scanline pointer array
-	*p_scanlines = erealloc(*p_scanlines, sizeof(unsigned char *) * height);
-	image->AA_opacity = erealloc(image->AA_opacity, sizeof(unsigned char *) * height);
-	for(i = image->sy; i < height; i++) {
-		(*p_scanlines)[i] = NULL;
-	}
-
-	// reallocate the scalines themselves
-	for(i = 0; i < height; i++) {
-		if((*p_scanlines)[i]) {
-			(*p_scanlines)[i] = erealloc((*p_scanlines)[i], scanline_size);
-			if(width > image->sx) {
-				memset((*p_scanlines)[i] + image->sx * pixel_size, 0, pixel_size * (width - image->sx));
-			}
-		} else {
-			(*p_scanlines)[i] = emalloc(scanline_size);
-			memset((*p_scanlines)[i], 0, scanline_size);
-		}
-		if(image->AA_opacity[i]) {
-			image->AA_opacity[i] = erealloc(image->AA_opacity[i], sizeof(unsigned char) * width);
-			if(width > image->sx) {
-				memset(image->AA_opacity[i] + image->sx, 0, sizeof(unsigned char) * (width - image->sx));
-			}
-		} else {
-			image->AA_opacity[i] = emalloc(sizeof(unsigned char) * width);
-			memset(image->AA_opacity[i], 0, sizeof(unsigned char) * width);
-		}
-	}
-	image->sx = width;
-	image->sy = height;
-	return TRUE;
-}
-
 static void qb_copy_rgba_pixel_from_gd_image_scanline_F32(void *param1, void *param2, int param3) {
 	float32_t *p = param1;
 	int *tpixels = param2, tpixel;
@@ -609,7 +551,9 @@ static void qb_copy_y_pixel_to_gd_image_scanline_F64(void *param1, void *param2,
 	}
 }
 
-static int32_t qb_copy_elements_to_gd_image(int8_t *src_memory, gdImagePtr image, qb_dimension_mappings *m, uint32_t dimension_index) {
+static int32_t qb_reallocate_gd_image(zval *zimage, uint32_t width, uint32_t height);
+
+static int32_t qb_copy_elements_to_gd_image(int8_t *src_memory, zval *zimage, gdImagePtr image, qb_dimension_mappings *m, uint32_t dimension_index) {
 	uint32_t i, j;
 	qb_pixel_format pixel_format = qb_get_compatible_pixel_format(m->src_dimension_count - dimension_index, m->src_dimensions[m->src_dimension_count - 1], m->src_element_type, image->trueColor);
 	qb_pixel_format pixel_type = pixel_format & ~QB_PIXEL_ARRANGEMENT_FLAGS;
@@ -631,9 +575,10 @@ static int32_t qb_copy_elements_to_gd_image(int8_t *src_memory, gdImagePtr image
 		dst_width = m->src_dimensions[dimension_index + 1];
 	}
 	if(image->sy != dst_height || image->sx != dst_width) {
-		if(!qb_reallocate_gd_image(image, dst_width, dst_height)) {
+		if(!qb_reallocate_gd_image(zimage, dst_width, dst_height)) {
 			return FALSE;
 		}
+		image = qb_get_gd_image(zimage);
 	}
 
 	if(image->trueColor) {
@@ -718,45 +663,41 @@ static int32_t qb_copy_elements_to_gd_image(int8_t *src_memory, gdImagePtr image
 	return TRUE;
 }
 
-static gdImagePtr gdImageCreateTrueColor(uint32_t sx, uint32_t sy) {
-	uint32_t i;
-	gdImagePtr im;
-
-	if(sx * sy > INT32_MAX || sizeof(unsigned char*) * sy > INT32_MAX || sizeof(int) * sx > INT32_MAX) {
-		return NULL;
-	}
-
-	im = (gdImage *) emalloc(sizeof(gdImage));
-	memset(im, 0, sizeof(gdImage));
-	im->tpixels = (int **) emalloc(sizeof(int *) * sy);
-	im->AA_opacity = (unsigned char **) emalloc(sizeof(unsigned char *) * sy);
-	for(i = 0; i < sy; i++) {
-		im->tpixels[i] = (int *) ecalloc(sx, sizeof(int));
-		im->AA_opacity[i] = (unsigned char *) ecalloc(sx, sizeof(unsigned char));
-	}
-	im->sx = sx;
-	im->sy = sy;
-	im->transparent = (-1);
-	im->trueColor = 1;
-	im->saveAlphaFlag = 0;
-	im->alphaBlendingFlag = 1;
-	im->thick = 1;
-	im->cx2 = im->sx - 1;
-	im->cy2 = im->sy - 1;
-	im->interpolation_id = GD_BILINEAR_FIXED;
-	return im;
-}
-
-static int32_t qb_initialize_zval_image(zval *zimage, qb_dimension_mappings *m, uint32_t dimension_index) {	
-	uint32_t height = m->src_dimensions[dimension_index];
-	uint32_t width = m->src_dimensions[dimension_index + 1];
-	int le_gd = qb_get_gd_id();
-	gdImagePtr im = (le_gd != 0) ? gdImageCreateTrueColor(width, height) : NULL;
+static int32_t qb_reallocate_gd_image(zval *zimage, uint32_t width, uint32_t height) {
+	zval *z_width, *z_height, *z_function_name, *z_retval = NULL;
+	zval **params[2];
 	TSRMLS_FETCH();
-	if(!im) {
+
+	if(Z_TYPE_P(zimage) == IS_RESOURCE) {
+		zval_dtor(zimage);
+	}
+
+	ALLOC_INIT_ZVAL(z_width);
+	ALLOC_INIT_ZVAL(z_height);
+	ALLOC_INIT_ZVAL(z_function_name);
+	ZVAL_LONG(z_width, width);
+	ZVAL_LONG(z_height, height);
+	ZVAL_STRING(z_function_name, "imagecreatetruecolor", TRUE);
+	params[0] = &z_width;
+	params[1] = &z_height;
+	call_user_function_ex(CG(function_table), NULL, z_function_name, &z_retval, 2, params, TRUE, NULL TSRMLS_CC);
+	zval_ptr_dtor(&z_width);
+	zval_ptr_dtor(&z_height);
+	zval_ptr_dtor(&z_function_name);
+	if(Z_TYPE_P(z_retval) != IS_RESOURCE) {
 		qb_report_gd_image_exception(0, width, height);
+		Z_TYPE_P(zimage) = IS_NULL;
 		return FALSE;
 	}
-	ZEND_REGISTER_RESOURCE(zimage, im, le_gd);
+	Z_TYPE_P(zimage) = IS_RESOURCE;
+	Z_RESVAL_P(zimage) = Z_RESVAL_P(z_retval);
+	Z_TYPE_P(z_retval) = IS_NULL;
+	zval_ptr_dtor(&z_retval);
 	return TRUE;
+}
+
+static int32_t qb_initialize_zval_image(zval *zimage, qb_dimension_mappings *m, uint32_t dimension_index) {
+	uint32_t height = m->src_dimensions[dimension_index];
+	uint32_t width = m->src_dimensions[dimension_index + 1];
+	return qb_reallocate_gd_image(zimage, width, height);
 }

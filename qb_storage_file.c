@@ -40,7 +40,7 @@ static int32_t qb_capture_dimensions_from_file(php_stream *stream, qb_dimension_
 	return qb_capture_dimensions_from_byte_count((uint32_t) ssb.sb.st_size, m, dimension_index);
 }
 
-static int32_t qb_copy_elements_to_file(int8_t *src_memory, php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
+static int32_t qb_copy_elements_to_file(int8_t *src_memory, zval *zstream, php_stream *stream, qb_dimension_mappings *m, uint32_t dimension_index) {
 	off_t position;
 	uint32_t src_element_count = (dimension_index < m->src_dimension_count) ? m->src_array_sizes[dimension_index] : 1;
 	uint32_t src_byte_count = BYTE_COUNT(src_element_count, m->src_element_type);

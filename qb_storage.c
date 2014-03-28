@@ -1051,9 +1051,9 @@ static int32_t qb_copy_elements_to_zval(int8_t *src_memory, zval *zvalue, zval *
 			php_stream *stream;
 			if((stream = qb_get_file_stream(zvalue))) {
 				// copy the content from the file 
-				return qb_copy_elements_to_file(src_memory, stream, m, dimension_index);
+				return qb_copy_elements_to_file(src_memory, zvalue, stream, m, dimension_index);
 			} else if((image = qb_get_gd_image(zvalue))) {
-				return qb_copy_elements_to_gd_image(src_memory, image, m, dimension_index);
+				return qb_copy_elements_to_gd_image(src_memory, zvalue, image, m, dimension_index);
 			}
 		}	break;
 		default: {
