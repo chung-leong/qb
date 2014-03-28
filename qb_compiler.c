@@ -291,10 +291,18 @@ qb_expression * qb_get_on_demand_expression(qb_compiler_context *cxt, void *op_f
 			int32_t match = TRUE;
 			for(j = 0; j < expr->operand_count; j++) {
 				if(expr->operands[j].type == operands[j].type) {
-					switch(operands[j].type ) {
-						case QB_OPERAND_ADDRESS: match = (expr->operands[j].address == operands[j].address); break;
-						case QB_OPERAND_NUMBER: match = (expr->operands[j].number == operands[j].number); break;
-						case QB_OPERAND_ZEND_CLASS: match = (expr->operands[j].zend_class == operands[j].zend_class); break;
+					if(operands[j].type == QB_OPERAND_ADDRESS) {
+						if(expr->operands[j].address != operands[j].address) {
+							match = FALSE;
+						}
+					} else if(operands[j].type == QB_OPERAND_NUMBER) {
+						if(expr->operands[j].number != operands[j].number) {
+							match = FALSE;
+						}
+					} else if(operands[j].type == QB_OPERAND_ZEND_CLASS) {
+						if(expr->operands[j].zend_class != operands[j].zend_class) {
+							match = FALSE;
+						}
 					}
 				} else {
 					match = FALSE;
