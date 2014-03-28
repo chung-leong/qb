@@ -764,7 +764,7 @@ static qb_php_op_translator op_translators[] = {
 	{	qb_process_send_argument,			NULL,										},	// ZEND_SEND_VAR
 	{	qb_process_send_argument,			NULL,										},	// ZEND_SEND_REF
 	{	NULL,								NULL,										},	// ZEND_NEW
-	{	NULL,								NULL,										},	// ZEND_INIT_NS_FCALL_BY_NAME
+	{	qb_process_init_function_call,		NULL,										},	// ZEND_INIT_NS_FCALL_BY_NAME
 	{	qb_process_basic_op,				&factory_free,								},	// ZEND_FREE
 	{	qb_process_basic_op,				&factory_array_init,						},	// ZEND_INIT_ARRAY
 	{	qb_process_basic_op,				&factory_array_append,						},	// ZEND_ADD_ARRAY_ELEMENT
