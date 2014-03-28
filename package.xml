@@ -110,6 +110,7 @@ Fixed issue #27 - Incorrect object import
     <file role="test" name="class-method-call-by-value.phpt"/>
     <file role="test" name="class-method-call-zend.phpt"/>
     <file role="test" name="class-method-call.phpt"/>
+    <file role="test" name="class-method-call-with-ns.phpt"/>
     <file role="test" name="class-method-private.phpt"/>
     <file role="test" name="class-method-static.phpt"/>
     <file role="test" name="class-method.phpt"/>
@@ -179,6 +180,7 @@ Fixed issue #27 - Incorrect object import
     <file role="test" name="function-call-returning-array-to-scalar.phpt"/>
     <file role="test" name="function-call-returning-array.phpt"/>
     <file role="test" name="function-call-returning-scalar.phpt"/>
+    <file role="test" name="function-call-with-ns.phpt"/>
     <file role="test" name="global-variable-resync.phpt"/>
     <file role="test" name="global-variable-scalar.phpt"/>
     <file role="test" name="if-loop-short-circuit.phpt"/>
