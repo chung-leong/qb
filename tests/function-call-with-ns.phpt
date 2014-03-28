@@ -26,7 +26,7 @@ function test1($a) {
 	test2($a);
 }
 
-test1([1, 2, 3, 4]);
+test1(array(1, 2, 3, 4));
 
 ?>
 --EXPECT--
