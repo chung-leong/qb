@@ -964,7 +964,7 @@ void qb_free_thread_pool(void) {
 long qb_get_cpu_count(void) {
 	static long count = 0;
 	if(!count) {
-#if defined(__linux__)
+#if defined(__unix__)
 		count = sysconf( _SC_NPROCESSORS_ONLN );
 #elif defined(WIN32)
 		SYSTEM_INFO sysinfo;

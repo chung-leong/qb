@@ -35592,6 +35592,8 @@ qb_native_symbol global_native_symbols[] = {
 	{	"qb_do_unpack_little_endian_I64",	NULL,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},
 	{	"sincos",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 	{	"sincosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"cexp",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
+	{	"cexpf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 	{	"__libm_sse2_sincos",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 	{	"__libm_sse2_sincosf",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},
 	{	"__aeabi_d2f",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},

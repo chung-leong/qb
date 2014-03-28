@@ -1,8 +1,14 @@
 #!/bin/sh
 
-cp modules/qb.so `php -i 2> /dev/null | sed -n '/extension_dir => \(.*\) => .*/{s//\1/p;q}'`
-if [ ! -f /etc/php5/mods-available/qb.ini ] ; then
-  `cp qb.ini /etc/php5/mods-available/`
+extdir=`php -r "echo ini_get('extension_dir');" 2> /dev/null`
+if [ ! -d "$extdir" ] ; then
+  mkdir "$extdir"
+fi
+cp modules/qb.so "$extdir/qb.so"
+
+inidir="/etc/php5/mods-available"
+if [ ! -f $inidir/qb.ini ] ; then
+  cp qb.ini $inidir/qb.ini
 fi
 php5enmod qb
 
