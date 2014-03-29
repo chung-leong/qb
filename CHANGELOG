@@ -1,3 +1,14 @@
+Version 2.2.0 (Basia B)
+--------------------------------------------------
+30-March-2014
+--------------------------------------------------
+
+* Enabled compiling to native binary in Solaris and FreeBSD
+* Fixed issue #29 - Segfault during array resize in Solaris 
+* Fixed issue #32 - Segfault when images are resized or created
+* Fixed issue #33 - Incorrect CPU count
+* Fixed issue #34 - Inability to call functions inside namespace
+
 Version 2.1.2 (Basia A)
 --------------------------------------------------
 25-March-2014

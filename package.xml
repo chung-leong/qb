@@ -15,10 +15,10 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <email>cleong728@gmail.com</email>
   <active>yes</active>
  </lead>
- <date>2014-03-25</date>
- <time>19:01:58</time>
+ <date>2014-03-30</date>
+ <time>19:00:00</time>
  <version>
-  <release>2.1.2</release>
+  <release>2.2.0</release>
   <api>0.1.0</api>
  </version>
  <stability>
@@ -26,12 +26,11 @@ QB performs code translation on a per-function basis. It does not affect in anyw
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP License</license>
- <notes>Fixed issue #17 - Segfault with large fixed length array
-Fixed issue #19, #28 - Errors in Solaris 11
-Fixed issue #20 - Corruption of pass-by-ref variables
-Fixed issue #21 - Conflict with xdebug in FreeBSD
-Fixed issue #24 - Broken ZTS build
-Fixed issue #27 - Incorrect object import
+ <notes>Enabled compiling to native binary in Solaris and FreeBSD
+Fixed issue #29 - Segfault during array resize in Solaris 
+Fixed issue #32 - Segfault when images are resized or created
+Fixed issue #33 - Incorrect CPU count
+Fixed issue #34 - Inability to call functions inside namespace
 </notes>
  <contents>
   <dir name="/">
