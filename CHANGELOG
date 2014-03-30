@@ -8,6 +8,8 @@ Version 2.2.0 (Basia B)
 * Fixed issue #32 - Segfault when images are resized or created
 * Fixed issue #33 - Incorrect CPU count
 * Fixed issue #34 - Inability to call functions inside namespace
+* Fixed issue #35 - Segfault in PHP 5.5.8 when QB coroutine is called
+* Fixed issues flagged by Valgrind
 
 Version 2.1.2 (Basia A)
 --------------------------------------------------
