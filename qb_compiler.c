@@ -3829,17 +3829,19 @@ void qb_resolve_reference_counts(qb_compiler_context *cxt) {
 			for(j = 0; j < qop->operand_count; j++) {
 				if(qop->operands[j].type == QB_OPERAND_ADDRESS) {
 					qb_address *address = qop->operands[j].address;
-					if(address->segment_selector != INVALID_INDEX) {
-						qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
-						if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
-							segment->reference_count++;
-						}
+					qb_memory_segment *segment = &cxt->storage->segments[address->segment_selector];
+					if(!(segment->flags & QB_SEGMENT_PREALLOCATED)) {
+						segment->reference_count++;
 					}
 					if(address->mode == QB_ADDRESS_MODE_ELE || address->mode == QB_ADDRESS_MODE_ARR) {
-						if(address->array_index_address->segment_selector != INVALID_INDEX) {
-							qb_memory_segment *index_segment = &cxt->storage->segments[address->array_index_address->segment_selector];
-							if(!(index_segment->flags & QB_SEGMENT_PREALLOCATED)) {
-								index_segment->reference_count++;
+						qb_memory_segment *index_segment = &cxt->storage->segments[address->array_index_address->segment_selector];
+						if(!(index_segment->flags & QB_SEGMENT_PREALLOCATED)) {
+							index_segment->reference_count++;
+						}
+						if(address->mode == QB_ADDRESS_MODE_ARR) {
+							qb_memory_segment *size_segment = &cxt->storage->segments[address->array_size_address->segment_selector];
+							if(!(size_segment->flags & QB_SEGMENT_PREALLOCATED)) {
+								size_segment->reference_count++;
 							}
 						}
 					}

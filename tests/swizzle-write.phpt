@@ -13,13 +13,13 @@ Swizzle test (write)
  * 
  */
 function test_function() {
-	//$p = array(1, 2, 3, 4);
-	//$p->rgb = 2;
-	//echo "$p\n";
-	//$p->ra = 1;
-	//echo "$p\n";
+	$p = array(1, 2, 3, 4);
+	$p->rgb = 2;
+	echo "$p\n";
+	$p->ra = 1;
+	echo "$p\n";
 	$p->bg = array(2, 3);
-	//echo "$p\n";
+	echo "$p\n";
 }
 
 test_function();
