@@ -359,7 +359,7 @@ static void qb_transfer_variables_to_generator(qb_interpreter_context *cxt) {
 		}
 	}
 	if(cxt->function->sent_variable->address) {
-#if PHP_MINOR_VERSION > 5 || PHP_RELEASE_VERSION > 8
+#if PHP_MINOR_VERSION > 5 || PHP_RELEASE_VERSION > 7
 		static zval _dummy_value, *dummy_value = &_dummy_value;
 		if(generator->send_target) {
 			zval_ptr_dtor(generator->send_target);
