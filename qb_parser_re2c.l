@@ -44,7 +44,7 @@ skip:
 
 	<ENGINE_PARAM> "qb-bytecode"			{ return T_ENGINE_QB_BYTECODE; }
 	
-	<INITIAL> "@inline" => INLINE_PARAM		{ return T_TAG_ENGINE; }
+	<INITIAL> "@inline" => INLINE_PARAM		{ return T_TAG_INLINE; }
 
 	<INLINE_PARAM> "always"					{ return T_ALWAYS; }
 	
