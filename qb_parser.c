@@ -63,14 +63,18 @@ void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type) {
 	qb_type_declaration *decl = qb_allocate_type_declaration(cxt->pool);
 	qb_type_declaration **p = qb_enlarge_array((void **) &c_decl->declarations, 1);
 	*p = cxt->type_declaration = decl;
-	if(type) {
-		decl->flags |= type;
-	} else {
-		if(cxt->zend_property->flags & ZEND_ACC_STATIC) {
+	if(cxt->zend_property) {
+		zend_property_info *p = cxt->zend_property;
+		decl->name = p->name;
+		decl->name_length = p->name_length;
+		decl->hash_value = p->h;
+		if(p->flags & ZEND_ACC_STATIC) {
 			decl->flags |= QB_VARIABLE_CLASS;
 		} else {
 			decl->flags |= QB_VARIABLE_CLASS_INSTANCE;
 		}
+	} else {
+		decl->flags |= type;
 	}
 }
 
@@ -78,9 +82,10 @@ void qb_end_variable_declaration(qb_parser_context *cxt) {
 	cxt->type_declaration = NULL;
 }
 
-void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type) {
+void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	decl->type = type;
+	decl->flags |= flags;
 }
 
 void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags) {

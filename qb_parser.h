@@ -36,6 +36,9 @@ enum {
 	QB_TYPE_DECL_AUTOVIVIFICIOUS	= 0x00040000,
 	QB_TYPE_DECL_HAS_ALIAS_SCHEMES	= 0x00080000,
 	QB_TYPE_DECL_IMAGE				= 0x00100000,
+	QB_TYPE_DECL_COMPLEX			= 0x00200000,
+	QB_TYPE_DECL_VECTOR				= 0x00400000,
+	QB_TYPE_DECL_MATRIX				= 0x00800000,
 };
 
 struct qb_type_declaration {
@@ -122,7 +125,7 @@ void qb_add_variable_declaration(qb_parser_context *cxt, uint32_t type);
 void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type);
 void qb_end_statement(qb_parser_context *cxt);
 void qb_end_variable_declaration(qb_parser_context *cxt);
-void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type);
+void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type, uint32_t flags);
 void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags);
 void qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme);
 void qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p);

@@ -193,7 +193,7 @@ receive
 	;
 	
 class_type_decl
-	: class_var_scope var_type var_name	{ qb_end_variable_declaration(cxt); }
+	: class_var_scope var_type var_name	{ qb_end_variable_declaration(cxt); qb_end_statement(cxt); }
 	;
 	
 class_var_scope
@@ -202,7 +202,7 @@ class_var_scope
 	;
 	
 prop_type_decl
-	: prop_var_scope var_type			{ qb_end_variable_declaration(cxt); }
+	: prop_var_scope var_type			{ qb_end_variable_declaration(cxt); qb_end_statement(cxt); }
 	;
 		
 prop_var_scope
@@ -226,44 +226,44 @@ var_type
 	
 var_type_or_void
 	: var_type
-	| T_TYPE_VOID						{ qb_set_variable_type(cxt, QB_TYPE_VOID); }
+	| T_TYPE_VOID						{ qb_set_variable_type(cxt, QB_TYPE_VOID, 0); }
 
 primitive_type							
-	: int_type							{ qb_set_variable_type(cxt, $1); }
-	| float_type						{ qb_set_variable_type(cxt, $1); }
+	: int_type							{ qb_set_variable_type(cxt, $1, 0); }
+	| float_type						{ qb_set_variable_type(cxt, $1, 0); }
 	;
 
 string_type
-	: T_TYPE_STRING int_type_base		{ qb_set_variable_type(cxt, $2); }
-	| T_TYPE_STRING						{ qb_set_variable_type(cxt, QB_TYPE_U08); }
+	: T_TYPE_STRING int_type_base		{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_STRING); }
+	| T_TYPE_STRING						{ qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); }
 	;
 
 char_type
-	: T_TYPE_CHAR int_type_base			{ qb_set_variable_type(cxt, $2); }
-	| T_TYPE_CHAR						{ qb_set_variable_type(cxt, QB_TYPE_U08); }
+	: T_TYPE_CHAR int_type_base			{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_STRING); }
+	| T_TYPE_CHAR						{ qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); }
 	;
 
 boolean_type
-	: T_TYPE_BOOLEAN					{ qb_set_variable_type(cxt, QB_TYPE_I32); }
+	: T_TYPE_BOOLEAN					{ qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN); }
 	;
 	
 image_type
-	: T_TYPE_IMAGE float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2);}
-	| T_TYPE_IMAGE						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32); }
-	| T_TYPE_IMAGE4 float_type_base		{ $$ = 4; qb_set_variable_type(cxt, $2);}
-	| T_TYPE_IMAGE4						{ $$ = 4; qb_set_variable_type(cxt, QB_TYPE_F32); }
+	: T_TYPE_IMAGE float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2, QB_TYPE_DECL_IMAGE);}
+	| T_TYPE_IMAGE						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); }
+	| T_TYPE_IMAGE4 float_type_base		{ $$ = 4; qb_set_variable_type(cxt, $2, QB_TYPE_DECL_IMAGE);}
+	| T_TYPE_IMAGE4						{ $$ = 4; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); }
 	;
 
 vector_type
-	: T_TYPE_VECTOR float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2); }
-	| T_TYPE_VECTOR						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32); }
-	| T_TYPE_VECTOR3 float_type_base	{ $$ = 3; qb_set_variable_type(cxt, $2);}
-	| T_TYPE_VECTOR3					{ $$ = 3; qb_set_variable_type(cxt, QB_TYPE_F32); }
+	: T_TYPE_VECTOR float_type_base		{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, $2, QB_TYPE_DECL_VECTOR); }
+	| T_TYPE_VECTOR						{ $$ = qb_parse_integer(cxt, $1, 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); }
+	| T_TYPE_VECTOR3 float_type_base	{ $$ = 3; qb_set_variable_type(cxt, $2, QB_TYPE_DECL_VECTOR);}
+	| T_TYPE_VECTOR3					{ $$ = 3; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); }
 	;
 
 complex_type
-	: T_TYPE_COMPLEX float_type_base	{ qb_set_variable_type(cxt, $2); }
-	| T_TYPE_COMPLEX					{ qb_set_variable_type(cxt, QB_TYPE_F32); }
+	: T_TYPE_COMPLEX float_type_base	{ qb_set_variable_type(cxt, $2, QB_TYPE_DECL_COMPLEX); }
+	| T_TYPE_COMPLEX					{ qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX); }
 	;
 
 int_type_base

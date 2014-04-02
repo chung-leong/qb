@@ -1697,7 +1697,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 196 "qb_parser_bison.y"
-    { qb_end_variable_declaration(cxt); ;}
+    { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
     break;
 
   case 40:
@@ -1718,7 +1718,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 205 "qb_parser_bison.y"
-    { qb_end_variable_declaration(cxt); ;}
+    { qb_end_variable_declaration(cxt); qb_end_statement(cxt); ;}
     break;
 
   case 43:
@@ -1774,126 +1774,126 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 229 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_VOID); ;}
+    { qb_set_variable_type(cxt, QB_TYPE_VOID, 0); ;}
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
 #line 232 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type)); ;}
+    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0); ;}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
 #line 233 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type)); ;}
+    { qb_set_variable_type(cxt, (yyvsp[(1) - (1)].primitive_type), 0); ;}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
 #line 237 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type)); ;}
+    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING); ;}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
 #line 238 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_U08); ;}
+    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); ;}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
 #line 242 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type)); ;}
+    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_STRING); ;}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
 #line 243 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_U08); ;}
+    { qb_set_variable_type(cxt, QB_TYPE_U08, QB_TYPE_DECL_STRING); ;}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
 #line 247 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_I32); ;}
+    { qb_set_variable_type(cxt, QB_TYPE_I32, QB_TYPE_DECL_BOOLEAN); ;}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
 #line 251 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type));;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE);;}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
 #line 252 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32); ;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); ;}
     break;
 
   case 64:
 
 /* Line 1455 of yacc.c  */
 #line 253 "qb_parser_bison.y"
-    { (yyval.count) = 4; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type));;}
+    { (yyval.count) = 4; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_IMAGE);;}
     break;
 
   case 65:
 
 /* Line 1455 of yacc.c  */
 #line 254 "qb_parser_bison.y"
-    { (yyval.count) = 4; qb_set_variable_type(cxt, QB_TYPE_F32); ;}
+    { (yyval.count) = 4; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_IMAGE); ;}
     break;
 
   case 66:
 
 /* Line 1455 of yacc.c  */
 #line 258 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type)); ;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (2)].token), 10); qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR); ;}
     break;
 
   case 67:
 
 /* Line 1455 of yacc.c  */
 #line 259 "qb_parser_bison.y"
-    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32); ;}
+    { (yyval.count) = qb_parse_integer(cxt, (yyvsp[(1) - (1)].token), 10); qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); ;}
     break;
 
   case 68:
 
 /* Line 1455 of yacc.c  */
 #line 260 "qb_parser_bison.y"
-    { (yyval.count) = 3; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type));;}
+    { (yyval.count) = 3; qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_VECTOR);;}
     break;
 
   case 69:
 
 /* Line 1455 of yacc.c  */
 #line 261 "qb_parser_bison.y"
-    { (yyval.count) = 3; qb_set_variable_type(cxt, QB_TYPE_F32); ;}
+    { (yyval.count) = 3; qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_VECTOR); ;}
     break;
 
   case 70:
 
 /* Line 1455 of yacc.c  */
 #line 265 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type)); ;}
+    { qb_set_variable_type(cxt, (yyvsp[(2) - (2)].primitive_type), QB_TYPE_DECL_COMPLEX); ;}
     break;
 
   case 71:
 
 /* Line 1455 of yacc.c  */
 #line 266 "qb_parser_bison.y"
-    { qb_set_variable_type(cxt, QB_TYPE_F32); ;}
+    { qb_set_variable_type(cxt, QB_TYPE_F32, QB_TYPE_DECL_COMPLEX); ;}
     break;
 
   case 72:
