@@ -201,6 +201,10 @@ static zend_always_inline void *qb_allocate_pointers(qb_data_pool *pool, uint32_
 	return qb_allocate_items(&pool->pointer_allocator, count);
 }
 
+static zend_always_inline void *qb_reallocate_pointers(qb_data_pool *pool, void **current, uint32_t current_count, uint32_t new_count) {
+	return qb_reallocate_items(&pool->pointer_allocator, current, current_count, new_count);
+}
+
 static zend_always_inline char *qb_allocate_string(qb_data_pool *pool, const char *s, uint32_t len) {
 	char *string = qb_allocate_items(&pool->string_allocator, len + 1);
 	if(s) {
@@ -211,6 +215,10 @@ static zend_always_inline char *qb_allocate_string(qb_data_pool *pool, const cha
 
 static zend_always_inline uint32_t *qb_allocate_indices(qb_data_pool *pool, uint32_t count) {
 	return qb_allocate_items(&pool->uint32_allocator, count);
+}
+
+static zend_always_inline uint32_t *qb_reallocate_indices(qb_data_pool *pool, uint32_t *current, uint32_t current_count, uint32_t new_count) {
+	return qb_reallocate_items(&pool->uint32_allocator, current, current_count, new_count);
 }
 
 static zend_always_inline qb_index_alias_scheme *qb_allocate_index_alias_scheme(qb_data_pool *pool) {

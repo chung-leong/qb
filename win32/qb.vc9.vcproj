@@ -635,41 +635,6 @@
 			<File
 				RelativePath="..\qb_crc64.c"
 				>
-				<FileConfiguration
-					Name="Debug_TS|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_TS_VC6|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_TS_VC6|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\qb_data_tables_msvc.c"
@@ -1256,6 +1221,40 @@
 				>
 			</File>
 			<File
+				RelativePath="..\qb_parser_bison.c"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_bison.y"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; bison $(InputFileName) --output=$(InputName).c --defines=$(InputName).h&#x0D;&#x0A;"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\qb_parser_re2c.c"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_re2c.l"
+				>
+				<FileConfiguration
+					Name="Debug_TS|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="cd $(InputDir) &amp; re2c -c -o $(InputName).c -t $(InputName).h $(InputFileName)&#x0D;&#x0A;"
+						Outputs="$(InputName).c $(InputName).h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\qb_printer.c"
 				>
 			</File>
@@ -1442,6 +1441,14 @@
 			</File>
 			<File
 				RelativePath="..\qb_parser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_bison.h"
+				>
+			</File>
+			<File
+				RelativePath="..\qb_parser_re2c.h"
 				>
 			</File>
 			<File

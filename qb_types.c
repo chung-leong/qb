@@ -247,6 +247,37 @@ void * qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count) {
 	return pointer;
 }
 
+void * qb_reallocate_items(qb_block_allocator **p_allocator, void *current, uint32_t current_count, uint32_t new_count) {
+	if(current) {
+		qb_block_allocator *al = *p_allocator;
+		void *pointer;
+		if((char *) current + (current_count * al->item_size) == al->top) {
+			if(new_count <= current_count) {
+				uint32_t diff = current_count - new_count;
+				al->count -= diff;
+				al->top -= diff * al->item_size;
+				return current;
+			} else {
+				uint32_t diff = new_count - current_count;
+				if(al->count + diff <= al->capacity) {
+					al->count += diff;
+					al->top += diff * al->item_size;
+					return current;
+				}
+			}
+		} else {
+			if(new_count < current_count) {
+				return current;
+			}
+		}
+		pointer = qb_allocate_items(p_allocator, new_count);
+		memcpy(pointer, current, current_count * al->item_size);
+		return pointer;
+	} else {
+		return qb_allocate_items(p_allocator, new_count);
+	}
+}
+
 void qb_reset_block_allocator(qb_block_allocator **p_allocator) {
 	qb_block_allocator *al = *p_allocator, *bl;
 	while(al->previous_block) {

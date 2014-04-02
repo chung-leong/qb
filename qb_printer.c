@@ -166,11 +166,7 @@ static void qb_print_address(qb_printer_context *cxt, qb_address *address) {
 			php_printf((recursive) ? ", true)" : ")");
 		} else {
 			if(IS_SCALAR(address)) {
-				if(address->flags & QB_ADDRESS_FOREACH_INDEX) {
-					php_printf("(fe:%u:%u)", address->segment_selector, address->segment_offset);
-				} else {
-					php_printf("(%u:%u)", address->segment_selector, address->segment_offset);
-				}
+				php_printf("(%u:%u)", address->segment_selector, address->segment_offset);
 			} else {
 				if(IS_VARIABLE_LENGTH(address)) {
 					php_printf("(%u:%u...)", address->segment_selector, address->segment_offset);

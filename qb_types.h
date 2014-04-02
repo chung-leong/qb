@@ -310,6 +310,7 @@ struct qb_data_pool {
 
 void qb_create_block_allocator(qb_block_allocator **p_allocator, uint32_t item_size, uint32_t capacity);
 void * qb_allocate_items(qb_block_allocator **p_allocator, uint32_t count);
+void * qb_reallocate_items(qb_block_allocator **p_allocator, void *current, uint32_t current_count, uint32_t new_count);
 void qb_destroy_block_allocator(qb_block_allocator **p_allocator);
 
 void qb_create_array(void **p_array, uint32_t *p_count, uint32_t item_size, uint32_t increment);
