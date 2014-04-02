@@ -24,39 +24,49 @@ skip:
 	WS = [ \t];
 	NEWLINE = [\r\n];
 	NON_WS = [^ \t\r\n\x00]+;
+	UNQUOTED_STR = [^"' \t\r\n\x00][^ \t\r\n\x00]+;
+	DBL_QUOTE = "\"";
+	DBL_QUOTED_STR = [^"\r\n\x00]+;
+	SG_QUOTE = "'";
+	SG_QUOTED_STR = [^'\r\n\x00]+;
+	REGEXP = [^ \t\r\n\x00;]+;
 	TERMINATOR = "\000";
 	POS_INT = [1-9][0-9]*;
 	DECIMAL = [0-9]+;
 	HEXADECIMAL	= "0x"[0-9a-fA-F]+;
 	ANYTHING = [^\x00\r\n]+;
 	
-	<INITIAL> "@engine" => PARAM			{ return T_TAG_ENGINE; }
+	<INITIAL> "@engine" => ENGINE_PARAM		{ return T_TAG_ENGINE; }
 	
-	<PARAM> "qb"							{ return T_ENGINE_QB; }
+	<ENGINE_PARAM> "qb"						{ return T_ENGINE_QB; }
 	
-	<PARAM> "qb-native"						{ return T_ENGINE_QB_NATIVE; }
+	<ENGINE_PARAM> "qb-native"				{ return T_ENGINE_QB_NATIVE; }
 
-	<PARAM> "qb-bytecode"					{ return T_ENGINE_QB_BYTECODE; }
+	<ENGINE_PARAM> "qb-bytecode"			{ return T_ENGINE_QB_BYTECODE; }
 	
-	<INITIAL> "@inline" => PARAM			{ return T_TAG_ENGINE; }
+	<INITIAL> "@inline" => INLINE_PARAM		{ return T_TAG_ENGINE; }
 
-	<PARAM> "always"						{ return T_ALWAYS; }
+	<INLINE_PARAM> "always"					{ return T_ALWAYS; }
 	
-	<PARAM> "never"							{ return T_NEVER; }
+	<INLINE_PARAM> "never"					{ return T_NEVER; }
 	
-	<PARAM> ["] => PARAM_DBL_QUOTES			{ goto skip; }
+	<INITIAL> "@import" => PARAM			{ return T_TAG_IMPORT; }
+	
+	<PARAM> UNQUOTED_STR					{ return T_LABEL; }
+	
+	<PARAM> DBL_QUOTE => PARAM_DBL_QUOTES	{ goto skip; }
 
-	<PARAM_DBL_QUOTES>["] => PARAM			{ goto skip; }
+	<PARAM_DBL_QUOTES> DBL_QUOTE => PARAM	{ goto skip; }
 	
-	<PARAM_DBL_QUOTES> [^"\r\n]+			{ return T_LABEL; }
+	<PARAM_DBL_QUOTES> DBL_QUOTED_STR		{ return T_LABEL; }
 	
 	<PARAM_DBL_QUOTES> NEWLINE				{ return T_UNEXPECTED; }
 
-	<PARAM> ['] => PARAM_SG_QUOTES			{ goto skip; }
+	<PARAM> SG_QUOTE => PARAM_SG_QUOTES		{ goto skip; }
 
-	<PARAM_SG_QUOTES>['] => PARAM			{ goto skip; }
+	<PARAM_SG_QUOTES> SG_QUOTE => PARAM		{ goto skip; }
 	
-	<PARAM_SG_QUOTES> [^'\r\n]+				{ return T_LABEL; }
+	<PARAM_SG_QUOTES> SG_QUOTED_STR			{ return T_LABEL; }
 	
 	<PARAM_SG_QUOTES> NEWLINE				{ return T_UNEXPECTED; }
 	
@@ -156,7 +166,7 @@ skip:
 	<VARIABLE_NAME> LABEL => TYPE_DECL		{ return T_LABEL; }
 	
 	/* assume it's a regexp if it doesn't match LABEL */
-	<VARIABLE_NAME> NON_WS => TYPE_DECL		{ return T_REGEXP; }
+	<VARIABLE_NAME> REGEXP => TYPE_DECL		{ return T_REGEXP; }
 	
 	/* don't allow whitespace after the $ */
 	<VARIABLE_NAME> WS						{ return T_UNEXPECTED; }

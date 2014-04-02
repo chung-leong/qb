@@ -100,7 +100,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 20 "qb_parser_bison.y"
+#line 28 "qb_parser_bison.y"
 
 	uint32_t count;
 	uint32_t flags;
@@ -125,7 +125,7 @@ typedef union YYSTYPE
 /* "%code provides" blocks.  */
 
 /* Line 1676 of yacc.c  */
-#line 11 "qb_parser_bison.y"
+#line 12 "qb_parser_bison.y"
 
 #define yylex		qb_doc_comment_yylex
 #define yyparse		qb_doc_comment_yyparse
@@ -133,8 +133,15 @@ typedef union YYSTYPE
 
 int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 
+#define qb_end_statement(cxt) \
+	if(yychar != YYEMPTY) {\
+		cxt->lexer_context->cursor = cxt->lexer_context->base + yylval.token.index;\
+		yychar = YYEMPTY;\
+	}\
+	cxt->lexer_context->condition = yycCOMMENT;\
+
 
 
 
 /* Line 1676 of yacc.c  */
-#line 141 "qb_parser_bison.h"
+#line 148 "qb_parser_bison.h"

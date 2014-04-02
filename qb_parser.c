@@ -74,13 +74,8 @@ void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type) {
 	}
 }
 
-void qb_end_statement(qb_parser_context *cxt) {
-	cxt->lexer_context->condition = yycCOMMENT;
-}
-
 void qb_end_variable_declaration(qb_parser_context *cxt) {
 	cxt->type_declaration = NULL;
-	qb_end_statement(cxt);
 }
 
 void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type) {
@@ -91,8 +86,12 @@ void qb_set_variable_type(qb_parser_context *cxt, qb_primitive_type type) {
 void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags) {
 	qb_type_declaration *decl = cxt->type_declaration;
 	if(decl->dimension_count < MAX_DIMENSION) {
-		decl->dimensions[decl->dimension_count] = count;
-		decl->dimension_count++;
+		uint32_t index = decl->dimension_count++;
+		decl->dimensions = qb_reallocate_indices(cxt->pool, decl->dimensions, index, decl->dimension_count);
+		decl->dimensions[index] = count;
+		if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
+			decl->index_alias_schemes = qb_reallocate_pointers(cxt->pool, decl->index_alias_schemes, index, decl->dimension_count);
+		}
 	} else {
 		qb_report_too_man_dimension_exception(cxt->line_id);
 	}
@@ -100,6 +99,10 @@ void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags) {
 
 void qb_add_index_alias_scheme(qb_parser_context *cxt, qb_index_alias_scheme *scheme) {
 	qb_type_declaration *decl = cxt->type_declaration;
+	uint32_t index = decl->dimension_count;
+	decl->flags |= QB_TYPE_DECL_HAS_ALIAS_SCHEMES;
+	qb_add_dimension(cxt, scheme->dimension, 0);
+	decl->index_alias_schemes[index] = scheme;
 }
 
 void qb_attach_variable_name(qb_parser_context *cxt, qb_token_position p) {
@@ -169,7 +172,7 @@ void qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, q
 
 int qb_doc_comment_yyerror(qb_parser_context *cxt, const char *msg) {
 	// TODO: report error properly
-	uint32_t len = cxt->lexer_context->cursor - cxt->lexer_context->token;
+	int32_t len = cxt->lexer_context->cursor - cxt->lexer_context->token;
 	const char *token = cxt->lexer_context->token;
     php_printf("Error: %s near %.*s\n", msg, len, token);
 	return 0;
@@ -199,6 +202,7 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt) {
 void qb_doc_comment_yyinit(qb_parser_context *cxt, const char *doc_comment, int parser_selector) {
 	cxt->lexer_context = &cxt->default_lexer_context;
 	cxt->lexer_context->base = cxt->lexer_context->cursor = doc_comment;
+	cxt->lexer_context->token = cxt->lexer_context->marker = NULL;
 	cxt->lexer_context->condition = yycINITIAL;
 	cxt->parser_selector = parser_selector;
 }
@@ -285,6 +289,7 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 	USE_TSRM
 	qb_class_declaration *class_decl;
 	uint32_t start_index = 0;
+	const char *doc_comment = Z_CLASS_INFO(ce, doc_comment);
 	Bucket *p;
 
 	class_decl = qb_allocate_class_declaration(cxt->pool);
@@ -293,11 +298,14 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 	cxt->class_declaration = class_decl;
 	cxt->file_path = Z_CLASS_INFO(ce, filename);
 	cxt->file_id = qb_get_source_file_id(cxt->file_path TSRMLS_CC);
-	cxt->line_number_max = Z_CLASS_INFO(ce, line_start);
-	cxt->zend_property = NULL;
 
-	qb_doc_comment_yyinit(cxt, Z_CLASS_INFO(ce, doc_comment), T_CLASS_SELECTOR);
-	qb_doc_comment_yyparse(cxt);
+	if(doc_comment) {
+		cxt->line_number_max = Z_CLASS_INFO(ce, line_start);
+		cxt->zend_property = NULL;
+
+		qb_doc_comment_yyinit(cxt, doc_comment, T_CLASS_SELECTOR);
+		qb_doc_comment_yyparse(cxt);
+	}
 
 	// look for the doc comment of the properties start from the end of the class
 	cxt->line_number_max = Z_CLASS_INFO(ce, line_end);

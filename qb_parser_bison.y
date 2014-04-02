@@ -1,6 +1,7 @@
 %{
 
 #include "qb.h"
+#include "qb_parser_re2c.h"
 
 %}
 	
@@ -14,6 +15,13 @@
 #define yyerror		qb_doc_comment_yyerror
 
 int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
+
+#define qb_end_statement(cxt) \
+	if(yychar != YYEMPTY) {\
+		cxt->lexer_context->cursor = cxt->lexer_context->base + yylval.token.index;\
+		yychar = YYEMPTY;\
+	}\
+	cxt->lexer_context->condition = yycCOMMENT;\
 
 }
 
@@ -158,13 +166,13 @@ inline_type
 	;
 
 import_stat
-	: T_TAG_IMPORT T_LABEL				{ qb_add_import(cxt, $2); }
+	: T_TAG_IMPORT T_LABEL				{ qb_add_import(cxt, $2); qb_end_statement(cxt); }
 	;
 
 func_type_decl
-	: func_var_scope var_type var_name	{ qb_end_variable_declaration(cxt); }
-	| return var_type_or_void 			{ qb_end_variable_declaration(cxt); }
-	| receive var_type					{ qb_end_variable_declaration(cxt); }
+	: func_var_scope var_type var_name	{ qb_end_variable_declaration(cxt); qb_end_statement(cxt); }
+	| return var_type_or_void 			{ qb_end_variable_declaration(cxt); qb_end_statement(cxt); }
+	| receive var_type					{ qb_end_variable_declaration(cxt); qb_end_statement(cxt); }
 	;
 
 func_var_scope
