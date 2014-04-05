@@ -63,12 +63,11 @@ void qb_add_property_declaration(qb_parser_context *cxt, uint32_t type) {
 	qb_type_declaration *decl = qb_allocate_type_declaration(cxt->pool);
 	qb_type_declaration **p = qb_enlarge_array((void **) &c_decl->declarations, 1);
 	*p = cxt->type_declaration = decl;
-	if(cxt->zend_property) {
-		zend_property_info *p = cxt->zend_property;
-		decl->name = p->name;
-		decl->name_length = p->name_length;
-		decl->hash_value = p->h;
-		if(p->flags & ZEND_ACC_STATIC) {
+	if(cxt->property_name) {
+		decl->name = cxt->property_name;
+		decl->name_length = cxt->property_name_length;
+		decl->hash_value = cxt->property_hash_value;
+		if(cxt->property_flags & ZEND_ACC_STATIC) {
 			decl->flags |= QB_VARIABLE_CLASS;
 		} else {
 			decl->flags |= QB_VARIABLE_CLASS_INSTANCE;
@@ -97,6 +96,7 @@ void qb_add_dimension(qb_parser_context *cxt, uint32_t count, uint32_t flags) {
 		if(decl->flags & QB_TYPE_DECL_HAS_ALIAS_SCHEMES) {
 			decl->index_alias_schemes = qb_reallocate_pointers(cxt->pool, decl->index_alias_schemes, index, decl->dimension_count);
 		}
+		decl->flags |= flags;
 	} else {
 		qb_report_too_man_dimension_exception(cxt->line_id);
 	}
@@ -306,7 +306,10 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 
 	if(doc_comment) {
 		cxt->line_number_max = Z_CLASS_INFO(ce, line_start);
-		cxt->zend_property = NULL;
+		cxt->property_name = NULL;
+		cxt->property_name_length = 0;
+		cxt->property_hash_value = 0;
+		cxt->property_flags = 0;
 
 		qb_doc_comment_yyinit(cxt, doc_comment, T_CLASS_SELECTOR);
 		qb_doc_comment_yyparse(cxt);
@@ -318,7 +321,11 @@ qb_class_declaration * qb_parse_class_doc_comment(qb_parser_context *cxt, zend_c
 	for(p = ce->properties_info.pListHead; p; p = p->pListNext) {
 		zend_property_info *prop = p->pData;
 		if(prop->doc_comment) {
-			cxt->zend_property = prop;
+			// prop->name is null for private properties
+			cxt->property_name = p->arKey;
+			cxt->property_name_length = p->nKeyLength - 1;
+			cxt->property_hash_value = p->h;
+			cxt->property_flags = prop->flags;
 
 			qb_doc_comment_yyinit(cxt, prop->doc_comment, T_PROPERTY_SELECTOR);
 			qb_doc_comment_yyparse(cxt);

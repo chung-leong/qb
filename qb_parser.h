@@ -100,7 +100,11 @@ struct qb_parser_context {
 
 	qb_data_pool *pool;
 	zend_class_entry *zend_class;	
-	zend_property_info *zend_property;
+	const char *property_name;
+	uint32_t property_name_length;
+	ulong property_hash_value;
+	uint32_t property_flags;
+
 	const char *file_path;
 	uint32_t file_id;
 	uint32_t line_id;
