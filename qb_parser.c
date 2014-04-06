@@ -175,6 +175,71 @@ void qb_add_index_alias(qb_parser_context *cxt, qb_index_alias_scheme *scheme, q
 	scheme->alias_lengths[index] = p.length;
 }
 
+void qb_parse_constant(qb_parser_context *cxt, qb_token_position p) {
+	if(cxt->lexer_context != &cxt->definition_lexer_context) {
+		ALLOCA_FLAG(use_heap)
+		char *name = do_alloca(p.length + 1, use_heap);
+		uint32_t name_len = p.length;
+		zval **p_value, *constant = NULL;
+		TSRMLS_FETCH();
+
+		memcpy(name, cxt->lexer_context->base + p.index, name_len);
+		name[name_len] = '\0';
+
+		if(cxt->zend_class && (zend_hash_find(&cxt->zend_class->constants_table, name, name_len + 1, (void **) &p_value) == SUCCESS)) {
+			constant = *p_value;
+		} else {
+			zend_constant *zconst;
+			if(zend_hash_find(EG(zend_constants), name, name_len + 1, (void **) &zconst) != FAILURE) {
+				constant = &zconst->value;
+			}
+		}
+
+		if(constant) {
+			char *expanded;
+			uint32_t expanded_len;
+			int condition;
+
+			switch (Z_TYPE_P(constant)) {
+				case IS_NULL: {
+					expanded_len = spprintf(&expanded, 0, "[]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
+				}	break;
+				case IS_STRING: {
+					expanded_len = spprintf(&expanded, 0, "[%.*s]", Z_STRLEN_P(constant), Z_STRVAL_P(constant));
+				}	break;
+				case IS_BOOL: {
+					if (Z_LVAL_P(constant)) {
+						expanded_len = spprintf(&expanded, 0, "[1]");
+					} else {
+						expanded_len = spprintf(&expanded, 0, "[]");
+					}
+				}	break;
+				case IS_RESOURCE:
+				case IS_LONG: {
+					expanded_len = spprintf(&expanded, 0, "[%ld]", Z_LVAL_P(constant));
+				}	break;
+				case IS_DOUBLE: {
+					USE_TSRM
+					expanded_len = spprintf(&expanded, 0, "[%.*G]", (int) EG(precision), Z_DVAL_P(constant));
+				}	break;
+			}
+
+			// switch to a differrent lexer context
+			condition = cxt->lexer_context->condition;
+			cxt->lexer_context = &cxt->definition_lexer_context;
+			cxt->lexer_context->base = cxt->lexer_context->cursor = expanded;
+			cxt->lexer_context->token = cxt->lexer_context->marker = NULL;
+			cxt->lexer_context->condition = condition;
+		} else {
+			qb_report_undefined_constant_exception(cxt->line_id, NULL, name);
+		}
+		free_alloca(name, use_heap);
+	} else {
+		// force the lexer to return a T_UNEXPECTED
+		cxt->parser_selector = T_UNEXPECTED;
+	}
+}
+
 int qb_doc_comment_yyerror(qb_parser_context *cxt, const char *msg) {
 	// TODO: report error properly
 	int32_t len = cxt->lexer_context->cursor - cxt->lexer_context->token;
@@ -197,6 +262,7 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt) {
 	}
 	if(!ret) {
 		if(cxt->lexer_context == &cxt->definition_lexer_context) {
+			efree(cxt->lexer_context->base);
 			cxt->lexer_context = &cxt->default_lexer_context;
 			return qb_doc_comment_yylex(lvalp, cxt);
 		}

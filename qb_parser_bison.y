@@ -16,6 +16,9 @@
 
 int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 
+#define qb_clean_read_ahead_token(cxt)	\
+	yychar = YYEMPTY;\
+
 #define qb_end_statement(cxt) \
 	if(yychar != YYEMPTY) {\
 		cxt->lexer_context->cursor = cxt->lexer_context->base + yylval.token.index;\
@@ -44,6 +47,7 @@ int qb_doc_comment_yylex(YYSTYPE *lvalp, qb_parser_context *cxt);
 %token T_TYPE_INT32
 %token T_TYPE_INT64
 
+%token T_TYPE_UINT
 %token T_TYPE_UINT08
 %token T_TYPE_UINT16
 %token T_TYPE_UINT32
@@ -282,6 +286,7 @@ int_type
 	| T_TYPE_UINT16						{ $$ = QB_TYPE_U16; }
 	| T_TYPE_UINT32						{ $$ = QB_TYPE_U32; }
 	| T_TYPE_UINT64						{ $$ = QB_TYPE_U64; }
+	| T_TYPE_UINT						{ $$ = QB_TYPE_U32; }
 	;
 
 float_type
@@ -301,7 +306,7 @@ array_dimension
 	| '[' ']'							{ qb_add_dimension(cxt, 0, 0); }
 	| '[' '?' ']'						{ qb_add_dimension(cxt, 0, 0); }
 	| '[' '*' ']'						{ qb_add_dimension(cxt, 0, QB_TYPE_DECL_AUTOVIVIFICIOUS); }
-	| '[' T_LABEL ']'
+	| '[' T_LABEL ']'					{ qb_parse_constant(cxt, $2); qb_clean_read_ahead_token(cxt); }
 	| '[' alias_scheme ']'				{ qb_add_index_alias_scheme(cxt, $2); }
 	;
 	

@@ -100,6 +100,8 @@ skip:
 	
 	<TYPE_DECL> "int64"						{ return T_TYPE_INT64; }
 	
+	<TYPE_DECL> "uint"						{ return T_TYPE_UINT; }
+	
 	<TYPE_DECL> "uint8"						{ return T_TYPE_UINT08; }
 	
 	<TYPE_DECL> "uint16"					{ return T_TYPE_UINT16; }

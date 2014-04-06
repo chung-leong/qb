@@ -270,10 +270,6 @@ void qb_report_missing_type_declaration_exception(uint32_t line_id, qb_variable 
 	qb_report_exception(line_id, E_ERROR, "Missing type declaration: %s", qvar->name);
 }
 
-void qb_report_illegal_dimension_exception(uint32_t line_id, long const_value) {
-	qb_report_exception(line_id, E_NOTICE, "Negative dimension: %ld", const_value);
-}
-
 void qb_report_unexpected_tag_in_doc_comment_exception(uint32_t line_id, const char *tag, uint32_t tag_len) {
 	qb_report_exception(line_id, E_NOTICE, "Unexpected use of @%.*s", tag_len, tag);
 }
