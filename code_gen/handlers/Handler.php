@@ -2,7 +2,6 @@
 
 class Handler {
 	protected static $typeDecls = array();
-	protected static $compiler;
 	protected static $multithreadingThresholds;
 
 	protected $baseName;
@@ -16,11 +15,7 @@ class Handler {
 		ksort(self::$typeDecls);
 		return self::$typeDecls;
 	}
-	
-	static public function setCompiler($compiler) {
-		self::$compiler = $compiler;
-	}
-	
+		
 	static public function compare($op1, $op2) {
 		if($op1 && $op2) {
 			if($op1 == $op2) {
@@ -74,63 +69,6 @@ class Handler {
 	
 	public function getAddressMode() {
 		return $this->addressMode;
-	}
-
-	// return code for the op handler
-	public function getCode() {
-		$lines = array();
-		$name = $this->getName();
-		$instr = $this->getInstructionStructure();
-		$action = 
-		$opCount = $this->getOperandCount();
-		$targetCount = $this->getJumpTargetCount();
-		$lines[] = $this->getLabelCode($name);
-		$lines[] = $this->getMacroDefinitions();
-		$lines[] = "{";
-		
-		if($targetCount == 0 || $targetCount == 1) {
-			// set next handler
-			$lines[] = $this->getSetHandlerCode("INSTR->next_handler");
-		} else if($targetCount == 2) {
-			// assume the first branch will be taken
-			$lines[] = "int condition;";
-			$lines[] = $this->getSetHandlerCode("INSTR->next_handler1");
-		} else if($targetCount > 2) {
-			// branch table
-			$lines[] = "unsigned int offset;";			
-		}
-				
-		$lines[] = $this->getAction();
-
-		if($targetCount == 0) {
-			// move the instruction pointer over this one
-			$lines[] = "ip += sizeof($instr);";
-		} else if($targetCount == 1) {
-			// go to the jump target
-			$lines[] = "ip = INSTR->instruction_pointer;";
-			$lines[] = $this->getTimeoutCode();
-		} else if($targetCount == 2) {
-			// set the instruction pointer to pointer 1, if condition is true
-			// otherwise update the next handler and set ip to pointer 2
-			$lines[] = "if(condition) {";
-			$lines[] = 		"ip = INSTR->instruction_pointer1;";
-			$lines[] = "} else {";
-			$lines[] = 		$this->getSetHandlerCode("INSTR->next_handler2");
-			$lines[] = 		"ip = INSTR->instruction_pointer2;";
-			$lines[] = "}";
-			$lines[] = $this->getTimeoutCode();
-		}  else if($targetCount > 2) {
-			$lines[] = $this->getSetHandlerCode("INSTR->branch_table[offset].next_handler");
-			$lines[] = "ip = INSTR->branch_table[offset].instruction_pointer;";
-		}
-
-		// go to the next instruction unless the function is returning
-		if($targetCount != -1) {
-			$lines[] = $this->getJumpCode();
-		}
-		$lines[] = "}";
-		$lines[] = $this->getMacroUndefinitions();
-		return $lines;
 	}
 
 	// return code for helper functions needed by the handler
@@ -531,7 +469,7 @@ class Handler {
 	public function getHandlerFunctionType() {
 		if($this->runsInMainThread()) {
 			return 'extern';
-		} else if(!$this->isOverridden('getAction') && !$this->isOverridden('getCode')) {
+		} else if(!$this->isOverridden('getAction')) {
 			if($this->isMultipleData()) {
 				return 'extern';
 			} else {
@@ -938,45 +876,7 @@ class Handler {
 		}
 		return $action;
 	}
-	
-	// return code for the handle label	
-	protected function getLabelCode($name) {
-		if(self::$compiler == "GCC") {
-			return "label_$name:";
-		} else if(self::$compiler == "MSVC") {
-			return "case QB_$name:";
-		}
-	}
-	
-	// return code for setting the next op handler
-	protected function getSetHandlerCode($value) {
-		return "handler = $value;";
-	}
-
-	// return code for jumping to the next op handler
-	protected function getJumpCode() {
-		if(self::$compiler == "GCC") {
-			return "goto *handler;";
-		} else if(self::$compiler == "MSVC") {
-			return "break;";
-		}
-	}
-	
-	// return code for timeout check (Windows only)
-	protected function getTimeoutCode() {
-		if(self::$compiler == "MSVC") {
-			$lines = array();
-			$lines[] = "if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {";
-			$lines[] =		"windows_timeout_check_counter = 0;";
-			$lines[] = 		"if(*windows_timed_out_pointer) {";
-			$lines[] =			"cxt->exit_type = QB_VM_TIMEOUT;";
-			$lines[] = 			"return;";
-			$lines[] =		"}";
-			$lines[] = "}";
-			return $lines;
-		}
-	}	
-	
+		
 	// multiple a scalar operation multiple times
 	protected function replicateExpression($expression, $count) {
 		$srcCount = $this->getInputOperandCount();

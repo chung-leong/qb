@@ -1,7 +1,6 @@
 <?php
 
 class CodeGenerator {
-	protected $compiler;
 	protected $handlers = array();
 	protected $elementTypes = array("U32", "S32", "F32", "F64", "S08", "U08", "S16", "U16", "S64", "U64");
 	protected $floatTypes = array("F32", "F64");
@@ -17,8 +16,7 @@ class CodeGenerator {
 		}
 	}
 	
-	public function writeTypeDeclarations($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeTypeDeclarations($handle) {
 		$this->currentIndentationLevel = 0;
 	
 		fwrite($handle, "#if defined(__sun) || defined(__sun__)\n");
@@ -56,8 +54,7 @@ class CodeGenerator {
 		$this->writeCode($handle, $lines);
 	}
 	
-	public function writeFunctionPrototypes($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeFunctionPrototypes($handle) {
 		$this->currentIndentationLevel = 0;
 
 		$functions = $this->getFunctionDefinitions();
@@ -85,8 +82,7 @@ class CodeGenerator {
 		}
 	}
 
-	public function writeFunctionDefinitions($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeFunctionDefinitions($handle) {
 		$this->currentIndentationLevel = 0;
 		
 		$functions = $this->getFunctionDefinitions();
@@ -99,71 +95,196 @@ class CodeGenerator {
 			}
 		}
 	}
-	
-	public function writeMainLoop($handle, $compiler) {
-		$this->setCompiler($compiler);
-		$this->currentIndentationLevel = 0;
-		
+
+	protected function writeSwitchLoop($handle) {
 		$lines = array();
 		$lines[] = "";			
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
-		// cxt is null when we initialize the handler array
-		if($compiler == "GCC") {
-			$lines[] = 	"if(cxt) {";
-		}
-		$lines[] = 			"register void *__restrict handler;";
-		$lines[] = 			"register int8_t *__restrict ip;";
-		
-		if($compiler == "MSVC") {
-			$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
-			$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
-		}
-		$lines[] = 			"";
-		$lines[] = 			"{";
-		$lines[] = 				"handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
-		$lines[] = 				"ip = cxt->instruction_pointer + sizeof(qb_instruction);";
-		if($compiler == "GCC") {
-			$lines[] = 			"goto *handler;";
-		}
-		$lines[] = 			"}";
-		$lines[] = "";
-		if($compiler == "MSVC") {
-			// Visual C doesn't support computed goto so we have to use a giant switch() statement instead
-			$lines[] = 		"do {";
-			$lines[] = 			"switch((intptr_t) handler) {";
-		}
-		$this->writeCode($handle, $lines);
-		
-		foreach($this->handlers as $handler) {
-			$lines = $handler->getCode();
-			$lines[] = "";
-			$this->writeCode($handle, $lines);
-		}
-		
-		$lines = array();
-		if($compiler == "MSVC") {
-			$lines[] = 			"default:";
-			$lines[] = 				"__assume(0);";
-			$lines[] = 			"}";
-			$lines[] = 		"} while(1);";
-		}
-		if($compiler == "GCC") {
-			$lines[] = 	"} else {";
-			foreach($this->handlers as $handler) {
-				$name = $handler->getName();
-				$lines[] = 		"op_handlers[QB_$name] = &&label_$name;";
-			}
-			$lines[] = 	"}";
-		}
-		$this->writeCode($handle, $lines);
+		$lines[] = 		"register void *__restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
+		$lines[] = "#ifdef _WIN32";
+		$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
+		$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
+		$lines[] = "#endif";
+		$lines[] =		"";
+		$lines[] = 		"while(1) switch((int) (intptr_t) handler) {";
 
-		$lines = array();
-		$lines[] = 	"}";
-		$lines[] = 	"";
-		if($compiler == "GCC") {
-			$lines[] = 	"void *op_handlers[QB_OPCODE_COUNT];";
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$instr = $handler->getInstructionStructure();
+			$opCount = $handler->getOperandCount();
+			$targetCount = $handler->getJumpTargetCount();
+
+			$lines[] =		"case QB_$name:"
+			$lines[] = 		$handler->getMacroDefinitions();
+			$lines[] = 		"{";
+		
+			if($targetCount == 0 || $targetCount == 1) {
+				// set next handler
+				$lines[] =		"handler = INSTR->next_handler;";
+			} else if($targetCount == 2) {
+				// assume the first branch will be taken
+				$lines[] = 		"int condition;";
+				$lines[] = 		"handler = INSTR->next_handler1";
+			} else if($targetCount > 2) {
+				// branch table
+				$lines[] = 		"unsigned int offset;";
+			}
+				
+			$lines[] = 			$handler->getAction();
+
+			if($targetCount == 0) {
+				// move the instruction pointer over this one
+				$lines[] = 		"ip += sizeof($instr);";
+			} else if($targetCount == 1) {
+				// go to the jump target
+				$lines[] = 		"ip = INSTR->instruction_pointer;";
+			} else if($targetCount == 2) {
+				// set the instruction pointer to pointer 1, if condition is true
+				// otherwise update the next handler and set ip to pointer 2
+				$lines[] = 		"if(condition) {";
+				$lines[] = 			"ip = INSTR->instruction_pointer1;";
+				$lines[] = 		"} else {";
+				$lines[] = 			"handler = INSTR->next_handler2;");
+				$lines[] = 			"ip = INSTR->instruction_pointer2;";
+				$lines[] = 		"}";
+			}  else if($targetCount > 2) {
+				$lines[] = 		"handler = INSTR->branch_table[offset].next_handler;";
+				$lines[] = 		"ip = INSTR->branch_table[offset].instruction_pointer;";
+			}
+
+			if($targetCount == 1 || $targetCount == 2) {
+				$lines[] = 		"#ifdef _WIN32";
+				$lines[] = 		"if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {";
+				$lines[] =			"windows_timeout_check_counter = 0;";
+				$lines[] = 			"if(*windows_timed_out_pointer) {";
+				$lines[] =				"cxt->exit_type = QB_VM_TIMEOUT;";
+				$lines[] = 				"return;";
+				$lines[] =			"}";
+				$lines[] = 		"}";
+				$lines[] = 		"#endif";
+			}
+			$lines[] = 		"}";
+			$lines[] =		"break;";
+			$lines[] = 		$handler->getMacroUndefinitions();
+			$lines[] =		"";
 		}
+
+		$lines[] = "#ifdef _MSC_VER";		
+		$lines[] = 			"default:";
+		$lines[] = 				"__assume(0);";	
+		$lines[] = "#endif";
+		$lines[] = 		"}";
+		$lines[] = "}";
+
 		$this->writeCode($handle, $lines);
+	}
+
+	protected function writeComputedGotoLoop($handle) {
+		$lines = array();
+		$lines[] = "";			
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] =		"if(cxt) {";
+		$lines[] = 			"register void *__restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 			"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
+		$lines[] = "#ifdef _WIN32";
+		$lines[] =			"uint32_t windows_timeout_check_counter = 0;";
+		$lines[] = 			"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
+		$lines[] = "#endif";
+		$lines[] =			"";
+		$lines[] = 			"goto *handler;";
+		$lines[] = 			"";
+
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$instr = $handler->getInstructionStructure();
+			$opCount = $handler->getOperandCount();
+			$targetCount = $handler->getJumpTargetCount();
+
+			$lines[] =		"label_$name:"
+			$lines[] = 		$handler->getMacroDefinitions();
+			$lines[] = 		"{";
+		
+			if($targetCount == 0 || $targetCount == 1) {
+				// set next handler
+				$lines[] =		"handler = INSTR->next_handler;";
+			} else if($targetCount == 2) {
+				// assume the first branch will be taken
+				$lines[] = 		"int condition;";
+				$lines[] = 		"handler = INSTR->next_handler1";
+			} else if($targetCount > 2) {
+				// branch table
+				$lines[] = 		"unsigned int offset;";
+			}
+				
+			$lines[] = 			$handler->getAction();
+
+			if($targetCount == 0) {
+				// move the instruction pointer over this one
+				$lines[] = 		"ip += sizeof($instr);";
+			} else if($targetCount == 1) {
+				// go to the jump target
+				$lines[] = 		"ip = INSTR->instruction_pointer;";
+			} else if($targetCount == 2) {
+				// set the instruction pointer to pointer 1, if condition is true
+				// otherwise update the next handler and set ip to pointer 2
+				$lines[] = 		"if(condition) {";
+				$lines[] = 			"ip = INSTR->instruction_pointer1;";
+				$lines[] = 		"} else {";
+				$lines[] = 			"handler = INSTR->next_handler2;");
+				$lines[] = 			"ip = INSTR->instruction_pointer2;";
+				$lines[] = 		"}";
+			}  else if($targetCount > 2) {
+				$lines[] = 		"handler = INSTR->branch_table[offset].next_handler;";
+				$lines[] = 		"ip = INSTR->branch_table[offset].instruction_pointer;";
+			}
+
+			if($targetCount == 1 || $targetCount == 2) {
+				$lines[] = 		"#ifdef _WIN32";
+				$lines[] = 		"if(UNEXPECTED(windows_timeout_check_counter++ == 1048576)) {";
+				$lines[] =			"windows_timeout_check_counter = 0;";
+				$lines[] = 			"if(*windows_timed_out_pointer) {";
+				$lines[] =				"cxt->exit_type = QB_VM_TIMEOUT;";
+				$lines[] = 				"return;";
+				$lines[] =			"}";
+				$lines[] = 		"}";
+				$lines[] = 		"#endif";
+			}
+
+			// go to the next instruction unless the function is returning
+			if($targetCount != -1) {
+				$lines[] =		"goto *handler;"
+			}
+			$lines[] = 		"}";
+			$lines[] = 		$handler->getMacroUndefinitions();
+			$lines[] =		"";
+		}
+		$lines[] = 		"} else {";
+
+		foreach($this->handlers as $handler) {
+			$name = $handler->getName();
+			$lines[] = 		"op_handlers[QB_$name] = &&label_$name;";
+		}
+
+		$lines[] = 		"}";
+		$lines[] = "}";
+		$lines[] = "";
+		$lines[] = "void *op_handlers[QB_OPCODE_COUNT];";
+
+		$this->writeCode($handle, $lines);
+	}
+
+	protected function writeTailCallLoop($handle) {
+		$lines = array();
+		$lines[] = "";			
+		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
+		$lines[] = "}";
+
+		$this->writeCode($handle, $lines);
+	}
+			
+	public function writeMainLoop($handle) {
+		$this->currentIndentationLevel = 0;
 	}
 	
 	public function writeOpCodes($handle) {
@@ -281,8 +402,7 @@ class CodeGenerator {
 		fwrite($handle, "#endif\n");
 	}
 
-	public function writeNativeCodeTables($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeNativeCodeTables($handle) {
 		$this->currentIndentationLevel = 0;
 		
 		$actions = array();
@@ -315,7 +435,7 @@ class CodeGenerator {
 		$references = array();
 		foreach($this->handlers as $handler) {
 			$indices = array();
-			$action = $handler->getCode();
+			$action = $handler->getAction();
 			if($action) {
 				if(is_scalar($action)) {
 					$action = array($action);
@@ -382,8 +502,7 @@ class CodeGenerator {
 		fwrite($handle, "#endif\n");
 	}
 	
-	public function writeNativeSymbolTable($handle, $compiler) {
-		$this->setCompiler($compiler);
+	public function writeNativeSymbolTable($handle) {
 		$this->currentIndentationLevel = 0;
 		
 		// parse for declaration of helper functions 
@@ -398,14 +517,7 @@ class CodeGenerator {
 				$target = null;
 				
 				if(strpos($decl, "{") === false) {
-					if($this->compiler == "MSVC" && $functionName == "floor" || $functionName == "ceil") {
-						// floor() is not constant in MSVC when intrinsic are used
-						// it therefore cannot be used as an initializer
-						// need it get the address at runtime instead
-						$target = "NULL";
-					} else {
-						$target = $functionName;
-					}
+					$target = $functionName;
 				} else {
 					// a function body could be generated inside the object file for the inline function
 					// need to indicate that the symbol is known 
@@ -416,39 +528,55 @@ class CodeGenerator {
 		}
 
 		// load list of intrinsic functions
-		$intrinsics = $this->loadListing("intrinsic_functions_%COMPILER%.txt");
+		$msvcIntrinsics = $this->loadListing("intrinsic_functions_msvc.txt");
+		$gccIntrinsics = $this->loadListing("intrinsic_functions_gcc.txt");
 		
-		if($compiler == "MSVC") {
-			// these functions cannot be declared in VC11
-			$vc11_intrinsics =  $this->loadListing("intrinsic_functions_msvc11.txt");
-		}
+		// these functions cannot be declared in VC11
+		$vc11Intrinsics =  $this->loadListing("intrinsic_functions_msvc11.txt");
+
+		$msvcFunctionPointers = array("floor", "ceil");
+
 		fwrite($handle, "\n");
 	
 		$count = 0;
 		fwrite($handle, "qb_native_symbol global_native_symbols[] = {\n");
 		foreach($symbols as $name => $symbol) {
-			$flags = array();
-			if(isset($vc11_intrinsics) && in_array($name, $vc11_intrinsics)) {
-				$flags[] = "QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION";
-			} else if($symbol == "NULL") {
-				$flags[] = "QB_NATIVE_SYMBOL_INLINE_FUNCTION";
-			}
-			if($flags) {
-				$flags = implode(" | ", $flags);
+			$isIntrinsic = in_array($name, $vc11Intrinsics);
+			$isFunctionPointer = in_array($name, $msvcFunctionPointers);
+			if($isIntrinsic) {
+				fwrite($handle, "#if _MSC_VER > 1700\n");
+				fwrite($handle, "	{	\"$name\",	$symbol,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},\n");
+				fwrite($handle, "#else\n");
+			} else if($isFunctionPointer) {
+				fwrite($handle, "#if defined(_MSC_VER)\n");
+				fwrite($handle, "	{	\"$name\",	NULL,	0,	0	},\n");
+				fwrite($handle, "#else\n");
+			} 
+			if($symbol == "NULL") {
+				fwrite($handle, "	{	\"$name\",	$symbol,	0,	QB_NATIVE_SYMBOL_INLINE_FUNCTION	},\n");
 			} else {
-				$flags = "0";
+				fwrite($handle, "	{	\"$name\",	$symbol,	0,	0	},\n");
 			}
-			fwrite($handle, "	{	\"$name\",	$symbol,	0,	$flags	},\n");
+			if($isFunctionPointer) {
+				fwrite($handle, "#endif\n");
+			} else if($isIntrinsic) {
+				fwrite($handle, "#endif\n");
+			}			
 			$count++;
 		}
-		foreach($intrinsics as $name) {
+		fwrite($handle, "#if defined(_MSC_VER)\n");
+		foreach($msvcIntrinsics as $name) {
 			fwrite($handle, "	{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},\n");
 			$count++;
 		}
+		fwrite($handle, "#elif defined(__GNUC__)\n");
+		foreach($gccIntrinsics as $name) {
+			fwrite($handle, "	{	\"$name\",	NULL,	0,	QB_NATIVE_SYMBOL_INTRINSIC_FUNCTION	},\n");
+			$count++;
+		}
+		fwrite($handle, "#endif\n");
 		fwrite($handle, "};\n\n");
 		fwrite($handle, "uint32_t global_native_symbol_count = $count;\n\n");
-		
-
 	}
 
 	public function writeNativeDebugStub($handle) {
@@ -463,16 +591,10 @@ class CodeGenerator {
 		fwrite($handle, "#endif\n");
 		fwrite($handle, "#endif\n");
 	}
-
-	protected function setCompiler($compiler) {
-		Handler::setCompiler($compiler);
-		$this->compiler = $compiler;
-	}
 	
 	protected function loadListing($filename) {
 		$folder = dirname(__FILE__);
 		$path = "$folder/listings/$filename";
-		$path = str_replace("%COMPILER%", strtolower($this->compiler), $path);
 		$lines = file($path, FILE_IGNORE_NEW_LINES);
 		$filteredLines = array();
 		foreach($lines as $line) {
