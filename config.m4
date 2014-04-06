@@ -125,7 +125,7 @@ if test "$PHP_QB" != "no"; then
 	qb_compat.c\
 	qb_crc64.c\
 	qb_compiler.c\
-	qb_data_tables_gcc.c\
+	qb_data_tables.c\
 	qb_debug_interface.c\
 	qb_encoder.c\
 	qb_exceptions.c\
@@ -133,8 +133,8 @@ if test "$PHP_QB" != "no"; then
 	qb_function_inliner.c\
 	qb_interpreter.c\
 	qb_interpreter_debug.c\
-	qb_interpreter_functions_gcc.c\
-	qb_interpreter_loop_gcc.c\
+	qb_interpreter_functions.c\
+	qb_interpreter_loop.c\
 	qb_native_compiler.c\
 	qb_op.c\
 	qb_op_factories.c\

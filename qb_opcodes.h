@@ -18,7 +18,6 @@
 
 /* $Id$ */
 
-
 enum qb_opcode {
 	QB_NOP,
 	QB_JMP,

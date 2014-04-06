@@ -369,7 +369,7 @@ class Handler {
 		return false;
 	}
 	
-	protected function getMacroDefinitions() {
+	public function getMacroDefinitions() {
 		$instr = $this->getInstructionStructure();
 		$srcCount = $this->getInputOperandCount();
 		$opCount = $this->getOperandCount();
@@ -407,7 +407,7 @@ class Handler {
 		return $lines;
 	}
 	
-	protected function getMacroUndefinitions() {
+	public function getMacroUndefinitions() {
 		$instr = $this->getInstructionStructure();
 		$srcCount = $this->getInputOperandCount();
 		$opCount = $this->getOperandCount();
