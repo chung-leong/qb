@@ -28,7 +28,7 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 #elif defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)
 void qb_main(qb_interpreter_context *__restrict cxt) {
 	if(cxt) {
-		register void *__restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;
+		register qb_op_handler __restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;
 		register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);
 #ifdef _WIN32
 		uint32_t windows_timeout_check_counter = 0;
@@ -48765,17 +48765,17 @@ void qb_main(qb_interpreter_context *__restrict cxt) {
 	}
 }
 
-void *op_handlers[QB_OPCODE_COUNT];
+qb_op_handler *op_handlers[QB_OPCODE_COUNT];
 #else
 void qb_main(qb_interpreter_context *__restrict cxt) {
-	register void *__restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;
+	register qb_op_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;
 	register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);
 #ifdef _WIN32
 	uint32_t windows_timeout_check_counter = 0;
 	volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;
 #endif
 	
-	while(1) switch((int) (intptr_t) handler) {
+	while(1) switch(handler) {
 		case QB_NOP:
 #define INSTR		((qb_instruction * __restrict) ip)
 		{

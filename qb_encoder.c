@@ -19,13 +19,14 @@
 /* $Id$ */
 
 #include "qb.h"
+#include "qb_interpreter_structures.h"
 
 void qb_set_instruction_offsets(qb_encoder_context *cxt) {
 	uint32_t instruction_offset, i;
 	uint32_t count = 0;
 
 	// determine the offsets of each instruction in the stream
-	instruction_offset = sizeof(void *);
+	instruction_offset = sizeof(qb_op_handler);
 	for(i = 0; i < cxt->op_count; i++) {
 		qb_op *qop = cxt->ops[i];
 		qop->instruction_offset = instruction_offset;
@@ -117,7 +118,7 @@ static int32_t qb_encode_address(qb_encoder_context *cxt, qb_address *address, i
 #	define USE_OP_HANDLER
 #endif
 
-static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *qop) {
+static zend_always_inline qb_op_handler qb_get_handler(qb_encoder_context *cxt, qb_op *qop) {
 #ifdef ZEND_DEBUG
 	if(qop->opcode >= QB_OPCODE_COUNT) {
 		qb_debug_abort("Illegal opcode");
@@ -130,7 +131,7 @@ static zend_always_inline void *qb_get_handler(qb_encoder_context *cxt, qb_op *q
 		return op_handlers[qop->opcode];
 	}
 #else
-	return (void *) ((uintptr_t) qop->opcode);
+	return (qb_op_handler) qop->opcode;
 #endif
 }
 
@@ -142,8 +143,8 @@ static int32_t qb_encode_handler(qb_encoder_context *cxt, uint32_t target_index,
 			target_qop = cxt->ops[++target_index];
 		}
 
-		*((void **) *p_ip) = qb_get_handler(cxt, target_qop); 
-		*p_ip += sizeof(void *);
+		*((qb_op_handler *) *p_ip) = qb_get_handler(cxt, target_qop);
+		*p_ip += sizeof(qb_op_handler);
 		return TRUE;
 	} else {
 		qb_report_internal_error(0, "Invalid op index");

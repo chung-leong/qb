@@ -19,25 +19,33 @@ class CodeGenerator {
 	public function writeTypeDeclarations($handle) {
 		$this->currentIndentationLevel = 0;
 	
+		$lines[] = "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)";
+		$lines[] = "typedef void * qb_op_handler;";
+		$lines[] = "#else";
+		$lines[] = "typedef int32_t qb_op_handler;";
+		$lines[] = "#endif";
+		$lines[] = "";
+
 		$lines[] = "#if defined(__sun) || defined(__sun__)";
 		$lines[] = "#pragma pack(1)";
 		$lines[] = "#else";
 		$lines[] = "#pragma pack(push, 1)";
-		$lines[] = "#endif\n";
+		$lines[] = "#endif";
+		$lines[] = "";
 		
 		$branchTableEntry = array(
 			"typedef struct qb_branch_table_entry {",
-				"void *next_handler;",
+				"qb_op_handler next_handler;",
 				"int8_t *instruction_pointer;",
 			"} qb_branch_table_entry;",
 		);
-		$this->writeCode($handle, $branchTableEntry);
+		$lines[] = $branchTableEntry;
 		$lines[] = "";
 		
 		$structs = $this->getInstructionStructureDefinitions();
 		foreach($structs as $struct) {
 			if($struct) {
-				$this->writeCode($handle, $struct);
+				$lines[] = $struct;
 				$lines[] = "";
 			}
 		}
@@ -48,9 +56,8 @@ class CodeGenerator {
 		$lines[] = "#	pragma pack(pop)";
 		$lines[] = "#endif";
 
-		$lines = array();
 		$lines[] = "#if defined(USE_TAIL_CALL_INTERPRETER_LOOP) || defined(USE_COMPUTED_GOTO_INTERPRETER_LOOP)";
-		$lines[] = "extern void *op_handlers[];";
+		$lines[] = "extern qb_op_handler op_handlers[];";
 		$lines[] = "#endif";
 		$lines[] = "";
 		$this->writeCode($handle, $lines);
@@ -105,14 +112,14 @@ class CodeGenerator {
 	protected function writeSwitchLoop($handle) {
 		$lines = array();
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
-		$lines[] = 		"register void *__restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 		"register qb_op_handler handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
 		$lines[] = 		"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";
 		$lines[] = "#ifdef _WIN32";
 		$lines[] =		"uint32_t windows_timeout_check_counter = 0;";
 		$lines[] = 		"volatile zend_bool *windows_timed_out_pointer = cxt->windows_timed_out_pointer;";
 		$lines[] = "#endif";
 		$lines[] =		"";
-		$lines[] = 		"while(1) switch((int) (intptr_t) handler) {";
+		$lines[] = 		"while(1) switch(handler) {";
 
 		foreach($this->handlers as $handler) {
 			$name = $handler->getName();
@@ -189,7 +196,7 @@ class CodeGenerator {
 		$lines = array();
 		$lines[] = "void qb_main(qb_interpreter_context *__restrict cxt) {";
 		$lines[] =		"if(cxt) {";
-		$lines[] = 			"register void *__restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
+		$lines[] = 			"register qb_op_handler __restrict handler = ((qb_instruction *) cxt->instruction_pointer)->next_handler;";
 		$lines[] = 			"register int8_t *__restrict ip = cxt->instruction_pointer + sizeof(qb_instruction);";		
 		$lines[] = "#ifdef _WIN32";
 		$lines[] =			"uint32_t windows_timeout_check_counter = 0;";
@@ -273,7 +280,7 @@ class CodeGenerator {
 		$lines[] = 		"}";
 		$lines[] = "}";
 		$lines[] = "";
-		$lines[] = "void *op_handlers[QB_OPCODE_COUNT];";
+		$lines[] = "qb_op_handler *op_handlers[QB_OPCODE_COUNT];";
 
 		$this->writeCode($handle, $lines);
 	}

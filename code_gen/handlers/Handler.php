@@ -126,15 +126,15 @@ class Handler {
 		$lines[] = "typedef struct $instr {";
 		if($targetCount >= 0 && $targetCount <= 2) {
 			if($targetCount == 2) {
-				$lines[] = "void *next_handler1;";
+				$lines[] = "qb_op_handler next_handler1;";
 				$lines[] = "int8_t *instruction_pointer1;";
-				$lines[] = "void *next_handler2;";
+				$lines[] = "qb_op_handler next_handler2;";
 				$lines[] = "int8_t *instruction_pointer2;";
 			} else if($targetCount == 1) {
-				$lines[] = "void *next_handler;";
+				$lines[] = "qb_op_handler next_handler;";
 				$lines[] = "int8_t *instruction_pointer;";
 			} else {
-				$lines[] = "void *next_handler;";
+				$lines[] = "qb_op_handler next_handler;";
 			}
 		}
 		
