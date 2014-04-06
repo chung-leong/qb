@@ -346,8 +346,8 @@ class CodeGenerator {
 			if($targetCount != -1) {
 				$lines[] = "handler(cxt, ip);";
 			}
-			$lines[] = "}";
 			$lines[] = $handler->getMacroUndefinitions();
+			$lines[] = "}";
 			$lines[] = "";
 		}
 		$lines[] = "#undef return";
